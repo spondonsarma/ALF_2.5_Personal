@@ -1,0 +1,19 @@
+ =====================================
+ Model is      : Hubbard_SU2                                                     
+ Beta          :    1.0000000000000000     
+ dtau,Ltrot    :    5.0000000000000003E-002          20
+ N_SUN         :            2
+ N_FL          :            1
+ t             :    1.0000000000000000     
+ Ham_U         :    4.0000000000000000     
+ Ham_chem      :    0.0000000000000000     
+ Sweeps             :        10000
+ Bin                :          100
+ Measure Int.       :            1         100
+ Stabilization,Wrap :           10
+ Nstm               :            2
+ Ltau               :            0
+  Precision Green  Mean, Max :    1.2579765255871175E-008   2.5405605861550390E-004
+  Precision Phase, Max       :    7.5777338057161465E-007
+  Acceptance                 :   0.37992909375000000     
+  CPU Time                   :    532.98977700000000     
