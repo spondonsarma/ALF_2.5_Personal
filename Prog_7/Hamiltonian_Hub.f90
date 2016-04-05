@@ -71,15 +71,19 @@
           !               &         Dtau, Beta
 
 
-          
-          OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-          IF (ierr /= 0) THEN
-             WRITE(*,*) 'unable to open <parameters>',ierr
-             STOP
-          END IF
-          READ(5,NML=VAR_lattice)
-          CLOSE(5)
 #ifdef MPI
+          If (Irank == 0 ) then
+#endif
+             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+             IF (ierr /= 0) THEN
+                WRITE(*,*) 'unable to open <parameters>',ierr
+                STOP
+             END IF
+             READ(5,NML=VAR_lattice)
+             CLOSE(5)
+ 
+#ifdef MPI
+          Endif
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
