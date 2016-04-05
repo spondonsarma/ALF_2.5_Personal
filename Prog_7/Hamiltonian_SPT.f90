@@ -91,7 +91,7 @@
           endif
 
           CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(ham_V    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(ham_Vint ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(ham_Lam  ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
