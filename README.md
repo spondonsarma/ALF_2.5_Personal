@@ -2,9 +2,9 @@
 
 ## PREREQUISITES ##
 
-Libraries:
+Libraries: Lapack and Blas
 
-Compiler:
+Compiler: gfortran  or ifort 
 
 
 ## CONFIGURATION FOR COMPILATION ##
