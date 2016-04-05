@@ -1,4 +1,4 @@
-# Some code #
+# General  finite temperature auxiliary field code #
 
 ## PREREQUISITES ##
 
