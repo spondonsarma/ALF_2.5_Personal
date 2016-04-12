@@ -1,0 +1,1 @@
+Abhängigkeiten: mitgelieferte Bibliotheken (eispack,nag) durch standard Systemsbibliotheken ersetzen (blas,lapack)
