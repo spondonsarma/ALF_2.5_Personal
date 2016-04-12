@@ -52,8 +52,8 @@ ENDIF(CMAKE_Fortran_FLAGS_RELEASE AND CMAKE_Fortran_FLAGS_TESTING AND CMAKE_Fort
 #####################
 
 # Don't add underscores in symbols for C-compatability
-SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}"
-                 Fortran "-fno-underscoring")
+#SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}"
+#                 Fortran "-fno-underscoring")
 
 # There is some bug where -march=native doesn't work on Mac
 IF(APPLE)
@@ -67,6 +67,13 @@ SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}"
                          "/QxHost"       # Intel Windows
                          ${GNUNATIVE}    # GNU
                          "-ta=host"      # Portland Group
+                )
+                
+SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}"
+                 Fortran "-cpp" # GNU
+                         "-fpp"        # Intel
+                         "/fpp"        # Intel Windows
+                         "-Mpreprocess"       # Portland Group
                 )
 
 ###################
@@ -139,12 +146,12 @@ SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}"
                 )
 
 # Interprocedural (link-time) optimizations
-SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}"
-                 Fortran "-ipo"     # Intel
-                         "/Qipo"    # Intel Windows
-                         "-flto"    # GNU
-                         "-Mipa"    # Portland Group
-                )
+#SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}"
+#                 Fortran "-ipo"     # Intel
+#                         "/Qipo"    # Intel Windows
+#                         "-flto"    # GNU
+#                         "-Mipa"    # Portland Group
+#                )
 
 # Single-file optimizations
 SET_COMPILE_FLAG(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}"

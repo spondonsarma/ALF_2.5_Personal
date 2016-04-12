@@ -1,4 +1,4 @@
-# CMake project file for FOO
+# CMake project file for General QMCT
 
 ##################################################
 # Define the project and the depencies that it has
@@ -6,9 +6,8 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.5)
 PROJECT(General_QMCT Fortran)
-Find_Package(BLAS REQUIRED)
 
-# Set the FOO version
+# Set the General QMCT version
 SET(VERSION 1.0)
 
 # Add our local modlues to the module path
@@ -48,7 +47,7 @@ ENDIF(FCNAME STREQUAL "pgf90")
 ############################################################
 
 # Define the executable name
-SET(PROGEXE Prog)
+SET(PROGEXE qmct)
 SET(BLA_STATIC TRUE)
 
 #SET(CMAKE_AR gcc-ar)
