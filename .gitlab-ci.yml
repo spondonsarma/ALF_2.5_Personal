@@ -6,10 +6,8 @@ types:
 GQMCT:
   type: build
   script:
-    - . configure.sh
-    - cd Libraries
+    -  mkdir build
+    - cd build
+    - cmake ..
     - make
-    - cd ..
-    - cd Prog_7
-    - make
-    
+
