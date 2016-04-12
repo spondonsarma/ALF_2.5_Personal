@@ -1,0 +1,15 @@
+types:
+  - build
+  - test
+
+
+GQMCT:
+  type: build
+  script:
+    - . configure.sh
+    - cd Libraries
+    - make
+    - cd ..
+    - cd Prog_7
+    - make
+    
