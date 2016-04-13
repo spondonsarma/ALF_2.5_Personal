@@ -53,16 +53,17 @@ SET(BLA_STATIC TRUE)
 #SET(CMAKE_AR gcc-ar)
 #SET(CMAKE_RANLIB gcc-ranlib)
 
+# Define some directories
+SET(SRC ${CMAKE_SOURCE_DIR}/src)
+SET(LIB ${CMAKE_SOURCE_DIR}/lib)
+SET(BIN ${CMAKE_SOURCE_DIR}/bin)
+
 # Define the library names
 SET(MODULES modules)
 SET(MYEIS myeis)
 SET(MYNAG mynag)
 SET(MYLIN mylin)
 
-# Define some directories
-SET(SRC ${CMAKE_SOURCE_DIR}/src)
-SET(LIB ${CMAKE_SOURCE_DIR}/lib)
-SET(BIN ${CMAKE_SOURCE_DIR}/bin)
 SET(SRCMODULES ${SRC}/Modules)
 SET(SRCEIS ${SRC}/MyEis)
 SET(SRCNAG ${SRC}/MyNag)
