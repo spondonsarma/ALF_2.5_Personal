@@ -9,5 +9,6 @@ GQMCT:
     -  mkdir build
     - cd build
     - cmake ..
-    - make
+    - make qmct_Hub
+    - make qmct_SPT
 
