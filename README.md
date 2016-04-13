@@ -9,9 +9,13 @@ Compiler: gfortran or ifort
 
 ## CONFIGURATION FOR COMPILATION ##
 standard cmake. In the top level directory where this README resides:
+
 mkdir build
+
 cd build
+
 cmake ..
+
 make
 
 
