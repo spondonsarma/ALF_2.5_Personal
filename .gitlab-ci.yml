@@ -6,10 +6,9 @@ types:
 GQMCT:
   type: build
   script:
-    - . configure.sh
-    - cd Libraries
-    - make
-    - cd ..
-    - cd Prog_7
-    - make
-    
+    -  mkdir build
+    - cd build
+    - cmake ..
+    - make qmct_Hub
+    - make qmct_SPT
+
