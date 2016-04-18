@@ -14,11 +14,10 @@
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
       !Complex (Kind=8), dimension(:,:,:), allocatable :: Exp_T(:,:,:), Exp_T_M1(:,:,:)
-
-
       
+      ! ToDo.  Public and private subroutines. 
+
       ! What is below is  private 
-      
       Type (Lattice),       private :: Latt
       Integer,              private :: L1, L2
       real (Kind=8),        private :: ham_T , ham_U,  Ham_chem
@@ -42,6 +41,7 @@
       Complex (Kind=8), allocatable, private :: Green_tau(:,:,:,:), Den_tau(:,:,:,:)
       
     contains 
+
 
       Subroutine Ham_Set
 
@@ -210,6 +210,7 @@
                 else
                    Op_T(nc,n)%g=cmplx(-Dtau,0.d0) 
                 endif
+                Op_T(nc,n)%alpha=cmplx(0.d0,0.d0) 
                 !Write(6,*) 'In Ham_hop', Ham_T
                 Call Op_set(Op_T(nc,n)) 
                 !Write(6,*) 'In Ham_hop 1'
@@ -251,7 +252,7 @@
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                    ! The operator reads:  
-                   !  g*s*( c^{dagger} O c   - alpha ))
+                   !  g*s*( c^{dagger} O c  + alpha ))
                    ! with s the HS field.
                 Enddo
              Enddo
@@ -294,13 +295,12 @@
         end function S0
 
 !===================================================================================           
-
         Subroutine  Alloc_obs(Ltau) 
 
           Implicit none
           Integer, Intent(In) :: Ltau
           Integer :: I
-          Norb = 2
+         
           Allocate ( Obs_scal(5) )
           Allocate ( Green_eq(Latt%N,1,1), SpinZ_eq(Latt%N,1,1), SpinXY_eq(Latt%N,1,1), &
                &     Den_eq(Latt%N,1,1) )
