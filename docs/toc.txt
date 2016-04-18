@@ -1,2 +1,0 @@
-1 The Grand Scheme
-5.2 The Build system for developers
