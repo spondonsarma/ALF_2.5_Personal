@@ -210,14 +210,14 @@
                    do nth = 0,3
                       do no = 1,4
                          do no1 = 1,4
-                            Z =  cmplx(1.d0*Ham_T,0.d0)*Gamma_M(no,no1,3)
+                            Z =  cmplx(1.d0 + 2.d0*Ham_Lam,0.d0)*Gamma_M(no,no1,3)
                             Op_T(nc,n)%O( invlist(I ,no  + 4*nth), invlist(I ,no1 + 4*nth ) )  =  Z
                          enddo
                       enddo
                       I1 =  Latt%nnlist(I,1,0)
                       do no = 1,4
                          do no1 = 1,4
-                            Z =  (cmplx(0.d0,Ham_T)*Gamma_M(no,no1,1) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
+                            Z =  (cmplx(0.d0,1.d0)*Gamma_M(no,no1,1) + Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
                             Op_T(nc,n)%O( invlist(I ,no  + 4*nth), invlist(I1,no1 + 4*nth ) )  =  Z
                             Op_T(nc,n)%O( invlist(I1,no1 + 4*nth), invlist(I ,no  + 4*nth ) )  =  conjg(Z)
                          enddo
@@ -225,7 +225,7 @@
                       I2   = Latt%nnlist(I,0,1)
                       do no = 1,4
                          do no1 = 1,4
-                            Z =  (cmplx(0.d0,Ham_Lam)*Gamma_M(no,no1,2) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
+                            Z =  (cmplx(0.d0,1.d0)*Gamma_M(no,no1,2) + Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
                             Op_T(nc,n)%O( invlist(I ,no  + 4*nth), invlist(I2,no1 + 4*nth ) )  =  Z
                             Op_T(nc,n)%O( invlist(I2,no1 + 4*nth), invlist(I ,no  + 4*nth ) )  =  conjg(Z)
                          enddo
