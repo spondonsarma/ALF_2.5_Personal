@@ -23,7 +23,7 @@ Compiler: gfortran  or ifort
 
 ### OUTPUT ###
 
-### Questions ### 
+### Questions ###
 
 How do we organize the documentation? 
 
