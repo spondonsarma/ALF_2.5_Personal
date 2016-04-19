@@ -16,7 +16,12 @@ SPT:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_SPT  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" ) 
 
+Ising:
+	cp $(Libs)/Modules/*.mod . ;\
+	(make -f Compile_Ising  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" ) 
+
 clean: 	
-	(make -f Compile_Hub  clean );\
-	(make -f Compile_SPT  clean );\
+	(make -f Compile_Hub   clean );\
+	(make -f Compile_SPT   clean );\
+	(make -f Compile_Ising clean );\
 	rm *.mod *~ \#* 
