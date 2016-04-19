@@ -302,7 +302,8 @@ Contains
     If (N_type == 1) then
        VH = cmplx(0.d0,0.d0)
        do n = 1,Op%N
-          Z = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0)) 
+          Z=cmplx(1.d0,0.d0)
+          If ( n <= OP%N_non_Zero) Z = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0)) 
           Do m = 1,Op%N
              Z1 = Op%U(m,n) * Z
              DO I = 1,Ndim
@@ -318,7 +319,8 @@ Contains
 
        VH = cmplx(0.d0,0.d0)
        do n = 1,Op%N
-          Z = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
+          Z=cmplx(1.d0,0.d0)
+          If ( n <= OP%N_non_Zero) Z = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
           Do m = 1,Op%N
              Z1 = Z * conjg(Op%U(m,n))
              DO I = 1,Ndim
@@ -388,7 +390,8 @@ Contains
     If (N_type == 1) then
        VH = cmplx(0.d0,0.d0)
        Do m = 1,Op%N
-          Z = exp(Op%g*cmplx(Op%E(m)*spin,0.d0)) 
+          Z = cmplx(1.d0,0.d0)
+          If ( m <= OP%N_non_Zero) Z = exp(Op%g*cmplx(Op%E(m)*spin,0.d0)) 
           do n = 1,Op%N
              Z1 = Z * conjg(Op%U(n,m))
              DO I = 1,Ndim
@@ -404,7 +407,8 @@ Contains
 
        VH = cmplx(0.d0,0.d0)
        Do m = 1,Op%N
-          Z = exp(-Op%g*cmplx(Op%E(m)*spin,0.d0))
+          Z = cmplx(1.d0,0.d0)
+          If ( m <= OP%N_non_Zero) Z = exp(-Op%g*cmplx(Op%E(m)*spin,0.d0))
           do n = 1,Op%N
              Z1 = Z * Op%U(n,m)
              DO I = 1,Ndim
