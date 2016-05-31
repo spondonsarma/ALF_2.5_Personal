@@ -10,6 +10,6 @@ GQMCT:
     - cd Libraries
     - make
     - cd ..
-    - cd Prog_7
+    - cd Prog_8
     - make
     
