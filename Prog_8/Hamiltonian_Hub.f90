@@ -39,6 +39,7 @@
       Integer,                       private :: NobsT
       Complex (Kind=8),              private :: Phase_tau
       Complex (Kind=8), allocatable, private :: Green_tau(:,:,:,:), Den_tau(:,:,:,:)
+      Complex (Kind=8), allocatable, private :: Green0_tau(:), Den0_tau(:)
       
     contains 
 
@@ -309,6 +310,7 @@
                
           If (Ltau == 1) then 
              Allocate ( Green_tau(Latt%N,Ltrot+1,1,1), Den_tau(Latt%N,Ltrot+1,1,1) )
+             Allocate ( Green0_tau(1), Den0_tau(1) )
           endif
           
         end Subroutine Alloc_obs
@@ -336,9 +338,11 @@
 
           If (Ltau == 1) then
              NobsT = 0
-             Phase_tau = cmplx(0.d0,0.d0)
-             Green_tau = cmplx(0.d0,0.d0)
-             Den_tau = cmplx(0.d0,0.d0)
+             Phase_tau  = cmplx(0.d0,0.d0)
+             Green_tau  = cmplx(0.d0,0.d0)
+             Den_tau    = cmplx(0.d0,0.d0)
+             Green0_tau = cmplx(0.d0,0.d0)
+             Den0_tau   = cmplx(0.d0,0.d0)
           endif
 
         end Subroutine Init_obs
@@ -485,7 +489,7 @@
           File_pr ="Den_eq"
           Call Print_bin(Den_eq, Den_eq0, Latt, Nobs, Phase_bin, file_pr)
           File_pr ="Green_eq"
-          Call Print_bin(Green_eq , Green_eq0 ,Latt, Nobs, Phase_bin, file_pr)
+          Call Print_bin(Green_eq, Green_eq0, Latt, Nobs, Phase_bin, file_pr)
 
           File_pr ="ener"
           Call Print_scal(Obs_scal, Nobs, file_pr)
@@ -493,9 +497,10 @@
           If (Ltau == 1) then
              Phase_tau = Phase_tau/cmplx(dble(NobsT),0.d0)
              File_pr = "Green_tau"
-             Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
+             Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau       )
              File_pr = "Den_tau"
-             Call Print_bin_tau(Den_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
+             Call Print_bin_tau(Den_tau,Latt,NobsT,Phase_tau, file_pr,dtau,Den0_tau)
+
           endif
 
 !!$#ifdef MPI
@@ -529,9 +534,18 @@
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
                    Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +  Z * GT0(I,J,1) * ZP* ZS
-                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  -  Z * GT0(I,J,1)*G0T(J,I,1) * ZP* ZS
+
+                   
+                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  +                           ( &
+                        &    Z*Z*(cmplx(1.d0,0.d0) - GTT(I,I,1))*(cmplx(1.d0,0.d0) - G00(J,J,1))  -     &
+                        &    Z * GT0(I,J,1)*G0T(J,I,1)                                            ) * ZP * ZS
                 Enddo
              Enddo
+             
+             Do I = 1,Latt%N
+                Den0_tau(1) = Den0_tau(1) + Z*(cmplx(1.d0,0.d0) - GTT(I,I,1)) * ZP * ZS
+             Enddo
+
           Endif
         end Subroutine OBSERT
 

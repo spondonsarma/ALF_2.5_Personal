@@ -20,8 +20,8 @@ dtau    = 0.05
 &VAR_QMC
 Nwrap   = 10
 NSweep  = 10000
-NBin    = 100
-Ltau    = 0
+NBin    = 10
+Ltau    = 1
 LOBS_ST = 1
 LOBS_EN = 100
 /
