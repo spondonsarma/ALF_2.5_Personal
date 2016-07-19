@@ -1,11 +1,18 @@
 \section{List of files}
 \textit{all files that constitute the code, with a brief description}
 \subsection{cgr1.f90 \& cgr2.f90}
+Stable computation of the physical single-particle equal time Green function $G(\tau)$.
 \subsection{control\_mod.f90}
+Includes a set of auxilliary routines, regarding the flow of the simulation. 
+Examples are initialization of performance variables, precision tests and controlled termination of the code.
 \subsection{gperp.f90}
 \subsection{Hamiltonian\_Hub.f90}
+Here, the physical simulation parameters (the model parameters) and the lattice parameters are read in. 
+The lattice, the non-interacting and the interacting part of the Hubbard Hamiltonian are set according to the parameters.
 \subsection{Hop\_mod.f90}
 \subsection{inconfc.f90}
+The auxiliary-field QMC method is based on a Hubbard-Stratonovich decomposition of the interaction term. This decomposition introduces a space-time array of (discrete) configurations of auxiliary fields, i.e. Ising spins. 
+In this routine, an existing configuration is read in, check on the dimensionality are made and, in case no prior configuration exist, a random configuration of Ising spins is set up.
 \subsection{main.f90}
 \subsection{nranf.f90}
 \subsection{Operator.f90}
@@ -15,7 +22,10 @@
 \subsection{truncation.f90}
 \subsection{UDV\_WRAP.f90}
 \subsection{upgrade.f90}
-\subsection{wrapgrdo.f90}
-\subsection{wrapgrup.f90}
-\subsection{wrapul.f90}
-\subsection{wrapur.f90}
+\subsection{wrapgrdo.f90 \& wrapgrup.f90}
+Single-particle equal-time Green functions are the central object of the code. The physical single-particle equal-time Green function $G(\tau)$ is updated in wrapgrup.f90 (up propagation, from $\tau=0$ to $\tau=LTROT$) 
+and in wrapgrdo.f90 (down propagation, from $\tau=LTROT$ to $\tau=0$). The update is sequentially, over all (interacting) lattice sites or lattice bonds.
+\subsection{wrapul.f90 \& wrapur.f90}
+To stabilize the simulation at the time slice $\tau_{2}=i n_{stab}$, the Green function has to be recomputed regularly, based on the stable matrices at $\tau_{1}=(i-1) n_{stab}$.
+These stable matrices result from a singular-value-decomposition of the propagation matrix. They are computed in wrapur.f90 (up propagation, from $\tau=0$ to $\tau=LTROT$) and wrapul.f90 
+ (down propagation).
