@@ -28,4 +28,5 @@ clean:
 	(make -f Compile_Hub   clean );\
 	(make -f Compile_SPT   clean );\
 	(make -f Compile_Ising clean );\
+	(make -f Compile_Kondo_Honey clean );\
 	rm *.mod *~ \#* 
