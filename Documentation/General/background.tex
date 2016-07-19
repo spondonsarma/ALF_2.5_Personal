@@ -1,0 +1,42 @@
+\section{Necessary background information}
+
+\subsection{Definition of the physical Hamiltonian and its implementation}
+
+The physical Hamiltonians that we can simulate have the general form:
+\begin{equation}
+\label{eqn_general_ham1}
+\mathcal{H}
+=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+c^{\dagger}_{\bm{x} s}M_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}
+-\sum\limits_{k=1}^{M}U_{k}\left[
+\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+\left( 
+c^{\dagger}_{\bm{x}s}T^{(k)}_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}-\alpha_{k}
+\right)
+\right]^{2}\;.
+\end{equation}
+The indices $\bm{x},\bm{y}$ are multi-indices that label sites and spin states: $\bm{x}=(i,\sigma)$, 
+where $i=1,\cdots N_{sites}$ and $\sigma=1,\cdots N_{sun}$, so
+\begin{equation}
+\sum\limits_{\bm{x},\bm{y}}\equiv
+\sum\limits_{i=1,j=1}^{N_{sites}}\sum\limits_{\sigma=1,\sigma^{\prime}=1}^{N_{sun}}\;.
+\end{equation}
+Note, that  we introduced \textit{two} different labels for the number of spin states (flavours): 
+$N_{fl}$ and $N_{sun}$.
+The number of correlated sites which is a subset of all sites, is labelled by $M$  ($M\leq N_{sites}$).
+
+I suggest to use a more intuitive notation and to label the hopping matrix by $T$ and the interaction matrix by $V$:
+\begin{equation}
+\label{eqn_general_ham2}
+\mathcal{H}
+=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+c^{\dagger}_{\bm{x}s}T_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}
+-\sum\limits_{k=1}^{M}U_{k}\left[
+\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+\left( 
+c^{\dagger}_{\bm{x}s}V^{(k)}_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y} s}-\alpha_{k}
+\right)
+\right]^{2}\;,
+\end{equation}
+
+\subsection{Which information does the type \textit{operator} contain?}

@@ -1,0 +1,22 @@
+\section{Tutorial to set up the Hubbard model}
+The $SU(2)$ symmetric Hubbard model is given by
+\begin{equation}
+\label{eqn_hubbard_sun}
+\mathcal{H}=
+-t\sum\limits_{\langle i,j\rangle,\sigma} 
+\left(c^{\dagger}_{i,\sigma} c^{\phantom\dagger}_{j,\sigma} + \text{H.c.}
+\right)
++ \frac{U}{2}\sum\limits_{i}\left[
+\sum\limits_{\sigma}
+( c^{\dagger}_{i\sigma} c^{\phantom\dagger}_{i\sigma}) -1 \right]^{2}\;.
+\end{equation}
+To bring Eq.~(\ref{eqn_hubbard_sun}) in the general form (\ref{eqn_general_ham2}), we define:
+\begin{eqnarray}
+N_{fl}&=&1\nonumber\\
+N_{sun}&=&2\nonumber\\
+T_{\bm{x}\bm{y}}&=&-t\delta_{\langle i,j\rangle}\delta_{\sigma,\sigma^{\prime}}\nonumber\\
+M&=&N_{sites}\nonumber\\
+U_{k}&=&-U/2\nonumber\\
+V_{\bm{x}\bm{y}}^{(k)}&=&\delta_{i,j}\delta_{i,k}\delta_{\sigma,\sigma^{\prime}}\nonumber\\
+\alpha_{k}&=&1/(N_{sites}N_{sun})^{2}\;.
+\end{eqnarray}
