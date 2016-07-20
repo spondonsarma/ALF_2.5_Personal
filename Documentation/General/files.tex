@@ -3,29 +3,39 @@
 \subsection{cgr1.f90 \& cgr2.f90}
 Stable computation of the physical single-particle equal time Green function $G(\tau)$.
 \subsection{control\_mod.f90}
-Includes a set of auxilliary routines, regarding the flow of the simulation. 
+Includes a set of auxiliary routines, regarding the flow of the simulation. 
 Examples are initialization of performance variables, precision tests and controlled termination of the code.
 \subsection{gperp.f90}
 \subsection{Hamiltonian\_Hub.f90}
 Here, the physical simulation parameters (the model parameters) and the lattice parameters are read in. 
-The lattice, the non-interacting and the interacting part of the Hubbard Hamiltonian are set according to the parameters.
+The lattice, the non-interacting and the interacting part of the Hubbard Hamiltonian are set according to the parameters and the chosen Hubbard-Stratonovich decomposition.
 \subsection{Hop\_mod.f90}
 \subsection{inconfc.f90}
 The auxiliary-field QMC method is based on a Hubbard-Stratonovich decomposition of the interaction term. This decomposition introduces a space-time array of (discrete) configurations of auxiliary fields, i.e. Ising spins. 
-In this routine, an existing configuration is read in, check on the dimensionality are made and, in case no prior configuration exist, a random configuration of Ising spins is set up.
+In this routine, an existing configuration is read in, checks on its dimensionality are made and, in case no prior configuration exists, a random configuration of Ising spins is set up.
 \subsection{main.f90}
+Top-level part of the program. Here, the program flow which consists of initialization, sweeps through the space-time lattice, and finalizing the program, is coded.
 \subsection{nranf.f90}
+Auxiliary routine controlling the evaluation of random numbers. 
 \subsection{Operator.f90}
+The algorithms is centered around evaluation of single-particle operators, represented as square matrices. 
+In this routine, the abstract type Operator is defined, including information on the coupling strength, the sites that participate in the single-particle hopping process, and the type of Hubbard-Stratonovich transformation. 
+This routine collects all program relevant operations that are applied to the type Operator, like initializations or multiplications.
 \subsection{outconfc.f90}
+At the end of the simulation, the last configuration of Hubbard-Stratonovich variables, together with the last set of random numbers  is written to the file confout. 
+Prior to the start of a new simulation of the identical space-time dimesion, one can (manually) copy the file confout to the file confin and make the new run use the old configuration. 
+Doing this saves warmup time compared to a complete random (unphysical) configuration.
 \subsection{print\_bin\_mod.f90}
+Here the way to write the measure bins to the respective output files is coded.
+A bin is an average over many individual measurements. The bin defines the unit of Monte Carlo time.
 \subsection{tau\_m.f90}
-\subsection{truncation.f90}
 \subsection{UDV\_WRAP.f90}
 \subsection{upgrade.f90}
+The update of the Hubbard-Stratonovich configuration is done sequentially in the space-time lattice, i.e. one Hubbard-Stratonovich Ising spin after the other. 
+In this routine, an update (i.e. a spin flip) is accepted or rejected. The decision is made using the Metropolis method of importance sampling.
 \subsection{wrapgrdo.f90 \& wrapgrup.f90}
 Single-particle equal-time Green functions are the central object of the code. The physical single-particle equal-time Green function $G(\tau)$ is updated in wrapgrup.f90 (up propagation, from $\tau=0$ to $\tau=LTROT$) 
 and in wrapgrdo.f90 (down propagation, from $\tau=LTROT$ to $\tau=0$). The update is sequentially, over all (interacting) lattice sites or lattice bonds.
 \subsection{wrapul.f90 \& wrapur.f90}
-To stabilize the simulation at the time slice $\tau_{2}=i n_{stab}$, the Green function has to be recomputed regularly, based on the stable matrices at $\tau_{1}=(i-1) n_{stab}$.
-These stable matrices result from a singular-value-decomposition of the propagation matrix. They are computed in wrapur.f90 (up propagation, from $\tau=0$ to $\tau=LTROT$) and wrapul.f90 
- (down propagation).
+To stabilize the simulation at the time slice $\tau_{2}=i n_{stab}$, the Green function has to be recomputed regularly, based on the stable matrices at an earlier stabilization point, $\tau_{1}=(i-1) n_{stab}$.
+These stable matrices result from a singular-value-decomposition of the propagation matrix. They are computed in wrapur.f90 (up propagation) and wrapul.f90  (down propagation).
