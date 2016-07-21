@@ -12,7 +12,14 @@ types:
     - cd Prog_8
     - make
 
-GQMCT:
+GQMCT_Wheezy:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
+  <<: *build_definition
+
+GQMCT_Jessie:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
   <<: *build_definition
 
+GQMCT_Stretch:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  <<: *build_definition
