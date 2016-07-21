@@ -35,3 +35,7 @@ GQMCT_Jessie_OpenBlas:
 GQMCT_Stretch_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
   <<: *build_definition
+
+GQMCT_CentOS:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
+  <<: *build_definition
