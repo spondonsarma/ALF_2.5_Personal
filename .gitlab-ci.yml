@@ -2,8 +2,7 @@ types:
   - build
   - test
 
-
-GQMCT:
+.build_template: &build_definition
   type: build
   script:
     - . configure.sh
@@ -12,4 +11,8 @@ GQMCT:
     - cd ..
     - cd Prog_8
     - make
-    
+
+GQMCT:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  <<: *build_definition
+
