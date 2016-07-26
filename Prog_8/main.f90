@@ -85,8 +85,8 @@ Program Main
 
   ! For tests
   Integer, external :: nranf
-  Real (kind=8) :: Weight
-  Integer :: nr,nth
+  Real (kind=8) :: Weight, Weight_tot
+  Integer :: nr,nth, nth1
   Logical :: Log
   
   ! For the truncation of the program:
@@ -109,6 +109,7 @@ Program Main
   Call Hop_mod_init
   !Call Hop_mod_test 
   !stop
+
 
 #ifdef MPI
   If ( Irank == 0 ) then 
@@ -133,41 +134,16 @@ Program Main
   CALL MPI_BCAST(CPU_MAX ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
 #endif
  
+  IF (ABS(CPU_MAX) > Zero ) NBIN = 1000000
  
   Call control_init
   Call Alloc_obs(Ltau)
   Call Op_SetHS
 
-
-!!$#ifdef Ising_test
-!!$  ! Test Ising
-!!$  DO  NBC = 1, NBIN
-!!$     Call Init_obs
-!!$     DO NSW = 1, NSWEEP
-!!$        do nth = 1,Ltrot*2*Latt%N
-!!$           Nt = nranf(Ltrot)
-!!$           Nr = nranf(2*Latt%N)
-!!$           Weight = S0(nr,nt)
-!!$           log =.false.
-!!$           if (Weight > ranf()) then 
-!!$              nsigma(nr,nt) = - nsigma(nr,nt)
-!!$              log =.true.
-!!$           endif
-!!$           Call Control_upgrade(log)
-!!$        enddo
-!!$        Call Obser
-!!$     Enddo
-!!$     Call Preq
-!!$  Enddo
-!!$  Call Ham_confout
-!!$  Call control_Print
-!!$  Stop
-!!$  ! End Test Ising
-!!$#endif
-
   Allocate( DL(NDIM,N_FL), DR(NDIM,N_FL) )
   Allocate( UL(NDIM,NDIM,N_FL), VL(NDIM,NDIM,N_FL), &
        &    UR(NDIM,NDIM,N_FL), VR(NDIM,NDIM,N_FL), GR(NDIM,NDIM,N_FL ) )
+
 
   If ( mod(Ltrot,nwrap) == 0  ) then 
      Nstm = Ltrot/nwrap
@@ -189,7 +165,6 @@ Program Main
 #endif
      Open (Unit = 50,file="info",status="unknown",position="append")
      Write(50,*) 'Sweeps             : ', Nsweep
-     Write(50,*) 'Bin                : ', NBin
      Write(50,*) 'Measure Int.       : ', LOBS_ST, LOBS_EN
      Write(50,*) 'Stabilization,Wrap : ', Nwrap
      Write(50,*) 'Nstm               : ', NSTM
@@ -198,6 +173,7 @@ Program Main
      Write(50,*) 'Number of  threads : ', ISIZE
 #endif   
      If ( abs(CPU_MAX) < ZERO ) then
+        Write(50,*) 'Bin                : ', NBin
         Write(50,*) 'No CPU-time limitation '
      else
         Write(50,'("Prog will stop after hours:",2x,F8.4)') CPU_MAX
@@ -206,6 +182,7 @@ Program Main
 #ifdef MPI
   endif
 #endif
+
   
   Allocate ( UST(NDIM,NDIM,NSTM,N_FL), VST(NDIM,NDIM,NSTM,N_FL), DST(NDIM,NSTM,N_FL) )
   Allocate ( Test(Ndim,Ndim) )
