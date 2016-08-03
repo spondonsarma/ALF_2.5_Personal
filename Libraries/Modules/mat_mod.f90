@@ -1072,8 +1072,8 @@
         REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: W
 
 
-        INTEGER ND1,ND2, MATZ,IERR
-        REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: FV1,FV2
+        INTEGER ND1,ND2,IERR
+        REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
 
          ND1 = SIZE(A,1)
          ND2 = SIZE(A,2)
@@ -1083,16 +1083,13 @@
             STOP
          ENDIF
 
-         MATZ = 1
          IERR = 0
-         U=0
+         U=A
          W=0
-         ALLOCATE(FV1(ND1))
-         ALLOCATE(FV2(ND1))
-         ! this is a call to an eispack routine
-         CALL RS(ND1,ND1,A,W,MATZ,U, FV1,FV2,IERR)
-         DEALLOCATE(FV1)
-         DEALLOCATE(FV2)
+         ! let's just give lapack enough memory
+         ALLOCATE(WORK(3*ND1))
+         CALL DSYEV('V', 'U', ND1, U, ND1, W, WORK, 3*ND1, IERR)
+         DEALLOCATE(WORK)
 
       END SUBROUTINE DIAG_R
 !*********
