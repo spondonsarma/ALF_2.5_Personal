@@ -1063,8 +1063,19 @@
         
 
       END SUBROUTINE SVD_C
-!***************
 
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function diagonalizes the input matrix A and returns
+!> eigenvalues and vectors using the lapack routine DSYEV
+!
+!> @param[in] A a 2D array constituting the input matrix
+!> @param[out] U a 2D array containing the eigen vectors
+!> @param[out] W a 1D array containing the sorted eigenvalues
+!--------------------------------------------------------------------
       SUBROUTINE DIAG_R(A,U,W)
         IMPLICIT NONE
         REAL (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
