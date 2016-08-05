@@ -1,187 +1,21 @@
  =====================================
  Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
+ Beta          :    5.0000000000000000     
+ dtau,Ltrot    :   0.10000000000000001               50
  N_SUN         :            2
  N_FL          :            1
  t             :    1.0000000000000000     
  Ham_U         :    4.0000000000000000     
  Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :          100
+ Sweeps             :          500
  Measure Int.       :            1         100
  Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            0
-  Precision Green  Mean, Max :    1.2579765255871175E-008   2.5405605861550390E-004
-  Precision Phase, Max       :    7.5777338057161465E-007
-  Acceptance                 :   0.37992909375000000     
-  CPU Time                   :    532.98977700000000     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
+ Nstm               :            5
  Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2561570978883883E-008   3.8580425052004837E-005
-  Precision Phase, Max       :    1.4362977734005163E-006
-  Precision tau    Mean, Max :    1.6198885527262325E-015   4.3963306593839100E-013
-  Acceptance                 :   0.38014500000000001     
-  CPU Time                   :    7.7257110000000004     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2338473044731902E-008   1.1632935819960892E-005
-  Precision Phase, Max       :    1.2569757037678742E-006
-  Precision tau    Mean, Max :    1.6239125944910334E-015   1.0874460822234651E-012
-  Acceptance                 :   0.37928812499999998     
-  CPU Time                   :    7.6473689999999994     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2338473044731902E-008   1.1632935819960892E-005
-  Precision Phase, Max       :    1.2569757037678742E-006
-  Precision tau    Mean, Max :    1.6239125944910334E-015   1.0874460822234651E-012
-  Acceptance                 :   0.37928812499999998     
-  CPU Time                   :    7.6666819999999998     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2305343798647492E-008   1.7523112888717666E-005
-  Precision Phase, Max       :    1.1762797714382424E-006
-  Precision tau    Mean, Max :    1.6006631399675099E-015   1.2807494508554260E-013
-  Acceptance                 :   0.38029125000000003     
-  CPU Time                   :    7.7907229999999998     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2389681453372004E-008   1.6266869682368967E-005
-  Precision Phase, Max       :    1.1826223021770806E-006
-  Precision tau    Mean, Max :    1.6020479977754456E-015   2.1111295867065045E-013
-  Acceptance                 :   0.38030625000000001     
-  CPU Time                   :    7.6704580000000000     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2219471931883687E-008   1.2510938516285959E-005
-  Precision Phase, Max       :    1.3630002600865390E-006
-  Precision tau    Mean, Max :    1.6034032428175627E-015   1.5934079275106630E-013
-  Acceptance                 :   0.38019187500000001     
-  CPU Time                   :    7.6001790000000007     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :            1
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2253207610548592E-008   2.9996132838050498E-005
-  Precision Phase, Max       :    1.4316219210960738E-006
-  Precision tau    Mean, Max :    1.6038479575772880E-015   2.3378927142952319E-013
-  Acceptance                 :   0.38038624999999998     
-  CPU Time                   :    7.6387999999999998     
- =====================================
- Model is      : Hubbard_SU2                                                     
- Beta          :    1.0000000000000000     
- dtau,Ltrot    :    5.0000000000000003E-002          20
- N_SUN         :            2
- N_FL          :            1
- t             :    1.0000000000000000     
- Ham_U         :    4.0000000000000000     
- Ham_chem      :    0.0000000000000000     
- Sweeps             :        10000
- Bin                :           10
- Measure Int.       :            1         100
- Stabilization,Wrap :           10
- Nstm               :            2
- Ltau               :            1
- No CPU-time limitation 
-  Precision Green  Mean, Max :    1.2627986636697155E-008   7.3677453034548535E-005
-  Precision Phase, Max       :    1.4742413307124498E-006
-  Precision tau    Mean, Max :    1.6074772797850172E-015   9.8302048761208990E-013
-  Acceptance                 :   0.37985162500000003     
-  CPU Time                   :    75.479201000000003     
+Prog will stop after hours:    0.1000
+  Precision Green  Mean, Max :    1.1086707951591438E-014   2.5746232205156390E-010
+  Precision Phase, Max       :    7.9638256832237036E-012
+  Precision tau    Mean, Max :    4.3022110509014297E-015   3.6935850959491259E-012
+  Acceptance                 :   0.34897386904761907     
+  CPU Time                   :    336.68308000000002     
+  Effective number of bins   :           21

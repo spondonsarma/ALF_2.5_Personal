@@ -3,7 +3,6 @@ FC= $(f90)
 FLAGS= $(FL) 
 LF = $(Lflags)
 LIBS= $(Libs)/Modules/modules_90.a \
-      $(Libs)/MyEis/libeis.a \
       $(Libs)/MyNag/libnag.a \
       $(Libs)/MyLin/liblin.a \
       $(LIB_BLAS_LAPACK)

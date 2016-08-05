@@ -136,6 +136,25 @@
             endif
          enddo
 
+         V_help = 0.d0
+         do n = 1,Ndim
+            do nb = 1,nbins
+               do nt = 1,LT
+                  V_help(nt,nb) = V_help(nt,nb) +  bins(n,nt,nb)
+               enddo
+            enddo
+         enddo
+         V_help = V_help/dble(Ndim)
+         call COV(V_help, phase, Xcov, Xmean )
+         write(File_out,'("g_R0")') 
+         Open (Unit=10,File=File_out,status="unknown")
+         do nt = 1, LT
+            Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
+                 & dble(nt-1)*dtau,  Xmean(nt), sqrt(abs(dble(Xcov(nt,nt))))
+         enddo
+         close(10)
+         
+
        end Program Cov_tau
 
        Integer function Rot90(n, Xk_p, Ndim)
