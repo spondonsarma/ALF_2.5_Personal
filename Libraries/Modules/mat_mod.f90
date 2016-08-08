@@ -242,11 +242,23 @@
        END SUBROUTINE INITD_C
 
 
-!*************
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> of the input matrix
+!
+!> @param[in] A a 2D array constituting the input matrix
+!> @param[out] AINV a 2D array containing the LU decomposition
+!> @param[out] DET the determinant of the input matrix
+!--------------------------------------------------------------------
        SUBROUTINE INV_R0(A,AINV,DET)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,AINV
-         REAL (KIND=8) :: DET
+         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=8), DIMENSION(:,:), INTENT(OUT) :: AINV
+         REAL (KIND=8), INTENT(OUT) :: DET
          INTEGER I,J, N, M
 
 ! Working space.
