@@ -251,10 +251,10 @@
 !> of the input matrix.
 !
 !> @param[in] A a 2D array constituting the input matrix.
-!> @param[out] AINV a 2D array containing the LU decomposition.
+!> @param[out] AINV a 2D array containing the inverse of the matrix A.
 !> @param[out] DET the determinant of the input matrix.
 !--------------------------------------------------------------------
-       SUBROUTINE INV_R0(A,AINV,DET)
+       SUBROUTINE INV_R0(A, AINV, DET)
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
          REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
@@ -293,38 +293,52 @@
        END SUBROUTINE INV_R0
 
 
-!*************
-       SUBROUTINE INV_R_Variable(A,AINV,DET,Ndim)
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> in a subpart of the input matrix
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the inverse of the subpart
+!> @param[out] DET the determinant of the input matrix.
+!> @param[in] Ndim The size of the subpart.
+!--------------------------------------------------------------------
+       SUBROUTINE INV_R_Variable(A, AINV, DET, Ndim)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,AINV
-         REAL (KIND=8) :: DET
-         INTEGER I,J, N, M, Ndim
+         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=8), INTENT(OUT) :: DET
+         INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8) :: DET1(2)
+         REAL (KIND=8) :: SGN
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA, I
 
-         LDA =  SIZE(A,1)
+         LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(Ndim) )
-         ALLOCATE ( WORK(Ndim) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
-         ENDDO
+         ALLOCATE ( WORK(LDA) )
+         
+         AINV = A
 
 ! Linpack routines.
 
-         CALL DGEFA(AINV,LDA,Ndim,IPVT,INFO)
-         JOB = 11
-         CALL DGEDI(AINV,LDA,Ndim,IPVT,DET1,WORK,JOB)
-
-         DET = DET1(1) * 10.D0**DET1(2)
+         CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
+         DET = 1.0
+         SGN = 1.0
+         DO i = 1, Ndim
+         DET = DET * AINV(i,i)
+         IF (IPVT(i) .ne. i) THEN
+            SGN = -SGN
+         ENDIF
+         ENDDO
+         DET = SGN * DET
+         CALL DGETRI(Ndim, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
