@@ -248,46 +248,45 @@
 !
 !> @brief 
 !> This function calculates the LU decomposition and the determinant
-!> of the input matrix
+!> of the input matrix.
 !
-!> @param[in] A a 2D array constituting the input matrix
-!> @param[out] AINV a 2D array containing the LU decomposition
-!> @param[out] DET the determinant of the input matrix
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the LU decomposition.
+!> @param[out] DET the determinant of the input matrix.
 !--------------------------------------------------------------------
        SUBROUTINE INV_R0(A,AINV,DET)
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         REAL (KIND=8), DIMENSION(:,:), INTENT(OUT) :: AINV
+         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
          REAL (KIND=8), INTENT(OUT) :: DET
-         INTEGER I,J, N, M
+         INTEGER I,J
 
 ! Working space.
          REAL (KIND=8) :: DET1(2)
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA
 
          LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(LDA) )
          ALLOCATE ( WORK(LDA) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
-         ENDDO
+         
+         AINV = A
 
 ! Linpack routines.
 
-         CALL DGEFA(AINV,LDA,LDA,IPVT,INFO)
-         JOB = 11
-         CALL DGEDI(AINV,LDA,LDA,IPVT,DET1,WORK,JOB)
-
-         !Write(6,*) 'In Inv_R0', DET1
-         DET = DET1(1) * 10.D0**DET1(2)
-
+         CALL DGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
+         DET = 1.0
+         SGN = 1.0
+         DO i = 1, LDA
+         DET = DET * AINV(i,i)
+         IF (IPVT(i) .neq. i) THEN
+            SGN = -SGN
+         ENDIF
+         enddo
+         DET = SGN * DET
+         CALL DGETRI(LDA, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
