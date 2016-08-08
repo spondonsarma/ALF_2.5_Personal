@@ -262,7 +262,7 @@
          INTEGER I,J
 
 ! Working space.
-         REAL (KIND=8) :: DET1(2)
+         REAL (KIND=8) :: SGN
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA
@@ -281,7 +281,7 @@
          SGN = 1.0
          DO i = 1, LDA
          DET = DET * AINV(i,i)
-         IF (IPVT(i) .neq. i) THEN
+         IF (IPVT(i) .ne. i) THEN
             SGN = -SGN
          ENDIF
          enddo
