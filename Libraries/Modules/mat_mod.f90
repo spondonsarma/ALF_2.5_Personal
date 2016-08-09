@@ -241,7 +241,6 @@
          ENDDO
        END SUBROUTINE INITD_C
 
-
 !--------------------------------------------------------------------
 !> @author
 !> Fakher Assaad and  Florian Goth
@@ -497,7 +496,19 @@
          DEALLOCATE (IPIV)
          DEALLOCATE (WORK)
        END SUBROUTINE INV_R2
-!*************
+
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> of a complex input matrix.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the inverse of the matrix A.
+!> @param[out] DET the determinant of the input matrix.
+!--------------------------------------------------------------------
 
        SUBROUTINE INV_C(A,AINV,DET)
          IMPLICIT NONE
@@ -528,12 +539,6 @@
          CALL ZGEFA(AINV,LDA,LDA,IPVT,INFO)
          JOB = 11
          CALL ZGEDI(AINV,LDA,LDA,IPVT,DET1,WORK,JOB)
-
-
-
-
-
-
 
          DET = DET1(1)*10.D0**DET1(2)
 
