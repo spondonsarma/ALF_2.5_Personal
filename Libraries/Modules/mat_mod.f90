@@ -395,7 +395,6 @@
          DEALLOCATE (WORK)
        END SUBROUTINE INV_R_VARIABLE_1
 
-
 !--------------------------------------------------------------------
 !> @author
 !> Fakher Assaad and  Florian Goth
@@ -593,7 +592,22 @@
          DEALLOCATE (WORK)
        END SUBROUTINE INV_C_VARIABLE
 
-!========================================================================
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> of the complex input matrix.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the inverse of the matrix A.
+!> @param[out] DET The determinant in a kind of Mantissa-Exponent like
+!>                 representation. The full determinant is d1*10^d2
+!>                 (1.0 <= |d1| < 10.0) OR (d1 == 0.0)
+!
+!> @todo the same restrictions as in INV_R_VARIABLE_1 apply.
+!--------------------------------------------------------------------
        SUBROUTINE INV_C1(A,AINV,DET1)
          IMPLICIT NONE
          COMPLEX (KIND=8), DIMENSION(:,:) :: A,AINV
