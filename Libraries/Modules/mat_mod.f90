@@ -608,42 +608,43 @@
 !
 !> @todo the same restrictions as in INV_R_VARIABLE_1 apply.
 !--------------------------------------------------------------------
-       SUBROUTINE INV_C1(A,AINV,DET1)
+       SUBROUTINE INV_C1(A, AINV, DET)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A,AINV
-         COMPLEX (KIND=8) :: DET1(2)
-         INTEGER I,J, N, M
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
 
 ! Working space.
          COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA, I
+         REAL (KIND=8) :: mag
 
          LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(LDA) )
          ALLOCATE ( WORK(LDA) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
+         
+         AINV = A
+         CALL ZGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
+         DET(1) = (1.0, 0.0)
+         DET(2) = 0.0
+         DO i = 1, LDA
+         mag = ABS(AINV(i, i))
+         ! update the phase
+         DET(1) = DET(1) * AINV(i, i)/mag
+         ! update the magnitude
+         DET(2) = DET(2) + LOG10(mag)
+         ! consider signs due to permutations
+         IF (IPVT(i) .ne. i) THEN
+            DET(1) = DET(1) * -1.d0
+         ENDIF
          ENDDO
-
-! Linpack routines.
-
-         CALL ZGEFA(AINV,LDA,LDA,IPVT,INFO)
-         JOB = 11
-         CALL ZGEDI(AINV,LDA,LDA,IPVT,DET1,WORK,JOB)
-
-
+         CALL ZGETRI(LDA, AINV, LDA, IPVT, WORK, LDA, INFO)
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
        END SUBROUTINE INV_C1
 !*****
-
-
 
        SUBROUTINE COMPARE_C(A,B,XMAX,XMEAN)
          IMPLICIT NONE
