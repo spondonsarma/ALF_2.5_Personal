@@ -273,9 +273,6 @@
          ALLOCATE ( WORK(LDA) )
          
          AINV = A
-
-! Linpack routines.
-
          CALL DGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
          DET = 1.0
          SGN = 1.0
@@ -325,9 +322,6 @@
          ALLOCATE ( WORK(LDA) )
          
          AINV = A
-
-! Linpack routines.
-
          CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
          DET = 1.0
          SGN = 1.0
@@ -383,8 +377,6 @@
          ALLOCATE ( WORK(LDA) )
          
          AINV = A
-! Linpack routines.
-
          CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
          DET(1) = 1.0
          DET(2) = 0.0
@@ -421,35 +413,37 @@
 !
 !> @todo the same restrictions as in INV_R_VARIABLE_1 apply.
 !--------------------------------------------------------------------
-       SUBROUTINE INV_R1(A,AINV,DET1)
+       SUBROUTINE INV_R1(A,AINV,DET)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,AINV
-         REAL (KIND=8) :: DET1(2)
-         INTEGER I,J, N, M
+         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
 
 ! Working space.
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA, I
 
          LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(LDA) )
          ALLOCATE ( WORK(LDA) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
-         ENDDO
-
-! Linpack routines.
-
-         CALL DGEFA(AINV,LDA,LDA,IPVT,INFO)
-         JOB = 11
-         CALL DGEDI(AINV,LDA,LDA,IPVT,DET1,WORK,JOB)
-
+         
+         AINV = A
+         CALL DGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
+         DET(1) = 1.0
+         DET(2) = 0.0
+!         SGN = 1.0
+         DO i = 1, LDA
+         IF (AINV(i, i) < 0.0) THEN
+         DET(1) = -DET(1)
+         ENDIF
+         DET(2) = DET(2) + LOG10(ABS(AINV(i,i)))
+         IF (IPVT(i) .ne. i) THEN
+            DET(1) = -DET(1)
+         ENDIF
+         ENDDO         
+         CALL DGETRI(LDA, AINV, LDA, IPVT, WORK, LDA, INFO)
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
        END SUBROUTINE INV_R1
