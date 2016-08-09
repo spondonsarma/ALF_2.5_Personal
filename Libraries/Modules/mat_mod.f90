@@ -512,35 +512,34 @@
 
        SUBROUTINE INV_C(A,AINV,DET)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A,AINV
-         COMPLEX (KIND=8) :: DET
-         INTEGER I,J, N, M
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=8), INTENT(OUT) :: DET
+         INTEGER I,J
 
 ! Working space.
-         COMPLEX (KIND=8) :: DET1(2)
+         REAL (KIND=8) :: SGN
          COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA
 
          LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(LDA) )
          ALLOCATE ( WORK(LDA) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
-         ENDDO
-
-! Linpack routines.
-
-         CALL ZGEFA(AINV,LDA,LDA,IPVT,INFO)
-         JOB = 11
-         CALL ZGEDI(AINV,LDA,LDA,IPVT,DET1,WORK,JOB)
-
-         DET = DET1(1)*10.D0**DET1(2)
+         
+         AINV = A
+         CALL ZGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
+         DET = (1.0,0.0)
+         SGN = 1.0
+         DO i = 1, LDA
+         DET = DET * AINV(i,i)
+         IF (IPVT(i) .ne. i) THEN
+            SGN = -SGN
+         ENDIF
+         enddo
+         DET = SGN * DET
+         CALL ZGETRI(LDA, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
