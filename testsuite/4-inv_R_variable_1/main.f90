@@ -24,6 +24,18 @@ Program Test4
         STOP 2
         endif
         B = MATMUL(A, AI)
+        !test negative determinants
+        A(1,1) = 10
+        A(2,1) = 1
+        A(1,2) = 1
+        A(2,2) = -20
+        call INV_R_VARIABLE_1(A, AI, myDET, 2)
+! Yes 1E-11 is really the precission that is achievable here using the linpack routines
+        if (ABS(myDET(1)*10.0**myDET(2) + 201) > 1E-11) then
+        write (*,*) ABS(myDET(1)*10.0**myDET(2) + 201)
+        STOP 2
+        endif
+
 !        if (ABS(MAXVAL(B) - 1) > 1E-11 ) then
 !        write (*,*) B
 !        STOP 3
