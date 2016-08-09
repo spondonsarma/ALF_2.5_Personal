@@ -558,38 +558,36 @@
 !> @param[out] DET the determinant of the input matrix.
 !> @param[in] Ndim The size of the subpart.
 !--------------------------------------------------------------------
-       SUBROUTINE INV_C_Variable(A,AINV,DET,Ndim)
+       SUBROUTINE INV_C_Variable(A, AINV, DET, Ndim)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A,AINV
-         COMPLEX (KIND=8) :: DET
-         INTEGER I,J, N, M,Ndim
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=8), INTENT(OUT) :: DET
+         INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         COMPLEX (KIND=8) :: DET1(2)
+         REAL (KIND=8) :: SGN
          COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA, I
 
          LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(Ndim) )
-         ALLOCATE ( WORK(Ndim) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
+         ALLOCATE ( WORK(LDA) )
+         
+         AINV = A
+         CALL ZGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
+         DET = 1.0
+         SGN = 1.0
+         DO i = 1, Ndim
+         DET = DET * AINV(i,i)
+         IF (IPVT(i) .ne. i) THEN
+            SGN = -SGN
+         ENDIF
          ENDDO
-
-! Linpack routines.
-
-         CALL ZGEFA(AINV,LDA,Ndim,IPVT,INFO)
-         JOB = 11
-         CALL ZGEDI(AINV,LDA,Ndim,IPVT,DET1,WORK,JOB)
-
-
-         DET = DET1(1)*10.D0**DET1(2)
+         DET = SGN * DET
+         CALL ZGETRI(Ndim, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
