@@ -13,14 +13,14 @@ Program Test8
         
         A = (0.d0, 0.d0);
         A(1, 1) = 10
-        A(2, 1) = 1
-        A(1, 2) = 1
+        A(2, 1) = (1,0)
+        A(1, 2) = (1,0)
         A(2, 2) = 20
         A(3, 3) = 100
         call INV_C1(A, AI, myDET)
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
-        if (ABS(mydet(1)*(10.0**myDET(2)) - 19900) > 19900*10*EPSILON(1.d0)) then
-        write (*,*) ABS(mydet(1)*(10.0**myDET(2)) - 19900)
+        if (ABS(ABS(mydet(1)*(10.0**myDET(2))) - 19900) > 19900*10*EPSILON(1.d0)) then
+        write (*,*) ABS(mydet(1)*(10.0**myDET(2))) - 20001
         STOP 2
         endif
         B = MATMUL(A, AI)
