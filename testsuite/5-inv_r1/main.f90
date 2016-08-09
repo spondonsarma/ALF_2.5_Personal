@@ -20,7 +20,7 @@ Program Test2
         call INV_R1(A, AI, myDET)
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(mydet(1)*(10.0**myDET(2)) - 19900) > 1E-11) then
-        write (*,*) ABS(mydet - 19900)
+        write (*,*) ABS(mydet(1)*(10.0**myDET(2)) - 19900 - 19900)
         STOP 2
         endif
         B = MATMUL(A, AI)
