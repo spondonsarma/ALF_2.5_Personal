@@ -356,41 +356,45 @@
 !> @param[out] AINV a 2D array containing the inverse of the subpart
 !> @param[out] DET The determinant in a kind of Mantissa-Exponent like
 !>                 representation. The full determinant is d1*10^d2
+!>                 1.0 <= d1 < 10.0
 !> @param[in] Ndim The size of the subpart.
 !--------------------------------------------------------------------
        SUBROUTINE INV_R_Variable_1(A,AINV,DET,Ndim)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,AINV
-         REAL (KIND=8) :: DET(2)
-         INTEGER I,J, N, M, Ndim
+         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=8), INTENT(OUT) :: DET
+         INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8) :: DET1(2)
+         REAL (KIND=8) :: SGN
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
-         INTEGER INFO, JOB, LDA
+         INTEGER INFO, LDA, I
 
-         LDA =  SIZE(A,1)
+         LDA = SIZE(A,1)
 ! Working space.
          ALLOCATE ( IPVT(Ndim) )
-         ALLOCATE ( WORK(Ndim) )
-
-
-         DO I = 1,LDA
-            DO J = 1,LDA
-               AINV(J,I) = A(J,I)
-            ENDDO
-         ENDDO
+         ALLOCATE ( WORK(LDA) )
+         
+         AINV = A
 
 ! Linpack routines.
 
-         CALL DGEFA(AINV,LDA,Ndim,IPVT,INFO)
-         JOB = 11
-         CALL DGEDI(AINV,LDA,Ndim,IPVT,DET1,WORK,JOB)
-
-         ! Determinant  = DET1(1) * 10.D0**DET1(2)
-         DET(1) = DET1(1) 
-         DET(2) = DET1(2)
+         CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
+         DET = 0.0
+         SGN = 1.0
+         DO i = 1, Ndim
+         IF (AINV(i, i) < 0.0) THEN
+         SGN = -SGN
+         ENDIF
+         DET = DET * AINV(i,i)
+         IF (IPVT(i) .ne. i) THEN
+            SGN = -SGN
+         ENDIF
+         ENDDO
+         DET = SGN * DET
+         CALL DGETRI(Ndim, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
          DEALLOCATE (WORK)
