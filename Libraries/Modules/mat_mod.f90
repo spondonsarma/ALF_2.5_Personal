@@ -344,7 +344,20 @@
          DEALLOCATE (WORK)
        END SUBROUTINE INV_R_VARIABLE
 
-!*************
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> in a subpart of the input matrix.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the inverse of the subpart
+!> @param[out] DET The determinant in a kind of Mantissa-Exponent like
+!>                 representation. The full determinant is d1*10^d2
+!> @param[in] Ndim The size of the subpart.
+!--------------------------------------------------------------------
        SUBROUTINE INV_R_Variable_1(A,AINV,DET,Ndim)
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:) :: A,AINV
