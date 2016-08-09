@@ -356,18 +356,23 @@
 !> @param[out] AINV a 2D array containing the inverse of the subpart
 !> @param[out] DET The determinant in a kind of Mantissa-Exponent like
 !>                 representation. The full determinant is d1*10^d2
-!>                 1.0 <= d1 < 10.0
+!>                 (1.0 <= |d1| < 10.0) OR (d1 == 0.0)
 !> @param[in] Ndim The size of the subpart.
+!
+!> TODO: In a test the best accuracy could be obtained using the log10
+!! below. Another possibility would be using the EXPONENT and FRACTION
+!! intrinsics. This turned out to be not so good.
+!! Currently the case of a singular matrix is not handled, since it was
+!! catched in the old linpack version.
 !--------------------------------------------------------------------
        SUBROUTINE INV_R_Variable_1(A,AINV,DET,Ndim)
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
          REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         REAL (KIND=8), INTENT(OUT) :: DET
+         REAL (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
          INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8) :: SGN
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
@@ -378,22 +383,21 @@
          ALLOCATE ( WORK(LDA) )
          
          AINV = A
-
 ! Linpack routines.
 
          CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
-         DET = 0.0
-         SGN = 1.0
+         DET(1) = 1.0
+         DET(2) = 0.0
+!         SGN = 1.0
          DO i = 1, Ndim
          IF (AINV(i, i) < 0.0) THEN
-         SGN = -SGN
+         DET(1) = -DET(1)
          ENDIF
-         DET = DET * AINV(i,i)
+         DET(2) = DET(2) + LOG10(ABS(AINV(i,i)))
          IF (IPVT(i) .ne. i) THEN
-            SGN = -SGN
+            DET(1) = -DET(1)
          ENDIF
-         ENDDO
-         DET = SGN * DET
+         ENDDO         
          CALL DGETRI(Ndim, AINV, LDA, IPVT, WORK, LDA, INFO)
 
          DEALLOCATE (IPVT)
