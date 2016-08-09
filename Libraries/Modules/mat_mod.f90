@@ -295,7 +295,7 @@
 !
 !> @brief 
 !> This function calculates the LU decomposition and the determinant
-!> in a subpart of the input matrix
+!> in a subpart of the input matrix.
 !
 !> @param[in] A a 2D array constituting the input matrix.
 !> @param[out] AINV a 2D array containing the inverse of the subpart
@@ -530,7 +530,7 @@
          
          AINV = A
          CALL ZGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
-         DET = (1.0,0.0)
+         DET = (1.0, 0.0)
          SGN = 1.0
          DO i = 1, LDA
          DET = DET * AINV(i,i)
@@ -545,7 +545,19 @@
          DEALLOCATE (WORK)
        END SUBROUTINE INV_C
 
-!========================================================================
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This function calculates the LU decomposition and the determinant
+!> in a subpart of the complex input matrix.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] AINV a 2D array containing the inverse of the subpart
+!> @param[out] DET the determinant of the input matrix.
+!> @param[in] Ndim The size of the subpart.
+!--------------------------------------------------------------------
        SUBROUTINE INV_C_Variable(A,AINV,DET,Ndim)
          IMPLICIT NONE
          COMPLEX (KIND=8), DIMENSION(:,:) :: A,AINV
