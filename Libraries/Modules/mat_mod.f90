@@ -221,6 +221,17 @@
          ENDDO
        END SUBROUTINE INITD_R
 
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and  Florian Goth
+!
+!> @brief 
+!> This functions sets the matrix to a diagonal matrix with identical
+!> entries on the diagonal.
+!
+!> @param[inout] A a 2D array constituting the input matrix.
+!> @param[X] the scalar that we set the diagonal to.
+!--------------------------------------------------------------------
        SUBROUTINE INITD_C(A,X)
          IMPLICIT NONE
          COMPLEX (KIND=8), DIMENSION(:,:) :: A
