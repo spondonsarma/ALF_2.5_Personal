@@ -1,7 +1,7 @@
 ! compile with
 ! gfortran -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ main.f90 ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/MyLin/liblin.a ../../Libraries/MyNag/libnag.a
 
-Program Test8
+Program Test9
 
   Use MyMats 
 
@@ -18,12 +18,10 @@ Program Test8
         A(2, 2) = 20
         A(3, 3) = 100
         call INV_C1(A, AI, myDET)
-        write (*,*) myDET
-        write (*,*) ABS(mydet(1)*(10.0**myDET(2)))
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
-        if (ABS(ABS(mydet(1)*(10.0**myDET(2))) - 20001) > 20001.0*10000000.0*EPSILON(1.d0)) then
-        write (*,*) ABS(mydet(1)*(10.0**myDET(2))) - 20001
-        write (*,*) 20001.0*10000.0*EPSILON(1.d0)
+        if (ABS(ABS(mydet(1)*(10.0**myDET(2))) - 20000.99997500125D0) > 20000.99997500125D0*10.0*EPSILON(1.d0)) then
+        write (*,*) ABS(mydet(1)*(10.0**myDET(2))) - 20000.99997500125D0
+        write (*,*) 20000.999975*10.0*EPSILON(1.d0)
         STOP 2
         endif
         B = MATMUL(A, AI)
@@ -35,4 +33,4 @@ Program Test8
         write (*,*) B
         STOP 4
         endif
-end Program Test8
+end Program Test9
