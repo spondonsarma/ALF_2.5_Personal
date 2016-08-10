@@ -232,23 +232,16 @@
 !> @param[inout] A a 2D array constituting the input matrix.
 !> @param[X] the scalar that we set the diagonal to.
 !--------------------------------------------------------------------
-       SUBROUTINE INITD_C(A,X)
+       SUBROUTINE INITD_C(A, X)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A
-         COMPLEX (KIND=8) X
-         INTEGER I,J, N, M
-
+         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: A
+         COMPLEX (KIND=8), INTENT(IN) :: X
+         INTEGER I, N
+         
+         A = (0.D0, 0.D0)
          N = SIZE(A,1)
-         M = SIZE(A,2)
-
-! WRITE(6,*) 'In Init1 complex', N,M
          DO I = 1,N
-         DO J = 1,M
-            A(I,J) = CMPLX(0.D0,0.D0)
-         ENDDO
-         ENDDO
-         DO I = 1,N
-            A(I,I) = X
+            A(I, I) = X
          ENDDO
        END SUBROUTINE INITD_C
 
