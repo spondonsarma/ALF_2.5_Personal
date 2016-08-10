@@ -969,8 +969,7 @@
            XMDIFF = 0.D0
            DO J = 1,LQ
               DO I = 1,NE
-                 Z = (TEST(J,I)-A(J,I)) * CONJG(TEST(J,I)-A(J,I))
-                 X = SQRT(DBLE(Z))
+                 X = ABS(TEST(J,I)-A(J,I))
                  IF (X.GT.XMDIFF) XMDIFF = X
               ENDDO
            ENDDO
