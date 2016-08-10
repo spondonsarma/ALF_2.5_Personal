@@ -1227,7 +1227,7 @@
                     Z =  Z + U(I,m)*cmplx(W(m),0.d0, Kind=8)*Conjg(U(J,m))
                  ENDDO
                  Z = Z - A(I,J)
-                 X = sqrt( Z*Conjg(Z) )
+                 X = ABS(Z)
                  If (X > XMAX ) XMAX = X
               ENDDO
            ENDDO
