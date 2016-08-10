@@ -753,9 +753,7 @@
                XNORM(I) = XNORM(I) + ABS(A(NR,I))
             ENDDO
          ENDDO
-         DO I = 1,ND2
-            VHELP(I) = XNORM(I)
-         ENDDO
+         VHELP = XNORM
 
          DO I = 1,ND2
             XMAX = 0.D0
