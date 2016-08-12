@@ -6,8 +6,6 @@ LIBS= $(Libs)/Modules/modules_90.a \
       $(Libs)/MyNag/libnag.a \
       $(LIB_BLAS_LAPACK)
 
-#      $(Libs)/MyLin/liblin.a \
-
 Hub:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Hub  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
