@@ -58,11 +58,7 @@
         !	U3B^T * ( V1INV  0   )   = U3B
         !	        ( 0      U2^T )
         
-        DO I = 1,LQ2
-           DO J = 1,LQ2
-              HLPB1(I,J) = conjg(U3B(J,I))
-           ENDDO
-        ENDDO
+        HLPB1 = CT(U3B)
         HLPB2 = cmplx(0.D0,0.d0,double)
         DO I = 1,LQ
            DO J = 1,LQ
