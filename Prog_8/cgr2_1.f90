@@ -49,6 +49,7 @@
         Call INV( V2, V2inv, Z2)
         CALL INV( V1, V1inv, Z1)
 
+        
         HLP1 = CT(U1)
         CALL MMULT(HLP2,HLP1,U1)
         HLP1 = cmplx(0.d0,0.d0,kind=8)
@@ -57,12 +58,8 @@
         ENDDO
         Xmax = 0.d0
         CALL COMPARE(HLP1, HLP2, XMAX, XMEAN)
-        
-        DO I = 1,LQ
-           DO J = 1,LQ
-              HLP1(I,J) = CONJG( U2(J,I) ) 
-           ENDDO
-        ENDDO
+
+        HLP1 = CT(U2)
         CALL MMULT(HLP2,HLP1,U2)
         HLP1 = cmplx(0.d0,0.d0,kind=8)
         DO I = 1,LQ
@@ -117,20 +114,12 @@
                  V(I,J) = V(I,J)/D(J)
               ENDDO
            ENDDO
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP1(I,J) = Conjg(U(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(U)
            CALL MMULT( HLP2, HLP1,V1inv)
            CALL MMULT (GR00, V, HLP2)
         else
            !  V2^-1 (UDV  )^(-1,*) V1^-1 =  V2^-1 U  D^-1 V^(-1,*) V1^-1
-           DO J = 1,LQ
-              DO I = 1,LQ
-                 HLP1(I,J) = conjg(HLP2(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(HLP2)
            Call UDV_WRAP(HLP1, U, D, V, Ncon) 
            Call MMULT(HLP1, V2inv, U)
            DO J = 1,LQ
@@ -139,11 +128,7 @@
               ENDDO
            ENDDO
            CALL INV (V, HLP2, Z)
-           DO J = 1,LQ
-              DO I = 1,LQ
-                 V(I,J) = CONJG(HLP2(J,I))
-              ENDDO
-           ENDDO
+           V = CT(HLP2)
            CALL MMULT(HLP2,V,V1inv)
            CALL MMULT(GR00,HLP1,HLP2)
         endif
@@ -180,11 +165,7 @@
            ENDDO
         ENDDO
         Call MMULT(V,V2,V1)
-        DO J = 1,LQ
-           DO I = 1,LQ
-              HLP2(I,J) = Conjg(V(J,I))
-           ENDDO
-        ENDDO
+        HLP2 = CT(V)
         DO J = 1,LQ
            DO I =1,LQ
               HLP2(I,J) = HLP1(I,J) +  HLP2(I,J)*conjg(D2(J))
@@ -196,11 +177,7 @@
            !  -G0T*= U2 V^-1 D^-1 U* V1*
            CALL UDV_WRAP(HLP2,U,D,V,NCON)
            CALL MMULT (HLP1, V1, U)
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 U(I,J) = conjg(HLP1(J,I))
-              ENDDO
-           ENDDO
+           U = CT(HLP1)
            CALL INV(V,HLP2,Z)
            Call MMULT(HLP1,U2,HLP2)
            DO J = 1,LQ
@@ -218,11 +195,7 @@
         ELSE
            !  UDV of HLP2*
            !  -G0T*= U2 (U D V)*^-1 V1* =  U2 U D*^-1 V*^-1 V1*
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP1(I,J) = conjg(HLP2(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
            CALL MMULT (HLP1, U2, U)
            DO J = 1,LQ
@@ -233,11 +206,7 @@
            ENDDO
            CALL INV(V,HLP2,Z)
            Call MMULT(V,V1,HLP2)
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP2(I,J) = conjg(V(J,I))
-              ENDDO
-           ENDDO
+           HLP2 = CT(V)
            Call MMULT (V,HLP1,HLP2)
            DO I = 1,LQ
               DO J = 1,LQ
@@ -266,11 +235,7 @@
         If (Xmax2 > Xmax1 ) NVAR1 = 2
         !Write(6,*) "CGR2_1: NVAR,NVAR1 ", NVAR, NVAR1
         Call  MMULT(HLP2,U1,U2)
-        DO J = 1,LQ
-           DO I = 1,LQ
-              HLP1(I,J) = Conjg(HLP2(J,I))
-           ENDDO
-        ENDDO
+        HLP1 = CT(HLP2)
         DO J = 1,LQ
            DO I =1,LQ
               HLP1(I,J) =  HLP1(I,J)/D2(I) 
@@ -294,37 +259,21 @@
                  HLP2(I,J) = HLP2(I,J)*Z
               ENDDO
            ENDDO
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP1(I,J) = Conjg(U(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(U)
            CALL MMULT(U,HLP1,V2)
            Call MMULT (GRT0, HLP2,U)
         ELSE
            !UDV of HLP2^*
-           DO J = 1,LQ
-              DO I =1,LQ
-                 HLP1(I,J) = Conjg(HLP2(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON) 
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP1(I,J) = conjg(U1(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(U1)
            CALL MMULT( HLP2, HLP1,U)
            DO J = 1,LQ
               DO I = 1,LQ
                  HLP2(I,J) = HLP2(I,J)/Conjg(D(J))
               ENDDO
            ENDDO
-           DO I = 1,LQ
-              DO J = 1,LQ
-                 HLP1(I,J) = conjg(V(J,I))
-              ENDDO
-           ENDDO
+           HLP1 = CT(V)
            CALL INV(HLP1,V,Z)
            CALL MMULT(U,V,V2)
            Call MMULT (GRT0, HLP2,U)
