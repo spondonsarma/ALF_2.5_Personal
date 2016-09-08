@@ -59,12 +59,8 @@
                  HLPB2(I+LQ, J    ) = -D2(I)*V2(I,J)
               ENDDO
            ENDDO
-           DO J = 1,LQ2
-              DO I = 1,LQ2
-                 HLPB1(I,J)  = Conjg(HLPB2(J,I))
-              ENDDO
-           ENDDO
-           
+           HLPB1 = CT(HLPB2)
+
            !CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
            CALL UDV_wrap_Pivot(HLPB1,U3B,D3B,V3B,NCON,LQ2,LQ2)
            
@@ -90,11 +86,7 @@
 !!$        ENDDO
 !!$        !Write(6,*) 'Cgr2_2, Cutoff: ', Xmax
 !!$!!!!!!!!!!!!! End Tests
-           DO J = 1,LQ2
-              DO I = 1,LQ2
-                 HLPB2(I,J) = Conjg(V3B(J,I))
-              ENDDO
-           ENDDO
+           HLPB2 = CT(V3B)
            CALL INV(HLPB2,V3B,Z)
            HLPB1 = cmplx(0.d0,0.d0,double)
            DO I = 1,LQ
@@ -132,20 +124,12 @@
                  HLPB2(I+LQ, J    ) =  D1(I)*U1(I,J)
               ENDDO
            ENDDO
-           DO J = 1,LQ2
-              DO I = 1,LQ2
-                 HLPB1(I,J)  = Conjg(HLPB2(J,I))
-              ENDDO
-           ENDDO
+           HLPB1 = CT(HLPB2)
            
            !CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
            CALL UDV_wrap_Pivot(HLPB1,U3B,D3B,V3B,NCON,LQ2,LQ2)
            
-           DO J = 1,LQ2
-              DO I = 1,LQ2
-                 HLPB2(I,J) = Conjg(V3B(J,I))
-              ENDDO
-           ENDDO
+           HLPB2 = CT(V3B)
            CALL INV(HLPB2,V3B,Z)
            HLPB1 = cmplx(0.d0,0.d0,double)
            DO I = 1,LQ
