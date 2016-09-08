@@ -37,11 +37,7 @@
 	ENDDO
 	ENDDO
         CALL MMULT(UUP,ULUP,URUP)
-        DO J = 1,N_size
-        DO I = 1,N_size
-           UUPM1(I,J) =  CONJG(UUP(J,I))
-	ENDDO
-	ENDDO
+        UUPM1 = CT(UUP)
         DO J = 1,N_size
         DO I = 1,N_size
            TPUP(I,J) = TPUP(I,J) + UUPM1(I,J)
@@ -62,24 +58,12 @@
            Z1 = ZDUP1*ZDUP2
         ELSEIF (NVAR.EQ.2) THEN
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
-           DO J = 1,N_size
-           DO I = 1,N_size
-              TPUP1(I,J) = CONJG( TPUP(J,I) )
-	   ENDDO
-	   ENDDO
+	   TPUP1 = CT(TPUP)
            CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
-           DO J = 1,N_size
-           DO I = 1,N_size
-              TPUP(I,J) = CONJG( ULUP(J,I) )
-	   ENDDO
-	   ENDDO
+	   TPUP = CT(ULUP)
            CALL MMULT(TPUPM1,TPUP,UUP)
-           DO J = 1,N_size
-           DO I = 1,N_size
-              VUP1(I,J) = CONJG( VUP(J,I) )
-	   ENDDO
-	   ENDDO
+	   VUP1 = CT(VUP)
            CALL MMULT(TPUP1,URUP,VUP1)
            CALL INV(TPUP1,TPUP1M1,ZDUP2)
            CALL INV(TPUPM1, TPUP, ZDUP1)
