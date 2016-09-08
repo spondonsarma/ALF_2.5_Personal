@@ -1,10 +1,4 @@
-    function ct(a) result(b) ! return the conjugate transpose of a matrix
-        complex, dimension(:,:), intent(in) :: a
-        complex, dimension(size(a,1),size(a,1)) :: b
-        b = conjg(transpose(a))
-    end function ct
-  
-      SUBROUTINE CGR2_1(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ, NVAR)
+        SUBROUTINE CGR2_1(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ, NVAR)
 
         !       B2 = U2*D2*V2 is right (i.e. from time slice 0 to tau) propagation to time tau 
         !       B1 = V1*D1*U1 is left  (i.e. from time slice Ltrot to tau) propagation to time tau
@@ -55,12 +49,7 @@
         Call INV( V2, V2inv, Z2)
         CALL INV( V1, V1inv, Z1)
 
-        
-        DO I = 1,LQ
-           DO J = 1,LQ
-              HLP1(I,J) = CONJG( U1(J,I) ) 
-           ENDDO
-        ENDDO
+        HLP1 = CT(U1)
         CALL MMULT(HLP2,HLP1,U1)
         HLP1 = cmplx(0.d0,0.d0,kind=8)
         DO I = 1,LQ

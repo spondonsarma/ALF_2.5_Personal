@@ -14,6 +14,9 @@
        INTERFACE DET
           MODULE PROCEDURE DET_C
        END INTERFACE DET
+       INTERFACE CT
+    	  MODULE PROCEDURE CT
+       END INTERFACE CT
        INTERFACE INV
           MODULE PROCEDURE INV_R0, INV_R_Variable, INV_R_VARIABLE_1, INV_R1, INV_R2, INV_C, INV_C1, &
                &        INV_C_Variable  
@@ -1287,6 +1290,11 @@
         if (sgn == -1 ) det_C = - det_C 
 
       end function DET_C
-        
+
+    function ct(a) result(b) ! return the conjugate transpose of a matrix
+        complex(kind=8), dimension(:,:), intent(in) :: a
+        complex(kind=8), dimension(size(a,1),size(a,1)) :: b
+        b = conjg(transpose(a))
+    end function ct
 
     END MODULE MyMats
