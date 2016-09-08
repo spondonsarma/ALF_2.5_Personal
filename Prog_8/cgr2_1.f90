@@ -1,3 +1,9 @@
+    function ct(a) result(b) ! return the conjugate transpose of a matrix
+        complex, dimension(:,:), intent(in) :: a
+        complex, dimension(size(a,1),size(a,1)) :: b
+        b = conjg(transpose(a))
+    end function ct
+  
       SUBROUTINE CGR2_1(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ, NVAR)
 
         !       B2 = U2*D2*V2 is right (i.e. from time slice 0 to tau) propagation to time tau 
