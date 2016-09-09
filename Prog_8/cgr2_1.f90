@@ -148,10 +148,10 @@
         !                            =  U2 ( D1*^-1 (U1 U2) + ( V2 V1)* D2* )^-1 V1*
         !       B2 = U2*D2*V2
         !       B1 = V1*D1*U1
-        Xmax2 = dble(cmplx(1.d0,0.d0)/D1(1))
+        Xmax2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D1(1))
         Xmax1 = dble(D2(1))
         Do I = 2,LQ
-           X2 = dble(cmplx(1.d0,0.d0)/D1(I))
+           X2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D1(I))
            X1 = dble(D2(I))
            If ( X2 > Xmax2 ) Xmax2 = X2
            If ( X1 > Xmax1 ) Xmax1 = X1
@@ -181,7 +181,7 @@
            CALL INV(V,HLP2,Z)
            Call MMULT(HLP1,U2,HLP2)
            DO J = 1,LQ
-              Z = cmplx(1.d0,0.d0,kind=8)/D(J)
+              Z = cmplx(1.d0, 0.d0, kind=8)/D(J)
               DO I = 1,LQ
                  HLP1(I,J) = HLP1(I,J)*Z
               ENDDO
@@ -223,10 +223,10 @@
         !                     =   (V2^-1 D2^-1 U2^-1  + V1 D1 U1)^-1 =  
         !                     =   ( (V2^-1 D2^-1 U2^-1 U1^-1  + V1 D1 ) U1  )^-1 = 
         !                     =   U1^-1 (  ( D2^-1 (U1 U2)^-1  + V2*V1 D1 )   )^-1 V2 
-        Xmax2 = dble(cmplx(1.d0,0.d0)/D2(1))
+        Xmax2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D2(1))
         Xmax1 = dble(D1(1))
         Do I = 2,LQ
-           X2 = dble(cmplx(1.d0,0.d0)/D2(I))
+           X2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D2(I))
            X1 = dble(D1(I))
            If ( X2 > Xmax2 ) Xmax2 = X2
            If ( X1 > Xmax1 ) Xmax1 = X1
@@ -254,7 +254,7 @@
            CALL MMULT (HLP1, V, U1) 
            CALL INV(HLP1,HLP2,Z)
            DO J = 1,LQ
-              Z = cmplx(1.d0,0.d0)/D(J)
+              Z = cmplx(1.d0,0.d0, kind(0.D0))/D(J)
               DO I = 1,LQ
                  HLP2(I,J) = HLP2(I,J)*Z
               ENDDO
