@@ -552,10 +552,10 @@
                         &    Z * GT0(I,J,1)*G0T(J,I,1)                                            ) * ZP * ZS
 
 
-                   SpinZ_tau(imj,nt+1,1,1) = SpinZ_tau(imj,nt+1,1,1) +  &
+                   SpinZ_tau(imj,nt+1,1,1) = SpinZ_tau(imj,nt+1,1,1)  &
                        &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
 
-                   SpinXY_tau(imj,nt+1,1,1) = SpinXY_tau(imj,nt+1,1,1) +  &
+                   SpinXY_tau(imj,nt+1,1,1) = SpinXY_tau(imj,nt+1,1,1)  &
                        &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
                 Enddo
              Enddo
