@@ -116,7 +116,7 @@
                         Z = Z + Z_MAT(I,M)*U(M,J)
                      ENDDO
                      Z = Z - W(I)*U(I,J)
-                     X = SQRT( DBLE(  Z*CONJG(Z) ) )
+                     X = ABS(Z)
                   ENDIF
                   IF (LR=="L")  THEN
                      Z = cmplx(0.d0,0.d0,kind=8)
@@ -124,7 +124,7 @@
                         Z = Z + U(I,M)*Z_MAT(M,J) 
                      ENDDO
                      Z = Z - W(I)*U(I,J)
-                     X = SQRT( DBLE(  Z*CONJG(Z) ) )
+                     X = ABS(Z)
                   ENDIF
                   IF ( X > XMAX ) XMAX = X
                ENDDO
