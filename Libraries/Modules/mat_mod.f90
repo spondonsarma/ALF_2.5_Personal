@@ -184,8 +184,8 @@
          P = SIZE(B,2)
          LDA = N; LDB = SIZE(B,1); LDC = SIZE(C,1)
 
-         ALP = DCMPLX(1.D0,0.D0)
-         BET = DCMPLX(0.D0,0.D0)
+         ALP = CMPLX(1.D0,0.D0,Kind=Kind(0d0))
+         BET = CMPLX(0.D0,0.D0,Kind=Kind(0d0))
 
          CALL ZGEMM('n','n',N,P,M,ALP,A,LDA,B,LDB,BET,C,LDC)
 
@@ -644,7 +644,7 @@
          DET(2) = DET(2) + LOG10(mag)
          ! consider signs due to permutations
          IF (IPVT(i) .ne. i) THEN
-            DET(1) = DET(1) * -1.d0
+            DET(1) = -DET(1)
          ENDIF
          ENDDO
          CALL ZGETRI(LDA, AINV, LDA, IPVT, WORK, LDA, INFO)
@@ -898,7 +898,7 @@
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
 
-        U = DCMPLX(0.D0,0.D0) ; V = DCMPLX(0.D0,0.D0); D = DCMPLX(0.D0,0.D0)
+        U = 0.D0 ; V = 0.D0; D = 0.D0
         ALLOCATE (TMP(LQ,NE), THETA(NE), WORK(NE))
 
         TMP = A
@@ -946,10 +946,10 @@
 
         !Scale V1 to a unit triangluar matrix.
         DO I = 1,NE
-           D(I) = CMPLX(ABS(DBLE(V(I,I))),0.D0)
+           D(I) = CMPLX(ABS(DBLE(V(I,I))),0.D0, kind(0.D0))
         ENDDO
         DO I = 1,NE
-           Z = DCMPLX(1.D0,0.D0)/D(I)
+           Z = (1.D0)/D(I)
            DO J = I,NE
               V(I,J) = V(I,J)*Z
            ENDDO
@@ -960,7 +960,7 @@
            ALLOCATE( TEST(LQ,NE) )
            DO J = 1,NE
               DO I = 1,LQ
-                 Z = DCMPLX(0.D0,0.D0)
+                 Z = 0.D0
                  DO NR = 1,NE
                     Z = Z + U(I,NR)*D(NR)*V(NR,J)
                  ENDDO
@@ -1003,7 +1003,7 @@
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
 
-        U = DCMPLX(0.D0,0.D0) ; V = DCMPLX(0.D0,0.D0)
+        U = 0.D0 ; V = 0.D0
         ALLOCATE (TMP(LQ,NE), THETA(NE), WORK(NE))
 
         TMP = A
@@ -1051,7 +1051,7 @@
            ALLOCATE( TEST(LQ,NE) )
            DO J = 1,NE
               DO I = 1,LQ
-                 Z = DCMPLX(0.D0,0.D0)
+                 Z = 0.D0
                  DO NR = 1,NE
                     Z = Z + U(I,NR)*V(NR,J)
                  ENDDO
