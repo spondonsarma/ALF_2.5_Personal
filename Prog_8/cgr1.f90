@@ -27,15 +27,15 @@
 	NCON = 0
 
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
-             & 	  TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
+             & TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
 	
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(VUP,VRUP,VLUP)
         DO J = 1,N_size
-        DO I = 1,N_size
-           TPUP(I,J) = DRUP(I)*VUP(I,J)*DLUP(J)
-	ENDDO
-	ENDDO
+            DO I = 1,N_size
+                TPUP(I,J) = DRUP(I)*VUP(I,J)*DLUP(J)
+           ENDDO
+        ENDDO
         CALL MMULT(UUP,ULUP,URUP)
         UUPM1 = CT(UUP)
         DO J = 1,N_size
@@ -80,7 +80,7 @@
 
         DO J = 1,N_size
         DO I = 1,N_size
-           ZUP = CMPLX(0.D0,0.D0)
+           ZUP = CMPLX(0.D0,0.D0, kind(0.D0))
            DO NR = 1,N_size
              ZUP = ZUP + TPUPM1(I,NR)*TPUP1M1(NR,J)/DUP(NR)
 	   ENDDO
