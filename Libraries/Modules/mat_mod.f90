@@ -666,7 +666,7 @@
          XMEAN = 0.D0
          DO I = 1,N
             DO J = 1,M
-               DIFF = SQRT( (A(I,J) - B(I,J))*CONJG(A(I,J)-B(I,J)))
+               DIFF = ABS(A(I,J) - B(I,J))
                IF (DIFF.GT.XMAX) XMAX = DIFF
                XMEAN = XMEAN + DIFF
             ENDDO
@@ -944,12 +944,11 @@
 
         !Scale V1 to a unit triangluar matrix.
         DO I = 1,NE
-           D(I) = CMPLX(ABS(DBLE(V(I,I))),0.D0, kind(0.D0))
-        ENDDO
-        DO I = 1,NE
-           Z = (1.D0)/D(I)
+           X = ABS(DBLE(V(I,I)))
+           D(I) = CMPLX(X, 0.D0, kind(0.D0))
+           X = 1.D0/X
            DO J = I,NE
-              V(I,J) = V(I,J)*Z
+              V(I,J) = V(I,J)*X
            ENDDO
         ENDDO
 
