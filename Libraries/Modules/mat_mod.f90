@@ -1291,6 +1291,17 @@
 
       end function DET_C
 
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function returns the Conjugate Transpose, hence the name CT,
+!> of a complex input matrix.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @return the Conjugate Transpose of A
+!--------------------------------------------------------------------
     function ct(a) result(b) ! return the conjugate transpose of a matrix
         complex(kind=8), dimension(:,:), intent(in) :: a
         complex(kind=8), dimension(size(a,1),size(a,1)) :: b
