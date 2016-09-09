@@ -111,19 +111,17 @@
             DO I = 1,N
                DO J = 1,N
                   IF (LR=="R")  THEN
-                     Z = cmplx(0.d0,0.d0,kind=8)
+                     Z = - W(I)*U(I,J)
                      DO M = 1,N
                         Z = Z + Z_MAT(I,M)*U(M,J)
                      ENDDO
-                     Z = Z - W(I)*U(I,J)
                      X = ABS(Z)
                   ENDIF
                   IF (LR=="L")  THEN
-                     Z = cmplx(0.d0,0.d0,kind=8)
+                     Z = -W(I)*U(I,J)
                      DO M = 1,N
                         Z = Z + U(I,M)*Z_MAT(M,J) 
-                     ENDDO
-                     Z = Z - W(I)*U(I,J)
+                     ENDDO 
                      X = ABS(Z)
                   ENDIF
                   IF ( X > XMAX ) XMAX = X
