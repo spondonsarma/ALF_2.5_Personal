@@ -1299,6 +1299,10 @@
 !> This function returns the Conjugate Transpose, hence the name CT,
 !> of a complex input matrix.
 !
+!> @note The employed variant of chaining a transposition and a conjugation 
+!> is well optimized by gcc in the sense that it generates a tight inner loop.
+!> The original double loop generates quite some additional integer operations.
+!
 !> @param[in] A a 2D array constituting the input matrix.
 !> @return the Conjugate Transpose of A
 !--------------------------------------------------------------------
