@@ -65,9 +65,9 @@
               end SUBROUTINE CGR2
            end Interface
      
+           Integer, Intent(In) :: NSTM, NWRAP
            Complex (Kind=double), Intent(in) :: UST(NDIM,NDIM,NSTM,N_FL), VST(NDIM,NDIM,NSTM,N_FL), DST(NDIM,NSTM,N_FL) 
            Complex (Kind=double), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
-           Integer, Intent(In) :: NSTM, NWRAP
            Integer, Intent(In) :: STAB_NT(0:NSTM)         
 
            
