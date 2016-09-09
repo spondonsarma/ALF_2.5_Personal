@@ -1058,8 +1058,7 @@
            XMDIFF = 0.D0
            DO J = 1,LQ
               DO I = 1,NE
-                 Z = (TEST(J,I)-A(J,I)) * CONJG(TEST(J,I)-A(J,I))
-                 X = SQRT(DBLE(Z))
+                 X = ABS(TEST(J,I)-A(J,I))
                  IF (X.GT.XMDIFF) XMDIFF = X
               ENDDO
            ENDDO
@@ -1130,7 +1129,7 @@
                  DO J = 1,N
                     Z  =  Z + U(I,J) *D(J) *V(J,I1)
                  ENDDO
-                 X = sqrt(Real((Z - A(I,I1))*Conjg(Z - A(I,I1))))
+                 X = ABS(Z - A(I,I1))
                  IF (X > Xmax ) Xmax = X
               ENDDO
            ENDDO
