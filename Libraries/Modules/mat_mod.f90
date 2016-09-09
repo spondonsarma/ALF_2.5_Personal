@@ -1274,7 +1274,7 @@
         !Lapack LU decomposition
         call zgetrf(N, N, mat, N, ipiv, info)
         
-        det_C = cmplx(1.d0,0.d0) 
+        det_C = cmplx(1.d0, 0.d0, kind(0.d0) )
         do i = 1, N
            det_C = det_C*mat(i, i)
         enddo
