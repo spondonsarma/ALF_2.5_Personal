@@ -113,6 +113,6 @@
               GRT0(I,J) = HLPB2(I1,J )
               GR0T(I,J) = HLPB2(I,J1 )
            ENDDO
-	ENDDO
+        ENDDO
  
     END SUBROUTINE CGR2
