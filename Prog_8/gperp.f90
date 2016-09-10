@@ -46,7 +46,7 @@
         Call UDV  (U1,U,D,V,NCON)
         
         ! Setpup G_perp
-        gperp = cmplx(0.d0,0.d0)
+        gperp = cmplx(0.d0,0.d0, kind(0.D0))
         Do i = 1,Ndim
            do j = 1,Ndim
               do n = 1,Ndim/2
