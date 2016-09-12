@@ -352,7 +352,7 @@ Contains
   end subroutine Op_mmultL
 
   subroutine Op_mmultR(Mat,Op,spin,Ndim)
-    Implicit none 
+    Implicit none
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
     Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
@@ -451,6 +451,22 @@ Contains
         call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
     endif
   end Subroutine Op_Wrapup
+
+subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
+    Implicit none
+    Type (Operator) , INTENT(IN)   :: Op
+    Complex(kind=kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
+    Real(kind=kind(0.D0)), Intent(in) :: spin
+    Integer :: n
+
+       do n = 1, Op%N
+          ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
+          If ( n <= OP%N_non_Zero) ExpOp(n) = exp(Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
+          ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
+          If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
+       enddo
+
+end subroutine
 
   Subroutine Op_Wrapdo(Mat,Op,spin,Ndim,N_Type)
 
