@@ -154,7 +154,7 @@ Contains
        !Write(6,*) 'Calling diag 1'
     else
        Op%E(1)   = Op%O(1,1)
-       Op%U(1,1) = cmplx(1.d0,0.d0)
+       Op%U(1,1) = cmplx(1.d0, 0.d0 , kind(0.D0))
        Op%N_non_zero = 1
     endif
 !==========================================================================
