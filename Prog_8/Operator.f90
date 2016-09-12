@@ -181,12 +181,72 @@ Contains
     enddo
   end subroutine Op_exp
 
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function copies select rows to the destination matrix V from
+!> the source matrix Mat. The decision on which rows to copy is determined
+!> by the vector P.
+!
+!> @param[inout] V storage for the result matrix
+!> @param[in] Mat Where to read those entries
+!> @param[in] P A vector with which rows to copy
+!> @param[in] opn The length of the vector P
+!> @param[in] Ndim 
+!--------------------------------------------------------------------
+
+  subroutine copy_select_rows(V, Mat, P, opn, Ndim)
+    Implicit none
+    Integer, INTENT(IN) :: opn, Ndim
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: V(opn, Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:,:), INTENT(IN) :: Mat
+    Integer , Dimension(:), INTENT(IN) :: P
+    Integer :: n
+    
+    Do n = 1, opn
+       V(n,:) = Mat(:, P(n))
+    Enddo
+    
+  end subroutine
+
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function copies select columns to the destination matrix V from
+!> the source matrix Mat. The decision on which columns to copy is determined
+!> by the vector P.
+!
+!> @param[inout] V storage for the result matrix
+!> @param[in] Mat Where to read those columns
+!> @param[in] P A vector with which columns to copy
+!> @param[in] opn The length of the vector P
+!> @param[in] Ndim 
+!--------------------------------------------------------------------
+
+  subroutine copy_select_columns(V, Mat, P, opn, Ndim)
+    Implicit none
+    Integer, INTENT(IN) :: opn, Ndim
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: V(opn, Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:,:), INTENT(IN) :: Mat
+    Integer , Dimension(:), INTENT(IN) :: P
+    Integer :: n
+    
+    Do n = 1, opn
+       V(n,:) = Mat(P(n), :)
+    Enddo
+    
+  end subroutine
+  
   subroutine Op_mmultL(Mat,Op,spin,Ndim)
     Implicit none 
     Integer :: Ndim
-    Type (Operator) , INTENT(IN )   :: Op
+    Type (Operator) , INTENT(IN)   :: Op
     Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=8), INTENT(IN )   :: spin
+    Real    (Kind=8), INTENT(IN)   :: spin
 
 
     ! Local 
@@ -517,6 +577,5 @@ Contains
     endif
     
   end Subroutine Op_Wrapdo
-
 
 end Module Operator_mod
