@@ -475,9 +475,7 @@ Contains
       !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
        Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) = Mat(I,Op%P(n)) 
-          Enddo
+          VH(n, :) = Mat(:, Op%P(n))
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
