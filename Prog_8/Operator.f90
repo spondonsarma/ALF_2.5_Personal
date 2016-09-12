@@ -251,7 +251,7 @@ Contains
 !
 !> @param[in] V
 !> @param[in] U
-!> @param[in] P a vector wiht the columns that we write to
+!> @param[in] P a vector with the columns that we write to
 !> @param[inout] Mat The Matrix that we update
 !> @param[in] opn The length of the vector P
 !> @param[in] Ndim Mat is an Ndim x Ndim matrix
@@ -452,11 +452,23 @@ Contains
     endif
   end Subroutine Op_Wrapup
 
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function fills the arrays ExpOp nd ExpMop according to the data in Op
+!
+!> @param[inout] ExpOp
+!> @param[inout] ExpMop
+!> @param[in] Op The Operator whose eigenvalues we exponentiate
+!> @param[in] spin The spin direction that we consider
+!--------------------------------------------------------------------
 subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
     Implicit none
     Type (Operator) , INTENT(IN)   :: Op
-    Complex(kind=kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
-    Real(kind=kind(0.D0)), Intent(in) :: spin
+    Complex(kind = kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
+    Real(kind = kind(0.D0)), Intent(in) :: spin
     Integer :: n
 
        do n = 1, Op%N
