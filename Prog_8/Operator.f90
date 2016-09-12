@@ -86,7 +86,7 @@ Contains
           enddo
        enddo
     enddo
-    Phase = Phase**dble(N_SUN)
+    Phase = Phase**N_SUN
     
   end Subroutine Op_phase
   
