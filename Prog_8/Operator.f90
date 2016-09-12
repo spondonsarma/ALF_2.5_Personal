@@ -298,11 +298,7 @@ Contains
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
-    Do n = 1,Op%N
-       Do I = 1,Ndim
-          VH(n,I) = Mat(Op%P(n),I)
-       Enddo
-    Enddo
+    call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
     !$OMP PARALLEL DO PRIVATE(tmp, Z1)
     do n = 1,Op%N
        Z1 = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
@@ -315,11 +311,7 @@ Contains
        enddo
     Enddo
     !$OMP END PARALLEL DO
-    Do n = 1,Op%N
-       Do I = 1,Ndim
-          VH(n,I) = Mat(Op%P(n),I) 
-       Enddo
-    Enddo
+    call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
     !$OMP PARALLEL DO PRIVATE(tmp)
     do n = 1,Op%N
        Do I = 1,Ndim
@@ -382,11 +374,7 @@ Contains
        Enddo
       !$OMP END PARALLEL DO
 
-       Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) =    Mat(Op%P(n),I)
-          Enddo
-       Enddo
+      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
        do n = 1,Op%N
           ExpHere=ExpOp(n)
@@ -415,11 +403,7 @@ Contains
        Enddo
       !$OMP END PARALLEL DO
        
-       Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) = Mat(Op%P(n),I)
-          Enddo
-       Enddo
+      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
        do n = 1,Op%N
           DO I = 1,Ndim
@@ -532,9 +516,7 @@ Contains
        Enddo
       !$OMP END PARALLEL DO
        
-       Do n = 1,Op%N
-          VH(n, :) = Mat(Op%P(n), :) 
-       Enddo
+      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
 !        alpha = cmplx (1.0d0,0.0d0)
