@@ -191,7 +191,7 @@ Contains
 
     ! Local 
     Complex (Kind=8) :: VH(Op%N,Ndim), Z, Z1, tmp
-    Integer :: n, i, m, m1
+    Integer :: n, i, m
     
 
     ! In  Mat
@@ -199,7 +199,7 @@ Contains
 
     Do n = 1,Op%N
        Do I = 1,Ndim
-          VH(n,I) = Mat(I,Op%P(n)) 
+          VH(n,I) = Mat(I,Op%P(n))
        Enddo
     Enddo
       !$OMP PARALLEL DO PRIVATE(tmp)
