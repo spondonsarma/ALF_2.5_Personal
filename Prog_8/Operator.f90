@@ -454,9 +454,10 @@ Contains
 
        Do n = 1,Op%N
 	  ExpHere=ExpMOp(n)
-          Do I = 1,Ndim
-             VH(n,I) = ExpHere * Mat(Op%P(n),I)
-          Enddo
+	  VH(n, :) = ExpHere * Mat(Op%P(n), :)
+!           Do I = 1,Ndim
+!              VH(n,I) = ExpHere * Mat(Op%P(n),I)
+!           Enddo
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
