@@ -194,7 +194,7 @@ Contains
 !> @param[in] Mat Where to read those entries
 !> @param[in] P A vector with which rows to copy
 !> @param[in] opn The length of the vector P
-!> @param[in] Ndim 
+!> @param[in] Ndim Mat is an Ndim x Ndim matrix
 !--------------------------------------------------------------------
 
   subroutine copy_select_rows(V, Mat, P, opn, Ndim)
@@ -224,7 +224,7 @@ Contains
 !> @param[in] Mat Where to read those columns
 !> @param[in] P A vector with which columns to copy
 !> @param[in] opn The length of the vector P
-!> @param[in] Ndim 
+!> @param[in] Ndim Mat is an Ndim x Ndim matrix
 !--------------------------------------------------------------------
 
   subroutine copy_select_columns(V, Mat, P, opn, Ndim)
@@ -238,6 +238,82 @@ Contains
     Do n = 1, opn
        V(n,:) = Mat(P(n), :)
     Enddo
+    
+  end subroutine
+  
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function performs a matrix multiplication of U and V and
+!> writes the result to columns in mat specified by P.
+!
+!> @param[in] V
+!> @param[in] U
+!> @param[in] P a vector wiht the columns that we write to
+!> @param[inout] Mat The Matrix that we update
+!> @param[in] opn The length of the vector P
+!> @param[in] Ndim Mat is an Ndim x Ndim matrix
+!--------------------------------------------------------------------
+  
+  subroutine opmult(V, U, P, Mat, opn, Ndim)
+    Implicit none
+    Integer, INTENT(IN) :: opn, Ndim
+    Complex (Kind = Kind(0.D0)), INTENT(IN) :: V(opn, Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: U
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Integer, INTENT(IN) :: P(opn)
+    Integer :: n,i,m
+    Complex (Kind = Kind(0.D0)) tmp
+    
+    do n = 1, opn
+        DO I = 1, Ndim
+           tmp=cmplx(0.d0,0.d0, kind(0.D0))
+	   Do m = 1, opn
+	      tmp = tmp + U(n,m)*V(m,I)
+	   Enddo
+	   Mat(P(n), I)  = tmp 
+         enddo
+       enddo
+    
+  end subroutine
+  
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function performs a matrix multiplication of U and V and
+!> writes the result to rows in mat specified by P.
+!
+!> @param[in] V
+!> @param[in] U
+!> @param[in] P a vector wiht the rows that we write to
+!> @param[inout] Mat The Matrix that we update
+!> @param[in] opn The length of the vector P
+!> @param[in] Ndim Mat is an Ndim x Ndim matrix
+!--------------------------------------------------------------------
+  
+  subroutine opmultct(V, U, P, Mat, opn, Ndim)
+    Implicit none
+    Integer, INTENT(IN) :: opn, Ndim
+    Complex (Kind = Kind(0.D0)), INTENT(IN) :: V(opn, Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: U
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Integer, INTENT(IN) :: P(opn)
+    Integer :: n,i,m
+    Complex (Kind = Kind(0.D0)) tmp
+    
+    do n = 1, opn
+        DO I = 1, Ndim
+           tmp=cmplx(0.d0,0.d0, kind(0.D0))
+	   Do m = 1, opn
+	      tmp = tmp + conjg(U(n,m))*V(m,I)
+	   Enddo
+	   Mat(I, P(n))  = tmp 
+         enddo
+       enddo
     
   end subroutine
   
