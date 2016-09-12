@@ -422,10 +422,10 @@ Contains
     !!!!!
     If (N_type == 1) then
        do n= 1,Op%N
-          ExpOp(n) = cmplx(1.d0,0.d0)
-          If ( n <= OP%N_non_Zero) ExpOp(n) = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
-          ExpMOp(n) = cmplx(1.d0,0.d0)
-          If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0))
+          ExpOp(n) = cmplx(1.d0,0.d0, kind(0.D0))
+          If ( n <= OP%N_non_Zero) ExpOp(n) = exp(Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
+          ExpMOp(n) = cmplx(1.d0,0.d0, kind(0.D0))
+          If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
        enddo
        
        Do n = 1,Op%N
@@ -443,7 +443,7 @@ Contains
        do n = 1,Op%N
           DO I = 1,Ndim
 !              Mat(I,Op%P(n))  = zdotc(Op%N,Op%U(n,1),nop,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0)
+             tmp=cmplx(0.d0,0.d0, kind(0.D0))
 	     Do m = 1,Op%N
                 tmp = tmp + VH(m,I) * conjg(Op%U(n,m))
              Enddo
