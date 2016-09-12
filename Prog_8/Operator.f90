@@ -455,9 +455,6 @@ Contains
        Do n = 1,Op%N
 	  ExpHere=ExpMOp(n)
 	  VH(n, :) = ExpHere * Mat(Op%P(n), :)
-!           Do I = 1,Ndim
-!              VH(n,I) = ExpHere * Mat(Op%P(n),I)
-!           Enddo
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
@@ -468,7 +465,7 @@ Contains
        do n = 1,Op%N
 	 DO I = 1,Ndim
 ! 	   Mat(Op%P(n),I)  = zdotu(Op%N,Op%U(n,1),nop,VH(1,I),1)
-           tmp=cmplx(0.d0,0.d0)
+           tmp=cmplx(0.d0,0.d0, kind(0.D0))
 	   Do m = 1,Op%N
 	      tmp = tmp + Op%U(n,m)*VH(m,I)
 	   Enddo
