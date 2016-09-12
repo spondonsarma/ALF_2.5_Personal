@@ -98,14 +98,14 @@ Contains
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
     Allocate (Op%O(N,N), Op%U(N,N), Op%E(N), Op%P(N))
-    Op%O = cmplx(0.d0,0.d0)
-    Op%U = cmplx(0.d0,0.d0)
+    Op%O = cmplx(0.d0, 0.d0, kind(0.D0))
+    Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
     Op%E = 0.d0
     Op%P = 0
     Op%N = N
     Op%N_non_zero = N
-    Op%g     = cmplx(0.d0,0.d0)
-    Op%alpha = cmplx(0.d0,0.d0)
+    Op%g     = cmplx(0.d0,0.d0, kind(0.D0))
+    Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
   end subroutine Op_make
 
   subroutine Op_clear(Op,N)
