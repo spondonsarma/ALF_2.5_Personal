@@ -257,11 +257,7 @@ Contains
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
 
-    Do n = 1,Op%N
-       Do I = 1,Ndim
-          VH(n,I) = Mat(I,Op%P(n))
-       Enddo
-    Enddo
+    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
     do n = 1,Op%N
        Z = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
@@ -274,12 +270,7 @@ Contains
        enddo
     Enddo
 
-
-    Do n = 1,Op%N
-       Do I = 1,Ndim
-          VH(n,I) = Mat(I,Op%P(n))
-       Enddo
-    Enddo
+    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
     do n = 1,Op%N
        Do I = 1,Ndim
@@ -291,8 +282,6 @@ Contains
        enddo
     Enddo
 
-    
-    
   end subroutine Op_mmultL
 
   subroutine Op_mmultR(Mat,Op,spin,Ndim)
@@ -378,12 +367,7 @@ Contains
           If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0))
        enddo
        
-       Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) = Mat(I,Op%P(n))
-          Enddo
-       Enddo
-       
+      call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
        do n = 1,Op%N
 	  ExpHere=ExpMOp(n)
@@ -417,11 +401,7 @@ Contains
        enddo
       !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
-       Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) = Mat(I,Op%P(n))
-          Enddo
-       Enddo
+    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
        do n = 1,Op%N
           DO I = 1,Ndim
@@ -533,9 +513,7 @@ Contains
        enddo
       !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
-       Do n = 1,Op%N
-          VH(n, :) = Mat(:, Op%P(n))
-       Enddo
+    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
 !        alpha = cmplx (1.0d0,0.0d0)
