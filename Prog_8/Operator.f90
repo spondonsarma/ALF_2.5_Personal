@@ -153,7 +153,6 @@ Contains
        ! Op%U,Op%E)
        !Write(6,*) 'Calling diag 1'
     else
-!FIXME: this converts a complex number to a real. Is this real intended this way?
        Op%E(1)   = REAL(Op%O(1,1), kind(0.D0))
        Op%U(1,1) = cmplx(1.d0, 0.d0 , kind(0.D0))
        Op%N_non_zero = 1
