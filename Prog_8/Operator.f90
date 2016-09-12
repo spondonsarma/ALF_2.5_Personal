@@ -76,13 +76,15 @@ Contains
     Integer,           Intent(IN)    :: N_SUN
     Integer,           dimension(:,:), Intent(In) :: Nsigma
     Type (Operator),   dimension(:,:), Intent(In) :: Op_V
+    Real  (Kind=8)                   :: angle
     
     Integer :: n, nf, nt
     
     do nf = 1,Size(Op_V,2)
        do n = 1,size(Op_V,1)
           do nt = 1,size(nsigma,2)
-             Phase = Phase*exp(cmplx(0.d0, Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * Phi(nsigma(n,nt),Op_V(n,nf)%type) ) )
+             angle = Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * Phi(nsigma(n,nt),Op_V(n,nf)%type)
+             Phase = Phase*CMPLX(sin(angle), cos(angle), kind(0.D0))
           enddo
        enddo
     enddo
