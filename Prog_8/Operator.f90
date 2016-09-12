@@ -313,9 +313,9 @@ Contains
     !!!!!
     If (N_type == 1) then
        do n= 1,Op%N
-          ExpOp(n) = cmplx(1.d0,0.d0)
+          ExpOp(n) = cmplx(1.d0,0.d0, kind(0.D0))
           If ( n <= OP%N_non_Zero) ExpOp(n) = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
-          ExpMOp(n) = cmplx(1.d0,0.d0)
+          ExpMOp(n) = cmplx(1.d0,0.d0, kind(0.D0))
           If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0))
        enddo
        
@@ -486,7 +486,7 @@ Contains
        do n = 1,Op%N
           DO I = 1,Ndim
 !              Mat(I,Op%P(n))  =  zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0)
+             tmp=cmplx(0.d0,0.d0, kind(0.D0))
              Do m = 1,Op%N
 	        tmp = tmp + VH(m,I) * Op%U(m,n)
              Enddo
@@ -496,9 +496,7 @@ Contains
       !$OMP END PARALLEL DO
        
        Do n = 1,Op%N
-          Do I = 1,Ndim
-             VH(n,I) = Mat(Op%P(n),I) 
-          Enddo
+          VH(n, :) = Mat(Op%P(n), :) 
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
@@ -509,7 +507,7 @@ Contains
        do n = 1,Op%N
           DO I = 1,Ndim
 !              Mat(Op%P(n),I)  = zdotc(Op%N,Op%U(1,n),1,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0)
+             tmp=cmplx(0.d0,0.d0, kind(0.D0))
 	     Do m = 1,Op%N
                 tmp = tmp + conjg(Op%U(m,n))* VH(m,I) 
              Enddo
