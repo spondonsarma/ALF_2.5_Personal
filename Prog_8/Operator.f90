@@ -153,7 +153,8 @@ Contains
        ! Op%U,Op%E)
        !Write(6,*) 'Calling diag 1'
     else
-       Op%E(1)   = Op%O(1,1)
+!FIXME: this converts a complex number to a real. Is this real intended this way?
+       Op%E(1)   = REAL(Op%O(1,1), kind(0.D0))
        Op%U(1,1) = cmplx(1.d0, 0.d0 , kind(0.D0))
        Op%N_non_zero = 1
     endif
@@ -347,16 +348,7 @@ Contains
     Enddo
 
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-    do n = 1,Op%N
-       Do I = 1,Ndim
-          TMP = cmplx(0.d0,0.d0)
-          DO m = 1,Op%N
-             tmp  = tmp + VH(m,I) * conjg(Op%U(n,m))
-          Enddo
-	  Mat(I,Op%P(n))  = tmp
-       enddo
-    Enddo
+    call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
   end subroutine Op_mmultL
 
@@ -454,22 +446,10 @@ Contains
        enddo
       !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
-    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-          DO I = 1,Ndim
-!              Mat(I,Op%P(n))  = zdotc(Op%N,Op%U(n,1),nop,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0)
-	     Do m = 1,Op%N
-                tmp = tmp +  VH(m,I) * conjg(Op%U(n,m)) 
-             Enddo
-             Mat(I,Op%P(n))  =  tmp
-          enddo
-       Enddo
-      !$OMP END PARALLEL DO
-       
-      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-      call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+        call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
+        call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+        call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
+        call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
     endif
   end Subroutine Op_Wrapup
 
@@ -517,17 +497,7 @@ Contains
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('T','C',Ndim,Op%N,Op%N,alpha,VH,Op%N,Op%U,nop,beta,tmp,Ndim)
        !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-          DO I = 1,Ndim
-!              Mat(I,Op%P(n))  = zdotc(Op%N,Op%U(n,1),nop,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0, kind(0.D0))
-	     Do m = 1,Op%N
-                tmp = tmp + VH(m,I) * conjg(Op%U(n,m))
-             Enddo
-             Mat(I,Op%P(n))  = tmp
-          enddo
-       Enddo
-       !$OMP END PARALLEL DO
+       call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
        Do n = 1,Op%N
 	  ExpHere=ExpMOp(n)
