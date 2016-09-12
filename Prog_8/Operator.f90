@@ -168,16 +168,15 @@ Contains
     Complex (Kind=8), INTENT(IN) :: g
     Complex (Kind=8) :: Z, Z1
 
-    Integer :: n, i,j
-      
-    Mat = cmplx(0.d0,0.d0)
-    Do n = 1,Op%N
-       Z = exp(g*cmplx(Op%E(n),0.d0))
-       do J = 1,Op%N
+    Integer :: n, j, iters
+    
+    iters = Op%N
+    Mat = cmplx(0.d0, 0.d0, kind(0.D0))
+    Do n = 1, iters
+       Z = exp(g*Op%E(n))
+       do J = 1, iters
           Z1 = Z*conjg(Op%U(J,n))
-          Do I = 1,Op%N
-             Mat(I,J) = Mat(I,J) + Op%U(I,n)*Z1
-          enddo
+          Mat(1:iters, J) = Mat(1:iters, J) + Z1 * Op%U(1:iters, n)
        enddo
     enddo
   end subroutine Op_exp
