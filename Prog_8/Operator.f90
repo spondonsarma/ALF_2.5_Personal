@@ -388,18 +388,7 @@ Contains
     Enddo
     !$OMP END PARALLEL DO
     call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-    !$OMP PARALLEL DO PRIVATE(tmp)
-    do n = 1,Op%N
-       Do I = 1,Ndim
-          tmp = cmplx(0.d0,0.d0)
-          DO m = 1,Op%N
-             tmp = tmp + Op%U(n,m)* VH(m,I)
-          Enddo
-	  Mat(Op%P(n),I)  = tmp
-       enddo
-    Enddo
-    !$OMP END PARALLEL DO
-
+    call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
   end subroutine Op_mmultR
 
@@ -480,18 +469,7 @@ Contains
       !$OMP END PARALLEL DO
        
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-          DO I = 1,Ndim
-! 	     Mat(Op%P(n),I)  = zdotu(Op%N,Op%U(n,1),nop,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0)
-	     Do m = 1,Op%N
-	        tmp = tmp + Op%U(n,m) * VH(m,I)
-             Enddo
-	     Mat(Op%P(n),I)  = tmp
-          enddo
-       enddo
-      !$OMP END PARALLEL DO
+      call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
     endif
   end Subroutine Op_Wrapup
 
@@ -561,16 +539,7 @@ Contains
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('T','T',Ndim,Op%N,Op%N,alpha,VH,Op%N,Op%U,nop,beta,tmp,Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-	 DO I = 1,Ndim
-! 	   Mat(Op%P(n),I)  = zdotu(Op%N,Op%U(n,1),nop,VH(1,I),1)
-           tmp=cmplx(0.d0,0.d0, kind(0.D0))
-	   Do m = 1,Op%N
-	      tmp = tmp + Op%U(n,m)*VH(m,I)
-	   Enddo
-	   Mat(Op%P(n),I)  = tmp 
-         enddo
-       enddo
+       call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
       !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
