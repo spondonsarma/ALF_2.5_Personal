@@ -39,9 +39,7 @@
         CALL MMULT(UUP,ULUP,URUP)
         UUPM1 = CT(UUP)
         DO J = 1,N_size
-        DO I = 1,N_size
-           TPUP(I,J) = TPUP(I,J) + UUPM1(I,J)
-	ENDDO
+            TPUP(:, J) = TPUP(:, J) + UUPM1(:, J)
 	ENDDO
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
