@@ -270,10 +270,10 @@ Contains
     do n = 1, opn
         DO I = 1, Ndim
            tmp=cmplx(0.d0,0.d0, kind(0.D0))
-	   Do m = 1, opn
-	      tmp = tmp + U(n,m)*V(m,I)
-	   Enddo
-	   Mat(P(n), I)  = tmp 
+           Do m = 1, opn
+                tmp = tmp + U(n,m)*V(m,I)
+           Enddo
+           Mat(P(n), I)  = tmp 
          enddo
        enddo
     
@@ -308,12 +308,12 @@ Contains
     do n = 1, opn
         DO I = 1, Ndim
            tmp=cmplx(0.d0,0.d0, kind(0.D0))
-	   Do m = 1, opn
-	      tmp = tmp + conjg(U(n,m))*V(m,I)
-	   Enddo
-	   Mat(I, P(n))  = tmp 
-         enddo
-       enddo
+           Do m = 1, opn
+                tmp = tmp + conjg(U(n,m))*V(m,I)
+           Enddo
+           Mat(I, P(n))  = tmp 
+        enddo
+    enddo
     
   end subroutine
 
@@ -519,9 +519,9 @@ end subroutine
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), Z, Z1, tmp, ExpOp(Op%N), ExpMop(Op%N), ExpHere !, zdotu, zdotc
+    Complex (Kind=8) :: VH(Op%N,Ndim), tmp, ExpOp(Op%N), ExpMop(Op%N), ExpHere !, zdotu, zdotc
 !     Complex (Kind=8) :: alpha, beta, tmp2(Op%N,Ndim)
-    Integer :: n, i, m, m1 !, nop
+    Integer :: n, i, m
     
 !     nop=size(Op%U,1)
     
@@ -536,7 +536,7 @@ end subroutine
        call FillExpOps(ExpOp, ExpMop, Op, spin)
        
        Do n = 1,Op%N
-	  expHere=ExpOp(n)
+          expHere=ExpOp(n)
           Do I = 1,Ndim
              VH(n,I) = Mat(I,Op%P(n)) * ExpHere
           Enddo
@@ -550,8 +550,8 @@ end subroutine
        call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
        Do n = 1,Op%N
-	  ExpHere=ExpMOp(n)
-	  VH(n, :) = ExpHere * Mat(Op%P(n), :)
+          ExpHere=ExpMOp(n)
+          VH(n, :) = ExpHere * Mat(Op%P(n), :)
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
@@ -574,7 +574,7 @@ end subroutine
 !              Mat(I,Op%P(n))  =  zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
              tmp=cmplx(0.d0,0.d0, kind(0.D0))
              Do m = 1,Op%N
-	        tmp = tmp + VH(m,I) * Op%U(m,n)
+                tmp = tmp + VH(m,I) * Op%U(m,n)
              Enddo
              Mat(I,Op%P(n))  =  tmp
           enddo
@@ -592,7 +592,7 @@ end subroutine
           DO I = 1,Ndim
 !              Mat(Op%P(n),I)  = zdotc(Op%N,Op%U(1,n),1,VH(1,I),1)
              tmp=cmplx(0.d0,0.d0, kind(0.D0))
-	     Do m = 1,Op%N
+             Do m = 1,Op%N
                 tmp = tmp + conjg(Op%U(m,n))* VH(m,I) 
              Enddo
              Mat(Op%P(n),I)  = tmp
