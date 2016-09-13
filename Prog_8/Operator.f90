@@ -392,7 +392,6 @@ Contains
     do n = 1, opn
         lexp = Z(n)
         DO I = 1, Ndim
-!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1) 
             tmp=cmplx(0.d0, 0.d0, kind(0.D0))
             Do m = 1, opn
                 tmp = tmp + V(m,I) * conjg(U(m,n))
@@ -538,16 +537,12 @@ end subroutine
        Do n = 1,Op%N
           expHere=ExpOp(n)
           VH(n, :) = ExpHere * Mat(:, Op%P(n))
-          Do I = 1,Ndim
-             VH(n,I) = Mat(I,Op%P(n)) * ExpHere
-          Enddo
        Enddo
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
 !        alpha = cmplx (1.0d0,0.0d0)
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('T','C',Ndim,Op%N,Op%N,alpha,VH,Op%N,Op%U,nop,beta,tmp,Ndim)
-       !$OMP PARALLEL DO PRIVATE(tmp)
        call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
        Do n = 1,Op%N
@@ -559,9 +554,7 @@ end subroutine
 !        alpha = cmplx (1.0d0,0.0d0)
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('T','T',Ndim,Op%N,Op%N,alpha,VH,Op%N,Op%U,nop,beta,tmp,Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
        call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
-      !$OMP END PARALLEL DO
     elseif (N_Type == 2) then
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
        
