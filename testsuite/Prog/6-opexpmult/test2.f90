@@ -11,7 +11,7 @@ implicit none
         COMPLEX (KIND = KIND(0.D0)), DIMENSION(3,5) :: V
         COMPLEX (KIND = KIND(0.D0)), DIMENSION(3) :: Z
         COMPLEX (KIND = KIND(0.D0)), DIMENSION(5,5) :: matnew, matold
-        Complex (KIND = KIND(0.D0)) :: tmp, lexp, Z1,g
+        Complex (KIND = KIND(0.D0)) :: tmp, Z1,g
         Real (Kind = KIND(0.D0)), DIMENSION(3) :: E
         Real :: spin
         Integer, DIMENSION(3) :: P
@@ -34,7 +34,7 @@ implicit none
         V(i,j) = CMPLX(i, j, kind(0.D0))
         enddo
         P(i) = i
-        E(i) = 3.5*i
+        E(i) = 3.D5*i
         enddo
         
         do i = 1, opn
@@ -44,16 +44,16 @@ implicit none
         enddo
         
         do n = 1,opn
-        Z(n) = exp(g*cmplx(E(n)*spin,0.d0))
+        Z(n) = exp(g*E(n)*spin)
         enddo
         
         call opexpmult(V, U, P, matnew, Z, opn, Ndim)
         
 ! check against old version
     do n = 1,opn
-       Z1 = exp(g*cmplx(E(n)*spin,0.d0))
+       Z1 = exp(g*cmplx(E(n)*spin,0.d0, kind(0.D0)))
        Do I = 1,Ndim
-          tmp = cmplx(0.d0,0.d0)
+          tmp = cmplx(0.d0,0.d0, kind(0.D0))
           DO m = 1,opn
              tmp  = tmp + V(m,I) * U(m,n)
           Enddo
