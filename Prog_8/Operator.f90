@@ -215,7 +215,11 @@ Contains
 !> This function copies select columns to the destination matrix V from
 !> the source matrix Mat. The decision on which columns to copy is determined
 !> by the vector P.
-!
+!>
+!> @note 
+!> The code can be replaced by an array expression, but it is not
+!> immediately clear that it is faster. The generated code looks longer.
+!>
 !> @param[inout] V storage for the result matrix
 !> @param[in] Mat Where to read those columns
 !> @param[in] P A vector with which columns to copy
