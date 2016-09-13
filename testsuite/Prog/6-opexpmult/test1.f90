@@ -12,7 +12,7 @@ Use Operator_mod
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(5,5) :: matnew, matold
         Complex (KIND = KIND(0.D0)) :: tmp, lexp
         Integer, DIMENSION(3) :: P
-        Integer :: i,j,n, opn, Ndim
+        Integer :: i, j, n, m, opn, Ndim
         
         
         opn = 3
