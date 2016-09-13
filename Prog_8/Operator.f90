@@ -260,8 +260,7 @@ Contains
     Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: U
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
-    Integer :: n,i,m
-    Complex (Kind = Kind(0.D0)) tmp
+    Integer :: n,i
     
     do n = 1, opn
         DO I = 1, Ndim
