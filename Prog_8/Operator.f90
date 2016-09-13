@@ -265,13 +265,9 @@ Contains
     
     do n = 1, opn
         DO I = 1, Ndim
-           tmp=cmplx(0.d0,0.d0, kind(0.D0))
-           Do m = 1, opn
-                tmp = tmp + U(n,m)*V(m,I)
-           Enddo
-           Mat(P(n), I)  = tmp 
-         enddo
-       enddo
+            Mat(P(n), I) = Sum(U(n,:) * V(:, I))
+        enddo
+    enddo
     
   end subroutine
 
