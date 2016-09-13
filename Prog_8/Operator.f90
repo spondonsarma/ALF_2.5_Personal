@@ -501,9 +501,9 @@ end subroutine
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), tmp, ExpOp(Op%N), ExpMop(Op%N), ExpHere !, zdotu, zdotc
+    Complex (Kind=8) :: VH(Op%N,Ndim), ExpOp(Op%N), ExpMop(Op%N), ExpHere !, zdotu, zdotc
 !     Complex (Kind=8) :: alpha, beta, tmp2(Op%N,Ndim)
-    Integer :: n, i, m
+    Integer :: n, i
     
 !     nop=size(Op%U,1)
     
@@ -549,11 +549,7 @@ end subroutine
        do n = 1,Op%N
           DO I = 1,Ndim
 !              Mat(I,Op%P(n))  =  zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0, kind(0.D0))
-             Do m = 1,Op%N
-                tmp = tmp + VH(m,I) * Op%U(m,n)
-             Enddo
-             Mat(I,Op%P(n))  =  tmp
+             Mat(I,Op%P(n))  =  Sum(VH(:, I) * Op%U(:, n))
           enddo
        Enddo
       !$OMP END PARALLEL DO
@@ -568,11 +564,7 @@ end subroutine
        do n = 1,Op%N
           DO I = 1,Ndim
 !              Mat(Op%P(n),I)  = zdotc(Op%N,Op%U(1,n),1,VH(1,I),1)
-             tmp=cmplx(0.d0,0.d0, kind(0.D0))
-             Do m = 1,Op%N
-                tmp = tmp + conjg(Op%U(m,n))* VH(m,I) 
-             Enddo
-             Mat(Op%P(n),I)  = tmp
+             Mat(Op%P(n),I)  = Dot_Product(Op%U(:, n), VH(:, I))
           enddo
        enddo
       !$OMP END PARALLEL DO
