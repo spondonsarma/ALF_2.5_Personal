@@ -55,9 +55,16 @@ Use Operator_mod
     
     do i = 1,Ndim
         do j = 1,Ndim
-        if (matold(i, j) .ne. matnew(i, j)) then
+        tmp = matold(i,j) - matnew(i,j)
+        if (Aimag(tmp) > Abs(Aimag(matnew(i,j)))*1.D-15  ) then
+        write (*,*) matold(i,j), matnew(i,j)
         STOP 2
         endif
+        if (Real(tmp) > Abs(Real(matnew(i,j)))*1.D-15  ) then
+        write (*,*) matold(i,j), matnew(i,j)
+        STOP 2
+        endif
+
         enddo
     enddo
 
