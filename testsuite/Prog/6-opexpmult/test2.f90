@@ -43,10 +43,7 @@ implicit none
         enddo
         enddo
         
-        do n = 1,opn
-        Z(n) = exp(g*E(n)*spin)
-        enddo
-        
+        Z = exp(g*spin*E)
         call opexpmult(V, U, P, matnew, Z, opn, Ndim)
         
 ! check against old version
