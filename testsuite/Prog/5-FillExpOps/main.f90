@@ -4,14 +4,11 @@
 Program OPMULTTEST
 
 Use Operator_mod
-
+implicit none
 
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(3) :: ExpOp, ExpMOp, ExpOpold, ExpMOpold
-        Real (KIND=KIND(0.D0)), DIMENSION(3) :: E
-        Complex (KIND = KIND(0.D0)) :: g
         Real (KIND = KIND(0.D0)) :: spin
-        Integer, DIMENSION(3) :: P
-        Integer :: i,j,n, opn, Ndim
+        Integer :: i,n
         Type(Operator) :: Op
         
         Call Op_make(Op, 3)
