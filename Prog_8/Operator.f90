@@ -123,7 +123,7 @@ Contains
     Complex (Kind=8), allocatable :: U(:,:)
     Real    (Kind=8), allocatable :: E(:)
     Real    (Kind=8) :: Zero = 1.E-9
-    Integer :: N, I,J,np,nz
+    Integer :: N, I, np,nz
 
     If (Op%N > 1) then
        !Write(6,*) 'Calling diag', Op%O(1,2), Size(Op%O,1), Size(Op%U,1), Size(Op%E,1)
