@@ -510,23 +510,11 @@ end subroutine
     !    Op%U * Mat * (Op%U^{dagger})
     !!!!!
     If (N_type == 1) then
-      call FillExpOps(ExpOp, ExpMop, Op, spin)
-      call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-      call opexpmult(VH, Op%U, Op%P, Mat, ExpMOp, Op%N, Ndim)
-      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-          ExpHere=ExpOp(n)
-          DO I = 1,Ndim
-!               Mat(Op%P(n),I)  = zdotc(Op%N,Op%U(1,n),1,VH(1,I),1) * ExpOp(n)
-             tmp=cmplx(0.d0,0.d0)
-	     Do m = 1,Op%N
-                tmp = tmp + conjg(Op%U(m,n))* VH(m,I)
-             Enddo
-              Mat(Op%P(n),I)  = ExpHere * tmp
-          enddo
-       enddo
-      !$OMP END PARALLEL DO
+        call FillExpOps(ExpOp, ExpMop, Op, spin)
+        call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
+        call opexpmult(VH, Op%U, Op%P, Mat, ExpMOp, Op%N, Ndim)
+        call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
+        call opexpmultct(VH, Op%U, Op%P, Mat, ExpOp, Op%N, Ndim)
     elseif (N_Type == 2) then
         call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
         call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
