@@ -411,8 +411,7 @@ Contains
     Real    (Kind=8), INTENT(IN)   :: spin
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), Z1, tmp, Z(Op%N)
-    Integer :: n, i, m
+    Complex (Kind=8) :: VH(Op%N,Ndim), Z(Op%N)
 
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
@@ -432,10 +431,8 @@ Contains
     Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Real    (Kind=8), INTENT(IN )   :: spin
 
-
     ! Local 
     Complex (Kind=8) :: VH(Op%N,Ndim), Z(Op%N)
-    Integer :: n, i, m, m1
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
@@ -461,7 +458,7 @@ Contains
 !--------------------------------------------------------------------
 subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
     Implicit none
-    Type (Operator) , INTENT(IN)   :: Op
+    Type (Operator) , INTENT(IN) :: Op
     Complex(kind = kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
     Real(kind = kind(0.D0)), Intent(in) :: spin
     Integer :: n
@@ -486,9 +483,7 @@ end subroutine
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: Z, Z1, tmp, ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim), ExpHere !, zdotu, zdotc
-    Integer :: n, i, m, m1 !, nop
-    
+    Complex (Kind=8) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim) !, zdotu, zdotc
     
 !     nop=size(Op%U,1)
     
