@@ -135,14 +135,10 @@ Contains
        do I = 1,N
           if ( abs(E(I)) > Zero ) then
              np = np + 1
-             do j = 1, N
-                Op%U(j,np) = U(j,i)
-             enddo
+             Op%U(:, np) = U(:, i)
              Op%E(np)   = E(I)
           else
-             do j = 1, N
-                Op%U(j,N-nz) = U(j,i)
-             enddo
+             Op%U(:, N-nz) = U(:, i)
              Op%E(N-nz)   = E(I)
              nz = nz + 1
           endif
