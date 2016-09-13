@@ -32,15 +32,12 @@
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(VUP,VRUP,VLUP)
         DO J = 1,N_size
-            DO I = 1,N_size
-                TPUP(I,J) = DRUP(I)*VUP(I,J)*DLUP(J)
-           ENDDO
+            TPUP(:,J) = DRUP(:)*VUP(:,J)*DLUP(J)
         ENDDO
         CALL MMULT(UUP,ULUP,URUP)
+! Fusing the CT and the Mtrix Addition breaks the vectorization on GCC. Hence only benchmarks can decide.
         UUPM1 = CT(UUP)
-        DO J = 1,N_size
-            TPUP(:, J) = TPUP(:, J) + UUPM1(:, J)
-	ENDDO
+        TPUP=TPUP + UUPM1
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
            CALL UDV_WRAP(TPUP,UUP,DUP,VUP,NCON)
@@ -77,7 +74,9 @@
 
         DO J = 1,N_size
         DO I = 1,N_size
+!           ZUP = Sum(TPUPM1(I,:) * TPUP1M1(:,J)/DUP)
            ZUP = CMPLX(0.D0,0.D0, kind(0.D0))
+           
            DO NR = 1,N_size
              ZUP = ZUP + TPUPM1(I,NR)*TPUP1M1(NR,J)/DUP(NR)
            ENDDO
