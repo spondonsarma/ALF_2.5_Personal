@@ -70,10 +70,9 @@
            Z1 = ZDUP2/ZDUP1
         ENDIF
         DO I = 1,N_size
-           Z =  DUP(I)
-           if (I == 1)  Xmax = real(SQRT( Z* conjg(Z)),kind=8) 
-           if ( real(SQRT( Z* conjg(Z)),kind=8)  < Xmax ) Xmax = &
-                & real(SQRT( Z* conjg(Z)),kind=8)
+           X = ABS(DUP(I))
+           if (I == 1)  Xmax = X
+           if ( X  < Xmax ) Xmax = X
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
 
@@ -83,11 +82,11 @@
            ZUP = CMPLX(0.D0,0.D0, kind(0.D0))
            DO NR = 1,N_size
              ZUP = ZUP + TPUPM1(I,NR)*TPUP1M1(NR,J)/DUP(NR)
-	   ENDDO
+           ENDDO
            GRUP(I,J) = ZUP
-	ENDDO
-	ENDDO
-        PHASE = Z1/SQRT( Z1* CONJG(Z1) )
+        ENDDO
+        ENDDO
+        PHASE = Z1/ABS(Z1)
 
         Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, TPUP1M1, UUPM1, VUP1, DUP )
 
