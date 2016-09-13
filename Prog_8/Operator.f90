@@ -316,7 +316,50 @@ Contains
        enddo
     
   end subroutine
-  
+
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function performs a matrix multiplication of U and V and
+!> writes the result scaled by an entry given by Z to rows in mat
+!> specified by P.
+!
+!> @param[in] V
+!> @param[in] U
+!> @param[in] P a vector wiht the rows that we write to
+!> @param[inout] Mat The Matrix that we update
+!> @param[in] Z A vector that usually contains exponentials
+!> @param[in] opn The length of the vector P
+!> @param[in] Ndim Mat is an Ndim x Ndim matrix
+!--------------------------------------------------------------------
+
+  subroutine opexpmult(V, U, P, Mat, Z, opn, Ndim)
+    Implicit none
+    Integer, INTENT(IN) :: opn, Ndim
+    Complex (Kind = Kind(0.D0)), INTENT(IN) :: Z(opn)
+    Complex (Kind = Kind(0.D0)), INTENT(IN) :: V(opn, Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: U
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Integer, INTENT(IN) :: P(opn)
+    Integer :: n,i,m
+    Complex (Kind = Kind(0.D0)) tmp, lexp
+
+    do n = 1, opn
+        lexp = Z(n)
+        DO I = 1, Ndim
+!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1) 
+            tmp=cmplx(0.d0, 0.d0, kind(0.D0))
+            Do m = 1, opn
+                tmp = tmp + V(m,I) * U(m,n)
+            Enddo
+            Mat(I, P(n))  =  lexp * tmp
+        enddo
+    Enddo
+
+  end subroutine
+
   subroutine Op_mmultL(Mat,Op,spin,Ndim)
     Implicit none 
     Integer :: Ndim
