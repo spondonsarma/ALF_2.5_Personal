@@ -537,6 +537,7 @@ end subroutine
        
        Do n = 1,Op%N
           expHere=ExpOp(n)
+          VH(n, :) = ExpHere * Mat(:, Op%P(n))
           Do I = 1,Ndim
              VH(n,I) = Mat(I,Op%P(n)) * ExpHere
           Enddo
