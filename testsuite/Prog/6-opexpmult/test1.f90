@@ -1,6 +1,9 @@
 ! compile with
 ! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 
+
+! This test seems to be a bit sensitive with respect to
+! the precise Implementation
 Program OPEXPMULTTEST
 
 Use Operator_mod
@@ -55,9 +58,16 @@ Use Operator_mod
     
     do i = 1,Ndim
         do j = 1,Ndim
-        if (matold(i, j) .ne. matnew(i, j)) then
+        tmp = matold(i,j) - matnew(i,j)
+        if (Aimag(tmp) > Abs(Aimag(matnew(i,j)))*1.D-14  ) then
+        write (*,*) matold(i,j), matnew(i,j)
         STOP 2
         endif
+        if (Real(tmp) > Abs(Real(matnew(i,j)))*1.D-14  ) then
+        write (*,*) matold(i,j), matnew(i,j)
+        STOP 2
+        endif
+
         enddo
     enddo
 
