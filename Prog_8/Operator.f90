@@ -481,20 +481,7 @@ end subroutine
     If (N_type == 1) then
       call FillExpOps(ExpOp, ExpMop, Op, spin)
       call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-	  ExpHere=ExpMOp(n)
-	  DO I = 1,Ndim
-!              Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1) 
-	     tmp=cmplx(0.d0,0.d0)
-	     Do m = 1,Op%N
-		tmp = tmp + VH(m,I) * Op%U(m,n)
-             Enddo
-             Mat(I,Op%P(n))  =  ExpHere * tmp
-          enddo
-       Enddo
-      !$OMP END PARALLEL DO
-
+      call opexpmult(VH, Op%U, Op%P, Mat, ExpMOp, Op%N, Ndim)
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
       !$OMP PARALLEL DO PRIVATE(tmp)
        do n = 1,Op%N
