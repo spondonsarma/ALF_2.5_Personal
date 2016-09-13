@@ -460,9 +460,11 @@ subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
 
        do n = 1, Op%N
           ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-          If ( n <= OP%N_non_Zero) ExpOp(n) = exp(Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
           ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-          If ( n <= OP%N_non_Zero) ExpMOp(n) = exp(-Op%g*cmplx(Op%E(n)*spin,0.d0, kind(0.D0)))
+          if ( n <= OP%N_non_Zero) then
+            ExpOp(n) = exp(Op%g*(Op%E(n)*spin))
+            ExpMop(n) = 1.D0/ExpOp(n)
+          endif
        enddo
 
 end subroutine
