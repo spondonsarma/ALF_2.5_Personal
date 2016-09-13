@@ -367,11 +367,9 @@ Contains
     Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Real    (Kind=8), INTENT(IN)   :: spin
 
-
     ! Local 
     Complex (Kind=8) :: VH(Op%N,Ndim), Z1, tmp, Z(Op%N)
     Integer :: n, i, m
-    
 
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
@@ -379,18 +377,6 @@ Contains
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
     Z = exp(Op%g * spin * Op%E)
     call opexpmult(VH, Op%U, Op%P, Mat, Z, Op%N, Ndim)
-!       !$OMP PARALLEL DO PRIVATE(tmp)
-!     do n = 1,Op%N
-!        Z = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
-!        Do I = 1,Ndim
-!           tmp = cmplx(0.d0,0.d0)
-!           DO m = 1,Op%N
-!              tmp  = tmp + VH(m,I) * Op%U(m,n)
-!           Enddo
-! 	  Mat(I,Op%P(n))  = tmp * Z
-!        enddo
-!     Enddo
-
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
     call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
