@@ -329,18 +329,13 @@ Contains
     Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: U
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
-    Integer :: n,i,m
-    Complex (Kind = Kind(0.D0)) tmp, lexp
+    Integer :: n, i
+    Complex (Kind = Kind(0.D0)) lexp
 
     do n = 1, opn
         lexp = Z(n)
         DO I = 1, Ndim
-!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1) 
-            tmp=cmplx(0.d0, 0.d0, kind(0.D0))
-            Do m = 1, opn
-                tmp = tmp + V(m,I) * U(m,n)
-            Enddo
-            Mat(I, P(n))  =  lexp * tmp
+            Mat(I, P(n)) = lexp * Sum(U(:, n) * V(:, I))
         enddo
     Enddo
 
