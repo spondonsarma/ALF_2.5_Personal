@@ -53,12 +53,12 @@
            Z1 = ZDUP1*ZDUP2
         ELSEIF (NVAR.EQ.2) THEN
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
-	   TPUP1 = CT(TPUP)
+           TPUP1 = CT(TPUP)
            CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
-	   TPUP = CT(ULUP)
+           TPUP = CT(ULUP)
            CALL MMULT(TPUPM1,TPUP,UUP)
-	   VUP1 = CT(VUP)
+           VUP1 = CT(VUP)
            CALL MMULT(TPUP1,URUP,VUP1)
            CALL INV(TPUP1,TPUP1M1,ZDUP2)
            CALL INV(TPUPM1, TPUP, ZDUP1)
@@ -71,16 +71,9 @@
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
 
-
         DO J = 1,N_size
         DO I = 1,N_size
-!           ZUP = Sum(TPUPM1(I,:) * TPUP1M1(:,J)/DUP)
-           ZUP = CMPLX(0.D0,0.D0, kind(0.D0))
-           
-           DO NR = 1,N_size
-             ZUP = ZUP + TPUPM1(I,NR)*TPUP1M1(NR,J)/DUP(NR)
-           ENDDO
-           GRUP(I,J) = ZUP
+           GRUP(I, J) = Sum(TPUPM1(I,:) * TPUP1M1(:,J)/DUP)
         ENDDO
         ENDDO
         PHASE = Z1/ABS(Z1)
