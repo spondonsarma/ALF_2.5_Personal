@@ -434,24 +434,14 @@ Contains
 
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), Z, Z1, tmp
+    Complex (Kind=8) :: VH(Op%N,Ndim), Z(Op%N)
     Integer :: n, i, m, m1
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
     call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-    !$OMP PARALLEL DO PRIVATE(tmp, Z1)
-    do n = 1,Op%N
-       Z1 = exp(Op%g*cmplx(Op%E(n)*spin,0.d0))
-       Do I = 1,Ndim
-          tmp = cmplx(0.d0,0.d0)
-          DO m = 1,Op%N
-             tmp  = tmp + conjg(Op%U(m,n)) * VH(m,I) 
-          Enddo
-	  Mat(Op%P(n),I)  = tmp * Z1
-       enddo
-    Enddo
-    !$OMP END PARALLEL DO
+    Z = exp(Op%g * spin * Op%E)
+    call opexpmultct(VH, Op%U, Op%P, Mat, Z, Op%N, Ndim)    
     call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
     call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
 
