@@ -142,11 +142,7 @@
            Call UDV_WRAP(HLP2, U, D, V, Ncon) 
            CALL INV  (V,HLP2 ,Z   )
            CALL MMULT(V,V2inv,HLP2)
-           DO J = 1,LQ
-              DO I = 1,LQ
-                 V(I,J) = V(I,J)/D(J)
-              ENDDO
-           ENDDO
+           CALL SCALEMATRIX(V, D, .FALSE., LQ)
            HLP1 = CT(U)
            CALL MMULT( HLP2, HLP1,V1inv)
            CALL MMULT (GR00, V, HLP2)
@@ -155,11 +151,7 @@
            HLP1 = CT(HLP2)
            Call UDV_WRAP(HLP1, U, D, V, Ncon) 
            Call MMULT(HLP1, V2inv, U)
-           DO J = 1,LQ
-              DO I = 1,LQ
-                 HLP1(I,J) = HLP1(I,J)/D(J)
-              ENDDO
-           ENDDO
+           Call SCALEMATRIX(HLP1, D, .FALSE., LQ)
            CALL INV (V, HLP2, Z)
            V = CT(HLP2)
            CALL MMULT(HLP2,V,V1inv)
@@ -213,12 +205,7 @@
            U = CT(HLP1)
            CALL INV(V,HLP2,Z)
            Call MMULT(HLP1,U2,HLP2)
-           DO J = 1,LQ
-              Z = cmplx(1.d0, 0.d0, kind=8)/D(J)
-              DO I = 1,LQ
-                 HLP1(I,J) = HLP1(I,J)*Z
-              ENDDO
-           ENDDO
+           CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
            Call MMULT (HLP2,HLP1,U) 
            DO I = 1,LQ
               DO J = 1,LQ
@@ -231,12 +218,7 @@
            HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
            CALL MMULT (HLP1, U2, U)
-           DO J = 1,LQ
-              Z = cmplx(1.d0,0.d0,kind=8)/D(J)
-              DO I = 1,LQ
-                 HLP1(I,J) = HLP1(I,J)*Z
-              ENDDO
-           ENDDO
+           CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
            CALL INV(V,HLP2,Z)
            Call MMULT(V,V1,HLP2)
            HLP2 = CT(V)
@@ -286,12 +268,7 @@
            CALL UDV_WRAP(HLP2,U,D,V,NCON)
            CALL MMULT (HLP1, V, U1) 
            CALL INV(HLP1,HLP2,Z)
-           DO J = 1,LQ
-              Z = cmplx(1.d0,0.d0, kind(0.D0))/D(J)
-              DO I = 1,LQ
-                 HLP2(I,J) = HLP2(I,J)*Z
-              ENDDO
-           ENDDO
+           CALL SCALEMATRIX(HLP2, D, .FALSE., LQ)
            HLP1 = CT(U)
            CALL MMULT(U,HLP1,V2)
            Call MMULT (GRT0, HLP2,U)
@@ -301,11 +278,7 @@
            CALL UDV_WRAP(HLP1,U,D,V,NCON) 
            HLP1 = CT(U1)
            CALL MMULT( HLP2, HLP1,U)
-           DO J = 1,LQ
-              DO I = 1,LQ
-                 HLP2(I,J) = HLP2(I,J)/Conjg(D(J))
-              ENDDO
-           ENDDO
+           CALL SCALEMATRIX(HLP2, D, .TRUE., LQ)
            HLP1 = CT(V)
            CALL INV(HLP1,V,Z)
            CALL MMULT(U,V,V2)
