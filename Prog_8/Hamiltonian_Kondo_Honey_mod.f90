@@ -227,9 +227,9 @@
                       Call Op_make(Op_T(nc,n),2)
                       Op_T(nc,n)%P(1) = I1
                       Op_T(nc,n)%P(2) = I2
-                      Op_T(nc,n)%O( 1 , 2 ) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O( 2 , 1 ) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%g=cmplx(-Dtau,0.d0)
+                      Op_T(nc,n)%O( 1 , 2 ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O( 2 , 1 ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%g=cmplx(-Dtau, 0.d0, kind(0.D0))
                       !Write(6,*) 'In Ham_hop', Ham_T
                       Call Op_set(Op_T(nc,n)) 
                       !Write(6,*) 'In Ham_hop 1'
@@ -265,7 +265,7 @@
                       Op_T(nc,n)%O( I ,I3 + Latt%N) = cmplx(-Ham_T,   0.d0, kind(0.D0))
                       Op_T(nc,n)%O( I3+Latt%N, I  ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
                    ENDDO
-                   Op_T(nc,n)%g=cmplx(-Dtau,0.d0)
+                   Op_T(nc,n)%g=cmplx(-Dtau, 0.d0, kind(0.D0))
                    !Write(6,*) 'In Ham_hop', Ham_T
                    Call Op_set(Op_T(nc,n)) 
                    !Write(6,*) 'In Ham_hop 1'
@@ -317,9 +317,9 @@
                 Do no = 3,4
                    nc = nc + 1 
                    Op_V(nc,nf)%P(1)   = Invlist(I,no)  ! f-site
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0)
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/2.d0,0.D0)) 
-                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0)
+                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
+                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
+                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0, 0.d0, kind(0.D0))
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                    ! The operator reads:  
@@ -548,7 +548,7 @@
 !!$          Write(6,*)  'In Pr_obs', LTAU
 !!$#endif
     
-          Phase_bin = Obs_scal(5)/cmplx(dble(Nobs),0.d0)
+          Phase_bin = Obs_scal(5)/dble(Nobs)
           File_pr ="SpinZ_eq"
           Call Print_bin(SpinZ_eq ,SpinZ_eq0, Latt, Nobs, Phase_bin, file_pr)
           File_pr ="SpinXY_eq"
@@ -558,7 +558,7 @@
           File_pr ="ener"
           Call Print_scal(Obs_scal, Nobs, file_pr)
           If (Ltau == 1) then
-             Phase_tau = Phase_tau/cmplx(dble(NobsT),0.d0)
+             Phase_tau = Phase_tau/dble(NobsT)
              File_pr = "Green_tau"
              Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
              File_pr = "Den_tau"
@@ -590,7 +590,7 @@
              NobsT     = NobsT + 1
           endif
           If ( N_FL == 1 ) then 
-             Z =  cmplx(dble(N_SUN),0.d0)
+             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
