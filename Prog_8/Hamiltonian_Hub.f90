@@ -360,8 +360,6 @@
           Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
           Integer :: I,J, imj, nf
           
-          Real (Kind=8) :: X
-          
           Nobs = Nobs + 1
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
