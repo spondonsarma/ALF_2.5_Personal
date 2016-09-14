@@ -480,21 +480,20 @@ Module  Fourier
                      giom(niw) = ( g_iom(nk,niw)%el(no1,no1) + &
                           &        g_iom(nk,niw)%el(no2,no2) + &
                           &        g_iom(nk,niw)%el(no1,no2) + &
-                          &        g_iom(nk,niw)%el(no2,no1)  ) / cmplx(2.0,0.d0)
+                          &        g_iom(nk,niw)%el(no2,no1)  ) / 2.D0
                   enddo
                else
                   ! Build eta
                   do niw = 1,Niom
                      giom(niw) = ( g_iom(nk,niw)%el(no1,no1) +                                &
-                          &        g_iom(nk,niw)%el(no2,no2) +       cmplx(0.d0,1.d0) *  (    &
-                          &        g_iom(nk,niw)%el(no2,no1) - g_iom(nk,niw)%el(no1,no2) ) ) /&
-                          &        cmplx(2.d0,0.d0)
+                          &        g_iom(nk,niw)%el(no2,no2) + cmplx(0.d0,1.d0, kind(0.D0))*(    &
+                          &        g_iom(nk,niw)%el(no2,no1) - g_iom(nk,niw)%el(no1,no2)))/2.d0
                   enddo
                endif
                Call Matz_tau_T(giom, xiom, gt0, xtau, beta)
                !write(6,*) 'Back in Matz_tau_T_all'
                do nt = 1,ntau
-                  g_t0(nk,nt)%el(no1,no2) = cmplx(gt0(nt), 0.d0)
+                  g_t0(nk,nt)%el(no1,no2) = cmplx(gt0(nt), 0.d0, kind(0.D0))
                enddo
             enddo
          enddo
@@ -502,11 +501,11 @@ Module  Fourier
             do no1 = 1,Norb
                do no2 = no1+1, Norb
                   Z1 = g_t0(nk,nt)%el(no1,no2) - &
-                       &      (g_t0(nk,nt)%el(no1,no1) + g_t0(nk,nt)%el(no2,no2) )/cmplx(2.d0,0.d0)
+                       &      (g_t0(nk,nt)%el(no1,no1) + g_t0(nk,nt)%el(no2,no2) )/2.d0
                   Z2 = g_t0(nk,nt)%el(no2,no1) - &
-                       &      (g_t0(nk,nt)%el(no1,no1) + g_t0(nk,nt)%el(no2,no2) )/cmplx(2.d0,0.d0)
-                  g_t0(nk,nt)%el(no1,no2)  =  Z1 + cmplx(0.0,1.d0) * Z2 
-                  g_t0(nk,nt)%el(no2,no1)  =  Z1 - cmplx(0.0,1.d0) * Z2
+                       &      (g_t0(nk,nt)%el(no1,no1) + g_t0(nk,nt)%el(no2,no2) )/2.d0
+                  g_t0(nk,nt)%el(no1,no2)  =  Z1 + cmplx(0.0,1.d0, kind(0.D0)) * Z2 
+                  g_t0(nk,nt)%el(no2,no1)  =  Z1 - cmplx(0.0,1.d0, kind(0.D0)) * Z2
                enddo
             enddo
          enddo
@@ -536,8 +535,6 @@ Module  Fourier
       
       Integer :: Nom, Ntau, Niom, Niw, Nt, Nw
       Real (Kind=8) :: Alpha_st,  Chisq, x
-      
-      Complex (Kind=8) :: z 
 
       Nom   = Size(Xom ,1)
       Niom  = Size(Xiom,1)
@@ -552,30 +549,22 @@ Module  Fourier
       Enddo
 
       
-      Alpha_st = 1000000.0
+      Alpha_st = 1000000.D0
       Chisq    = 0.d0
       Call MaxEnt(XQMC, COV,  A, XKER, ALPHA_ST, CHISQ ) 
  
       do niw = 1,niom
-         z = cmplx(0.d0,0.d0)
-         do nw = 1,nom
-            z = z + cmplx(A(nw),0.d0)/cmplx(-xom(nw), xiom(niw))
-         enddo
-         griom(niw) = z
+         griom(niw) = sum(A/cmplx(-xom, xiom(niw), kind(0.D0)))
       enddo
 
       open (unit=60,file='data_out', status='unknown', position='append')
       do nt = 1,ntau
-         x  = 0.d0
-         do nw = 1,nom
-            x = x + xker(nt,nw)*a(nw)
-         enddo
+         x  = dot_product(xker(nt, :), a)
          write(60,2004) xtau(nt), xqmc(nt), sqrt(cov(nt,nt)), x
       enddo
       close(60)
 2004  format(f16.8,2x,f16.8,2x,f16.8,2x,f16.8)
 
-      
       deallocate (Xqmc, Xker)
 
     end subroutine Tau_Matz_T
@@ -619,11 +608,7 @@ Module  Fourier
  
       dom = xom(2) - xom(1)
       do niw = 1,niom
-         z = cmplx(0.d0,0.d0)
-         do nw = 1,ndis
-            z = z + cmplx(A(nw),0.d0)/cmplx(-xom(nw), xiom(niw))
-         enddo
-         griom(niw) = z * dom
+         griom(niw) = dom * sum(A/cmplx(-xom, xiom(niw), kind(0.D0)))
       enddo
 
       open (unit=60,file='data_out', status='unknown', position='append')
@@ -771,10 +756,10 @@ Module  Fourier
  
       dom = xom(2) - xom(1)
       do niw = 1,niom
-         z = cmplx(0.d0,0.d0)
+         z = cmplx(0.d0, 0.d0, kind(0.D0))
          do nw = 1, ndis
-            z = z + cmplx(A_t0(nw),0.d0)/cmplx(-xom(nw), xiom(niw)) + &
-                &   cmplx(A_0t(nw),0.d0)/cmplx( xom(nw), xiom(niw))    
+            z = z + A_t0(nw)/cmplx(-xom(nw), xiom(niw), kind(0.D0)) + &
+                &   A_0t(nw)/cmplx( xom(nw), xiom(niw), kind(0.D0))    
          enddo
          griom(niw) = z*dom
       enddo
