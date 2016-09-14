@@ -589,7 +589,6 @@ Module  Fourier
       
       Integer ::  Ntau, Niom, Niw, Nt, Nw, Ndis, Ngamma, Lcov
       Real (Kind=8) ::  Chisq, x, dom, xmom1
-      Complex (Kind=8) :: z 
 
       Ndis   =  5000
       Allocate ( A(ndis),xom(ndis) )
@@ -866,10 +865,10 @@ Module  Fourier
 
 
       do niw = 1,niom
-         z = cmplx(0.d0,0.d0)
+         z = cmplx(0.d0, 0.d0, kind(0.D0))
          do nw = 1,nom
-            z = z + cmplx(A_t0(nw),0.d0)/cmplx(-xom(nw), xiom(niw)) + &
-                &   cmplx(A_0t(nw),0.d0)/cmplx( xom(nw), xiom(niw))    
+            z = z + A_t0(nw)/cmplx(-xom(nw), xiom(niw), kind(0.D0)) + &
+                &   A_0t(nw)/cmplx( xom(nw), xiom(niw), kind(0.D0))    
          enddo
          griom(niw) = z
       enddo
@@ -1053,7 +1052,7 @@ Module  Fourier
                do nt = 1,Ntau
                   gt0(nt) =  dble(g_t0_mat(nk,nt)%el(no1,no2)) 
                enddo
-               covt0 = 0.0
+               covt0 = 0.D0
                do nt = 1,Ntau
                   covt0(nt,nt) = (error_t0_mat(nk,nt)%el(no1,no2))**2
                enddo
@@ -1069,11 +1068,11 @@ Module  Fourier
             do no2 = no1 +  1, Norb
                do nw = 1,Niom
                   Z1 = g_iom_mat(nk,nw)%el(no1,no2)   - &
-                       & (g_iom_mat(nk,nw)%el(no1,no1)+g_iom_mat(nk,nw)%el(no2,no2))/cmplx(2.d0,0.d0)
+                       & (g_iom_mat(nk,nw)%el(no1,no1)+g_iom_mat(nk,nw)%el(no2,no2))/2.d0
                   Z2 = g_iom_mat(nk,nw)%el(no2,no1)   - &
-                       & (g_iom_mat(nk,nw)%el(no1,no1)+g_iom_mat(nk,nw)%el(no2,no2))/cmplx(2.d0,0.d0)
-                  g_iom_mat(nk,nw)%el(no1,no2) = Z1 + cmplx(0.0,1.d0)*Z2
-                  g_iom_mat(nk,nw)%el(no2,no1) = Z1 - cmplx(0.0,1.d0)*Z2
+                       & (g_iom_mat(nk,nw)%el(no1,no1)+g_iom_mat(nk,nw)%el(no2,no2))/2.d0
+                  g_iom_mat(nk,nw)%el(no1,no2) = Z1 + cmplx(0.0,1.d0, kind(0.D0))*Z2
+                  g_iom_mat(nk,nw)%el(no2,no1) = Z1 - cmplx(0.0,1.d0, kind(0.D0))*Z2
                enddo
             enddo
          enddo
@@ -1363,7 +1362,7 @@ Module  Fourier
     do iom = 1,niom
        do itau = 0,nspl
           griom(iom) = griom(iom) &
-               +  exp(cmplx(0.d0,xiom(iom)*xtau_spl(itau))) * cmplx(grtau_spl(itau) * dx,0.d0)
+               +  exp(cmplx(0.d0,xiom(iom)*xtau_spl(itau), kind(0.D0))) * grtau_spl(itau) * dx
        enddo
     enddo
 
