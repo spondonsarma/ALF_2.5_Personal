@@ -424,11 +424,9 @@
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK, G(4,4,N_FL)
-          Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
-          Integer :: I,J, no,no1, n, n1, imj, nf, I1, I2,I3, J1, J2, I0, J0, ns, nc, NC_tot
-          
-          Real (Kind=8) ::  X
+          Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
+          Complex (Kind=8) :: Zrho, Zkin, ZPot, ZP,ZS
+          Integer :: I,J, no,no1, imj, nf, I1, I2, I3, J1, I0
           
           Nobs = Nobs + 1
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -438,15 +436,15 @@
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
-                   ZK = cmplx(0.d0,0.d0)
-                   If ( I == J ) ZK = cmplx(1.d0,0.d0)
+                   ZK = cmplx(0.d0, 0.d0, kind(0.D0))
+                   If ( I == J ) ZK = cmplx(1.d0, 0.d0, kind(0.D0))
                    GRC(I,J,nf)  = ZK - GR(J,I,nf)
                 Enddo
              Enddo
           Enddo
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
           ! Compute scalar observables. 
-          Zkin = cmplx(0.d0,0.d0)
+          Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do I = 1,Latt%N
                 I0 = invlist(I,1)
@@ -458,7 +456,7 @@
                      &      + Grc(I0,I3,nf) +  Grc(I3,I0,nf)
              Enddo
           Enddo
-          Zkin = - Zkin*cmplx( Ham_T*dble(N_SUN), 0.d0 )
+          Zkin = - Zkin*Ham_T*dble(N_SUN)
           !Nc_tot = Size(OP_T,1)
           !Write(6,*) 'Obser', Nc_tot
           !Do nf = 1,N_FL
@@ -475,22 +473,22 @@
           !Write(6,*) 'End Compute Kin: ', Size(OP_T,1), Size(OP_T,2)
           
 
-          Zrho = cmplx(0.d0,0.d0)
+          Zrho = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Zrho = Zrho + Grc(i,i,nf) 
              enddo
           enddo
-          Zrho = Zrho*cmplx( dble(N_SUN), 0.d0 )
+          Zrho = Zrho*dble(N_SUN)
 
-          ZPot = cmplx(0.d0,0.d0)
+          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
           Do no = 3,4
              Do I = 1,Latt%N
                 I1 = Invlist(I,no)
                 ZPot = ZPot + Grc(I1,I1,1) * Grc(I1,I1,2)
              Enddo
           Enddo
-          Zpot = Zpot*cmplx(ham_U,0.d0)
+          Zpot = Zpot*ham_U
 
           Obs_scal(1) = Obs_scal(1) + zrho * ZP*ZS
           Obs_scal(2) = Obs_scal(2) + zkin * ZP*ZS
@@ -511,7 +509,7 @@
                      &   (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))    ) * ZP*ZS
                 ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
                 SPINXY_Eq (imj,no,no1) = SPINXY_Eq (imj,no,no1)  +  &
-                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * cmplx(2.d0,0.d0)* ZP*ZS
+                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * 2.d0 * ZP*ZS
 
                 DEN_Eq (imj,no,no1) = DEN_Eq (imj,no,no1)  +  &
                      & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
