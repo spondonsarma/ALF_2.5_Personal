@@ -30,8 +30,9 @@
        ENDDO
       
        DO I = 1,N2
-          XMAX = 0.D0
-          DO J = 1,N2
+          XMAX = VHELP(1)
+          IMAX = 1
+          DO J = 2,N2
              IF (VHELP(J).GT.XMAX)  THEN
                 IMAX = J
                 XMAX = VHELP(J)
@@ -90,7 +91,7 @@
        
        !Local 
        Complex (Kind=8), Allocatable ::  A1(:,:),U1(:,:)
-       Integer :: I,J, N
+       Integer :: N
        character (len=64) :: file_sr, File
 #ifdef MPI  
        INTEGER :: STATUS(MPI_STATUS_SIZE)
