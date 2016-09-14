@@ -203,7 +203,6 @@
           !Per flavor, the  hopping is given by: 
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
           Integer :: I, I1, I2,I3,no, n, Ncheck, nc, ncoord
-          Real (Kind=8) :: X
 
           !allocate(Exp_T   (Ndim,Ndim,N_FL) )
           !allocate(Exp_T_M1(Ndim,Ndim,N_FL) )
@@ -255,16 +254,16 @@
                    enddo
                    Do I = 1,Latt%N
                       I1 = I
-                      Op_T(nc,n)%O( I ,I1 + Latt%N) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O( I1+Latt%N, I  ) = cmplx(-Ham_T,   0.d0)
+                      Op_T(nc,n)%O( I ,I1 + Latt%N) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O( I1+Latt%N, I  ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
                       
                       I2   = Latt%nnlist(I,1,-1)
-                      Op_T(nc,n)%O( I ,I2 + Latt%N) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O( I2+Latt%N, I  ) = cmplx(-Ham_T,   0.d0)
+                      Op_T(nc,n)%O( I ,I2 + Latt%N) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O( I2+Latt%N, I  ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
                       
                       I3   = Latt%nnlist(i,0,-1)
-                      Op_T(nc,n)%O( I ,I3 + Latt%N) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O( I3+Latt%N, I  ) = cmplx(-Ham_T,   0.d0)
+                      Op_T(nc,n)%O( I ,I3 + Latt%N) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O( I3+Latt%N, I  ) = cmplx(-Ham_T,   0.d0, kind(0.D0))
                    ENDDO
                    Op_T(nc,n)%g=cmplx(-Dtau,0.d0)
                    !Write(6,*) 'In Ham_hop', Ham_T
@@ -287,8 +286,8 @@
           
           Implicit none 
           
-          Integer :: nf, nth, n, n1, n2, n3, n4, I, I1, I2, J,  Ix, Iy, nc, no
-          Real (Kind=8) :: X_p(2), X1_p(2), X2_p(2), X, XJ
+          Integer :: nf, nth, I, J, nc, no
+          Real (Kind=8) :: X
 
 
           ! Number of opertors. 
@@ -334,10 +333,10 @@
                    nc = nc + 1 
                    Op_V(nc,nf)%P(1) = Invlist(I,no  )
                    Op_V(nc,nf)%P(2) = Invlist(I,no+2)
-                   Op_V(nc,nf)%O(1,2) = cmplx(1.d0  ,0.d0)
-                   Op_V(nc,nf)%O(2,1) = cmplx(1.d0  ,0.d0)
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(DTAU*Ham_J/4.d0,0.D0)) 
-                   Op_V(nc,nf)%alpha  = cmplx(0.d0,0.d0)
+                   Op_V(nc,nf)%O(1,2) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%O(2,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%g      = SQRT(CMPLX(DTAU*Ham_J/4.d0, 0.D0, kind(0.D0)))
+                   Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                 Enddo
@@ -352,10 +351,10 @@
                       nc = nc + 1 
                       Op_V(nc,nf)%P(1) = Invlist(I,no)
                       Op_V(nc,nf)%P(2) = Invlist(J,no)
-                      Op_V(nc,nf)%O(1,1) = cmplx( 1.d0  ,0.d0)
-                      Op_V(nc,nf)%O(2,2) = cmplx(-1.d0  ,0.d0)
-                      Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_Jz/2.d0,0.D0)) 
-                      Op_V(nc,nf)%alpha  = cmplx(0.d0,0.d0)
+                      Op_V(nc,nf)%O(1,1) = cmplx( 1.d0, 0.d0, kind(0.D0))
+                      Op_V(nc,nf)%O(2,2) = cmplx(-1.d0, 0.d0, kind(0.D0))
+                      Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_Jz/2.d0, 0.D0, kind(0.D0))) 
+                      Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,nf)%type   = 2
                       Call Op_set( Op_V(nc,nf) )
                       ! The operator reads:  
@@ -372,7 +371,7 @@
         Real (Kind=8) function S0(n,nt)  
           Implicit none
           Integer, Intent(IN) :: n,nt 
-          Integer :: i, nt1 
+
           S0 = 1.d0
         end function S0
 !===================================================================================           
@@ -380,7 +379,6 @@
 
           Implicit none
           Integer, Intent(In) :: Ltau
-          Integer :: I
           Allocate ( Obs_scal(5) )
           Allocate ( Spinz_eq(Latt%N,Norb,Norb) , Spinz_eq0(Norb)   )
           Allocate ( Spinxy_eq(Latt%N,Norb,Norb), Spinxy_eq0(Norb) ) 
@@ -398,22 +396,20 @@
           Implicit none
           Integer, Intent(In) :: Ltau
           
-          Integer :: I,n
-          
           Nobs = 0
-          Obs_scal  = cmplx(0.d0,0.d0)
-          SpinZ_eq  = cmplx(0.d0,0.d0) 
-          SpinZ_eq0 = cmplx(0.d0,0.d0) 
-          Spinxy_eq = cmplx(0.d0,0.d0) 
-          Spinxy_eq0= cmplx(0.d0,0.d0) 
-          Den_eq    = cmplx(0.d0,0.d0)
-          Den_eq0   = cmplx(0.d0,0.d0)
+          Obs_scal  = cmplx(0.d0, 0.d0, kind(0.D0))
+          SpinZ_eq  = cmplx(0.d0, 0.d0, kind(0.D0))
+          SpinZ_eq0 = cmplx(0.d0, 0.d0, kind(0.D0))
+          Spinxy_eq = cmplx(0.d0, 0.d0, kind(0.D0))
+          Spinxy_eq0= cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq    = cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq0   = cmplx(0.d0, 0.d0, kind(0.D0))
 
           If (Ltau == 1) then
              NobsT = 0
-             Phase_tau = cmplx(0.d0,0.d0)
-             Green_tau = cmplx(0.d0,0.d0)
-             Den_tau = cmplx(0.d0,0.d0)
+             Phase_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Green_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Den_tau = cmplx(0.d0, 0.d0, kind(0.D0))
           endif
 
         end Subroutine Init_obs
