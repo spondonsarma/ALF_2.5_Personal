@@ -112,9 +112,9 @@ Module  Fourier
          x = 0.d0
          do niw = 1,Niom
             if ( xiom(niw).gt.0.d0) then 
-               x = x + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt)) ) * griom(niw))*2.d0
+               x = x + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt), kind(0.D0)) ) * griom(niw))*2.d0
             else
-               x = x + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt)) ) * griom(niw))
+               x = x + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt), kind(0.D0)) ) * griom(niw))
             endif
          enddo
          grtau(nt) = x/beta   ! - a/2.d0  + b*xtau(nt)/2.d0 - beta * b/4.d0
@@ -150,24 +150,24 @@ Module  Fourier
       b = 0.d0
       Ntail = 10
       do niw = Niom - Ntail, Niom
-         a = a + dble( griom(niw) * cmplx(0.d0,xiom(niw) ) )
-         b = b + dble( griom(niw) * ( cmplx(0.d0,xiom(niw)) *cmplx(0.d0,xiom(niw))  ) )
+         a = a + dble( griom(niw) * cmplx(0.d0, xiom(niw), kind(0.D0)) )
+         b = b + dble( griom(niw) * ( -xiom(niw) * xiom(niw)) )
       enddo
       a = a/dble(Ntail + 1)
       b = b/dble(Ntail + 1)
       write(6,*) 'Fourier: a, b ', a, b
       a = 1.d0
       do niw = 1,Niom 
-         griom1(niw)   = griom(niw) - cmplx(a,0.d0)/  cmplx(0.d0,xiom(niw)) &
-                &                   - cmplx(b,0.d0)/( cmplx(0.d0,xiom(niw)) * cmplx(0.d0,xiom(niw)) )
+         griom1(niw)   = griom(niw) - a/  cmplx(0.d0,xiom(niw), kind(0.D0)) &
+                &                   + b/( xiom(niw) * xiom(niw) )
       enddo
 
       do nt = 1,Ntau
          xp = 0.d0
          xm = 0.d0
          do niw = 1,Niom
-            xp = xp + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt)) ) *griom1(niw))*2.d0
-            xm = xm + dble(exp( cmplx(0.d0, xiom(niw)*xtau(nt)) ) *griom1(niw))*2.d0
+            xp = xp + dble(exp( cmplx(0.d0,-xiom(niw)*xtau(nt), kind(0.D0)) ) *griom1(niw))*2.d0
+            xm = xm + dble(exp( cmplx(0.d0, xiom(niw)*xtau(nt), kind(0.D0)) ) *griom1(niw))*2.d0
          enddo
          grt0(nt) = xp/beta   - a/2.d0  + b*xtau(nt)   /2.d0 - beta * b/4.d0
          gr0t(nt) = xm/beta   + a/2.d0  - b*(-xtau(nt))/2.d0 - beta * b/4.d0
@@ -226,7 +226,7 @@ Module  Fourier
                      giom(niw) = ( g_iom(nk,niw)%el(no1,no1) + &
                           &        g_iom(nk,niw)%el(no2,no2) + &
                           &        g_iom(nk,niw)%el(no1,no2) + &
-                          &        g_iom(nk,niw)%el(no2,no1)  ) / cmplx(2.0,0.d0)
+                          &        g_iom(nk,niw)%el(no2,no1)  ) / 2.D0
                   enddo
                else
                   ! Build eta
@@ -234,7 +234,7 @@ Module  Fourier
                      giom(niw) = ( g_iom(nk,niw)%el(no1,no1) + &
                           &        g_iom(nk,niw)%el(no2,no2) - &
                           &        g_iom(nk,niw)%el(no1,no2) - &
-                          &        g_iom(nk,niw)%el(no2,no1)  ) / cmplx(2.0,0.d0)
+                          &        g_iom(nk,niw)%el(no2,no1)  ) / 2.D0
                   enddo
                endif
                Call Matz_tau_T0(giom, xiom, gt0, g0t,  xtau, beta)
@@ -249,13 +249,13 @@ Module  Fourier
                do no2 = no1+1, Norb
                   Z1 = g_0t(nk,nt)%el(no1,no2) 
                   Z2 = g_0t(nk,nt)%el(no2,no1) 
-                  g_0t(nk,nt)%el(no1,no2)  = (Z1 - Z2 )/cmplx(2.0,0.0)
-                  g_0t(nk,nt)%el(no2,no1)  = (Z1 - Z2 )/cmplx(2.0,0.0)
+                  g_0t(nk,nt)%el(no1,no2)  = (Z1 - Z2 )/2.D0
+                  g_0t(nk,nt)%el(no2,no1)  = (Z1 - Z2 )/2.D0
 
                   Z1 = g_t0(nk,nt)%el(no1,no2) 
                   Z2 = g_t0(nk,nt)%el(no2,no1) 
-                  g_t0(nk,nt)%el(no1,no2)  = (Z1 - Z2 )/cmplx(2.0,0.0)
-                  g_t0(nk,nt)%el(no2,no1)  = (Z1 - Z2 )/cmplx(2.0,0.0)
+                  g_t0(nk,nt)%el(no1,no2)  = (Z1 - Z2 )/2.D0
+                  g_t0(nk,nt)%el(no2,no1)  = (Z1 - Z2 )/2.D0
                enddo
             enddo
          enddo
@@ -395,7 +395,7 @@ Module  Fourier
                   giom(niw) = ( g_iom(niw)%el(no1,no1) + &
                        &        g_iom(niw)%el(no2,no2) + &
                        &        g_iom(niw)%el(no1,no2) + &
-                       &        g_iom(niw)%el(no2,no1)  ) / cmplx(2.0,0.d0)
+                       &        g_iom(niw)%el(no2,no1)  ) / 2.D0
                enddo
             else
                ! Build eta
@@ -403,7 +403,7 @@ Module  Fourier
                   giom(niw) = ( g_iom(niw)%el(no1,no1) + &
                        &        g_iom(niw)%el(no2,no2) - &
                        &        g_iom(niw)%el(no1,no2) - &
-                       &        g_iom(niw)%el(no2,no1)  ) / cmplx(2.0,0.d0)
+                       &        g_iom(niw)%el(no2,no1)  ) / 2.D0
                enddo
             endif
             Call Matz_tau_T(giom, xiom, gt0, xtau, beta)
@@ -418,8 +418,8 @@ Module  Fourier
             do no2 = no1+1, Norb
                Z1 = g_t0(nt)%el(no1,no2) 
                Z2 = g_t0(nt)%el(no2,no1) 
-               g_t0(nt)%el(no1,no2)  = (Z1 - Z2 )/cmplx(2.0,0.0)
-               g_t0(nt)%el(no2,no1)  = (Z1 - Z2 )/cmplx(2.0,0.0)
+               g_t0(nt)%el(no1,no2)  = (Z1 - Z2 )/2.D0
+               g_t0(nt)%el(no2,no1)  = (Z1 - Z2 )/2.D0
             enddo
          enddo
       enddo
@@ -1213,7 +1213,7 @@ Module  Fourier
 
       ! Local 
       Integer ::   Norb
-      Integer ::   nk, no1,no2
+      Integer ::   no1,no2
       Complex (Kind=8) :: Zp
 
       Ntau = size(g_t0_mat,1)
