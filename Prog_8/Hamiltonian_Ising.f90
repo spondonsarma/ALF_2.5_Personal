@@ -354,7 +354,7 @@
 
           Implicit none
           Integer, Intent(In) :: Ltau
-          Integer :: I
+
           Norb = 2
           Allocate ( Obs_scal(5) )
           Allocate ( Ising_cor (Latt%N,Norb,Norb) )
@@ -407,45 +407,41 @@
           !Local 
           Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
           Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
-          Integer :: I,J, no,no1, n, n1, imj, nf, I1, I2, J1, J2
-          
-          Real (Kind=8) :: G(4,4), X, FI, FJ
+          Integer :: I,J, no,no1, n, n1, imj, nf
           
           Nobs = Nobs + 1
-          ZP = PHASE/cmplx(Real(Phase,kind=8),0.d0)
-          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0)
+          ZP = PHASE/Real(Phase, kind(0.D0))
+          ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           
 
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
-                   ZK = cmplx(0.d0,0.d0)
-                   If ( I == J ) ZK = cmplx(1.d0,0.d0)
+                   ZK = cmplx(0.d0,0.d0, kind(0.D0))
+                   If ( I == J ) ZK = cmplx(1.d0,0.d0, kind(0.D0))
                    GRC(I,J,nf)  = ZK - GR(J,I,nf)
                 Enddo
              Enddo
           Enddo
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
           ! Compute scalar observables. 
-          Zkin = cmplx(0.d0,0.d0)
+          Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do J = 1,Ndim
-                DO I = 1,Ndim
-                   Zkin  = Zkin  + Op_T(1,nf)%O(i,j)*Grc(i,j,nf) 
-                Enddo
+                Zkin = Zkin + sum(Op_T(1,nf)%O(:, j)*Grc(:, j, nf))
              ENddo
           Enddo
-          Zkin = Zkin*cmplx( dble(N_SUN), 0.d0 )
+          Zkin = Zkin * dble(N_SUN)
 
-          Zrho = cmplx(0.d0,0.d0)
+          Zrho = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Zrho = Zrho + Grc(i,i,nf) 
              enddo
           enddo
-          Zrho = Zrho*cmplx( dble(N_SUN), 0.d0 )
+          Zrho = Zrho* dble(N_SUN)
 
-          ZPot = cmplx(0.d0,0.d0)
+          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
 
           Obs_scal(1) = Obs_scal(1) + zrho * ZP*ZS
           Obs_scal(2) = Obs_scal(2) + zkin * ZP*ZS
@@ -479,7 +475,7 @@
                       imj = latt%imj(I,J)
                       do no1 = 1,Norb
                          n1 = L_bond(J,no1)
-                         Ising_cor(imj,no,no1) = Ising_cor(imj,no,no1) + cmplx(dble(nsigma(n,ntau)*nsigma(n1,ntau)),0.d0)*ZP*ZS
+                         Ising_cor(imj,no,no1) = Ising_cor(imj,no,no1) + dble(nsigma(n,ntau)*nsigma(n1,ntau))*ZP*ZS
                       enddo
                    enddo
                 enddo
