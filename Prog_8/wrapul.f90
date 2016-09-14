@@ -21,14 +21,14 @@
         ! Working space.
         COMPLEX (Kind=8) ::  U(Ndim,Ndim), U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
         COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE
-        Integer :: I, J, NT, NCON, nr, n, nf
+        Integer :: NT, NCON, n, nf
         Real    (Kind=8) ::  X
  
 
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
 
-        Z_ONE = cmplx(1.d0,0.d0)
+        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         Do nf = 1, N_FL
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
