@@ -71,7 +71,7 @@
         ! Local::
         Complex  (Kind=double) :: HLP1(LQ,LQ), HLP2(LQ,LQ), U(LQ,LQ), D(LQ), V(LQ,LQ)
         Complex  (Kind=double) :: Z, Z1, Z2
-        Real     (Kind=double) :: X, Xmax, Xmin, X1, X2, Xmax1, Xmax2, Xmean
+        Real     (Kind=double) :: Xmax, Xmin, Xmax1, Xmax2, Xmean
         Integer                :: I, J, NCON, NVAR1
 
         Complex  (Kind=double) :: V2inv(LQ,LQ), V1inv(LQ,LQ)
