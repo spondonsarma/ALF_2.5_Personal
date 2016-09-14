@@ -87,21 +87,19 @@
               enddo
 
               
-              x_v = cmplx(0.d0,0.d0)
-              y_v = cmplx(0.d0,0.d0)
+              x_v = cmplx(0.d0, 0.d0, kind(0.D0))
+              y_v = cmplx(0.d0, 0.d0, kind(0.D0))
               i = Op_V(n_op,nf)%P(1)
               x_v(i,1) = u(i,1)/(cmplx(1.d0,0.d0) + v(i,1)*u(i,1) )
               Do i = 1,Ndim
                  y_v(i,1) = v(i,1)
               enddo
               do n = 2,Op_V(n_op,nf)%N_non_zero
-                 s_yu = cmplx(0.d0,0.d0)
-                 s_xv = cmplx(0.d0,0.d0)
+                 s_yu = cmplx(0.d0, 0.d0, kind(0.D0))
+                 s_xv = cmplx(0.d0, 0.d0, kind(0.D0))
                  do m = 1,n-1
-                    do i = 1,Ndim
-                       s_yu(m) = s_yu(m) + y_v(i,m)*u(i,n)
-                       s_xv(m) = s_xv(m) + x_v(i,m)*v(i,n)
-                    enddo
+                    s_yu(m) = s_yu(m) + sum(y_v(:, m) * u(:, n))
+                    s_xv(m) = s_xv(m) + sum(x_v(:, m) * v(:, n))
                  enddo
                  Do i = 1,Ndim
                     x_v(i,n) = u(i,n)
