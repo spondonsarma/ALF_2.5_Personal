@@ -15,16 +15,15 @@
         COMPLEX(Kind=8) :: PHASE
         INTEGER         :: NVAR
  
-	!Local
-	COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP,  VUP, TPUP, TPUP1, &
-             &	                                          TPUPM1,TPUP1M1,  UUPM1, VUP1
+        !Local
+        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, TPUP1M1, UUPM1, VUP1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
-	COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO
+        COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO
         Integer :: I,J, N_size, NCON
         Real (Kind=8) :: X, Xmax
         
         N_size = SIZE(DLUP,1)
-	NCON = 0
+        NCON = 0
 
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
              & TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
@@ -35,7 +34,7 @@
             TPUP(:,J) = DRUP(:)*VUP(:,J)*DLUP(J)
         ENDDO
         CALL MMULT(UUP,ULUP,URUP)
-! Fusing the CT and the Mtrix Addition breaks the vectorization on GCC. Hence only benchmarks can decide.
+! Fusing the CT and the Matrix Addition breaks the vectorization on GCC. Hence only benchmarks can decide.
         UUPM1 = CT(UUP)
         TPUP=TPUP + UUPM1
         IF (NVAR.EQ.1) THEN
