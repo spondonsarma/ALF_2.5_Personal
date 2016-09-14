@@ -511,7 +511,7 @@
 !!$          Write(6,*)  'In Pr_obs', LTAU
 !!$#endif
     
-          Phase_bin = Obs_scal(5)/cmplx(dble(Nobs),0.d0)
+          Phase_bin = Obs_scal(5)/dble(Nobs)
           File_pr ="Ising_eq"
           Call Print_bin(Ising_cor,Ising_cor0,Latt, Nobs, Phase_bin, file_pr)
           File_pr ="Green_eq"
@@ -525,7 +525,7 @@
           File_pr ="ener"
           Call Print_scal(Obs_scal, Nobs, file_pr)
           If (Ltau == 1) then
-             Phase_tau = Phase_tau/cmplx(dble(NobsT),0.d0)
+             Phase_tau = Phase_tau/dble(NobsT)
              File_pr = "Green_tau"
              Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
              File_pr = "Den_tau"
