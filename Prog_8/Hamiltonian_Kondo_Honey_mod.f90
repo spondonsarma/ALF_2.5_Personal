@@ -457,8 +457,8 @@
                 I1 = invlist(I,2)
                 I2 = Invlist( Latt%nnlist(I,1,-1),2 )
                 I3 = invlist( Latt%nnlist(I,0,-1),2 )  
-                Zkin = Zkin + Grc(I0,I1,nf) +  Grc(I1,I0,nf)  + &
-                     &      + Grc(I0,I2,nf) +  Grc(I2,I0,nf)  + &
+                Zkin = Zkin + Grc(I0,I1,nf) +  Grc(I1,I0,nf) &
+                     &      + Grc(I0,I2,nf) +  Grc(I2,I0,nf) &
                      &      + Grc(I0,I3,nf) +  Grc(I3,I0,nf)
              Enddo
           Enddo
