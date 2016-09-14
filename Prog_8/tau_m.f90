@@ -86,7 +86,7 @@
            Do nf = 1, N_FL
               DO J = 1,Ndim 
                  DO I = 1,Ndim
-                    Z = cmplx(0.d0,0.d0)
+                    Z = cmplx(0.d0, 0.d0, kind(0.D0))
                     if (I == J ) Z = cone
                     G00(I,J,nf) = GR(I,J,nf)
                     GT0(I,J,nf) = GR(I,J,nf)
