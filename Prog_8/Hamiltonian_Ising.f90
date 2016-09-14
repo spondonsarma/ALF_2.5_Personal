@@ -169,7 +169,6 @@
           !Setup the hopping
           
           Integer :: I, I1, I2, n, Ncheck,nc
-          Real (Kind=8) :: X
 
           Ncheck = 1
           allocate(Op_T(Ncheck,N_FL))
@@ -179,19 +178,19 @@
                 If (One_dimensional ) then 
                    DO I = 1, Latt%N
                       I1 = Latt%nnlist(I,1,0)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,0.d0)
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,0.d0)
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0)
+                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0, kind(0.D0))
                    ENDDO
                 else
                    DO I = 1, Latt%N
                       I1 = Latt%nnlist(I,1,0)
                       I2 = Latt%nnlist(I,0,1)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0)
+                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,   0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0, kind(0.D0))
                    ENDDO
                 endif
                 
@@ -221,8 +220,8 @@
           
           Implicit none 
           
-          Integer :: nf, nth, n, n1, n2, n3, n4, I, I1, I2, J,  Ix, Iy, nc
-          Real (Kind=8) :: X_p(2), X1_p(2), X2_p(2), X
+          Integer :: nf, nth, n, n1, n2, n3, n4, I, I1, I2, nc
+          Real (Kind=8) :: X_p(2)
 
 
           If (Model == "Ising"  ) then
@@ -376,24 +375,22 @@
           Implicit none
           Integer, Intent(In) :: Ltau
           
-          Integer :: I,n
-          
           Nobs = 0
-          Obs_scal  = cmplx(0.d0,0.d0)
-          Ising_cor = cmplx(0.d0,0.d0)
-          Green_eq  = cmplx(0.d0,0.d0) 
-          Spin_eq   = cmplx(0.d0,0.d0) 
-          Den_eq    = cmplx(0.d0,0.d0) 
-          Ising_cor0= cmplx(0.d0,0.d0)
-          Green_eq0 = cmplx(0.d0,0.d0) 
-          Spin_eq0  = cmplx(0.d0,0.d0) 
-          Den_eq0   = cmplx(0.d0,0.d0) 
+          Obs_scal  = cmplx(0.d0, 0.d0, kind(0.D0))
+          Ising_cor = cmplx(0.d0, 0.d0, kind(0.D0))
+          Green_eq  = cmplx(0.d0, 0.d0, kind(0.D0))
+          Spin_eq   = cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq    = cmplx(0.d0, 0.d0, kind(0.D0))
+          Ising_cor0= cmplx(0.d0, 0.d0, kind(0.D0))
+          Green_eq0 = cmplx(0.d0, 0.d0, kind(0.D0))
+          Spin_eq0  = cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq0   = cmplx(0.d0, 0.d0, kind(0.D0))
 
           If (Ltau == 1) then
              NobsT = 0
-             Phase_tau = cmplx(0.d0,0.d0)
-             Green_tau = cmplx(0.d0,0.d0)
-             Den_tau = cmplx(0.d0,0.d0)
+             Phase_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Green_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Den_tau = cmplx(0.d0, 0.d0, kind(0.D0))
           endif
 
         end Subroutine Init_obs
