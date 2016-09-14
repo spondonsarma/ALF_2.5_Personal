@@ -15,7 +15,7 @@
 !> @param[in] A boolean variable wether we do a ccomplex conjugate on D
 !> @param[in] LQ The length of the vectors and the dimension of M
 !--------------------------------------------------------------------
-        Subroutine scale(M, D, c, LQ)
+        Subroutine scalematrix(M, D, c, LQ)
         Integer, Intent(In) :: LQ
         Integer :: J
         Complex (Kind = Kind(0.D0)), Intent(Inout) :: M(LQ,LQ)
