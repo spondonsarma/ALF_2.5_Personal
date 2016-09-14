@@ -20,7 +20,7 @@
 
         ! Working space.
         COMPLEX (Kind=8) ::  U(Ndim,Ndim), U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
-	COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE
+        COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE
         Integer :: I, J, NT, NCON, nr, n, nf
         Real    (Kind=8) ::  X
  
@@ -42,35 +42,19 @@
            ENDDO
            
            !Carry out U,D,V decomposition.
-           DO J = 1,NDim
-              DO I = 1,NDim
-                 TMP1(I,J) = CONJG( TMP(J,I) )
-                 U   (I,J) = CONJG( UL (J,I,nf) )
-              ENDDO
-           ENDDO
+           TMP1 = CONJG(TRANSPOSE(TMP))
+           U = CONJG(TRANSPOSE(UL(:, :, nf)))
            CALL MMULT(TMP,TMP1,U)
-           DO J = 1,NDim
-              DO I = 1,NDim
-                 TMP(I,J) = TMP(I,J)*DL(J,nf)
-              ENDDO
+           DO n = 1,NDim
+              TMP(:, n) = TMP(:, n) * DL(n, nf)
            ENDDO
            CALL UDV_WRAP(TMP,U1,D1,V1,NCON)
            !CALL UDV(TMP,U1,D1,V1,NCON)
-           DO J = 1,NDim
-              DO I = 1,NDim
-                 UL (I,J,nf)  = CONJG( U1(J,I) )
-                 TMP(I,J)     = CONJG( V1(J,I) )
-              ENDDO
-           ENDDO
-           CALL MMULT(TMP1,VL(:,:,nf),TMP)
-           DO J = 1,NDim
-              DO I = 1,NDim
-                 VL(I,J,nf) = TMP1(I,J)
-              ENDDO
-           ENDDO
-           DO I = 1,NDim
-              DL(I,nf) = D1(I)
-           ENDDO
+           UL(:, :, nf) = CONJG(TRANSPOSE(U1))
+           TMP = CONJG(TRANSPOSE(V1))
+           CALL MMULT(TMP1,VL(:,:,nf), TMP)
+           VL(:, :, nf) = TMP1
+           DL(:, nf) = D1
         ENDDO
         
       END SUBROUTINE WRAPUL
