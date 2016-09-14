@@ -60,8 +60,8 @@
         
         Ratiotot = Product(Ratio)
         nf = 1
-        Ratiotot = (Ratiotot**dble(N_SUN)) * cmplx(Gaml(ns_new, Op_V(n_op,nf)%type)/Gaml(ns_old, Op_V(n_op,nf)%type),0.d0)
-        Ratiotot = Ratiotot*cmplx(S0(n_op,nt),0.d0)
+        Ratiotot = (Ratiotot**dble(N_SUN)) * Gaml(ns_new, Op_V(n_op,nf)%type)/Gaml(ns_old, Op_V(n_op,nf)%type)
+        Ratiotot = Ratiotot * real(S0(n_op,nt), kind(0.D0))!Just to be save since S0 seems to be user supplied
         
 
         !Write(6,*) Ratiotot
@@ -71,29 +71,27 @@
         Log = .false. 
         if ( Weight > ranf() )  Then
            Log = .true.
-           Phase = Phase * Ratiotot/cmplx(weight,0.d0)
+           Phase = Phase * Ratiotot/weight
            !Write(6,*) 'Accepted : ', Ratiotot
 
            Do nf = 1,N_FL
               ! Setup u(i,n), v(n,i) 
-              u = cmplx(0.d0,0.d0)
-              v = cmplx(0.d0,0.d0)
+              u = cmplx(0.d0, 0.d0, kind(0.D0))
+              v = cmplx(0.d0, 0.d0, kind(0.D0))
               do n = 1,Op_V(n_op,nf)%N_non_zero
                  u( Op_V(n_op,nf)%P(n), n) = Delta(n,nf)
                  do i = 1,Ndim
                     v(i,n) = - GR( Op_V(n_op,nf)%P(n), i, nf )
                  enddo
-                 v(Op_V(n_op,nf)%P(n), n)  = cmplx(1.d0,0.d0) - GR( Op_V(n_op,nf)%P(n),  Op_V(n_op,nf)%P(n), nf)
+                 v(Op_V(n_op,nf)%P(n), n)  = 1.d0 - GR( Op_V(n_op,nf)%P(n),  Op_V(n_op,nf)%P(n), nf)
               enddo
 
               
               x_v = cmplx(0.d0, 0.d0, kind(0.D0))
               y_v = cmplx(0.d0, 0.d0, kind(0.D0))
               i = Op_V(n_op,nf)%P(1)
-              x_v(i,1) = u(i,1)/(cmplx(1.d0,0.d0) + v(i,1)*u(i,1) )
-              Do i = 1,Ndim
-                 y_v(i,1) = v(i,1)
-              enddo
+              x_v(i, 1) = u(i, 1)/(1.d0 + v(i,1)*u(i,1) )
+              y_v(:, 1) = v(:, 1)
               do n = 2,Op_V(n_op,nf)%N_non_zero
                  s_yu = cmplx(0.d0, 0.d0, kind(0.D0))
                  s_xv = cmplx(0.d0, 0.d0, kind(0.D0))
@@ -105,7 +103,7 @@
                     x_v(i,n) = u(i,n)
                     y_v(i,n) = v(i,n)
                  enddo
-                 Z = cmplx(1.d0,0.d0) +  u( Op_V(n_op,nf)%P(n), n)*v(Op_V(n_op,nf)%P(n),n)
+                 Z = 1.d0 + u( Op_V(n_op,nf)%P(n), n)*v(Op_V(n_op,nf)%P(n),n)
                  do m = 1,n-1
                     Z = Z - s_xv(m)*s_yu(m)
                     Do i = 1,Ndim
@@ -117,7 +115,7 @@
                     x_v(i,n) = x_v(i,n)/Z
                  Enddo
               enddo
-              xp_v = cmplx(0.d0,0.d0)
+              xp_v = cmplx(0.d0, 0.d0, kind(0.D0))
               do n = 1,Op_dim
                  do m = 1,Op_dim
                     j = Op_V(n_op,nf)%P(m)
