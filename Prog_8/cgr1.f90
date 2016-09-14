@@ -50,7 +50,7 @@
            CALL MMULT(TPUP1,URUP,UUP)
            CALL INV(TPUP1,TPUP1M1,ZDUP2)
            Z1 = ZDUP1*ZDUP2
-        ELSEIF (NVAR.EQ.2) THEN
+        ELSE
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
            TPUP1 = CT(TPUP)
            CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
