@@ -208,11 +208,11 @@
                    Op_T(nc,n)%P(i) = i 
                 Enddo
                 if ( abs(Ham_T) < 1.E-6 .and.  abs(Ham_chem) < 1.E-6 ) then 
-                   Op_T(nc,n)%g=cmplx(0.d0 ,0.d0)
+                   Op_T(nc,n)%g = 0.d0
                 else
-                   Op_T(nc,n)%g=cmplx(-Dtau,0.d0) 
+                   Op_T(nc,n)%g = -Dtau
                 endif
-                Op_T(nc,n)%alpha=cmplx(0.d0,0.d0) 
+                Op_T(nc,n)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
                 !Write(6,*) 'In Ham_hop', Ham_T
                 Call Op_set(Op_T(nc,n)) 
                 !Write(6,*) 'In Ham_hop 1'
@@ -231,7 +231,7 @@
           
           Implicit none 
           
-          Integer :: nf, nth, n, n1, n2, n3, n4, I, I1, I2, J,  Ix, Iy, nc
+          Integer :: nf, nth, I, I1, I2, J,  Ix, Iy, nc
           Real (Kind=8) :: X_p(2), X1_p(2), X2_p(2), X
 
           
@@ -248,9 +248,9 @@
                 Do i = 1,Latt%N
                    nc = nc + 1
                    Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0)
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)),0.D0)) 
-                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0)
+                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
+                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                    ! The operator reads:  
@@ -273,9 +273,9 @@
                 Do i = 1,Latt%N
                    nc = nc + 1
                    Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0)
-                   Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0 ,0.D0)) 
-                   Op_V(nc,nf)%alpha  = cmplx(0.d0,0.d0)
+                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
+                   Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
+                   Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                    ! The operator reads:  
@@ -532,8 +532,8 @@
           Complex (Kind=8) :: Z, ZP, ZS
           Integer :: IMJ, I, J
 
-          ZP = PHASE/cmplx(Real(Phase,kind=8),0.d0)
-          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0)
+          ZP = PHASE/Real(Phase, kind(0.D0))
+          ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           If (NT == 0 ) then 
              Phase_tau = Phase_tau + ZS
              NobsT     = NobsT + 1
