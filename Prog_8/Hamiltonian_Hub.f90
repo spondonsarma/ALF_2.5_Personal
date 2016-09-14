@@ -176,9 +176,7 @@
           !Per flavor, the  hopping is given by: 
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
-          
           Integer :: I, I1, I2, n, Ncheck,nc
-          Real (Kind=8) :: X
 
           Ncheck = 1
           allocate(Op_T(Ncheck,N_FL))
@@ -187,20 +185,20 @@
                 Call Op_make(Op_T(nc,n),Ndim)
                 If (One_dimensional ) then 
                    DO I = 1, Latt%N
-                      I1 = Latt%nnlist(I,1,0)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,0.d0)
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,0.d0)
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0)
+                      I1 = Latt%nnlist(I, 1, 0)
+                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                    ENDDO
                 else
                    DO I = 1, Latt%N
                       I1 = Latt%nnlist(I,1,0)
                       I2 = Latt%nnlist(I,0,1)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,   0.d0)
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem,0.d0)
+                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                    ENDDO
                 endif
                 
@@ -231,8 +229,8 @@
           
           Implicit none 
           
-          Integer :: nf, nth, I, I1, I2, J,  Ix, Iy, nc
-          Real (Kind=8) :: X_p(2), X1_p(2), X2_p(2), X
+          Integer :: nf, I, I1, I2, J,  Ix, Iy, nc
+          Real (Kind=8) :: X
 
           
           If (Model == "Hubbard_SU2")  then
@@ -324,31 +322,28 @@
           Implicit none
           Integer, Intent(In) :: Ltau
           
-          Integer :: I,n
-          
           Nobs = 0
-          Obs_scal  = cmplx(0.d0,0.d0)
-          Green_eq  = cmplx(0.d0,0.d0) 
-          SpinZ_eq  = cmplx(0.d0,0.d0) 
-          SpinXY_eq = cmplx(0.d0,0.d0) 
-          Den_eq    = cmplx(0.d0,0.d0) 
-          Green_eq0 = cmplx(0.d0,0.d0) 
-          SpinZ_eq0 = cmplx(0.d0,0.d0) 
-          SpinXY_eq0= cmplx(0.d0,0.d0) 
-          Den_eq0   = cmplx(0.d0,0.d0) 
-
+          Obs_scal  = cmplx(0.d0,0.d0, kind(0.D0))
+          Green_eq  = cmplx(0.d0,0.d0, kind(0.D0))
+          SpinZ_eq  = cmplx(0.d0,0.d0, kind(0.D0))
+          SpinXY_eq = cmplx(0.d0,0.d0, kind(0.D0))
+          Den_eq    = cmplx(0.d0,0.d0, kind(0.D0))
+          Green_eq0 = cmplx(0.d0,0.d0, kind(0.D0))
+          SpinZ_eq0 = cmplx(0.d0,0.d0, kind(0.D0))
+          SpinXY_eq0= cmplx(0.d0,0.d0, kind(0.D0))
+          Den_eq0   = cmplx(0.d0,0.d0, kind(0.D0))
 
           If (Ltau == 1) then
              NobsT = 0
-             Phase_tau  = cmplx(0.d0,0.d0)
-             Green_tau  = cmplx(0.d0,0.d0)
-             Den_tau    = cmplx(0.d0,0.d0)
-             SpinZ_tau  = cmplx(0.d0,0.d0)
-             SpinXY_tau = cmplx(0.d0,0.d0)
-             Green0_tau = cmplx(0.d0,0.d0)
-             Den0_tau   = cmplx(0.d0,0.d0)
-             SpinZ0_tau  = cmplx(0.d0,0.d0)
-             SpinXY0_tau = cmplx(0.d0,0.d0)
+             Phase_tau  = cmplx(0.d0,0.d0, kind(0.D0))
+             Green_tau  = cmplx(0.d0,0.d0, kind(0.D0))
+             Den_tau    = cmplx(0.d0,0.d0, kind(0.D0))
+             SpinZ_tau  = cmplx(0.d0,0.d0, kind(0.D0))
+             SpinXY_tau = cmplx(0.d0,0.d0, kind(0.D0))
+             Green0_tau = cmplx(0.d0,0.d0, kind(0.D0))
+             Den0_tau   = cmplx(0.d0,0.d0, kind(0.D0))
+             SpinZ0_tau  = cmplx(0.d0,0.d0, kind(0.D0))
+             SpinXY0_tau = cmplx(0.d0,0.d0, kind(0.D0))
           endif
 
         end Subroutine Init_obs
