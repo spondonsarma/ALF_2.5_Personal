@@ -218,7 +218,7 @@
                    I1 =  Latt%nnlist(I,1,0)
                    do no = 1,4
                       do no1 = 1,4
-                         Z =  (cmplx(0.d0,Ham_T, kind(0.D0))*Gamma_M(no,no1,1) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/2.d0
+                         Z =  (cmplx(0.d0,Ham_T, kind(0.D0))*Gamma_M(no,no1,1) + Ham_T*Gamma_M(no,no1,3))/2.d0
                          Op_T(nc,n)%O( invlist_1(I ,no  ), invlist_1(I1,no1  ) )  =  Z
                          Op_T(nc,n)%O( invlist_1(I1,no1 ), invlist_1(I ,no   ) )  =  conjg(Z)
                       enddo
@@ -226,13 +226,13 @@
                    I2   = Latt%nnlist(I,0,1)
                    do no = 1,4
                       do no1 = 1,4
-                         Z =  (cmplx(0.d0,Ham_Lam)*Gamma_M(no,no1,2) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
+                         Z =  (cmplx(0.d0, Ham_Lam, kind(0.D0))*Gamma_M(no,no1,2) + Ham_T*Gamma_M(no,no1,3))/2.d0
                          Op_T(nc,n)%O( invlist_1(I ,no ), invlist_1(I2,no1  ) )  =  Z
                          Op_T(nc,n)%O( invlist_1(I2,no1), invlist_1(I ,no   ) )  =  conjg(Z)
                       enddo
                    enddo
                 enddo
-                Op_T(nc,n)%g=cmplx(-Dtau,0.d0)
+                Op_T(nc,n)%g=cmplx(-Dtau, 0.d0, kind(0.D0))
                 Call Op_set(Op_T(nc,n)) 
                 ! Just for tests
                 Do I = 1, Ndim/4
@@ -393,9 +393,7 @@
           !Local 
           Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
           Complex (Kind=8) :: Zrho, Zkin, ZPot, ZP,ZS
-          Integer :: I,J, no,no1, n, imj, nf, I1, I2, J1, J2, Nc
-          
-          Real (Kind=8) :: G(4,4), FI, FJ
+          Integer :: I,J, no,no1, n, imj, nf, I1, J1, Nc
           
           Nobs = Nobs + 1
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -405,8 +403,8 @@
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
-                   ZK = cmplx(0.d0,0.d0)
-                   If ( I == J ) ZK = cmplx(1.d0,0.d0)
+                   ZK = cmplx(0.d0, 0.d0, kind(0.D0))
+                   If ( I == J ) ZK = cmplx(1.d0, 0.d0, kind(0.D0))
                    GRC(I,J,nf)  = ZK - GR(J,I,nf)
                 Enddo
              Enddo
@@ -414,7 +412,7 @@
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
           ! Compute scalar observables. 
 
-          Zkin = cmplx(0.d0,0.d0)
+          Zkin = cmplx(0.d0,0.d0, kind(0.D0))
 
           Nc = Size( Op_T,1)
           Do nf = 1,N_FL
@@ -428,17 +426,17 @@
                 ENddo
              Enddo
           Enddo
-          Zkin = Zkin*cmplx( dble(N_SUN), 0.d0 )
+          Zkin = Zkin*dble(N_SUN)
 
-          Zrho = cmplx(0.d0,0.d0)
+          Zrho = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Zrho = Zrho + Grc(i,i,nf) 
              enddo
           enddo
-          Zrho = Zrho*cmplx( dble(N_SUN), 0.d0 )
+          Zrho = Zrho*dble(N_SUN)
 
-          ZPot = cmplx(0.d0,0.d0)
+          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
 
           Obs_scal(1) = Obs_scal(1) + zrho * ZP*ZS
           Obs_scal(2) = Obs_scal(2) + zkin * ZP*ZS
@@ -491,14 +489,14 @@
 !!$          Write(6,*)  'In Pr_obs', LTAU
 !!$#endif
     
-          Phase_bin = Obs_scal(5)/cmplx(dble(Nobs),0.d0)
+          Phase_bin = Obs_scal(5)/dble(Nobs)
           File_pr ="Den_eq"
           Call Print_bin(Den_eq, Den_eq0, Latt, Nobs, Phase_bin, file_pr)
 
           File_pr ="ener"
           Call Print_scal(Obs_scal, Nobs, file_pr)
           If (Ltau == 1) then
-             Phase_tau = Phase_tau/cmplx(dble(NobsT),0.d0)
+             Phase_tau = Phase_tau/dble(NobsT)
              File_pr = "Green_tau"
              Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
              File_pr = "Den_tau"
@@ -530,7 +528,7 @@
              NobsT     = NobsT + 1
           endif
           If ( N_FL == 1 ) then 
-             Z =  cmplx(dble(N_SUN),0.d0)
+             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
