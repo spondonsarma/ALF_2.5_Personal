@@ -198,9 +198,9 @@
                    Op_T(nc,n)%P(i) = i 
                 Enddo
                 if ( abs(Ham_T) < 1.E-6 .and.  abs(Ham_chem) < 1.E-6 ) then 
-                   Op_T(nc,n)%g=cmplx(0.d0 ,0.d0)
+                   Op_T(nc,n)%g=cmplx(0.d0 ,0.d0, kind(0.D0))
                 else
-                   Op_T(nc,n)%g=cmplx(-Dtau,0.d0) 
+                   Op_T(nc,n)%g=cmplx(-Dtau,0.d0, kind(0.D0)) 
                 endif
                 !Write(6,*) 'In Ham_hop', Ham_T
                 Call Op_set(Op_T(nc,n)) 
@@ -452,7 +452,7 @@
           
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
           If ( N_FL == 1 ) then 
-             Z =  cmplx(dble(N_SUN),0.d0)
+             Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
@@ -550,14 +550,14 @@
           Complex (Kind=8) :: Z, ZP, ZS
           Integer :: IMJ, I, J
 
-          ZP = PHASE/cmplx(Real(Phase,kind=8),0.d0)
-          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0)
+          ZP = PHASE/Real(Phase,kind=8)
+          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0, kind(0.D0))
           If (NT == 0 ) then 
              Phase_tau = Phase_tau + ZS
              NobsT     = NobsT + 1
           endif
           If ( N_FL == 1 ) then 
-             Z =  cmplx(dble(N_SUN),0.d0)
+             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
