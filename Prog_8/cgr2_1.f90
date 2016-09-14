@@ -272,12 +272,8 @@
            CALL MMULT(U,V,V2)
            Call MMULT (GRT0, HLP2,U)
         ENDIF
-        Xmin = abs(dble(D(1)))
-        DO I = 1,LQ
-           if (abs(dble(D(I))) <   Xmin ) Xmin = abs(dble(D(I)))
-        ENDDO
+        Xmin = minval(abs(dble(D)))
         Write(6,*) 'Cgr2_1 T0, Xmin: ', Xmin
-
 
         !Compute GRTT
         Z  = cmplx(1.d0,0.d0,kind=8)
