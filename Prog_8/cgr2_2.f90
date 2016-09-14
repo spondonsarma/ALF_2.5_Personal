@@ -35,12 +35,11 @@
 
         ! Local::
         Complex  (Kind=double) :: U3B(2*LQ,2*LQ), V3B(2*LQ,2*LQ), HLPB1(2*LQ,2*LQ), HLPB2(2*LQ,2*LQ), &
-             &                   V2INV(LQ,LQ), V1INV(LQ,LQ), HLP2(LQ,LQ)
+             &                   V1INV(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z
-        Real (Kind=double) :: X, Xmax
 
-        Integer :: LQ2, I,J, M, ILQ, JLQ, NCON, I1, J1,N 
+        Integer :: LQ2, I,J, NCON, I1, J1
         
         LQ2 = LQ*2
         NCON = 0
