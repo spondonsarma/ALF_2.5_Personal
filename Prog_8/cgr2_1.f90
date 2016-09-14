@@ -127,12 +127,9 @@
         DO J = 1,LQ
             HLP2(:,J) = D1(:) * HLP2(:, J) * D2(J) + HLP1(:,J)
         ENDDO
-        Xmax1 = dble( D1(1) )
-        Xmax2 = dble( D2(1) )
-        DO I = 2,LQ
-           If (  dble( D1(I) ) > Xmax1 ) Xmax1 =  dble( D1(I) )
-           If (  dble( D2(I) ) > Xmax2 ) Xmax2 =  dble( D2(I) )
-        Enddo
+        
+        Xmax1 = maxval(dble(D1))
+        Xmax2 = maxval(dble(D2))
         Nvar1 = 1
         If ( Xmax2 > Xmax1) Nvar1 = 2
         If (Nvar1 == 1) then
@@ -171,14 +168,8 @@
         !                            =  U2 ( D1*^-1 (U1 U2) + ( V2 V1)* D2* )^-1 V1*
         !       B2 = U2*D2*V2
         !       B1 = V1*D1*U1
-        Xmax2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D1(1))
-        Xmax1 = dble(D2(1))
-        Do I = 2,LQ
-           X2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D1(I))
-           X1 = dble(D2(I))
-           If ( X2 > Xmax2 ) Xmax2 = X2
-           If ( X1 > Xmax1 ) Xmax1 = X1
-        ENDDO
+        Xmax2 = maxval(dble(1.D0/D1))
+        Xmax1 = maxval(dble(D2))
         NVAR1 = 1
         If (Xmax2  > Xmax1)  Nvar1 = 2
         Call  MMULT(HLP1,U1,U2)
@@ -229,14 +220,8 @@
         !                     =   (V2^-1 D2^-1 U2^-1  + V1 D1 U1)^-1 =  
         !                     =   ( (V2^-1 D2^-1 U2^-1 U1^-1  + V1 D1 ) U1  )^-1 = 
         !                     =   U1^-1 (  ( D2^-1 (U1 U2)^-1  + V2*V1 D1 )   )^-1 V2 
-        Xmax2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D2(1))
-        Xmax1 = dble(D1(1))
-        Do I = 2,LQ
-           X2 = dble(cmplx(1.d0,0.d0, kind(0.D0))/D2(I))
-           X1 = dble(D1(I))
-           If ( X2 > Xmax2 ) Xmax2 = X2
-           If ( X1 > Xmax1 ) Xmax1 = X1
-        ENDDO
+        Xmax2 = maxval(dble(1.D0/D2))
+        Xmax1 = maxval(dble(D1))
         NVAR1 = 1
         If (Xmax2 > Xmax1 ) NVAR1 = 2
         !Write(6,*) "CGR2_1: NVAR,NVAR1 ", NVAR, NVAR1
