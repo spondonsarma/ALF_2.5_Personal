@@ -27,8 +27,7 @@
         Complex (Kind = double) :: s_xv(Op_dim), s_yu(Op_dim)
         Logical :: Log
 
-        
-        if ( sqrt(dble(OP_V(n_op,1)%g*conjg(OP_V(n_op,1)%g))) < 1.D-6 ) return
+        if ( abs(OP_V(n_op,1)%g) < 1.D-6 ) return
         
         ! Compute the ratio
         nf = 1
@@ -39,13 +38,13 @@
            ns_new = NFLIPL(Ns_old,nranf(3))
         endif
         Do nf = 1,N_FL
-           Z1 = Op_V(n_op,nf)%g * cmplx( Phi(ns_new,Op_V(n_op,nf)%type) -  Phi(ns_old,Op_V(n_op,nf)%type), 0.d0)  
+           Z1 = Op_V(n_op,nf)%g * ( Phi(ns_new,Op_V(n_op,nf)%type) -  Phi(ns_old,Op_V(n_op,nf)%type))
            Do m = 1,Op_V(n_op,nf)%N_non_zero
-              Z =  exp( Z1* Op_V(n_op,nf)%E(m) ) - cmplx(1.d0,0.d0)
+              Z =  exp( Z1* Op_V(n_op,nf)%E(m) ) - 1.d0
               Delta(m,nf) = Z
               do n = 1,Op_V(n_op,nf)%N_non_zero
-                 ZK = cmplx(0.d0,0.d0)
-                 If (n == m ) ZK = cmplx(1.d0,0.d0)
+                 ZK = cmplx(0.d0, 0.d0, kind(0.D0))
+                 If (n == m ) ZK = cmplx(1.d0, 0.d0, kind(0.D0))
                  Mat(n , m )  = ZK  +  ( ZK - GR( Op_V(n_op,nf)%P(n), Op_V(n_op,nf)%P(m),nf )) * Z
               Enddo
            Enddo
@@ -59,10 +58,7 @@
            Ratio(nf) =  D_Mat * exp( Z1*Op_V(n_op,nf)%alpha )
         Enddo
         
-        Ratiotot = cmplx(1.d0,0.d0)
-        Do nf = 1,N_FL
-           Ratiotot = Ratiotot * Ratio(nf) 
-        enddo
+        Ratiotot = Product(Ratio)
         nf = 1
         Ratiotot = (Ratiotot**dble(N_SUN)) * cmplx(Gaml(ns_new, Op_V(n_op,nf)%type)/Gaml(ns_old, Op_V(n_op,nf)%type),0.d0)
         Ratiotot = Ratiotot*cmplx(S0(n_op,nt),0.d0)
