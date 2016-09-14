@@ -1,3 +1,36 @@
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief
+!> This function scales every Row of M with an entry from the vector D
+!>
+!> @note
+!> GCC does not by itself pull out the division by D from the inner loop
+!> in every other expression that I tried, therefore this explicit loop construct
+!> is necessary.
+!>
+!> @param[inout] M The matrix whose rows we scale
+!> @param[in] D A vector with the scaling factors
+!> @param[in] A boolean variable wether we do a ccomplex conjugate on D
+!> @param[in] LQ The length of the vectors and the dimension of M
+!--------------------------------------------------------------------
+        Subroutine scale(M, D, c, LQ)
+        Integer, Intent(In) :: LQ
+        Integer :: J
+        Complex (Kind = Kind(0.D0)), Intent(Inout) :: M(LQ,LQ)
+        Complex (Kind = Kind(0.D0)), Intent(In) :: D(LQ)
+        Complex (Kind = Kind(0.D0)) :: Z
+        Logical, Intent(In) :: c
+
+        DO J = 1,LQ
+            Z = 1.D0/D(J)
+            If (c) Z = Conjg(z)
+            M(:,J) = M(:,J)*Z
+        ENDDO
+
+        end Subroutine
+
         SUBROUTINE CGR2_1(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ, NVAR)
 
         !       B2 = U2*D2*V2 is right (i.e. from time slice 0 to tau) propagation to time tau 
