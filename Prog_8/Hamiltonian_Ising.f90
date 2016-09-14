@@ -261,10 +261,10 @@
                             L_bond(I1,2) = nc
                          endif
                          Op_V(nc,nf)%P(1) = I1; Op_V(nc,nf)%P(2) = I2   
-                         Op_V(nc,nf)%O(1,2) = cmplx(1.d0  ,0.d0)
-                         Op_V(nc,nf)%O(2,1) = cmplx(1.d0  ,0.d0)
-                         Op_V(nc,nf)%g = cmplx(-dtau*Ham_xi,0.d0)
-                         Op_V(nc,nf)%alpha  = cmplx(0.d0  ,0.d0)
+                         Op_V(nc,nf)%O(1,2) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                         Op_V(nc,nf)%O(2,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                         Op_V(nc,nf)%g = cmplx(-dtau*Ham_xi,0.d0, kind(0.D0))
+                         Op_V(nc,nf)%alpha  = cmplx(0.d0  ,0.d0, kind(0.D0))
                          Op_V(nc,nf)%type   = 1
                          Call Op_set( Op_V(nc,nf) )
                          ! For a single flavour, the operator reads:  
