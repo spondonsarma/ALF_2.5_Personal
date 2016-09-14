@@ -72,7 +72,7 @@
         Complex  (Kind=double) :: HLP1(LQ,LQ), HLP2(LQ,LQ), U(LQ,LQ), D(LQ), V(LQ,LQ)
         Complex  (Kind=double) :: Z, Z1, Z2
         Real     (Kind=double) :: X, Xmax, Xmin, X1, X2, Xmax1, Xmax2, Xmean
-        Integer                :: I, J, M, NCON, NVAR1
+        Integer                :: I, J, NCON, NVAR1
 
         Complex  (Kind=double) :: V2inv(LQ,LQ), V1inv(LQ,LQ)
         
@@ -125,9 +125,7 @@
         Call MMULT(HLP1,V1inv,V2inv)
         Call MMULT(HLP2,U1,U2)
         DO J = 1,LQ
-           DO I = 1,LQ
-              HLP2(I,J) = D1(I)*HLP2(I,J)*D2(J)  + HLP1(I,J)
-           ENDDO
+            HLP2(:,J) = D1(:) * HLP2(:, J) * D2(J) + HLP1(:,J)
         ENDDO
         Xmax1 = dble( D1(1) )
         Xmax2 = dble( D2(1) )
@@ -184,17 +182,14 @@
         NVAR1 = 1
         If (Xmax2  > Xmax1)  Nvar1 = 2
         Call  MMULT(HLP1,U1,U2)
+!TODO: Consider benchmarking wether it is beneficial to interchange loops. Here it is saving divisions vs. proper mem access
         DO J = 1,LQ
-           DO I =1,LQ
-              HLP1(I,J) =  HLP1(I,J)/conjg(D1(I))
-           ENDDO
+           HLP1(:, J) =  HLP1(:,J)/conjg(D1(:))
         ENDDO
         Call MMULT(V,V2,V1)
         HLP2 = CT(V)
         DO J = 1,LQ
-           DO I =1,LQ
-              HLP2(I,J) = HLP1(I,J) +  HLP2(I,J)*conjg(D2(J))
-           ENDDO
+            HLP2(:, J) = HLP1(:,J) + HLP2(:,J) * conjg(D2(J))
         ENDDO
         NCON = 0
         IF ( NVAR1 == 1 ) Then
@@ -208,9 +203,7 @@
            CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
            Call MMULT (HLP2,HLP1,U) 
            DO I = 1,LQ
-              DO J = 1,LQ
-                 GR0T(I,J) = -conjg(HLP2(J,I))
-              ENDDO
+                GR0T(I, :) = - conjg(HLP2(:, I))
            ENDDO
         ELSE
            !  UDV of HLP2*
@@ -224,9 +217,7 @@
            HLP2 = CT(V)
            Call MMULT (V,HLP1,HLP2)
            DO I = 1,LQ
-              DO J = 1,LQ
-                 GR0T(I,J) = -conjg(V(J,I))
-              ENDDO
+                GR0T(I, :) = -conjg(V(:, I))
            ENDDO
         ENDIF
 
@@ -251,16 +242,13 @@
         !Write(6,*) "CGR2_1: NVAR,NVAR1 ", NVAR, NVAR1
         Call  MMULT(HLP2,U1,U2)
         HLP1 = CT(HLP2)
+!TODO: Consider benchmarking wether it is beneficial to interchange loops. Here it is saving divisions vs. proper mem access
         DO J = 1,LQ
-           DO I =1,LQ
-              HLP1(I,J) =  HLP1(I,J)/D2(I) 
-           ENDDO
+           HLP1(:, J) =  HLP1(:,J)/D2(:)
         ENDDO
         Call MMULT(HLP2,V2,V1)
         DO J = 1,LQ
-           DO I =1,LQ
-              HLP2(I,J) = HLP1(I,J) +  HLP2(I,J)*D1(J) 
-           ENDDO
+            HLP2(:, J) = HLP1(:,J) + HLP2(:,J) * D1(J)
         ENDDO
         NCON = 0
         IF ( NVAR1 == 1 ) Then
