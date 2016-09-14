@@ -235,8 +235,8 @@
 !--------------------------------------------------------------------
        SUBROUTINE INITD_C(A, X)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: A
-         COMPLEX (KIND=8), INTENT(IN) :: X
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: A
+         COMPLEX (KIND=KIND(0.D0)), INTENT(IN) :: X
          INTEGER I, N
          
          A = (0.D0, 0.D0)
@@ -260,14 +260,14 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_R0(A, AINV, DET)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         REAL (KIND=8), INTENT(OUT) :: DET
-         INTEGER I,J
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=KIND(0.D0)), INTENT(OUT) :: DET
+         INTEGER I
 
 ! Working space.
-         REAL (KIND=8) :: SGN
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)) :: SGN
+         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA
 
@@ -278,8 +278,8 @@
          
          AINV = A
          CALL DGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
-         DET = 1.0
-         SGN = 1.0
+         DET = 1.D0
+         SGN = 1.D0
          DO i = 1, LDA
          DET = DET * AINV(i,i)
          IF (IPVT(i) .ne. i) THEN
@@ -309,14 +309,14 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_R_Variable(A, AINV, DET, Ndim)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         REAL (KIND=8), INTENT(OUT) :: DET
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=KIND(0.D0)), INTENT(OUT) :: DET
          INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8) :: SGN
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)) :: SGN
+         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
 
@@ -327,8 +327,8 @@
          
          AINV = A
          CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
-         DET = 1.0
-         SGN = 1.0
+         DET = 1.D0
+         SGN = 1.D0
          DO i = 1, Ndim
          DET = DET * AINV(i,i)
          IF (IPVT(i) .ne. i) THEN
@@ -365,13 +365,13 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_R_Variable_1(A,AINV,DET,Ndim)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         REAL (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=KIND(0.D0)), DIMENSION(2), INTENT(OUT) :: DET
          INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
 
@@ -382,11 +382,11 @@
          
          AINV = A
          CALL DGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
-         DET(1) = 1.0
-         DET(2) = 0.0
+         DET(1) = 1.D0
+         DET(2) = 0.D0
 !         SGN = 1.0
          DO i = 1, Ndim
-         IF (AINV(i, i) < 0.0) THEN
+         IF (AINV(i, i) < 0.D0) THEN
          DET(1) = -DET(1)
          ENDIF
          DET(2) = DET(2) + LOG10(ABS(AINV(i,i)))
@@ -418,12 +418,12 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_R1(A,AINV,DET)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         REAL (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         REAL (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         REAL (KIND=KIND(0.D0)), DIMENSION(2), INTENT(OUT) :: DET
 
 ! Working space.
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
 
@@ -434,11 +434,11 @@
          
          AINV = A
          CALL DGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
-         DET(1) = 1.0
-         DET(2) = 0.0
+         DET(1) = 1.D0
+         DET(2) = 0.D0
 !         SGN = 1.0
          DO i = 1, LDA
-         IF (AINV(i, i) < 0.0) THEN
+         IF (AINV(i, i) < 0.D0) THEN
          DET(1) = -DET(1)
          ENDIF
          DET(2) = DET(2) + LOG10(ABS(AINV(i,i)))
@@ -516,14 +516,14 @@
 
        SUBROUTINE INV_C(A,AINV,DET)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         COMPLEX (KIND=8), INTENT(OUT) :: DET
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=KIND(0.D0)), INTENT(OUT) :: DET
          INTEGER I,J
 
 ! Working space.
-         REAL (KIND=8) :: SGN
-         COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)) :: SGN
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA
 
@@ -534,8 +534,8 @@
          
          AINV = A
          CALL ZGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
-         DET = (1.0, 0.0)
-         SGN = 1.0
+         DET = (1.D0, 0.D0)
+         SGN = 1.D0
          DO i = 1, LDA
          DET = DET * AINV(i,i)
          IF (IPVT(i) .ne. i) THEN
@@ -564,14 +564,14 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_C_Variable(A, AINV, DET, Ndim)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         COMPLEX (KIND=8), INTENT(OUT) :: DET
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=KIND(0.D0)), INTENT(OUT) :: DET
          INTEGER, INTENT(IN) :: Ndim
 
 ! Working space.
-         REAL (KIND=8) :: SGN
-         COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (KIND=KIND(0.D0)) :: SGN
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
 
@@ -582,8 +582,8 @@
          
          AINV = A
          CALL ZGETRF(Ndim, Ndim, AINV, LDA, IPVT, INFO)
-         DET = 1.0
-         SGN = 1.0
+         DET = 1.D0
+         SGN = 1.D0
          DO i = 1, Ndim
          DET = DET * AINV(i,i)
          IF (IPVT(i) .ne. i) THEN
@@ -615,15 +615,15 @@
 !--------------------------------------------------------------------
        SUBROUTINE INV_C1(A, AINV, DET)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(IN) :: A
-         COMPLEX (KIND=8), DIMENSION(:,:), INTENT(INOUT) :: AINV
-         COMPLEX (KIND=8), DIMENSION(2), INTENT(OUT) :: DET
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(2), INTENT(OUT) :: DET
 
 ! Working space.
-         COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPVT
          INTEGER INFO, LDA, I
-         REAL (KIND=8) :: mag
+         REAL (KIND=KIND(0.D0)) :: mag
 
          LDA = SIZE(A,1)
 ! Working space.
@@ -632,8 +632,8 @@
          
          AINV = A
          CALL ZGETRF(LDA, LDA, AINV, LDA, IPVT, INFO)
-         DET(1) = (1.0, 0.0)
-         DET(2) = 0.0
+         DET(1) = (1.D0, 0.D0)
+         DET(2) = 0.D0
          DO i = 1, LDA
          mag = ABS(AINV(i, i))
          ! update the phase
@@ -1156,13 +1156,13 @@
 !--------------------------------------------------------------------
       SUBROUTINE DIAG_R(A,U,W)
         IMPLICIT NONE
-        REAL (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-        REAL (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U
-        REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: W
+        REAL (KIND=KIND(0.D0)), INTENT(IN), DIMENSION(:,:) :: A
+        REAL (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:,:) :: U
+        REAL (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:) :: W
 
 
         INTEGER ND1,ND2,IERR
-        REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+        REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
 
          ND1 = SIZE(A,1)
          ND2 = SIZE(A,2)
@@ -1303,8 +1303,8 @@
 !> @return the Conjugate Transpose of A
 !--------------------------------------------------------------------
     function ct(a) result(b) ! return the conjugate transpose of a matrix
-        complex(kind=8), dimension(:,:), intent(in) :: a
-        complex(kind=8), dimension(size(a,1),size(a,1)) :: b
+        complex(kind=kind(0.D0)), dimension(:,:), intent(in) :: a
+        complex(kind=kind(0.D0)), dimension(size(a,1),size(a,1)) :: b
         b = conjg(transpose(a))
     end function ct
 
