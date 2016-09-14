@@ -25,9 +25,7 @@
              XNORM(I) = XNORM(I) + DBLE( A(J,I) * CONJG( A(J,I) ) )
           ENDDO
        ENDDO
-       DO I = 1,N2
-          VHELP(I) = XNORM(I)
-       ENDDO
+       VHELP = XNORM
       
        DO I = 1,N2
           XMAX = VHELP(1)
@@ -44,9 +42,7 @@
        ENDDO
        DO I = 1,N2
           K = IVPT(I)
-          DO J = 1,N1
-             A1(J,I) = A(J,K)
-          ENDDO
+          A1(:, I) = A(:, K)
        ENDDO
        
        CALL UDV_Wrap(A1,U,D,V,NCON)
@@ -54,18 +50,14 @@
        A1 = V
        DO I = 1,N2
           K = IVPTM1(I)
-          DO J = 1,N1
-             V(J,I) = A1(J,K)
-          ENDDO
+          V(:, I) = A1(:,K)
        ENDDO
        
 
        IF (NCON == 1) THEN
           !Check the result  A = U D V
           DO J = 1,N2
-             DO I = 1,N1
-                A1(I,J) = D(I)*V(I,J)
-             ENDDO
+             A1(:, J) = D * V(:, J)
           ENDDO
           Call MMULT (A2,U,A1)
           CALL COMPARE(A,A2,XMAX,XMEAN)
