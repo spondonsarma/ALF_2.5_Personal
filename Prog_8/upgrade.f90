@@ -144,8 +144,8 @@
               !enddo
               ! gr(:,:,nf) -= xp_v(:,:) * y_v(:,:)^T
               ! Replace by Zgemm 
-              alpha = cmplx (-1.0d0,0.0d0)
-              beta  = cmplx ( 1.0d0,0.0d0)
+              alpha = cmplx (-1.0d0, 0.0d0, kind(0.D0))
+              beta  = cmplx ( 1.0d0, 0.0d0, kind(0.D0))
               CALL ZGEMM('N','T',Ndim,Ndim,Op_dim,alpha,xp_v,size(xp_v,1),y_v,size(y_v,1),beta,gr(1,1,nf),size(gr,1))
               
 
