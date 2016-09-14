@@ -163,35 +163,34 @@
           !  Per flavor, the  hopping is given by: 
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
-          Integer :: I, I1, I2,I3,no, no1,  n, Ncheck, nc , nth
+          Integer :: I, I1, I2 ,no, no1, n, Ncheck, nc
           Integer, allocatable :: Invlist_1(:,:)
-          Real    (Kind=8) :: X
           Complex (Kind=8) :: Z
 
 
           ! Setup Gamma matrices
-          Gamma_M = cmplx(0.d0,0.d0)
-          Sigma_M = cmplx(0.d0,0.d0)
-          Sigma_M(1,1,0) = cmplx( 1.d0, 0.d0)
-          Sigma_M(2,2,0) = cmplx( 1.d0, 0.d0)
-          Sigma_M(1,2,1) = cmplx( 1.d0, 0.d0)
-          Sigma_M(2,1,1) = cmplx( 1.d0, 0.d0)
-          Sigma_M(1,2,2) = cmplx( 0.d0,-1.d0)
-          Sigma_M(2,1,2) = cmplx( 0.d0, 1.d0)
-          Sigma_M(1,1,3) = cmplx( 1.d0, 0.d0)
-          Sigma_M(2,2,3) = cmplx(-1.d0, 0.d0)
+          Gamma_M = cmplx(0.d0, 0.d0, kind(0.D0))
+          Sigma_M = cmplx(0.d0, 0.d0, kind(0.D0))
+          Sigma_M(1,1,0) = cmplx( 1.d0, 0.d0, kind(0.D0))
+          Sigma_M(2,2,0) = cmplx( 1.d0, 0.d0, kind(0.D0))
+          Sigma_M(1,2,1) = cmplx( 1.d0, 0.d0, kind(0.D0))
+          Sigma_M(2,1,1) = cmplx( 1.d0, 0.d0, kind(0.D0))
+          Sigma_M(1,2,2) = cmplx( 0.d0,-1.d0, kind(0.D0))
+          Sigma_M(2,1,2) = cmplx( 0.d0, 1.d0, kind(0.D0))
+          Sigma_M(1,1,3) = cmplx( 1.d0, 0.d0, kind(0.D0))
+          Sigma_M(2,2,3) = cmplx(-1.d0, 0.d0, kind(0.D0))
           Do no = 1,2
              Do no1 = 1,2
                 Gamma_M(no+2,no1  ,1)  =  Sigma_M(no,no1,0) 
                 Gamma_M(no  ,no1+2,1)  =  Sigma_M(no,no1,0) 
-                Gamma_M(no+2,no1  ,2)  =  cmplx( 0.d0,-1.d0)*Sigma_M(no,no1,0)
-                Gamma_M(no  ,no1+2,2)  =  cmplx( 0.d0, 1.d0)*Sigma_M(no,no1,0)
-                Gamma_M(no  ,no1  ,3)  =  cmplx( 1.d0, 0.d0)*Sigma_M(no,no1,1)
-                Gamma_M(no+2,no1+2,3)  =  cmplx(-1.d0, 0.d0)*Sigma_M(no,no1,1)
-                Gamma_M(no  ,no1  ,4)  =  cmplx( 1.d0, 0.d0)*Sigma_M(no,no1,2)
-                Gamma_M(no+2,no1+2,4)  =  cmplx(-1.d0, 0.d0)*Sigma_M(no,no1,2)
-                Gamma_M(no  ,no1  ,5)  =  cmplx( 1.d0, 0.d0)*Sigma_M(no,no1,3)
-                Gamma_M(no+2,no1+2,5)  =  cmplx(-1.d0, 0.d0)*Sigma_M(no,no1,3)
+                Gamma_M(no+2,no1  ,2)  =  cmplx( 0.d0,-1.d0, kind(0.D0))*Sigma_M(no,no1,0)
+                Gamma_M(no  ,no1+2,2)  =  cmplx( 0.d0, 1.d0, kind(0.D0))*Sigma_M(no,no1,0)
+                Gamma_M(no  ,no1  ,3)  =  cmplx( 1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,1)
+                Gamma_M(no+2,no1+2,3)  =  cmplx(-1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,1)
+                Gamma_M(no  ,no1  ,4)  =  cmplx( 1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,2)
+                Gamma_M(no+2,no1+2,4)  =  cmplx(-1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,2)
+                Gamma_M(no  ,no1  ,5)  =  cmplx( 1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,3)
+                Gamma_M(no+2,no1+2,5)  =  cmplx(-1.d0, 0.d0, kind(0.D0))*Sigma_M(no,no1,3)
              Enddo
           Enddo
 
@@ -212,14 +211,14 @@
                 Do I = 1,Latt%N
                    do no = 1,4
                       do no1 = 1,4
-                         Z =  cmplx(1.d0*Ham_T,0.d0)*Gamma_M(no,no1,3)
+                         Z =  cmplx(1.d0*Ham_T, 0.d0, kind(0.D0))*Gamma_M(no,no1,3)
                          Op_T(nc,n)%O( Invlist_1(I,no) ,Invlist_1(I,no1) )  =  Z
                       enddo
                    enddo
                    I1 =  Latt%nnlist(I,1,0)
                    do no = 1,4
                       do no1 = 1,4
-                         Z =  (cmplx(0.d0,Ham_T)*Gamma_M(no,no1,1) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/cmplx(2.d0,0.d0)
+                         Z =  (cmplx(0.d0,Ham_T, kind(0.D0))*Gamma_M(no,no1,1) + cmplx(Ham_T,0.d0)*Gamma_M(no,no1,3))/2.d0
                          Op_T(nc,n)%O( invlist_1(I ,no  ), invlist_1(I1,no1  ) )  =  Z
                          Op_T(nc,n)%O( invlist_1(I1,no1 ), invlist_1(I ,no   ) )  =  conjg(Z)
                       enddo
@@ -250,24 +249,24 @@
           
           Implicit none 
           
-          Integer :: nf, nth, n, n1, n2, n3, n4, I, I1, I2, J,  Ix, Iy, nc, no,no1, ns, npm 
+          Integer :: nf, I, J, nc, no,no1, ns, npm 
           Integer :: nxy
-          Real (Kind=8) :: X_p(2), X1_p(2), X2_p(2), X, XJ, Xpm
+          Real (Kind=8) :: X, Xpm
 
           Complex (Kind=8) :: Ps(4,4,2), Ps_G5(4,4,2), Tmp(4,4), Z
           Complex (Kind=8) :: Sx(16,16,2,2), Sy(16,16,2,2)
 
 
-          Ps = cmplx(0.d0,0.d0)
+          Ps = cmplx(0.d0, 0.d0, kind(0.D0))
           Call mmult (Tmp,Gamma_M(:,:,3), Gamma_M(:,:,4) )
           do ns = 1,2
              if (ns == 1) X =  1.d0/2d0
              if (ns == 2) X = -1.d0/2.d0
              Do I = 1,4
                 Do J = 1,4
-                   Z = cmplx(0.d0,0.d0)
-                   if ( I == J )  Z = cmplx(1.d0/2.d0,0.d0)
-                   Ps(I,J,ns) =   Z  + cmplx(0.d0,X) * tmp(I,J)
+                   Z = cmplx(0.d0, 0.d0, kind(0.D0))
+                   if ( I == J )  Z = cmplx(1.d0/2.d0, 0.d0, kind(0.D0))
+                   Ps(I,J,ns) =   Z  + cmplx(0.d0, X, kind(0.D0)) * tmp(I,J)
                 Enddo
              Enddo
           Enddo
@@ -276,23 +275,23 @@
              Call mmult ( Ps_G5(:,:,ns), Ps(:,:,ns), Gamma_M(:,:,5) )
           enddo
       
-          Sx = cmplx(0.d0,0.d0)
-          Sy = cmplx(0.d0,0.d0)
+          Sx = cmplx(0.d0,0.d0, kind(0.D0))
+          Sy = cmplx(0.d0,0.d0, kind(0.D0))
           Do ns = 1,2
              Do npm = 1,2
                 if (npm == 1) Xpm =  1.0
                 if (npm == 2) Xpm = -1.0
                 Do no = 1,4
                    do no1 = 1,4
-                      Sx(no    , no1 + 4 ,ns,npm) =  cmplx(1.d0, 0.d0)*Ps_G5(no,no1,ns)
-                      Sx(no +4 , no1     ,ns,npm) =  cmplx(1.d0, 0.d0)*Ps_G5(no,no1,ns)
-                      Sx(no +8 , no1 + 12,ns,npm) =  cmplx(xpm,  0.d0)*Ps_G5(no,no1,ns)
-                      Sx(no+12 , no1 + 8 ,ns,npm) =  cmplx(xpm,  0.d0)*Ps_G5(no,no1,ns)
+                      Sx(no    , no1 + 4 ,ns,npm) =  cmplx(1.d0, 0.d0, kind(0.D0))*Ps_G5(no,no1,ns)
+                      Sx(no +4 , no1     ,ns,npm) =  cmplx(1.d0, 0.d0, kind(0.D0))*Ps_G5(no,no1,ns)
+                      Sx(no +8 , no1 + 12,ns,npm) =  cmplx(xpm,  0.d0, kind(0.D0))*Ps_G5(no,no1,ns)
+                      Sx(no+12 , no1 + 8 ,ns,npm) =  cmplx(xpm,  0.d0, kind(0.D0))*Ps_G5(no,no1,ns)
                       
-                      Sy(no    , no1 + 4 ,ns,npm) =  cmplx(0.d0, -1.d0    )*Ps_G5(no,no1,ns)
-                      Sy(no +4 , no1     ,ns,npm) =  cmplx(0.d0,  1.d0    )*Ps_G5(no,no1,ns)
-                      Sy(no +8 , no1 + 12,ns,npm) =  cmplx(0.d0,  1.d0*xpm)*Ps_G5(no,no1,ns)
-                      Sy(no+12 , no1 + 8 ,ns,npm) =  cmplx(0.d0, -1.d0*xpm)*Ps_G5(no,no1,ns)
+                      Sy(no    , no1 + 4 ,ns,npm) =  cmplx(0.d0, -1.d0, kind(0.D0)    )*Ps_G5(no,no1,ns)
+                      Sy(no +4 , no1     ,ns,npm) =  cmplx(0.d0,  1.d0, kind(0.D0)    )*Ps_G5(no,no1,ns)
+                      Sy(no +8 , no1 + 12,ns,npm) =  cmplx(0.d0,  1.d0*xpm, kind(0.D0))*Ps_G5(no,no1,ns)
+                      Sy(no+12 , no1 + 8 ,ns,npm) =  cmplx(0.d0, -1.d0*xpm, kind(0.D0))*Ps_G5(no,no1,ns)
                    enddo
                 enddo
              enddo
@@ -324,8 +323,8 @@
                                If (nxy == 2)  Op_V(nc,nf)%O(no,no1) = Sy(no,no1,ns,npm)
                             Enddo
                          Enddo
-                         Op_V(nc,nf)%g = SQRT(CMPLX(-Xpm*DTAU*Ham_Vint/8.d0,0.D0)) 
-                         Op_V(nc,nf)%alpha  = cmplx(0.d0,0.d0)
+                         Op_V(nc,nf)%g = SQRT(CMPLX(-Xpm*DTAU*Ham_Vint/8.d0, 0.D0, kind(0.D0))) 
+                         Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                          Op_V(nc,nf)%type   = 2
                          Call Op_set( Op_V(nc,nf) )
                          ! The operator reads: 
@@ -343,7 +342,7 @@
         Real (Kind=8) function S0(n,nt)  
           Implicit none
           Integer, Intent(IN) :: n,nt 
-          Integer :: i, nt1 
+
           S0 = 1.d0
         end function S0
 
@@ -352,7 +351,7 @@
 
           Implicit none
           Integer, Intent(In) :: Ltau
-          Integer :: I
+
           Allocate ( Obs_scal(5) )
           Allocate ( Den_eq(Latt%N,Norb,Norb), Den_eq0(Norb) ) 
           If (Ltau == 1) then 
@@ -368,18 +367,16 @@
           Implicit none
           Integer, Intent(In) :: Ltau
           
-          Integer :: I,n
-          
           Nobs = 0
-          Obs_scal  = cmplx(0.d0,0.d0)
-          Den_eq    = cmplx(0.d0,0.d0)
-          Den_eq0   = cmplx(0.d0,0.d0)
+          Obs_scal  = cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq    = cmplx(0.d0, 0.d0, kind(0.D0))
+          Den_eq0   = cmplx(0.d0, 0.d0, kind(0.D0))
 
           If (Ltau == 1) then
              NobsT = 0
-             Phase_tau = cmplx(0.d0,0.d0)
-             Green_tau = cmplx(0.d0,0.d0)
-             Den_tau = cmplx(0.d0,0.d0)
+             Phase_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Green_tau = cmplx(0.d0, 0.d0, kind(0.D0))
+             Den_tau = cmplx(0.d0, 0.d0, kind(0.D0))
           endif
 
         end Subroutine Init_obs
@@ -395,14 +392,14 @@
           
           !Local 
           Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
-          Integer :: I,J, no,no1, n, n1, imj, nf, I1, I2, J1, J2, Nc
+          Complex (Kind=8) :: Zrho, Zkin, ZPot, ZP,ZS
+          Integer :: I,J, no,no1, n, imj, nf, I1, I2, J1, J2, Nc
           
-          Real (Kind=8) :: G(4,4), X, FI, FJ
+          Real (Kind=8) :: G(4,4), FI, FJ
           
           Nobs = Nobs + 1
-          ZP = PHASE/cmplx(Real(Phase,kind=8),0.d0)
-          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0)
+          ZP = PHASE/Real(Phase, kind(0.D0))
+          ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           
 
           Do nf = 1,N_FL
@@ -526,8 +523,8 @@
           Complex (Kind=8) :: Z, ZP, ZS
           Integer :: IMJ, I, J
 
-          ZP = PHASE/cmplx(Real(Phase,kind=8),0.d0)
-          ZS = cmplx(Real(Phase,kind=8)/Abs(Real(Phase,kind=8)), 0.d0)
+          ZP = PHASE/Real(Phase, kind(0.D0))
+          ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           If (NT == 0 ) then 
              Phase_tau = Phase_tau + ZS
              NobsT     = NobsT + 1
