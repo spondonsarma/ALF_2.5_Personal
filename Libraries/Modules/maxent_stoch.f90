@@ -713,10 +713,7 @@ Module MaxEnt_stoch_mod
                        !om = PhiM1(A_gamma_p(1))
                        nw = NPhiM1(A_gamma_p(1))
                        Xker_new = Xker_table(:, nw)
-                       do nt = 1,ntau
-                          X = ( Xker_new(nt) - Xker_stor(nt,ng1) ) * Z_gamma_o(1)
-                          Deltah(nt) = X
-                       enddo
+                       Deltah = ( Xker_new - Xker_stor(:, ng1) ) * Z_gamma_o(1)
                     endif
                     DeltaE = 0.d0
                     do nt = 1,ntau
@@ -729,24 +726,17 @@ Module MaxEnt_stoch_mod
                        if (Lambda_max.eq.1) then
                           Nacc_1 = Nacc_1 + 1
                           ng1 = Lambda(1)
-                          do nt = 1,ntau
-                             Xker_stor(nt,ng1) = Xker_new(nt)
-                          enddo
+                          Xker_stor(:, ng1) = Xker_new
                        endif
                        if (Lambda_max.eq.2) Nacc_2 = Nacc_2 + 1
                        do nl = 1,Lambda_max
                           Xn(Lambda(nl),1) = A_gamma_p(nl)
                           Xn(Lambda(nl),2) = Z_gamma_p(nl)
                       enddo
-                      do nt = 1,ntau
-                         h(nt) = h(nt) + Deltah(nt)
-                      enddo
+                      h = h + Deltah
                     endif
                  enddo
-                 En = 0.0
-                 do nt = 1,Ntau
-                    En = En + h(nt)*h(nt)
-                 enddo
+                 En = dot_product(h, h)
                  En_m = En_m + En
                  Call Sum_Xn_Boxes( Xn_m, Xn )
               enddo
@@ -758,7 +748,7 @@ Module MaxEnt_stoch_mod
            Deallocate ( Lambda, Z_gamma_p, A_gamma_p, Z_gamma_o, A_gamma_o )
            Deallocate ( XKER_stor, XKER_new )
 2005       format(I4,2x,I4,2x,F14.7,2x,F14.7,' --> ',F14.7,2x,F14.7)
-           format(I4,2x,F14.7, ' --> ',F14.7)
+2006       format(I4,2x,F14.7, ' --> ',F14.7)
          end Subroutine MC
 !**********
          real (Kind=8) function xpbc(X,XL)
