@@ -191,7 +191,7 @@ Module  Fourier
       
       Integer :: Niom, Ntau, nt, niw, Norb, LQ_C
       Integer :: nk, no1, no2
-      Complex (Kind=8) :: Z1, Z2
+      Real (Kind=Kind(0.D0)) :: Z1, Z2
 
       Write (6,*) "Size of griom: ", size(g_iom,1), size(g_iom,2)
       Write (6,*) "Size of grt0 : ", size(g_t0,1), size(g_t0,2)
@@ -280,7 +280,7 @@ Module  Fourier
       
       Integer :: Niom, Ntau, nt, niw, Norb, LQ_C
       Integer :: nk, no1, no2
-      Complex (Kind=8) :: Z1, Z2
+      Real (Kind=Kind(0.D0)) :: Z1, Z2
 
       Write (6,*) "Size of griom: ", size(g_iom,1), size(g_iom,2)
       Write (6,*) "Size of grt0 : ", size(g_t0,1), size(g_t0,2)
@@ -365,7 +365,7 @@ Module  Fourier
       
       Integer :: Niom, Ntau, nt, niw, Norb
       Integer :: no1, no2
-      Complex (Kind=8) :: Z1, Z2
+      Real (Kind=Kind(0.D0)) :: Z1, Z2
 
       Write (6,*) "Size of griom: ", size(g_iom,1)
       Write (6,*) "Size of grt0 : ", size(g_t0,1) 
