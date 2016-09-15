@@ -64,7 +64,7 @@
          Allocate ( bins(Ndim,Lt,Nbins), Phase(Nbins), Xk_p(2,ndim), V_help(lt,Nbins), bins0(Nbins,Norb))
          Allocate (Xmean(Lt), Xcov(Lt,Lt))
          bins  = 0.d0
-         bins0 = cmplx(0.d0,0.d0)
+         bins0 = cmplx(0.d0,0.d0,Kind(0.d0))
          Open ( Unit=10, File="intau", status="unknown" ) 
          do nb = 1, nbins + n_skip
             if (nb > n_skip ) then

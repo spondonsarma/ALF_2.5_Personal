@@ -78,13 +78,13 @@
        Open (Unit=43,File="Green", Status="unknown", action="write")
        pi = acos(-1.d0)
        do nw = 1,Ndis
-          Z = cmplx(0.d0,0.d0)
+          Z = cmplx(0.d0,0.d0,Kind(0.d0))
           om = xom(nw)
           do nwp = 1,Ndis
              omp = xom(nwp)
-             Z = Z + cmplx(A(nwp),0.d0)/cmplx( om -  omp, delta)
+             Z = Z + cmplx(A(nwp),0.d0,kind(0.d0))/cmplx( om -  omp, delta,kind(0.d0))
           enddo
-          Z = Z * cmplx(dom,0.d0)
+          Z = Z * cmplx(dom,0.d0,kind(0.d0))
           write(43,"(F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
        enddo
        close(43)
