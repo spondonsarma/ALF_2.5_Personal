@@ -44,7 +44,7 @@
              if (Present(Nw_1) ) then 
                 Nw = Nw_1
              else
-                Nw = 10.D0*log(10.D0)/log(Lambda)
+                Nw = NINT(10.D0*log(10.D0)/log(Lambda))
              endif
              Mesh%Nw         = Nw
              Mesh%Nom        = 2*Nw + 3
