@@ -126,7 +126,7 @@
                !enddo
                !V_help = V_help/4.d0
                call COV(bins(n,:,:), phase, Xcov, Xmean )
-               write(File_out,'("g_",F4.2,"_"F4.2)')  Xk_p(1,n), Xk_p(2,n)
+               write(File_out,'("g_",F4.2,"_",F4.2)')  Xk_p(1,n), Xk_p(2,n)
                Open (Unit=10,File=File_out,status="unknown")
                do nt = 1, LT
                   Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
