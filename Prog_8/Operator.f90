@@ -68,7 +68,19 @@ Contains
     NFLIPL( 2,3) =  1 
     
   end Subroutine Op_SetHS
-  
+
+!--------------------------------------------------------------------
+!> @author
+!> 
+!
+!> @brief 
+!> calculate the phase of a given set of operators and HS fields.
+!
+!> @param[inout] Phase
+!> @param[in] Op_V An array of Operators
+!> @param[in] Nsigma
+!> @param[in] N_SUN 
+!--------------------------------------------------------------------
   Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) ! This also goes in Operator  (Input is nsigma, Op_V).
     Implicit none
 
