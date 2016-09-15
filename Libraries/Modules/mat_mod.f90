@@ -15,7 +15,7 @@
           MODULE PROCEDURE DET_C
        END INTERFACE DET
        INTERFACE CT
-    	  MODULE PROCEDURE CT
+          MODULE PROCEDURE CT
        END INTERFACE CT
        INTERFACE INV
           MODULE PROCEDURE INV_R0, INV_R_Variable, INV_R_VARIABLE_1, INV_R1, INV_R2, INV_C, INV_C1, &
@@ -115,15 +115,13 @@
                      DO M = 1,N
                         Z = Z + Z_MAT(I,M)*U(M,J)
                      ENDDO
-                     X = ABS(Z)
-                  ENDIF
-                  IF (LR=="L")  THEN
+                  ELSE
                      Z = -W(I)*U(I,J)
                      DO M = 1,N
                         Z = Z + U(I,M)*Z_MAT(M,J) 
                      ENDDO 
-                     X = ABS(Z)
                   ENDIF
+                  X = ABS(Z)
                   IF ( X > XMAX ) XMAX = X
                ENDDO
             ENDDO
@@ -141,8 +139,8 @@
        SUBROUTINE MMULT_R(C, A, B)
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:) :: A,B,C
-         REAL (KIND=8) :: X, ALP, BET
-         INTEGER I,J, K, N, M, P, LDA, LDB, LDC
+         REAL (KIND=8) :: ALP, BET
+         INTEGER N, M, P, LDA, LDB, LDC
          N = SIZE(A,1) ! Rows in A
          M = SIZE(A,2) ! Columns in A
          P = SIZE(B,2) ! Columns in B
@@ -151,12 +149,7 @@
          ALP = 1.D0
          BET = 0.D0
 
-
          CALL DGEMM('n','n',N,P,M,ALP,A,LDA,B,LDB,BET,C,LDC)
-
-
-
-
 
 
 ! WRITE(6,*) 'In real', N,M,P
@@ -175,7 +168,7 @@
          IMPLICIT NONE
          COMPLEX (KIND=8), DIMENSION(:,:) :: A,B,C
          COMPLEX (KIND=8) :: ALP, BET
-         INTEGER I,J, K, N, M, P, LDA, LDB, LDC
+         INTEGER N, M, P, LDA, LDB, LDC
 
          N = SIZE(A,1)
          M = SIZE(A,2)
@@ -456,14 +449,14 @@
          IMPLICIT NONE
          REAL (KIND=8), DIMENSION(:,:) :: A,AINV
 
-         INTEGER I,J, N, M
+         INTEGER I, J
 
 ! Uses Lapack routines.
 
 ! Working space.
          REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPIV
-         INTEGER INFO, JOB, LDA, LWORK
+         INTEGER INFO, LDA, LWORK
 
          LDA = SIZE(A,1)
 
@@ -519,7 +512,7 @@
          COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(IN) :: A
          COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), INTENT(INOUT) :: AINV
          COMPLEX (KIND=KIND(0.D0)), INTENT(OUT) :: DET
-         INTEGER I,J
+         INTEGER I
 
 ! Working space.
          REAL (KIND=KIND(0.D0)) :: SGN
@@ -704,7 +697,7 @@
          REAL (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
          REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
          INTEGER, INTENT(IN) :: NCON
-         INTEGER I,J,K, N, M, ND1, ND2, NR, IMAX, IFAIL
+         INTEGER I,J,K, ND1, ND2, NR, IMAX, IFAIL
 
 !        The Det of V is not equal to unity. 
 ! Locals:
@@ -713,7 +706,7 @@
               & THETA, WORK
          REAL (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
               & TEST, TEST1, TEST2
-         REAL (KIND=8) :: XMAX, XMEAN, Z, DETV
+         REAL (KIND=8) :: XMAX, XMEAN, Z
 
          ND1 = SIZE(A,1)
          ND2 = SIZE(A,2)
@@ -757,8 +750,9 @@
          VHELP = XNORM
 
          DO I = 1,ND2
-            XMAX = 0.D0
-            DO J = 1,ND2
+            XMAX = VHELP(1)
+            IMAX = 1
+            DO J = 2, ND2
                IF (VHELP(J).GT.XMAX) IMAX = J
                IF (VHELP(J).GT.XMAX) XMAX = VHELP(J)
             ENDDO
