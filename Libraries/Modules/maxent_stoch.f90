@@ -30,12 +30,12 @@ Module MaxEnt_stoch_mod
            Integer, optional :: L_cov
 
            ! Local
-           Integer lp, NSims, ns, nb, nc, Nwarm, nalp1, nalp2, Nex, p_star, Ndis_table, &
+           Integer NSims, ns, nb, nc, Nwarm, nalp1, nalp2, Nex, p_star, Ndis_table, &
                 & io_error, io_error1, i, n, nc1
            Real (Kind=8), Allocatable :: Xn_M_tot(:,:), En_M_tot(:), Xn_E_tot(:,:), En_E_tot(:), &
                 & Xn_tot(:,:,:), En_tot(:)
            Real (Kind=8), Allocatable :: G_Mean(:), Xn_m(:), Xn_e(:), Xn(:,:), Vhelp(:)
-           Real (Kind=8) :: En_M, Res, X, Alpha, Acc_1, Acc_2, En, DeltaE, Ratio, D
+           Real (Kind=8) :: En_M, X, Alpha, Acc_1, Acc_2, En, DeltaE, Ratio, D
            Real (Kind=8) :: Aom, om, XMAX, tau
            Real (Kind=8) :: CPUT, CPUTM
            Integer :: ICPU_1, ICPU_2, N_P_SEC
@@ -380,14 +380,14 @@ Module MaxEnt_stoch_mod
            Real (Kind=8), Dimension(:,:) :: COV
            Real (Kind=8), external :: XKER
            Real (Kind=8) :: CHISQ, OM_ST, OM_EN, Beta_1, Xmom1, Err
-           Integer :: Nsweeps, NBins, Ngamma_1, Ndis_1, nw, nt1, Lcov
+           Integer :: Nsweeps, NBins, Ngamma_1, nw, nt1, Lcov
            ! Local
-           Integer lp, NSims, ns, nb, nc, Nwarm, nalp1, nalp2, Nex, p_star
+           Integer NSims, ns, nb, nc, Nwarm, nalp1, nalp2, Nex
            Real (Kind=8), Allocatable :: Xn_M_tot(:,:), En_M_tot(:), Xn_E_tot(:,:), En_E_tot(:), &
                 & Xn_tot(:,:,:), En_tot(:), Xker_table(:,:)
            Real (Kind=8), Allocatable :: G_Mean(:), Xn_m(:), Xn_e(:), Xn(:,:), Vhelp(:)
-           Real (Kind=8) :: En_M, Res, X, Alpha, Acc_1, Acc_2, En, DeltaE, Ratio, D
-           Real (Kind=8) :: Aom, om, XMAX, tau
+           Real (Kind=8) :: En_M, Alpha, Acc_1, Acc_2, En, DeltaE, Ratio, D
+           Real (Kind=8) :: Aom, om, tau
            Real (Kind=8), allocatable :: U(:,:), sigma(:)
            Pi = acos(-1.d0)
            Call Get_seed_Len(L_seed)
@@ -593,10 +593,10 @@ Module MaxEnt_stoch_mod
            Deallocate( Xker_table )
            DeAllocate(Iseed_vec)
 
-2001       format(F14.7,2x,F14.7,2x,F14.7)
-2004       format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
-2005       format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
-2003       format('Alpha, En_m, Acc ', F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+           format(F14.7,2x,F14.7,2x,F14.7)
+           format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+           format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+           format('Alpha, En_m, Acc ', F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
          end Subroutine MaxEnt_stoch_fit
  !***********
          Real (Kind=8) Function Phim1(x)
@@ -648,15 +648,15 @@ Module MaxEnt_stoch_mod
            Implicit None
            Real (Kind=8), Dimension(:,:) :: Xn, Xker_table
            Real (Kind=8), Dimension(:) :: Xtau, Xn_m
-           Real (Kind=8) :: Alpha, En_m, s, ratio, ranf, A_gamma, Z_gamma, Acc_1, Acc_2
+           Real (Kind=8) :: Alpha, En_m, s, ratio, A_gamma, Z_gamma, Acc_1, Acc_2
            Integer :: NSweeps, nl, Lambda_max, ng1, ng2
            !Local
            Real (Kind=8), Allocatable :: h(:), Deltah(:), A_gamma_p(:), Z_gamma_p(:), &
                 & A_gamma_o(:), Z_gamma_o(:)
            Real (Kind=8), Allocatable :: XKER_stor(:,:), XKER_new(:)
-           Real (Kind=8) :: X, En, En1, DeltaE, XP, XM, om
+           Real (Kind=8) :: X, En, DeltaE
            Integer, Allocatable :: Lambda(:)
-           Integer :: nb, nsw, Nacc_1, Nacc_2, nw
+           Integer :: nsw, Nacc_1, Nacc_2, nw
            Allocate (h(ntau), Deltah(ntau) )
            Allocate (Lambda(2), Z_gamma_p(2), A_gamma_p(2), &
                 & Z_gamma_o(2), A_gamma_o(2) ) ! Max of moves of two walkers.
@@ -763,8 +763,8 @@ Module MaxEnt_stoch_mod
            Deallocate ( h, Deltah )
            Deallocate ( Lambda, Z_gamma_p, A_gamma_p, Z_gamma_o, A_gamma_o )
            Deallocate ( XKER_stor, XKER_new )
-2005 format(I4,2x,I4,2x,F14.7,2x,F14.7,' --> ',F14.7,2x,F14.7)
-2006 format(I4,2x,F14.7, ' --> ',F14.7)
+           format(I4,2x,I4,2x,F14.7,2x,F14.7,' --> ',F14.7,2x,F14.7)
+           format(I4,2x,F14.7, ' --> ',F14.7)
          end Subroutine MC
 !**********
          real (Kind=8) function xpbc(X,XL)
