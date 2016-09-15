@@ -383,6 +383,18 @@ Contains
 
   end subroutine
 
+!--------------------------------------------------------------------
+!> @author
+!> 
+!
+!> @brief 
+!> Out Mat = Mat*exp(spin*Op)
+!
+!> @param[inout] Mat
+!> @param[in] Op The Operator that we exponentiate
+!> @param[in] spin The spin direction that we consider
+!> @param[in] Ndim The dimension of the matrix Mat
+!--------------------------------------------------------------------
   subroutine Op_mmultL(Mat,Op,spin,Ndim)
     Implicit none 
     Integer :: Ndim
@@ -404,6 +416,18 @@ Contains
 
   end subroutine Op_mmultL
 
+  !--------------------------------------------------------------------
+!> @author
+!>
+!
+!> @brief 
+!> Out Mat = exp(spin*Op)*Mat
+!
+!> @param[inout] Mat
+!> @param[in] Op The Operator that we exponentiate
+!> @param[in] spin The spin direction that we consider
+!> @param[in] Ndim The dimension of the matrix Mat
+!--------------------------------------------------------------------
   subroutine Op_mmultR(Mat,Op,spin,Ndim)
     Implicit none
     Integer :: Ndim
