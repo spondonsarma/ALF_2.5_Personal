@@ -67,7 +67,7 @@
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z
         
-        Integer :: LQ2, I,J, M, ILQ, JLQ, NCON, I1, J1
+        Integer :: LQ2, I,J, M, ILQ, JLQ, NCON
         
         LQ2 = LQ*2
         
@@ -145,16 +145,6 @@
               U3B(M,J) =   Z * U3B(M,J) 
            ENDDO
         ENDDO
-        CALL MMULT(HLPB2, V3B, U3B)
-        DO I = 1,LQ
-           I1 = I+LQ
-           DO J = 1,LQ
-              J1 = J + LQ
-              GR00(I,J) = HLPB2(I ,J )
-              GRTT(I,J) = HLPB2(I1,J1)
-              GRT0(I,J) = HLPB2(I1,J )
-              GR0T(I,J) = HLPB2(I,J1 )
-           ENDDO
-        ENDDO
+        call get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, V3B, U3B, LQ)
  
     END SUBROUTINE CGR2

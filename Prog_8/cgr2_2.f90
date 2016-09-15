@@ -39,7 +39,7 @@
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z
 
-        Integer :: LQ2, I,J, NCON, I1, J1
+        Integer :: LQ2, I,J, NCON
         
         LQ2 = LQ*2
         NCON = 0
@@ -100,17 +100,7 @@
                  HLPB1(I,J)  = Conjg(cmplx(1.d0,0.d0,double)/D3B(I))*HLPB2(I,J)
               ENDDO
            ENDDO
-           CALL MMULT(HLPB2,U3B,HLPB1)
-           DO I = 1,LQ
-              I1 = I+LQ
-              DO J = 1,LQ
-                 J1 = J + LQ
-                 GR00(I,J) = HLPB2(I ,J )
-                 GRTT(I,J) = HLPB2(I1,J1)
-                 GRT0(I,J) = HLPB2(I1,J )
-                 GR0T(I,J) = HLPB2(I,J1 )
-              ENDDO
-           ENDDO
+           CALL get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, U3B, HLPB1, LQ)
         Else
            !Write(6,*) "D1(1) <  D2(1)", dble(D1(1)), dble(D2(1))
            HLPB2 = cmplx(0.D0,0.d0,double)
@@ -143,17 +133,7 @@
                  HLPB1(I,J)  = Conjg(cmplx(1.d0,0.d0,double)/D3B(I))*HLPB2(I,J)
               ENDDO
            ENDDO
-           CALL MMULT(HLPB2,U3B,HLPB1)
-           DO I = 1,LQ
-              I1 = I+LQ
-              DO J = 1,LQ
-                 J1 = J + LQ
-                 GRTT(I,J) = HLPB2(I ,J )
-                 GR00(I,J) = HLPB2(I1,J1)
-                 GR0T(I,J) = HLPB2(I1,J )
-                 GRT0(I,J) = HLPB2(I,J1 )
-              ENDDO
-           ENDDO
+           call get_blocks_of_prod(GRTT, GRT0, GR0T, GR00, U3B, HLPB1, LQ)
         Endif
         
       END SUBROUTINE CGR2_2
