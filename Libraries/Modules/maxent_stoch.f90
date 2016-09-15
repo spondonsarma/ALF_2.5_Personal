@@ -102,13 +102,9 @@ Module MaxEnt_stoch_mod
            do nw = 1,Ndis_table
               Vhelp = 0.d0
               do nt1 = 1,Ntau
-                 do nt = 1,Ntau
-                    Vhelp(nt1) = Vhelp(nt1) + Xker_table(nt,nw)*U(nt,nt1)
-                 enddo
+                 Vhelp(nt1) = Vhelp(nt1) + dot_product(Xker_table(:, nw), U(:,nt1))
               enddo
-              do nt1 = 1,ntau
-                 Xker_table(nt1,nw) = Vhelp(nt1)/sigma(nt1) !! This has changed !!
-              enddo
+              Xker_table(:, nw) = Vhelp/sigma
            enddo
            deallocate( U, Sigma )
            Allocate ( G_Mean(Ntau) )
@@ -593,10 +589,10 @@ Module MaxEnt_stoch_mod
            Deallocate( Xker_table )
            DeAllocate(Iseed_vec)
 
-           format(F14.7,2x,F14.7,2x,F14.7)
-           format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
-           format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
-           format('Alpha, En_m, Acc ', F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+2001     format(F14.7,2x,F14.7,2x,F14.7)
+2004     format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+2005     format(F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
+2003     format('Alpha, En_m, Acc ', F14.7,2x,F14.7,2x,F14.7,2x,F14.7,2x,F14.7)
          end Subroutine MaxEnt_stoch_fit
  !***********
          Real (Kind=8) Function Phim1(x)
@@ -716,9 +712,7 @@ Module MaxEnt_stoch_mod
                        A_gamma_p(1) = xpbc( Xn(ng1,1) + (ranf_wrap() - 0.5)*DeltaXMAX, 1.d0 )
                        !om = PhiM1(A_gamma_p(1))
                        nw = NPhiM1(A_gamma_p(1))
-                       do nt = 1,ntau
-                          Xker_new(nt) = Xker_table(nt,nw) ! Xker(xtau(nt),om, beta)
-                       enddo
+                       Xker_new = Xker_table(:, nw)
                        do nt = 1,ntau
                           X = ( Xker_new(nt) - Xker_stor(nt,ng1) ) * Z_gamma_o(1)
                           Deltah(nt) = X
@@ -763,7 +757,7 @@ Module MaxEnt_stoch_mod
            Deallocate ( h, Deltah )
            Deallocate ( Lambda, Z_gamma_p, A_gamma_p, Z_gamma_o, A_gamma_o )
            Deallocate ( XKER_stor, XKER_new )
-           format(I4,2x,I4,2x,F14.7,2x,F14.7,' --> ',F14.7,2x,F14.7)
+2005       format(I4,2x,I4,2x,F14.7,2x,F14.7,' --> ',F14.7,2x,F14.7)
            format(I4,2x,F14.7, ' --> ',F14.7)
          end Subroutine MC
 !**********
