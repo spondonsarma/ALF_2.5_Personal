@@ -16,7 +16,7 @@
          end Interface
 
          Integer :: Ndim, Norb
-         Integer :: no, no1, n, nbins, n_skip, nb, N_rebin, nT, Lt,m,n1
+         Integer :: no, no1, n, nbins, n_skip, nb, nT, Lt
          real (Kind=8):: X, Y,  dtau, X_diag
          real (Kind=8), allocatable :: Xmean(:), Xcov(:,:)
          Complex (Kind=8) :: Z
