@@ -96,7 +96,7 @@ Contains
        do n = 1,size(Op_V,1)
           do nt = 1,size(nsigma,2)
              angle = Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * Phi(nsigma(n,nt),Op_V(n,nf)%type)
-             Phase = Phase*CMPLX(cos(angle),sin(angle))
+             Phase = Phase*CMPLX(cos(angle),sin(angle), Kind(0.D0))
           enddo
        enddo
     enddo
