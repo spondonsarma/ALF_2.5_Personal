@@ -13,6 +13,8 @@ stages:
     - cd ..
     - cd Prog_8
     - make
+    - make Ising
+    - make Kondo_Honey
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
@@ -25,6 +27,8 @@ stages:
     - cd ..
     - cd Prog_8
     - make
+    - make Ising
+    - make Kondo_Honey
 
 GQMCT_Wheezy:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
