@@ -1,10 +1,10 @@
-types:
+stage:
   - build
   - warnconv
   - test
 
 .build_template: &build_definition
-  type: build
+  stage: build
   script:
     - . configure.sh
     - cd Libraries
@@ -15,7 +15,7 @@ types:
     - make
 
 .warnconv_template: &warnconv_definition
-  type: warnconv
+  stage: warnconv
   script:
     - . configure.sh
     - export FL="$FL -Wconversion -Werror"
@@ -62,38 +62,38 @@ GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Wheezy:
+GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Jessie:
+GQMCT_Jessie_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Stretch:
+GQMCT_Stretch_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Wheezy_OpenBlas:
+GQMCT_Wheezy_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
   <<: *warnconv_definition
 
-GQMCT_Jessie_OpenBlas:
+GQMCT_Jessie_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
   <<: *warnconv_definition
 
-GQMCT_Stretch_OpenBlas:
+GQMCT_Stretch_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
   <<: *warnconv_definition
 
-GQMCT_CentOS:
+GQMCT_CentOS_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_OpenSuse-13.2:
+GQMCT_OpenSuse-13.2_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_OpenSuse-42.1:
+GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
