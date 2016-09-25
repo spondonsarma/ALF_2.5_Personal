@@ -72,21 +72,18 @@
           Integer :: nf
           
           !Local 
-          Integer :: nc, I, n
+          Integer :: nc, n
           
           Out = In
+
           do nc =  Ncheck,1,-1
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                do I = 1,Ndim
                    do n = 1,Ndim_hop
-                      V_Hlp(n,I) = Out(Op_T(nc,nf)%P(n),I)
+                      V_Hlp(n,:) = Out(Op_T(nc,nf)%P(n),:)
                    enddo
-                enddo
                 Call mmult(V_HLP1,Exp_T(:,:,nc,nf),V_Hlp)
-                DO I = 1,Ndim
-                   do n = 1,Ndim_hop
-                      OUT(OP_T(nc,nf)%P(n),I) = V_hlp1(n,I)
-                   Enddo
+                do n = 1,Ndim_hop
+                    OUT(OP_T(nc,nf)%P(n),:) = V_hlp1(n,:)
                 Enddo
              Endif
           Enddo
