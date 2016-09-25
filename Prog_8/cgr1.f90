@@ -27,7 +27,7 @@
 
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
              & TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
-	
+
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(VUP,VRUP,VLUP)
         DO J = 1,N_size
@@ -69,10 +69,10 @@
            if ( X  < Xmax ) Xmax = X
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
-
+        DUP = 1.D0/DUP
         DO J = 1,N_size
         DO I = 1,N_size
-           GRUP(I, J) = Sum(TPUPM1(I,:) * TPUP1M1(:,J)/DUP)
+           GRUP(I, J) = Sum(TPUPM1(I,:) * TPUP1M1(:,J)*DUP)
         ENDDO
         ENDDO
         PHASE = Z1/ABS(Z1)
