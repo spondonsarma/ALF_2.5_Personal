@@ -13,6 +13,8 @@ Last version of the analysis files is in Analysis_8
 
 4)    I have included the Kondo model on the honeycomb lattice with z-frustrating interactions.
 
+5)    I have included  MaxEnt wrappers in the code.  You can find some minimal notes in the documentation.   I have also included some scripts in the test-run directory of the Hubbard model.  Note that you will have to recompile  the libraries. 
+
 ## PREREQUISITES ##
 
 Libraries: Lapack and Blas
