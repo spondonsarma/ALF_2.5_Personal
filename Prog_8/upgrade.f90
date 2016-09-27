@@ -115,7 +115,11 @@
                  do m = 1,Op_dim
                     j = Op_V(n_op,nf)%P(m)
                     Z1 = x_v (j, n)
-                    xp_v(:, n) = xp_v(:, n) + Z1 * gr(:, j, nf)
+!$OMP SIMD
+                    do i=1, Ndim
+                    xp_v(i, n) = xp_v(i, n) + Z1 * gr(i, j, nf)
+                    enddo
+!                    xp_v(:, n) = xp_v(:, n) + Z1 * gr(:, j, nf)
 !zaxpy(NDim, Z1, gr(:, j, nf), 1, xp_v(:, n), 1)
                  enddo
               enddo
