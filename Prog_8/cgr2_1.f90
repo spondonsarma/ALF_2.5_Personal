@@ -74,17 +74,17 @@
         Real     (Kind=double) :: Xmax, Xmin, Xmax1, Xmax2, Xmean
         Integer                :: I, J, NCON, NVAR1
 
-        Complex  (Kind=double) :: V2inv(LQ,LQ), V1inv(LQ,LQ)
+        Complex  (Kind=double) :: V2inv(LQ,LQ), V1inv(LQ,LQ), alpha, beta
         
 
         NCON = 0
 
         Call INV( V2, V2inv, Z2)
         CALL INV( V1, V1inv, Z1)
+        alpha = 1.D0
+        beta = 0.D0
 
-        
-        HLP1 = CT(U1)
-        CALL MMULT(HLP2,HLP1,U1)
+        CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U1, LQ, U1, LQ, beta, HLP2, LQ)
         HLP1 = cmplx(0.d0,0.d0,kind=8)
         DO I = 1,LQ
            HLP1(I,I) =  cmplx(1.d0,0.d0,kind=8)
@@ -92,8 +92,7 @@
         Xmax = 0.d0
         CALL COMPARE(HLP1, HLP2, XMAX, XMEAN)
 
-        HLP1 = CT(U2)
-        CALL MMULT(HLP2,HLP1,U2)
+        CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U2, LQ, U2, LQ, beta, HLP2, LQ)
         HLP1 = cmplx(0.d0,0.d0,kind=8)
         DO I = 1,LQ
            HLP1(I,I) =  cmplx(1.d0,0.d0,kind=8)
@@ -138,8 +137,7 @@
            CALL INV  (V,HLP2 ,Z   )
            CALL MMULT(V,V2inv,HLP2)
            CALL SCALEMATRIX(V, D, .FALSE., LQ)
-           HLP1 = CT(U)
-           CALL MMULT( HLP2, HLP1,V1inv)
+           CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U, LQ, V1Inv, LQ, beta, HLP2, LQ)
            CALL MMULT (GR00, V, HLP2)
         else
            !  V2^-1 (UDV  )^(-1,*) V1^-1 =  V2^-1 U  D^-1 V^(-1,*) V1^-1
@@ -148,8 +146,7 @@
            Call MMULT(HLP1, V2inv, U)
            Call SCALEMATRIX(HLP1, D, .FALSE., LQ)
            CALL INV (V, HLP2, Z)
-           V = CT(HLP2)
-           CALL MMULT(HLP2,V,V1inv)
+           CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, HLP2, LQ, V1Inv, LQ, beta, HLP2, LQ)
            CALL MMULT(GR00,HLP1,HLP2)
         endif
         
@@ -242,15 +239,13 @@
            CALL MMULT (HLP1, V, U1) 
            CALL INV(HLP1,HLP2,Z)
            CALL SCALEMATRIX(HLP2, D, .FALSE., LQ)
-           HLP1 = CT(U)
-           CALL MMULT(U,HLP1,V2)
+           CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U, LQ, V2, LQ, beta, U, LQ)
            Call MMULT (GRT0, HLP2,U)
         ELSE
            !UDV of HLP2^*
            HLP1 = CT(HLP2)
-           CALL UDV_WRAP(HLP1,U,D,V,NCON) 
-           HLP1 = CT(U1)
-           CALL MMULT( HLP2, HLP1,U)
+           CALL UDV_WRAP(HLP1,U,D,V,NCON)
+           CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U1, LQ, U, LQ, beta, HLP2, LQ)
            CALL SCALEMATRIX(HLP2, D, .TRUE., LQ)
            HLP1 = CT(V)
            CALL INV(HLP1,V,Z)
