@@ -104,7 +104,6 @@
            CALL get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, U3B, HLPB1, LQ)
         Else
            !Write(6,*) "D1(1) <  D2(1)", dble(D1(1)), dble(D2(1))
-           HLPB2 = cmplx(0.D0,0.d0,double)
            CALL INV(V1,V1INV,Z)
            DO J = 1,LQ
               DO I = 1,LQ
