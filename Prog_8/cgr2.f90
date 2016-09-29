@@ -123,8 +123,8 @@
         
         CALL INV(V3B,HLPB1,Z)
         HLPB2 = cmplx(0.d0,0.d0,double)
-        DO I = 1,LQ
-           DO J = 1,LQ
+        DO J = 1,LQ
+           DO I = 1,LQ
               HLPB2(I,J) = V2INV(I,J)
            ENDDO
         ENDDO
