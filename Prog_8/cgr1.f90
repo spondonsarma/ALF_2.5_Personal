@@ -18,7 +18,7 @@
         !Local
         COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, TPUP1M1, UUPM1, VUP1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
-        COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO
+        COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
         Integer :: I,J, N_size, NCON
         Real (Kind=8) :: X, Xmax
         
@@ -54,11 +54,11 @@
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
            TPUP1 = CT(TPUP)
            CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
+           alpha = 1.D0
+           beta = 0.D0
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
-           TPUP = CT(ULUP)
-           CALL MMULT(TPUPM1,TPUP,UUP)
-           VUP1 = CT(VUP)
-           CALL MMULT(TPUP1,URUP,VUP1)
+           CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP, N_size, UUP, N_size, beta, TPUPM1, N_size)
+           CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, URUP, N_size, VUP, N_size, beta, TPUP1, N_size)
            CALL INV(TPUP1,TPUP1M1,ZDUP2)
            CALL INV(TPUPM1, TPUP, ZDUP1)
            Z1 = ZDUP2/ZDUP1
