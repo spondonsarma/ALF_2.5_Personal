@@ -39,12 +39,14 @@
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:) :: TMPVEC
+        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2
 
         Integer :: LQ2, I,J, NCON
         
         LQ2 = LQ*2
         NCON = 0
-        ALLOCATE(TMPVEC(LQ2))
+        ALLOCATE(TMPVEC(LQ2), MYU2(LQ, LQ))
+        MYU2 = CONJG(TRANSPOSE(U2))
         If (dble(D1(1)) >  dble(D2(1)) ) Then 
 
            !Write(6,*) "D1(1) >  D2(1)", dble(D1(1)), dble(D2(1))
@@ -55,7 +57,7 @@
               DO I = 1,LQ
                  HLPB2(I   , J    ) =  V1INV(I,J)
                  HLPB2(I   , J+LQ ) =  D1(I)*U1(I,J)
-                 HLPB2(I+LQ, J+LQ ) =  Conjg(U2(J,I))
+                 HLPB2(I+LQ, J+LQ ) =  MYU2(I, J)
                  HLPB2(I+LQ, J    ) = -D2(I)*V2(I,J)
               ENDDO
            ENDDO
@@ -92,7 +94,7 @@
            DO I = 1,LQ
               DO J = 1,LQ
                  HLPB1(I   , J    ) =  V1INV(I,J)
-                 HLPB1(I+LQ, J+LQ ) =  Conjg(U2(J,I))
+                 HLPB1(I+LQ, J+LQ ) =  MYU2(I, J)
               ENDDO
            ENDDO
            CALL MMULT(HLPB2,V3B,HLPB1)
@@ -107,7 +109,7 @@
            CALL INV(V1,V1INV,Z)
            DO J = 1,LQ
               DO I = 1,LQ
-                 HLPB2(I   , J    ) =  Conjg(U2(J,I))
+                 HLPB2(I   , J    ) =  MYU2(I, J)
                  HLPB2(I   , J+LQ ) = -D2(I)*V2(I,J)
                  HLPB2(I+LQ, J+LQ ) =  V1INV(I,J)
                  HLPB2(I+LQ, J    ) =  D1(I)*U1(I,J)
@@ -123,7 +125,7 @@
            HLPB1 = cmplx(0.d0,0.d0,double)
            DO I = 1,LQ
               DO J = 1,LQ
-                 HLPB1(I   , J    ) =  Conjg(U2(J,I))
+                 HLPB1(I   , J    ) =  MYU2(I, J)
                  HLPB1(I+LQ, J+LQ ) =  V1INV(I,J)
               ENDDO
            ENDDO
@@ -133,8 +135,7 @@
                  HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
               ENDDO
            ENDDO
-           DEALLOCATE(TMPVEC)
            call get_blocks_of_prod(GRTT, GRT0, GR0T, GR00, U3B, HLPB1, LQ)
         Endif
-        
+        DEALLOCATE(TMPVEC, MYU2)
       END SUBROUTINE CGR2_2
