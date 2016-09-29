@@ -38,12 +38,13 @@
              &                   V1INV(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z
+        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:) :: TMPVEC
 
         Integer :: LQ2, I,J, NCON
         
         LQ2 = LQ*2
         NCON = 0
-        
+        ALLOCATE(TMPVEC(LQ2))
         If (dble(D1(1)) >  dble(D2(1)) ) Then 
 
            !Write(6,*) "D1(1) >  D2(1)", dble(D1(1)), dble(D2(1))
@@ -62,7 +63,7 @@
 
            !CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
            CALL UDV_wrap_Pivot(HLPB1,U3B,D3B,V3B,NCON,LQ2,LQ2)
-           
+           TMPVEC = conjg(1.D0/D3B)
 !!$!!!!!!!!!!!!!  Tests
 !!$        Xmax = 0.d0
 !!$        DO I = 1,LQ2
@@ -97,7 +98,7 @@
            CALL MMULT(HLPB2,V3B,HLPB1)
            DO J = 1,LQ2
               DO I = 1,LQ2
-                 HLPB1(I,J)  = Conjg(cmplx(1.d0,0.d0,double)/D3B(I))*HLPB2(I,J)
+                 HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
               ENDDO
            ENDDO
            CALL get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, U3B, HLPB1, LQ)
@@ -117,7 +118,7 @@
            
            !CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
            CALL UDV_wrap_Pivot(HLPB1,U3B,D3B,V3B,NCON,LQ2,LQ2)
-           
+           TMPVEC = conjg(1.D0/D3B)
            HLPB2 = CT(V3B)
            CALL INV(HLPB2,V3B,Z)
            HLPB1 = cmplx(0.d0,0.d0,double)
@@ -130,9 +131,10 @@
            CALL MMULT(HLPB2,V3B,HLPB1)
            DO J = 1,LQ2
               DO I = 1,LQ2
-                 HLPB1(I,J)  = Conjg(cmplx(1.d0,0.d0,double)/D3B(I))*HLPB2(I,J)
+                 HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
               ENDDO
            ENDDO
+           DEALLOCATE(TMPVEC)
            call get_blocks_of_prod(GRTT, GRT0, GR0T, GR00, U3B, HLPB1, LQ)
         Endif
         
