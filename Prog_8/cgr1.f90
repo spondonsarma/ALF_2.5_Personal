@@ -70,7 +70,11 @@
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
         DUP = 1.D0/DUP
-        call ZGEMM('N','N', N_size, N_size, N_size, DUP, TPUPM1, N_size, TPUP1M1, N_size, 0.D0, GRUP, N_size)
+        DO J = 1,N_size
+        DO I = 1,N_size
+           GRUP(I, J) = Sum(TPUPM1(I,:) * TPUP1M1(:,J) * DUP)
+        ENDDO
+        ENDDO
         PHASE = Z1/ABS(Z1)
 
         Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, TPUP1M1, UUPM1, VUP1, DUP )
