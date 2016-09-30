@@ -187,20 +187,17 @@
            CALL INV(V,HLP2,Z)
            CALL MMULT (V, V1, U) ! V = V1 * U, reuse of the variable V as temporary storage
            Call MMULT(HLP1,U2,HLP2)
-           CALL SCALEMATRIX(HLP1, (-D), .FALSE., LQ)
-           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, V, LQ, HLP1, LQ, beta, GR0T, LQ)
         ELSE
            !  UDV of HLP2*
            !  -G0T*= U2 (U D V)*^-1 V1* =  U2 U D*^-1 V*^-1 V1*
            HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
-           CALL MMULT (HLP1, U2, U)
-           CALL SCALEMATRIX(HLP1, (-D), .FALSE., LQ)
            CALL INV(V,HLP2,Z)
            Call MMULT(V,V1,HLP2)
-           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, V, LQ, HLP1, LQ, beta, GR0T, LQ)
+           CALL MMULT (HLP1, U2, U)
         ENDIF
-
+        CALL SCALEMATRIX(HLP1, (-D), .FALSE., LQ)
+        CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, V, LQ, HLP1, LQ, beta, GR0T, LQ)
 
 
         ! Compute GT0
@@ -231,7 +228,6 @@
            CALL INV(HLP1,HLP2,Z)
            CALL SCALEMATRIX(HLP2, D, .FALSE., LQ)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U, LQ, V2, LQ, beta, U, LQ)
-           Call MMULT (GRT0, HLP2,U)
         ELSE
            !UDV of HLP2^*
            HLP1 = CT(HLP2)
@@ -241,8 +237,8 @@
            HLP1 = CT(V)
            CALL INV(HLP1,V,Z)
            CALL MMULT(U,V,V2)
-           Call MMULT (GRT0, HLP2,U)
         ENDIF
+        Call MMULT (GRT0, HLP2,U)
         Xmin = minval(abs(dble(D)))
         Write(6,*) 'Cgr2_1 T0, Xmin: ', Xmin
 
