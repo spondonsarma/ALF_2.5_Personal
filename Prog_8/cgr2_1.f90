@@ -202,8 +202,9 @@
            CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
            CALL INV(V,HLP2,Z)
            Call MMULT(V,V1,HLP2)
-           HLP2 = CT(V)
-           Call MMULT (V,HLP1,HLP2)
+           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, HLP1, LQ, HLP2, LQ, beta, V, LQ)
+!           HLP2 = CT(V)
+!           Call MMULT (V,HLP1,HLP2)
            DO I = 1,LQ
                 GR0T(I, :) = -conjg(V(:, I))
            ENDDO
