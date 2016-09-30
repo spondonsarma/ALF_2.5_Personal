@@ -234,9 +234,8 @@
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U1, LQ, U, LQ, beta, HLP2, LQ)
            CALL SCALEMATRIX(HLP2, D, .TRUE., LQ)
-           HLP1 = CT(V)
-           CALL INV(HLP1,V,Z)
-           CALL MMULT(U,V,V2)
+           CALL INV(V,HLP1,Z)
+           CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, HLP1, LQ, V2, LQ, beta, U, LQ)
         ENDIF
         Call MMULT (GRT0, HLP2,U)
         Xmin = minval(abs(dble(D)))
