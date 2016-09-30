@@ -199,17 +199,11 @@
            HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
            CALL MMULT (HLP1, U2, U)
-           CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
+           CALL SCALEMATRIX(HLP1, (-D), .FALSE., LQ)
            CALL INV(V,HLP2,Z)
            Call MMULT(V,V1,HLP2)
-           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, HLP1, LQ, HLP2, LQ, beta, V, LQ)
-!           HLP2 = CT(V)
-!           Call MMULT (V,HLP1,HLP2)
-           DO I = 1,LQ
-                GR0T(I, :) = -conjg(V(:, I))
-           ENDDO
+           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, V, LQ, HLP1, LQ, beta, GR0T, LQ)
         ENDIF
-
 
 
 
