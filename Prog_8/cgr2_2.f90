@@ -90,8 +90,6 @@
 !!$        ENDDO
 !!$        !Write(6,*) 'Cgr2_2, Cutoff: ', Xmax
 !!$!!!!!!!!!!!!! End Tests
-           HLPB2 = CT(V3B)
-           CALL INV(HLPB2,V3B,Z)
            HLPB1 = cmplx(0.d0,0.d0,double)
            DO I = 1,LQ
               DO J = 1,LQ
@@ -99,7 +97,8 @@
                  HLPB1(I+LQ, J+LQ ) =  MYU2(I, J)
               ENDDO
            ENDDO
-           CALL MMULT(HLPB2,V3B,HLPB1)
+           CALL INV(V3B,HLPB2,Z)
+           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, HLPB2, LQ2) ! Block structure of HLPB1 is not exploited
            DO J = 1,LQ2
               DO I = 1,LQ2
                  HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
@@ -129,9 +128,7 @@
                  HLPB1(I+LQ, J+LQ ) =  V1INV(I,J)
               ENDDO
            ENDDO
-!           HLPB2 = CT(V3B)
            CALL INV(V3B,HLPB2,Z)
- !          CALL MMULT(HLPB2,V3B,HLPB1)
            CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, HLPB2, LQ2) ! Block structure of HLPB1 is not exploited
            
            DO J = 1,LQ2
