@@ -206,8 +206,7 @@
         NVAR1 = 1
         If (Xmax2 > Xmax1 ) NVAR1 = 2
         !Write(6,*) "CGR2_1: NVAR,NVAR1 ", NVAR, NVAR1
-        Call  MMULT(HLP2,U1,U2)
-        HLP1 = CT(HLP2)
+        CALL ZGEMM('C', 'C', LQ, LQ, LQ, alpha, U2, LQ, U1, LQ, beta, HLP1, LQ)
 !TODO: Consider benchmarking wether it is beneficial to interchange loops. Here it is saving divisions vs. proper mem access
         DO J = 1,LQ
            HLP1(:, J) =  HLP1(:,J)/D2(:)
