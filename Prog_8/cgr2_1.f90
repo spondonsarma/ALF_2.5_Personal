@@ -171,8 +171,7 @@
         DO J = 1,LQ
            HLP1(:, J) =  HLP1(:,J)/conjg(D1(:))
         ENDDO
-        Call MMULT(V,V2,V1)
-        HLP2 = CT(V)
+        CALL ZGEMM('C', 'C', LQ, LQ, LQ, alpha, V1, LQ, V2, LQ, beta, HLP2, LQ)
         DO J = 1,LQ
             HLP2(:, J) = HLP1(:,J) + HLP2(:,J) * conjg(D2(J))
         ENDDO
