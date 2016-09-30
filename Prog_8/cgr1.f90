@@ -34,10 +34,6 @@
         DO J = 1,N_size
             TPUP(:,J) = DRUP(:)*VUP(:,J)*DLUP(J)
         ENDDO
-!        CALL MMULT(UUP,ULUP,URUP)
-! Fusing the CT and the Matrix Addition breaks the vectorization on GCC. Hence only benchmarks can decide.
-!        UUPM1 = CT(UUP)
-!        TPUP=TPUP + UUPM1
         CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, alpha, TPUP, N_size)
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
