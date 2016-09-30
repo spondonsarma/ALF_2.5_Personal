@@ -226,19 +226,18 @@
            CALL UDV_WRAP(HLP2,U,D,V,NCON)
            CALL MMULT (HLP1, V, U1) 
            CALL INV(HLP1,HLP2,Z)
-           CALL SCALEMATRIX(HLP2, D, .FALSE., LQ)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U, LQ, V2, LQ, beta, U, LQ)
         ELSE
            !UDV of HLP2^*
            HLP1 = CT(HLP2)
            CALL UDV_WRAP(HLP1,U,D,V,NCON)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U1, LQ, U, LQ, beta, HLP2, LQ)
-           CALL SCALEMATRIX(HLP2, D, .TRUE., LQ)
            CALL INV(V,HLP1,Z)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, HLP1, LQ, V2, LQ, beta, U, LQ)
         ENDIF
-        Call MMULT (GRT0, HLP2,U)
+        CALL SCALEMATRIX(HLP2, D, NVAR .ne. 1, LQ)
         Xmin = minval(abs(dble(D)))
+        Call MMULT (GRT0, HLP2,U)
         Write(6,*) 'Cgr2_1 T0, Xmin: ', Xmin
 
         !Compute GRTT
