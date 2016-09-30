@@ -37,7 +37,7 @@
         Complex  (Kind=double) :: U3B(2*LQ,2*LQ), V3B(2*LQ,2*LQ), HLPB1(2*LQ,2*LQ), HLPB2(2*LQ,2*LQ), &
              &                   V1INV(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
-        Complex  (Kind=double) :: Z
+        Complex  (Kind=double) :: Z, alpha, beta
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:) :: TMPVEC
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2
 
@@ -45,6 +45,8 @@
         
         LQ2 = LQ*2
         NCON = 0
+        alpha = 1.D0
+        beta = 0.D0
         ALLOCATE(TMPVEC(LQ2), MYU2(LQ, LQ))
         MYU2 = CONJG(TRANSPOSE(U2))
         If (dble(D1(1)) >  dble(D2(1)) ) Then 
@@ -120,8 +122,6 @@
            !CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
            CALL UDV_wrap_Pivot(HLPB1,U3B,D3B,V3B,NCON,LQ2,LQ2)
            TMPVEC = conjg(1.D0/D3B)
-           HLPB2 = CT(V3B)
-           CALL INV(HLPB2,V3B,Z)
            HLPB1 = cmplx(0.d0,0.d0,double)
            DO I = 1,LQ
               DO J = 1,LQ
@@ -129,7 +129,11 @@
                  HLPB1(I+LQ, J+LQ ) =  V1INV(I,J)
               ENDDO
            ENDDO
-           CALL MMULT(HLPB2,V3B,HLPB1)
+!           HLPB2 = CT(V3B)
+           CALL INV(V3B,HLPB2,Z)
+ !          CALL MMULT(HLPB2,V3B,HLPB1)
+           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, HLPB2, LQ2) ! Block structure of HLPB1 is not exploited
+           
            DO J = 1,LQ2
               DO I = 1,LQ2
                  HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
