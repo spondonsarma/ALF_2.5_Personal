@@ -184,15 +184,11 @@
            !  UDV of HLP2
            !  -G0T*= U2 V^-1 D^-1 U* V1*
            CALL UDV_WRAP(HLP2,U,D,V,NCON)
-           CALL MMULT (HLP1, V1, U)
-           U = CT(HLP1)
            CALL INV(V,HLP2,Z)
+           CALL MMULT (V, V1, U) ! V = V1 * U, reuse of the variable V as temporary storage
            Call MMULT(HLP1,U2,HLP2)
-           CALL SCALEMATRIX(HLP1, D, .FALSE., LQ)
-           Call MMULT (HLP2,HLP1,U) 
-           DO I = 1,LQ
-                GR0T(I, :) = - conjg(HLP2(:, I))
-           ENDDO
+           CALL SCALEMATRIX(HLP1, (-D), .FALSE., LQ)
+           CALL ZGEMM('N', 'C', LQ, LQ, LQ, alpha, V, LQ, HLP1, LQ, beta, GR0T, LQ)
         ELSE
            !  UDV of HLP2*
            !  -G0T*= U2 (U D V)*^-1 V1* =  U2 U D*^-1 V*^-1 V1*
