@@ -24,7 +24,8 @@
         
         N_size = SIZE(DLUP,1)
         NCON = 0
-
+        alpha = 1.D0
+        beta = 0.D0
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
              & TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
 
@@ -33,10 +34,11 @@
         DO J = 1,N_size
             TPUP(:,J) = DRUP(:)*VUP(:,J)*DLUP(J)
         ENDDO
-        CALL MMULT(UUP,ULUP,URUP)
+!        CALL MMULT(UUP,ULUP,URUP)
 ! Fusing the CT and the Matrix Addition breaks the vectorization on GCC. Hence only benchmarks can decide.
-        UUPM1 = CT(UUP)
-        TPUP=TPUP + UUPM1
+!        UUPM1 = CT(UUP)
+!        TPUP=TPUP + UUPM1
+        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, alpha, TPUP, N_size)
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
            CALL UDV_WRAP(TPUP,UUP,DUP,VUP,NCON)
@@ -54,8 +56,6 @@
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
            TPUP1 = CT(TPUP)
            CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
-           alpha = 1.D0
-           beta = 0.D0
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP, N_size, UUP, N_size, beta, TPUPM1, N_size)
            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, URUP, N_size, VUP, N_size, beta, TPUP1, N_size)
