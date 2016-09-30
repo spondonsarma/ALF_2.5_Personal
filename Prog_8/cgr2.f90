@@ -65,12 +65,13 @@
         Complex (Kind=double) :: U3B(2*LQ,2*LQ), V3B(2*LQ,2*LQ), HLPB1(2*LQ,2*LQ), HLPB2(2*LQ,2*LQ), &
              &                   V2INV(LQ,LQ), V1INV(LQ,LQ), HLP2(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
-        Complex  (Kind=double) :: Z
+        Complex  (Kind=double) :: Z, alpha, beta
         
         Integer :: LQ2, I,J, M, ILQ, JLQ, NCON
         
         LQ2 = LQ*2
-        
+        alpha = 1.D0
+        beta = 0.D0
         HLPB1 = cmplx(0.D0,0.d0,double)
         DO I = 1,LQ
            HLPB1(I   , I + LQ ) =  D1(I)
@@ -100,7 +101,6 @@
         !	U3B^T * ( V1INV  0   )   = U3B
         !	        ( 0      U2^T )
         
-        HLPB1 = CT(U3B)
         HLPB2 = cmplx(0.D0,0.d0,double)
         DO I = 1,LQ
            DO J = 1,LQ
@@ -114,8 +114,7 @@
               HLPB2(ILQ,JLQ) = conjg(U2(J,I))
            ENDDO
         ENDDO
-        CALL MMULT(U3B,HLPB1,HLPB2)
-        
+        CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, U3B, LQ2, HLPB2, LQ2, beta, U3B, LQ2)
         
         !       Multiplication:
         !	( V2INV   0    )*(V3B)^{-1}   = V3B
