@@ -98,10 +98,10 @@
               ENDDO
            ENDDO
            CALL INV(V3B,HLPB2,Z)
-           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, HLPB2, LQ2) ! Block structure of HLPB1 is not exploited
+           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, V3B, LQ2) ! Block structure of HLPB1 is not exploited
            DO J = 1,LQ2
               DO I = 1,LQ2
-                 HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
+                 HLPB1(I,J)  = TMPVEC(I)*V3B(I,J)
               ENDDO
            ENDDO
            CALL get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, U3B, HLPB1, LQ)
@@ -129,11 +129,11 @@
               ENDDO
            ENDDO
            CALL INV(V3B,HLPB2,Z)
-           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, HLPB2, LQ2) ! Block structure of HLPB1 is not exploited
+           CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, HLPB2, LQ2, HLPB1, LQ2, beta, V3B, LQ2) ! Block structure of HLPB1 is not exploited
            
            DO J = 1,LQ2
               DO I = 1,LQ2
-                 HLPB1(I,J)  = TMPVEC(I)*HLPB2(I,J)
+                 HLPB1(I,J)  = TMPVEC(I)*V3B(I,J)
               ENDDO
            ENDDO
            call get_blocks_of_prod(GRTT, GRT0, GR0T, GR00, U3B, HLPB1, LQ)
