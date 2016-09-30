@@ -135,21 +135,18 @@
            !  V2^-1 (UDV  )^-1 V1^-1 =  V2^-1 V^-1 D^-1 U^-1 V1^-1
            Call UDV_WRAP(HLP2, U, D, V, Ncon) 
            CALL INV  (V,HLP2 ,Z   )
-           CALL MMULT(V,V2inv,HLP2)
-           CALL SCALEMATRIX(V, D, .FALSE., LQ)
+           CALL MMULT(HLP1,V2inv,HLP2)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U, LQ, V1Inv, LQ, beta, HLP2, LQ)
-           CALL MMULT (GR00, V, HLP2)
         else
            !  V2^-1 (UDV  )^(-1,*) V1^-1 =  V2^-1 U  D^-1 V^(-1,*) V1^-1
            HLP1 = CT(HLP2)
            Call UDV_WRAP(HLP1, U, D, V, Ncon) 
            Call MMULT(HLP1, V2inv, U)
-           Call SCALEMATRIX(HLP1, D, .FALSE., LQ)
            CALL INV (V, HLP2, Z)
            CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, HLP2, LQ, V1Inv, LQ, beta, HLP2, LQ)
-           CALL MMULT(GR00,HLP1,HLP2)
         endif
-        
+        Call SCALEMATRIX(HLP1, D, .FALSE., LQ)
+        CALL MMULT(GR00,HLP1,HLP2)
         ! Compute G0T
         ! G00 = (1 + B1*B2)^-1   G0T = -(1 -  (1 + B1*B2)^-1 )*B2^-1              =
         !                            = -( 1 +  B1*B2 - 1)  (1 + B1*B2)^-1 * B2^-1 =
