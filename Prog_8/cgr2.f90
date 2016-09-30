@@ -96,6 +96,25 @@
         NCON = 0
         CALL UDV_wrap(HLPB1,U3B,D3B,V3B,NCON)
         
+        !       Multiplication:
+        !	( V2INV   0    )*(V3B)^{-1}   = V3B
+        !	( 0       U1^T )
+        
+        HLPB2 = cmplx(0.d0,0.d0,double)
+        DO J = 1,LQ
+           DO I = 1,LQ
+              HLPB2(I,J) = V2INV(I,J)
+           ENDDO
+        ENDDO
+        DO I = 1,LQ
+           ILQ = I + LQ
+           DO J = 1, LQ
+              JLQ = J + LQ
+              HLPB2(ILQ,JLQ) = conjg(U1(J,I))
+           ENDDO
+        ENDDO
+        CALL INV(V3B,HLPB1,Z)
+        CALL MMULT(V3B,HLPB2,HLPB1)
         
         !       Multiplication:
         !	U3B^T * ( V1INV  0   )   = U3B
@@ -114,36 +133,14 @@
               HLPB2(ILQ,JLQ) = conjg(U2(J,I))
            ENDDO
         ENDDO
-        CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, U3B, LQ2, HLPB2, LQ2, beta, U3B, LQ2)
-        
-        !       Multiplication:
-        !	( V2INV   0    )*(V3B)^{-1}   = V3B
-        !	( 0       U1^T )
-        
-        CALL INV(V3B,HLPB1,Z)
-        HLPB2 = cmplx(0.d0,0.d0,double)
-        DO J = 1,LQ
-           DO I = 1,LQ
-              HLPB2(I,J) = V2INV(I,J)
-           ENDDO
-        ENDDO
-        DO I = 1,LQ
-           ILQ = I + LQ
-           DO J = 1, LQ
-              JLQ = J + LQ
-              HLPB2(ILQ,JLQ) = conjg(U1(J,I))
-           ENDDO
-        ENDDO
-        CALL MMULT(V3B,HLPB2,HLPB1)
-        
-        
+        CALL ZGEMM('C', 'N', LQ2, LQ2, LQ2, alpha, U3B, LQ2, HLPB2, LQ2, beta, HLPB1, LQ2)
         ! G = V3B * D3B^{-1}* U3B
         DO M = 1,LQ2
            Z = cone/D3B(M)
            DO J = 1,LQ2
-              U3B(M,J) =   Z * U3B(M,J) 
+              HLPB1(M,J) =   Z * HLPB1(M,J) 
            ENDDO
         ENDDO
-        call get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, V3B, U3B, LQ)
+        call get_blocks_of_prod(GR00, GR0T, GRT0, GRTT, V3B, HLPB1, LQ)
  
     END SUBROUTINE CGR2
