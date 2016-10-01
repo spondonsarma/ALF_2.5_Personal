@@ -646,8 +646,6 @@ end subroutine
           enddo
        Enddo
     end select
-      !$OMP END PARALLEL DO
-       
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
@@ -671,8 +669,6 @@ end subroutine
             enddo
         enddo
         end select
-       
-      !$OMP END PARALLEL DO
     endif
     
   end Subroutine Op_Wrapdo
