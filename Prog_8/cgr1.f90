@@ -56,8 +56,9 @@
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP, N_size, UUP, N_size, beta, TPUPM1, N_size)
            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, URUP, N_size, VUP, N_size, beta, TPUP1, N_size)
            CALL INV(TPUP1,TPUP1M1,ZDUP2)
-           CALL INV(TPUPM1, TPUP, ZDUP1)
-           Z1 = ZDUP2/ZDUP1
+           TPUP = TPUPM1
+           ZDUP1 = DET_C(TPUP, N_size)! Det destroys its argument
+           Z1 = ZDUP2/ZDUP1!Better stability could be obtained here by using the LU decompositions calculated in the previous two lines
         ENDIF
         DO I = 1,N_size
            X = ABS(DUP(I))
