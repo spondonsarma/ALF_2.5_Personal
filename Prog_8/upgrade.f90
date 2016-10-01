@@ -26,6 +26,7 @@
         Complex (Kind = double) :: y_v(Ndim,Op_dim), xp_v(Ndim,Op_dim)
         Complex (Kind = double) :: x_v(Ndim,Op_dim)
         Logical :: Log
+        Complex (Kind = double), Dimension(:, :), Allocatable ::Zarr, grarr
         
         if ( abs(OP_V(n_op,1)%g) < 1.D-6 ) return
 
@@ -110,23 +111,16 @@
                  Z = 1.D0/Z
                  x_v(:, n) = x_v(:, n) * z
               enddo
-              xp_v = cmplx(0.d0, 0.d0, kind(0.D0))
-              do n = 1,Op_dim
-                 do m = 1,Op_dim
-                    j = Op_V(n_op,nf)%P(m)
-                    Z1 = x_v (j, n)
-!$OMP SIMD
-                    do i=1, Ndim
-                    xp_v(i, n) = xp_v(i, n) + Z1 * gr(i, j, nf)
-                    enddo
-!                    xp_v(:, n) = xp_v(:, n) + Z1 * gr(:, j, nf)
-!zaxpy(NDim, Z1, gr(:, j, nf), 1, xp_v(:, n), 1)
-                 enddo
-              enddo
-
+              Allocate (Zarr(Op_dim,NDim), grarr(NDim, Op_dim))
+              alpha = 1.D0
+              beta = 0.D0
+              Zarr = x_v(Op_V(n_op,nf)%P, :)
+              grarr = gr(:, Op_V(n_op,nf)%P, nf)
+              CALL ZGEMM('N', 'N', NDim, Op_Dim, Op_Dim, alpha, grarr, size(grarr, 1), Zarr, size(Zarr, 1), beta, xp_v, size(xp_v, 1))
+              Deallocate(Zarr, grarr)
               !do n = 1,Op_dim
               !   do j = 1,Ndim
-              !      do i = 1,Ndim
+              !      do i = 1,Ndimop
               !         gr(i,j,nf) = gr(i,j,nf) - xp_v(i,n)*y_v(j,n)
               !      enddo
               !   enddo
