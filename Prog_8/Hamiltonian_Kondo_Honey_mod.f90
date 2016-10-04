@@ -634,12 +634,14 @@
              NobsT     = NobsT + 1
           endif
           If ( N_FL == 1 ) then 
-             Z =  cmplx(dble(N_SUN),0.d0,Kind(0.d0))
+          
+             Z =  ZP * ZS * N_SUN
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
-                   Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +  Z * GT0(I,J,1) * ZP* ZS
-                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  -  Z * GT0(I,J,1)*G0T(J,I,1) * ZP* ZS
+                   Z = Z * GT0(I, J, 1)
+                   Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +  Z
+                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  -  Z * G0T(J,I,1)
                 Enddo
              Enddo
           Endif
