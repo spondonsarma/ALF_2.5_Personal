@@ -19,8 +19,8 @@
 
 
         ! Working space.
-        COMPLEX (Kind=8) ::  U(Ndim,Ndim), U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
-        COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE
+        COMPLEX (Kind=8) ::  U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
+        COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE, beta
         Integer :: NT, NCON, n, nf
         Real    (Kind=8) ::  X
  
@@ -29,6 +29,7 @@
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
 
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+        beta = 0.D0
         Do nf = 1, N_FL
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
@@ -43,8 +44,7 @@
            
            !Carry out U,D,V decomposition.
            TMP1 = CONJG(TRANSPOSE(TMP))
-           U = CONJG(TRANSPOSE(UL(:, :, nf)))
-           CALL MMULT(TMP,TMP1,U)
+           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP1, Ndim, UL(:, :, nf), Ndim, beta, TMP, Ndim)
            DO n = 1,NDim
               TMP(:, n) = TMP(:, n) * DL(n, nf)
            ENDDO
