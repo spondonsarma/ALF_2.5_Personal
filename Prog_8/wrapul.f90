@@ -51,8 +51,7 @@
            CALL UDV_WRAP(TMP,U1,D1,V1,NCON)
            !CALL UDV(TMP,U1,D1,V1,NCON)
            UL(:, :, nf) = CONJG(TRANSPOSE(U1))
-           TMP = CONJG(TRANSPOSE(V1))
-           CALL MMULT(TMP1,VL(:,:,nf), TMP)
+           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, VL(:, :, nf), Ndim, V1, Ndim, beta, TMP1, Ndim)
            VL(:, :, nf) = TMP1
            DL(:, nf) = D1
         ENDDO
