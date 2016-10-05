@@ -85,18 +85,12 @@
         beta = 0.D0
 
         CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U1, LQ, U1, LQ, beta, HLP2, LQ)
-        HLP1 = cmplx(0.d0,0.d0,kind=8)
-        DO I = 1,LQ
-           HLP1(I,I) =  cmplx(1.d0,0.d0,kind=8)
-        ENDDO
+        CALL ZLASET('A', LQ, LQ, alpha, beta, HLP1, LQ)
         Xmax = 0.d0
         CALL COMPARE(HLP1, HLP2, XMAX, XMEAN)
 
         CALL ZGEMM('C', 'N', LQ, LQ, LQ, alpha, U2, LQ, U2, LQ, beta, HLP2, LQ)
-        HLP1 = cmplx(0.d0,0.d0,kind=8)
-        DO I = 1,LQ
-           HLP1(I,I) =  cmplx(1.d0,0.d0,kind=8)
-        ENDDO
+        CALL ZLASET('A', LQ, LQ, alpha, beta, HLP1, LQ)
         Xmax1 = 0.d0
         CALL COMPARE(HLP1, HLP2, XMAX1, XMEAN)
         Write(77,*) "Cgr2_1  V1inv V2inv : ", Xmax, Xmax1 
