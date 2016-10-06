@@ -102,11 +102,7 @@
         !	( 0       U1^T )
         
         HLPB2 = cmplx(0.d0,0.d0,double)
-        DO J = 1,LQ
-           DO I = 1,LQ
-              HLPB2(I,J) = V2INV(I,J)
-           ENDDO
-        ENDDO
+        call ZLACPY('A', LQ, LQ, V2INV, LQ, HLPB2, LQ2)
         DO I = 1,LQ
            ILQ = I + LQ
            DO J = 1, LQ
@@ -123,11 +119,7 @@
         !	        ( 0      U2^T )
         
         HLPB2 = cmplx(0.D0,0.d0,double)
-        DO I = 1,LQ
-           DO J = 1,LQ
-              HLPB2(I,J) = V1INV(I,J)
-           ENDDO
-        ENDDO
+        call ZLACPY('A', LQ, LQ, V1INV, LQ, HLPB2, LQ2)
         DO I = 1,LQ
            ILQ = I + LQ
            DO J = 1,LQ
