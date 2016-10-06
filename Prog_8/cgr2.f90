@@ -66,6 +66,7 @@
              &                   V2INV(LQ,LQ), V1INV(LQ,LQ), HLP2(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z, alpha, beta
+        Integer, dimension(:), allocatable :: IPVT
         
         Integer :: LQ2, I,J, M, ILQ, JLQ, NCON
         
@@ -113,9 +114,10 @@
               HLPB2(ILQ,JLQ) = conjg(U1(J,I))
            ENDDO
         ENDDO
-        CALL INV(V3B,HLPB1,Z)
-        CALL MMULT(V3B,HLPB2,HLPB1)
-        
+        allocate(IPVT(LQ2))
+        call ZGESV(LQ2, LQ2, V3B, LQ2, IPVT, HLPB2, LQ2, I)
+        call ZLACPY('A', LQ2, LQ2, HLPB2, LQ2, V3B, LQ2)
+        deallocate(IPVT)
         !       Multiplication:
         !	U3B^T * ( V1INV  0   )   = U3B
         !	        ( 0      U2^T )
