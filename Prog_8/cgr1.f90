@@ -16,10 +16,11 @@
         INTEGER         :: NVAR
  
         !Local
-        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, TPUP1M1, UUPM1, VUP1
+        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, UUPM1, VUP1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
+        INTEGER, Dimension(:), Allocatable :: IPVT
         COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
-        Integer :: I,J, N_size, NCON
+        Integer :: I,J, N_size, NCON, info
         Real (Kind=8) :: X, Xmax
         
         N_size = SIZE(DLUP,1)
@@ -27,7 +28,7 @@
         alpha = 1.D0
         beta = 0.D0
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
-             & TPUPM1(N_size,N_size),TPUP1M1(N_size,N_size),  UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size) )
+             & TPUPM1(N_size,N_size), UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size), IPVT(N_size) )
 
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(VUP,VRUP,VLUP)
@@ -46,8 +47,14 @@
            CALL INV(TPUP,TPUPM1,ZDUP1)
            !WRITE(6,*) 'End called Inv'
            CALL MMULT(TPUP1,URUP,UUP)
-           CALL INV(TPUP1,TPUP1M1,ZDUP2)
-           Z1 = ZDUP1*ZDUP2
+           CALL ZGETRF(N_size, N_size, TPUP1, N_size, IPVT, info)
+           Z1 = ZDUP1
+           Do i = 1, N_size
+           IF (IPVT(i) .ne. i) THEN
+            Z1 = -Z1
+           endif
+           Z1 = Z1 * TPUP1(I, I)
+           enddo
         ELSE
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
            TPUP1 = CT(TPUP)
@@ -55,25 +62,33 @@
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP, N_size, UUP, N_size, beta, TPUPM1, N_size)
            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, URUP, N_size, VUP, N_size, beta, TPUP1, N_size)
-           CALL INV(TPUP1,TPUP1M1,ZDUP2)
+           CALL ZGETRF(N_size, N_size, TPUP1, N_size, IPVT, info)
+           ZDUP2 = 1.D0
+           do i = 1, N_size
+           ZDUP2 = ZDUP2 * TPUP1(I,I)
+           IF (IPVT(i) .ne. i) THEN
+            ZDUP2 = -ZDUP2
+           endif
+           enddo
            TPUP = TPUPM1
            ZDUP1 = DET_C(TPUP, N_size)! Det destroys its argument
-           Z1 = ZDUP2/ZDUP1!Better stability could be obtained here by using the LU decompositions calculated in the previous two lines
+           Z1 = ZDUP2/ZDUP1
         ENDIF
-        DO I = 1,N_size
-           X = ABS(DUP(I))
-           if (I == 1)  Xmax = X
+        DO J = 1, N_size
+        ZDUP1 = DUP(J)
+        X = ABS(ZDUP1)
+           if (J == 1)  Xmax = X
            if ( X  < Xmax ) Xmax = X
+        ZDUP1 = 1.D0/ZDUP1
+        DO I = 1, N_size
+        TPUPM1(J, I) = TPUPM1(I,J) * ZDUP1
+        ENDDO
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
-        DUP = 1.D0/DUP
-        DO J = 1,N_size
-        DO I = 1,N_size
-           GRUP(I, J) = Sum(TPUPM1(I,:) * TPUP1M1(:,J) * DUP)
-        ENDDO
-        ENDDO
+        call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, TPUPM1, N_size, info)
+        GRUP = CONJG(TRANSPOSE(TPUPM1))
         PHASE = Z1/ABS(Z1)
 
-        Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, TPUP1M1, UUPM1, VUP1, DUP )
+        Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, UUPM1, VUP1, DUP, IPVT )
 
       END SUBROUTINE CGR
