@@ -81,12 +81,14 @@
            if ( X  < Xmax ) Xmax = X
         ZDUP1 = 1.D0/ZDUP1
         DO I = 1, N_size
-        TPUPM1(J, I) = TPUPM1(I,J) * ZDUP1
+        TPUPM1(I, J) = TPUPM1(I,J) * ZDUP1
         ENDDO
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
-        call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, TPUPM1, N_size, info)
-        GRUP = CONJG(TRANSPOSE(TPUPM1))
+!         call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, TPUPM1, N_size, info)
+!        GRUP = CONJG(TRANSPOSE(TPUPM1))
+        call ZGETRI(N_size, TPUP1, N_size, IPVT, DUP, N_size, info)
+        call ZGEMM('N', 'N', N_size, N_size, N_size, alpha, TPUPM1, N_size, TPUP1, N_size, beta, GRUP, N_size)
         PHASE = Z1/ABS(Z1)
 
         Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, UUPM1, VUP1, DUP, IPVT )
