@@ -28,7 +28,7 @@
         alpha = 1.D0
         beta = 0.D0
         Allocate( UUP(N_size,N_size),  VUP(N_size,N_size), TPUP(N_size,N_size), TPUP1(N_size,N_size), &
-             & TPUPM1(N_size,N_size), UUPM1(N_size,N_size), VUP1(N_size,N_size), DUP(N_size), IPVT(N_size) )
+             & TPUPM1(N_size,N_size), DUP(N_size), IPVT(N_size) )
 
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(VUP,VRUP,VLUP)
@@ -89,6 +89,6 @@
         GRUP = TRANSPOSE(TPUPM1)
         PHASE = Z1/ABS(Z1)
 
-        Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, UUPM1, VUP1, DUP, IPVT )
+        Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, DUP, IPVT )
 
       END SUBROUTINE CGR
