@@ -21,7 +21,7 @@
         INTEGER, Dimension(:), Allocatable :: IPVT
         COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
         Integer :: I,J, N_size, NCON, info
-        Real (Kind=8) :: X, Xmax
+        Real (Kind=Kind(0.D0)) :: X, Xmax, sv
         
         N_size = SIZE(DLUP,1)
         NCON = 0
@@ -75,14 +75,14 @@
            Z1 = ZDUP2/ZDUP1
         ENDIF
         DO J = 1, N_size
-        ZDUP1 = DUP(J)
-        X = ABS(ZDUP1)
+           sv = DBLE(DUP(J))
+           X = ABS(sv)
            if (J == 1)  Xmax = X
            if ( X  < Xmax ) Xmax = X
-        ZDUP1 = 1.D0/ZDUP1
-        DO I = 1, N_size
-        TPUPM1(I, J) = TPUPM1(I,J) * ZDUP1
-        ENDDO
+           sv = 1.D0/sv
+           DO I = 1, N_size
+              TPUPM1(I, J) = TPUPM1(I, J) * sv
+           ENDDO
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
 !         call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, TPUPM1, N_size, info)
