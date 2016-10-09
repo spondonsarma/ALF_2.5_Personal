@@ -16,7 +16,7 @@
         INTEGER         :: NVAR
  
         !Local
-        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, UUPM1, VUP1
+        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
         INTEGER, Dimension(:), Allocatable :: IPVT
         COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
@@ -81,16 +81,14 @@
            if ( X  < Xmax ) Xmax = X
            sv = 1.D0/sv
            DO I = 1, N_size
-              TPUPM1(I, J) = TPUPM1(I, J) * sv
+              UUP(J, I) = TPUPM1(I, J) * sv
            ENDDO
         ENDDO
         !Write(6,*) 'Cgr1, Cutoff: ', Xmax
-        call ZGETRI(N_size, TPUP1, N_size, IPVT, DUP, N_size, info)
-        call ZGEMM('N', 'N', N_size, N_size, N_size, alpha, TPUPM1, N_size, TPUP1, N_size, beta, GRUP, N_size)
-        !call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, TPUPM1, N_size, info)
-        !GRUP = TRANSPOSE(TPUPM1)
+!        TPUPM1 = TRANSPOSE(TPUPM1)
+        call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, UUP, N_size, info)
+        GRUP = TRANSPOSE(UUP)
         PHASE = Z1/ABS(Z1)
-
         Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, DUP, IPVT )
 
       END SUBROUTINE CGR
