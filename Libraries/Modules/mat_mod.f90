@@ -224,7 +224,7 @@
 !> entries on the diagonal.
 !
 !> @param[inout] A a 2D array constituting the input matrix.
-!> @param[X] the scalar that we set the diagonal to.
+!> @param[in] Xthe scalar that we set the diagonal to.
 !--------------------------------------------------------------------
        SUBROUTINE INITD_C(A, X)
          IMPLICIT NONE
@@ -296,7 +296,7 @@
 !> in a subpart of the input matrix.
 !
 !> @param[in] A a 2D array constituting the input matrix.
-!> @param[out] AINV a 2D array containing the inverse of the subpart
+!> @param[out] AINV a 2D array containing the inverse of the subpart.
 !> @param[out] DET the determinant of the input matrix.
 !> @param[in] Ndim The size of the subpart.
 !--------------------------------------------------------------------
@@ -1071,15 +1071,15 @@
 !
 !> @brief 
 !> This function calculates the SVD using the standard QR algorithm
-!> of Lapack
+!> of LaPack.
 !
 !> @note Using the Divide & Conquer algorithm would not yield 
 !> enough accuracy for using within an auxiliary field type algorithm.
 !
-!> @param[in] A a 2D array constituting the input matrix
-!> @param[out] U a 2D array containing the left singular vectors
-!> @param[out] W a 1D array containing the sorted singular values
-!> @param[out] V a 2D array containing the right singular vectors
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] U a 2D array containing the left singular vectors.
+!> @param[out] D a 1D array containing the sorted singular values.
+!> @param[out] V a 2D array containing the right singular vectors.
 !> @param[in] NCON
 !--------------------------------------------------------------------
 
@@ -1151,11 +1151,11 @@
 !
 !> @brief 
 !> This function diagonalizes the input matrix A and returns
-!> eigenvalues and vectors using the lapack routine DSYEV
+!> eigenvalues and vectors using the lapack routine DSYEV.
 !
-!> @param[in] A a 2D array constituting the input matrix
-!> @param[out] U a 2D array containing the eigen vectors
-!> @param[out] W a 1D array containing the sorted eigenvalues
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] U a 2D array containing the eigen vectors.
+!> @param[out] W a 1D array containing the sorted eigenvalues.
 !--------------------------------------------------------------------
       SUBROUTINE DIAG_R(A,U,W)
         IMPLICIT NONE
