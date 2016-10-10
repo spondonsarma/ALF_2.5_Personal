@@ -44,10 +44,10 @@
         Call UDV  (U1,U,D,V,NCON)
         
         ! Setpup G_perp
-        gperp = cmplx(0.d0,0.d0, kind(0.D0))
+!        call ZGEMM('N', 'T', NDim, NDim, NDim/2, 1.D0, U, NDim, U, NDim, 0.D0, Gperp, NDim)
         Do i = 1,Ndim
            do j = 1,Ndim
-            Gperp(i, j) = Gperp(i, j) + dot_product(U(j, :), U(i, :))
+            Gperp(i, j) = dot_product(U(j, :), U(i, :))
            enddo
         enddo
 

@@ -96,7 +96,7 @@ Contains
        do n = 1,size(Op_V,1)
           do nt = 1,size(nsigma,2)
              angle = Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * Phi(nsigma(n,nt),Op_V(n,nf)%type)
-             Phase = Phase*CMPLX(cos(angle),sin(angle), kind(0.D0))
+             Phase = Phase*CMPLX(cos(angle),sin(angle), Kind(0.D0))
           enddo
        enddo
     enddo
@@ -277,12 +277,24 @@ Contains
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
     Integer :: n,i
-    
+
+    select case (opn)
+    case (1)
+        DO I = 1, Ndim
+            Mat(P(1), I) = U(1,1) * V(1, I)
+        enddo
+    case (2)
+        DO I = 1, Ndim
+            Mat(P(1), I) = U(1,1) * V(1, I) + U(1,2) * V(2, I)
+            Mat(P(2), I) = U(2,1) * V(1, I) + U(2,2) * V(2, I)
+        enddo
+    case default
     do n = 1, opn
         DO I = 1, Ndim
             Mat(P(n), I) = Sum(U(n,:) * V(:, I))
         enddo
     enddo
+    end select
     
   end subroutine
 
@@ -310,13 +322,25 @@ Contains
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
     Integer :: n, i
-    
+
+    select case (opn)
+    case (1)
+        DO I = 1, Ndim
+            Mat(I, P(1)) = conjg(U(1,1)) * V(1, I)
+        enddo
+    case (2)
+        DO I = 1, Ndim
+            Mat(I, P(1)) = conjg(U(1,1)) * V(1, I) + conjg(U(1,2)) * V(2, I)
+            Mat(I, P(2)) = conjg(U(2,1)) * V(1, I) + conjg(U(2,2)) * V(2, I)
+        enddo
+    case default
     do n = 1, opn
         DO I = 1, Ndim 
             Mat(I, P(n)) = Dot_Product(U(n, :), V(:, I))!this involves a conjg
         enddo
     enddo
-    
+    end select
+        
   end subroutine
 
 !--------------------------------------------------------------------
@@ -348,12 +372,24 @@ Contains
     Integer :: n, i
     Complex (Kind = Kind(0.D0)) lexp
 
+    select case (opn)
+    case (1)
+        DO I = 1, Ndim
+            Mat(I, P(1)) = Z(1) * U(1, 1) * V(1, I)
+        enddo
+    case (2)
+        DO I = 1, Ndim
+            Mat(I, P(1)) = Z(1) * (U(1, 1) * V(1, I) + U(2, 1) * V(2, I))
+            Mat(I, P(2)) = Z(2) * (U(1, 2) * V(1, I) + U(2, 2) * V(2, I))
+        enddo
+    case default
     do n = 1, opn
         lexp = Z(n)
         DO I = 1, Ndim
             Mat(I, P(n)) = lexp * Sum(U(:, n) * V(:, I))
         enddo
     Enddo
+    end select
 
   end subroutine
 
@@ -386,12 +422,24 @@ Contains
     Integer :: n, i
     Complex (Kind = Kind(0.D0)) lexp
 
+    select case (opn)
+    case (1)
+        DO I = 1, Ndim
+            Mat(P(1), I) = Z(1) * conjg(U(1, 1)) * V(1, I)
+        enddo
+    case (2)
+        DO I = 1, Ndim
+            Mat(P(1), I) = Z(1) * (conjg(U(1, 1)) * V(1, I) + conjg(U(2, 1)) * V(2, I))
+            Mat(P(2), I) = Z(2) * (conjg(U(1, 2)) * V(1, I) + conjg(U(2, 2)) * V(2, I))
+        enddo
+    case default
     do n = 1, opn
         lexp = Z(n)
         DO I = 1, Ndim
             Mat(P(n), I) = lexp * Dot_Product(U(:, n), V(:, I))
         enddo
     Enddo
+    end select
 
   end subroutine
 
@@ -581,29 +629,47 @@ end subroutine
 !        alpha = cmplx (1.0d0,0.0d0)
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('T','N',Ndim,Op%N,Op%N,alpha,VH,Op%N,Op%U,nop,beta,tmp,Ndim)
-       !$OMP PARALLEL DO PRIVATE(tmp)
+    select case (Op%N)
+    case (1)
+        DO I = 1, Ndim
+            Mat(I, Op%P(1)) = Op%U(1,1) * VH(1, I)
+        enddo
+    case (2)
+        DO I = 1, Ndim
+            Mat(I, Op%P(1)) = Op%U(1, 1) * VH(1, I) + Op%U(2, 1) * VH(2, I)
+            Mat(I, Op%P(2)) = Op%U(1, 2) * VH(1, I) + Op%U(2, 2) * VH(2, I)
+        enddo
+    case default
        do n = 1,Op%N
           DO I = 1,Ndim
-!              Mat(I,Op%P(n))  =  zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
-             Mat(I,Op%P(n))  =  Sum(VH(:, I) * Op%U(:, n))
+             Mat(I, Op%P(n))  =  Sum(VH(:, I) * Op%U(:, n))
           enddo
        Enddo
-      !$OMP END PARALLEL DO
-       
+    end select
+
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
        
        ! ZGEMM might be the better multiplication, but the additional copy precess seem to be to expensive
 !        alpha = cmplx (1.0d0,0.0d0)
 !        beta = cmplx (0.0d0,0.0d0)
 !        CALL ZGEMM('C','N',Op%N,Ndim,Op%N,alpha,Op%U,nop,VH,Op%N,beta,tmp2,Op%N)
-      !$OMP PARALLEL DO PRIVATE(tmp)
-       do n = 1,Op%N
-          DO I = 1,Ndim
-!              Mat(Op%P(n),I)  = zdotc(Op%N,Op%U(1,n),1,VH(1,I),1)
-             Mat(Op%P(n),I)  = Dot_Product(Op%U(:, n), VH(:, I))
-          enddo
-       enddo
-      !$OMP END PARALLEL DO
+        select case (Op%N)
+        case (1)
+            DO I = 1, Ndim
+                Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I)
+            enddo
+        case (2)
+            DO I = 1, Ndim
+                Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I) + conjg(Op%U(2,1)) * VH(2, I)
+                Mat(Op%P(2), I) = conjg(Op%U(1,2)) * VH(1, I) + conjg(Op%U(2,2)) * VH(2, I)
+            enddo
+        case default
+        do n = 1, Op%N
+            DO I = 1, Ndim 
+                Mat(Op%P(n), I) = Dot_Product(Op%U(n, :), VH(:, I))!this involves a conjg
+            enddo
+        enddo
+        end select
     endif
     
   end Subroutine Op_Wrapdo
