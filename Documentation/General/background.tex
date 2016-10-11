@@ -1,4 +1,4 @@
-\section{Necessary background information}
+\section{Theory part}
 
 
 \subsection{Definition of the physical Hamiltonian and its implementation}
@@ -7,37 +7,62 @@ The physical Hamiltonians that we can simulate have the general form:
 \begin{equation}
 \label{eqn_general_ham1}
 \mathcal{H}
-=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
-c^{\dagger}_{\bm{x} s}M_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}
+=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
+c^{\dagger}_{x s}M_{xy}c^{\phantom\dagger}_{ys}
 -\sum\limits_{k=1}^{M}U_{k}\left[
-\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+\sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
 \left( 
-c^{\dagger}_{\bm{x}s}T^{(k)}_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}-\alpha_{k}
+c^{\dagger}_{xs}T^{(k)}_{xy}c^{\phantom\dagger}_{ys}-\alpha_{k}
 \right)
 \right]^{2}\;.
 \end{equation}
-The indices $\bm{x},\bm{y}$ are multi-indices that label sites and spin states: $\bm{x}=(i,\sigma)$, 
+The indices $x,y$ are multi-indices that label sites and spin states: $x=(i,\sigma)$, 
 where $i=1,\cdots N_{sites}$ and $\sigma=1,\cdots N_{sun}$, so
 \begin{equation}
-\sum\limits_{\bm{x},\bm{y}}\equiv
+\sum\limits_{x,y}\equiv
 \sum\limits_{i=1,j=1}^{N_{sites}}\sum\limits_{\sigma=1,\sigma^{\prime}=1}^{N_{sun}}\;.
 \end{equation}
 Note, that  we introduced \textit{two} different labels for the number of spin states (flavours): 
 $N_{fl}$ and $N_{sun}$.
 The number of correlated sites which is a subset of all sites, is labelled by $M$  ($M\leq N_{sites}$).
+Let us further define  $N_{dim}=N_{sun} N_{sites}$ such that the matrices $\bm{M}$ and $\bm{T}^{(k)}$ are of dimension $N_{dim}\times N_{dim}$.
 
 I suggest to use a more intuitive notation and to label the hopping matrix by $T$ and the interaction matrix by $V$:
 \begin{equation}
 \label{eqn_general_ham2}
 \mathcal{H}
-=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
-c^{\dagger}_{\bm{x}s}T_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y}s}
+=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
+c^{\dagger}_{xs}T_{xy}c^{\phantom\dagger}_{ys}
 -\sum\limits_{k=1}^{M}U_{k}\left[
-\sum\limits_{s=1}^{N_{fl}}\sum\limits_{\bm{x},\bm{y}}
+\sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
 \left( 
-c^{\dagger}_{\bm{x}s}V^{(k)}_{\bm{x}\bm{y}}c^{\phantom\dagger}_{\bm{y} s}-\alpha_{k}
+c^{\dagger}_{xs}V^{(k)}_{xy}c^{\phantom\dagger}_{y s}-\alpha_{k}
 \right)
 \right]^{2}\;,
 \end{equation}
 
-\subsection{Which information does the type \textit{operator} contain?}
+\subsection{Structure of the matrices ${\bf T}$ and ${\bf V}^{(k)}$ and their implementation}
+
+In general, the matrices ${\bf T}$ and ${\bf V}^{(k)}$ are sparse matrices. 
+This property is used to minimize computational cost and storage requirements.
+In the following, we discuss the implementation of the matrix representation ${\bf V}^{(k)}$ of the interaction operator. 
+The same applies for the hopping matrix ${\bf T}$.
+We have
+\begin{equation}
+V^{(k)}_{x y}\neq 0\quad \text{only if} \quad x,y \in [z_{1},\cdots  z_{N_{eff}}]\;.
+\end{equation}
+We define the projection matrices $\mathbf{P}^{(k)}$ of dimension $N_{eff}^{(k)}\times N_{dim}$:
+\begin{equation}
+P^{(k)}_{i,z}=\delta_{z_{i},z}\;,
+\end{equation}
+where $i\in [1,\cdots N_{eff}^{(k)}]$ and $z\in [1,\cdots N_{dim}]$. Evidently, $\bm{P}^{(k)}$ picks out the non-vanishing entries of $\bm{V}^{(k)}$, 
+which are contained in the $(N_{eff}^{(k)}\times N_{eff}^{(k)})$ - dimensional matrix $\bm{O}_{V}^{(k)}$:
+\begin{equation}
+\bm{V}^{(k)}=\bm{P}^{(k) T} \bm{O}_{V}^{(k)}\bm{P}^{(k)}\;,
+\end{equation}
+and
+\begin{equation}
+V_{xy}^{(k)}=P^{(k)}_{ix} \left[O_{V}^{(k)}\right]_{ij}P_{jy}^{(k)}=\sum\limits_{i,j}^{N_{eff}^{(k)}} \delta_{z_{i},x}  \left[O_{V}^{(k)}\right]_{ij} \delta_{z_{j},y} \;.
+\end{equation}
+
+To set the interaction part, we therefore have to specify the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$, the set $[z_{1},\cdots  z_{N_{eff}}]$ , and the values $U_{k}$ and $\alpha_{k}$.
