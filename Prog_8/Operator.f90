@@ -277,7 +277,8 @@ Contains
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
     Integer :: n,i
-    Complex (Kind = Kind(0.D0)) :: alpha, beta, tmp(opn, Ndim)
+    Complex (Kind = Kind(0.D0)) :: alpha, beta
+    Complex (Kind = Kind(0.D0)), Dimension(:,:), allocatable :: tmp
 
     alpha = 1.D0
     beta = 0.D0
@@ -292,10 +293,11 @@ Contains
             Mat(P(2), I) = U(2,1) * V(1, I) + U(2,2) * V(2, I)
         enddo
     case default
-    CALL ZGEMM('N','N', opn, Ndim, opn, alpha, U, opn, V, opn, beta, tmp, opn)
-    Mat((P), :) = tmp
+        Allocate(tmp(opn, Ndim))
+        CALL ZGEMM('N','N', opn, Ndim, opn, alpha, U, opn, V, opn, beta, tmp, opn)
+        Mat((P), :) = tmp
+        Deallocate(tmp)
     end select
-
   end subroutine
 
 !--------------------------------------------------------------------
@@ -322,7 +324,8 @@ Contains
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN) :: P(opn)
     Integer :: n, i
-    Complex (Kind = Kind(0.D0)) :: alpha, beta, tmp(Ndim, opn)
+    Complex (Kind = Kind(0.D0)) :: alpha, beta
+    Complex (Kind = Kind(0.D0)), Dimension(:,:), allocatable :: tmp
 
     alpha = 1.D0
     beta = 0.D0
@@ -337,8 +340,10 @@ Contains
             Mat(I, P(2)) = conjg(U(2,1)) * V(1, I) + conjg(U(2,2)) * V(2, I)
         enddo
     case default
+        Allocate(tmp(Ndim, opn))
         CALL ZGEMM('T','C', Ndim, opn, opn, alpha, V, opn, U, opn, beta, tmp, Ndim)
         Mat(:, (P)) = tmp
+        Deallocate(tmp)
     end select
         
   end subroutine
@@ -384,11 +389,10 @@ Contains
             Mat(I, P(2)) = Z(2) * (U(1, 2) * V(1, I) + U(2, 2) * V(2, I))
         enddo
     case default
-    do n = 1, opn
-        call zgemv('T', opn, Ndim, Z(n), V, opn, U(:, n), 1, beta, Mat(:, P(n)), 1)
-    Enddo
+        do n = 1, opn
+            call zgemv('T', opn, Ndim, Z(n), V, opn, U(:, n), 1, beta, Mat(:, P(n)), 1)
+        Enddo
     end select
-
   end subroutine
 
 !--------------------------------------------------------------------
@@ -402,7 +406,7 @@ Contains
 !
 !> @param[in] V
 !> @param[in] U
-!> @param[in] P a vector wiht the rows that we write to
+!> @param[in] P a vector with the rows that we write to
 !> @param[inout] Mat The Matrix that we update
 !> @param[in] Z A vector that usually contains exponentials
 !> @param[in] opn The length of the vector P
@@ -432,11 +436,10 @@ Contains
             Mat(P(2), I) = Z(2) * (conjg(U(1, 2)) * V(1, I) + conjg(U(2, 2)) * V(2, I))
         enddo
     case default
-    do n = 1, opn
-        call zgemv('T', opn, Ndim, Z(n), V, opn, conjg(U(:, n)), 1, beta, Mat(P(n), 1), size(Mat, 1))
-    Enddo
+        do n = 1, opn
+            call zgemv('T', opn, Ndim, Z(n), V, opn, conjg(U(:, n)), 1, beta, Mat(P(n), 1), size(Mat, 1))
+        Enddo
     end select
-
   end subroutine
 
 !--------------------------------------------------------------------
@@ -459,17 +462,18 @@ Contains
     Real    (Kind=8), INTENT(IN)   :: spin
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), Z(Op%N)
+    Complex (Kind=8), Dimension(:, :), allocatable :: VH
+    Complex (Kind=8), Dimension(:), allocatable :: Z
 
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
-
+    allocate(VH(Op%N,Ndim), Z(Op%N))
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
     Z = exp(Op%g * spin * Op%E)
     call opexpmult(VH, Op%U, Op%P, Mat, Z, Op%N, Ndim)
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
     call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
-
+    deallocate(VH, Z)
   end subroutine Op_mmultL
 
   !--------------------------------------------------------------------
@@ -492,16 +496,18 @@ Contains
     Real    (Kind=8), INTENT(IN )   :: spin
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), Z(Op%N)
+    Complex (Kind=8), Dimension(:, :), allocatable :: VH
+    Complex (Kind=8), Dimension(:), allocatable :: Z
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
+    allocate(VH(Op%N,Ndim), Z(Op%N))
     call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
     Z = exp(Op%g * spin * Op%E)
     call opexpmultct(VH, Op%U, Op%P, Mat, Z, Op%N, Ndim)    
     call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
     call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
-
+    deallocate(VH, Z)
   end subroutine Op_mmultR
 
 !--------------------------------------------------------------------
@@ -571,24 +577,22 @@ end subroutine
   end Subroutine Op_Wrapup
 
   Subroutine Op_Wrapdo(Mat,Op,spin,Ndim,N_Type)
-
     Implicit none 
 
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
-    Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=8), INTENT(IN )   :: spin
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Real    (Kind = Kind(0.D0)), INTENT(IN )   :: spin
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: VH(Op%N,Ndim), ExpOp(Op%N), ExpMop(Op%N), ExpHere !, zdotu, zdotc
-!     Complex (Kind=8) :: alpha, beta, tmp2(Op%N,Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:), allocatable :: ExpOp, ExpMop
     Integer :: n, i
-    Complex (Kind = Kind(0.D0)) :: alpha, beta, tmp(Ndim, Op%N), tmp2(Op%N, Ndim)
+    Complex (Kind = Kind(0.D0)) :: alpha, beta, ExpHere
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), allocatable :: VH, tmp, tmp2
 
     alpha = 1.D0
     beta = 0.D0
-    
     !!!!! N_Type == 1
     !    Op%U*exp(-Op%g*spin*Op%E)*Mat*exp(Op%g*spin*Op%E)*(Op%U^{dagger})
     !    
@@ -596,6 +600,7 @@ end subroutine
     !!!!! N_Type == 2
     !    (Op%U^{dagger}) * Mat * Op%U
     !!!!!
+    Allocate(VH(Op%N,Ndim), ExpOp(Op%N), ExpMop(Op%N))
     If (N_type == 1) then
        call FillExpOps(ExpOp, ExpMop, Op, spin)
        
@@ -626,8 +631,10 @@ end subroutine
             Mat(I, Op%P(2)) = Op%U(1, 2) * VH(1, I) + Op%U(2, 2) * VH(2, I)
         enddo
     case default
+        Allocate(tmp(Ndim, Op%N))
         CALL ZGEMM('T','N', Ndim, op%N, op%N, alpha, VH, op%n, Op%U, op%n, beta, tmp, Ndim)
         Mat(:, (Op%P)) = tmp
+        Deallocate(tmp)
     end select
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
        
@@ -642,11 +649,12 @@ end subroutine
                 Mat(Op%P(2), I) = conjg(Op%U(1,2)) * VH(1, I) + conjg(Op%U(2,2)) * VH(2, I)
             enddo
         case default
-        CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U, op%n, VH, op%n, beta, tmp2, op%n)
-        Mat(Op%P, :) = tmp2
+            Allocate(tmp2(Op%N, Ndim))
+            CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U, op%n, VH, op%n, beta, tmp2, op%n)
+            Mat(Op%P, :) = tmp2
+            Deallocate(tmp2)
         end select
     endif
-    
   end Subroutine Op_Wrapdo
 
 end Module Operator_mod
