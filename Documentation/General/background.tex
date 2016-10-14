@@ -16,7 +16,7 @@ c^{\dagger}_{xs}T^{(k)}_{xy}c^{\phantom\dagger}_{ys}-\alpha_{k}
 \right)
 \right]^{2}\;.
 \end{equation}
-The indices $x,y$ are multi-indices that label sites and spin states: $x=(i,\sigma)$, 
+The indices $x,y$ are multi-indices that label degrees of freedom, containing lattice sites and spin states: $x=(i,\sigma)$, 
 where $i=1,\cdots N_{sites}$ and $\sigma=1,\cdots N_{sun}$, so
 \begin{equation}
 \sum\limits_{x,y}\equiv
@@ -25,7 +25,8 @@ where $i=1,\cdots N_{sites}$ and $\sigma=1,\cdots N_{sun}$, so
 Note, that  we introduced \textit{two} different labels for the number of spin states (flavours): 
 $N_{fl}$ and $N_{sun}$.
 The number of correlated sites which is a subset of all sites, is labelled by $M$  ($M\leq N_{sites}$).
-Let us further define  $N_{dim}=N_{sun} N_{sites}$ such that the matrices $\bm{M}$ and $\bm{T}^{(k)}$ are of dimension $N_{dim}\times N_{dim}$.
+Let us further define  $N_{dim}=N_{sun} N_{sites}$ such that the matrices $\bm{M}$ and $\bm{T}^{(k)}$ are of dimension $N_{dim}\times N_{dim}$ (in the code, $N_{dim}=Latt\%N$=$N_{unitcells}$)
+\mycomment{$N_{sites}$ is the total number of spacial vertices, so it can be the product of orbital sites per unit cell $N_{orbitals}$ and number of unit cells $N_{unitcells}$ of the underlying Bravais lattice}
 
 I suggest to use a more intuitive notation and to label the hopping matrix by $T$ and the interaction matrix by $V$:
 \begin{equation}
@@ -38,31 +39,41 @@ c^{\dagger}_{xs}T_{xy}c^{\phantom\dagger}_{ys}
 \left( 
 c^{\dagger}_{xs}V^{(k)}_{xy}c^{\phantom\dagger}_{y s}-\alpha_{k}
 \right)
-\right]^{2}\;,
+\right]^{2}\;.
 \end{equation}
+This notation is used from now on.
 
 \subsection{Structure of the matrices ${\bf T}$ and ${\bf V}^{(k)}$ and their implementation}
 
 In general, the matrices ${\bf T}$ and ${\bf V}^{(k)}$ are sparse matrices. 
 This property is used to minimize computational cost and storage requirements.
-In the following, we discuss the implementation of the matrix representation ${\bf V}^{(k)}$ of the interaction operator. 
+In the following, we discuss the implementation of the single-particle matrix representation ${\bf V}^{(k)}$ of the interaction operator. 
 The same applies for the hopping matrix ${\bf T}$.
-We have
+We denote a subset of $N_{eff}$ (in the code, $N_{eff}$ is called just $N$) degrees of freedom  by the set  $[z_{1},\cdots  z_{N_{eff}}]$ and define it to contain only vertices for which an interaction term is defined:
 \begin{equation}
-V^{(k)}_{x y}\neq 0\quad \text{only if} \quad x,y \in [z_{1},\cdots  z_{N_{eff}}]\;.
+V^{(k)}_{x y}\neq 0\quad \text{only if} \quad x,y \in [z_{1}^{(k)},\cdots  z_{N_{eff}^{(k)}}^{(k)}]\;.
 \end{equation}
-We define the projection matrices $\mathbf{P}^{(k)}$ of dimension $N_{eff}^{(k)}\times N_{dim}$:
+We define the projection matrices $\mathbf{P}^{(k)}_{V}$ of dimension $N_{eff}^{(k)}\times N_{dim}$:
 \begin{equation}
-P^{(k)}_{i,z}=\delta_{z_{i},z}\;,
+(P_{V}^{(k)})_{i,z}=\delta_{z_{i}^{(k)},z}\;,
 \end{equation}
-where $i\in [1,\cdots N_{eff}^{(k)}]$ and $z\in [1,\cdots N_{dim}]$. Evidently, $\bm{P}^{(k)}$ picks out the non-vanishing entries of $\bm{V}^{(k)}$, 
+where $i\in [1,\cdots N_{eff}^{(k)}]$ and $z\in [1,\cdots N_{dim}]$. Evidently, $\bm{P}^{(k)}_{V}$ picks out the non-vanishing entries of $\bm{V}^{(k)}$, 
 which are contained in the $(N_{eff}^{(k)}\times N_{eff}^{(k)})$ - dimensional matrix $\bm{O}_{V}^{(k)}$:
 \begin{equation}
-\bm{V}^{(k)}=\bm{P}^{(k) T} \bm{O}_{V}^{(k)}\bm{P}^{(k)}\;,
+\bm{V}^{(k)}=\bm{P}^{(k) T}_{V} \bm{O}_{V}^{(k)}\bm{P}^{(k)}_{V}\;,
 \end{equation}
 and
 \begin{equation}
-V_{xy}^{(k)}=P^{(k)}_{ix} \left[O_{V}^{(k)}\right]_{ij}P_{jy}^{(k)}=\sum\limits_{i,j}^{N_{eff}^{(k)}} \delta_{z_{i},x}  \left[O_{V}^{(k)}\right]_{ij} \delta_{z_{j},y} \;.
+V_{xy}^{(k)}=(P^{(k)}_{V})_{ix} \left[O_{V}^{(k)}\right]_{ij}(P_{V}^{(k)})_{jy}=\sum\limits_{i,j}^{N_{eff}^{(k)}} \delta_{z_{i}^{(k)},x}  \left[O_{V}^{(k)}\right]_{ij} \delta_{z_{j}^{(k)},y} \;.
 \end{equation}
+\mycomment{Comment that the P matrices have only one non-vanishing entry per column.}
+To set the two-particle interaction part, we therefore have to specify the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$, the set $[z_{1}^{(k)},\cdots  z_{N_{eff}^{(k)}}^{(k)}]$ , and the values $U_{k}$ and $\alpha_{k}$.
+\mycomment{Be more specific here what really has to specified in the actual code.}
 
-To set the interaction part, we therefore have to specify the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$, the set $[z_{1},\cdots  z_{N_{eff}}]$ , and the values $U_{k}$ and $\alpha_{k}$.
+In the code implementation, we define a structure called \texttt{Operator}. 
+This structure variable \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.
+In Fortran a structure variable like this is called a derived type. 
+The components it contains are: the projector ${\bm P}_{V}$, the matrix ${\bm O}_V$, the effective dimension $N_{eff}$ and a couple of auxiliary matrices and scalars.
+In general, we will not only have one structure variable \texttt{Operator}, instead we will have an array of these structures.
+
+The same logic also applies to the implementation of the hopping interaction. 

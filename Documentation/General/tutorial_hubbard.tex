@@ -1,4 +1,4 @@
-\section{Tutorial to set up the Hubbard model}
+\section{Tutorial to set up the $SU(2)$-Hubbard model on a square lattice}
 The $SU(2)$ symmetric Hubbard model is given by
 \begin{equation}
 \label{eqn_hubbard_sun}
@@ -14,9 +14,43 @@ To bring Eq.~(\ref{eqn_hubbard_sun}) in the general form (\ref{eqn_general_ham2}
 \begin{eqnarray}
 N_{fl}&=&1\nonumber\\
 N_{sun}&=&2\nonumber\\
-T_{\bm{x}\bm{y}}&=&-t\delta_{\langle i,j\rangle}\delta_{\sigma,\sigma^{\prime}}\nonumber\\
+T_{x y}&=&-t\delta_{\langle i,j\rangle}\delta_{\sigma,\sigma^{\prime}}\nonumber\\
 M&=&N_{sites}\nonumber\\
 U_{k}&=&-U/2\nonumber\\
-V_{\bm{x}\bm{y}}^{(k)}&=&\delta_{i,j}\delta_{i,k}\delta_{\sigma,\sigma^{\prime}}\nonumber\\
+V_{x y}^{(k)}&=&
+\delta_{x,y}\delta_{i,k}=
+\delta_{i,j}\delta_{\sigma,\sigma^{\prime}}\delta_{i,k}\nonumber\\
 \alpha_{k}&=&1/(N_{sites}N_{sun})^{2}=1/(2 N_{sites})^{2}\;.
 \end{eqnarray}
+
+In the following, we skip the $N_{sun}$-spin degree of freedom which is present in the multi-indices $x,y$ of the matrices $\bm{T}$ and ${\bm V}^{(k)}$. 
+So $N_{dim}=N_{sites}$. \mycomment{Is the code limited to $SU(N)$ symmetric models with respect to the $N_{sun}$ degree of freedom? }
+So both $\bm{T}$ and ${\bm V}^{(k)}$  have dimension $N_{sites}$.
+\mycomment{Note that in this example $N_{dim}=Latt\%N$ since there is only one spacial orbital per unit cell of the underlying Bravais lattice}
+
+\subsection{Hopping interaction}
+The hopping matrix is implemented as follows. 
+We allocate an array of dimension $1\times 1$, called \texttt{Op\_T}. It therefore contains one \texttt{Operator} structure.
+We specify the effective dimension ($N_{dim}$), allocate and initialize this structure by calling the subroutine \texttt{Op\_make}: \texttt{call Op\_make(Op\_T(1,1),Ndim)}.
+It follows trivially, that ${\bm P}_{T}=\mathds{1}$ and ${\bm O}_{T}=({\bm T}_{ij})$ 
+\mycomment{Although a checkerboard decomposition is not yet used for the Hubbard model, in principle it can be implemented.}
+
+\subsection{Two-particle interaction}
+To implement this interaction, we allocate an array of \texttt{Operator} structures. The array is called  \texttt{Op\_V} and has dimensions $N_{dim}\times 1$. 
+We specify the effective dimension ($1$), allocate and initialize this array of structures by calling the subroutine \texttt{Op\_make}: 
+\begin{verbatim}
+do i = 1, Latt%N
+call Op_make(Op_V(i,1),1)
+enddo
+\end{verbatim}
+For each lattice site $i$, the projection matrices ${\bm P}_{V}^{(i)}$ are of dimension $1\times N_{dim} $ and have one non-vanishing entry: $(P_{V}^{(i)})_{1j}=\delta_{ij}$. 
+The effective matrices are again trivial: ${\bm O}_{V}^{(i)}=1$.\\
+
+
+
+To do next:
+\begin{itemize}
+\item dicuss the measurements: what observables exit and how do I add a new one?
+\item  discuss the implementation of the lattice.
+\end{itemize}
+
