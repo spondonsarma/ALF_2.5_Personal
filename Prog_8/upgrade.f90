@@ -92,12 +92,10 @@
               y_v = cmplx(0.d0, 0.d0, kind(0.D0))
               i = Op_V(n_op,nf)%P(1)
               x_v(i, 1) = u(i, 1)/(1.d0 + v(i,1)*u(i,1) )
-              y_v(:, 1) = v(:, 1)
+              call zcopy(Ndim, v(:, 1), 1, y_v(:, 1), 1)
               do n = 2,Op_V(n_op,nf)%N_non_zero
-                 Do i = 1,Ndim
-                    x_v(i,n) = u(i,n)
-                    y_v(i,n) = v(i,n)
-                 enddo
+              call zcopy(Ndim, u(:, n), 1, x_v(:, n), 1)
+              call zcopy(Ndim, v(:, n), 1, y_v(:, n), 1)
                  Z = 1.d0 + u( Op_V(n_op,nf)%P(n), n)*v(Op_V(n_op,nf)%P(n),n)
                  do m = 1,n-1
                     tmpsyu = sum(y_v(:, m) * u(:, n))
