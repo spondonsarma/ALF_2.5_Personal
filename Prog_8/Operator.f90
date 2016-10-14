@@ -551,7 +551,7 @@ end subroutine
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim) !, zdotu, zdotc
+    Complex (Kind=8) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim)
     
 !     nop=size(Op%U,1)
     
