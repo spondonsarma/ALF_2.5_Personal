@@ -78,7 +78,6 @@
 
            Do nf = 1,N_FL
               ! Setup u(i,n), v(n,i) 
-              alpha = 1.D0
               beta = 0.D0
               call zlaset('N', Ndim, Op_dim, beta, beta, u, size(u, 1))
               call zlaset('N', Ndim, Op_dim, beta, beta, v, size(v, 1))
@@ -96,26 +95,26 @@
               x_v(i, 1) = u(i, 1)/(1.d0 + v(i,1)*u(i,1) )
               call zcopy(Ndim, v(:, 1), 1, y_v(:, 1), 1)
               do n = 2,Op_V(n_op,nf)%N_non_zero
-              call zcopy(Ndim, u(:, n), 1, x_v(:, n), 1)
-              call zcopy(Ndim, v(:, n), 1, y_v(:, n), 1)
+                 call zcopy(Ndim, u(:, n), 1, x_v(:, n), 1)
+                 call zcopy(Ndim, v(:, n), 1, y_v(:, n), 1)
                  Z = 1.d0 + u( Op_V(n_op,nf)%P(n), n)*v(Op_V(n_op,nf)%P(n),n)
+                 alpha = -1.D0
                  Allocate(syu(n), sxv(n))
                  call zgemv('T', NDim, n-1, alpha, y_v, Ndim, u(1,n), 1, beta , syu, 1)
                  call zgemv('T', NDim, n-1, alpha, x_v, Ndim, v(1,n), 1, beta , sxv, 1)
                  do m = 1,n-1
                     Z = Z - syu(m)*sxv(m)
-                    Do i = 1,Ndim
-                       x_v(i,n) = x_v(i,n) - x_v(i,m)*syu(m)
-                       y_v(i,n) = y_v(i,n) - y_v(i,m)*sxv(m)
-                    enddo
+                    call zaxpy(Ndim, syu(m), x_v(1, m), 1, x_v(1, n), 1)
+                    call zaxpy(Ndim, sxv(m), y_v(1, m), 1, y_v(1, n), 1)
                  enddo
-                Z = 1.D0/Z
-                call zscal(Ndim, Z, x_v(1, n), 1)
-                Deallocate(syu, sxv)
+                 Z = 1.D0/Z
+                 call zscal(Ndim, Z, x_v(1, n), 1)
+                 Deallocate(syu, sxv)
               enddo
               Allocate (Zarr(Op_dim,Op_dim), grarr(NDim, Op_dim))
               Zarr = x_v(Op_V(n_op,nf)%P, :)
               grarr = gr(:, Op_V(n_op,nf)%P, nf)
+              alpha = 1.D0
               CALL ZGEMM('N', 'N', NDim, Op_Dim, Op_Dim, alpha, grarr, size(grarr,1), Zarr, size(Zarr,1), beta, xp_v, size(xp_v,1))
               Deallocate(Zarr, grarr)
               !do n = 1,Op_dim
