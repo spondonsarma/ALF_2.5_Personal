@@ -214,7 +214,7 @@ Contains
     Integer :: n
     
     Do n = 1, opn
-       V(n,:) = Mat(:, P(n))
+       call zcopy(Ndim, Mat(1, P(n)), 1, V(n, 1), opn)
     Enddo
     
   end subroutine
@@ -228,10 +228,6 @@ Contains
 !> the source matrix Mat. The decision on which columns to copy is determined
 !> by the vector P.
 !>
-!> @note 
-!> The code can be replaced by an array expression, but it is not
-!> immediately clear that it is faster. The generated code looks longer.
-!>
 !> @param[inout] V storage for the result matrix
 !> @param[in] Mat Where to read those columns
 !> @param[in] P A vector with which columns to copy
@@ -242,13 +238,13 @@ Contains
   subroutine copy_select_columns(V, Mat, P, opn, Ndim)
     Implicit none
     Integer, INTENT(IN) :: opn, Ndim
-    Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: V(opn, Ndim)
-    Complex (Kind = Kind(0.D0)), Dimension(:,:), INTENT(IN) :: Mat
+    Complex (Kind = Kind(0.D0)), INTENT(INOUT), Dimension(:, :) :: V
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), INTENT(IN) :: Mat
     Integer , Dimension(:), INTENT(IN) :: P
     Integer :: n
     
     Do n = 1, opn
-       V(n,:) = Mat(P(n), :)
+        call zcopy(Ndim, Mat(P(n), 1), Ndim, V(n, 1), opn)
     Enddo
     
   end subroutine
