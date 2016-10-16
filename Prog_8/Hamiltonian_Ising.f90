@@ -305,8 +305,8 @@
                 Ising_nnlist(n,3) = n3
                 Ising_nnlist(n,4) = n4
              enddo
-             DW_Ising_tau  ( 1) = (exp(Dtau*Ham_h) -  exp(-Dtau*Ham_h))/(exp(Dtau*Ham_h) +  exp(-Dtau*Ham_h))
-             DW_Ising_tau  (-1) = (exp(Dtau*Ham_h) +  exp(-Dtau*Ham_h))/(exp(Dtau*Ham_h) -  exp(-Dtau*Ham_h))
+             DW_Ising_tau  ( 1) = tanh(Dtau*Ham_h)
+             DW_Ising_tau  (-1) = 1.D0/DW_Ising_tau(1)
              DW_Ising_Space( 1) = exp(-2.d0*Dtau*Ham_J) 
              DW_Ising_Space(-1) = exp( 2.d0*Dtau*Ham_J) 
 !!$             Open (Unit=10,File="Ising_latt",status="unknown")
@@ -400,14 +400,14 @@
           
           Implicit none
           
-          Complex (Kind=8), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
-          Complex (Kind=8), Intent(IN) :: PHASE
+          Complex (Kind=Kind(0.D0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.D0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
-          Integer :: I,J, no,no1, n, n1, imj, nf
+          Complex (Kind=Kind(0.D0)) :: GRC(Ndim,Ndim,N_FL), ZK
+          Complex (Kind=Kind(0.D0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZV(4)
+          Integer :: I,J, no,no1, n, n1, imj, nf, myi, imjx(4), temp
           
           Nobs = Nobs + 1
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -468,7 +468,22 @@
           ENDIF
   
           If (Model == "Ising" ) then 
-             Do I = 1,Latt%N
+             Do I = 1,Latt%N,4
+                do no = 1,Norb
+                    ZV = dble(nsigma(L_bond(I : I + 3,no), ntau))*ZP*ZS
+                        do j = 1,Latt%N
+                        imjx = latt%imj(I: I + 3,J)
+                         do no1 = 1,Norb
+                         myi = nsigma(L_bond(J,no1),ntau)
+                         Ising_cor(imjx,no,no1) = Ising_cor(imjx,no,no1) + CMPLX(myi*dble(ZV), myi*aimag(ZV),kind(0.D0))
+                      enddo
+                   enddo
+                enddo
+             enddo
+             temp = I
+             write (*,*) I
+             if (mod(Latt%N, 4) .ne. 0) then
+             Do I = temp - 4    ,Latt%N
                 do no = 1,Norb
                    n = L_bond(I,no)
                    do j = 1,Latt%N
@@ -480,6 +495,7 @@
                    enddo
                 enddo
              enddo
+             endif
           endif
 
         end Subroutine Obser
