@@ -294,6 +294,7 @@ Contains
         Mat((P), :) = tmp
         Deallocate(tmp)
     end select
+
   end subroutine
 
 !--------------------------------------------------------------------
@@ -436,6 +437,7 @@ Contains
             call zgemv('T', opn, Ndim, Z(n), V, opn, conjg(U(:, n)), 1, beta, Mat(P(n), 1), size(Mat, 1))
         Enddo
     end select
+
   end subroutine
 
 !--------------------------------------------------------------------
@@ -615,7 +617,7 @@ end subroutine
        call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
     elseif (N_Type == 2) then
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-       
+
     select case (Op%N)
     case (1)
         DO I = 1, Ndim
@@ -633,8 +635,7 @@ end subroutine
         Deallocate(tmp)
     end select
       call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-       
-        select case (Op%N)
+      select case (Op%N)
         case (1)
             DO I = 1, Ndim
                 Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I)
