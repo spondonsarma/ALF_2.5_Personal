@@ -30,14 +30,17 @@ So both $\bm{T}$ and ${\bm V}^{(k)}$  have dimension $N_{sites}$.
 
 \subsection{Hopping interaction}
 The hopping matrix is implemented as follows. 
-We allocate an array of dimension $1\times 1$, called \texttt{Op\_T}. It therefore contains one \texttt{Operator} structure.
-We specify the effective dimension ($N_{dim}$), allocate and initialize this structure by calling the subroutine \texttt{Op\_make}: \texttt{call Op\_make(Op\_T(1,1),Ndim)}.
-It follows trivially, that ${\bm P}_{T}=\mathds{1}$ and ${\bm O}_{T}=({\bm T}_{ij})$ 
+We allocate an array of dimension $1\times 1$, called \texttt{Op\_T}. It therefore contains only a single \texttt{Operator} structure.
+We set the effective dimension (here, $N_{eff}=N_{dim}$), and allocate and initialize this structure by a single call to the subroutine \texttt{Op\_make}: 
+\begin{verbatim}
+call Op_make(Op_T(1,1),Ndim)
+\end{verbatim}
+Since the effective dimension is identical to the total dimension, it follows trivially, that ${\bm P}_{T}=\mathds{1}$ and ${\bm O}_{T}=({\bm T}_{ij})$ 
 \mycomment{Although a checkerboard decomposition is not yet used for the Hubbard model, in principle it can be implemented.}
 
 \subsection{Two-particle interaction}
 To implement this interaction, we allocate an array of \texttt{Operator} structures. The array is called  \texttt{Op\_V} and has dimensions $N_{dim}\times 1$. 
-We specify the effective dimension ($1$), allocate and initialize this array of structures by calling the subroutine \texttt{Op\_make}: 
+We set the effective dimension ($N_{eff}=1$), and allocate and initialize this array of structures by calling the subroutine \texttt{Op\_make}: 
 \begin{verbatim}
 do i = 1, Latt%N
 call Op_make(Op_V(i,1),1)
@@ -45,6 +48,23 @@ enddo
 \end{verbatim}
 For each lattice site $i$, the projection matrices ${\bm P}_{V}^{(i)}$ are of dimension $1\times N_{dim} $ and have one non-vanishing entry: $(P_{V}^{(i)})_{1j}=\delta_{ij}$. 
 The effective matrices are again trivial: ${\bm O}_{V}^{(i)}=1$.\\
+
+
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Ndim}    & spacial dimension of the lattice (total number of sites) \\
+    \texttt{Latt\%N} & Number of unit cells of the underlying Bravais lattice  \\
+    \texttt{Op\_T}   & Array of structure variables that bundles all variables\\
+                     & needed to define the hopping operator.\\
+    \texttt{Op\_V}   & Array of structure variables that bundles all variables\\
+                     & needed to define the two-particle interaction operator.\\ 
+    \texttt{Nsun}    & Number of spin degrees\\
+    \texttt{Nfl}      & Number of spin flavors\\
+   \end{tabular}
+   \caption{Common variables that are set in the Hamiltonian, operator and lattice modules of the code.
+   \label{tab:definitions}}
+\end{table}
 
 
 
