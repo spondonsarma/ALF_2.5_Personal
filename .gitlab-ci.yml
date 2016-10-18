@@ -7,6 +7,7 @@ stages:
   stage: build
   script:
     - . configure.sh
+    - export f90="gfortran"
     - cd Libraries
     - gfortran -v
     - make
@@ -20,6 +21,7 @@ stages:
   stage: warnconv
   script:
     - . configure.sh
+    - export f90="gfortran"
     - export FL="$FL -Wconversion -Werror"
     - cd Libraries
     - gfortran -v
