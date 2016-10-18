@@ -465,18 +465,6 @@
                 Den_eq0(1) = Den_eq0(1) + Z* GRC(I,I,1)*ZP*ZS
              ENDDO
   
-            Do I = 1    ,Latt%N
-                do no = 1,Norb
-                   n = L_bond(I,no)
-                   do j = 1,Latt%N
-                      imj = latt%imj(I,J)
-                      do no1 = 1,Norb
-                         n1 = L_bond(J,no1)
-                         Ising_cor(imj,no,no1) = Ising_cor(imj,no,no1) + dble(nsigma(n,ntau)*nsigma(n1,ntau))*ZP*ZS
-                      enddo
-                   enddo
-                enddo
-             enddo
              Do I = 1 ,Latt%N
                 do no = 1,Norb
                    n = L_bond(I,no)
