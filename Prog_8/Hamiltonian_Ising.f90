@@ -405,7 +405,7 @@
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=Kind(0.D0)) :: GRC(Ndim,Ndim,N_FL), ZK
+          Complex (Kind=Kind(0.D0)) :: GRC(Ndim,Ndim,N_FL), ZK, myZ
           Complex (Kind=Kind(0.D0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZV(4)
           Integer :: I,J, no,no1, n, n1, imj, nf, myi, imjx(4), temp
           
@@ -417,10 +417,9 @@
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
-                   ZK = cmplx(0.d0,0.d0, kind(0.D0))
-                   If ( I == J ) ZK = cmplx(1.d0,0.d0, kind(0.D0))
-                   GRC(I,J,nf)  = ZK - GR(J,I,nf)
+                   GRC(I,J,nf)  = - GR(J,I,nf)
                 Enddo
+                GRC(I, I, nf) = 1.d0 + GRC(I, I, nf)
              Enddo
           Enddo
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
@@ -443,54 +442,38 @@
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
 
-          Obs_scal(1) = Obs_scal(1) + zrho * ZP*ZS
-          Obs_scal(2) = Obs_scal(2) + zkin * ZP*ZS
-          Obs_scal(3) = Obs_scal(3) + Zpot * ZP*ZS
-          Obs_scal(4) = Obs_scal(4) + (zkin +  Zpot)*ZP*ZS
+          myZ = ZP * ZS
+          Obs_scal(1) = Obs_scal(1) + zrho * myZ
+          Obs_scal(2) = Obs_scal(2) + zkin * myZ
+          Obs_scal(3) = Obs_scal(3) + Zpot * myZ
+          Obs_scal(4) = Obs_scal(4) + (zkin +  Zpot)*myZ
           Obs_scal(5) = Obs_scal(5) + ZS
           ! You will have to allocate more space if you want to include more  scalar observables.
           
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
-             Do I = 1,Latt%N
-                Do J = 1,Latt%N
-                   imj = latt%imj(I,J)
-                   GREEN_EQ(imj,1,1) = GREEN_EQ(imj,1,1)  +  Z * GRC(I,J,1) *  ZP*ZS 
-                   SPIN_Eq (imj,1,1) = SPIN_Eq (imj,1,1)  +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
-                   DEN_Eq  (imj,1,1) = DEN_Eq  (imj,1,1)  +         (      &
-                        &         GRC(I,I,1) * GRC(J,J,1) *Z     + &
-                        &         GRC(I,J,1) *  GR(I,J,1)          &
-                        &                                   ) * Z* ZP*ZS
-                ENDDO
-                Den_eq0(1) = Den_eq0(1) + Z* GRC(I,I,1)*ZP*ZS
-             ENDDO
-  
-             Do I = 1 ,Latt%N
+! Latt%N is according to Fakher divisible by 4 for the Ising model
+             Do I = 1, Latt%N, 4
+                Do J = 1, Latt%N
+!                   imj = latt%imj(I,J)
+                   imjx = latt%imj(I: I + 3,J)
+                   GREEN_EQ(imjx,1,1) = GREEN_EQ(imjx,1,1) + Z * GRC(I:I+3,J,1) *  myZ
+                   SPIN_Eq (imjx,1,1) = SPIN_Eq (imjx,1,1) + Z * GRC(I:I+3,J,1) * GR(I:I+3,J,1) * myZ
+                   do myi = 1,4
+                    DEN_Eq  (imjx(myi),1,1) = DEN_Eq  (imjx(myi),1,1) + (GRC(I-1+myi,I-1+myi,1) * GRC(J,J,1) *Z + &
+                        &         GRC(I-1+myi,J,1) *  GR(I-1+myi,J,1)) * Z* myZ
+                   enddo
+                Den_eq0(1) = Den_eq0(1) + Z* myZ *(GRC(I,I,1)+GRC(I+1,I+1,1)+GRC(I+2,I+2,1)+GRC(I+3,I+3,1))
                 do no = 1,Norb
-                   n = L_bond(I,no)
-                   do j = 1,Latt%N
-                      imj = latt%imj(I,J)
+                    ZV = dble(nsigma(L_bond(I : I + 3,no), ntau))*myZ
+!                    n = L_bond(I,no)
                       do no1 = 1,Norb
-                         n1 = L_bond(J,no1)
-                         Ising_cor(imj,no,no1) = Ising_cor(imj,no,no1) + dble(nsigma(n,ntau)*nsigma(n1,ntau))*ZP*ZS
+                         myi = nsigma(L_bond(J,no1),ntau)
+                         Ising_cor(imjx,no,no1) = Ising_cor(imjx,no,no1) + CMPLX(myi*dble(ZV), myi*aimag(ZV),kind(0.D0))
                       enddo
                    enddo
                 enddo
              enddo
-! Latt%N is according to Fakher divisible by 4
-!              Do I = 1,Latt%N,4
-!              write (*,*) I
-!                 do no = 1,Norb
-!                     ZV = dble(nsigma(L_bond(I : I + 3,no), ntau))*ZP*ZS
-!                         do j = 1,Latt%N
-!                         imjx = latt%imj(I: I + 3,J)
-!                          do no1 = 1,Norb
-!                          myi = nsigma(L_bond(J,no1),ntau)
-!                          Ising_cor(imjx,no,no1) = Ising_cor(imjx,no,no1) + CMPLX(myi*dble(ZV), myi*aimag(ZV),kind(0.D0))
-!                       enddo
-!                    enddo
-!                 enddo
-!              enddo
 
         end Subroutine Obser
 !==========================================================        
