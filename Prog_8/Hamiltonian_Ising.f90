@@ -451,7 +451,6 @@
           ! You will have to allocate more space if you want to include more  scalar observables.
           
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
-          If ( N_FL == 1 ) then 
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
@@ -465,25 +464,8 @@
                 ENDDO
                 Den_eq0(1) = Den_eq0(1) + Z* GRC(I,I,1)*ZP*ZS
              ENDDO
-          ENDIF
   
-          If (Model == "Ising" ) then 
-             Do I = 1,Latt%N,4
-                do no = 1,Norb
-                    ZV = dble(nsigma(L_bond(I : I + 3,no), ntau))*ZP*ZS
-                        do j = 1,Latt%N
-                        imjx = latt%imj(I: I + 3,J)
-                         do no1 = 1,Norb
-                         myi = nsigma(L_bond(J,no1),ntau)
-                         Ising_cor(imjx,no,no1) = Ising_cor(imjx,no,no1) + CMPLX(myi*dble(ZV), myi*aimag(ZV),kind(0.D0))
-                      enddo
-                   enddo
-                enddo
-             enddo
-             temp = I
-             write (*,*) I
-             if (mod(Latt%N, 4) .ne. 0) then
-             Do I = temp - 4    ,Latt%N
+            Do I = 1    ,Latt%N
                 do no = 1,Norb
                    n = L_bond(I,no)
                    do j = 1,Latt%N
@@ -495,8 +477,32 @@
                    enddo
                 enddo
              enddo
-             endif
-          endif
+             Do I = 1 ,Latt%N
+                do no = 1,Norb
+                   n = L_bond(I,no)
+                   do j = 1,Latt%N
+                      imj = latt%imj(I,J)
+                      do no1 = 1,Norb
+                         n1 = L_bond(J,no1)
+                         Ising_cor(imj,no,no1) = Ising_cor(imj,no,no1) + dble(nsigma(n,ntau)*nsigma(n1,ntau))*ZP*ZS
+                      enddo
+                   enddo
+                enddo
+             enddo
+! Latt%N is according to Fakher divisible by 4
+!              Do I = 1,Latt%N,4
+!              write (*,*) I
+!                 do no = 1,Norb
+!                     ZV = dble(nsigma(L_bond(I : I + 3,no), ntau))*ZP*ZS
+!                         do j = 1,Latt%N
+!                         imjx = latt%imj(I: I + 3,J)
+!                          do no1 = 1,Norb
+!                          myi = nsigma(L_bond(J,no1),ntau)
+!                          Ising_cor(imjx,no,no1) = Ising_cor(imjx,no,no1) + CMPLX(myi*dble(ZV), myi*aimag(ZV),kind(0.D0))
+!                       enddo
+!                    enddo
+!                 enddo
+!              enddo
 
         end Subroutine Obser
 !==========================================================        
