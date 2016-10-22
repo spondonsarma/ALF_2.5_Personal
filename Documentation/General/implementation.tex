@@ -1,0 +1,40 @@
+\section{Implementation of a model Hamiltonian}
+We only have to write the subroutine for the Hamiltonian. 
+A template is given by \texttt{Hamiltonian\_template.f90}. 
+Existing model subroutines are \texttt{Hamiltonian\_Hubb.f90}.
+
+\subsection{The \texttt{Operator} variable}
+
+In the code implementation, we define a structure called \texttt{Operator}. 
+This structure variable \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.
+In Fortran a structure variable like this is called a derived type. 
+The components it contains are: 
+\begin{itemize}
+\item the projector ${\bm P}_{V}$,
+\item the matrix ${\bm O}_V$, 
+\item the effective dimension $N_{eff}$,
+\item and a couple of auxiliary matrices and scalars.
+\end{itemize}
+In general, we will not only have one structure variable \texttt{Operator}, but a whole  array of these structures.
+
+ 
+
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Op\_V\%N}            & effective dimension $N_{eff}$\\
+    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}_{V}$\\
+    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}_{V}$  \\
+    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}_{V}$ \\
+    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}_{V}$ \\
+    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ \\
+    \texttt{Op\_V\%g}            &  coupling strength in Hubbard-Stratonovich transformation \\  
+    \texttt{Op\_V\%alpha}        &   constant, to set particle-hole symmetry \mycomment{correct?} 
+   \end{tabular}
+   \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}.
+   \label{tab:definitions}}
+\end{table}
+
+\subsection{The observables}
+
+\subsection{The lattice}

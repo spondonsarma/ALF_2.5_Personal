@@ -10,8 +10,6 @@
 \usepackage{xspace}
 \usepackage{bm}
 \usepackage{subfigure}
-\usepackage{titlesec}
-\usepackage{blindtext}
 \usepackage{tcolorbox}
 \usepackage{dsfont}
 
@@ -19,12 +17,12 @@
 \definecolor{dark-gray}{gray}{0.4}
 \definecolor{light-gray}{gray}{0.9}
 \definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
-\titleformat{\section}
-{\color{blue}\normalfont\Large\bfseries}
-{\color{blue}\thesection}{1em}{}
-\titleformat{\subsection}
-{\color{dark-gray}\normalfont\large\bfseries}
-{\color{dark-gray}\thesubsection}{1em}{}
+%\titleformat{\section}
+%{\color{blue}\normalfont\Large\bfseries}
+%{\color{blue}\thesection}{1em}{}
+%\titleformat{\subsection}
+%{\color{dark-gray}\normalfont\large\bfseries}
+%{\color{dark-gray}\thesubsection}{1em}{}
 % \newcommand{\comment}[1]{{\color{red} #1}}
 
 \newcommand{\mycomment}[1]{{\color{red} #1}}
@@ -32,27 +30,29 @@
 % text ...
 % \end{tcolorbox}
 
+\makeindex
 \begin{document}
 \title{Documentation for the General QMC code}
-\author{Martin Bercx}
+\author{Author:~Martin Bercx}
 \maketitle
-% \textit{The outline follows the ALPS documentation}
-
-\input{background}
-\input{tutorial_hubbard}
-\input{tutorial_lattice}
-\input{tutorial_observables}
-\input{tutorial_io}
+\tableofcontents
 \clearpage
-\input{overview}
-\clearpage
-\input{files}
-\input{hamiltonian}
+\input{model}
+\input{implementation}
+\input{input_output.tex}
+\input{walkthrough_hubbard.tex}
+\input{tutorial_model.tex}
 
-\input{installation}
-\input{reference}
-\input{license}
-\input{ideas}
+%\clearpage
+%\input{overview}
+%\clearpage
+%\input{files}
+%\input{hamiltonian}
+
+%\input{installation}
+%\input{reference}
+%\input{license}
+%\input{ideas}
 
 
 
