@@ -1,7 +1,7 @@
 ! compile with
 ! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 !
-Program FillExpOps
+Program FillExpOpsTest
 !
       Use Operator_mod
       Implicit None
@@ -52,4 +52,4 @@ Program FillExpOps
          End If
       End Do
 !
-End Program FillExpOps
+End Program FillExpOpsTest
