@@ -27,6 +27,8 @@ Program Main
         B = MATMUL(U, MATMUL(D,TRANSPOSE(U)))
         D=ABS(B-A)
         if (MAXVAL(D) > 1E-11) then
+        write (*,*) "ERROR"
         stop 2
         endif
+        write (*, *) "success"
 end Program Main

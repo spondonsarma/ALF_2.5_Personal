@@ -18,18 +18,18 @@ Program Test6
         A(2,2) = 20
         A(3,3) = 100
         call INV_C(A, AI, myDET)
-! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(mydet - 19900) > 19900*10*EPSILON(1.d0)) then
-        write (*,*) ABS(mydet - 19900)
+        write (*,*) "ERROR", ABS(mydet - 19900)
         STOP 2
         endif
         B = MATMUL(A, AI)
         if (ABS(B(2,2)-1.0) > 10*EPSILON(1.d0) ) then
-        write (*,*) B
+        write (*,*) "ERROR", B
         STOP 3
         endif
         if (ABS(B(2,1)) > EPSILON(1.d0) ) then
-        write (*,*) B
+        write (*,*) "ERROR", B
         STOP 4
         endif
+        write (*,*) "success"
 end Program Test6

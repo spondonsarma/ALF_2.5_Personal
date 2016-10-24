@@ -32,7 +32,7 @@ Program Test4
         call INV_R_VARIABLE_1(A, AI, myDET, 2)
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(myDET(1)*10.0**myDET(2) + 201) > 1E-11) then
-        write (*,*) ABS(myDET(1)*10.0**myDET(2) + 201)
+        write (*,*) "ERROR", ABS(myDET(1)*10.0**myDET(2) + 201)
         STOP 2
         endif
 
@@ -44,4 +44,5 @@ Program Test4
 !        write (*,*) B
 !        STOP 4
 !        endif
+write (*,*) "success"
 end Program Test4

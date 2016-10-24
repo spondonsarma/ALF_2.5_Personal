@@ -11,11 +11,12 @@ Program Test10
         myx = (1.d0,1.d0)
         CALL INITD_C(A,myx)
         IF(ABS(ABS(A(1,1)) - SQRT(2.D0)) > 10*EPSILON(1.D0)) THEN
-        write (*,*) A
+        write (*,*) "ERROR", A
         STOP 2
         ENDIF
         IF(ABS(A(2,1)) > 10*EPSILON(1.D0)) THEN
-        write (*,*) A
+        write (*,*) "ERROR", A
         STOP 3
         ENDIF
+        write (*,*) "success"
 end Program Test10

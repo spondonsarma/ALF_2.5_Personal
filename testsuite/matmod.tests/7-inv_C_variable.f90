@@ -20,7 +20,7 @@ Program Test7
         call INV_C_VARIABLE(A, AI, myDET, 2)
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(mydet - 199) > 199*10*EPSILON(1.d0)) then
-        write (*,*) ABS(mydet - 199)
+        write (*,*) "ERROR", ABS(mydet - 199)
         STOP 2
         endif
         B = MATMUL(A, AI)
@@ -32,4 +32,5 @@ Program Test7
 !        write (*,*) B
 !        STOP 4
 !        endif
+write (*,*) "success"
 end Program Test7
