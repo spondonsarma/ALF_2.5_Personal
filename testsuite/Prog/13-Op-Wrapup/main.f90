@@ -1,7 +1,7 @@
 ! compile with
 ! gfortran -Wall -std=f2003 -I ../../../Prog_8/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 !
-Program OPMULTTEST
+Program Wrapup
 !
       Use Operator_mod
       Implicit None
@@ -70,13 +70,13 @@ Program OPMULTTEST
                   If (Abs(Zre) > Max(Abs(real(matnew(i, j))), &
                  & Abs(real(matold(i, j))))*1D-15) Then
                      Write (*,*) "opn: ", opn, "N_type", N_Type
-                     Write (*,*) "error in real part", real (matnew(i, &
+                     Write (*,*) "ERROR in real part", real (matnew(i, &
                     & j)), real (matold(i, j))
                      Stop 2
                   End If
                   If (Abs(Zim) > Max(Abs(aimag(matnew(i, j))), &
                  & Abs(aimag(matold(i, j))))*1D-15) Then
-                     Write (*,*) "error in imag part", aimag (matnew(i, &
+                     Write (*,*) "ERROR in imag part", aimag (matnew(i, &
                     & j)), aimag (matold(i, j))
                      Stop 3
                   End If
@@ -86,8 +86,8 @@ Program OPMULTTEST
             Deallocate (VH, matnew, matold, Expop, ExpMop)
          End Do
       End Do
-!
-End Program OPMULTTEST
+
+End Program Wrapup
 !
 Subroutine Op_WrapupFFA (Mat, Op, spin, Ndim, N_Type)
 !
