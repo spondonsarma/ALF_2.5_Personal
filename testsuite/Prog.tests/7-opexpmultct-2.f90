@@ -1,27 +1,27 @@
 ! compile with
-! gfortran -std=f2003  -I ../../../Prog_8/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test1.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
-
+!  gfortran -std=f2003  -I ../../../Prog_8/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test2.f90 ../../../Prog_8/
 !
 !
-! This test seems to be a bit sensitive with respect to
-! the precise Implementation
-Program OPEXPMULTTEST
+Program OPEXPMULTCTTEST
 !
       Use Operator_mod
-!
+      Implicit None
 !
       Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: U
       Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: V
       Complex (Kind=Kind(0.D0)), Dimension (:), Allocatable :: Z
       Complex (Kind=Kind(0.D0)), Dimension (5, 5) :: matnew, matold
-      Complex (Kind=Kind(0.D0)) :: tmp, lexp
+      Complex (Kind=Kind(0.D0)) :: tmp, Z1, g
+      Real (Kind=Kind(0.D0)), Dimension (:), Allocatable :: E
+      Real :: spin
       Integer, Dimension (:), Allocatable :: P
       Integer :: i, j, n, m, opn, Ndim
 !
-!
+      Ndim = 5
       Do opn = 1, 4
-         Allocate (U(opn, opn), V(opn, 5), P(opn), Z(opn))
-         Ndim = 5
+         Allocate (U(opn, opn), V(opn, Ndim), Z(opn), E(opn), P(opn))
+         spin = - 1.D0
+         g = 2.D0
          Do i = 1, Ndim
             Do j = 1, Ndim
                matnew (i, j) = CMPLX (i, j, kind(0.D0))
@@ -34,7 +34,7 @@ Program OPEXPMULTTEST
                V (i, j) = CMPLX (i, j, kind(0.D0))
             End Do
             P (i) = i
-            Z (i) = Exp (CMPLX(i, j, kind(0.D0)))
+            E (i) = 3.D0 * i
          End Do
 !
          Do i = 1, opn
@@ -43,35 +43,30 @@ Program OPEXPMULTTEST
             End Do
          End Do
 !
-         Call opexpmult (V, U, P, matnew, Z, opn, Ndim)
+         Z = Exp (-g*spin*E)
+         Call opexpmultct (V, U, P, matnew, Z, opn, Ndim)
 !
 ! check against old version
          Do n = 1, opn
-            lexp = Z (n)
+            Z1 = Exp (-g*CMPLX(E(n)*spin, 0.d0, kind(0.D0)))
             Do i = 1, Ndim
-!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
                tmp = CMPLX (0.d0, 0.d0, kind(0.D0))
                Do m = 1, opn
-                  tmp = tmp + V (m, i) * U (m, n)
+                  tmp = tmp + V (m, i) * conjg (U(m, n))
                End Do
-               matold (i, P(n)) = lexp * tmp
+               matold (P(n), i) = tmp * Z1
             End Do
          End Do
 !
          Do i = 1, Ndim
             Do j = 1, Ndim
-               tmp = matold (i, j) - matnew (i, j)
-               If (Aimag(tmp) > Abs(Aimag(matnew(i, j)))*1.D-14) Then
-                  Write (*,*) matold (i, j), matnew (i, j)
+               If (matold(i, j) .Ne. matnew(i, j)) Then
+               write (*,*) "ERROR"
                   Stop 2
                End If
-               If (Real(tmp) > Abs(Real(matnew(i, j)))*1.D-14) Then
-                  Write (*,*) matold (i, j), matnew (i, j)
-                  Stop 2
-               End If
-!
             End Do
          End Do
-         Deallocate (U, V, P, Z)
+         Deallocate (U, V, Z, E, P)
       End Do
-End Program OPEXPMULTTEST
+      write (*,*) "success"
+End Program OPEXPMULTCTTEST

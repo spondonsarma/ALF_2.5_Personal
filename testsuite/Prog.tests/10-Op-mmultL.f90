@@ -34,37 +34,39 @@ implicit none
         enddo
         enddo
         
-        Call Op_mmultR(matnew, Op, spin, Ndim)
+        Call Op_mmultL(matnew, Op, spin, Ndim)
 
 ! check against old version from Operator_FFA.f90
 
-VH = 0.d0
+VH = 0.D0
     do n = 1,Op%N
-       Z1 = exp(Op%g*Op%E(n)*spin)
+       Z = exp(Op%g*Op%E(n)*spin)! fixed in contrast to Fakhers old version
        Do m = 1,Op%N
-          Z =  conjg(Op%U(m,n))* Z1 
+          Z1 = Op%U(m,n)* Z
           DO I = 1,Ndim
-             VH(I,n)  = VH(I,n) + Z* Matold(Op%P(m),I) 
+             VH(I,n)  = VH(I,n) + Matold(I,Op%P(m)) * Z1
           Enddo
        enddo
     Enddo
     Do n = 1,Op%N
        Do I = 1,Ndim
-          Matold(Op%P(n),I) =   VH(I,n) 
+          Matold(I,Op%P(n)) =   VH(I,n) 
        Enddo
     Enddo
-    VH = 0.d0
+
+
+    VH = 0.D0
     do n = 1,Op%N
        Do m = 1,Op%N
-          Z =  Op%U(n,m)
+          Z1 = conjg(Op%U(n,m))
           DO I = 1,Ndim
-             VH(I,n)  = VH(I,n) + Z* Matold(Op%P(m),I) 
+             VH(I,n)  = VH(I,n) + Matold(I,Op%P(m)) * Z1
           Enddo
        enddo
     Enddo
     Do n = 1,Op%N
        Do I = 1,Ndim
-          Matold(Op%P(n),I) =   VH(I,n)
+          Matold(I,Op%P(n)) =   VH(I,n) 
        Enddo
     Enddo
 
@@ -73,13 +75,14 @@ VH = 0.d0
     Zre = real(matnew(i,j)-matold(i,j))
     Zim = aimag(matnew(i,j)-matold(i,j))
     if (Abs(Zre) > MAX(ABS(real(matnew(i,j))), ABS(real(matold(i,j))) )*1D-15) then
-    write (*,*) "error in real part", real(matnew(i,j)), real(matold(i,j))
+    write (*,*) "ERROR in real part", real(matnew(i,j)), real(matold(i,j))
     STOP 2
     endif
     if (Abs(Zim) > MAX(ABS(aimag(matnew(i,j))), ABS(aimag(matold(i,j))) )*1D-15) then
-    write (*,*) "error in imag part", aimag(matnew(i,j)), aimag(matold(i,j))
+    write (*,*) "ERROR in imag part", aimag(matnew(i,j)), aimag(matold(i,j))
     STOP 3
     endif
     enddo
     enddo
+write (*,*) "success"
 end Program OPMULTTEST

@@ -1,7 +1,7 @@
 ! compile with
-! gfortran -std=f2003  -I ../../../Libraries/Modules/ -I ../../../Prog_8/ -L ../../../Libraries/Modules/ -L ../../../Prog_8/  main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a 
+! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 
-Program CSC
+Program CSR
 
 Use Operator_mod
 
@@ -18,21 +18,22 @@ Use Operator_mod
         P(i) = i
         enddo
         
-        call copy_select_columns(Vnew, mat, P, 3, 3)
+        call copy_select_rows(Vnew, mat, P, 3, 3)
         
 ! check old version
     Do n = 1,3
        Do I = 1,3
-          Vold(n,I) = Mat(P(n),I)
+          Vold(n,I) = Mat(I,P(n))
        Enddo
     Enddo
-
+    
     do i = 1,3
         do j = 1,3
         if (Vold(i,j) .ne. Vnew(i,j)) then
+        write (*,*) "ERROR"
         STOP 2
         endif
         enddo
     enddo
-
-end Program CSC
+write (*,*) "success"
+end Program CSR
