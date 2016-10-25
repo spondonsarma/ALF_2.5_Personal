@@ -1,6 +1,6 @@
 export DIR=`pwd`
 export f90="gfortran"
-export F90OPTFLAGS="-O3 -march=broadwell"
+export F90OPTFLAGS="-O3"
 export FL="-c ${F90OPTFLAGS}"
 export Libs=${DIR}"/Libraries/"
 export LIB_BLAS_LAPACK="-llapack -lblas"
