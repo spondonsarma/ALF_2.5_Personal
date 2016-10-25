@@ -68,5 +68,4 @@ Program OPEXPMULTCTTEST
          End Do
          Deallocate (U, V, Z, P)
       End Do
-write (*,*) "success"
 End Program OPEXPMULTCTTEST

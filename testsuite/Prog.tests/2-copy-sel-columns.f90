@@ -35,5 +35,5 @@ Use Operator_mod
         endif
         enddo
     enddo
-write (*,*) "success"
+
 end Program CSC
