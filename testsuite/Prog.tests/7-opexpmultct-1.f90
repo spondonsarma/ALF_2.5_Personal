@@ -55,13 +55,13 @@ Program OPEXPMULTCTTEST
          Do i = 1, Ndim
             Do j = 1, Ndim
                tmp = matold (i, j) - matnew (i, j)
-               If (Aimag(tmp) > Abs(Aimag(matnew(i, j)))*1.D-15) Then
-                  Write (*,*) "ERROR", matold (i, j), matnew (i, j)
+               If (Abs(Aimag(tmp)) > Max(Abs(Aimag(matnew(i, j))), Abs(Aimag(matold(i, j))))*1D-14) Then
+                  Write (*,*) "ERROR ", opn, matold (i, j), matnew (i, j), tmp
                   Stop 2
                End If
-               If (Real(tmp) > Abs(Real(matnew(i, j)))*1.D-15) Then
-                  Write (*,*) "ERROR", matold (i, j), matnew (i, j)
-                  Stop 2
+               If (Abs(Real(tmp)) > Abs(Real(matnew(i, j)))*1D-14) Then
+                  Write (*,*) "ERROR ", matold (i, j), matnew (i, j)
+                  Stop 3
                End If
 
             End Do
