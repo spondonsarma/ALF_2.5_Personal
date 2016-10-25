@@ -47,7 +47,7 @@ stages:
     - cd testsuite
     - mkdir tests
     - cd tests
-    - cmake ..
+    - cmake -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
     - make
     - make test
 
