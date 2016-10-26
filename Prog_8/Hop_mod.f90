@@ -80,12 +80,12 @@
           beta = 0.D0
           do nc =  Ncheck,1,-1
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                   do n = 1,Ndim_hop
-                       U_Hlp(:, n) = Out(Op_T(nc,nf)%P(n),:)
-                   enddo
+                do n = 1,Ndim_hop
+                    call ZCOPY(Ndim, Out(Op_T(nc,nf)%P(n),1), NDim, U_Hlp(1, n), 1)
+                enddo
                 Call ZGEMM('N', 'T', Ndim, Ndim_hop, Ndim_hop, alpha, U_Hlp, NDim, Exp_T(:,:,nc,nf), Ndim_hop, beta, U_HLP1, Ndim)
                 do n = 1,Ndim_hop
-                    OUT(OP_T(nc,nf)%P(n),:) = U_hlp1(:, n)
+                    call ZCOPY(Ndim, U_hlp1(1,n), 1, OUT(OP_T(nc,nf)%P(n),1), Ndim)
                 Enddo
              Endif
           Enddo
