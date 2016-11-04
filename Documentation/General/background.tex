@@ -3,7 +3,7 @@
 
 \subsection{Definition of the physical Hamiltonian and its implementation}
 
-The physical Hamiltonians that we can simulate have the general form:
+The Hamiltonians that we can simulate have the general form:
 
 %% Fakhers notation
 % \begin{equation}
@@ -21,8 +21,11 @@ The physical Hamiltonians that we can simulate have the general form:
 \begin{equation}
 \label{eqn_general_ham2}
 \mathcal{H}
-=\sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
-c^{\dagger}_{xs}T_{xy}c^{\phantom\dagger}_{ys}
+=
+\sum\limits_{s=1}^{N_{fl}}
+\sum\limits_{\sigma=1}^{N_{col}}
+\sum\limits_{i,j}
+c^{\dagger}_{i \sigma   s}T_{ij}c^{\phantom\dagger}_{j \sigma s}
 -\sum\limits_{k=1}^{M}U_{k}\left[
 \sum\limits_{s=1}^{N_{fl}}\sum\limits_{x,y}
 \left( 
