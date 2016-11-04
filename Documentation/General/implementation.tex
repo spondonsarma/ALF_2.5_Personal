@@ -1,6 +1,6 @@
-\section{Implementation of a model Hamiltonian}
-We only have to write the subroutine for the Hamiltonian. 
-A template is given by \texttt{Hamiltonian\_template.f90}. 
+\section{Implementation of a model Hamiltonian} 
+To implement a Hamiltonian which belongs to the class of Hamiltonians defined by Eq.~(\ref{eqn_general_ham2}), 
+the user only has to write/modify a single subroutine. A template is given by \texttt{Hamiltonian\_template.f90}. 
 Existing model subroutines are \texttt{Hamiltonian\_Hubb.f90}.
 
 \subsection{The \texttt{Operator} variable}
@@ -29,7 +29,9 @@ In general, we will not only have one structure variable \texttt{Operator}, but 
     \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}_{V}$ \\
     \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ \\
     \texttt{Op\_V\%g}            &  coupling strength in Hubbard-Stratonovich transformation \\  
-    \texttt{Op\_V\%alpha}        &   constant, to set particle-hole symmetry \mycomment{correct?} 
+    \texttt{Op\_V\%alpha}        &  constant \\
+    \texttt{Op\_V\%type}         &  integer parameter to set the type of\\
+                                 &  Hubbard-Stratonovich transformation  \mycomment{Possible Issue: type is also a Fortran keyword}
    \end{tabular}
    \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}.
    \label{tab:definitions}}

@@ -39,7 +39,13 @@ $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{or
 \mycomment{Be more general here and speak of correlated blocks?}
 \end{itemize}
 Note that the matrices  $\bm{T}^{(s)}$ and $\bm{V}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-Using this symmetry property is essential for an efficient code implementation.
+Using this symmetry property is essential for an efficient code implementation. The color index $\sigma$ only appears 
+\begin{itemize}
+\item in the coupling $g$ in the \texttt{Operator} structure (see Sec.~\ref{}).
+\item as normalization constant in the definition of observables (see Sec.~\ref{})
+\item as exponent in the calculation of the phase factor and the Monte Carlo update ratio.
+\end{itemize}
+
 
 
 \subsection{Structure of the hopping matrix  ${\bf T}$ and the interaction matrices ${\bf V}^{(k)}$}
@@ -78,5 +84,20 @@ To set the  interaction part, we therefore have to specify the following:
 \mycomment{Be more specific here what really has to specified in the actual code.}
 The same logic also applies to the implementation of the hopping interaction \mycomment{be more specific}.
 
-\subsection{The Hubbard-Stratonovich decomposition}
-
+\subsection{The Hubbard-Stratonovich decomposition} 
+Consider a single-particle (in other words bilinear) operator $O_{i}$.
+One obtains an approximation to the evolution operator by the following series expansion \cite{AssaadBook08}
+\begin{equation}
+\label{eqn_2_HS}
+e^{-\Delta\tau O^{2}_{i} } = \sum\limits_{s=\pm1,\pm2} \gamma(s) e^{i \sqrt{\Delta\tau}\eta(s)O_{i}} + \mathcal{O}(\Delta\tau^{4})\;,
+\end{equation}
+with 
+%
+\begin{eqnarray}
+\gamma(\pm 1) = (1+\sqrt{6}/3)/4\;,\;\gamma(\pm 2) = (1-\sqrt{6}/3)/4\;,\nonumber\\
+\eta(\pm 1) =\pm \sqrt{2(3-\sqrt{6})}\;,\;\eta(\pm 2) =\pm \sqrt{2(3+\sqrt{6})}\;.
+\end{eqnarray}
+%
+Eq.~(\ref{eqn_2_HS}) can be easily proven by expanding its right hand side  to eighth order in $O_{i}$. 
+The transformation introduces therefore two Ising fields $s$ per lattice site $i$, taking the values $\pm 1$ and $\pm 2$.
+\mycomment{same label as the flavor index}
