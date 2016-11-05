@@ -1,45 +1,122 @@
 
-
+% !TEX root = Doc.tex
 \section{Definition of the model Hamiltonian}
+
+\mycomment{Notation: Hats for second quantized operators, bold for matrices. \\
+  Structure:  \\ 1) We first want to define the model.  \\ 
+                      2)  implementation of the QMC.  \\ 
+                   3) Data structure  \\ 
+                   4) Practical implementation and some  simple test cases. }
+
+ 
 The class of solvable models includes  Hamiltonians $\mathcal{H}$ having the following general form:
-${\mathcal{H}=\mathcal{H}_{T}+\mathcal{H}_{V}}$, where
+${\mathcal{H}=\mathcal{H}_{T}+\mathcal{H}_{V}} +  \mathcal{H}_{I} +   \mathcal{H}_{0,I}  $, where
 \begin{eqnarray}
 \label{eqn_general_ham2}
 \mathcal{H}_{T}
 &=&
+\sum\limits_{k=1}^{M_T}
 \sum\limits_{s=1}^{N_{fl}}
 \sum\limits_{\sigma=1}^{N_{col}}
 \sum\limits_{x,y}
-c^{\dagger}_{x \sigma   s}T_{xy}^{(s)} c^{\phantom\dagger}_{y \sigma s}\\
+c^{\dagger}_{x \sigma   s}T_{xy}^{(k s)} c^{\phantom\dagger}_{y \sigma s}  \equiv  \sum\limits_{k=1}^{M_T} \hat{T}^{(k)}\\
 \mathcal{H}_{V}
 &=&
 -
-\sum\limits_{k=1}^{M}U_{k}
+\sum\limits_{k=1}^{M_V}U_{k}
+\left\{
+\sum\limits_{s=1}^{N_{fl}}
+\sum\limits_{\sigma=1}^{N_{col}}
+\left[
+\left(
+\sum\limits_{x,y}
+c^{\dagger}_{x \sigma s}V_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
+\right)
+-\alpha_{k s} 
+\right]
+\right\}^{2}  \equiv   -
+\sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}{(k)} \right)^2\\ 
+\mathcal{H}_{I}  & = &
+\sum\limits_{k=1}^{M_I} \hat{\sigma}^{z}_{k} 
 \left\{
 \sum\limits_{s=1}^{N_{fl}}
 \sum\limits_{\sigma=1}^{N_{col}}
 \left[
 \sum\limits_{x,y}
-\left(
-c^{\dagger}_{x \sigma s}V_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
-\right)
--\alpha_{k s} 
+c^{\dagger}_{x \sigma s} I_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 \right]
-\right\}^{2}\;.
+\right\} \equiv \sum\limits_{k=1}^{M_I} \hat{\sigma}^{z}_{k}    \hat{I}^{(k)} 
+\;.
 \end{eqnarray}
 The indices have the following meaning:
 \begin{itemize}
-\item The number of fermion \textit{flavors} is set by $N_{fl}$. 
-\item The number of fermion \textit{colors} is set by $N_{col}$. \mycomment{ Does it set the symmetry group of the fermions, namely 
-the dimension of the special unitary group $SU(N_{sun})$?}
+\item The number of fermion \textit{flavors} is set by $N_{fl}$.  After the Hubbard Stratonovitch transformation, the action will be block diagonal in the flavor index. 
+\item The number of fermion \textit{colors} is set by $N_{col}$.    The Hamiltonian is invariant under  SU($N_{col}$)  rotations. Note that  In the code $ N_{col} \equiv NSUN $. 
+%\mycomment{ Does it set the symmetry group of the fermions, namely 
+%the dimension of the special unitary group $SU(N_{sun})$?}
 \item The indices $x,y$ label lattice sites where $x,y=1,\cdots N_{dim}$. 
 $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{orbital}$, where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell \mycomment{Check the definition of $N_{orbital}$ in the code.} 
-\item Therefore, the  matrices $\bm{T}^{(s)}$ and $\bm{V}^{(ks)}$ are  of dimension $N_{dim}\times N_{dim}$
-\item The number of correlated sites which is a subset of all sites, is labelled by $M$  ($M\leq N_{dim}$).
-\mycomment{Be more general here and speak of correlated blocks?}
+\item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{dim}\times N_{dim}$
+\item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
+\item $\hat{\sigma}^z_k$ is an Ising variable which couples to a general one-body term. 
+\item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising variable. 
+%\mycomment{Be more general here and speak of correlated blocks?}
 \end{itemize}
 Note that the matrices  $\bm{T}^{(s)}$ and $\bm{V}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-Using this symmetry property is essential for an efficient code implementation. The color index $\sigma$ only appears 
+The color index $\sigma$ only appears only in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{col}$)    symmetric.
+
+
+\subsection{Formulation of the QMC}  
+The formulation of the  Monte Carlo simulation is based on the following.
+\begin{itemize}
+\item  We will work in  a basis  where  $\hat{\sigma}^z_k$ is diagonal. 
+\item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
+\item  We will the   discrete Hubbard Stratonovitch transformation: 
+\begin{equation}
+\label{HS_squares}
+        e^{\Delta \tau  \lambda  A^2 } =
+        \sum_{ l = \pm 1, \pm 2}  \gamma(l)
+e^{ \sqrt{\Delta \tau \lambda }
+       \eta(l)  O }
+                + {\cal O} (\Delta \tau ^4)
+\end{equation}
+where the fields $\eta$ and $\gamma$ take the values:
+\begin{eqnarray}
+ \gamma(\pm 1) = 1 + \sqrt{6}/3, \; \; \gamma(\pm 2) = 1 - \sqrt{6}/3
+\nonumber \\
+ \eta(\pm 1 ) = \pm \sqrt{2 \left(3 - \sqrt{6} \right)},  \; \;
+ \eta(\pm 2 ) = \pm \sqrt{2 \left(3 + \sqrt{6} \right)}.
+\nonumber
+\end{eqnarray}
+\item From the above it follows that   the Monte Carlo configuration space is given by: 
+\begin{equation}
+	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
+\end{equation}
+\end{itemize}
+
+With the above, the partition function of the model can be written as follows.
+\begin{eqnarray}
+Z = \text {Tr}   e^{-\beta \mathcal{H} } =   \text {Tr}  \left[ e^{-\Delta \tau \mathcal{H}_{0,I}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \Delta \tau  U_k \left(  \hat{V}^{(k)} \right)^2}   \prod_{k=1}^{M_I}   e^{  -\Delta \tau  \hat{\sigma}_{k}  \hat{I}^{(k)}} 
+   \right]^{L_{\text{Trotter}}}  \nonumber \\
+   \sum_{C} \left( \prod_{j=1}^{M_V} \prod_{\tau=1}^{L_{Trotter}} \gamma_{j,\tau} \right) e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) } 
+    \text {Tr}_{F}   \prod_{\tau=1}^{L_{Trotter}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right] \nonumber
+\end{eqnarray}
+In the above,  $\text {Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \text {Tr}_{F}  $ only over the  fermionc Fock space. 
+$S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
+At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
+\begin{equation}
+ \text {Tr}_{F}   \prod_{\tau=1}^{L_{Trotter}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]  = 
+\end{equation}
+
+ We will first  simplify the notation as: 
+
+
+
+
+
 \begin{itemize}
 \item in the coupling $g$ in the \texttt{Operator} structure (see Sec.~\ref{}).
 \item as normalization constant in the definition of observables (see Sec.~\ref{})
