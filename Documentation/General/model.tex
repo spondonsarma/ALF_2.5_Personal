@@ -106,16 +106,28 @@ Z = \text {Tr}   e^{-\beta \mathcal{H} } =   \text {Tr}  \left[ e^{-\Delta \tau 
 In the above,  $\text {Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \text {Tr}_{F}  $ only over the  fermionc Fock space. 
 $S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
-\begin{equation}
- \text {Tr}_{F}   \prod_{\tau=1}^{L_{Trotter}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]  = 
-\end{equation}
+\begin{eqnarray}
+& &  \text {Tr}_{F}   \prod_{\tau=1}^{L_{Trotter}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]  =   \\
+&&    \prod_{s=1}^{N_{fl}} \left[  e^{- \sum_{k=1}^{M_V} \sum_{\tau = 1}^{L_{Trotter}}\sqrt{\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } \det\left(  1 + 
+     \prod_{\tau=1}^{L_{Trotter}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \bf{T}^{(ks)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \bf{V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \bf{I}^{(ks)}}  
+     \right) \right]^{N_{col}}  \nonumber 
+\end{eqnarray}
+This all in all, the partition function is given by:
+\begin{eqnarray}
+	Z = \text {Tr}   e^{-\beta \mathcal{H} }  =   \sum_{C}   e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }     \left[ \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{Trotter}} \gamma_{k,\tau} \right] 
+	  e^{- N_{col }\sum_{s=1}^{N_{fl}} \sum_{k=1}^{M_V} \sum_{\tau = 1}^{L_{Trotter}}\sqrt{\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} }   \nonumber \\
+	   \left[   \prod_{s=1}^{N_{fl}}\det\left(  1 + 
+     \prod_{\tau=1}^{L_{Trotter}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \bf{T}^{(ks)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \bf{V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \bf{I}^{(ks)}}  
+     \right) \right]^{N_{col}} 
+\end{eqnarray}
 
- We will first  simplify the notation as: 
+In the above, one notices that the weight factorizes in  the flavor index,  and that  the underlying color symmetry shows up in the fact that the the weight  does not depend upon the flavor index. 
 
 
-
-
+The fundamental data structure in the code is the Operator data structure   which one uses to define all quantities in the Hamiltonian.     This  data structure will be defined below.
 
 \begin{itemize}
 \item in the coupling $g$ in the \texttt{Operator} structure (see Sec.~\ref{}).
