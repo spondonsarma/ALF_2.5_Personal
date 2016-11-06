@@ -5,35 +5,44 @@ The $SU(2)$-symmetric Hubbard model is given by
 \begin{equation}
 \label{eqn_hubbard_sun}
 \mathcal{H}=
--t\sum\limits_{\sigma=1}^{2} 
-\sum\limits_{\langle x,y\rangle} 
-\left(c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{y \sigma} + \text{H.c.}
-\right)
+\sum\limits_{\sigma=1}^{2} 
+\sum\limits_{x,y } 
+  c^{\dagger}_{x \sigma} T_{x,y}c^{\phantom\dagger}_{y \sigma} 
 + \frac{U}{2}\sum\limits_{x}\left[
 \sum\limits_{\sigma=1}^{2}
 \left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}\;.
 \end{equation}
+
+\subsection{The lattice  and basic parameters}
+Here we set $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     
+With this choice   the call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} such that  $N_{dim}   =N_{unit\;cell} \equiv Latt\%N$. 
+
 In order to bring the general Hamiltonian (\ref{eqn_general_ham2}) to this form, we set
 \begin{eqnarray}
 N_{fl}         &=&  1 \nonumber\\
-N_{col}        &=&  2 \nonumber\\
-T_{x y}        &=&  -t\delta_{\langle x,y\rangle} \nonumber\\
-M              &=&  N_{dim} \nonumber\\
-U_{k}          &=&  -\frac{U}{2} \nonumber\\
-V_{x y}^{(ks)} &=&  \delta_{x,y}\delta_{x,k} \nonumber\\
-\alpha_{ks}     &=&  \frac{1}{2} \;.
+N_{col} \equiv N_{SUn}       &=&  2 \nonumber\\
+M_T      & = &   1 \nonumber \\
+T^{(ks)}_{x y}        &=&    T_{x,y}  \nonumber\\
+M_V              &=&  N_{dim} \nonumber\\
+U_{k}          &=&   -\frac{U}{2} \nonumber\\
+V_{x y}^{(ks)} &=&  \delta_{x,y} \nonumber\\
+\alpha_{ks}     &=&  \frac{1}{2} \nonumber \\
+M_I              &=&  0
 \end{eqnarray}
-Note that in this example $N_{dim}=N_{unit\;cell}=Latt\%N$. And since $N_{fl}=1$ for $SU(N)$-symmetric Hubbard models, we will drop the flavor index $\sigma$ in the following.  
+Since $N_{fl}=1$ for $SU(N)$-symmetric Hubbard models, we will drop the flavor index $\sigma$ in the following.  
 
 \subsection{Hopping term}
 The hopping matrix is implemented as follows. 
 We allocate an array of dimension $1\times 1$, called \texttt{Op\_T}. It therefore contains only a single \texttt{Operator} structure.
-We set the effective dimension for the hopping term: $N_{eff}=N_{dim}$. 
+We set the effective dimension for the hopping term: $N=N_{dim}$. 
 And we allocate and initialize this structure by a single call to the subroutine \texttt{Op\_make}: 
 \begin{verbatim}
 call Op_make(Op_T(1,1),Ndim)
 \end{verbatim}
+
 Since the effective dimension is identical to the total dimension, it follows trivially, that ${\bm P}_{T}=\mathds{1}$ and ${\bm O}_{T}={\bm T}$. 
+
+
 \mycomment{Note that although a checkerboard decomposition is not yet used for the Hubbard model, in principle it can be implemented.}
 
 \subsection{Interaction term}
