@@ -51,10 +51,10 @@ c^{\dagger}_{x \sigma s} I_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 The indices have the following meaning:
 \begin{itemize}
 \item The number of fermion \textit{flavors} is set by $N_{fl}$.  After the Hubbard Stratonovitch transformation, the action will be block diagonal in the flavor index. 
-\item The number of fermion \textit{colors} is set by $N_{col}$.    The Hamiltonian is invariant under  SU($N_{col}$)  rotations. Note that  In the code $ N_{col} \equiv N_{SUn} $. 
+\item The number of fermion \textit{colors} is set by $N_{col}$.    The Hamiltonian is invariant under  SU($N_{col}$)  rotations. Note that  in the code $ N_{col} \equiv N_{SUn} $. 
 %\mycomment{ Does it set the symmetry group of the fermions, namely 
 %the dimension of the special unitary group $SU(N_{sun})$?}
-\item The indices $x,y$ label lattice sites where $x,y=1,\cdots N_{dim}$. 
+\item The indices $x,y$ label lattice sites where $x,y=1,\cdots, N_{dim}$. 
 $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{orbital}$, where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell \mycomment{Check the definition of $N_{orbital}$ in the code.} 
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{dim}\times N_{dim}$
 \item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
@@ -63,7 +63,7 @@ $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{or
 %\mycomment{Be more general here and speak of correlated blocks?}
 \end{itemize}
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-The color index $\sigma$ only appears only in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{col}$)    symmetric.  We also require
+The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{col}$)    symmetric.  We also require
 the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  hermitian. 
 
 
@@ -72,7 +72,7 @@ The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
 \item  We will work in  a basis  where  $\hat{Z}_k$ is diagonal. 
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
-\item  We will the   discrete Hubbard Stratonovitch transformation: 
+\item  We will use  the   discrete Hubbard Stratonovitch transformation: 
 \begin{equation}
 \label{HS_squares}
         e^{\Delta \tau  \lambda  A^2 } =
@@ -93,6 +93,7 @@ where the fields $\eta$ and $\gamma$ take the values:
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
 \end{equation}
+Here $s_{i,\tau} = \pm 1$ and  $l_{j,\tau}  = \pm 2, \pm 1 $.
 \end{itemize}
 
 With the above, the partition function of the model can be written as follows.
@@ -104,7 +105,7 @@ Z = \text {Tr}   e^{-\beta \mathcal{H} } =   \text {Tr}  \left[ e^{-\Delta \tau 
     \text {Tr}_{F}   \prod_{\tau=1}^{L_{Trotter}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
     \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right] \nonumber
 \end{eqnarray}
-In the above,  $\text {Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \text {Tr}_{F}  $ only over the  fermionc Fock space. 
+In the above,  the trace $\text {Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \text {Tr}_{F}  $ only over the  fermionc Fock space. 
 $S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{eqnarray}
@@ -125,12 +126,12 @@ This all in all, the partition function is given by:
      \right) \right]^{N_{col}} 
 \end{eqnarray}
 
-In the above, one notices that the weight factorizes in  the flavor index,  and that  the underlying color symmetry shows up in the fact that the the weight  does not depend upon the flavor index. 
+In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{col}$. This corresponds to  an explicit $SU(N_{col})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions, again for a given  configuration C are color independent. 
 
 
-The fundamental data structure in the code is the Operator data structure   which one uses to define all quantities in the Hamiltonian.     This  data structure will be defined below.
+The fundamental data structure in the code is the \texttt{Operator} type  which one uses to define the Hamiltonian.    
 
-\subsection{The \texttt{Operator} variable and specification of the model.}
+\subsection{The \texttt{Operator} type and specification of the model.}
 \begin{table}[h]
    \begin{tabular}{l l}
     Name of variable in the code & Description \\\hline
@@ -145,24 +146,26 @@ The fundamental data structure in the code is the Operator data structure   whic
     \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}_{V}$ \\
     \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ 
    \end{tabular}
-   \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}   One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  \label{Operator.type}}
+   \caption{Components of the \texttt{Operator}  type \texttt{Op\_V}.
+  %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
+    \label{Operator.type}}
 \end{table}
 
 
-In general, the matrices ${\bf T}^{(ks)}$ and ${\bf V}^{(ks)}$ are sparse matrices.  This property is used to minimize computational cost and storage.
-In the following, we discuss the implementation of a sparse matrix representation of ${\bf V}$.   ${\bf V}$ has dimension  $N_{dim} \times N_{dim} $   and we denote a subset of $N$ indices,  $ \left\{z_{1},\cdots,  z_{N}  \right\}$ 
+In general, the matrices ${\bf T}^{(ks)}$, ${\bf V}^{(ks)}$  and   ${\bf I}^{(ks)}$are sparse Hermitian matrices.   
+  ${\bf V}$ has dimension  $N_{dim} \times N_{dim} $.  Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,  
 for which
 \begin{equation}
 V_{x,y}  =
-\left\{\begin{matrix}  V_{x,y}  &  \text{ if }   x, y  \in \left\{ z_1, \cdots z_N \right\}\\ 
+\left\{\begin{matrix}  V_{x,y}  &  \text{ if }   x,  y  \in \left\{ z_1, \cdots z_N \right\}\\ 
                                   0         &  \text{ otherwise } 
       \end{matrix}\right.
 \end{equation}
- We define the projection matrices $\mathbf{P}$ of dimension $N \times N_{dim}$:
+ We define the $N \times N_{dim}$ matrices $\mathbf{P}$  as
 \begin{equation}
 \bm{P}_{i,x}=\delta_{z_{i},x}\;,
 \end{equation}
-where $i \in [1,\cdots N ]$ and $ x  \in [1,\cdots N_{dim}]$. The matrix operator $\bm{P}$ picks out the non-vanishing entries of $\bm{V}$, 
+where $i \in [1,\cdots, N ]$ and $ x  \in [1,\cdots, N_{dim}]$. The matrix  $\bm{P}$ picks out the non-vanishing entries of $\bm{V}$, 
 which are contained in the rank-$N$  matrix $\bm{O}$.  Thereby: 
 \begin{equation}
 \bm{V} =\bm{P}^{T} \bm{O} \bm{P}\;,
@@ -171,11 +174,11 @@ such that:
 \begin{equation}
 \bm{V}_{x,y} = \sum\limits_{i,j}^{N}  \bm{P}_{i,x}  \bm{O}_{i,j} \bm{P}_{j,y}=\sum\limits_{i,j}^{N} \delta_{z_{i},x}  \bm{O}_{ij} \delta_{z_{j},y} \;.
 \end{equation}
-Thereby the full information of $\bm{P}$ can be stored as a vector   
+Since  the  $\bm{P}$ matrices have only one non-vanishing entry per column,  they can be stored as a vector:
 \begin{equation}
-     \vec{P}_i = z_i
-\end{equation} 
-which reflects the fact that the $\bm{P}$ matrices have only one non-vanishing entry per column. There are  many useful  identities which emerge from this  structure. For example: 
+     \vec{P}_i = z_i.
+\end{equation}  
+There are  many useful  identities which emerge from this  structure. For example: 
 \begin{equation}
 	e^{\bm{V}} =  e^{\bm{P}^{T} \bm{O} \bm{P}}   = \sum_{n=0}^{\infty}  \frac{\left( \bm{P}^{T} \bm{O} \bm{P} \right)^n}{n!} =  \bm{P}^{T} e^{ \bm{O} } \bm{P}
 \end{equation}
@@ -184,9 +187,8 @@ since
 	 \bm{P} \bm{P}^{T}= 1_{N\times N}.
 \end{equation}
 
-In the code implementation, we define a structure called \texttt{Operator} to capture the above. 
-This structure variable \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.
-In Fortran a structure variable like this is called a derived type. 
+In the code, we define a structure called \texttt{Operator} to capture the above. 
+This type \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.  
 The components of the operator $\bm{V} $ are listed in  the table \ref{Operator.type}.   $ \texttt{Op\_V} $  describes the operator:
 \begin{equation}
              \left[ \left( \sum_{x,y} \hat{c}^{\dagger}_x \bm{V}_{x,y} \hat{c}^{\phantom{\dagger}}_{y}  \right) - \alpha \right]  
