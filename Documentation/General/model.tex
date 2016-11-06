@@ -37,7 +37,7 @@ c^{\dagger}_{x \sigma s}V_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 \right\}^{2}  \equiv   -
 \sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}{(k)} \right)^2\\ 
 \mathcal{H}_{I}  & = &
-\sum\limits_{k=1}^{M_I} \hat{\sigma}^{z}_{k} 
+\sum\limits_{k=1}^{M_I} \hat{Z}_{k} 
 \left\{
 \sum\limits_{s=1}^{N_{fl}}
 \sum\limits_{\sigma=1}^{N_{col}}
@@ -45,7 +45,7 @@ c^{\dagger}_{x \sigma s}V_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 \sum\limits_{x,y}
 c^{\dagger}_{x \sigma s} I_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 \right]
-\right\} \equiv \sum\limits_{k=1}^{M_I} \hat{\sigma}^{z}_{k}    \hat{I}^{(k)} 
+\right\} \equiv \sum\limits_{k=1}^{M_I} \hat{Z}_{k}    \hat{I}^{(k)} 
 \;.
 \end{eqnarray}
 The indices have the following meaning:
@@ -58,7 +58,7 @@ The indices have the following meaning:
 $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{orbital}$, where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell \mycomment{Check the definition of $N_{orbital}$ in the code.} 
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{dim}\times N_{dim}$
 \item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
-\item $\hat{\sigma}^z_k$ is an Ising variable which couples to a general one-body term. 
+\item $\hat{Z}_k$ is an Ising variable which couples to a general one-body term. 
 \item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising variable. 
 %\mycomment{Be more general here and speak of correlated blocks?}
 \end{itemize}
@@ -70,7 +70,7 @@ the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  herm
 \subsection{Formulation of the QMC}  
 The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
-\item  We will work in  a basis  where  $\hat{\sigma}^z_k$ is diagonal. 
+\item  We will work in  a basis  where  $\hat{Z}_k$ is diagonal. 
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
 \item  We will the   discrete Hubbard Stratonovitch transformation: 
 \begin{equation}
