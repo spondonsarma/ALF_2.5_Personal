@@ -224,13 +224,13 @@ As mentioned above,  a configuration is given by
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
 \end{equation}
-and is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary time, the first $Ndim$ 
+and is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary time, the first Ndim 
 fields corresponds to the Hubbard  interaction and the next 2*Ndim ones to the Ising interaction.    The first   argument of the function \texttt{S0}, n,  corresponds to the index of the operator  string 
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2},    \texttt{S0(n,nt)}  returns 1.  If   \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
 \begin{equation}
 \frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{m,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{m,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
 \end{equation}
-That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n -  Ndim } 
+That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n -  Ndim } 
  
 
 %\begin{table}[h]
