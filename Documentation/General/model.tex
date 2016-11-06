@@ -51,7 +51,7 @@ c^{\dagger}_{x \sigma s} I_{xy}^{(k s)}c^{\phantom\dagger}_{y \sigma s}
 The indices have the following meaning:
 \begin{itemize}
 \item The number of fermion \textit{flavors} is set by $N_{fl}$.  After the Hubbard Stratonovitch transformation, the action will be block diagonal in the flavor index. 
-\item The number of fermion \textit{colors} is set by $N_{col}$.    The Hamiltonian is invariant under  SU($N_{col}$)  rotations. Note that  In the code $ N_{col} \equiv NSUN $. 
+\item The number of fermion \textit{colors} is set by $N_{col}$.    The Hamiltonian is invariant under  SU($N_{col}$)  rotations. Note that  In the code $ N_{col} \equiv N_{SUn} $. 
 %\mycomment{ Does it set the symmetry group of the fermions, namely 
 %the dimension of the special unitary group $SU(N_{sun})$?}
 \item The indices $x,y$ label lattice sites where $x,y=1,\cdots N_{dim}$. 
@@ -62,8 +62,9 @@ $N_{dim}$ is the total number of spacial vertices: $N_{dim}=N_{unit\;cell} N_{or
 \item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising variable. 
 %\mycomment{Be more general here and speak of correlated blocks?}
 \end{itemize}
-Note that the matrices  $\bm{T}^{(s)}$ and $\bm{V}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-The color index $\sigma$ only appears only in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{col}$)    symmetric.
+Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
+The color index $\sigma$ only appears only in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{col}$)    symmetric.  We also require
+the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  hermitian. 
 
 
 \subsection{Formulation of the QMC}  
@@ -129,64 +130,128 @@ In the above, one notices that the weight factorizes in  the flavor index,  and 
 
 The fundamental data structure in the code is the Operator data structure   which one uses to define all quantities in the Hamiltonian.     This  data structure will be defined below.
 
-\begin{itemize}
-\item in the coupling $g$ in the \texttt{Operator} structure (see Sec.~\ref{}).
-\item as normalization constant in the definition of observables (see Sec.~\ref{})
-\item as exponent in the calculation of the phase factor and the Monte Carlo update ratio.
-\end{itemize}
+\subsection{The \texttt{Operator} variable and specification of the model.}
 
-
-
-\subsection{Structure of the hopping matrix  ${\bf T}$ and the interaction matrices ${\bf V}^{(k)}$}
-
-In general, the matrices ${\bf T}^{(s)}$ and ${\bf V}^{(ks)}$ are sparse matrices. 
-This property is used to minimize computational cost and storage.
-In the following, we discuss the implementation of the single-particle matrix representation ${\bf V}^{(ks)}$ of the interaction operator. 
-The same logic applies for the hopping matrix ${\bf T}^{(s)}$.
-
-We denote a subset of $N_{eff}$ \mycomment{(in the code, $N_{eff}$ is called just $N$)} degrees of freedom \mycomment{here: sites} by the set  $[z_{1},\cdots  z_{N_{eff}}]$ and define it to contain only vertices for which an interaction term is defined:
+In general, the matrices ${\bf T}^{(ks)}$ and ${\bf V}^{(ks)}$ are sparse matrices.  This property is used to minimize computational cost and storage.
+In the following, we discuss the implementation of a sparse matrix representation of ${\bf V}$.   ${\bf V}$ has dimension  $N_{dim} \times N_{dim} $   and we denote a subset of $N$ indices,  $ \left\{z_{1},\cdots,  z_{N}  \right\}$ 
+for which
 \begin{equation}
-V^{(ks)}_{x y}\neq 0\quad \text{only if} \quad x,y \in [z_{1}^{(ks)},\cdots  z_{N_{eff}^{(ks)}}^{(ks)}]\;.
+V_{x,y}  =
+\left\{\begin{matrix}  V_{x,y}  &  \text{ if }   x, y  \in \left\{ z_1, \cdots z_N \right\}\\ 
+                                  0         &  \text{ otherwise } 
+      \end{matrix}\right.
 \end{equation}
-We define the projection matrices $\mathbf{P}^{(ks)}_{V}$ of dimension $N_{eff}^{(ks)}\times N_{dim}$:
+ We define the projection matrices $\mathbf{P}$ of dimension $N \times N_{dim}$:
 \begin{equation}
-(P_{V}^{(ks)})_{i,z}=\delta_{z_{i}^{(ks)},z}\;,
+\bm{P}_{i,x}=\delta_{z_{i},x}\;,
 \end{equation}
-where $i\in [1,\cdots N_{eff}^{(ks)}]$ and $z\in [1,\cdots N_{dim}]$. The matrix operator $\bm{P}^{(ks)}_{V}$ picks out the non-vanishing entries of $\bm{V}^{(ks)}$, 
-which are contained in the rank-$N_{eff}^{(ks)}$  matrix $\bm{O}_{V}^{(ks)}$:
+where $i \in [1,\cdots N ]$ and $ x  \in [1,\cdots N_{dim}]$. The matrix operator $\bm{P}$ picks out the non-vanishing entries of $\bm{V}$, 
+which are contained in the rank-$N$  matrix $\bm{O}$.  Thereby: 
 \begin{equation}
-\bm{V}^{(ks)}=\bm{P}^{(ks) T}_{V} \bm{O}_{V}^{(ks)}\bm{P}^{(ks)}_{V}\;,
+\bm{V} =\bm{P}^{T} \bm{O} \bm{P}\;,
 \end{equation}
-and
+such that:
 \begin{equation}
-V_{xy}^{(ks)}=(P^{(ks)}_{V})_{ix} \left[O_{V}^{(ks)}\right]_{ij}(P_{V}^{(ks)})_{jy}=\sum\limits_{i,j}^{N_{eff}^{(ks)}} \delta_{z_{i}^{(ks)},x}  \left[O_{V}^{(ks)}\right]_{ij} \delta_{z_{j}^{(ks)},y} \;.
+\bm{V}_{x,y} = \sum\limits_{i,j}^{N}  \bm{P}_{i,x}  \bm{O}_{i,j} \bm{P}_{j,y}=\sum\limits_{i,j}^{N} \delta_{z_{i},x}  \bm{O}_{ij} \delta_{z_{j},y} \;.
 \end{equation}
-\mycomment{Comment that the P matrices have only one non-vanishing entry per column.}
-To set the  interaction part, we therefore have to specify the following:
-\begin{itemize}
-\item the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$
-\item the set $[z_{1}^{(k)},\cdots  z_{N_{eff}^{(k)}}^{(k)}]$ 
-\item the interaction strenghts $U_{k}$
-\item the numbers  $\alpha_{k}$.
-\end{itemize}
+Thereby the full information of $\bm{P}$ can be stored as a vector   
+\begin{equation}
+     \vec{P}_i = z_i
+\end{equation} 
+which reflects the fact that the $\bm{P}$ matrices have only one non-vanishing entry per column. There are  many useful  identities which emerge from this  structure. For example: 
+\begin{equation}
+	e^{\bm{V}} =  e^{\bm{P}^{T} \bm{O} \bm{P}}   = \sum_{n=0}^{\infty}  \frac{\left( \bm{P}^{T} \bm{O} \bm{P} \right)^n}{n!} =  \bm{P}^{T} e^{ \bm{O} } \bm{P}
+\end{equation}
+since 
+\begin{equation}
+	 \bm{P} \bm{P}^{T}= 1_{N\times N}.
+\end{equation}
 
-\mycomment{Be more specific here what really has to specified in the actual code.}
-The same logic also applies to the implementation of the hopping interaction \mycomment{be more specific}.
-
-\subsection{The Hubbard-Stratonovich decomposition} 
-Consider a single-particle (in other words bilinear) operator $O_{i}$.
-One obtains an approximation to the evolution operator by the following series expansion \cite{AssaadBook08}
+In the code implementation, we define a structure called \texttt{Operator} to capture the above. 
+This structure variable \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.
+In Fortran a structure variable like this is called a derived type. 
+The components of the operator $\bm{V} $ are listed in  the table \ref{Operator.type}.   $ \texttt{Op\_V} $  describes the operator:
 \begin{equation}
-\label{eqn_2_HS}
-e^{-\Delta\tau O^{2}_{i} } = \sum\limits_{s=\pm1,\pm2} \gamma(s) e^{i \sqrt{\Delta\tau}\eta(s)O_{i}} + \mathcal{O}(\Delta\tau^{4})\;,
+             \left[ \left( \sum_{x,y} \hat{c}^{\dagger}_x \bm{V}_{x,y} \hat{c}^{\phantom{\dagger}}_{y}  \right) - \alpha \right]  
 \end{equation}
-with 
+where $ \bm{V} = \bm{P}^{T} \bm{O} \bm{P}$.  In general, we will not only have one structure variable \texttt{Operator}, but a whole  array of these structures, which defines the very Hamiltonian. 
+
+In the code, there is one array of operators which defines the hopping $\pmb{T}^{(k,s)} $:  \texttt{Op\_T(M$_T$,N$_{fl}$)} .  In this case $\bm{V}$ corresponds to $\bm{T}^{(k,s)}$ and $g=-\Delta \tau$, 
+and $\alpha = 0$.  The type variable is irrelevant. 
+
+  There is another array   which defines the full interaction,  Ising as well as perfect square terms. For this  we define  the array \texttt{Op\_V(M$_V$+M$_I$,N$_{fl}$) }). In this context the variable \texttt{Op\_V\%type} specifies the interaction: Ising or  a perfect square.  If the interaction is of Ising type, then  $\bm{V}  = \bm{I}^{(k,s)} $, $\alpha = 0$ and $g = -\Delta \tau$.  
+  If the interaction is a perfect square type, then  $\bm{V}  = \bm{V}^{(k,s)} $, $\alpha = \alpha_{k,s}$ and $g = \sqrt{\Delta \tau  U_k}$.  
+
+%The variable $\texttt{Op\_V\%type}  $  in the operator structure  is required to specify  the following. If the operator  correspond to an interaction part of the Hamiltonian  then for 
+%$\texttt{Op\_V\%type} =1 $   the operator referes to an Ising  operator $ \bm{I}^{k,s}$ and for  $\texttt{Op\_V\%type} =2 $  to $\bm{V}^{ks} $
+%\begin{itemize}
+%\item the projector ${\bm P}$, encoded as the vector $\vec{P}$,
+%\item the matrix ${\bm O}$ of dimension $N \times N$  
+%\item the effective dimension $N$,
+%\item and a couple of auxiliary matrices and scalars.
+%\end{itemize}
+%The precise definition of the Operator type reads:
+
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
+    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
+    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}_{V}$  encoded as a vector of dimension $N$.\\
+     \texttt{Op\_V\%g}            &  coupling strength  \\  
+    \texttt{Op\_V\%alpha}      &  constant \\
+    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
+                                             HS transformation   (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
+    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
+    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}_{V}$ \\
+    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ 
+   \end{tabular}
+   \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}   One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  \label{Operator.type}}
+\end{table}
+
+
+
+\subsection{The Lattice}
+
+
+
+%To set the  interaction part, we therefore have to specify the following:
+%\begin{itemize}
+%\item the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$
+%\item the set $[z_{1}^{(k)},\cdots  z_{N_{eff}^{(k)}}^{(k)}]$ 
+%\item the interaction strenghts $U_{k}$
+%\item the numbers  $\alpha_{k}$.
+%\end{itemize}
+%\mycomment{Be more specific here what really has to specified in the actual code.}%
+%The same logic also applies to the implementation of the hopping interaction \mycomment{be more specific}.
+
+
+
+
+
+
+%\begin{itemize}
+%\item in the coupling $g$ in the \texttt{Operator} structure (see Sec.~\ref{}).
+%\item as normalization constant in the definition of observables (see Sec.~\ref{})
+%\item as exponent in the calculation of the phase factor and the Monte Carlo update ratio.
+%\end{itemize}
+%\subsection{Structure of the hopping matrix  ${\bf T}$ and the interaction matrices ${\bf V}^{(k)}$}
+
+
+%\subsection{The Hubbard-Stratonovich decomposition} 
+%Consider a single-particle (in other words bilinear) operator $O_{i}$.
+%One obtains an approximation to the evolution operator by the following series expansion \cite{AssaadBook08}
+%\begin{equation}
+%\label{eqn_2_HS}
+%e^{-\Delta\tau O^{2}_{i} } = \sum\limits_{s=\pm1,\pm2} \gamma(s) e^{i \sqrt{\Delta\tau}\eta(s)O_{i}} + \mathcal{O}(\Delta\tau^{4})\;,
+%\end{equation}
+%with 
 %
-\begin{eqnarray}
-\gamma(\pm 1) = (1+\sqrt{6}/3)/4\;,\;\gamma(\pm 2) = (1-\sqrt{6}/3)/4\;,\nonumber\\
-\eta(\pm 1) =\pm \sqrt{2(3-\sqrt{6})}\;,\;\eta(\pm 2) =\pm \sqrt{2(3+\sqrt{6})}\;.
-\end{eqnarray}
+%\begin{eqnarray}
+%\gamma(\pm 1) = (1+\sqrt{6}/3)/4\;,\;\gamma(\pm 2) = (1-\sqrt{6}/3)/4\;,\nonumber\\
+%\eta(\pm 1) =\pm \sqrt{2(3-\sqrt{6})}\;,\;\eta(\pm 2) =\pm \sqrt{2(3+\sqrt{6})}\;.
+%\end{eqnarray}
 %
-Eq.~(\ref{eqn_2_HS}) can be easily proven by expanding its right hand side  to eighth order in $O_{i}$. 
-The transformation introduces therefore two Ising fields $s$ per lattice site $i$, taking the values $\pm 1$ and $\pm 2$.
-\mycomment{same label as the flavor index}
+%Eq.~(\ref{eqn_2_HS}) can be easily proven by expanding its right hand side  to eighth order in $O_{i}$. 
+%The transformation introduces therefore two Ising fields $s$ per lattice site $i$, taking the values $\pm 1$ and $\pm 2$.
+%\mycomment{same label as the flavor index}
