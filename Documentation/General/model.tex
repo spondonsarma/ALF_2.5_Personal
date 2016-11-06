@@ -131,6 +131,23 @@ In the above, one notices that the weight factorizes in  the flavor index,  and 
 The fundamental data structure in the code is the Operator data structure   which one uses to define all quantities in the Hamiltonian.     This  data structure will be defined below.
 
 \subsection{The \texttt{Operator} variable and specification of the model.}
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
+    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
+    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}_{V}$  encoded as a vector of dimension $N$.\\
+     \texttt{Op\_V\%g}            &  coupling strength  \\  
+    \texttt{Op\_V\%alpha}      &  constant \\
+    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
+                                             HS transformation   (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
+    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
+    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}_{V}$ \\
+    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ 
+   \end{tabular}
+   \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}   One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  \label{Operator.type}}
+\end{table}
+
 
 In general, the matrices ${\bf T}^{(ks)}$ and ${\bf V}^{(ks)}$ are sparse matrices.  This property is used to minimize computational cost and storage.
 In the following, we discuss the implementation of a sparse matrix representation of ${\bf V}$.   ${\bf V}$ has dimension  $N_{dim} \times N_{dim} $   and we denote a subset of $N$ indices,  $ \left\{z_{1},\cdots,  z_{N}  \right\}$ 
@@ -192,28 +209,40 @@ and $\alpha = 0$.  The type variable is irrelevant.
 %\end{itemize}
 %The precise definition of the Operator type reads:
 
-\begin{table}[h]
-   \begin{tabular}{l l}
-    Name of variable in the code & Description \\\hline
-    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
-    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
-    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}_{V}$  encoded as a vector of dimension $N$.\\
-     \texttt{Op\_V\%g}            &  coupling strength  \\  
-    \texttt{Op\_V\%alpha}      &  constant \\
-    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
-                                             HS transformation   (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
-    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
-    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}_{V}$ \\
-    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}_{V}$ 
-   \end{tabular}
-   \caption{Components of the \texttt{Operator} structure variable \texttt{Op\_V}   One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  \label{Operator.type}}
-\end{table}
 
 
 
 \subsection{The Lattice}
 
+We have a lattice module  which  generate  a two dimensional Bravais lattice.  The user has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$ as well as   the size of the  lattice. The size is  characterized by  two vectors $\vec{L}_1$ and $\vec{L}_2$   and  the lattice is placed on a torus: 
+\begin{equation}
+	\hat{c}_{\vec{i} + \vec{L}_1 }  = \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}
+\end{equation}
+The call to 
+\texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user. 
+ 
+\mycomment{We need to add a table for the lattice type.}
 
+
+\subsection{The Observables}
+
+We have three types of observables. 
+\begin{itemize}
+\item Scalar observables such as the energy
+\item Equal time correlation functions.  Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
+from the unit cell.   The program will compute: 
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation}
+\item  Time displaced correlation functions. This has a very similar structure than above but now with an additional time index.
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation}
+\end{itemize}
+
+\mycomment{We have to add some  more details.}
 
 %To set the  interaction part, we therefore have to specify the following:
 %\begin{itemize}
