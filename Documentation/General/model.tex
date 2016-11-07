@@ -10,16 +10,17 @@
 
  
 The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that have the following general form:
-${\hat{\mathcal{H}}=\hat{\mathcal{H}}_{T}+\hat{\mathcal{H}}_{V}} +  \hat{\mathcal{H}}_{I} +   \hat{\mathcal{H}}_{0,I}  $, where
 \begin{eqnarray}
-\label{eqn_general_ham2}
+\hat{\mathcal{H}}&=&\hat{\mathcal{H}}_{T}+\hat{\mathcal{H}}_{V} +  \hat{\mathcal{H}}_{I} +   \hat{\mathcal{H}}_{0,I}\;,\mathrm{where}
+\label{eqn:general_ham}\\
 \hat{\mathcal{H}}_{T}
 &=&
 \sum\limits_{k=1}^{M_T}
 \sum\limits_{s=1}^{N_{\mathrm{fl}}}
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \sum\limits_{x,y}
-\hat{c}^{\dagger}_{x \sigma   s}T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}  \equiv  \sum\limits_{k=1}^{M_T} \hat{T}^{(k)}\\
+\hat{c}^{\dagger}_{x \sigma   s}T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}  \equiv  \sum\limits_{k=1}^{M_T} \hat{T}^{(k)}
+\label{eqn:general_ham_t}\\
 \hat{\mathcal{H}}_{V}
 &=&
 -
@@ -35,7 +36,8 @@ ${\hat{\mathcal{H}}=\hat{\mathcal{H}}_{T}+\hat{\mathcal{H}}_{V}} +  \hat{\mathca
 -\alpha_{k s} 
 \right]
 \right\}^{2}  \equiv   -
-\sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}{(k)} \right)^2\\ 
+\sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}{(k)} \right)^2
+\label{eqn:general_ham_v}\\
 \hat{\mathcal{H}}_{I}  & = &
 \sum\limits_{k=1}^{M_I} \hat{Z}_{k} 
 \left\{
@@ -46,11 +48,11 @@ ${\hat{\mathcal{H}}=\hat{\mathcal{H}}_{T}+\hat{\mathcal{H}}_{V}} +  \hat{\mathca
 \hat{c}^{\dagger}_{x \sigma s} I_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}
 \right]
 \right\} \equiv \sum\limits_{k=1}^{M_I} \hat{Z}_{k}    \hat{I}^{(k)} 
-\;.
+\;.\label{eqn:general_ham_i}
 \end{eqnarray}
 The indices have the following meaning:
 \begin{itemize}
-\item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard Stratonovitch transformation, the action will be block diagonal in the flavor index. 
+\item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard-Stratonovich transformation, the action will be block diagonal in the flavor index. 
 \item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. Note that  in the code $ N_{\mathrm{col}} \equiv N_{sun} $. 
 %\mycomment{ Does it set the symmetry group of the fermions, namely 
 %the dimension of the special unitary group $SU(N_{sun})$?}
@@ -58,8 +60,8 @@ The indices have the following meaning:
 $N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{unit\;cell} N_{orbital}$, where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell \mycomment{Check the definition of $N_{orbital}$ in the code.} 
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$
 \item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
-\item $\hat{Z}_k$ is an Ising variable which couples to a general one-body term. 
-\item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising variable. 
+\item $\hat{Z}_k$ is an Ising spin operator which corresponds to the Pauli matrix $\hat{\sigma}_{z}$. It couples to a general one-body term. 
+\item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising spins. 
 This term has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{}).
 %\mycomment{Be more general here and sreak of correlated blocks?}
 \end{itemize}
@@ -72,7 +74,7 @@ the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  herm
 The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
-\item  We will use  the   discrete Hubbard Stratonovitch transformation: 
+\item  We will use  the   discrete Hubbard-Stratonovich transformation:
 \begin{equation}
 \label{HS_squares}
         e^{\Delta \tau  \lambda  \hat{A}^2 } =
@@ -88,51 +90,51 @@ where the fields $\eta$ and $\gamma$ take the values:
 \nonumber
 \end{eqnarray}
 \item  We will work in  a basis  where  $\hat{Z}_k$ is diagonal: $\hat{Z}_{k}|s_{j}\rangle = s_{k}\delta_{kj}|s_{k}\rangle$, where $s_{k}=\pm 1$.
-\item From the above it follows that   the Monte Carlo configuration space is given by: 
+\item From the above it follows that the  Monte Carlo configuration space $C$  
+is given by the combined spaces of Ising spin configurations  and of Hubbard-Stratonovich discrete field configurations:
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}
 \end{equation}
-Here, $s_{i,\tau} = \pm 1$ and  $l_{j,\tau}  = \pm 2, \pm 1 $.
+Here, the Ising spins take the values  $s_{i,\tau} = \pm 1$ and  the Hubbard-Stratonovich fields take the values  $l_{j,\tau}  = \pm 2, \pm 1 $.
 \end{itemize}
-
-With the above, the partition function of the model can be written as follows.
+With the above, the partition function of the model (\ref{eqn:general_ham}) can be written as follows.
 \begin{eqnarray}
-Z &=& \Tr{e^{-\beta \hat{\mathcal{H}} }}\nonumber\\
+Z &=& \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
   &=&   \Tr{  \left[ e^{-\Delta \tau \hat{\mathcal{H}}_{0,I}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
     \prod_{k=1}^{M_V}   e^{  \Delta \tau  U_k \left(  \hat{V}^{(k)} \right)^2}   \prod_{k=1}^{M_I}   e^{  -\Delta \tau  \hat{\sigma}_{k}  \hat{I}^{(k)}} 
    \right]^{L_{\text{Trotter}}}}  \nonumber \\
    &=&
    \sum_{C} \left( \prod_{j=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{j,\tau} \right) e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }\times \nonumber\\
    &\quad&
-    \Trf{   \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right] }
+    \Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]\right\} }
 \end{eqnarray}
 In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionc Fock space. 
 $S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{eqnarray}
- &\quad&\Trf{   \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right] } = \nonumber\\
+ &\quad&\Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right] \right\}} = \nonumber\\
 &\quad& \quad\prod\limits_{s=1}^{N_{\mathrm{fl}}} \left[  e^{- \sum_{k=1}^{M_V} \sum_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} }
    \right]^{N_{\mathrm{col}}}\times
 \nonumber\\
 &\quad&\quad   \prod\limits_{s=1}^{N_{\mathrm{fl}}} 
    \left[
     \det\left(  1 + 
-     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \bf{T}^{(ks)}}  
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \bf{V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \bf{I}^{(ks)}}  
+     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bf T}^{(ks)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
      \right) \right]^{N_{\mathrm{col}}}\;.
 \end{eqnarray}
-This all in all, the partition function is given by:
+All in all,   the partition function is given by:
 \begin{eqnarray}
-    Z &=& \Tr{   e^{-\beta \hat{\mathcal{H}} } }\nonumber\\
+    Z &=& \Tr{  \left( e^{-\beta \hat{\mathcal{H}} }\right) }\nonumber\\
     &=&   \sum_{C}   e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }     \left[ \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right] 
     e^{- N_{\mathrm{col}}\sum_{s=1}^{N_{\mathrm{fl}}} \sum_{k=1}^{M_V} \sum_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } 
   \times   \nonumber \\
   &\quad&
       \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  1 + 
-     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau \bf{T}^{(ks)}}  
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \bf{V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \bf{I}^{(ks)}}  
+     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
      \right) \right]^{N_{\mathrm{col}}} \;.
 \end{eqnarray}
 
@@ -142,31 +144,9 @@ In the above, one notices that the weight factorizes in  the flavor index. The c
  
 
 \subsection{The \texttt{Operator} type and specification of the model.}
-The fundamental data structure in the code is the derived data type \texttt{Operator} which one uses to define the Hamiltonian.   
-\begin{table}[h]
-   \begin{tabular}{l l}
-    Name of variable in the code & Description \\\hline
-    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
-    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
-    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
-     \texttt{Op\_V\%g}            &  coupling strength $g$ \\  
-    \texttt{Op\_V\%alpha}      &  constant $\alpha$ \\
-    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
-                                             HS transformation\\
-                                &  (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
-    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
-    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}$ \\
-    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
-   \end{tabular}
-   \caption{Components of the \texttt{Operator}  type, using the example of the variable \texttt{Op\_V} 
-   which describes the interaction.
-  %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
-    \label{Operator.type}}
-\end{table}
-
-
+The fundamental data structure in the code is the derived data type \texttt{Operator}. This type is used to define the Hamiltonian (\ref{eqn:general_ham}). 
 In general, the matrices ${\bf T}^{(ks)}$, ${\bf V}^{(ks)}$  and   ${\bf I}^{(ks)}$are sparse Hermitian matrices.   
-Consider the  matrix   ${\bm M}$ of dimension  $N_{\mathrm{dim}} \times N_{\mathrm{dim}} $.  Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,  
+Consider the  matrix   ${\bm M}$ of dimension  $N_{\mathrm{dim}} \times N_{\mathrm{dim}}$, as an representative of each of the above three matrices .  Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,  
 for which
 \begin{equation}
 M_{x,y}  =
@@ -202,10 +182,32 @@ since
 
 In the code, we define a structure called \texttt{Operator} to capture the above. 
 This type \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.  
-In general, we will not only have one structure variable \texttt{Operator}, but a whole  array of these structures, which defines the very Hamiltonian. 
+In general, we will not only have one structure variable \texttt{Operator}, but a whole  array of these structures, which defines the very Hamiltonian (\ref{eqn:general_ham}). 
+%
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
+    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
+    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
+     \texttt{Op\_V\%g}            &  coupling strength $g$ \\  
+    \texttt{Op\_V\%alpha}      &  constant $\alpha$ \\
+    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
+                                             HS transformation\\
+                                &  (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
+    \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
+    \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}$ \\
+    \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
+   \end{tabular}
+   \caption{Components of the \texttt{Operator}  type, using the example of the variable \texttt{Op\_V} 
+   which describes the interaction terms of the Hamiltonian.
+  %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
+    \label{Operator.type}}
+\end{table}
+%
 The implementation is as follows:
 \begin{itemize}
-\item Interaction term:  
+\item Interaction Hamiltonian (\ref{eqn:general_ham_v}):
 If the interaction is of perfect-square type, we set  ${\bm M}  = \bm{V}^{(k,s)}$ 
 and  define the corresponding structure variables \texttt{Op\_V}  using the array \texttt{Op\_V(M\_V,N\_{fl})}.
 Precisely, a single variable  \texttt{Op\_V}  describes the operator matrix:
@@ -214,15 +216,15 @@ Precisely, a single variable  \texttt{Op\_V}  describes the operator matrix:
 \end{equation} 
 Its components are listed in table \ref{Operator.type}. For the perfect-square interaction, $\alpha = \alpha_{k,s}$ and $g = \sqrt{\Delta \tau  U_k}$. 
 The discrete Hubbard-Stratonovich decomposition is selected by setting the type variable to $\texttt{Op\_V\%type}=2$.
-\item Hopping term: 
+\item Hopping Hamiltonian (\ref{eqn:general_ham_t}): 
 In this case $\bm{M}=\bm{T}^{(k,s)}$. The corresponding array of structure variables \texttt{Op\_T} is  \texttt{Op\_T(M$_T$,N$_{fl}$)} . 
 We have $g=-\Delta \tau$, $\alpha = 0$, and the type variable $\texttt{Op\_T\%type}$  is irrelevant. 
 
-\item Ising interaction term: 
-In this case, $\bm{M}  = \bm{I}^{(k,s)} $ and we define the array \texttt{Op\_V(M\_I,N\_{fl})}. 
+\item Ising interaction Hamiltonian (\ref{eqn:general_ham_i}):
+In this case, $\bm{M}  = \bm{I}^{(k,s)} $ and we define the array\\ \texttt{Op\_V(M\_I,N\_{fl})}. 
 The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\%type=1}$, $\alpha = 0$ and $g = -\Delta \tau$.  
 
-\item In case of a full interaction (perfect-square term and Ising term), we  define  the array \texttt{Op\_V(M$_V$+M$_I$,N$_{fl}$) }) and set 
+\item In case of a full interaction [perfect-square term (\ref{eqn:general_ham_v}) and Ising term (\ref{eqn:general_ham_i})], we  define  the array \texttt{Op\_V(M$_V$+M$_I$,N$_{fl}$) }) and set 
 the individual variables according to the above.  
 
 \end{itemize}
@@ -248,11 +250,40 @@ We have a lattice module  which  generate  a two dimensional Bravais lattice.  T
 \begin{equation}
 	\hat{c}_{\vec{i} + \vec{L}_1 }  = \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}
 \end{equation}
-The call to 
+The call 
 \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user. 
  
 \mycomment{We need to add a table for the lattice type.}
 
+
+%
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of variable in the code & Description \\\hline
+    \texttt{Latt\%N}            &  number of lattice points (unit cells) \\
+    \texttt{Latt\%Ns}           &  number of lattice points (unit cells)\\
+    \texttt{Latt\%list}         &  \\
+     \texttt{Latt\%invlist}     &   \\  
+    \texttt{Latt\%nnlist}       &  \\
+    \texttt{Latt\%listk}        &  \\
+    \texttt{Latt\%invlistk}     &  \\ 
+    \texttt{Latt\%imj}          &  \\
+    \texttt{Latt\%a1\_p}        & unit vector $\vec{a}_1$ \\
+    \texttt{Latt\%a2\_p}        & unit vector $\vec{a}_2$ \\
+    \texttt{Latt\%b1\_p}        & unit vector $\vec{b}_1$ of the reciprocal lattice \\
+    \texttt{Latt\%b2\_p}        & unit vector $\vec{b}_2$ of the reciprocal lattice \\
+    \texttt{Latt\%BZ1\_p}       & vector describing the Brillouin zone\\
+    \texttt{Latt\%BZ2\_p}       & vector describing the Brillouin zone\\
+    \texttt{Latt\%L1\_p}        & vector $\vec{L}_1$ describing the lattice size\\
+    \texttt{Latt\%L2\_p}        & vector $\vec{L}_2$ describing the lattice size\\
+    \texttt{Latt\%b1\_perp\_p}  & \\
+    \texttt{Latt\%b2\_perp\_p}  &  
+   \end{tabular}
+   \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example a lattice called \texttt{Latt}.
+  %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
+    \label{Operator.type}}
+\end{table}
+%
 
 \subsection{The Observables}
 
