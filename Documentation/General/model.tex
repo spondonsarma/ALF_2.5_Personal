@@ -187,22 +187,22 @@ In general, we will not only have one structure variable \texttt{Operator}, but 
 \begin{table}[h]
    \begin{tabular}{l l}
     Name of variable in the code & Description \\\hline
-    \texttt{Op\_V\%N}            &  effective dimension $N$ \\
-    \texttt{Op\_V\%O}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
-    \texttt{Op\_V\%P}            &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
-     \texttt{Op\_V\%g}            &  coupling strength $g$ \\  
-    \texttt{Op\_V\%alpha}      &  constant $\alpha$ \\
-    \texttt{Op\_V\%type}        &  integer parameter to set the type of 
+    \hl{\texttt{Op\_V\%N}}            &  effective dimension $N$ \\
+    \hl{\texttt{Op\_V\%O}}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
+    \hl{\texttt{Op\_V\%P}}            &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
+    \hl{\texttt{Op\_V\%g}}            &  coupling strength $g$ \\  
+    \hl{\texttt{Op\_V\%alpha}}      &  constant $\alpha$ \\
+    \hl{\texttt{Op\_V\%type}}        &  integer parameter to set the type of 
                                              HS transformation\\
                                 &  (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
     \texttt{Op\_V\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
     \texttt{Op\_V\%E}            &  eigenvalues of $\mathbf{O}$ \\
     \texttt{Op\_V\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
    \end{tabular}
-   \caption{Components of the \texttt{Operator}  type, using the example of the variable \texttt{Op\_V} 
-   which describes the interaction terms of the Hamiltonian.
+   \caption{Components of the \texttt{Operator}  type, using the example of the variable name \texttt{Op\_V} 
+   which describes the interaction terms of the Hamiltonian. The highlighted variables have to be specified by the user.
   %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
-    \label{Operator.type}}
+    \label{table:operator}}
 \end{table}
 %
 The implementation is as follows:
@@ -214,7 +214,7 @@ Precisely, a single variable  \texttt{Op\_V}  describes the operator matrix:
 \begin{equation}
              \left[ \left( \sum_{x,y} \hat{c}^{\dagger}_x V_{x,y} \hat{c}^{\phantom{\dagger}}_{y}  \right) - \alpha \right]  \;.
 \end{equation} 
-Its components are listed in table \ref{Operator.type}. For the perfect-square interaction, $\alpha = \alpha_{k,s}$ and $g = \sqrt{\Delta \tau  U_k}$. 
+Its components are listed in the table \ref{table:operator}. For the perfect-square interaction, $\alpha = \alpha_{k,s}$ and $g = \sqrt{\Delta \tau  U_k}$. 
 The discrete Hubbard-Stratonovich decomposition is selected by setting the type variable to $\texttt{Op\_V\%type}=2$.
 \item Hopping Hamiltonian (\ref{eqn:general_ham_t}): 
 In this case $\bm{M}=\bm{T}^{(k,s)}$. The corresponding array of structure variables \texttt{Op\_T} is  \texttt{Op\_T(M$_T$,N$_{fl}$)} . 
@@ -253,35 +253,29 @@ We have a lattice module  which  generate  a two dimensional Bravais lattice.  T
 The call 
 \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user. 
  
-\mycomment{We need to add a table for the lattice type.}
-
-
+\mycomment{The modules \texttt{lattice\_v3} is for a general square lattice. What about additional orbitals? Other dimensions?}
+% 
 %
 \begin{table}[h]
    \begin{tabular}{l l}
     Name of variable in the code & Description \\\hline
-    \texttt{Latt\%N}            &  number of lattice points (unit cells) \\
-    \texttt{Latt\%Ns}           &  number of lattice points (unit cells)\\
-    \texttt{Latt\%list}         &  \\
-     \texttt{Latt\%invlist}     &   \\  
-    \texttt{Latt\%nnlist}       &  \\
-    \texttt{Latt\%listk}        &  \\
-    \texttt{Latt\%invlistk}     &  \\ 
-    \texttt{Latt\%imj}          &  \\
-    \texttt{Latt\%a1\_p}        & unit vector $\vec{a}_1$ \\
-    \texttt{Latt\%a2\_p}        & unit vector $\vec{a}_2$ \\
-    \texttt{Latt\%b1\_p}        & unit vector $\vec{b}_1$ of the reciprocal lattice \\
-    \texttt{Latt\%b2\_p}        & unit vector $\vec{b}_2$ of the reciprocal lattice \\
-    \texttt{Latt\%BZ1\_p}       & vector describing the Brillouin zone\\
-    \texttt{Latt\%BZ2\_p}       & vector describing the Brillouin zone\\
-    \texttt{Latt\%L1\_p}        & vector $\vec{L}_1$ describing the lattice size\\
-    \texttt{Latt\%L2\_p}        & vector $\vec{L}_2$ describing the lattice size\\
-    \texttt{Latt\%b1\_perp\_p}  & \\
-    \texttt{Latt\%b2\_perp\_p}  &  
+    \texttt{Latt\%N}, \texttt{Latt\%Ns} &  number of lattice points, $N_{unit\,cell}$ \mycomment{why N and Ns} \\
+    \texttt{Latt\%list}       &  maps each lattice point $i=1,\cdots N_{unit\,cell}$ to a real space vector\\
+                              & \texttt{list(i,1)} $\vec{a}_1$ +  \texttt{list(i,2)} $\vec{a}_2$ \\
+    \texttt{Latt\%invlist}    &  maps each real space vector to the corresponding lattice point $i$ \\
+    \texttt{Latt\%nnlist}     &  maps each lattice point to its four nearest neighbors \\
+    \texttt{Latt\%listk}      &  \\
+    \texttt{Latt\%invlistk}   &  \\ 
+    \texttt{Latt\%imj}        &  \\
+    \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & unit vectors $\vec{a}_1$,  $\vec{a}_2$ \\
+    \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}   & unit vectors $\vec{b}_1$, $\vec{b}_2$ of the reciprocal lattice \\
+    \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}  & vectors that span the Brillouin zone\\
+    \hl{\texttt{Latt\%L1\_p}, \texttt{Latt\%L2\_p}}   & vectors $\vec{L}_1$, $\vec{L}_2$ that span the real space lattice \\
+    \texttt{Latt\%b1\_perp\_p}, \texttt{Latt\%b2\_perp\_p}  & \mycomment{vectors} 
    \end{tabular}
-   \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example a lattice called \texttt{Latt}.
-  %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
-    \label{Operator.type}}
+   \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example the default lattice name \texttt{Latt}.
+   The highlighted variables have to be specified by the user.
+    \label{table:lattice}}
 \end{table}
 %
 
