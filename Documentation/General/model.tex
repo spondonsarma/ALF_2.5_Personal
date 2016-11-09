@@ -143,7 +143,7 @@ In the above, one notices that the weight factorizes in  the flavor index. The c
 
  
 
-\subsection{The \texttt{Operator} type and specification of the model.}
+\subsection{The \texttt{Operator} type}
 The fundamental data structure in the code is the derived data type \texttt{Operator}. This type is used to define the Hamiltonian (\ref{eqn:general_ham}). 
 In general, the matrices ${\bf T}^{(ks)}$, ${\bf V}^{(ks)}$  and   ${\bf I}^{(ks)}$are sparse Hermitian matrices.   
 Consider the  matrix   ${\bm M}$ of dimension  $N_{\mathrm{dim}} \times N_{\mathrm{dim}}$, as an representative of each of the above three matrices .  Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,  
@@ -182,6 +182,8 @@ since
 
 In the code, we define a structure called \texttt{Operator} to capture the above. 
 This type \texttt{Operator} bundles several components that are needed to define and use an operator matrix in the program.  
+
+\subsubsection{Specification of the model}
 In general, we will not only have one structure variable \texttt{Operator}, but a whole  array of these structures, which defines the very Hamiltonian (\ref{eqn:general_ham}). 
 %
 \begin{table}[h]
@@ -252,8 +254,15 @@ We have a lattice module  which  generate  a two dimensional Bravais lattice.  T
 \end{equation}
 The call 
 \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user. 
- 
-\mycomment{The modules \texttt{lattice\_v3} is for a general square lattice. What about additional orbitals? Other dimensions?}
+%
+\mycomment{
+\begin{itemize}
+\item The modules \texttt{lattice\_v3} is for a general square lattice. 
+\item what about additional orbitals? 
+\item other dimensions?
+\item mention the pre-defined lattices
+\end{itemize}
+}
 % 
 %
 \begin{table}[h]
@@ -264,9 +273,12 @@ The call
                               & \texttt{list(i,1)} $\vec{a}_1$ +  \texttt{list(i,2)} $\vec{a}_2$ \\
     \texttt{Latt\%invlist}    &  maps each real space vector to the corresponding lattice point $i$ \\
     \texttt{Latt\%nnlist}     &  maps each lattice point to its four nearest neighbors \\
-    \texttt{Latt\%listk}      &  \\
-    \texttt{Latt\%invlistk}   &  \\ 
-    \texttt{Latt\%imj}        &  \\
+    \texttt{Latt\%listk}      &  maps each reciprocal lattice point $k=1,\cdots N_{unit\,cell}$\\
+                              & to a reciprocal space vector\\
+                              & \texttt{listk(k,1)} $\vec{b}_1$ +  \texttt{listk(k,2)} $\vec{b}_2$ \\
+    \texttt{Latt\%invlistk}   &  maps each reciprocal space vector to the corresponding \\
+                              & reciprocal lattice  point $k$ \\
+    \texttt{Latt\%imj}        &  \mycomment{ between two lattice site vectors} \\
     \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & unit vectors $\vec{a}_1$,  $\vec{a}_2$ \\
     \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}   & unit vectors $\vec{b}_1$, $\vec{b}_2$ of the reciprocal lattice \\
     \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}  & vectors that span the Brillouin zone\\
@@ -298,6 +310,35 @@ from the unit cell.   The program will compute:
 \end{itemize}
 
 \mycomment{We have to add some  more details.}
+
+
+We have three types of observables: scalar observables, equal-time correlation functions, and imaginary time-displaced correlation functions.
+\mycomment{mention bins, sweeps}
+\subsubsection{Scalar observables}
+In the code, several scalar observables are measured and accumulated in the array \texttt{Obs\_scal}, see the table \ref{table:obs}.
+%
+\begin{table}[h]
+   \begin{tabular}{l l l}
+    Name of variable in the code & Definition & Description \\\hline
+\texttt{Obs\_scal(1)} & 
+$\sum\limits_{s=1}^{N_{\mathrm{fl}}}\sum\limits_{x=1}^{N_{\mathrm{dim}}}\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}   \rangle$
+& total electronic density\\
+\texttt{Obs\_scal(2)} & 
+$\sum\limits_{s=1}^{N_{\mathrm{fl}}}\sum\limits_{x,y=1}^{N_{\mathrm{dim}}}\langle \hat{c}^{\dagger}_{x \sigma   s} T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}   \rangle$
+& total kinetic energy
+   \end{tabular}
+   \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.\mycomment{dependency on index $k$ and color index $\sigma$}
+    \label{table:obs}}
+\end{table}
+%
+
+
+
+\subsubsection{Equal-time correlation functions}
+
+\subsubsection{Time-displaced correlation functions}
+
+
 
 %To set the  interaction part, we therefore have to specify the following:
 %\begin{itemize}
