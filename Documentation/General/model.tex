@@ -18,7 +18,7 @@ The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that hav
 \sum\limits_{k=1}^{M_T}
 \sum\limits_{s=1}^{N_{\mathrm{fl}}}
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{x,y}
+\sum\limits_{x,y}^{N_{\mathrm{dim}}}
 \hat{c}^{\dagger}_{x \sigma   s}T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}  \equiv  \sum\limits_{k=1}^{M_T} \hat{T}^{(k)}
 \label{eqn:general_ham_t}\\
 \hat{\mathcal{H}}_{V}
@@ -30,7 +30,7 @@ The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that hav
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \left[
 \left(
-\sum\limits_{x,y}
+\sum\limits_{x,y}^{N_{\mathrm{dim}}}
 \hat{c}^{\dagger}_{x \sigma s}V_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}
 \right)
 -\alpha_{k s} 
@@ -44,7 +44,7 @@ The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that hav
 \sum\limits_{s=1}^{N_{\mathrm{fl}}}
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \left[
-\sum\limits_{x,y}
+\sum\limits_{x,y}^{N_{\mathrm{dim}}}
 \hat{c}^{\dagger}_{x \sigma s} I_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}
 \right]
 \right\} \equiv \sum\limits_{k=1}^{M_I} \hat{Z}_{k}    \hat{I}^{(k)} 
@@ -214,7 +214,7 @@ If the interaction is of perfect-square type, we set  ${\bm M}  = \bm{V}^{(k,s)}
 and  define the corresponding structure variables \texttt{Op\_V}  using the array \texttt{Op\_V(M\_V,N\_{fl})}.
 Precisely, a single variable  \texttt{Op\_V}  describes the operator matrix:
 \begin{equation}
-             \left[ \left( \sum_{x,y} \hat{c}^{\dagger}_x V_{x,y} \hat{c}^{\phantom{\dagger}}_{y}  \right) - \alpha \right]  \;.
+             \left[ \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x V_{x,y} \hat{c}^{\phantom{\dagger}}_{y}  \right) - \alpha \right]  \;.
 \end{equation} 
 Its components are listed in the table \ref{table:operator}. For the perfect-square interaction, $\alpha = \alpha_{k,s}$ and $g = \sqrt{\Delta \tau  U_k}$. 
 The discrete Hubbard-Stratonovich decomposition is selected by setting the type variable to $\texttt{Op\_V\%type}=2$.
@@ -315,19 +315,41 @@ from the unit cell.   The program will compute:
 We have three types of observables: scalar observables, equal-time correlation functions, and imaginary time-displaced correlation functions.
 \mycomment{mention bins, sweeps}
 \subsubsection{Scalar observables}
-In the code, several scalar observables are measured and accumulated in the array \texttt{Obs\_scal}, see the table \ref{table:obs}.
+Several scalar observables are measured and accumulated in the array \texttt{Obs\_scal} during the simulation (see table \ref{table:obs}).
 %
 \begin{table}[h]
    \begin{tabular}{l l l}
     Name of variable in the code & Definition & Description \\\hline
 \texttt{Obs\_scal(1)} & 
-$\sum\limits_{s=1}^{N_{\mathrm{fl}}}\sum\limits_{x=1}^{N_{\mathrm{dim}}}\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}   \rangle$
-& total electronic density\\
+$\rho=\sum\limits_{k=1}^{M_T}
+\sum\limits_{s=1}^{N_{\mathrm{fl}}}
+\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
+\sum\limits_{x}^{N_{\mathrm{dim}}}
+\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}   \rangle$ &
+electronic density\\
 \texttt{Obs\_scal(2)} & 
-$\sum\limits_{s=1}^{N_{\mathrm{fl}}}\sum\limits_{x,y=1}^{N_{\mathrm{dim}}}\langle \hat{c}^{\dagger}_{x \sigma   s} T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}   \rangle$
-& total kinetic energy
+$E_{\mathrm{kin}}=\sum\limits_{k=1}^{M_T}
+\sum\limits_{s=1}^{N_{\mathrm{fl}}}
+\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
+\sum\limits_{x,y}^{N_{\mathrm{dim}}}
+\langle \hat{c}^{\dagger}_{x \sigma   s} T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}   \rangle$ &
+kinetic energy\\
+\texttt{Obs\_scal(3)} & 
+$E_{\mathrm{pot}}=\sum\limits_{x,y}^{N_{\mathrm{dim}}}
+\prod\limits_{s=1}^{N_{\mathrm{fl}}}
+\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}  
+\rangle$ &
+potential energy \mycomment{need input here} \\
+\texttt{Obs\_scal(4)} & 
+$E_{\mathrm{tot}}=E_{\mathrm{kin}}+E_{\mathrm{pot}}$ &
+total energy\\
+\texttt{Obs\_scal(5)} & 
+$\langle \mathrm{phase} \rangle$ &
+phase of MC update probability
    \end{tabular}
-   \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.\mycomment{dependency on index $k$ and color index $\sigma$}
+   \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.
+   \mycomment{$E_{pot}$ is for $U_{spin}(1)$ symmetric Hubbard; we would need the general expresssion for $E_{pot}$ , if possible. 
+   It is not the expectation value of the perfect-square term, right? The $\alpha$'s are missing.}
     \label{table:obs}}
 \end{table}
 %
