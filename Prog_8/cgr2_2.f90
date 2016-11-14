@@ -48,11 +48,11 @@
 !> The rationale for constructing this extended matrix is that Fakher says it's more stable.
 !>
 !> @param[inout] HLP The result matrix
-!> @param[in] UCT
-!> @param[in] V1INV
-!> @param[in] U3 Matrix, dimension(LQ, )
-!> @param[in] D3
-!> @param[in] V3
+!> @param[in] UCT Matrix, dimension(LQ, LQ)
+!> @param[in] V1INV Matrix, dimension(LQ, LQ)
+!> @param[in] U3 Matrix, dimension(2*LQ, 2*LQ)
+!> @param[in] D3 Matrix, dimension(2*LQ, 2*LQ)
+!> @param[in] V3 Matrix, dimension(2*LQ, 2*LQ)
 !> @param[in] LQ The dimension of the matrices UCT and V1INV
 !--------------------------------------------------------------------
            Subroutine solve_extended_System(HLP, UCT, VINV, U3, D3, V3, LQ)
@@ -127,21 +127,17 @@
 
 
         ! Local::
-        Complex  (Kind=double) :: U3B(2*LQ,2*LQ), V3B(2*LQ,2*LQ), HLPB1(2*LQ,2*LQ), HLPB2(2*LQ,2*LQ), &
-             &                   V1INV(LQ,LQ)
+        Complex  (Kind=double) :: V1INV(LQ,LQ)
         Complex  (Kind=double) :: D3B(2*LQ)
         Complex  (Kind=double) :: Z, alpha, beta
-        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:) :: TMPVEC
-        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2
-        INTEGER, Dimension(:), Allocatable :: IPVT
-
-        Integer :: LQ2, I,J, NCON, info
+        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2, HLPB1, HLPB2, U3B, V3B
+        Integer :: LQ2, I,J, NCON
         
         LQ2 = LQ*2
         NCON = 0
         alpha = 1.D0
         beta = 0.D0
-        ALLOCATE(TMPVEC(LQ2), MYU2(LQ, LQ), IPVT(LQ2))
+        ALLOCATE(MYU2(LQ, LQ), HLPB1(LQ2, LQ2), HLPB2(LQ2, LQ2), U3B(LQ2, LQ2), V3B(LQ2, LQ2))
         MYU2 = CONJG(TRANSPOSE(U2))
         CALL INV(V1,V1INV,Z)
         If (dble(D1(1)) >  dble(D2(1)) ) Then 
@@ -199,5 +195,5 @@
            call solve_extended_System(HLPB1, MYU2, V1INV, U3B, D3B, V3B, LQ)
            call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB1, LQ)
         Endif
-        DEALLOCATE(TMPVEC, MYU2, IPVT)
+        DEALLOCATE(MYU2, HLPB1, HLPB2, U3B, V3B)
       END SUBROUTINE CGR2_2
