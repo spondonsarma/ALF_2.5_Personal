@@ -1,6 +1,6 @@
 
 % !TEX root = Doc.tex
-\section{Definition of the model Hamiltonian}
+\section{Definition of the model Hamiltonian}\label{sec:def}
 
 %\mycomment{Notation: Hats for second quantized operators, bold for matrices. \\
 %  Structure:  \\ 1) We first want to define the model.  \\ 
@@ -68,6 +68,7 @@ This term has to be specified by the user and is only relevant when the Monte Ca
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
 The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
 the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  hermitian. 
+
 
 
 \subsection{Formulation of the QMC}  
@@ -293,27 +294,28 @@ The call
 
 \subsection{The Observables}
 
-We have three types of observables. 
-\begin{itemize}
-\item Scalar observables such as the energy
-\item Equal time correlation functions.  Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
-from the unit cell.   The program will compute: 
-\begin{equation}
-	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
-\end{equation}
-\item  Time displaced correlation functions. This has a very similar structure than above but now with an additional time index.
-\begin{equation}
-	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
-\end{equation}
-\end{itemize}
-
-\mycomment{We have to add some  more details.}
+% We have three types of observables. 
+% \begin{itemize}
+% \item Scalar observables such as the energy
+% \item Equal time correlation functions.  Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
+% from the unit cell.   The program will compute: 
+% \begin{equation}
+% 	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
+% 	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+% \end{equation}
+% \item  Time displaced correlation functions. This has a very similar structure than above but now with an additional time index.
+% \begin{equation}
+% 	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
+% 	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+% \end{equation}
+% \end{itemize}
 
 
 We have three types of observables: scalar observables, equal-time correlation functions, and imaginary time-displaced correlation functions.
+
+
 \mycomment{mention bins, sweeps}
+\mycomment{We have to add some  more details.}
 \subsubsection{Scalar observables}
 Several scalar observables are measured and accumulated in the array \texttt{Obs\_scal} during the simulation (see table \ref{table:obs}).
 %
@@ -358,9 +360,20 @@ phase of MC update probability
 
 \subsubsection{Equal-time correlation functions}
 
+Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
+from the unit cell.   The program will compute: 
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation}
+
 \subsubsection{Time-displaced correlation functions}
 
-
+This has a very similar structure than above but now with an additional time index.
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation}
 
 %To set the  interaction part, we therefore have to specify the following:
 %\begin{itemize}
