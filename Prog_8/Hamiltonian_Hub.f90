@@ -96,7 +96,7 @@
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
 #endif
-          Call Ham_latt
+          \\ Ham_latt
 
           If ( Model == "Hubbard_Mz") then
              N_FL = 2

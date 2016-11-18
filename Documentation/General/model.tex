@@ -69,7 +69,32 @@ Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ e
 The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
 the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  hermitian. 
 
+In the code, the module \texttt{Hamiltonian} defines the model Hamiltonian,  the lattice under consideration and the desired observables. 
+The respective file name is \texttt{Hamiltonian\_\textit{<Model Name>}.f90}: for example, \texttt{Hamiltonian\_Hub.f90} defines the plain Hubbard model on the two-dimensional square lattice. To implement a user-defined model, therefore only the module \texttt{Hamiltonian} has to be set up. Accordingly, this documentation focusses almost entirely  on the module \texttt{Hamiltonian} and the structures it includes. 
+The remaining parts of the code may be treated as as a black box.
 
+%
+\begin{table}[h]
+   \begin{tabular}{l l}
+    Name of subprogram & Description \\\hline
+    \texttt{Ham\_Set}  & Reads in model and lattice parameters from the file \texttt{parameters}. \\
+                       & And it sets the Hamiltonian by calling \texttt{Ham\_latt}, \texttt{Ham\_hop}, and \texttt{Ham\_V}.\\
+    \texttt{Ham\_Latt} & Sets the lattice by calling \texttt{Make\_Lattice}.\\
+    \texttt{Ham\_hop}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}.\\
+    \texttt{Ham\_V}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
+                         by calling \texttt{Op\_make} and \texttt{Op\_set}.\\  
+    \texttt{S0}        & A function which returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$.\\
+    \texttt{Alloc\_obs} & Asigns memory storage to the observables \\
+    \texttt{Init\_obs}  & Initializes the observables to zero. \\
+    \texttt{Obser}      & Computes the scalar observables and equal-time correlation functions.\\
+    \texttt{OBSERT}     & Computes time-displaced correlation functions. \\
+    \texttt{Pr\_obs}    & Writes the observables to the disk by calling \texttt{Print\_bin}.   
+    
+   \end{tabular}
+   \caption{   Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables.
+    \label{table:hamiltonian}}
+\end{table}
+%
 
 \subsection{Formulation of the QMC}  
 The formulation of the  Monte Carlo simulation is based on the following.
