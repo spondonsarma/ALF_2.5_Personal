@@ -51,10 +51,12 @@
            CALL MPI_REDUCE(Dat_eq,Tmp,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq = Tmp/DBLE(ISIZE)
            I = 1
+           Z = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Phase_bin,Z,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Phase_bin= Z/DBLE(ISIZE)
 
            I = Norb
+           Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
 
@@ -135,11 +137,13 @@
            CALL MPI_REDUCE(Dat_eq,Tmp,I,MPI_REAL8,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq = Tmp/DBLE(ISIZE)
            I = 1
+           Z = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Phase_bin,Z,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Phase_bin= Z/DBLE(ISIZE)
            If (Irank == 0 ) then
 
-           I = Norb
+           I = Norb 
+           Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_REAL8,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
 
@@ -271,6 +275,7 @@
            endif
 
            I = 1
+           Z = cmplx(0.d0,0d.0,kind(0.d0))
            CALL MPI_REDUCE(Phase_mean,Z,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Phase_mean= Z/DBLE(ISIZE)
            If (Irank == 0 ) then
