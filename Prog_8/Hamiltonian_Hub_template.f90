@@ -274,8 +274,8 @@
 
           Implicit none
           Integer, Intent(In) :: Ltau
-          Integer,   ::  i, N, Ns,Nt,No
-          Character  ::  Filename
+          Integer    ::  i, N, Ns,Nt,No
+          Character (len=64) ::  Filename
 
           ! Scalar observables
           Allocate ( Obs_scal(4) )
@@ -396,7 +396,6 @@
           Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
           Integer :: I,J, imj, nf, dec
           
-          Nobs = Nobs + 1
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           
@@ -412,7 +411,11 @@
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
 
           ! Compute scalar observables. 
-
+          Do I = 1,Size(Obs_scal,1)
+             Obs_scal(I)%N           =  Obs_scal(I)%N + 1
+             Obs_scal(I)%Phase       =  Obs_scal(I)%Phase + ZS
+          Enddo
+             
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
@@ -422,8 +425,6 @@
           Enddo
           Zkin = Zkin * dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
-          Obs_scal(1)%N      =  Obs_scal(1)%N + 1
-          Obs_scal(1)%Phase  =  Obs_scal(1)%Phase + ZS
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
@@ -436,9 +437,7 @@
              ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
           Enddo
           Zpot = Zpot*ham_U
-          Obs_scal(2)%Obs_vec(1)  =    Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
-          Obs_scal(2)%N      =  Obs_scal(2)%N + 1
-          Obs_scal(2)%Phase  =  Obs_scal(2)%Phase + ZS
+          Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
           Zrho = cmplx(0.d0,0.d0, kind(0.D0))
@@ -449,16 +448,16 @@
           enddo
           Zrho = Zrho* dble(N_SUN)
           Obs_scal(3)%Obs_vec(1)  =    Obs_scal(3)%Obs_vec(1) + Zrho * ZP*ZS
-          Obs_scal(3)%N      =  Obs_scal(3)%N + 1
-          Obs_scal(3)%Phase  =  Obs_scal(3)%Phase + ZS
 
           Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zpot)*ZP*ZS
-          Obs_scal(4)%N      =  Obs_scal(4)%N + 1
-          Obs_scal(4)%Phase  =  Obs_scal(4)%Phase + ZS
 
 
           
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
+          DO I = 1,Size(Obs_eq,1)
+             Obs_eq(I)%N = Obs_eq(I)%N + 1
+             Obs_eq(I)%Phase = Obs_eq(I)%Phase + ZS
+          ENDDO
           If ( Model == "Hubbard_SU2"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              
@@ -466,100 +465,45 @@
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
                    ! Green
-                   Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) + Z * GRC(I,J,1) *  ZP*ZS 
+                   Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) *  ZP*ZS 
                    ! SpinZ
-                   SPINZ_Eq  (imj,1,1) = SPINZ_Eq  (imj,1,1)  +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
+                   Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
                    ! SpinXY
-                   SPINXY_Eq (imj,1,1) = SPINXY_Eq (imj,1,1)  +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
+                   Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
                    ! Den
-                   DEN_Eq    (imj,1,1) = DEN_Eq    (imj,1,1)  +         (      &
-                        &         GRC(I,I,1) * GRC(J,J,1) *Z     + &
-                        &         GRC(I,J,1) *  GR(I,J,1)          &
+                   Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1)  +  &
+                        &     (    GRC(I,I,1) * GRC(J,J,1) *Z     + &
+                        &          GRC(I,J,1) * GR(I,J,1)           &
                         &                                   ) * Z* ZP*ZS
                 ENDDO
-                Den_eq0(1) = Den_eq0(1) +  Z * GRC(I,I,1) * ZP * ZS
+                Obs_eq(4)%Obs_Latt0(1) =  Obs_eq(4)%Obs_Latt0(1) +  Z * GRC(I,I,1) * ZP * ZS
              ENDDO
           elseif (Model == "Hubbard_Mz" ) Then
              DO I = 1,Latt%N
                 DO J = 1, Latt%N
                    imj = latt%imj(I,J)
-                   SPINZ_Eq (imj,1,1) = SPINZ_Eq (imj,1,1)  +  &
+                   ! Green
+                   Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) +  ( GRC(I,J,1)+GRC(I,J,1)) *  ZP*ZS 
+                   ! SpinZ
+                   Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) + &
                         & (   GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
-                        &   (GRC(I,I,2) - GRC(I,I,1))*(GRC(J,J,2) - GRC(J,J,1))    ) * ZP*ZS
+                        &    (GRC(I,I,2) - GRC(I,I,1))*(GRC(J,J,2) - GRC(J,J,1))    ) * ZP*ZS
+                   ! SpinXY
                    ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
-                   SPINXY_Eq (imj,1,1) = SPINXY_Eq (imj,1,1)  +  &
+                   Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1) + &
                      & (   GRC(I,J,1) * GR(I,J,2) +  GRC(I,J,2) * GR(I,J,1)    ) * ZP*ZS
-
-                   DEN_Eq (imj,1,1) = DEN_Eq (imj,1,1)  +  &
+                   !Den
+                   Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1) + &
                         & (   GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
                         &   (GRC(I,I,2) + GRC(I,I,1))*(GRC(J,J,2) + GRC(J,J,1))    ) * ZP*ZS
                 enddo
-                Den_eq0(1) = Den_eq0(1) + (GRC(I,I,2) + GRC(I,I,1)) * ZP*ZS
+                Obs_eq(4)%Obs_Latt0(1) =  Obs_eq(4)%Obs_Latt0(1) +  (GRC(I,I,2) + GRC(I,I,1)) * ZP*ZS
              enddo
           Endif
                 
 
         end Subroutine Obser
-!==========================================================        
-        Subroutine  Pr_obs(LTAU)
-
-          Implicit none
-#include "machine"
-#ifdef MPI
-          include 'mpif.h'
-#endif   
-
-          Integer,  Intent(In) ::  Ltau
-
-          Character (len=64) :: File_pr
-          Complex   (Kind=8) :: Phase_bin
-#ifdef MPI
-          Integer        :: Isize, Irank, Ierr
-          Integer        :: STATUS(MPI_STATUS_SIZE)
-          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-#endif          
-
-!!$#ifdef MPI
-!!$          Write(6,*)  Irank, 'In Pr_obs', LTAU
-!!$#else
-!!$          Write(6,*)  'In Pr_obs', LTAU
-!!$#endif
-    
-          Phase_bin = Obs_scal(5)/dble(Nobs)
-          File_pr ="SpinZ_eq"
-          Call Print_bin(SpinZ_eq ,SpinZ_eq0, Latt, Nobs, Phase_bin, file_pr)
-          File_pr ="SpinXY_eq"
-          Call Print_bin(Spinxy_eq, Spinxy_eq0,Latt, Nobs, Phase_bin, file_pr)
-          File_pr ="Den_eq"
-          Call Print_bin(Den_eq, Den_eq0, Latt, Nobs, Phase_bin, file_pr)
-          File_pr ="Green_eq"
-          Call Print_bin(Green_eq, Green_eq0, Latt, Nobs, Phase_bin, file_pr)
-
-          File_pr ="ener"
-          Call Print_scal(Obs_scal, Nobs, file_pr)
-
-          If (Ltau == 1) then
-             Phase_tau = Phase_tau/dble(NobsT)
-             File_pr = "Green_tau"
-             Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau       )
-             File_pr = "Den_tau"
-             Call Print_bin_tau(Den_tau,Latt,NobsT,Phase_tau, file_pr,dtau,Den0_tau)
-             File_pr = "SpinZ_tau"
-             Call Print_bin_tau(SpinZ_tau,Latt,NobsT,Phase_tau, file_pr,dtau,SpinZ0_tau)
-             File_pr = "SpinXY_tau"
-             Call Print_bin_tau(SpinXY_tau,Latt,NobsT,Phase_tau, file_pr,dtau,SpinXY0_tau)
-
-          endif
-
-!!$#ifdef MPI
-!!$          Write(6,*)  Irank, 'out Pr_obs', LTAU
-!!$#else
-!!$          Write(6,*)  'out Pr_obs', LTAU
-!!$#endif
-        end Subroutine Pr_obs
-!==========================================================        
-
+!=====================================================
         Subroutine OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
           Implicit none
           
@@ -574,60 +518,98 @@
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           If (NT == 0 ) then 
-             Phase_tau = Phase_tau + ZS
-             NobsT     = NobsT + 1
+             DO I = 1,Size(Obs_tau,1)
+                Obs_tau(I)%N = Obs_tau(I)%N + 1
+                Obs_tau(I)%Phase = Obs_tau(I)%Phase + ZS
+             ENDDO
           endif
           If ( Model == "Hubbard_SU2"  ) then 
-
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
-                   Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +  Z * GT0(I,J,1) * ZP* ZS
+                   ! Green
+                   Obs_tau(1)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,nt+1,1,1)  &
+                        & +  Z * GT0(I,J,1) * ZP* ZS
 
-                   
-                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  +                           ( &
-                        &    Z*Z*(1.d0 - GTT(I,I,1))*(1.d0 - G00(J,J,1))  -     &
-                        &    Z * GT0(I,J,1)*G0T(J,I,1)                                            ) * ZP * ZS
-
-
-                   SpinZ_tau(imj,nt+1,1,1) = SpinZ_tau(imj,nt+1,1,1)  &
+                   ! SpinZ
+                   Obs_tau(2)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,nt+1,1,1)  &
                        &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
 
-                   SpinXY_tau(imj,nt+1,1,1) = SpinXY_tau(imj,nt+1,1,1)  &
+                   ! SpinXY
+                   Obs_tau(3)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,nt+1,1,1)  &
                        &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
+
+                   ! Den
+                   Obs_tau(4)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,nt+1,1,1)  &
+                        & + ( Z*Z*(1.d0 - GTT(I,I,1))*(1.d0 - G00(J,J,1))  -     &
+                        &     Z * GT0(I,J,1)*G0T(J,I,1)                                            ) * ZP * ZS
                 Enddo
              Enddo
              
              Do I = 1,Latt%N
-                Den0_tau(1) = Den0_tau(1) + Z*(1.d0 - GTT(I,I,1)) * ZP * ZS
+                Obs_tau(4)%Obs_Latt0(1) = Obs_tau(4)%Obs_Latt0(1) + Z*(1.d0 - GTT(I,I,1)) * ZP * ZS
              Enddo
           Elseif ( Model == "Hubbard_Mz"  ) then 
              Do I = 1,Latt%N
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
-                   Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +   ( GT0(I,J,1) + GT0(I,J,2) ) * ZP* ZS
+                   !Green
+                   Obs_tau(1)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,nt+1,1,1)  &
+                        &   +   ( GT0(I,J,1) + GT0(I,J,2) ) * ZP* ZS
 
-                   Den_tau(imj,nt+1,1,1)  = Den_tau   (imj,nt+1,1,1)  +  (  &
-                        &    (2.D0 - GTT(I,I,1) - GTT(I,I,2) ) * ( 2.D0 - G00(J,J,1) -  G00(J,J,2) ) &
-                        & -  ( G0T(J,I,1) * GT0(I,J,1) + G0T(J,I,2) * GT0(I,J,2) )   )*ZP*ZS     
-
-                   SpinZ_tau(imj,nt+1,1,1) = SpinZ_tau(imj,nt+1,1,1) + ( &
+                   !SpinZ
+                   Obs_tau(2)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,nt+1,1,1)  &
+                       & +  ( &
                        &    (GTT(I,I,1) -  GTT(I,I,2) ) * ( G00(J,J,1)  -  G00(J,J,2) )   &
                        &  - (G0T(J,I,1) * GT0(I,J,1)  +  G0T(J,I,2) * GT0(I,J,2) )    )*ZP*ZS
 
-                   SpinXY_tau(imj,nt+1,1,1) = SpinXY_tau(imj,nt+1,1,1)  - &
+                   !SpinXY
+                   Obs_tau(3)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,nt+1,1,1)  &
+                        &  - &
                         &   (G0T(J,I,1) * GT0(I,J,2)  +  G0T(J,I,2) * GT0(I,J,1))*ZP*ZS
+                   !Den
+                   Obs_tau(4)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,nt+1,1,1)  &
+                        & +  (                                        &  
+                        &    (2.D0 - GTT(I,I,1) - GTT(I,I,2) ) * ( 2.D0 - G00(J,J,1) -  G00(J,J,2) ) &
+                        & -  ( G0T(J,I,1) * GT0(I,J,1) + G0T(J,I,2) * GT0(I,J,2) )   )*ZP*ZS     
 
                 enddo
              enddo
              
              Do I = 1,Latt%N
-                Den0_tau(1) = Den0_tau(1) + (2.d0 - GTT(I,I,1) - GTT(I,I,2)) * ZP * ZS
+                Obs_tau(4)%Obs_Latt0(1) =  Obs_tau(4)%Obs_Latt0(1) + &
+                     &       (2.d0 - GTT(I,I,1) - GTT(I,I,2)) * ZP * ZS
              Enddo
           endif
-
+          
         end Subroutine OBSERT
 
+
+!==========================================================        
+        Subroutine  Pr_obs(LTAU)
+
+          Implicit none
+
+          Integer,  Intent(In) ::  Ltau
+          
+          !Local 
+          Integer :: I
+
+
+          Do I = 1,Size(Obs_scal,1)
+             Call  Print_bin_Vec(Obs_scal(I))
+          enddo
+          Do I = 1,Size(Obs_eq,1)
+             Call  Print_bin_Latt(Obs_eq(I),Latt,dtau)
+          enddo
+          If (Ltau  == 1 ) then
+             Do I = 1,Size(Obs_tau,1)
+                Call  Print_bin_Latt(Obs_tau(I),Latt,dtau)
+             enddo
+          endif
+
+        end Subroutine Pr_obs
+!==========================================================        
 
       end Module Hamiltonian

@@ -6,6 +6,10 @@ LIBS= $(Libs)/Modules/modules_90.a \
       $(Libs)/MyNag/libnag.a \
       $(LIB_BLAS_LAPACK)
 
+Hub_Template:
+	cp $(Libs)/Modules/*.mod . ;\
+	(make -f Compile_Hub_Template  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
+
 Hub:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Hub  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
@@ -23,6 +27,7 @@ Kondo_Honey:
 	(make -f Compile_Kondo_Honey  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" ) 
 
 clean: 	
+	(make -f Compile_Hub_Template   clean );\
 	(make -f Compile_Hub   clean );\
 	(make -f Compile_SPT   clean );\
 	(make -f Compile_Ising clean );\

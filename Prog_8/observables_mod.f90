@@ -1,6 +1,6 @@
      Module Observables
 
-       
+       Use Files_mod
 !--------------------------------------------------------------------
 !> @author
 !> Fakher Assaad
@@ -99,7 +99,7 @@
            Complex (Kind=8), allocatable :: Tmp(:,:,:,:), Tmp1(:)
            Real    (Kind=8)              :: x_p(2) 
            Complex (Kind=8)              :: Phase_bin
-
+           Character (len=64)            :: File_pr, File_suff
 #ifdef MPI
            Complex (Kind=8):: Z
            Integer         :: Ierr, Isize, Irank
@@ -115,6 +115,12 @@
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
+           If (Nt == 1) then
+              File_suff ="_eq"
+           else
+              File_suff ="_tau"
+           endif
+           File_pr = file_add(Obs%File_Latt,File_suff)
            Allocate (Tmp(Ns,Nt,Norb,Norb), Tmp1(Norb) )
            Obs%Obs_Latt  =   Obs%Obs_Latt /dble(Obs%N   )
            Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns)
@@ -145,8 +151,12 @@
                     enddo
                  enddo
               enddo
-              Open (Unit=10,File=Obs%File_Latt, status="unknown",  position="append")
-              Write(10,*) dble(Obs%Phase),Norb,Latt%N, Nt, dtau
+              Open (Unit=10,File=File_pr, status="unknown",  position="append")
+              If ( Nt == 2 ) then
+                 Write(10,*) dble(Obs%Phase),Norb,Latt%N
+              else
+                 Write(10,*) dble(Obs%Phase),Norb,Latt%N, Nt, dtau
+              endif
               Do no = 1,Norb
                  Write(10,*)  Obs%Obs_Latt0(no)
               enddo
@@ -187,6 +197,9 @@
            ! Local
            Integer :: No,I
            Complex  (Kind=8), allocatable :: Tmp(:)
+           Character (len=64)             :: File_pr, File_suff
+           
+           
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
@@ -198,6 +211,8 @@
            Allocate (Tmp(No) )
            Obs%Obs_vec = Obs%Obs_vec/dble(Obs%N)
            Obs%Phase   = Obs%Phase  /dble(Obs%N)
+           File_suff ="_scal"
+           File_pr = file_add(Obs%File_Vec,File_suff)
 
 
 #ifdef MPI
@@ -206,7 +221,7 @@
            Obs%Obs_vec = Tmp/DBLE(ISIZE)
            if (Irank == 0 ) then
 #endif
-              Open (Unit=10,File=Obs%File_Vec, status="unknown",  position="append")
+              Open (Unit=10,File=File_pr, status="unknown",  position="append")
               WRITE(10,*) (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Phase
               close(10)
 #ifdef MPI
