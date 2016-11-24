@@ -1,3 +1,4 @@
+% !TEX root = Doc.tex
 \section{Implementation of the model} \label{sec:imp}
  In the code, the module \texttt{Hamiltonian} defines the model Hamiltonian,  the lattice under consideration and the desired observables (table~\ref{table:hamiltonian}).
 The respective file name is \texttt{Hamiltonian\_\textit{<Model Name>}.f90}: for example, \texttt{Hamiltonian\_Hub.f90} defines the plain Hubbard model on the two-dimensional square lattice. To implement a user-defined model, therefore only the module \texttt{Hamil}-\texttt{tonian} has to be set up. Accordingly, this documentation focusses almost entirely  on this module and the subprograms it includes. 
