@@ -1,0 +1,52 @@
+% !TEX root = Doc.tex
+\section{Running the code}\label{sec:io}
+
+\mycomment{To Do}
+\subsection{Overview of files}
+Dirs: \texttt{Analysis\_8,Libraries, Prog\_8,Test\_hub}
+files: \texttt{configure.sh}
+
+\subsection{Compilation}
+file\texttt{machine} 
+\subsection{I/O}
+output files; \texttt{info,confout\_x,ener, Green\_eq, Den\_eq, SpinZ\_eq, SpinXY\_eq, Green\_tau, Den\_tau, SpinZ\_tau, SpinXY\_tau}\\
+input files: \texttt{parameters, seeds,confin\_x}
+shell script files: \texttt{out\_to\_in.c, analysis.c}
+
+
+
+\begin{enumerate}
+\item Export  environment variables:
+\begin{verbatim}
+source configure.sh
+\end{verbatim}
+\item Compile the libraries: 
+\begin{verbatim}
+cd Libraries
+make
+\end{verbatim}
+\item Compile the analysis codes: 
+\begin{verbatim}
+cd Analysis_8
+make
+\end{verbatim}
+\item enable MPI parallelization
+
+\end{enumerate}
+
+\subsection{Input files}
+
+\subsection{Output files}
+%
+\begin{table}[h]
+   \begin{tabular}{l l}
+  \texttt{Prog/} & \\
+  \texttt{Libraries/} & \\  
+  \texttt{Analysis/} & \\
+      
+  \texttt{Prog/} & \\      
+   \end{tabular}
+   \caption{   Overview of files
+    \label{table:files}}
+\end{table}
+%
