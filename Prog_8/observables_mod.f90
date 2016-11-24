@@ -77,8 +77,6 @@
            Obs%Phase   = cmplx(0.d0,0.d0,kind(0.d0))
          end subroutine Obser_Vec_Init
 
-         
-
 !!!!!!!!!!!!!!!         
          
          Subroutine  Print_bin_Latt(Obs,Latt,dtau)
@@ -95,7 +93,7 @@
            Real (Kind=8),            Intent(In)      :: dtau
 
            ! Local
-           Integer :: Ns,Nt, Norb, no, no1, I 
+           Integer :: Ns,Nt, Norb, no, no1, I , Ntau
            Complex (Kind=8), allocatable :: Tmp(:,:,:,:), Tmp1(:)
            Real    (Kind=8)              :: x_p(2) 
            Complex (Kind=8)              :: Phase_bin
@@ -109,25 +107,25 @@
 #endif
 
            Ns    = Size(Obs%Obs_Latt,1)
-           Nt    = Size(Obs%Obs_Latt,2)
+           Ntau  = Size(Obs%Obs_Latt,2)
            Norb  = Size(Obs%Obs_Latt,3)
            if ( .not. (Latt%N  == Ns ) ) then 
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
-           If (Nt == 1) then
+           If (Ntau == 1) then
               File_suff ="_eq"
            else
               File_suff ="_tau"
            endif
            File_pr = file_add(Obs%File_Latt,File_suff)
-           Allocate (Tmp(Ns,Nt,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Ns,Ntau,Norb,Norb), Tmp1(Norb) )
            Obs%Obs_Latt  =   Obs%Obs_Latt /dble(Obs%N   )
            Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns)
            Obs%Phase     =   Obs%Phase    /dble(Obs%N   )
 
 #ifdef MPI
-           I = Ns*Nt*Norb*Norb
+           I = Ns*Ntau*Norb*Norb
            Tmp = cmplx(0.d0, 0.d0, kind(0.D0))
            CALL MPI_REDUCE(Obs%Obs_Latt,Tmp,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Obs%Obs_Latt = Tmp/DBLE(ISIZE)
@@ -144,7 +142,7 @@
 
            If (Irank == 0 ) then
 #endif
-              do nt = 1,Nt
+              do nt = 1,Ntau
                  do no = 1,Norb
                     do no1 = 1,Norb
                        Call  Fourier_R_to_K(Obs%Obs_Latt(:,nt,no,no1), Tmp(:,nt,no,no1), Latt)
@@ -152,10 +150,10 @@
                  enddo
               enddo
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              If ( Nt == 2 ) then
+              If ( Ntau == 2 ) then
                  Write(10,*) dble(Obs%Phase),Norb,Latt%N
               else
-                 Write(10,*) dble(Obs%Phase),Norb,Latt%N, Nt, dtau
+                 Write(10,*) dble(Obs%Phase),Norb,Latt%N, Ntau, dtau
               endif
               Do no = 1,Norb
                  Write(10,*)  Obs%Obs_Latt0(no)
@@ -163,7 +161,7 @@
               do I = 1,Latt%N
                  x_p = dble(Latt%listk(i,1))*Latt%b1_p + dble(Latt%listk(i,2))*Latt%b2_p  
                  Write(10,*) X_p(1), X_p(2)
-                 Do nt = 1,Nt
+                 Do nt = 1,Ntau
                     do no = 1,Norb
                        do no1 = 1,Norb
                           Write(10,*) tmp(I,nt,no,no1)
@@ -222,7 +220,7 @@
            if (Irank == 0 ) then
 #endif
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              WRITE(10,*) (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Phase
+              WRITE(10,*) size(Obs%Obs_vec,1)+1, (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Phase
               close(10)
 #ifdef MPI
            endif
