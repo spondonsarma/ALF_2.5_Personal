@@ -1,0 +1,21 @@
+ =====================================
+ Model is      : Hubbard_Mz                                                      
+ Beta          :    5.0000000000000000     
+ dtau,Ltrot    :   0.10000000000000001               50
+ N_SUN         :            1
+ N_FL          :            2
+ t             :    1.0000000000000000     
+ Ham_U         :    4.0000000000000000     
+ Ham_chem      :    0.0000000000000000     
+ Sweeps             :          500
+ Measure Int.       :            1         100
+ Stabilization,Wrap :           10
+ Nstm               :            5
+ Ltau               :            1
+Prog will stop after hours:    0.1000
+  Precision Green  Mean, Max :    7.4027388250972071E-011   6.2191615146617307E-005
+  Precision Phase, Max       :    0.0000000000000000     
+  Precision tau    Mean, Max :    1.0182243068868237E-010   7.1875941224541773E-005
+  Acceptance                 :   0.42697612499999998     
+  CPU Time                   :    346.74641300000002     
+  Effective number of bins   :           20
