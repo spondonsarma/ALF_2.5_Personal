@@ -7,6 +7,7 @@ for filename in *_scal; do
        cp $filename Var_scal
        $ANNAL/cov_scal.out
        mv "Var_scalJ"  $filename"J"
+       rm Var_scal
     fi
 done
 
@@ -17,6 +18,7 @@ for filename in *_eq; do
        cp $filename ineq
        $ANNAL/cov_eq.out
        mv "equalJ"  $filename"J"
+       rm ineq
     fi
 done
 
@@ -25,6 +27,7 @@ for filename in *_tau; do
     echo $filename
     cp $filename intau
     $ANNAL/cov_tau.out
+    rm intau
     for filename1 in g_*; do
 	echo $filename1
         export Name=`echo ${filename} | sed s/_tau//`	
