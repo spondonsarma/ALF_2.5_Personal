@@ -70,6 +70,7 @@ the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  herm
 
 
 \subsection{Formulation of the QMC}  
+\subsubsection{The partition function}
 The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
@@ -134,10 +135,20 @@ All in all,   the partition function is given by:
       \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  1 + 
      \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}}  
     \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
-     \right) \right]^{N_{\mathrm{col}}} \;.
+     \right) \right]^{N_{\mathrm{col}}}  \nonumber \\ 
+     & \equiv&  \sum_{C} e^{-S(C) }\;.
 \end{eqnarray}
-
 In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{\mathrm{col}}$. This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions, again for a given  configuration C are color independent. 
 
-
+\subsubsection{Observables}
+In the auxiliary field QMC approach, the single particle Green function plays a crucial role.  It determines the Monte Carlo dynamics and is used to compute  observables:
+\begin{equation}	
+\langle \hat{O}  \rangle  = \frac{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \hat{O}   \right] }{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \right] } =   \sum_{C}   P(C) 
+   \langle \langle \hat{O}  \rangle \rangle_{(C)} , \text{   with   } 
+  P(C)   = \frac{ e^{-S(C)}}{\sum_C e^{-S(C)}}.
+\end{equation}
+For a given configuration $C$  one can use Wicks theorem to compute $O (C) $   from the knowledge of the single particle Green function: 
+\begin{equation}
+XXX	
+\end{equation}
  
