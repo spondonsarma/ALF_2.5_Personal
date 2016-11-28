@@ -282,9 +282,7 @@ $\langle \mathrm{phase} \rangle$ &
 phase of MC update probability
    \end{tabular}
    \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.
-   \mycomment{$E_{pot}$ is for $U_{spin}(1)$ symmetric Hubbard; we would need the general expresssion for $E_{pot}$ , if possible. 
-   It is not the expectation value of the perfect-square term, right? The $\alpha$'s are missing.}
-    \label{table:obs}}
+       \label{table:obs}}
 \end{table}
 %
 
@@ -298,6 +296,12 @@ from the unit cell.   The program will compute:
 	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
 	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
 \end{equation}
+\mycomment{Should it not be
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\beta} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation}
+}
 
 \subsubsection{Time-displaced correlation functions}
 
