@@ -104,7 +104,6 @@ ENDDO
 Here,    the integer  function \texttt{  j=  Latt\%nnlist(I,n,m)}   is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$. Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
-
 \mycomment{Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse Hopping matrices.}
 
 \subsubsection{Interaction term. \texttt{Call Ham\_V}}
