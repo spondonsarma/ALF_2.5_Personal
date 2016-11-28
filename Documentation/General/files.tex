@@ -4,10 +4,10 @@
 \begin{table}[h]
    \begin{tabular}{l l}
    Directory & Description \\\hline
-   \texttt{Prog/} & main program and subroutines  \\
-  \texttt{Libraries/} &  mathematical routines \\  
-  \texttt{Analysis/} & routines for error analysis and  analytic continuation\\
-  \texttt{Test\_Hub\_Template/} & template for the Hubbard model\\
+   \texttt{Prog/} & Main program and subroutines  \\
+  \texttt{Libraries/} & Collection of mathematical routines \\  
+  \texttt{Analysis/} & Routines for error analysis and  analytic continuation\\
+  \texttt{Test\_Hub\_Template/} & A template for the Hubbard model\\
   \texttt{Documentation/} & \mycomment{to include}\\
 %   \texttt{configure.sh} & sets the global variables for compilation \\
    \end{tabular}
@@ -15,22 +15,22 @@
 \end{table}
 %
 The code package consists of the program directories \texttt{Prog/} and \texttt{Libraries/}, 
-the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, a template for the implementation of the Hubbard model (table~\ref{table:files}).
+the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, a template for the implementation of the Hubbard model (see table~\ref{table:files}).
 %
 \subsection{Input files}\label{sec:input}
 %
 \begin{table}[h]
    \begin{tabular}{l l}
    File & Description \\\hline
-  \texttt{parameters} &  sets the parameters for lattice, model and the QMC process.\\
-  \texttt{seeds} & integer numbers to initialize the random number generator.
+  \texttt{parameters} &  Sets the parameters for lattice, model and the QMC process.\\
+  \texttt{seeds} & List of integer numbers to initialize the random number generator.
    \end{tabular}
-   \caption{Overview of the input files in \texttt{Test\_Hub\_Template/Start/} for a simulation from scratch. \label{table:input}}
+   \caption{Overview of the input files in \texttt{Test\_Hub\_Template/Start/} required for a simulation from scratch. \label{table:input}}
 \end{table}
 %
 The input files are listed in table~\ref{table:input}. 
 The parameter file \texttt{Test\_Hub\_Template/Start/parameters} has the following form, 
-using the $SU(2)$-symmetric Hubbard model on a square lattice as an example (see Sec.~\ref{sec:walk1} for a detailed walkthrough):
+using as an example  the $SU(2)$-symmetric Hubbard model on a square lattice (see Sec.~\ref{sec:walk1} for a detailed walkthrough):
 %
 \begin{lstlisting} 
 
@@ -69,16 +69,18 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
 \begin{table}[h]
    \begin{tabular}{l l}
    File & Description \\\hline
-   \texttt{info} & contains model and QMC parameters as well as simulation metrics\\
-   & (precision, acceptance rate, CPU time)\\
-   \texttt{X\_eq} & Results of equal-time measurements.
-   The placeholder \texttt{X} stands for the observables \\
-   &    \texttt{Kin, Pot, Part, Ener} and the correlation functions \texttt{Green, SpinZ, SpinXY, Den}. \\
-   \texttt{X\_tau} & Results of time-displaced measurements.
-   The placeholder \texttt{X} stands for the correlation functions \\
-   &    \texttt{Green, SpinZ, SpinXY, Den}. \\   
+   \texttt{info} & After completion of the simulation, this file documents parameters of the  model, the QMC run, \\
+   & and simulation metrics (precision, acceptance rate, CPU time).\\
+   \texttt{X\_scal} & Results of equal-time measurements of scalar observables. \\
+   & The placeholder \texttt{X} stands for the observables \texttt{Kin, Pot, Part}, and \texttt{Ener}. \\
+   \texttt{X\_eq, X\_tau} & Results of equal-time and time-displaced measurements of correlation functions. \\
+   & The placeholder \texttt{X} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}. \\   
    \end{tabular}
-   \caption{Overview of the output files. 
-  See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:files}}
+   \caption{Overview of the standard output files. 
+  See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
+The output files are listed in table~\ref{table:output}. The output format for the equal-time, scalar observables is as follows:\\
+Number of observables
+
+
