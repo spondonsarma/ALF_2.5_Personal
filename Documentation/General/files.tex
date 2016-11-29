@@ -7,7 +7,7 @@
    \texttt{Prog/} & Main program and subroutines  \\
   \texttt{Libraries/} & Collection of mathematical routines \\  
   \texttt{Analysis/} & Routines for error analysis and  analytic continuation\\
-  \texttt{Test\_Hub\_Template/} & A template for the Hubbard model\\
+  \texttt{Test\_Hub\_Template/} & A test simulation for the Hubbard model\\
   \texttt{Documentation/} & \mycomment{to include}\\
 %   \texttt{configure.sh} & sets the global variables for compilation \\
    \end{tabular}
@@ -80,7 +80,30 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
-The output files are listed in table~\ref{table:output}. The output format for the equal-time, scalar observables is as follows:\\
-Number of observables
+The output files are listed in table~\ref{table:output}. The format of the output is as follows.
+\begin{itemize}
+\item For scalar observables like kinetic energy, potential energy, total energy and particle number, 
+each line in the output file corresponds to one bin:
+\begin{verbatim}
+2    <measured value>    <measured phase>
+...
+\end{verbatim}
+The counter \texttt{2} refers to the number of measurements per line, including the phase measurement. 
+This format is required by the error analysis routines (see Sec.~\ref{sec:analysis}).
 
+\item Equal-time correlation functions
+\begin{verbatim}
+<measured phase> <N_orbital>  <N_unit_cell>
+<O orbital 1>
+...
+<O orbital N_orbital>
+<reciprocal lattice vector 1>
+<connected value>
+...
+<reciprocal lattice vector N_unit_cell>
+<connected value>
+...
+\end{verbatim}
+
+\end{itemize}
 
