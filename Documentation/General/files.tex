@@ -80,21 +80,32 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
-The output files are listed in table~\ref{table:output}. The format of the output is as follows.
+The output of the measured data is organized in bins. One bin corresponds to the geometric average over a certain number of individual measurements which depends 
+on the chosen measurement interval in imaginary time and on the number of Monte Carlo sweeps. If the user run a parallelized version of the code, the average also extends 
+over the number of MPI threads. 
+The standard output files are listed in table~\ref{table:output}. 
+the formatting of the output for a single bin depends on the type of measured data: 
 \begin{itemize}
-\item For scalar observables like kinetic energy, potential energy, total energy and particle number, 
-each line in the output file corresponds to one bin:
+\item Scalar observables like kinetic energy, potential energy, total energy and particle number 
+are treated as vectors of size one. For each additional bin, a single new line is added to the output file:
 \begin{verbatim}
 2    <measured value>    <measured phase>
-...
 \end{verbatim}
 The counter \texttt{2} refers to the number of measurements per line, including the phase measurement. 
-This format is required by the error analysis routines (see Sec.~\ref{sec:analysis}).
-
-\item Equal-time correlation functions
+This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
+In case of an observable with $N_{size}$ components, the formatting would be 
 \begin{verbatim}
-<measured phase> <N_orbital>  <N_unit_cell>
-<O orbital 1>
+N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured phase>
+\end{verbatim}
+\mycomment{Mention an example of a vector observable }
+
+\item Equal-time and time-displaced correlation functions have the same formatting. 
+For each bin, an new data block is written to the corresponding output files.
+\mycomment{need some more work...}
+The formatting of this block is as follows:
+\begin{verbatim}
+<measured phase>  <N_orbital>  <N_unit_cell> <N_time_slices> <dtau>
+< O orbital 1>
 ...
 <O orbital N_orbital>
 <reciprocal lattice vector 1>
