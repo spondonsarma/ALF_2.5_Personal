@@ -357,30 +357,6 @@
           endif
         end Subroutine Alloc_obs
 
-!===================================================================================           
-        Subroutine  Init_obs(Ltau) 
-
-          Implicit none
-          Integer, Intent(In) :: Ltau
-          
-          ! Local 
-          Integer :: I
-
-          Do I = 1,Size(Obs_scal,1)
-             Call Obser_vec_Init(Obs_scal(I))
-          Enddo
-
-          Do I = 1,Size(Obs_eq,1)
-             Call Obser_Latt_Init(Obs_eq(I))
-          Enddo
-
-          If (Ltau == 1) then
-             Do I = 1,Size(Obs_tau,1)
-                Call Obser_Latt_Init(Obs_tau(I))
-             Enddo
-          Endif
-
-        end Subroutine Init_obs
         
 !========================================================================
         Subroutine Obser(GR,Phase,Ntau)
@@ -586,6 +562,7 @@
         end Subroutine OBSERT
 
 
+
 !==========================================================        
         Subroutine  Pr_obs(LTAU)
 
@@ -610,6 +587,29 @@
           endif
 
         end Subroutine Pr_obs
-!==========================================================        
+!===================================================================================           
+        Subroutine  Init_obs(Ltau) 
+
+          Implicit none
+          Integer, Intent(In) :: Ltau
+          
+          ! Local 
+          Integer :: I
+
+          Do I = 1,Size(Obs_scal,1)
+             Call Obser_vec_Init(Obs_scal(I))
+          Enddo
+
+          Do I = 1,Size(Obs_eq,1)
+             Call Obser_Latt_Init(Obs_eq(I))
+          Enddo
+
+          If (Ltau == 1) then
+             Do I = 1,Size(Obs_tau,1)
+                Call Obser_Latt_Init(Obs_tau(I))
+             Enddo
+          Endif
+
+        end Subroutine Init_obs
 
       end Module Hamiltonian
