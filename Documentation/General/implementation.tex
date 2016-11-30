@@ -218,12 +218,15 @@ such that
     \label{table:lattice}}
 \end{table}
 %
-The \texttt{Lattice}  module equally handles  the Fourier transformation. 
-\mycomment{
-\begin{itemize}
-\item  Mention Fourier transform and   other usefull subroutines in \texttt{Lattice\_v3}. 
-\item  Give an example of  a  lattice or of a tilted lattice. 
-\end{itemize}}
+The \texttt{Lattice}  module equally handles  the Fourier transformation.  For example  the  subroutine  \texttt{Fourier\_R\_to\_K}   carries out the  transformation: 
+\begin{equation}
+	S(\vec{k}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{i},\vec{j}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
+\end{equation}
+and  \texttt{Fourier\_K\_to\_R}  the  inverse Fourier transform 
+ \begin{equation}
+	S(\vec{r}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{k} \in BZ }   e^{ i \vec{k} \cdot \vec{r}} S(\vec{k}, :,:,:).
+\end{equation}
+
 
 \subsection{The Observables}\label{sec:obs}
 
@@ -242,6 +245,7 @@ The \texttt{Lattice}  module equally handles  the Fourier transformation.
 % 	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
 % \end{equation}
 % \end{itemize}
+
 
 
 We have three types of observables: scalar observables, equal-time correlation functions, and imaginary time-displaced correlation functions.
