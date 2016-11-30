@@ -160,7 +160,7 @@ The call
 	\vec{a}_i  \cdot \vec{g}_i = 2 \pi \delta_{i,j}, 
 \end{equation}
 and the Brillouin zone corresponds to the Wigner Seitz cell of the lattice. 
-with $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follows from: 
+With $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follows from: 
 \begin{equation}
 \begin{bmatrix}
 	\vec{L}_1 \cdot \vec{g}_1  &  \vec{L}_1 \cdot \vec{g}_2  \\
@@ -184,7 +184,7 @@ such that
         & & \vec{b}_2 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
            \left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right] 
 \end{eqnarray}
-\mycomment{Check that the above algebra is correct! }
+\mycomment{Check that the above algebra is correct!  Just checked. Seems to be OK.}
 \mycomment{
 
 }
@@ -218,6 +218,7 @@ such that
     \label{table:lattice}}
 \end{table}
 %
+The \texttt{Lattice}  module equally handles  the Fourier transformation. 
 \mycomment{
 \begin{itemize}
 \item  Mention Fourier transform and   other usefull subroutines in \texttt{Lattice\_v3}. 
