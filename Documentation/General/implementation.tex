@@ -146,7 +146,7 @@ The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\
 
 
 
-\subsection{The Lattice}\label{sec:latt}
+\subsection{The Lattice tpye}\label{sec:latt}
 
 We have a lattice module  which  generate   one and two dimensional dimensional Bravais lattices.   Note that the  orbital structure of each unit cell, has to be specified by the user  in the  Hamiltonian module. 
  The user has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$ as well as   the size of the  lattice. The size is  characterized by  two vectors $\vec{L}_1$ and $\vec{L}_2$   and  the lattice is placed on a torus: 
@@ -226,10 +226,32 @@ and  \texttt{Fourier\_K\_to\_R}  the  inverse Fourier transform
  \begin{equation}
 	S(\vec{r}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{k} \in BZ }   e^{ i \vec{k} \cdot \vec{r}} S(\vec{k}, :,:,:).
 \end{equation}
+In the above,   the unspecified dimensions of   structure factor can refer  to imaginary time,  and orbital indices. 
 
 
-\subsection{The Observables}\label{sec:obs}
+\subsection{The Observable type}\label{sec:obs}
 
+Our definition  of the model includes observables. We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the IO.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run. 
+
+\subsubsection{Scalar observables}
+This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Phase =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%phase},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
+\begin{table}[h]
+   \begin{tabular}{l ll }
+    Name of variable  &  Type      &  Description \\\hline
+    \texttt{Obs\%N}                       &  Integer        &   Number of measurements  \\
+    \texttt{Obs\%Phase}               &  Complex     &    Cumulated sign (See Eq.~\ref{})  \\
+    \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables (See  Eq.~\ref{}) \\
+     \texttt{Obs\%File\_Vec}           &  Character    &    Filename  in which the bins are written  
+   \end{tabular}
+   \caption{Components of the \texttt{Obser\_vec}  type.  The table list the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec} 
+    \label{table:Obser_vec}}
+\end{table}
+At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.f90}  will  append the result of the bin in the file  \texttt{File\_Vec}\_scal.  Note that this subroutine will automatically append the suffix  \_scal 
+to the the filename \texttt{File\_Vec}.    This suffix  is important to allow automatic analysis of the data at the end of the run. 
+
+\subsubsection{ Equal time and time displaced correlation functions}
+
+This data type is useful so as to deal with  imaginary time displaced as well as equal time correlation functions: 
 % We have three types of observables. 
 % \begin{itemize}
 % \item Scalar observables such as the energy

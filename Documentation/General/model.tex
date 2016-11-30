@@ -141,6 +141,7 @@ All in all,   the partition function is given by:
 In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{\mathrm{col}}$. This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions, again for a given  configuration C are color independent. 
 
 \subsubsection{Observables}
+\label{Observables.General}
 In the auxiliary field QMC approach, the single particle Green function plays a crucial role.  It determines the Monte Carlo dynamics and is used to compute  observables:
 \begin{equation}	
 \langle \hat{O}  \rangle  = \frac{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \hat{O}   \right] }{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \right] } =   \sum_{C}   P(C) 
@@ -194,6 +195,7 @@ Thereby,
 \end{eqnarray} 
 Here,
 \begin{equation}
+\label{Sign.eq}
 	 \text{ sign }(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }.
 \end{equation}
 The Monte Carlo simulation will sample the probability distribution 
