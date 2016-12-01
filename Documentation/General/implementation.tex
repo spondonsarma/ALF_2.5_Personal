@@ -233,7 +233,7 @@ In the above,   the unspecified dimensions of   structure factor can refer  to i
 \subsection{The Observable type}\label{sec:obs}
 
 Our definition  of the model includes observables. We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
-such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run. 
+such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run.     
 
 \subsubsection{Scalar observables}
 This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Phase =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%phase},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
@@ -245,7 +245,7 @@ This data type  is described in Table  \ref{table:Obser_vec} and  is useful to c
     \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables (See  Eq.~\ref{}) \\
      \texttt{Obs\%File\_Vec}           &  Character    &    Filename  in which the bins are written  
    \end{tabular}
-   \caption{Components of the \texttt{Obser\_vec}  type.  The table list the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec} 
+   \caption{Components of the \texttt{Obser\_vec}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec} 
 \mycomment{I think you do not  use the vector character of the member \texttt{Obser\_vec\%Obs}. For the observables like energy you have created an array of type variables \texttt{Obser\_vec} 
 but within the type variable, the vector is of size $1$. And each scalar observable gets its own type variable \texttt{Obs}. This is a detail but it puzzled me first. Do we have an example where the vector would be larger than $1$?}
       \label{table:Obser_vec}}
@@ -255,7 +255,27 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
 
 \subsubsection{ Equal time and time displaced correlation functions}
 
-This data type is useful so as to deal with  imaginary time displaced as well as equal time correlation functions: 
+\begin{table}[h]
+   \begin{tabular}{l ll }
+    Name of variable  &  Type      &  Description \\\hline
+    \texttt{Obs\%N}                       &  Integer        &   Number of measurements  \\
+    \texttt{Obs\%Phase}               &  Complex     &    Cumulated sign (See Eq.~\ref{})  \\
+    \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}        & Complex      &    Cumulated   correlation function  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
+     \texttt{Obs\%Obs\_latt0($\alpha$)}        & Complex      &    Cumulated    $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
+     \texttt{Obs\%File\_Latt}           &  Character    &    Filename  in which the bins are written  
+   \end{tabular}
+   \caption{Components of the \texttt{Obser\_latt}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_latt}  
+      \label{table:Obser_vec}}
+\end{table}
+
+This data type is useful so as to deal with  imaginary time displaced as well as equal time correlation functions of the form: 
+\begin{equation}
+	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{Unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+\end{equation} 
+At the beginning of each bin a call to  \texttt{Obser\_Latt\_Init} in the module \texttt{observables\_mod.f90}  will set the the elements of
+
+
 % We have three types of observables. 
 % \begin{itemize}
 % \item Scalar observables such as the energy
@@ -272,76 +292,67 @@ This data type is useful so as to deal with  imaginary time displaced as well as
 % \end{equation}
 % \end{itemize}
 
-
-
-We have three types of observables: scalar observables, equal-time correlation functions, and imaginary time-displaced correlation functions.
-
-
-\mycomment{mention bins, sweeps}
-\mycomment{We have to add some  more details.}
-\subsubsection{Scalar observables}
-Several scalar observables are measured and accumulated in the array \texttt{Obs\_scal} during the simulation (see table \ref{table:obs}).
+%\mycomment{mention bins, sweeps}
+%\mycomment{We have to add some  more details.}
+%\subsubsection{Scalar observables}
+%Several scalar observables are measured and accumulated in the array \texttt{Obs\_scal} during the simulation (see table \ref{table:obs}).
+%%
+%\begin{table}[h]
+%   \begin{tabular}{l l l}
+%    Name of variable in the code & Definition & Description \\\hline
+%\texttt{Obs\_scal(1)} & 
+%$\rho=\sum\limits_{k=1}^{M_T}
+%\sum\limits_{s=1}^{N_{\mathrm{fl}}}
+%\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
+%\sum\limits_{x}^{N_{\mathrm{dim}}}
+%\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}   \rangle$ &
+%electronic density\\
+%\texttt{Obs\_scal(2)} & 
+%$E_{\mathrm{kin}}=\sum\limits_{k=1}^{M_T}
+%\sum\limits_{s=1}^{N_{\mathrm{fl}}}
+%\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
+%\sum\limits_{x,y}^{N_{\mathrm{dim}}}
+%\langle \hat{c}^{\dagger}_{x \sigma   s} T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}   \rangle$ &
+%kinetic energy\\
+%\texttt{Obs\_scal(3)} & 
+%$E_{\mathrm{pot}}=\sum\limits_{x,y}^{N_{\mathrm{dim}}}
+%\prod\limits_{s=1}^{N_{\mathrm{fl}}}
+%\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}  
+%\rangle$ &
+%potential energy \mycomment{need input here} \\
+%\texttt{Obs\_scal(4)} & 
+%$E_{\mathrm{tot}}=E_{\mathrm{kin}}+E_{\mathrm{pot}}$ &
+%total energy\\
+%\texttt{Obs\_scal(5)} & 
+%$\langle \mathrm{phase} \rangle$ &
+%phase of MC update probability
+%   \end{tabular}
+%   \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.
+%       \label{table:obs}}
+%\end{table}
+%%
 %
-\begin{table}[h]
-   \begin{tabular}{l l l}
-    Name of variable in the code & Definition & Description \\\hline
-\texttt{Obs\_scal(1)} & 
-$\rho=\sum\limits_{k=1}^{M_T}
-\sum\limits_{s=1}^{N_{\mathrm{fl}}}
-\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{x}^{N_{\mathrm{dim}}}
-\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}   \rangle$ &
-electronic density\\
-\texttt{Obs\_scal(2)} & 
-$E_{\mathrm{kin}}=\sum\limits_{k=1}^{M_T}
-\sum\limits_{s=1}^{N_{\mathrm{fl}}}
-\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{x,y}^{N_{\mathrm{dim}}}
-\langle \hat{c}^{\dagger}_{x \sigma   s} T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}   \rangle$ &
-kinetic energy\\
-\texttt{Obs\_scal(3)} & 
-$E_{\mathrm{pot}}=\sum\limits_{x,y}^{N_{\mathrm{dim}}}
-\prod\limits_{s=1}^{N_{\mathrm{fl}}}
-\langle \hat{c}^{\dagger}_{x \sigma   s} \hat{c}^{\phantom\dagger}_{x \sigma s}  
-\rangle$ &
-potential energy \mycomment{need input here} \\
-\texttt{Obs\_scal(4)} & 
-$E_{\mathrm{tot}}=E_{\mathrm{kin}}+E_{\mathrm{pot}}$ &
-total energy\\
-\texttt{Obs\_scal(5)} & 
-$\langle \mathrm{phase} \rangle$ &
-phase of MC update probability
-   \end{tabular}
-   \caption{Scalar observables that are stored in the array \texttt{Obs\_scal}.
-       \label{table:obs}}
-\end{table}
 %
-
-
-
-\subsubsection{Equal-time correlation functions}
-
-Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
-from the unit cell.   The program will compute: 
-\begin{equation}
-	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
-\end{equation}
-\mycomment{Should it not be
-\begin{equation}
-	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\beta} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
-\end{equation}
-}
-
-\subsubsection{Time-displaced correlation functions}
-
-This has a very similar structure than above but now with an additional time index.
-\begin{equation}
-	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
-\end{equation}
-
+%
+%\subsubsection{Equal-time correlation functions}
+%
+%Let $\hat{O}_{\vec{i},\alpha} $ be a local observable,  with $\vec{i}$ labelling the unit cell and $\alpha$ labelling the orbital or bone emanating 
+%from the unit cell.   The program will compute: 
+%\begin{equation}
+%	S_{\alpha,\beta}(\vec{k}) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha}  \hat{O}_{\vec{j},\alpha} \rangle  - 
+%	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+%\end{equation}
+%\mycomment{Should it not be
+%}
+%
+%\subsubsection{Time-displaced correlation functions}
+%
+%This has a very similar structure than above but now with an additional time index.
+%\begin{equation}
+%	S_{\alpha,\beta}(\vec{k},\tau) = \frac{1}{N_{unit \;  cells}} \sum_{\vec{i},\vec{j}} e^{i \vec{k}\cdot (\vec{i} -  \vec{j} ) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\alpha} \rangle  - 
+%	  \langle \hat{O}_{\vec{i},\beta} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right) 
+%\end{equation}
+%
 %To set the  interaction part, we therefore have to specify the following:
 %\begin{itemize}
 %\item the matrix elements $\left[O_{V}^{(k)}\right]_{ij}$

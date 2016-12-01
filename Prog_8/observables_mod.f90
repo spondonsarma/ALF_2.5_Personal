@@ -150,7 +150,7 @@
                  enddo
               enddo
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              If ( Ntau == 2 ) then
+              If ( Ntau == 1 ) then
                  Write(10,*) dble(Obs%Phase),Norb,Latt%N
               else
                  Write(10,*) dble(Obs%Phase),Norb,Latt%N, Ntau, dtau
