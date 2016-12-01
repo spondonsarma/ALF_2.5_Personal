@@ -1,6 +1,6 @@
 % !TEX root = Doc.tex
 \section{Implementation of the model} \label{sec:imp}
- In the code, the module \texttt{Hamiltonian} defines the model Hamiltonian,  the lattice under consideration and the desired observables (table~\ref{table:hamiltonian}).
+In the code, the module \texttt{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (table~\ref{table:hamiltonian}).
 The respective file name is \texttt{Hamiltonian\_\textit{<Model Name>}.f90}: for example, \texttt{Hamiltonian\_Hub.f90} defines the plain Hubbard model on the two-dimensional square lattice. To implement a user-defined model, therefore only the module \texttt{Hamil}-\texttt{tonian} has to be set up. Accordingly, this documentation focusses almost entirely  on this module and the subprograms it includes. 
 The remaining parts of the code may be treated as as a black box.
 
@@ -30,8 +30,9 @@ The remaining parts of the code may be treated as as a black box.
 %
 
 \subsection{The \texttt{Operator} type}\label{sec:op}
-The fundamental data structure in the code is the derived data type \texttt{Operator}. This type is used to define the Hamiltonian (\ref{eqn:general_ham}). 
-In general, the matrices ${\bf T}^{(ks)}$, ${\bf V}^{(ks)}$  and   ${\bf I}^{(ks)}$are sparse Hermitian matrices.   
+The fundamental data structure in the code is the derived data type \texttt{Operator}. 
+This type is used to define the Hamiltonian (\ref{eqn:general_ham}).
+In general, the matrices ${\bf T}^{(ks)}$, ${\bf V}^{(ks)}$ and ${\bf I}^{(ks)}$ are sparse Hermitian matrices.
 Consider the  matrix   ${\bm X}$ of dimension  $N_{\mathrm{dim}} \times N_{\mathrm{dim}}$, as an representative of each of the above three matrices .  Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,  
 for which
 \begin{equation}
