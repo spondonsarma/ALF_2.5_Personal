@@ -7,7 +7,7 @@
    \texttt{Prog/} & Main program and subroutines  \\
   \texttt{Libraries/} & Collection of mathematical routines \\  
   \texttt{Analysis/} & Routines for error analysis \\
-  \texttt{Test\_Hub\_Template/} & A test simulation for the Hubbard model\\
+  \texttt{Test\_Hub\_Template/} & Test simulations of the Hubbard model\\
   \texttt{Documentation/} & \mycomment{to include}\\
 %   \texttt{configure.sh} & sets the global variables for compilation \\
    \end{tabular}
@@ -15,7 +15,7 @@
 \end{table}
 %
 The code package consists of the program directories \texttt{Prog/} and \texttt{Libraries/}, 
-the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, a template for the implementation of the Hubbard model (see table~\ref{table:files}).
+the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, which includes test simulations of the Hubbard model (see table~\ref{table:files}).
 %
 \subsection{Input files}\label{sec:input}
 %
@@ -80,24 +80,27 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
-The output of the measured data is organized in bins. One bin corresponds to the geometric average over a certain number of individual measurements which depends 
-on the chosen measurement interval in imaginary time and on the number of Monte Carlo sweeps. If the user run a parallelized version of the code, the average also extends 
+The output of the measured data is organized in bins. One bin corresponds to the geometric average over a fixed number of individual measurements which depends 
+on the chosen measurement interval \texttt{[LOBS\_ST,LOBS\_EN]} on the imaginary time axis and on the number \texttt{NSweep} of Monte Carlo sweeps. If the user run a parallelized version of the code, the average also extends 
 over the number of MPI threads. 
 The standard output files are listed in table~\ref{table:output}. 
-the formatting of the output for a single bin depends on the type of measured data: 
+
+The formatting of the output for a single bin depends on the observable type: \texttt{Obs\_vec} or \texttt{Obs\_Latt}.
 \begin{itemize}
-\item Scalar observables like kinetic energy, potential energy, total energy and particle number 
-are treated as vectors of size one. For each additional bin, a single new line is added to the output file:
-\begin{verbatim}
-2    <measured value>    <measured phase>
-\end{verbatim}
-The counter \texttt{2} refers to the number of measurements per line, including the phase measurement. 
-This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
-In case of an observable with $N_{size}$ components, the formatting would be 
+\item Observables of type \texttt{Obs\_vec}:
+For each additional bin, a single new line is added to the output file.
+In case of an observable with \texttt{N\_size} components, the formatting is 
 \begin{verbatim}
 N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured phase>
 \end{verbatim}
-\mycomment{Mention an example of a vector observable }
+The counter variable \texttt{N\_size+1} refers to the number of measurements per line, including the phase measurement. 
+This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
+\mycomment{Mention an example of a vector observable?}
+Scalar observables like kinetic energy, potential energy, total energy and particle number are treated as a vector 
+of size \texttt{N\_size=1}.
+
+\item Observables of type \texttt{Obs\_Latt}:
+For each additional bin, a new data block is added tot the output file.
 
 \item Equal-time and time-displaced correlation functions have the same formatting. 
 For each bin, an new data block is written to the corresponding output files.

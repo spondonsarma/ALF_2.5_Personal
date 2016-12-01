@@ -231,7 +231,8 @@ In the above,   the unspecified dimensions of   structure factor can refer  to i
 
 \subsection{The Observable type}\label{sec:obs}
 
-Our definition  of the model includes observables. We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the IO.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run. 
+Our definition  of the model includes observables. We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
+such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run. 
 
 \subsubsection{Scalar observables}
 This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Phase =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%phase},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
@@ -244,7 +245,9 @@ This data type  is described in Table  \ref{table:Obser_vec} and  is useful to c
      \texttt{Obs\%File\_Vec}           &  Character    &    Filename  in which the bins are written  
    \end{tabular}
    \caption{Components of the \texttt{Obser\_vec}  type.  The table list the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec} 
-    \label{table:Obser_vec}}
+\mycomment{I think you do not  use the vector character of the member \texttt{Obser\_vec\%Obs}. For the observables like energy you have created an array of type variables \texttt{Obser\_vec} 
+but within the type variable, the vector is of size $1$. And each scalar observable gets its own type variable \texttt{Obs}. This is a detail but it puzzled me first. Do we have an example where the vector would be larger than $1$?}
+      \label{table:Obser_vec}}
 \end{table}
 At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.f90}  will  append the result of the bin in the file  \texttt{File\_Vec}\_scal.  Note that this subroutine will automatically append the suffix  \_scal 
 to the the filename \texttt{File\_Vec}.    This suffix  is important to allow automatic analysis of the data at the end of the run. 
