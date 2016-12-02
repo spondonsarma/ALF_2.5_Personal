@@ -133,7 +133,12 @@ Enddo
 so as to completely define the interaction term. 
 
 \subsection{Observables}
-The user will have to  implement the  observables  he/she  want to compute. Here we will concentrate on  equal and time displaced  spin-spin correlation functions as well as on  scalar observables such as the double occupancy, kinetic energy etc. 
+At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
+If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again 
+
+
+The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
+
 \subsubsection{Allocating space for the observables \texttt{Call Alloc\_obs(Ltau) }}
 
  For  four scalar  or vector observables,  the user will have to  declare the following: 
@@ -143,17 +148,13 @@ Allocate ( Obs_scal(4) )
 Do I = 1,Size(Obs_scal,1)
    select case (I)
    case (1)
-      N = 2
-      Filename ="Kin"
+      N = 2;  Filename ="Kin"
    case (2)
-      N = 1
-      Filename ="Pot"
+      N = 1;  Filename ="Pot"
    case (3)
-      N = 1
-      Filename ="Part"
+      N = 1;  Filename ="Part"
    case (4)
-      N = 1
-      Filename ="Ener"
+      N = 1,  Filename ="Ener"
    case default
       Write(6,*) ' Error in Alloc_obs '  
    end select
@@ -169,21 +170,13 @@ Allocate ( Obs_eq(4) )
 Do I = 1,Size(Obs_eq,1)
    select case (I)
    case (1)
-      Ns = Latt%N
-      No = Norb
-      Filename ="Green"
+      Ns = Latt%N; No = Norb;  Filename ="Green"
    case (2)
-      Ns = Latt%N
-      No = Norb
-      Filename ="SpinZ"
+      Ns = Latt%N; No = Norb;  Filename ="SpinZ"
    case (3)
-      Ns = Latt%N
-      No = Norb
-      Filename ="SpinXY"
+      Ns = Latt%N; No = Norb;  Filename ="SpinXY"
    case (4)
-      Ns = Latt%N
-      No = Norb
-      Filename ="Den"
+      Ns = Latt%N; No = Norb;  Filename ="Den"
    case default
       Write(6,*) ' Error in Alloc_obs '  
    end select
@@ -192,19 +185,37 @@ Do I = 1,Size(Obs_eq,1)
 enddo
  \end{lstlisting} 
  For the Hubbard model \texttt{Norb = 1} and for   equal time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal time correlation functions will be used albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
- \texttt{Init\_obs(Ltau) }.   The user does not have to edit this routine. 
+ \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
-\subsubsection{Measuring observables}
-At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and 
-\texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is also provided by the user.  For each configuration of the  fields Wicks theorem holds so that it suffices 
-to  know the single particle Green function so as to compute  any observable. 
-The main program provides the  equal time Green function: 
-\texttt{GR(Ndim,Ndim,N\_FL)}, the phase \texttt{PHASE} and the time slice on which the measurement is being carried out \texttt{Ntau}.   The Green function is defined as: 
-\begin{equation}
-	 GR(x,y,\sigma)  = \langle c^{\phantom{\dagger}}_{x,\sigma} c^{\dagger}_{y,\sigma}  \rangle
-\end{equation}
-Space for observables in allocated in the  subroutine \texttt{Call Alloc\_obs}. At the beginning of each bin, the  observables are set to zero \texttt{Call Init\_obs} and at the end of each bin the observables are written out on disc \texttt{Call Pr\_obs}.
+\subsubsection{Measuring equal time observables: \texttt{Obser(GR,Phase,Ntau)}}
 
+
+The equal time  green function,
+\begin{equation}
+	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle c^{\phantom{\dagger}}_{x,\sigma} c^{\dagger}_{y,\sigma}  \rangle,
+\end{equation}
+the  phase
+\begin{equation}
+	\texttt{Phase} =  \frac{e^{-S(C)}} { \left| e^{-S(C)} \right| },
+\end{equation}
+and time slice \texttt{Ntau}   is provided by the main program.  
+
+Here,   $x$ and $y$ label  unit-cell as well as the orbital within the unit cell. For the Hubbard model described here, $x$ corresponds to the unit cell.  The Green function  does not depend on the color index, and is diagonal in flavor.  For the SU(2)-symmetric implementation  there is only one flavor, $\sigma = 1$ and the Green function is  independent on the spin index.  This renders the calculation of the observables particularly easy.   
+
+An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow}   \hat{n}_{\vec{i},\downarrow}  \rangle $ reads 
+
+\begin{lstlisting} 
+
+Obs_scal(2)%N     = Obs_scal(2)%N + 1
+Obs_scal(2)%Phase = Obs_scal(2)%Phase + ZS
+Do I = 1,Ndim
+   Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))**2 * Ham_U * ZS * ZP
+Enddo
+
+\end{lstlisting} 
+Here  $ \texttt{ZS} = \text{ sign} (C) $  (see Eq.~\ref{Sign.eq}),  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ and  \texttt{Ham\_U}  corresponds to the Hubbard $U$ term.
+
+\mycomment{FFA will do: 1) Calculation of spin-spin correlation functions equal time 2) Calculation of time displaced quantities 3)   Printing put the bins and then the analysis. }
 
 
 \section{Walkthrough: the $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}\label{sec:walk2}
@@ -275,7 +286,6 @@ Do nc = 1,N_coord   ! Coordination number = 2
 Enddo
 
 \end{lstlisting}
-
 Here,  \texttt{ham\_xi} defines the coupling strength  between the Ising  and fermion degree of freedom.
 
 \subsection{The function \texttt{Real (Kind=8) function S0(n,nt)} }\label{sec:s0}
