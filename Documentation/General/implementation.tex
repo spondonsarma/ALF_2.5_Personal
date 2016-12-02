@@ -225,6 +225,7 @@ The \texttt{Lattice}  module equally handles  the Fourier transformation.  For e
 \begin{equation}
 	S(\vec{k}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{i},\vec{j} \;\text{\mycomment{change to $\vec{i}-\vec{j}$}}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
 \end{equation}
+\FAcomment{ $ \sum_{\vec{i},\vec{j}}$ is correct and is what is done in the code. This is actually why you then have to divide by  $N_{unit \,cell}$    }
 
 and  \texttt{Fourier\_K\_to\_R}  the  inverse Fourier transform 
  \begin{equation}
@@ -299,7 +300,7 @@ The output is simply $\frac{1}{N_{unit\,cell}}\sum\limits_{\vec{i}}\langle \hat{
 Is the motivation to first say $\langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle=\langle \hat{O}_{\alpha}\rangle$,
 use $\frac{1}{N}\sum\limits_{\vec{i}}e^{i \vec{k}\cdot\vec{i}} = \delta(\vec{i})$ 
 and the use the improved estimator $\langle \hat{O}_{\alpha} \rangle=\frac{1}{N}\sum\limits_{\vec{i}}\langle \hat{O}_{\vec{i},\alpha}\rangle$?}
-
+\FAcomment{FA.  The code runs in real space. Hence I think that it is much nicer to write things down  in real space. }
 Consider a variable  \texttt{Obs} of type  \texttt{Obser\_latt}. At the beginning of each bin a call to  \texttt{Obser\_Latt\_Init} in the module \texttt{observables\_mod.f90}  will  initialize  the elements of \texttt{Obs} to zero.    Each time the main program calls the   \texttt{Obser} or  \texttt{ObserT} routines one  cumulates $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $    in  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}   
 and $ \langle \langle \hat{O}_{\vec{i},\alpha}= \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $  in \texttt{Obs\%Obs\_latt0($\alpha$)}.   At the end of each bin, a call to \texttt{Print\_bin\_Latt} in the module  \texttt{observables\_mod.f90}   will append the result of the bin in the specified  file \texttt{Obs\%File\_Latt}.   Note that the routine  \texttt{Print\_bin\_Latt}  carries out the Fourier transformation and prints the results in k-space. We have adopted the following name convention.  For    equal time observables , that is  the second  dimension  of the array  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}    is equal to unity,  the routine \texttt{Print\_bin\_Latt}  attaches the suffix \_eq to \texttt{Obs\%File\_Latt}.  For  time displaced correlation functions we use the suffix \_tau. 
 
