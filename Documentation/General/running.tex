@@ -1,18 +1,11 @@
 % !TEX root = Doc.tex
 \section{Running the code}\label{sec:io}
-
-\mycomment{To Do}
+In this section we describe the steps to compile and run the code and to perform the error analysis of the data.
 
 
 \subsection{Compilation}
-file\texttt{machine} 
-\subsection{I/O}
-output files; \texttt{info,confout\_x,ener, Green\_eq, Den\_eq, SpinZ\_eq, SpinXY\_eq, Green\_tau, Den\_tau, SpinZ\_tau, SpinXY\_tau}\\
-input files: \texttt{parameters, seeds,confin\_x}
-shell script files: \texttt{out\_to\_in.c, analysis.c}
-
-
-
+The following steps will compile the sample code, resulting in the  binary program file \texttt{Hubb\_Template.out}, and also compile the 
+analysis program.
 \begin{enumerate}
 \item Export  environment variables:
 \begin{verbatim}
@@ -22,13 +15,46 @@ source configure.sh
 \begin{verbatim}
 cd Libraries
 make
+cd ..
 \end{verbatim}
 \item Compile the analysis codes: 
 \begin{verbatim}
-cd Analysis_8
+cd Analysis
 make
+cd ..
 \end{verbatim}
-\item enable MPI parallelization
-
+\item 
+Enable or disable MPI parallelization by modifying the file \texttt{Prog/machine}.
+\mycomment{We should eventually move the choice of MPI or not entirely to the script \texttt{configure.sh}.}
+\item Compile the simulation code:
+\begin{verbatim}
+cd Prog
+make
+cd ..
+\end{verbatim}
 \end{enumerate}
+
+
+\subsection{Starting a simulation}
+To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
+To run a single-thread simulation for the Hubbard model, issue the command
+\begin{verbatim}
+./Prog/Hubb.out
+\end{verbatim}
+To run the code in MPI parallelized mode, use the settings of your MPI implementation. 
+To restart the code using an existing simulation as a starting point, first run the script \texttt{Test\_Hub\_Template/Start/out\_to\_in.c} to set 
+the input configuration files.
+
+\subsection{Error analyis}
+
+To perform an error analysis, based on the jackknife scheme, of the Monte Carlo bins for all observables run the script \texttt{analysis.c}.
+
+% 
+% 
+% output files; \texttt{info,confout\_x,ener, Green\_eq, Den\_eq, SpinZ\_eq, SpinXY\_eq, Green\_tau, Den\_tau, SpinZ\_tau, SpinXY\_tau}\\
+% input files: \texttt{parameters, seeds,confin\_x}
+% shell script files: \texttt{out\_to\_in.c, analysis.c}
+% 
+
+
 

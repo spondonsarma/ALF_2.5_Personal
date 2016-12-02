@@ -223,8 +223,9 @@ such that
 %
 The \texttt{Lattice}  module equally handles  the Fourier transformation.  For example  the  subroutine  \texttt{Fourier\_R\_to\_K}   carries out the  transformation: 
 \begin{equation}
-	S(\vec{k}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{i},\vec{j}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
+	S(\vec{k}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{i},\vec{j} \;\text{\mycomment{change to $\vec{i}-\vec{j}$}}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
 \end{equation}
+
 and  \texttt{Fourier\_K\_to\_R}  the  inverse Fourier transform 
  \begin{equation}
 	S(\vec{r}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{k} \in BZ }   e^{ i \vec{k} \cdot \vec{r}} S(\vec{k}, :,:,:).
@@ -273,11 +274,34 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
 
 This data type is useful so as to deal with  imaginary time displaced as well as equal time correlation functions of the form: 
 \begin{equation}
-	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{Unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
+	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
 	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right).
 \end{equation}
-Here,  translation symmetry of the Bravais lattice is explicitly taken into account. Note that this symmetry is broken  for a given  configuration $C$ but is restored by the Monte Carlo sampling.  Consider a variable  \texttt{Obs} of type  \texttt{Obser\_latt}. At the beginning of each bin a call to  \texttt{Obser\_Latt\_Init} in the module \texttt{observables\_mod.f90}  will  initialize  the elements of \texttt{Obs} to zero.    Each time the main program calls the   \texttt{Obser} or  \texttt{ObserT} routines one  cumulates $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $    in  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}   
-and $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $  in \texttt{Obs\%Obs\_latt0($\alpha$)}.   At the end of each bin, a call to \texttt{Print\_bin\_Latt} in the module  \texttt{observables\_mod.f90}   will append the result of the bin in the specified  file \texttt{Obs\%File\_Latt}.   Note that the routine  \texttt{Print\_bin\_Latt}  carries out the Fourier transformation and prints the results in k-space. We have adopted the following name convention.  For    equal time observables , that is  the second  dimension  of the array  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}    is equal to unity,  the routine \texttt{Print\_bin\_Latt}  attaches the suffix \_eq to \texttt{Obs\%File\_Latt}.  For  time displaced correlation functions we use the suffix \_tau. 
+Here,  translation symmetry of the Bravais lattice is explicitly taken into account. Note that this symmetry is broken  for a given  configuration $C$ but is restored by the Monte Carlo sampling. 
+\mycomment{MB tries to fit this in here:}
+The correlation function splits in a correlated part $S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)$ and an background part $S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k},\tau)$:
+\begin{eqnarray}
+  S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)
+  &=&
+   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle\;,\\
+   S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k},\tau)
+  &=&
+   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle \langle \hat{O}_{\vec{j},\beta} \rangle\\\nonumber
+  &=& 
+   \frac{1}{N_{unit\, cell }} \sum_{\vec{i}}  e^{- i\vec{k} \cdot \vec{i} }  \langle \hat{O}_{\vec{i},\alpha}\rangle
+   \sum_{\vec{j}}    e^{i\vec{k} \cdot  \vec{j} }    \langle \hat{O}_{\vec{j},\beta} \rangle\;,
+\end{eqnarray}
+where we used translation invariance in imaginary-time to drop the $\tau$ dependency in the last line. 
+
+\mycomment{In the code, the phase factors $e^{\vec{k}\cdot \vec{i}}$ are not 
+included in the output for the background. 
+The output is simply $\frac{1}{N_{unit\,cell}}\sum\limits_{\vec{i}}\langle \hat{O}_{\vec{i},\alpha}\rangle$.
+Is the motivation to first say $\langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle=\langle \hat{O}_{\alpha}\rangle$,
+use $\frac{1}{N}\sum\limits_{\vec{i}}e^{i \vec{k}\cdot\vec{i}} = \delta(\vec{i})$ 
+and the use the improved estimator $\langle \hat{O}_{\alpha} \rangle=\frac{1}{N}\sum\limits_{\vec{i}}\langle \hat{O}_{\vec{i},\alpha}\rangle$?}
+
+Consider a variable  \texttt{Obs} of type  \texttt{Obser\_latt}. At the beginning of each bin a call to  \texttt{Obser\_Latt\_Init} in the module \texttt{observables\_mod.f90}  will  initialize  the elements of \texttt{Obs} to zero.    Each time the main program calls the   \texttt{Obser} or  \texttt{ObserT} routines one  cumulates $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $    in  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}   
+and $ \langle \langle \hat{O}_{\vec{i},\alpha}= \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $  in \texttt{Obs\%Obs\_latt0($\alpha$)}.   At the end of each bin, a call to \texttt{Print\_bin\_Latt} in the module  \texttt{observables\_mod.f90}   will append the result of the bin in the specified  file \texttt{Obs\%File\_Latt}.   Note that the routine  \texttt{Print\_bin\_Latt}  carries out the Fourier transformation and prints the results in k-space. We have adopted the following name convention.  For    equal time observables , that is  the second  dimension  of the array  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}    is equal to unity,  the routine \texttt{Print\_bin\_Latt}  attaches the suffix \_eq to \texttt{Obs\%File\_Latt}.  For  time displaced correlation functions we use the suffix \_tau. 
 
 % We have three types of observables. 
 % \begin{itemize}
