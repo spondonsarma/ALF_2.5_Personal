@@ -27,6 +27,8 @@
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
       Integer,              private :: N_coord, Norb
+      Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
+
 
 
 !>    Privat Observables
@@ -133,16 +135,17 @@
         Subroutine Ham_Latt
           Implicit none
           !Set the lattice
+          
           Real (Kind=8)  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
+          Integer :: I, nc, no
+
           If ( Lattice_type =="Square" ) then
-             
              a1_p(1) =  1.0  ; a1_p(2) =  0.d0
              a2_p(1) =  0.0  ; a2_p(2) =  1.d0
              L1_p    =  dble(L1)*a1_p
              L2_p    =  dble(L2)*a2_p
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
              Norb = 1
-             Ndim = Latt%N*Norb
              One_dimensional = .false.
              N_coord   = 2
              If ( L1 == 1 .or. L2 == 1 ) then 
@@ -158,6 +161,20 @@
              Write(6,*) "Lattice not yet implemented!"
              Stop
           endif
+
+          ! This is for the orbital structure.
+          Ndim = Latt%N*Norb
+          Allocate (List(Ndim,Norb), Invlist(Latt%N,Norb))
+          nc = 0
+          Do I = 1,Latt%N
+             Do no = 1,Norb
+                nc = nc + 1
+                List(nc,1) = I
+                List(nc,2) = no
+                Invlist(I,no) = nc 
+             Enddo
+          Enddo
+
         end Subroutine Ham_Latt
 
 !===================================================================================           
@@ -194,7 +211,7 @@
                    ENDDO
                 endif
                 
-                Do I = 1,Latt%N
+                Do I = 1,Ndim
                    Op_T(nc,n)%P(i) = i 
                 Enddo
                 if ( abs(Ham_T) < 1.E-6 .and.  abs(Ham_chem) < 1.E-6 ) then 
@@ -219,15 +236,15 @@
           
           If (Model == "Hubbard_SU2")  then
              !Write(50,*) 'Model is ', Model
-             Allocate(Op_V(Latt%N,N_FL))
+             Allocate(Op_V(Ndim,N_FL))
              do nf = 1,N_FL
-                do i  = 1, Latt%N
+                do i  = 1, Ndim
                    Call Op_make(Op_V(i,nf),1)
                 enddo
              enddo
              Do nf = 1,N_FL
                 nc = 0
-                Do i = 1,Latt%N
+                Do i = 1,Ndim
                    nc = nc + 1
                    Op_V(nc,nf)%P(1) = I
                    Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
@@ -238,9 +255,9 @@
                 Enddo
              Enddo
           Elseif (Model == "Hubbard_Mz")  then
-             Allocate(Op_V(Latt%N,N_FL))
+             Allocate(Op_V(Ndim,N_FL))
              do nf = 1,N_FL
-                do i  = 1, Latt%N
+                do i  = 1, Ndim
                    Call Op_make(Op_V(i,nf),1)
                 enddo
              enddo
@@ -248,7 +265,7 @@
                 nc = 0
                 X = 1.d0
                 if (nf == 2) X = -1.d0
-                Do i = 1,Latt%N
+                Do i = 1,Ndim
                    nc = nc + 1
                    Op_V(nc,nf)%P(1) = I
                    Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
@@ -370,7 +387,7 @@
           !Local 
           Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
           Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
-          Integer :: I,J, imj, nf, dec
+          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J
           
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
@@ -437,22 +454,29 @@
           If ( Model == "Hubbard_SU2"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              
-             Do I = 1,Latt%N
-                Do J = 1,Latt%N
+             Do I1 = 1,Ndim
+                I    = List(I1,1)
+                no_I = List(I1,2)
+                Do J1 = 1,Ndim
+                   J    = List(J1,1)
+                   no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    ! Green
-                   Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) *  ZP*ZS 
+                   Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
+                        &               Z * GRC(I1,J1,1) *  ZP*ZS 
                    ! SpinZ
-                   Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
+                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
+                        &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
                    ! SpinXY
-                   Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1) +  Z * GRC(I,J,1) * GR(I,J,1) * ZP*ZS
+                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
+                        &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
                    ! Den
-                   Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1)  +  &
-                        &     (    GRC(I,I,1) * GRC(J,J,1) *Z     + &
-                        &          GRC(I,J,1) * GR(I,J,1)           &
+                   Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J)  +  &
+                        &     (    GRC(I1,I1,1) * GRC(J1,J1,1) *Z     + &
+                        &          GRC(I1,J1,1) * GR(I1,J1,1 )           &
                         &                                   ) * Z* ZP*ZS
                 ENDDO
-                Obs_eq(4)%Obs_Latt0(1) =  Obs_eq(4)%Obs_Latt0(1) +  Z * GRC(I,I,1) * ZP * ZS
+                Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
              ENDDO
           elseif (Model == "Hubbard_Mz" ) Then
              DO I = 1,Latt%N
