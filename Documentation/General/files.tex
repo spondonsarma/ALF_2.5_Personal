@@ -23,9 +23,11 @@ the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, w
    \begin{tabular}{l l}
    File & Description \\\hline
   \texttt{parameters} &  Sets the parameters for lattice, model and the QMC process.\\
-  \texttt{seeds} & List of integer numbers to initialize the random number generator.
+  \texttt{seeds} & List of integer numbers to initialize the random number generator and \\
+   & to start a simulation from scratch.\\
+  \texttt{confin\_<thread number>} & Input files for the HS and Ising configuration, used to continue a simulation. 
    \end{tabular}
-   \caption{Overview of the input files in \texttt{Test\_Hub\_Template/Start/} required for a simulation from scratch. \label{table:input}}
+   \caption{Overview of the input files in \texttt{Test\_Hub\_Template/Start/} required for a simulation. \label{table:input}}
 \end{table}
 %
 The input files are listed in table~\ref{table:input}. 
@@ -63,6 +65,7 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
 /                         ! slash terminates namelist statement - DO NOT REMOVE
 \end{lstlisting}
 %
+
 \subsection{Output files} \label{sec:output}
 %
 \begin{table}[h]
@@ -74,6 +77,7 @@ CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours.
    & The placeholder \texttt{X} stands for the observables \texttt{Kin, Pot, Part}, and \texttt{Ener}. \\
    \texttt{X\_eq, X\_tau} & Results of equal-time and time-displaced measurements of correlation functions. \\
    & The placeholder \texttt{X} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}. \\   
+   \texttt{confout\_<thread number>} & Output files for the HS and Ising configuration. 
    \end{tabular}
    \caption{Overview of the standard output files. 
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
@@ -99,24 +103,40 @@ Scalar observables like kinetic energy, potential energy, total energy and parti
 of size \texttt{N\_size=1}.
 
 \item Observables of type \texttt{Obs\_Latt}:
-For each additional bin, a new data block is added tot the output file.
-
-\item Equal-time and time-displaced correlation functions have the same formatting. 
-For each bin, an new data block is written to the corresponding output files.
-\mycomment{need some more work...}
-The formatting of this block is as follows:
+For each additional bin, a new data block is added to the output file. 
+The block consists of the background part and the correlated part of the correlation function.
+For the imaginary-time displace correlation function, the formatting of this block follows this scheme:
 \begin{verbatim}
 <measured phase>  <N_orbital>  <N_unit_cell> <N_time_slices> <dtau>
-< O orbital 1>
-...
-<O orbital N_orbital>
-<reciprocal lattice vector 1>
-<connected value>
-...
-<reciprocal lattice vector N_unit_cell>
-<connected value>
-...
+do m = 1, N_orbital
+   <background part of orbital m>
+enddo
+do i = 1, N_unit_cell
+   <reciprocal lattice vector k(i)>
+   do t = 1, N_time_slices
+      do m = 1, N_orbital
+         do n = 1, N_orbital
+            <correlated part at vector k(i), time t, and orbitals m,n>
+         enddo
+      enddo
+   enddo
+enddo
 \end{verbatim}
+The same block structure for each bin is used for equal-time correlation functions, except for the entries  \texttt{<N\_time\_slices>} and \texttt{<dtau>}.
+\mycomment{It seems that right now, to get the full correlation function including the background one has to write a script?}
 
 \end{itemize}
 
+\subsection{Scripts}\label{sec:scripts}
+%
+\begin{table}[h]
+   \begin{tabular}{l l}
+   Script & Description \\\hline
+   \texttt{configure.sh} & To sets the environment variables for the compiler and the libraries.\\
+   \texttt{Test\_Hub\_Template/Start/out\_to\_in.c} & To copy the output configurations of HS and Ising spins\\
+   & to the respective input files. \\
+   \texttt{Test\_Hub\_Template/Start/analysis.c} & To perform the error analysis.
+   \end{tabular}
+   \caption{Overview of the bash script files. \label{table:scripts}}
+\end{table}
+%
