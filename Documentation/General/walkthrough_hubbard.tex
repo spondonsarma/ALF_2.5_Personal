@@ -132,9 +132,69 @@ Enddo
 \end{lstlisting}
 so as to completely define the interaction term. 
 
-
 \subsection{Observables}
+The user will have to  implement the  observables  he/she  want to compute. Here we will concentrate on  equal and time displaced  spin-spin correlation functions as well as on  scalar observables such as the double occupancy, kinetic energy etc. 
+\subsubsection{Allocating space for the observables \texttt{Call Alloc\_obs(Ltau) }}
 
+ For  four scalar  or vector observables,  the user will have to  declare the following: 
+\begin{lstlisting}
+
+Allocate ( Obs_scal(4) )
+Do I = 1,Size(Obs_scal,1)
+   select case (I)
+   case (1)
+      N = 2
+      Filename ="Kin"
+   case (2)
+      N = 1
+      Filename ="Pot"
+   case (3)
+      N = 1
+      Filename ="Part"
+   case (4)
+      N = 1
+      Filename ="Ener"
+   case default
+      Write(6,*) ' Error in Alloc_obs '  
+   end select
+   Call Obser_Vec_make(Obs_scal(I),N,Filename)
+enddo
+\end{lstlisting}
+Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the x -and -y components of the kinetic energy for example.  
+
+For equal time correlation  functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal time Green functions. 
+\begin{lstlisting}
+
+Allocate ( Obs_eq(4) )
+Do I = 1,Size(Obs_eq,1)
+   select case (I)
+   case (1)
+      Ns = Latt%N
+      No = Norb
+      Filename ="Green"
+   case (2)
+      Ns = Latt%N
+      No = Norb
+      Filename ="SpinZ"
+   case (3)
+      Ns = Latt%N
+      No = Norb
+      Filename ="SpinXY"
+   case (4)
+      Ns = Latt%N
+      No = Norb
+      Filename ="Den"
+   case default
+      Write(6,*) ' Error in Alloc_obs '  
+   end select
+   Nt = 1
+   Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+enddo
+ \end{lstlisting} 
+ For the Hubbard model \texttt{Norb = 1} and for   equal time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal time correlation functions will be used albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
+ \texttt{Init\_obs(Ltau) }.   The user does not have to edit this routine. 
+ 
+\subsubsection{Measuring observables}
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and 
 \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is also provided by the user.  For each configuration of the  fields Wicks theorem holds so that it suffices 
 to  know the single particle Green function so as to compute  any observable. 
