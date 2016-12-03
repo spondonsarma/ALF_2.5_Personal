@@ -5,7 +5,7 @@
 &VAR_lattice 
 L1    = 4 
 L2    = 4 
-Lattice_type = "Square"
+Lattice_type = "Square" ! Square, Honeycomb
 Model = "Hubbard_SU2"  ! Hubbard_SU2, Hubbard_Mz
 /
 

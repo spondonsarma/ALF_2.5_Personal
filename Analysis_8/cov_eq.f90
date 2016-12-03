@@ -52,8 +52,8 @@
             L2_p    =  dble(L2)*a2_p
             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
          elseif ( Lattice_type=="Honeycomb" ) then
-            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-            a2_p(1) =  0.5  ; a2_p(2) =  sqrt(3.0)/2.0
+            a1_p(1) =  1.d0   ; a1_p(2) =  0.d0
+            a2_p(1) =  0.5d0  ; a2_p(2) =  sqrt(3.d0)/2.d0
             del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
             L1_p    =  dble(L1) * a1_p
             L2_p    =  dble(L2) * a2_p
@@ -115,12 +115,14 @@
          Open ( Unit=10, File="ineq", status="unknown" ) 
          do nb = 1, nbins + n_skip
             if (nb > n_skip ) then
-               Read(10,*,End=10) Phase(nb-n_skip),no,no1
+               Read(10,*,End=10) X,no,no1
+               Phase(nb-n_skip) = X
                Do no = 1,Norb
                   Read(10,*) Bins0(nb-n_skip,no)
                enddo
                do n = 1,Ndim
                   Read(10,*) Xk_p(1), Xk_p(2)
+                  Write(6,*) Xk_p(1), Xk_p(2)
                   m = Inv_K(Xk_p,Latt)
                   !Write(6,*) m
                   do no = 1,norb

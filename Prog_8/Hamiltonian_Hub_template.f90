@@ -117,6 +117,8 @@
              Open (Unit = 50,file="info",status="unknown",position="append")
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model 
+             Write(50,*) 'Lattice is    : ', Lattice_type
+             Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Beta          : ', Beta
              Write(50,*) 'dtau,Ltrot    : ', dtau,Ltrot
              Write(50,*) 'N_SUN         : ', N_SUN
@@ -140,14 +142,14 @@
           Integer :: I, nc, no
 
           If ( Lattice_type =="Square" ) then
+             Norb = 1
+             N_coord   = 2
+             One_dimensional = .false.
              a1_p(1) =  1.0  ; a1_p(2) =  0.d0
              a2_p(1) =  0.0  ; a2_p(2) =  1.d0
              L1_p    =  dble(L1)*a1_p
              L2_p    =  dble(L2)*a2_p
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-             Norb = 1
-             One_dimensional = .false.
-             N_coord   = 2
              If ( L1 == 1 .or. L2 == 1 ) then 
                 One_dimensional = .true.
                 N_coord   = 1
@@ -156,11 +158,22 @@
                    Stop
                 endif
              endif
-             
+          elseif ( Lattice_type=="Honeycomb" ) then
+             Norb    = 2
+             N_coord = 3
+             a1_p(1) =  1.D0   ; a1_p(2) =  0.d0
+             a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
+
+             !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
+             L1_p    =  dble(L1) * a1_p
+             L2_p    =  dble(L2) * a2_p
+             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+
           else
              Write(6,*) "Lattice not yet implemented!"
              Stop
           endif
+
 
           ! This is for the orbital structure.
           Ndim = Latt%N*Norb
@@ -168,6 +181,7 @@
           nc = 0
           Do I = 1,Latt%N
              Do no = 1,Norb
+                ! For the Honeycomb lattice no = 1,2 corresponds to the A,and B sublattices.
                 nc = nc + 1
                 List(nc,1) = I
                 List(nc,2) = no
@@ -185,32 +199,56 @@
           !Per flavor, the  hopping is given by: 
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
-          Integer :: I, I1, I2, n, Ncheck,nc
+          Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
 
           Ncheck = 1
           allocate(Op_T(Ncheck,N_FL))
           do n = 1,N_FL
              Do nc = 1,Ncheck
                 Call Op_make(Op_T(nc,n),Ndim)
-                If (One_dimensional ) then 
+                If ( Lattice_type =="Square" ) then
+                   If (One_dimensional ) then 
+                      DO I = 1, Latt%N
+                         I1 = Latt%nnlist(I, 1, 0)
+                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                      ENDDO
+                   else
+                      DO I = 1, Latt%N
+                         I1 = Latt%nnlist(I,1,0)
+                         I2 = Latt%nnlist(I,0,1)
+                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                      ENDDO
+                   endif
+                elseif ( Lattice_type=="Honeycomb" ) then
                    DO I = 1, Latt%N
-                      I1 = Latt%nnlist(I, 1, 0)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                   ENDDO
-                else
-                   DO I = 1, Latt%N
-                      I1 = Latt%nnlist(I,1,0)
-                      I2 = Latt%nnlist(I,0,1)
-                      Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                   ENDDO
+                      do no = 1,Norb
+                         I1 = List(I,no)
+                         Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                      enddo
+                      I1 = Invlist(I,1)
+                      Do nc1 = 1,N_coord
+                         select case (nc1)
+                         case (1)
+                            J1 = invlist(I,2) 
+                         case (2)
+                            J1 = invlist(Latt%nnlist(I,1,-1),2) 
+                         case (3)
+                            J1 = invlist(Latt%nnlist(I,0,-1),2) 
+                         case default
+                            Write(6,*) ' Error in  Ham_Hop '  
+                         end select
+                         Op_T(nc,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                      Enddo
+                   Enddo
                 endif
-                
+
                 Do I = 1,Ndim
                    Op_T(nc,n)%P(i) = i 
                 Enddo
@@ -299,17 +337,13 @@
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
-                N = 1
-                Filename ="Kin"
+                N = 1;   Filename ="Kin"
              case (2)
-                N = 1
-                Filename ="Pot"
+                N = 1;   Filename ="Pot"
              case (3)
-                N = 1
-                Filename ="Part"
+                N = 1;   Filename ="Part"
              case (4)
-                N = 1
-                Filename ="Ener"
+                N = 1;   Filename ="Ener"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -322,21 +356,13 @@
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
-                Ns = Latt%N
-                No = Norb
-                Filename ="Green"
+                Ns = Latt%N;  No = Norb;  Filename ="Green"
              case (2)
-                Ns = Latt%N
-                No = Norb
-                Filename ="SpinZ"
+                Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
              case (3)
-                Ns = Latt%N
-                No = Norb
-                Filename ="SpinXY"
+                Ns = Latt%N;  No = Norb;  Filename ="SpinXY"
              case (4)
-                Ns = Latt%N
-                No = Norb
-                Filename ="Den"
+                Ns = Latt%N;  No = Norb;  Filename ="Den"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -350,21 +376,13 @@
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
-                   Ns = Latt%N
-                   No = Norb
-                   Filename ="Green"
+                   Ns = Latt%N; No = Norb;  Filename ="Green"
                 case (2)
-                   Ns = Latt%N
-                   No = Norb
-                   Filename ="SpinZ"
+                   Ns = Latt%N; No = Norb;  Filename ="SpinZ"
                 case (3)
-                   Ns = Latt%N
-                   No = Norb
-                   Filename ="SpinXY"
+                   Ns = Latt%N; No = Norb;  Filename ="SpinXY"
                 case (4)
-                   Ns = Latt%N
-                   No = Norb
-                   Filename ="Den"
+                   Ns = Latt%N; No = Norb;  Filename ="Den"
                 case default
                    Write(6,*) ' Error in Alloc_obs '  
                 end select
@@ -453,7 +471,6 @@
           ENDDO
           If ( Model == "Hubbard_SU2"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
-             
              Do I1 = 1,Ndim
                 I    = List(I1,1)
                 no_I = List(I1,2)
@@ -479,25 +496,30 @@
                 Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
              ENDDO
           elseif (Model == "Hubbard_Mz" ) Then
-             DO I = 1,Latt%N
-                DO J = 1, Latt%N
+             Do I1 = 1,Ndim
+                I    = List(I1,1)
+                no_I = List(I1,2)
+                Do J1 = 1,Ndim
+                   J    = List(J1,1)
+                   no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    ! Green
-                   Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) +  ( GRC(I,J,1)+GRC(I,J,1)) *  ZP*ZS 
+                   Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
+                        &                          ( GRC(I1,J1,1) + GRC(I1,J1,2)) *  ZP*ZS 
                    ! SpinZ
-                   Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) + &
-                        & (   GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
-                        &    (GRC(I,I,2) - GRC(I,I,1))*(GRC(J,J,2) - GRC(J,J,1))    ) * ZP*ZS
+                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
+                        & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
+                        &    (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))    ) * ZP*ZS
                    ! SpinXY
                    ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
-                   Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1) + &
-                     & (   GRC(I,J,1) * GR(I,J,2) +  GRC(I,J,2) * GR(I,J,1)    ) * ZP*ZS
+                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
+                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * ZP*ZS
                    !Den
-                   Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1) + &
-                        & (   GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
-                        &   (GRC(I,I,2) + GRC(I,I,1))*(GRC(J,J,2) + GRC(J,J,1))    ) * ZP*ZS
+                   Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
+                        & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
+                        &   (GRC(I1,I1,2) + GRC(I1,I1,1))*(GRC(J1,J1,2) + GRC(J1,J1,1))     ) * ZP*ZS
                 enddo
-                Obs_eq(4)%Obs_Latt0(1) =  Obs_eq(4)%Obs_Latt0(1) +  (GRC(I,I,2) + GRC(I,I,1)) * ZP*ZS
+                Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  (GRC(I1,I1,1) + GRC(I1,I1,2)) * ZP*ZS
              enddo
           Endif
                 
@@ -513,7 +535,7 @@
           
           !Locals
           Complex (Kind=8) :: Z, ZP, ZS
-          Integer :: IMJ, I, J
+          Integer :: IMJ, I, J, I1, J1, no_I, no_J
 
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
@@ -525,67 +547,71 @@
           endif
           If ( Model == "Hubbard_SU2"  ) then 
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
-             Do I = 1,Latt%N
-                Do J = 1,Latt%N
+             Do I1 = 1,Ndim
+                I    = List(I1,1)
+                no_I = List(I1,2)
+                Do J1 = 1,Ndim
+                   J    = List(J1,1)
+                   no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    ! Green
-                   Obs_tau(1)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,nt+1,1,1)  &
-                        & +  Z * GT0(I,J,1) * ZP* ZS
-
+                   Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                        & +  Z * GT0(I1,J1,1) * ZP* ZS
+                   
                    ! SpinZ
-                   Obs_tau(2)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,nt+1,1,1)  &
-                       &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
-
+                   Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                        &      - Z*G0T(J1,I1,1) * GT0(I1,J1,1) *ZP*ZS
+                   
                    ! SpinXY
-                   Obs_tau(3)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,nt+1,1,1)  &
-                       &      - Z*G0T(J,I,1) * GT0(I,J,1) *ZP*ZS
-
+                   Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                        &      - Z*G0T(J1,I1,1) * GT0(I1,J1,1) *ZP*ZS
+                   
                    ! Den
-                   Obs_tau(4)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,nt+1,1,1)  &
-                        & + ( Z*Z*(1.d0 - GTT(I,I,1))*(1.d0 - G00(J,J,1))  -     &
-                        &     Z * GT0(I,J,1)*G0T(J,I,1)                                            ) * ZP * ZS
+                   Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                        & + ( Z*Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1))*       &
+                        &         (cmplx(1.d0,0.d0,kind(0.d0)) - G00(J1,J1,1))  -     &
+                        &     Z * GT0(I1,J1,1)*G0T(J1,I1,1)                                ) * ZP * ZS
                 Enddo
-             Enddo
-             
-             Do I = 1,Latt%N
-                Obs_tau(4)%Obs_Latt0(1) = Obs_tau(4)%Obs_Latt0(1) + Z*(1.d0 - GTT(I,I,1)) * ZP * ZS
+                Obs_tau(4)%Obs_Latt0(no_I) = Obs_tau(4)%Obs_Latt0(no_I) + &
+                     &         Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1)) * ZP * ZS
              Enddo
           Elseif ( Model == "Hubbard_Mz"  ) then 
-             Do I = 1,Latt%N
-                Do J = 1,Latt%N
+             Do I1 = 1,Ndim
+                I    = List(I1,1)
+                no_I = List(I1,2)
+                Do J1 = 1,Ndim
+                   J    = List(J1,1)
+                   no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    !Green
-                   Obs_tau(1)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,nt+1,1,1)  &
-                        &   +   ( GT0(I,J,1) + GT0(I,J,2) ) * ZP* ZS
+                   Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                        &   +   ( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS
 
                    !SpinZ
-                   Obs_tau(2)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,nt+1,1,1)  &
+                   Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
                        & +  ( &
-                       &    (GTT(I,I,1) -  GTT(I,I,2) ) * ( G00(J,J,1)  -  G00(J,J,2) )   &
-                       &  - (G0T(J,I,1) * GT0(I,J,1)  +  G0T(J,I,2) * GT0(I,J,2) )    )*ZP*ZS
+                       &    (GTT(I1,I1,1) -  GTT(I1,I1,2) ) * ( G00(J1,J1,1)  -  G00(J1,J1,2) )   &
+                       &  - (G0T(J1,I1,1) * GT0(I1,J1,1)  +  G0T(J1,I1,2) * GT0(I1,J1,2) )    )*ZP*ZS
 
                    !SpinXY
-                   Obs_tau(3)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,nt+1,1,1)  &
+                   Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J)  &
                         &  - &
-                        &   (G0T(J,I,1) * GT0(I,J,2)  +  G0T(J,I,2) * GT0(I,J,1))*ZP*ZS
+                        &   (G0T(J1,I1,1) * GT0(I1,J1,2)  +  G0T(J1,I1,2) * GT0(I1,J1,1))*ZP*ZS
                    !Den
-                   Obs_tau(4)%Obs_Latt(imj,nt+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,nt+1,1,1)  &
+                   Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J)  &
                         & +  (                                        &  
-                        &    (2.D0 - GTT(I,I,1) - GTT(I,I,2) ) * ( 2.D0 - G00(J,J,1) -  G00(J,J,2) ) &
-                        & -  ( G0T(J,I,1) * GT0(I,J,1) + G0T(J,I,2) * GT0(I,J,2) )   )*ZP*ZS     
+                        &    (cmplx(2.D0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2) ) * &
+                        &    (cmplx(2.D0,0.d0,kind(0.d0)) - G00(J1,J1,1) - G00(J1,J1,2) )   &
+                        & -  ( G0T(J1,I1,1) * GT0(I1,J1,1) + G0T(J1,I1,2) * GT0(I1,J1,2) )  )*ZP*ZS     
 
                 enddo
-             enddo
              
-             Do I = 1,Latt%N
-                Obs_tau(4)%Obs_Latt0(1) =  Obs_tau(4)%Obs_Latt0(1) + &
-                     &       (2.d0 - GTT(I,I,1) - GTT(I,I,2)) * ZP * ZS
+                Obs_tau(4)%Obs_Latt0(no_I) =  Obs_tau(4)%Obs_Latt0(no_I) + &
+                     &       (cmplx(2.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2)) * ZP * ZS
              Enddo
-          endif
+          Endif
           
         end Subroutine OBSERT
-
-
 
 !==========================================================        
         Subroutine  Pr_obs(LTAU)
