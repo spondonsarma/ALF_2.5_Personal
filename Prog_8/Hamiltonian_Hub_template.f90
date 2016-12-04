@@ -228,7 +228,7 @@
                 elseif ( Lattice_type=="Honeycomb" ) then
                    DO I = 1, Latt%N
                       do no = 1,Norb
-                         I1 = List(I,no)
+                         I1 = Invlist(I,no)
                          Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                       enddo
                       I1 = Invlist(I,1)
