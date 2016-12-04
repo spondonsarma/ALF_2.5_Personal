@@ -18,6 +18,7 @@ for filename in *_eq; do
        cp $filename ineq
        $ANNAL/cov_eq.out
        mv "equalJ"  $filename"J"
+       mv "equalJR" $filename"JR"
        rm ineq
     fi
 done

@@ -63,7 +63,11 @@ LOBS_ST = 1               ! Start measurments at time slice LOBS_ST
 LOBS_EN = 50              ! End   measurments at time slice LOBS_EN
 CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours. 
                           ! If not specified, code will stop after Nbin bins.
-/                         ! slash terminates namelist statement - DO NOT REMOVE
+/                          
+&VAR_errors               ! Variables for analysis programs
+n_skip  = 1               ! Number of bins that will be skipped
+N_rebin = 1               ! Rebinning                    
+/            
 \end{lstlisting}
 %
 

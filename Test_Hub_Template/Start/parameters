@@ -26,4 +26,9 @@ LOBS_ST = 1
 LOBS_EN = 100
 CPU_MAX = 0.1
 /
+
+&VAR_errors
+n_skip  = 1
+N_rebin = 1
+/
 ! slash terminates namelist statement - DO NOT REMOVE

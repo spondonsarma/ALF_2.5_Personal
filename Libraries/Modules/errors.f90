@@ -7,8 +7,8 @@
           MODULE PROCEDURE ERRCALC, ERRCALC_C
        END INTERFACE
        INTERFACE ERRCALCJ
-          MODULE PROCEDURE ERRCALC_J, ERRCALC_J_REBIN,  ERRCALC_JS, ERRCALC_JS_REBIN, &
-               &   ERRCALC_J_C,  ERRCALC_J_C_REBIN,  ERRCALC_JS_C
+          MODULE PROCEDURE ERRCALC_J,    ERRCALC_J_REBIN,    ERRCALC_JS, ERRCALC_JS_REBIN, &
+               &           ERRCALC_J_C,  ERRCALC_J_C_REBIN,  ERRCALC_JS_C, ERRCALC_JS_C_REBIN
        END INTERFACE
        INTERFACE COV
           MODULE PROCEDURE COVJ, COVJS, COVJS_C
@@ -343,6 +343,45 @@
          END SUBROUTINE ERRCALC_JS_REBIN
 
 !******************
+         SUBROUTINE ERRCALC_JS_C_REBIN(EN,SI,XM,XERR,NREBIN)
+!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          The input are the bins.
+           
+           IMPLICIT NONE
+
+           COMPLEX (KIND=8), DIMENSION(:) ::  EN, SI
+           COMPLEX (KIND=8)               ::  XM, XERR, X, Y
+           COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE ::  EN1, SI1
+           INTEGER :: NREBIN, NC, N, NB, NP, NP1
+ 
+           NP = SIZE(EN)
+           NP1 = NP/NREBIN
+           ALLOCATE (EN1(NP1))
+           ALLOCATE (SI1(NP1))
+           
+           ! Rebin
+           NC = 0
+           DO N = 1,NP1
+              X = cmplx(0.D0,0.d0,kind(0.d0)); Y = cmplx(0.D0,0.D0,kind(0.d0))
+              DO NB = 1,NREBIN
+                 NC = NC + 1
+                 X = X + EN(NC)
+                 Y = Y + SI(NC)
+              ENDDO
+              X = X/DBLE(NREBIN)
+              Y = Y/DBLE(NREBIN)
+              EN1(N) = X
+              SI1(N) = Y
+           ENDDO
+           CALL ERRCALC_JS_C(EN1,SI1,XM,XERR)
+
+           DEALLOCATE (EN1,SI1)
+
+           RETURN
+         END SUBROUTINE ERRCALC_JS_C_REBIN
+
+!******************
+
          SUBROUTINE INTER_QMC(GR, SIGN1, DTAU, RES, ERR) 
            
            IMPLICIT NONE
