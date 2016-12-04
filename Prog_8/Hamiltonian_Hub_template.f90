@@ -526,7 +526,7 @@
 
         end Subroutine Obser
 !=====================================================
-        Subroutine OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE)
           Implicit none
           
           Integer         , INTENT(IN) :: NT

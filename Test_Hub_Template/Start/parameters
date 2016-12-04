@@ -30,5 +30,6 @@ CPU_MAX = 0.1
 &VAR_errors
 n_skip  = 1
 N_rebin = 1
+N_Cov = 0
 /
 ! slash terminates namelist statement - DO NOT REMOVE

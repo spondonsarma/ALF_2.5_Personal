@@ -121,7 +121,7 @@
            File_pr = file_add(Obs%File_Latt,File_suff)
            Allocate (Tmp(Ns,Ntau,Norb,Norb), Tmp1(Norb) )
            Obs%Obs_Latt  =   Obs%Obs_Latt /dble(Obs%N   )
-           Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns)
+           Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns*Ntau)
            Obs%Phase     =   Obs%Phase    /dble(Obs%N   )
 
 #ifdef MPI

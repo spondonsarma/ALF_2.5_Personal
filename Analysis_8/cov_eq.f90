@@ -18,7 +18,7 @@
 !!$         end Interface
 
          Integer      :: Nunit, Norb, ierr
-         Integer      :: no, no1, n, n1,m,  nbins, n_skip, nb, N_rebin
+         Integer      :: no, no1, n, n1,m,  nbins, n_skip, nb, N_rebin, N_cov
          real (Kind=8):: X, Y 
          Complex (Kind=8), allocatable :: Phase(:)
          Type  (Mat_C), allocatable :: Bins (:,:), Bins_R(:,:)
@@ -34,7 +34,7 @@
          
 
          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
-         NAMELIST /VAR_errors/   n_skip, N_rebin
+         NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov
 
 
 

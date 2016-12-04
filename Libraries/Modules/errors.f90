@@ -11,7 +11,7 @@
                &           ERRCALC_J_C,  ERRCALC_J_C_REBIN,  ERRCALC_JS_C, ERRCALC_JS_C_REBIN
        END INTERFACE
        INTERFACE COV
-          MODULE PROCEDURE COVJ, COVJS, COVJS_C
+          MODULE PROCEDURE COVJ, COVJS, COVJS_C, COVJS_C_REBIN
        END INTERFACE
        INTERFACE COV_ERR
           MODULE PROCEDURE COV_ERR
@@ -724,6 +724,53 @@
          END SUBROUTINE COVJS_C
          
 
+!========================
+
+         SUBROUTINE COVJS_C_REBIN(GR, SIGN2, XCOV, XMEAN,NREBIN) 
+           
+           IMPLICIT NONE
+           ! Given GR(Times, Bins)  and Sign1(Bins) calculates the mean and the covariance.
+           ! The sign is the same for all Times. 
+           Complex (KIND=8), DIMENSION(:,:) ::  GR, XCOV
+           Complex (KIND=8), DIMENSION(:)   ::  XMEAN
+           Real    (Kind=8), DIMENSION(:)   ::  SIGN2
+           INTEGER :: NREBIN
+
+
+           COMPLEX (KIND=8), DIMENSION(:,:), ALLOCATABLE ::  GR1
+           REAL    (KIND=8), DIMENSION(:), ALLOCATABLE ::  SIGN1
+           
+           INTEGER :: NTDM, NDATA, NDATA1, N, NB, NC, NT
+           REAL    (KIND=8) :: X
+           COMPLEX (KIND=8) :: Z
+           
+           NTDM  = SIZE(GR,1)
+           NDATA = SIZE(GR,2)
+
+           NDATA1 = NDATA/NREBIN
+           ALLOCATE ( GR1(NTDM,NDATA1), SIGN1(NDATA1) )
+           
+           SIGN1 = 0.d0
+           GR1   = CMPLX(0.d0,0.d0,kind(0.d0))
+           ! Rebin
+           NC = 0
+           DO N = 1,NDATA1
+              DO NB = 1,NREBIN
+                 NC = NC + 1
+                 SIGN1(N) = SIGN1(N) + SIGN2(NC)
+                 DO NT = 1,NTDM
+                    GR1(NT,N)  = GR1(NT,N) + GR(NT,NC)
+                 ENDDO
+              ENDDO
+           ENDDO
+           SIGN1 = SIGN1/DBLE (NREBIN)
+           GR1   = GR1  /CMPLX(DBLE(NREBIN),0.d0,KIND(0.d0))
+
+           CALL COVJS_C(GR1, SIGN1, XCOV, XMEAN) 
+           
+           DEALLOCATE ( GR1, SIGN1 )
+
+         END SUBROUTINE COVJS_C_REBIN
 
 
          Subroutine COV_ERR(XMEAN, XCOV, ISEED) 

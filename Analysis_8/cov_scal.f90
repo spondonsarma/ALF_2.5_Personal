@@ -14,8 +14,20 @@
         Integer :: NST, NS, NS1, NS2, NSTEP, NC, NP,  Nbins, NP_EFF, ISEED, I, IOBS
         Integer :: N,N1, NBIN
 
-        ! Count the number of bins
+        Integer :: n_skip, N_rebin, N_Cov, ierr
+        NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov
 
+
+         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+         IF (ierr /= 0) THEN
+            WRITE(*,*) 'unable to open <parameters>',ierr
+            STOP
+         END IF
+         READ(5,NML=VAR_errors)
+         CLOSE(5)
+
+
+        ! Count the number of bins
         Open (Unit=10, File="Var_scal", status="unknown")
         Read(10,*) NOBS
         allocate (Tmp(NOBS) )
@@ -36,7 +48,7 @@
          !Open (Unit=25, File="statdat1", status="unknown") 
          !read(25,*) NST, NS1, NS2, NSTEP
          !Close(25)
-         NST = 2; NS1 = 1; NS2 = 1; NSTEP = 1
+         NST = N_skip; NS1 = N_Rebin; NS2 = N_Rebin; NSTEP = 1
          OPEN (UNIT=20, FILE='Var_scal', STATUS='old')
          NC = 0
          DO N = 1,NP
@@ -69,7 +81,6 @@
                      CALL ERRCALCJ(EN,SIGN,XM,XERR,NBIN)
                   endif
                   WRITE(21,2001) IOBS, XM,  XERR
-                  ! Test
                   ! NBOOT = 40
                   ! CALL BOOTSTRAP( EN,XM_BS,XERR_BS,NBOOT,ISEED)
                   ! WRITE(21,2001) IOBS, XM_BS,  XERR_BS
