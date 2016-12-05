@@ -187,11 +187,20 @@ In general, the action  $S(C) $ will be complex such, thereby inhibiting a direc
 \footnote{The attentive reader will have noticed that   for arbitrary Trotter decompositions,  the  imaginary time propagator is not necessarily Hermitian. Thereby, the above equation is correct only up to corrections stemming from the  controlled Trotter systematic error. }
 Thereby,  
 \begin{eqnarray}
-\langle \hat{O}  \rangle  = & &  \frac{\sum_{C}  e^{-S(C)} \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}  e^{-S(C)}}       \nonumber \\ 
-                          =  & &  \frac{\sum_{C}   \Re \left[e^{-S(C)} \right]    \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}   \Re \left[e^{-S(C)} \right]}    \nonumber \\ 
-          = & & 
-   \frac{  \frac{ \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  }
-       {  \sum_{C}  \left| \Re \left[ e^{-S(C)} \right] \right|  }     }   {  \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  }  } . 
+\langle \hat{O}  \rangle  &=&  \frac{\sum_{C}  e^{-S(C)} \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}  e^{-S(C)}}       \nonumber \\ 
+                          &=&  \frac{\sum_{C}   \Re \left[e^{-S(C)} \right]    \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}   \Re \left[e^{-S(C)} \right]}    \nonumber \\ 
+          &=&
+   \frac{
+     \left\{
+      \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \right\}/
+            \sum_{C}  \left| \Re \left[ e^{-S(C)} \right] \right|  
+          }  
+          { 
+          \left\{ \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) \right\}/
+            \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  
+          } \nonumber\\
+          &=&
+  	 \frac{\sum_{C}   \langle  \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \rangle_{\overline{P}} } { \langle \text{sign} (C)   \rangle_{\overline{P}}}  \;.      
 \end{eqnarray} 
 Here,
 \begin{equation}
@@ -200,17 +209,17 @@ Here,
 \end{equation}
 The Monte Carlo simulation will sample the probability distribution 
 \begin{equation}  
-	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }.
+	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;,
 \end{equation}
-Thereby, 
+% Thereby, 
+% \begin{equation}
+% 	\langle \hat{O}  \rangle  = \frac{\sum_{C}   \langle  \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \rangle_{\overline{P}} } { \langle \text{sign} (C)   \rangle_{\overline{P}}}
+% \end{equation}
+and the average sign is 
 \begin{equation}
-	\langle \hat{O}  \rangle  = \frac{\sum_{C}   \langle  \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \rangle_{\overline{P}} } { \langle \text{sign} (C)   \rangle_{\overline{P}}}
+	 \langle \text{sign} (C) \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  }\;,
 \end{equation}
-with the average sign:
-\begin{equation}
-	 \langle \text{sign} (C) \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  }.  
-\end{equation}
-Per definition, the average sign is real.     In the subroutines  \texttt{Obser}  and \texttt{ObserT}  the main program will provide  the Green functions as well as the 
+which is real per definition.     In the subroutines  \texttt{Obser}  and \texttt{ObserT}  the main program will provide  the Green functions as well as the 
 \begin{equation}
 	\texttt{Phase}   =   \frac{e^{-S(C)}}{ \left| e^{-S(C) }\right| }.
 \end{equation}
