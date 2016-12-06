@@ -89,7 +89,7 @@ This type \texttt{Operator} bundles several components that are needed to define
     \texttt{Op\_X\%E}            & Real &  eigenvalues of $\mathbf{O}$ \\
     \texttt{Op\_X\%N\_non\_zero} & Integer &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
    \end{tabular}
-   \caption{Components of the \texttt{Operator}  type. 
+   \caption{Member Variables of the \texttt{Operator}  type. 
    In the left column, the letter \texttt{X} is a placeholder for the letters \texttt{T} and \texttt{V}, 
    indicating hopping and interaction operators, respectively.
    The highlighted variables have to be specified by the user. \mycomment{Would be nice to reduce the complex type of  $g$ and $\alpha$ to real in the code.}
@@ -97,7 +97,8 @@ This type \texttt{Operator} bundles several components that are needed to define
     \label{table:operator}}
 \end{table}
 %
-In order to specify the  Hamiltonian (\ref{eqn:general_ham}), we will  need several arrays of  structure variables \texttt{Operator}. Its components are listed in Table~\ref{table:operator}.  
+In order to specify the  Hamiltonian (\ref{eqn:general_ham}), we will  need several arrays of the object \texttt{Operator}. 
+Its member variables are listed in Table~\ref{table:operator}.  
 Since the implementation exploits the $SU(N_{\mathrm{col}})$ invariance of the Hamiltonian, we have dropped the color index $\sigma$ in the following.
 \begin{itemize}
 \item Hopping Hamiltonian (\ref{eqn:general_ham_t}): 
@@ -151,13 +152,17 @@ The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\
 
 \subsection{The Lattice type}\label{sec:latt}
 
-We have a lattice module  which can generate one and two dimensional dimensional Bravais lattices.   Note that the  orbital structure of each unit cell, has to be specified by the user  in the  Hamiltonian module. 
- The user has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$ as well as   the size of the  lattice. The size is  characterized by  two vectors $\vec{L}_1$ and $\vec{L}_2$   and  the lattice is placed on a torus: 
+We have a lattice module  which can generate one and two dimensional Bravais lattices.
+Note that the orbital structure of each unit cell, has to be specified by the user in the Hamiltonian module. 
+ The user has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$ as well as the size of the  lattice. The size is  characterized by  two vectors $\vec{L}_1$ and $\vec{L}_2$   and  the lattice is placed on a torus: 
 \begin{equation}
 	\hat{c}_{\vec{i} + \vec{L}_1 }  = \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}
 \end{equation}
-The call 
-\texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
+The function call 
+\begin{lstlisting} 
+Call Make_Lattice( L1, L2, a1,  a2, Latt )
+\end{lstlisting}
+will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
 \begin{equation}
 \label{Latt.G.eq}
 	\vec{a}_i  \cdot \vec{g}_i = 2 \pi \delta_{i,j}, 
