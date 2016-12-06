@@ -207,7 +207,7 @@ An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \
 \begin{lstlisting} 
 
 Obs_scal(2)%N     = Obs_scal(2)%N + 1
-Obs_scal(2)%Phase = Obs_scal(2)%Phase + ZS
+Obs_scal(2)%Ave_sign = Obs_scal(2)%Ave_sign + Real(ZS,kind(0.d0))
 Do i = 1,Ndim
    Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))**2 * Ham_U * ZS * ZP
 Enddo
@@ -229,7 +229,7 @@ such that \texttt{GRC(x,y,s)}    corresponds to  $ \langle \langle  \hat{c}_{x,s
 \begin{lstlisting} 
 
 Obs_eq(4)%N     = Obs_eq(4)%N + 1       ! Even if it is redundant, each observable carries 
-Obs_eq(4)%Phase = Obs_eq(4)%Phase + ZS  ! its own counter and sign.
+Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))  ! its own counter and sign.
 Do I1 = 1,Ndim
    I    = List(I1,1)                    ! = I  For the Hubbard model  on the square
    no_I = List(I1,2)                    ! = 1  lattice there is one orbital per unit-cell. 

@@ -241,19 +241,18 @@ such as the energy and  \texttt{Obser\_Latt}   for correlation functions that ha
 Note that each observable structure also includes the average sign [Eq.~(\ref{eqn:sign_rw})].
 
 \subsubsection{Scalar observables}
-This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Phase =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%phase},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
+This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
 \begin{table}[h]
    \begin{tabular}{l l l l }
     Name of variable  &  Type      &  Description & Expression \\\hline
     \texttt{Obs\%N}                       &  Integer        &   Number of measurements &\\
-    \texttt{Obs\%Phase}               &  Complex     &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
     \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
      \texttt{Obs\%File\_Vec}           &  Character    &    Name of output file  &
    \end{tabular}
    \caption{Components of the \texttt{Obser\_vec}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec}.  
-   \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.  
- }
+   % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
          \label{table:Obser_vec}}
 \end{table}
 At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.f90}  will  append the result of the bin in the file  \texttt{File\_Vec}\_scal.  Note that this subroutine will automatically append the suffix  \_scal 
@@ -265,9 +264,8 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
    \begin{tabular}{l l l l }
     Name of variable  &  Type      &  Description & Expression \\\hline
     \texttt{Obs\%N}                       &  Int.        &   Number of measurements &  \\
-    \texttt{Obs\%Phase}\footnote{Note that for historic reasons this variable is called \texttt{phase} although in the present implementation it does not refer to the (complex) Monte Carlo phase [Eq.~(\ref{eqn:phase})] but to the (integer) 
-    sign [Eq.~(\ref{Sign.eq})] }
-    &  Compl.  &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Ave\_sign}  
+    &  Real  &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
     \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}        & Compl.      &    Cumul.  correl. fct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
      \texttt{Obs\%Obs\_latt0($\alpha$)}        & Compl.      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
      \texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &
