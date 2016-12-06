@@ -194,7 +194,7 @@ The equal time  green function,
 \begin{equation}
 	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle c^{\phantom{\dagger}}_{x,\sigma} c^{\dagger}_{y,\sigma}  \rangle,
 \end{equation}
-the  phase
+the  phase [Eq.~(\ref{eqn:phase})]
 \begin{equation}
 	\texttt{Phase} =  \frac{e^{-S(C)}} { \left| e^{-S(C)} \right| },
 \end{equation}
@@ -207,13 +207,13 @@ An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \
 \begin{lstlisting} 
 
 Obs_scal(2)%N     = Obs_scal(2)%N + 1
-Obs_scal(2)%Phase = Obs_scal(2)%Phase + ZS
+Obs_scal(2)%Ave_sign = Obs_scal(2)%Ave_sign + Real(ZS,kind(0.d0))
 Do i = 1,Ndim
    Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))**2 * Ham_U * ZS * ZP
 Enddo
 
 \end{lstlisting} 
-Here  $ \texttt{ZS} = \text{ sign} (C) $  (see Eq.~\ref{Sign.eq}),  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ and  \texttt{Ham\_U}  corresponds to the Hubbard $U$ term.
+Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard $U$ term.
 
 
 Equal time correlations  are also computed in this routine. As an explicit example, we  consider the equal time density-density   fluctuations:
@@ -228,11 +228,11 @@ For the calculation of such quantities, it is convenient to  define:
 such that \texttt{GRC(x,y,s)}    corresponds to  $ \langle \langle  \hat{c}_{x,s}^{\dagger}\hat{c}_{y,s}^{\phantom\dagger} \rangle \rangle $.  
 \begin{lstlisting} 
 
-Obs_eq(4)%N     = Obs_eq(4)%N + 1       !  Even if it is redundant, each observable carries 
-Obs_eq(4)%Phase = Obs_eq(4)%Phase + ZS  !  its own counter and sign.
+Obs_eq(4)%N     = Obs_eq(4)%N + 1       ! Even if it is redundant, each observable carries 
+Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))  ! its own counter and sign.
 Do I1 = 1,Ndim
-   I    = List(I1,1)   ! = I  For the Hubbard model  on the square
-   no_I = List(I1,2)   ! = 1  lattice there is one orbital per unit-cell. 
+   I    = List(I1,1)                    ! = I  For the Hubbard model  on the square
+   no_I = List(I1,2)                    ! = 1  lattice there is one orbital per unit-cell. 
    Do J1 = 1,Ndim
       J    = List(J1,1)
       no_J = List(J1,2)
@@ -350,12 +350,12 @@ and then  call \texttt{ Make\_Lattice( L1\_p, L2\_p, a1\_p,  a2\_p, Latt ) } so 
 
 Allocate (List(Ndim,Norb), Invlist(Latt%N,Norb))
 nc = 0
-Do I = 1,Latt%N     !  Unit-cell index 
-   Do no = 1,Norb   !  Orbital index
-      nc = nc + 1   !  Super index labeling unit cell and orbital
-      List(nc,1) = I      !  Unit-cell  of super index  nc
-      List(nc,2) = no     !  Orbital of super inde nc
-      Invlist(I,no) = nc  !  Super index for given  unit cell and orbital
+Do I = 1,Latt%N           ! Unit-cell index 
+   Do no = 1,Norb         ! Orbital index
+      nc = nc + 1         ! Super index labeling unit cell and orbital
+      List(nc,1) = I      ! Unit-cell  of super index  nc
+      List(nc,2) = no     ! Orbital of super inde nc
+      Invlist(I,no) = nc  ! Super index for given  unit cell and orbital
   Enddo
 Enddo
 
@@ -369,8 +369,8 @@ Some care has to be taken when setting the hopping matrix.    In the Hamilton mo
 
 \begin{lstlisting}
 
-DO I = 1, Latt%N   ! Loop over unit cell 
-   do no = 1,Norb  ! Runs over orbitals and sets chemical potential
+DO I = 1, Latt%N                              ! Loop over unit cell 
+   do no = 1,Norb                             ! Runs over orbitals and sets chemical potential
       I1 = invlist(I,no)  
       Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
    enddo

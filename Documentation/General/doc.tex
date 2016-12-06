@@ -14,6 +14,7 @@
 \usepackage{subfigure}
 \usepackage{tcolorbox}
 \usepackage{dsfont}
+\usepackage{footnote}
 
 \usepackage{xcolor}
 \usepackage{lmodern}
@@ -48,10 +49,13 @@
 % text ...
 % \end{tcolorbox}
 
+\makesavenoteenv{tabular}
+\makesavenoteenv{table}
+
 \makeindex
 \begin{document}
-\title{A general  implementation of the auxiliary field quantum Monte Carlo  algorithm.}
-\author{Authors:~Martin Bercx and Fakher F. Assaad}
+\title{{\Huge A}lgorithms for {\Huge L}attice {\Huge F}ermions:  Documentation for the  auxiliary field quantum Monte Carlo  algorithm.}
+\author{Authors:~Martin Bercx,  Florian Goth,  Fakher F. Assaad }
 \maketitle
 \tableofcontents
 \clearpage

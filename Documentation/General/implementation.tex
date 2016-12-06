@@ -75,24 +75,24 @@ This type \texttt{Operator} bundles several components that are needed to define
 \subsubsection{Specification of the model}\label{sec:specific}
 %
 \begin{table}[h]
-   \begin{tabular}{l l}
-    Name of variable in the code & Description \\\hline
-    \hl{\texttt{Op\_X\%N}}            &  effective dimension $N$ \\
-    \hl{\texttt{Op\_X\%O}}            &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
-    \hl{\texttt{Op\_X\%P}}            &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
-    \hl{\texttt{Op\_X\%g}}            &  coupling strength $g$ \\  
-    \hl{\texttt{Op\_X\%alpha}}      &  constant $\alpha$ \\
-    \hl{\texttt{Op\_X\%type}}        &  integer parameter to set the type of 
+   \begin{tabular}{l l l}
+    Name of variable in the code & Type & Description \\\hline
+    \hl{\texttt{Op\_X\%N}}       & Integer     &  effective dimension $N$ \\
+    \hl{\texttt{Op\_X\%O}}       & Complex    &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
+    \hl{\texttt{Op\_X\%P}}       & Integer   &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
+    \hl{\texttt{Op\_X\%g}}       & Complex    &  coupling strength $g$ \\  
+    \hl{\texttt{Op\_X\%alpha}}   & Complex  &  constant $\alpha$ \\
+    \hl{\texttt{Op\_X\%type}}    & Integer   &  parameter to set the type of 
                                              HS transformation\\
-                                &  (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
-    \texttt{Op\_X\%U}            &  matrix containing the eigenvectors of $\mathbf{O}$  \\
-    \texttt{Op\_X\%E}            &  eigenvalues of $\mathbf{O}$ \\
-    \texttt{Op\_X\%N\_non\_zero} &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
+                             &   &  (1 = Ising, 2 = Discrete HS, for perfect square)  \\ 
+    \texttt{Op\_X\%U}            & Complex &  matrix containing the eigenvectors of $\mathbf{O}$  \\
+    \texttt{Op\_X\%E}            & Real &  eigenvalues of $\mathbf{O}$ \\
+    \texttt{Op\_X\%N\_non\_zero} & Integer &  number of non-vanishing eigenvalues of $\mathbf{O}$ 
    \end{tabular}
    \caption{Components of the \texttt{Operator}  type. 
    In the left column, the letter \texttt{X} is a placeholder for the letters \texttt{T} and \texttt{V}, 
    indicating hopping and interaction operators, respectively.
-   The highlighted variables have to be specified by the user.
+   The highlighted variables have to be specified by the user. \mycomment{Would be nice to reduce the complex type of  $g$ and $\alpha$ to real in the code.}
   %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
     \label{table:operator}}
 \end{table}
@@ -236,24 +236,24 @@ In the above,   the unspecified dimensions of   structure factor can refer  to i
 
 \subsection{The Observable type}\label{sec:obs}
 
-Our definition  of the model includes observables. We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
+Our definition  of the model includes observables [Eq.~(\ref{eqn:obs_rw})] . We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
 such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run.     
+Note that each observable structure also includes the average sign [Eq.~(\ref{eqn:sign_rw})].
 
 \subsubsection{Scalar observables}
-This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Phase =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%phase},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
+This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
 \begin{table}[h]
-   \begin{tabular}{l ll }
-    Name of variable  &  Type      &  Description \\\hline
-    \texttt{Obs\%N}                       &  Integer        &   Number of measurements  \\
-    \texttt{Obs\%Phase}               &  Complex     &    Cumulated sign (See Eq.~\ref{Sign.eq})  \\
-    \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables. 
+   \begin{tabular}{l l l l }
+    Name of variable  &  Type      &  Description & Expression \\\hline
+    \texttt{Obs\%N}                       &  Integer        &   Number of measurements &\\
+    \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
-     \texttt{Obs\%File\_Vec}           &  Character    &    Filename  in which the bins are written  
+     \texttt{Obs\%File\_Vec}           &  Character    &    Name of output file  &
    \end{tabular}
    \caption{Components of the \texttt{Obser\_vec}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec}.  
-\mycomment{I think you do not  use the vector character of the member \texttt{Obser\_vec\%Obs}. For the observables like energy you have created an array of type variables \texttt{Obser\_vec} 
-but within the type variable, the vector is of size $1$. And each scalar observable gets its own type variable \texttt{Obs}. This is a detail but it puzzled me first. Do we have an example where the vector would be larger than $1$?}
-      \label{table:Obser_vec}}
+   % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
+         \label{table:Obser_vec}}
 \end{table}
 At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.f90}  will  append the result of the bin in the file  \texttt{File\_Vec}\_scal.  Note that this subroutine will automatically append the suffix  \_scal 
 to the the filename \texttt{File\_Vec}.    This suffix  is important to allow automatic analysis of the data at the end of the run. 
@@ -261,13 +261,14 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
 \subsubsection{ Equal time and time displaced correlation functions}
 
 \begin{table}[h]
-   \begin{tabular}{l ll }
-    Name of variable  &  Type      &  Description \\\hline
-    \texttt{Obs\%N}                       &  Integer        &   Number of measurements  \\
-    \texttt{Obs\%Phase}               &  Complex     &    Cumulated sign (See Eq.~\ref{Sign.eq})  \\
-    \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}        & Complex      &    Cumulated   correlation function  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
-     \texttt{Obs\%Obs\_latt0($\alpha$)}        & Complex      &    Cumulated    $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
-     \texttt{Obs\%File\_Latt}           &  Character    &    Filename  in which the bins are written  
+   \begin{tabular}{l l l l }
+    Name of variable  &  Type      &  Description & Expression \\\hline
+    \texttt{Obs\%N}                       &  Int.        &   Number of measurements &  \\
+    \texttt{Obs\%Ave\_sign}  
+    &  Real  &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}        & Compl.      &    Cumul.  correl. fct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
+     \texttt{Obs\%Obs\_latt0($\alpha$)}        & Compl.      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
+     \texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &
    \end{tabular}
    \caption{Components of the \texttt{Obser\_latt}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_latt}  
       \label{table:Obser_vec}}
