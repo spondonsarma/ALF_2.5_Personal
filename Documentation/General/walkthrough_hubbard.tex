@@ -24,7 +24,7 @@ The main program will call the subroutine   \texttt{Ham\_set} in the module \tex
 This  subroutine  defines the  public variables
 \begin{lstlisting}
 
-  Type (Operator), dimension(:,:), allocatable  :: Op_V
+  Type (Operator), dimension(:,:), allocatable  :: Op_V !test
   Type (Operator), dimension(:,:), allocatable  :: Op_T
   Integer, allocatable :: nsigma(:,:)
   Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
