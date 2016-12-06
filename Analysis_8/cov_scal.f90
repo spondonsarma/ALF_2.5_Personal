@@ -6,7 +6,7 @@
 
         REAL    (KIND=8), DIMENSION(:,:), ALLOCATABLE :: OBS
         REAL    (KIND=8), DIMENSION(:),   ALLOCATABLE :: EN, SIGN
-        REAL    (KIND=8) :: XM, XERR
+        REAL    (KIND=8) :: XM, XERR, X
 
         Complex (Kind=8) Z1,Z2,Z3,Z4,Z5
         Complex (Kind=8), Allocatable  :: Tmp(:)
@@ -34,7 +34,8 @@
         rewind(10)
         nbins = 0
         do
-            read(10,*,End=10) N,  (Tmp(I), I=1,size(Tmp,1))
+            read(10,*,End=10) N,  (Tmp(I), I=1,size(Tmp,1)-1), X
+            Tmp(NOBS) = cmplx(X,0.d0,kind(0.d0))
             nbins = nbins + 1
          enddo
 10       continue
@@ -45,19 +46,17 @@
          
          ALLOCATE(OBS(NP,NOBS))
 
-         !Open (Unit=25, File="statdat1", status="unknown") 
-         !read(25,*) NST, NS1, NS2, NSTEP
-         !Close(25)
          NST = N_skip; NS1 = N_Rebin; NS2 = N_Rebin; NSTEP = 1
          OPEN (UNIT=20, FILE='Var_scal', STATUS='old')
          NC = 0
          DO N = 1,NP
             IF (N.GE.NST) THEN
                NC = NC + 1
-               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)) 
+               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)-1),X 
+               Tmp(NOBS) = cmplx(X,0.d0,kind(0.d0))
                OBS(NC,:) = dble(Tmp(:)) 
             ELSE
-               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)) 
+               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)-1),X 
             ENDIF
          ENDDO
          CLOSE(20)
@@ -70,8 +69,8 @@
          DO IOBS = 1,NOBS
             WRITE(21,*)
             DO I = 1,NP_EFF
-               EN  (I) = OBS(I,IOBS)
-               SIGN(I) = OBS(I,NOBS)
+               EN  (I) = Real(OBS(I,IOBS), kind(0.d0))
+               SIGN(I) = Real(OBS(I,NOBS), kind(0.d0))
             ENDDO
             DO NBIN = NS1, NS2, NSTEP
                if (NBIN.gt.0) then

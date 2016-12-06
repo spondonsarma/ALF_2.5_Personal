@@ -423,8 +423,8 @@
 
           ! Compute scalar observables. 
           Do I = 1,Size(Obs_scal,1)
-             Obs_scal(I)%N           =  Obs_scal(I)%N + 1
-             Obs_scal(I)%Phase       =  Obs_scal(I)%Phase + ZS
+             Obs_scal(I)%N         =  Obs_scal(I)%N + 1
+             Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
           Enddo
              
 
@@ -466,8 +466,8 @@
           
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
           DO I = 1,Size(Obs_eq,1)
-             Obs_eq(I)%N = Obs_eq(I)%N + 1
-             Obs_eq(I)%Phase = Obs_eq(I)%Phase + ZS
+             Obs_eq(I)%N        = Obs_eq(I)%N + 1
+             Obs_eq(I)%Ave_sign = Obs_eq(I)%Ave_sign + real(ZS,kind(0.d0))
           ENDDO
           If ( Model == "Hubbard_SU2"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
@@ -542,7 +542,7 @@
           If (NT == 0 ) then 
              DO I = 1,Size(Obs_tau,1)
                 Obs_tau(I)%N = Obs_tau(I)%N + 1
-                Obs_tau(I)%Phase = Obs_tau(I)%Phase + ZS
+                Obs_tau(I)%Ave_sign = Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
              ENDDO
           endif
           If ( Model == "Hubbard_SU2"  ) then 

@@ -15,9 +15,9 @@
  Nstm               :            5
  Ltau               :            1
 Prog will stop after hours:    0.1000
-  Precision Green  Mean, Max :    5.3578014774427781E-015   2.3996474105189316E-011
-  Precision Phase, Max       :    8.6669190487672691E-013
-  Precision tau    Mean, Max :    2.4014202185087265E-015   6.3816469307364430E-013
-  Acceptance                 :   0.34929055555555555     
-  CPU Time                   :    348.98304400000001     
+  Precision Green  Mean, Max :    5.3364556617240184E-015   2.5235232192609757E-011
+  Precision Phase, Max       :    2.1020352026851251E-012
+  Precision tau    Mean, Max :    2.4258626252422851E-015   1.1286160318702845E-012
+  Acceptance                 :   0.34932027777777780     
+  CPU Time                   :    348.55599400000000     
   Effective number of bins   :           28
