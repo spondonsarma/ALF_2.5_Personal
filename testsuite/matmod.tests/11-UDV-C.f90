@@ -1,3 +1,5 @@
+!compile with gfortran 11-UDV-C.f90 -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/myold/libnag.a
+
 Program UDVC
 Use MyMats
 implicit none
@@ -7,7 +9,7 @@ COMPLEX (KIND=KIND(0.D0)), dimension(:), allocatable :: d
 INTEGER :: ncon, i, j, ndim, nr
 COMPLEX (KIND=KIND(0.D0)) :: Z
 
-ndim = 5
+ndim = 1000
 ncon = 1
 allocate(a(ndim, ndim), u(ndim, ndim), v(ndim, ndim), d(ndim), test(ndim, ndim))
 ! initialize A to the Hilbert matrix
@@ -27,5 +29,13 @@ call UDV_C(a, u, d, v, ncon)
                  TEST(I,J) = Z
               ENDDO
            ENDDO
+do i = 1, ndim
+do j = 1, ndim
+if (Abs(a(i,j) - test(i,j)) > max(abs(a(i,j)), abs(test(i,j)))*1D-14) then
+write (*, *) i, j, dble(a(i,j)),  " != ", dble(test(i,j)), "diff: ", Abs(a(i,j) - test(i,j))
+STOP 2
+end if
+enddo
+enddo
 deallocate(a, u, d, v, test)
 end program
