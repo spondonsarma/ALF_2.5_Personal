@@ -9,7 +9,7 @@ REAL (KIND=KIND(0.D0)), dimension(:), allocatable :: d
 INTEGER :: ncon, i, j, ndim, nr
 REAL (KIND=KIND(0.D0)) :: Z
 
-ndim = 1000
+ndim = 100
 ncon = 1
 allocate(a(ndim, ndim), u(ndim, ndim), v(ndim, ndim), d(ndim), test(ndim, ndim))
 ! initialize A to the Hilbert matrix
@@ -18,7 +18,7 @@ do j = 1, ndim
 a(i, j) = 1.D0/(i+j)
 enddo
 enddo
-call UDV_C(a, u, d, v, ncon)
+call UDV1_R(a, u, d, v, ncon)
 ! check decomposition
            DO J = 1,ndim
               DO I = 1,ndim
