@@ -892,33 +892,39 @@
         COMPLEX (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
         COMPLEX (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:) :: D
         INTEGER, INTENT(IN) :: NCON
-        INTEGER :: NE, LQ, IFAIL, I, J, NR
 
         !Local
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: THETA, WORK
+        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: TAU, WORK
         COMPLEX (KIND=KIND(0.D0)) :: Z
         REAL (KIND=KIND(0.D0)) :: DETV, XMDIFF, X
+        INTEGER :: NE, LQ, INFO, I, J, NR, LWORK
 
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
 
         U = 0.D0 ; V = 0.D0; D = 0.D0
-        ALLOCATE (TMP(LQ,NE), THETA(NE), WORK(NE))
+        ALLOCATE (TMP(LQ,NE), TAU(NE), WORK(NE))
 
         TMP = A
 
-        !You now want to UDV TMP. Nag routines.
-        IFAIL = 0
+        !You now want to UDV TMP.
+        INFO = 0
 
-        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)
-
-
-        DO I = 1,NE
-           DO J = I,NE
-              V(I,J) = TMP(I,J)
-           ENDDO
-        ENDDO
+        ! Query optimal work space
+        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
+        LWORK = WORK(1)
+        DEALLOCATE(WORK)
+        ALLOCATE(WORK(LWORK))
+        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
+!        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)
+        CALL ZLACPY('U', NE, NE, TMP, LQ, V, Size(V,1))
+!        V = TMP
+!         DO I = 1,NE
+!            DO J = I,NE
+!               V(I,J) = TMP(I,J)
+!            ENDDO
+!         ENDDO
         DETV = 1.D0
         !V is an NE by NE upper triangular matrix with real diagonal elements.
         DO I = 1,NE
@@ -927,18 +933,12 @@
 
         !Compute U
 
-        CALL F01REF('Separate', LQ,NE, NE, TMP, &
-             & LQ, THETA, WORK, IFAIL)
-
-
-
-
-
-        DO J = 1,NE
-           DO I = 1,LQ
-              U(I,J) = TMP(I,J)
-           ENDDO
-        ENDDO
+!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
+!             & LQ, THETA, WORK, INFO)
+! We assume that ZUNGQR and ZGEQRF can work on the same work array.
+        CALL ZUNGQR(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
+        DEALLOCATE(TAU)
+        CALL ZLACPY('A', LQ, NE, TMP, LQ, U, Size(U,1))
 
         IF (DBLE(DETV).LT.0.D0) THEN
            DO I = 1,LQ
@@ -982,7 +982,7 @@
            DEALLOCATE( TEST )
         ENDIF
 
-        DEALLOCATE (TMP, THETA, WORK)
+        DEALLOCATE (TMP, WORK)
 
         RETURN
       END SUBROUTINE UDV_C
