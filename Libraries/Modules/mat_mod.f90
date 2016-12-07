@@ -709,19 +709,19 @@
 !--------------------------------------------------------------------
        SUBROUTINE UDV1_R(A,U,D,V,NCON)
          IMPLICIT NONE
-         REAL (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-         REAL (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-         REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+         REAL (KIND=KIND(0.D0)), INTENT(IN), DIMENSION(:,:) :: A
+         REAL (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+         REAL (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:) :: D
          INTEGER, INTENT(IN) :: NCON
 
 !        The Det of V is not equal to unity. 
 ! Locals:
          INTEGER, DIMENSION(:), ALLOCATABLE :: IVPT, IVPTM1
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: XNORM, VHELP,&
-              & THETA, WORK
-         REAL (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
+         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: XNORM, VHELP,&
+              & TAU, WORK
+         REAL (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
               & TEST, TEST1, TEST2
-         REAL (KIND=8) :: XMAX, XMEAN, Z
+         REAL (KIND=KIND(0.D0)) :: XMAX, XMEAN, Z
          INTEGER I,J,K, ND1, ND2, NR, IMAX, INFO, LWORK
 
          ND1 = SIZE(A,1)
@@ -750,7 +750,7 @@
          ALLOCATE(IVPT (ND2))
          ALLOCATE(IVPTM1(ND2))
          ALLOCATE(WORK (ND2))
-         ALLOCATE(THETA (ND2))
+         ALLOCATE(TAU (ND2))
 
          ALLOCATE(TMP(ND1,ND2))
          ALLOCATE(V1 (ND2,ND2))
@@ -786,11 +786,16 @@
          ENDDO
 
 
-         !You now want to UDV TMP. Nag routines.
+         !You now want to UDV TMP.
          INFO = 0
 
-
-         CALL F01QCF(ND1,ND2,TMP,ND1,THETA,INFO)
+        ! Query optimal work space
+        CALL DGEQRF(ND1, ND2, TMP, ND1, TAU, WORK, -1, INFO)
+        LWORK = WORK(1)
+        DEALLOCATE(WORK)
+        ALLOCATE(WORK(LWORK))
+        CALL DGEQRF(ND1, ND2, TMP, ND1, TAU, WORK, LWORK, INFO)
+!         CALL F01QCF(ND1,ND2,TMP,ND1,THETA,INFO)
          
 
          !Scale V1 to a unit triangluar matrix.
@@ -806,17 +811,17 @@
          
 ! Compute U
          INFO = 0
-
-         CALL F01QEF('Separate', ND1,ND2, ND2, TMP,&
-              & ND1, THETA, WORK, INFO)
-
-
-         DO I = 1,ND1
-            DO J = 1,ND2
-               U(I,J) = TMP(I,J)
-            ENDDO
-         ENDDO
-         DEALLOCATE(TMP, WORK, THETA)
+        CALL DORGQR(ND1, ND2, ND2, TMP, ND1, TAU, WORK, LWORK, INFO)
+!         CALL F01QEF('Separate', ND1,ND2, ND2, TMP,&
+!              & ND1, THETA, WORK, INFO)
+        CALL DLACPY('A', ND1, ND2, TMP, ND1, U, Size(U,1))
+! 
+!          DO I = 1,ND1
+!             DO J = 1,ND2
+!                U(I,J) = TMP(I,J)
+!             ENDDO
+!          ENDDO
+         DEALLOCATE(TMP, WORK, TAU)
 
 ! Finish the pivotting.
          DO I = 1,ND2
@@ -993,15 +998,15 @@
       SUBROUTINE QR_C(A,U,V,NCON)
 
         IMPLICIT NONE
-        COMPLEX (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
+        COMPLEX (KIND=KIND(0.D0)), INTENT(IN), DIMENSION(:,:) :: A
+        COMPLEX (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
         INTEGER, INTENT(IN) :: NCON
 
         !Local
-        COMPLEX (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
-        COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: TAU, WORK
-        COMPLEX (KIND=8) :: Z
-        REAL (KIND=8) :: DETV, XMDIFF, X
+        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
+        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: TAU, WORK
+        COMPLEX (KIND=KIND(0.D0)) :: Z
+        REAL (KIND=KIND(0.D0)) :: DETV, XMDIFF, X
         INTEGER :: NE, LQ, INFO, I, J, NR, LDV, LDU, DU2, DV2, LWORK
 
         LQ = SIZE(A,1)
