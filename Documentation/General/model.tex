@@ -53,16 +53,14 @@ The indices have the following meaning:
 \begin{itemize}
 \item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard-Stratonovich transformation, the action will be block diagonal in the flavor index. 
 \item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $. 
-%\mycomment{ Does it set the symmetry group of the fermions, namely 
-%the dimension of the special unitary group $SU(N_{sun})$?}
 \item The indices $x,y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
-$N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{unit\;cell} N_{orbital}$, where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell \mycomment{Check the definition of $N_{orbital}$ in the code.} 
+$N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{unit\;cell} N_{orbital}$, 
+where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell.
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$
 \item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
 \item $\hat{Z}_k$ is an Ising spin operator which corresponds to the Pauli matrix $\hat{\sigma}_{z}$. It couples to a general one-body term. 
 \item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising spins. 
 This term has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{}).
-%\mycomment{Be more general here and sreak of correlated blocks?}
 \end{itemize}
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
 The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
@@ -70,7 +68,6 @@ the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  herm
 
 
 \subsection{Formulation of the QMC}  
-\subsubsection{The partition function}
 The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
@@ -97,6 +94,8 @@ is given by the combined spaces of Ising spin configurations  and of Hubbard-Str
 \end{equation}
 Here, the Ising spins take the values  $s_{i,\tau} = \pm 1$ and  the Hubbard-Stratonovich fields take the values  $l_{j,\tau}  = \pm 2, \pm 1 $.
 \end{itemize}
+
+\subsubsection{The partition function}
 With the above, the partition function of the model (\ref{eqn:general_ham}) can be written as follows.
 \begin{eqnarray}
 Z &=& \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
@@ -226,7 +225,7 @@ In the subroutines  \texttt{Obser}  and \texttt{ObserT} of the module \texttt{Ha
 \begin{equation}\label{eqn:phase}
 	\text{phase}(C)   =   \frac{e^{-S(C)}}{ \left| e^{-S(C) }\right| }\;,
 \end{equation}
-which then is used to compute both $ \text{sign}(C)$ and the factor $  \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} $. \mycomment{MB I have moved the comment on the sign in the observable strucure to the obs. section}
+which then is used to compute both $ \text{sign}(C)$ and the factor $  \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} $. 
 
 
 

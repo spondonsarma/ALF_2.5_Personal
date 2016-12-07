@@ -1,4 +1,4 @@
-\documentclass[10pt,Arial]{article}
+\documentclass[10pt,Arial]{scrartcl}
 \usepackage{graphicx}
 %\usepackage{a4wide}
 \usepackage[margin=2.5cm]{geometry}
@@ -66,10 +66,16 @@ language=bash,
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
+\setkomafont{author}{\large}
+\setkomafont{date}{\large}
+
+
 \makeindex
 \begin{document}
-\title{{\Huge A}lgorithms for {\Huge L}attice {\Huge F}ermions:  Documentation for the  auxiliary field quantum Monte Carlo  code.}
-\author{Authors:~Martin Bercx,  Florian Goth,  Fakher F. Assaad }
+\title{
+The ALF (Algorithms for Lattice Fermions) package release 1.0}
+\subtitle{Documentation for the  auxiliary field quantum Monte Carlo  code.}
+\author{Martin Bercx,  Florian Goth,  Fakher F. Assaad }
 \maketitle
 \tableofcontents
 \clearpage
@@ -81,6 +87,7 @@ language=bash,
 \input{analysis}
 \input{running}
 
+\addcontentsline{toc}{section}{Acknowledgements}
 \section*{Acknowledgements}
  MB thanks the the Bavarian Competence Network for Technical and Scientific High Performance Computing (KONWIRH) for financial support. FG thanks the SFB-1170 for  financial support under project (Z03).  FFA thanks the DFG-funded FOR1807 for partial financial support.
 Calculations  to extensively test this package were carried out on SuperMUC at the  Leibniz Supercomputing Centre and on  JURECA \cite{Jureca16} at the J\"ulich Supercomputing Centre (JSC). We thank those institutions for generous computer allocations.

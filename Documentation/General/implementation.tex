@@ -1,32 +1,33 @@
 % !TEX root = Doc.tex
 \section{Implementation of the model} \label{sec:imp}
-In the code, the module \texttt{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}).
-The respective file name is \texttt{Hamiltonian\_\textit{<Model Name>}.f90}: for example, \texttt{Hamiltonian\_Hub.f90} defines the plain Hubbard model on the two-dimensional square lattice. To implement a user-defined model, therefore only the module \texttt{Hamil}-\texttt{tonian} has to be set up. Accordingly, this documentation focusses almost entirely  on this module and the subprograms it includes. 
+In general, the module \texttt{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). 
+We have collected a number of example Hamiltonians, lattices and observables in the file  \texttt{Hamiltonian\_Examples.f90}.  They are described in the Sec.~\ref{??}.
+To implement a user-defined model, only the module \texttt{Hamil}\texttt{tonian} has to be set up. Accordingly, this documentation focusses almost entirely  on this module and the subprograms it includes. 
 The remaining parts of the code may be treated as as a black box.  
 
-To specify the Hamiltonian, one needs  an  \texttt{Operator},  \texttt{Lattice}   and  observable types. These three data structures will be described in the following. 
+To specify the Hamiltonian, one needs  an  \texttt{Operator} and \texttt{Lattice} type as well as a type for the observables. These three data structures will be described in the following. 
 
 %
 \begin{table}[h]
    \begin{tabular}{l l l}
-    Name of &  &  \\
-    subprogram & Description & Section \\\hline
-    \texttt{Ham\_Set}  & Reads in model and lattice parameters from the file \texttt{parameters}. \\
+    Subprogram & Description & Section \\\hline
+    \hl{\texttt{Ham\_Set}}  & Reads in model and lattice parameters from the file \texttt{parameters}. \\
                        & And it sets the Hamiltonian by calling \texttt{Ham\_latt}, \texttt{Ham\_hop}, and \texttt{Ham\_V}. & \\
-    \texttt{Ham\_hop}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}. & \ref{sec:op}, \ref{sec:specific}\\
-    \texttt{Ham\_V}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
+    \hl{\texttt{Ham\_hop}}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}. & \ref{sec:op}, \ref{sec:specific}\\
+    \hl{\texttt{Ham\_V}}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
                          by calling \texttt{Op\_make} and \texttt{Op\_set}.& \ref{sec:op}, \ref{sec:specific}\\  
-    \texttt{Ham\_Latt} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
-    \texttt{S0}        & A function which returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
+    \hl{\texttt{Ham\_Latt}} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
+    \hl{\texttt{S0}}        & A function which returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
     & \ref{sec:s0} \\
-    \texttt{Alloc\_obs} & Asigns memory storage to the observables & \\
-    \texttt{Init\_obs}  & Initializes the observables to zero. & \\
-    \texttt{Obser}      & Computes the scalar observables and equal-time correlation functions. & \ref{sec:obs} \\
-    \texttt{ObserT}     & Computes time-displaced correlation functions. & \ref{sec:obs}\\
-    \texttt{Pr\_obs}    & Writes the observables to the disk by calling \texttt{Print\_bin}.   
+    \hl{\texttt{Alloc\_obs}} & Asigns memory storage to the observables & \\
+    \hl{\texttt{Obser}}      & Computes the scalar observables and equal-time correlation functions. & \ref{sec:obs} \\
+    \hl{\texttt{ObserT}}     & Computes time-displaced correlation functions. & \ref{sec:obs}\\
+    \texttt{Init\_obs}  & Initializes the observables to zero. & \\    
+    \texttt{Pr\_obs}    & Writes the observables to the disk by calling \texttt{Print\_bin}. 
     
    \end{tabular}
-   \caption{   Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables.
+   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables. 
+   The highlighted subroutines have to be modified by the user.
     \label{table:hamiltonian}}
 \end{table}
 %
@@ -76,7 +77,7 @@ This type \texttt{Operator} bundles several components that are needed to define
 %
 \begin{table}[h]
    \begin{tabular}{l l l}
-    Name of variable in the code & Type & Description \\\hline
+    Variable & Type & Description \\\hline
     \hl{\texttt{Op\_X\%N}}       & Integer     &  effective dimension $N$ \\
     \hl{\texttt{Op\_X\%O}}       & Complex    &  matrix  $\mathbf{O}$  of dimension $N \times N$\\
     \hl{\texttt{Op\_X\%P}}       & Integer   &  projection matrix $\mathbf{P}$  encoded as a vector of dimension $N$.\\
@@ -150,7 +151,7 @@ The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\
 
 
 
-\subsection{The Lattice type}\label{sec:latt}
+\subsection{The \texttt{Lattice} type}\label{sec:latt}
 
 We have a lattice module  which can generate one and two dimensional Bravais lattices.
 Note that the orbital structure of each unit cell, has to be specified by the user in the Hamiltonian module. 
@@ -200,7 +201,7 @@ such that
 %
 \begin{table}[h]
    \begin{tabular}{l l l}
-    Name of variable  & Type & Description \\\hline
+    Variable  & Type & Description \\\hline
      \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & Real     & Unit vectors $\vec{a}_1$,  $\vec{a}_2$ \\ 
      \hl{\texttt{Latt\%L1\_p}, \texttt{Latt\%L2\_p}}   & Real     & Vectors $\vec{L}_1$, $\vec{L}_2$ that define the topology of the  lattice. \\
      									  &              &  Tilted lattices are  thereby possible to implement.  \\
@@ -239,7 +240,7 @@ and  \texttt{Fourier\_K\_to\_R}  the  inverse Fourier transform
 In the above,   the unspecified dimensions of   structure factor can refer  to imaginary time,  and orbital indices. 
 
 
-\subsection{The Observable type}\label{sec:obs}
+\subsection{The observable types \texttt{Obser\_Vec} and \texttt{Obser\_Latt}}\label{sec:obs}
 
 Our definition  of the model includes observables [Eq.~(\ref{eqn:obs_rw})] . We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
 such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run.     
@@ -249,7 +250,7 @@ Note that each observable structure also includes the average sign [Eq.~(\ref{eq
 This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.f90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by unity,   the sign  (see Eq.~\ref{Sign.eq}) is cumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired  the observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are cumulated in the vector \texttt{Obs\%Obs\_vec}.  
 \begin{table}[h]
    \begin{tabular}{l l l l }
-    Name of variable  &  Type      &  Description & Expression \\\hline
+    Variable  &  Type      &  Description & Expression \\\hline
     \texttt{Obs\%N}                       &  Integer        &   Number of measurements &\\
     \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
     \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
@@ -263,11 +264,11 @@ This data type  is described in Table  \ref{table:Obser_vec} and  is useful to c
 At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.f90}  will  append the result of the bin in the file  \texttt{File\_Vec}\_scal.  Note that this subroutine will automatically append the suffix  \_scal 
 to the the filename \texttt{File\_Vec}.    This suffix  is important to allow automatic analysis of the data at the end of the run. 
 
-\subsubsection{ Equal time and time displaced correlation functions}
+\subsubsection{ Equal time and time-displaced correlation functions}
 
 \begin{table}[h]
    \begin{tabular}{l l l l }
-    Name of variable  &  Type      &  Description & Expression \\\hline
+    Variable  &  Type      &  Description & Expression \\\hline
     \texttt{Obs\%N}                       &  Int.        &   Number of measurements &  \\
     \texttt{Obs\%Ave\_sign}  
     &  Real  &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\

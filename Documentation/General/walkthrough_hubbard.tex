@@ -19,12 +19,12 @@ $N_{fl} = 1$, $N_{col} \equiv N_{SUn}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x
 
 
 
-\subsection{Setting the Hamiltonian.  \texttt{Ham\_set} }
+\subsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
 The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.f90}.
 This  subroutine  defines the  public variables
 \begin{lstlisting}
 
-  Type (Operator), dimension(:,:), allocatable  :: Op_V !test
+  Type (Operator), dimension(:,:), allocatable  :: Op_V 
   Type (Operator), dimension(:,:), allocatable  :: Op_T
   Integer, allocatable :: nsigma(:,:)
   Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
@@ -67,11 +67,11 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 % %\end{verbatim}
 % Here we have three name lists relevant for  defining the lattice, model parameters as well  as the Monte Carlo run.   Thereby, \texttt{Ltrot=Beta/dtau}. 
 
-\subsubsection{The lattice.   \texttt{Call Ham\_latt} }
+\subsubsection{The lattice:   \texttt{Call Ham\_latt} }
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{dim}   \equiv N_{unit\;cell}   \cdot NORB  =  Latt\%N$. 
 
 
-\subsubsection{Hopping term. \texttt{Call Ham\_hop}}
+\subsubsection{The hopping term: \texttt{Call Ham\_hop}}
 The hopping matrix is implemented as follows. 
 We allocate an array of dimension $1\times 1$ of type operator  called \texttt{Op\_T} and set the  dimension for the hopping  matrix to $N=N_{dim}$. One  allocates and initializes this type by a single call to the subroutine \texttt{Op\_make}: 
 \begin{lstlisting}
@@ -106,7 +106,7 @@ already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as t
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
 \mycomment{Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse Hopping matrices.}
 
-\subsubsection{Interaction term. \texttt{Call Ham\_V}}
+\subsubsection{The interaction term: \texttt{Call Ham\_V}}
 To implement this interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{dim}\times N_{fl}=N_{dim} \times 1$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
 
@@ -139,7 +139,7 @@ If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,
 
 The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
 
-\subsubsection{Allocating space for the observables \texttt{Call Alloc\_obs(Ltau) }} 
+\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} 
 \label{Alloc_obs_sec}
 
  For  four scalar  or vector observables,  the user will have to  declare the following: 
@@ -249,7 +249,7 @@ Enddo
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 
-\subsubsection{Measuring  unequal time observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
+\subsubsection{Measuring time-displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
 
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   impaginariy time difference.   For a given time  displacement, the main program provides:
 \begin{eqnarray}
@@ -271,7 +271,7 @@ The handling of time-displaced correlation functions is identical to that of equ
 
 
 
-\section{Walkthrough: the M$_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
+\section{Walkthrough: the $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
 
 The Hubbard Hamiltonian can equally be written as:
 \begin{equation}
@@ -286,7 +286,7 @@ c^{\dagger}_{x, \uparrow} c^{\phantom\dagger}_{x \uparrow}  -   c^{\dagger}_{x, 
 We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:general_ham}) by setting: 
 $N_{fl} = 2$, $N_{col} \equiv N_{SUn}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{Unit\; cells} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   The coupling of the HS  to the z-component of   the magnetization breaks the SU(2) spin symmetry. Nevertheless the z-component of spin remains a good quantum number such that  the imaginary time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry the simulation in the above representation.   With respect to the SU(2) case, the changes required in the \texttt{Hamiltonian\_Hub\_Template.f90}   module are  minimal and essentially effect only the interaction term, and calculation of observables.  We note that  in this formulation the  hopping matrix can be falvor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{??}.    
- \subsection{The interaction: \texttt{Call Ham\_V} } 
+ \subsection{The interaction term: \texttt{Call Ham\_V} } 
 The interaction term is now given by: 
 
 \begin{lstlisting}
@@ -315,7 +315,7 @@ Enddo
 \end{lstlisting}
 In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors.  
 
- \subsection{The  measurments: \texttt{Call Obser, Call  ObserT} } 
+ \subsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
  Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal time spin-spin correlation functions,
  $ 4 \langle \langle \hat{S}^{z}_{\vec{i}}   \hat{S}^{z}_{\vec{j}} \rangle \rangle   $, calculated in the subroutine  \texttt{Obser},  will take the form: 
   \begin{eqnarray}
@@ -327,7 +327,7 @@ In the above, one will see explicitly that  there is a sign   difference between
   Apart from these modifications, the program  will run in exactly the same manner as for the SU(2) case. 
   
   
-\section{Walkthrough: the SU(2)-Hubbard model on  the Honeycomb  lattice}\label{sec:walk1.2}
+\section{Walkthrough: the $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
 The Hamilton module \texttt{Hamiltonian\_Hub\_Template.f90}   can also carry out simulations for  the the Hubbard model on the Honeycomb lattice by setting in the parameter file  (see Sec.~\ref{sec:input})   \texttt{Lattice\_type = "Honeycomb"}.
 
 \subsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} }
@@ -364,7 +364,7 @@ Enddo
 
 With the above lists one can run trough all the orbitals and at each time keep track of the unit-cell and orbital index.  
 
-\subsection{Setting the hopping:  \texttt{Call Ham\_Hop} }
+\subsection{The hopping term:  \texttt{Call Ham\_Hop} }
 
 Some care has to be taken when setting the hopping matrix.    In the Hamilton module \texttt{Hamiltonian\_Hub\_Template.f90}   we do this in the following way. 
 
@@ -422,7 +422,7 @@ $N_{fl} = 1$, $N_{col} \equiv N_{SUn}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x
 The modifications  required to generalize the Hubbard model code to the above model are two-fold.  Firstly, one has to specify the function \texttt{Real (Kind=8) function S0(n,nt)} and  secondly  modify the interaction \texttt{Call Ham\_V}.
 
 
-\subsection{Interaction term. \texttt{Call Ham\_V}}
+\subsection{The interaction term: \texttt{Call Ham\_V}}
 The dimension of   \texttt{Op\_V}  is now  $(M_V + M_I)\times N_{fl}=(3*N_{dim}) \times 1$. 
 We set the effective dimension  for the Hubbard term to  $N=1$  and to  $N=2$ for the Ising term. The allocation of this array of operators reads: 
 
