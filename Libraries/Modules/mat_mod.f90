@@ -869,23 +869,36 @@
 
       END SUBROUTINE UDV1_R
 
-!***************
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and Florian Goth
+!
+!> @brief 
+!> This function calculates the SVD using the standard QR algorithm
+!> of LaPack.
+!
+!> @note Using the Divide & Conquer algorithm would not yield 
+!> enough accuracy for using within an auxiliary field type algorithm.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] U a 2D array containing the left singular vectors.
+!> @param[out] D a 1D array containing the sorted singular values.
+!> @param[out] V a 2D array containing the right singular vectors.
+!> @param[in] NCON
+!--------------------------------------------------------------------
       SUBROUTINE UDV_C(A,U,D,V,NCON)
-        !Uses Nag library.
-        !#include "machine"
-
         IMPLICIT NONE
-        COMPLEX (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+        COMPLEX (KIND=KIND(0.D0)), INTENT(IN), DIMENSION(:,:) :: A
+        COMPLEX (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+        COMPLEX (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:) :: D
         INTEGER, INTENT(IN) :: NCON
         INTEGER :: NE, LQ, IFAIL, I, J, NR
 
         !Local
-        COMPLEX (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
-        COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: THETA, WORK
-        COMPLEX (KIND=8) :: Z
-        REAL (KIND=8) :: DETV, XMDIFF, X
+        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
+        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: THETA, WORK
+        COMPLEX (KIND=KIND(0.D0)) :: Z
+        REAL (KIND=KIND(0.D0)) :: DETV, XMDIFF, X
 
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
@@ -1053,7 +1066,7 @@
 
 !--------------------------------------------------------------------
 !> @author
-!> Fakher Assaad and  Florian Goth
+!> Fakher Assaad and Florian Goth
 !
 !> @brief 
 !> This function calculates the SVD using the standard QR algorithm
