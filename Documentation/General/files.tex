@@ -11,7 +11,11 @@
   \texttt{Documentation/} & \mycomment{to include}\\
 %   \texttt{configure.sh} & sets the global variables for compilation \\
    \end{tabular}
-   \caption{Overview of the directories. \label{table:files}}
+   \caption{Overview of the directories. 
+   \mycomment{We should rename \texttt{Test\_Hub\_Template/}. Just \texttt{Examples/}? This gives us flexibility to include more examples not limited to the Hubbard interaction.
+   Then we could have \texttt{Examples/Hubbard\_SU2\_Square}, \texttt{Examples/Hubbard\_Mz\_Square}, \texttt{Examples/Hubbard\_SU2\_Honeycomb}, and \texttt{Examples/Hubbard\_Ising\_Square}
+}
+   \label{table:files}}
 \end{table}
 %
 The code package consists of the program directories \texttt{Prog/} and \texttt{Libraries/}, 
@@ -22,7 +26,7 @@ the analysis routines in \texttt{Analysis/} and \texttt{Test\_Hub\_Template/}, w
 \begin{table}[h]
    \begin{tabular}{l l}
    File & Description \\\hline
-  \texttt{parameters} &  Sets the parameters for lattice, model and the QMC process.\\
+  \texttt{parameters} &  Sets the parameters for lattice, model, QMC process, and the error analysis.\\
   \texttt{seeds} & List of integer numbers to initialize the random number generator and \\
    & to start a simulation from scratch.\\
   \texttt{confin\_<thread number>} & Input files for the HS and Ising configuration, used to continue a simulation. 
@@ -138,13 +142,16 @@ The same block structure for each bin is used for equal-time correlation functio
 \subsection{Scripts}\label{sec:scripts}
 %
 \begin{table}[h]
-   \begin{tabular}{l l}
-   Script & Description \\\hline
-   \texttt{configure.sh} & To sets the environment variables for the compiler and the libraries.\\
-   \texttt{Test\_Hub\_Template/Start/out\_to\_in.c} & To copy the output configurations of HS and Ising spins\\
-   & to the respective input files. \\
-   \texttt{Test\_Hub\_Template/Start/analysis.c} & To perform the error analysis.
+   \begin{tabular}{l l l}
+   Script & Description & Section\\\hline
+   \texttt{set\_env.sh} & Sets the environment variables for the compiler& \\
+   & and the libraries. & \ref{sec:running}\\
+   \texttt{Test\_Hub\_Template/Start/out\_to\_in.sh} & Copies the output configurations of HS and Ising spins &\\
+   & to the respective input files. & \ref{sec:running} \\
+   \texttt{Test\_Hub\_Template/Start/analysis.sh} & Starts the error analysis. & \ref{sec:analysis}
    \end{tabular}
-   \caption{Overview of the bash script files. \label{table:scripts}}
+   \caption{Overview of the bash script files. 
+   \mycomment{MB I have renamed the scripts here, but not yet in the git}
+   \label{table:scripts}}
 \end{table}
 %
