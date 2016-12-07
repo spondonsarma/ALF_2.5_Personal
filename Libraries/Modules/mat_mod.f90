@@ -697,7 +697,6 @@
          REAL (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
          REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
          INTEGER, INTENT(IN) :: NCON
-         INTEGER I,J,K, ND1, ND2, NR, IMAX, IFAIL
 
 !        The Det of V is not equal to unity. 
 ! Locals:
@@ -707,6 +706,7 @@
          REAL (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
               & TEST, TEST1, TEST2
          REAL (KIND=8) :: XMAX, XMEAN, Z
+         INTEGER I,J,K, ND1, ND2, NR, IMAX, INFO, LWORK
 
          ND1 = SIZE(A,1)
          ND2 = SIZE(A,2)
@@ -771,10 +771,10 @@
 
 
          !You now want to UDV TMP. Nag routines.
-         IFAIL = 0
+         INFO = 0
 
 
-         CALL F01QCF(ND1,ND2,TMP,ND1,THETA,IFAIL)
+         CALL F01QCF(ND1,ND2,TMP,ND1,THETA,INFO)
          
 
          !Scale V1 to a unit triangluar matrix.
@@ -788,12 +788,11 @@
             ENDDO
          ENDDO
          
-         
 ! Compute U
          IFAIL = 0
 
          CALL F01QEF('Separate', ND1,ND2, ND2, TMP,&
-              & ND1, THETA, WORK, IFAIL)
+              & ND1, THETA, WORK, INFO)
 
 
          DO I = 1,ND1
@@ -801,7 +800,7 @@
                U(I,J) = TMP(I,J)
             ENDDO
          ENDDO
-
+         DEALLOCATE(TMP, WORK, THETA)
 
 ! Finish the pivotting.
          DO I = 1,ND2
@@ -861,10 +860,6 @@
          DEALLOCATE(VHELP )
          DEALLOCATE(IVPT )
          DEALLOCATE(IVPTM1)
-         DEALLOCATE(WORK )
-         DEALLOCATE(THETA )
-
-         DEALLOCATE(TMP)
          DEALLOCATE(V1 )
 
       END SUBROUTINE UDV1_R
