@@ -1,2 +1,27 @@
 % !TEX root = Doc.tex
 \section{ Analysis programs }\label{sec:analysis}
+
+Here we briefly discuss the analysis programs which read in bins and carry out the error analysis.  Error analysis   is based  on the central limit theorem,  which required bins to be statistically independent. This will be the case if bins are  longer than the auto-correlation time.  In the parameter file listed in Sec.~\ref{sec:input}, the user  can specify the how many initial bins should be omitted (variable \texttt{n\_skip}). This  number should be comparable to the auto-correlation time.     The    re-binning  variable 
+\texttt{N\_rebin} will merge \texttt{N\_rebin}  bins into a single one.  If the autocorrelation time  is smaller than the effective bin size, then the error should be independent on the bin size and thereby on the variable \texttt{N\_rebin}.  Our analysis is based on the Jackknife resampling.  As listed in table,  \ref{table:analysis_programs}  we provide three programs to account for the three observable types. The programs can be found in the directory \texttt{Analysis}  and   are executed by running the  bash shell script 
+\texttt{analysis.sh}
+
+\begin{table}[h]
+   \begin{tabular}{l l}
+   Program & Description \\\hline
+   \texttt{cov\_scal.f90}  &  Reads in the bin files with suffix \texttt{\_scal}  and produces  corresponding file with suffix  \\ 
+                                     &   {\_scalJ}  containing the  result of the Jackknife  \\
+   \texttt{cov\_eq.f90}    &   Reads in the bin files with suffix \texttt{\_eq}  and produces  corresponding files will suffix  \texttt{\_eqJR}  \\
+                                     &   and  \texttt{\_eqJK}   corresponding to correlation functions in real and Fourier space respectively.  \\
+   \texttt{cov\_tau.f90}   &   Reads in the bin files  \texttt{X\_tau}, and produces   and produces directories  \texttt{X\_kx\_ky}   for all  \\
+                                     &   \texttt{kx} and \texttt{ky} greater or equal to zero.   Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc  \\
+                                     &  as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}).  Each directory contains  a \\ 
+                                     &   file    \texttt{g\_kx\_ky}    containing the  time displaced correlation function traced over the  orbitals.  \\ 
+                                     &  It also contains the  covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  \\
+                                     &  listed in Sec.~\ref{sec:input}.  The program equally generates a directory  \texttt{X\_R0}  for the local \\
+                                     &  time displaced  correlation function.  
+                                     
+    \end{tabular}
+   \caption{ Overview of analysis programs \label{table:analysis_programs}}
+\end{table}
+
+The  detailed structure and content of the  output files is the following. 
