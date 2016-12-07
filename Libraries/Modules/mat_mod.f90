@@ -791,7 +791,7 @@
 
         ! Query optimal work space
         CALL DGEQRF(ND1, ND2, TMP, ND1, TAU, WORK, -1, INFO)
-        LWORK = WORK(1)
+        LWORK = INT(WORK(1))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
         CALL DGEQRF(ND1, ND2, TMP, ND1, TAU, WORK, LWORK, INFO)
@@ -929,7 +929,7 @@
 
         ! Query optimal work space
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
-        LWORK = WORK(1)
+        LWORK = INT(DBLE(WORK(1)))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
@@ -1026,7 +1026,7 @@
 
         ! Query optimal work space
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
-        LWORK = WORK(1)
+        LWORK = INT(DBLE(WORK(1)))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
