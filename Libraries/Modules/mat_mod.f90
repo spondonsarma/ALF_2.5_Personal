@@ -690,7 +690,23 @@
          XMEAN = XMEAN/DBLE(N*M)
        END SUBROUTINE COMPARE_R
 
-!*****************
+!--------------------------------------------------------------------
+!> @author
+!> Fakher Assaad and Florian Goth
+!
+!> @brief 
+!> This function calculates the UDV decomposition using the standard 
+!> QR algorithm of LaPack.
+!
+!> @note Using the Divide & Conquer algorithm would not yield 
+!> enough accuracy for using within an auxiliary field type algorithm.
+!
+!> @param[in] A a 2D array constituting the input matrix.
+!> @param[out] U a 2D array containing the left singular vectors.
+!> @param[out] D a 1D array containing the sorted singular values.
+!> @param[out] V an triangular shaped matrix
+!> @param[in] NCON
+!--------------------------------------------------------------------
        SUBROUTINE UDV1_R(A,U,D,V,NCON)
          IMPLICIT NONE
          REAL (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
@@ -789,7 +805,7 @@
          ENDDO
          
 ! Compute U
-         IFAIL = 0
+         INFO = 0
 
          CALL F01QEF('Separate', ND1,ND2, ND2, TMP,&
               & ND1, THETA, WORK, INFO)
@@ -869,8 +885,8 @@
 !> Fakher Assaad and Florian Goth
 !
 !> @brief 
-!> This function calculates the SVD using the standard QR algorithm
-!> of LaPack.
+!> This function calculates the UDV decomposition using the standard 
+!> QR algorithm of LaPack.
 !
 !> @note Using the Divide & Conquer algorithm would not yield 
 !> enough accuracy for using within an auxiliary field type algorithm.
@@ -878,7 +894,7 @@
 !> @param[in] A a 2D array constituting the input matrix.
 !> @param[out] U a 2D array containing the left singular vectors.
 !> @param[out] D a 1D array containing the sorted singular values.
-!> @param[out] V a 2D array containing the right singular vectors.
+!> @param[out] V an triangular shaped matrix
 !> @param[in] NCON
 !--------------------------------------------------------------------
       SUBROUTINE UDV_C(A,U,D,V,NCON)
