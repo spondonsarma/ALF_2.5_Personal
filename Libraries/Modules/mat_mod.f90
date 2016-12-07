@@ -919,12 +919,7 @@
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 !        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)
         CALL ZLACPY('U', NE, NE, TMP, LQ, V, Size(V,1))
-!        V = TMP
-!         DO I = 1,NE
-!            DO J = I,NE
-!               V(I,J) = TMP(I,J)
-!            ENDDO
-!         ENDDO
+
         DETV = 1.D0
         !V is an NE by NE upper triangular matrix with real diagonal elements.
         DO I = 1,NE
