@@ -104,7 +104,7 @@ ENDDO
 Here,    the integer  function \texttt{  j=  Latt\%nnlist(I,n,m)}   is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$. Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
-\mycomment{Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse Hopping matrices.}
+Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices
 
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
 To implement this interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{dim}\times N_{fl}=N_{dim} \times 1$. 
@@ -197,7 +197,7 @@ The equal time  green function,
 \end{equation}
 the  phase [Eq.~(\ref{eqn:phase})]
 \begin{equation}
-	\texttt{Phase} =  \frac{e^{-S(C)}} { \left| e^{-S(C)} \right| },
+	\text{Phase}(C) =  \frac{e^{-S(C)}} { \left| e^{-S(C)} \right| },
 \end{equation}
 and time slice \texttt{Ntau}   is provided by the main program.  
 
@@ -253,11 +253,11 @@ At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(
 
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   impaginariy time difference.   For a given time  displacement, the main program provides:
 \begin{eqnarray}
-\texttt{GT0(x,y,s) }  = & &    \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle = \langle \langle {\cal T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle  \nonumber \\
-\texttt{G0T(x,y,s) }   = &&  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle =
+\texttt{GT0(x,y,s) }  &=&   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle = \langle \langle {\cal T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle  \nonumber \\
+\texttt{G0T(x,y,s) }   &=&  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle =
     \langle \langle {\cal T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle  \nonumber  \\
-  \texttt{G00(x,y,s) }  = & &    \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle    \nonumber \\
-    \texttt{GTT(x,y,s) }  = & &    \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    
+  \texttt{G00(x,y,s) }  &=&    \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle    \nonumber \\
+    \texttt{GTT(x,y,s) }  &=&   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    
 \end{eqnarray}
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations: 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 

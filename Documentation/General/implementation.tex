@@ -93,7 +93,7 @@ This type \texttt{Operator} bundles several components that are needed to define
    \caption{Member Variables of the \texttt{Operator}  type. 
    In the left column, the letter \texttt{X} is a placeholder for the letters \texttt{T} and \texttt{V}, 
    indicating hopping and interaction operators, respectively.
-   The highlighted variables have to be specified by the user. \mycomment{Would be nice to reduce the complex type of  $g$ and $\alpha$ to real in the code.}
+   The highlighted variables have to be specified by the user.
   %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
     \label{table:operator}}
 \end{table}
@@ -193,10 +193,6 @@ such that
         & & \vec{b}_2 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
            \left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right] 
 \end{eqnarray}
-\mycomment{Check that the above algebra is correct!  Just checked. Seems to be OK.}
-\mycomment{
-
-}
 % 
 %
 \begin{table}[h]
@@ -223,7 +219,7 @@ such that
    \texttt{Latt\%b2\_perp\_p}                             &    Real         &  Orthonormal vectors to $\vec{b}_i$.  For internal use. 
    \end{tabular}
    \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example the default lattice name \texttt{Latt}.
-   The highlighted variables have to be specified by the user.  Other components of the Lattice will be generated  when calling: \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )}.  
+   The highlighted variables have to be specified by the user.  Other components of the Lattice will be generated  when calling: \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )}. 
     \label{table:lattice}}
 \end{table}
 %
@@ -243,7 +239,10 @@ In the above,   the unspecified dimensions of   structure factor can refer  to i
 \subsection{The observable types \texttt{Obser\_Vec} and \texttt{Obser\_Latt}}\label{sec:obs}
 
 Our definition  of the model includes observables [Eq.~(\ref{eqn:obs_rw})] . We have defined two observable types: \texttt{Obser\_vec}  for a array of scalar observables
-such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run.     
+such as the energy and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the I/O.   
+We also obtain improved estimators by taking measurements in the imaginary-time intervall \texttt{[LOBS\_ST,LOBS\_EN]}  (see the parameter file in Sec.~\ref{??}) thereby exploiting the invariance under translation in imaginary time.
+Note that the translation symmetries  in space and in time are broken for a given  configuration $C$ but restored by the Monte Carlo sampling. 
+In general, the user will define bins, each bins having a given amount of sweeps. Within a sweep we run sequentially trough the HS and Ising fields from   time slice 1 to $L_{\text{Trotter}}$ and back.  The results of each bin is written  in a file  and analyzed at the end of the run.     
 Note that each observable structure also includes the average sign [Eq.~(\ref{eqn:sign_rw})].
 
 \subsubsection{Scalar observables}
@@ -251,11 +250,11 @@ This data type  is described in Table  \ref{table:Obser_vec} and  is useful to c
 \begin{table}[h]
    \begin{tabular}{l l l l }
     Variable  &  Type      &  Description & Expression \\\hline
-    \texttt{Obs\%N}                       &  Integer        &   Number of measurements &\\
+    \texttt{Obs\%N}                       &  Int.        &   Number of measurements &\\
     \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
-    \texttt{Obs\%Obs\_vec(:)}        & Complex      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
+    \texttt{Obs\%Obs\_vec(:)}        & Compl.      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
-     \texttt{Obs\%File\_Vec}           &  Character    &    Name of output file  &
+     \texttt{Obs\%File\_Vec}           &  Char.    &    Name of output file  &
    \end{tabular}
    \caption{Components of the \texttt{Obser\_vec}  type.  The table lists the data included in a variable  \texttt{Obs}  of type \texttt{Obser\_vec}.  
    % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
@@ -272,7 +271,8 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
     \texttt{Obs\%N}                       &  Int.        &   Number of measurements &  \\
     \texttt{Obs\%Ave\_sign}  
     &  Real  &    Cumulated sign [Eq.~(\ref{Sign.eq})] & $\text{sign}(C)$  \\
-    \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}        & Compl.      &    Cumul.  correl. fct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
+    \texttt{Obs\%Obs\_latt}        & Compl.      &    Cumul.  correl. fct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \\
+     $(\vec{i}-\vec{j},\tau,\alpha,\beta)$ & & & \\
      \texttt{Obs\%Obs\_latt0($\alpha$)}        & Compl.      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
      \texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &
    \end{tabular}
@@ -281,33 +281,28 @@ to the the filename \texttt{File\_Vec}.    This suffix  is important to allow au
 \end{table}
 
 This data type is useful so as to deal with  imaginary time displaced as well as equal time correlation functions of the form: 
-\begin{equation}
+\begin{equation}\label{eqn:s}
 	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
 	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{i},\beta}  \rangle \right).
 \end{equation}
-Here,  translation symmetry of the Bravais lattice is explicitly taken into account. Note that this symmetry is broken  for a given  configuration $C$ but is restored by the Monte Carlo sampling. 
-\mycomment{MB tries to fit this in here:}
-The correlation function splits in a correlated part $S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)$ and an background part $S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k},\tau)$:
+Here,  translation symmetry of the Bravais lattice is explicitly taken into account. 
+The correlation function splits in a correlated part $S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)$ and a background part $S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k})$:
 \begin{eqnarray}
   S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)
   &=&
-   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle\;,\\
-   S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k},\tau)
+   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle\label{eqn:s_corr}\;,\\
+         S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k})
   &=&
-   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle \langle \hat{O}_{\vec{j},\beta} \rangle\\\nonumber
+   \frac{1}{N_{unit\, cell }} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle \langle \hat{O}_{\vec{j},\beta} \rangle\nonumber\\
   &=& 
-   \frac{1}{N_{unit\, cell }} \sum_{\vec{i}}  e^{- i\vec{k} \cdot \vec{i} }  \langle \hat{O}_{\vec{i},\alpha}\rangle
-   \sum_{\vec{j}}    e^{i\vec{k} \cdot  \vec{j} }    \langle \hat{O}_{\vec{j},\beta} \rangle\;,
+  N_{\text{unit\,cell}}\, \langle \hat{O}_{\alpha} \rangle \langle \hat{O}_{\beta} \rangle \, \delta(\vec{k})\label{eqn:s_back}\;,
 \end{eqnarray}
-where we used translation invariance in imaginary-time to drop the $\tau$ dependency in the last line. 
+where translation invariance in space and time has been exploited to obtain the last line. 
+The background part depends only on the expectation value $\langle \hat{O}_{\alpha} \rangle$, for which we use the following estimator 
+\begin{equation}\label{eqn:o}
+\langle \hat{O}_{\alpha} \rangle \equiv \frac{1}{N_{\text{unit\,cell}}} \sum\limits_{\vec{i}} \langle \hat{O}_{\vec{i},\alpha} \rangle\;.
+\end{equation}
 
-\mycomment{In the code, the phase factors $e^{\vec{k}\cdot \vec{i}}$ are not 
-included in the output for the background. 
-The output is simply $\frac{1}{N_{unit\,cell}}\sum\limits_{\vec{i}}\langle \hat{O}_{\vec{i},\alpha}\rangle$.
-Is the motivation to first say $\langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle=\langle \hat{O}_{\alpha}\rangle$,
-use $\frac{1}{N}\sum\limits_{\vec{i}}e^{i \vec{k}\cdot\vec{i}} = \delta(\vec{i})$ 
-and the use the improved estimator $\langle \hat{O}_{\alpha} \rangle=\frac{1}{N}\sum\limits_{\vec{i}}\langle \hat{O}_{\vec{i},\alpha}\rangle$?}
-\FAcomment{FA.  The code runs in real space. Hence I think that it is much nicer to write things down  in real space. }
 Consider a variable  \texttt{Obs} of type  \texttt{Obser\_latt}. At the beginning of each bin a call to  \texttt{Obser\_Latt\_Init} in the module \texttt{observables\_mod.f90}  will  initialize  the elements of \texttt{Obs} to zero.    Each time the main program calls the   \texttt{Obser} or  \texttt{ObserT} routines one  cumulates $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $    in  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}   
 and $ \langle \langle \hat{O}_{\vec{i},\alpha}= \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $  in \texttt{Obs\%Obs\_latt0($\alpha$)}.   At the end of each bin, a call to \texttt{Print\_bin\_Latt} in the module  \texttt{observables\_mod.f90}   will append the result of the bin in the specified  file \texttt{Obs\%File\_Latt}.   Note that the routine  \texttt{Print\_bin\_Latt}  carries out the Fourier transformation and prints the results in k-space. We have adopted the following name convention.  For    equal time observables , that is  the second  dimension  of the array  \texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},\tau,\alpha,\beta$)}    is equal to unity,  the routine \texttt{Print\_bin\_Latt}  attaches the suffix \_eq to \texttt{Obs\%File\_Latt}.  For  time displaced correlation functions we use the suffix \_tau. 
 

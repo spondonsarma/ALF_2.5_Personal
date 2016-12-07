@@ -7,8 +7,9 @@
    \texttt{Prog/} & Main program and subroutines  \\
   \texttt{Libraries/} & Collection of mathematical routines \\  
   \texttt{Analysis/} & Routines for error analysis \\
-  \texttt{Test\_Hub\_Template/} & Test simulations of the Hubbard model\\
-  \texttt{Documentation/} & \mycomment{to include}\\
+  \mycomment{\texttt{Examples/}} & Example simulations for Hubbard-type models \mycomment{I suggest to rename it}\\
+  \mycomment{\texttt{Start/}}   & Parameter files and scripts \mycomment{I suggest to move it  here} \\
+  \mycomment{\texttt{Documentation/}} & Documentation of the QMC code. \\
 %   \texttt{configure.sh} & sets the global variables for compilation \\
    \end{tabular}
    \caption{Overview of the directories. 
@@ -109,34 +110,34 @@ N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured phas
 \end{verbatim}
 The counter variable \texttt{N\_size+1} refers to the number of measurements per line, including the phase measurement. 
 This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
-\mycomment{Mention an example of a vector observable?}
 Scalar observables like kinetic energy, potential energy, total energy and particle number are treated as a vector 
 of size \texttt{N\_size=1}.
 
 \item Observables of type \texttt{Obs\_Latt}:
 For each additional bin, a new data block is added to the output file. 
-The block consists of the background part and the correlated part of the correlation function.
-For the imaginary-time displace correlation function, the formatting of this block follows this scheme:
-\begin{verbatim}
+The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to the background part [Eq.~(\ref{eqn:s_back})] of the correlation function,
+and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
+For imaginary-time displaced correlation functions, the formatting of the block follows this scheme:
+\begin{alltt}
 <measured phase>  <N_orbital>  <N_unit_cell> <N_time_slices> <dtau>
-do m = 1, N_orbital
-   <background part of orbital m>
+do alpha = 1, N_orbital
+    \(\langle\hat{O}\sb{\alpha}\rangle \)
 enddo
 do i = 1, N_unit_cell
    <reciprocal lattice vector k(i)>
-   do t = 1, N_time_slices
-      do m = 1, N_orbital
-         do n = 1, N_orbital
-            <correlated part at vector k(i), time t, and orbitals m,n>
+   do tau = 1, N_time_slices
+      do alpha = 1, N_orbital
+         do beta = 1, N_orbital
+            \(\langle\,S\sb{\alpha,\beta}\sp{(corr)}(k(i),\tau)\rangle\)
          enddo
       enddo
    enddo
 enddo
-\end{verbatim}
-The same block structure for each bin is used for equal-time correlation functions, except for the entries  \texttt{<N\_time\_slices>} and \texttt{<dtau>}.
-\mycomment{It seems that right now, to get the full correlation function including the background one has to write a script?}
-\FAcomment{FA: I do not understand this. This will be produced by the analysis  programs... I guess that you have something else in mind....}
-
+\end{alltt}
+The same block structure is used for equal-time correlation functions, except for the entries  \texttt{<N\_time\_slices>} and \texttt{<dtau>} 
+which are not present in the latter.
+Using this structure for the bins as input,
+the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analyis routine [see Sec.~(\ref{})].
 \end{itemize}
 
 \subsection{Scripts}\label{sec:scripts}
@@ -146,9 +147,9 @@ The same block structure for each bin is used for equal-time correlation functio
    Script & Description & Section\\\hline
    \texttt{set\_env.sh} & Sets the environment variables for the compiler& \\
    & and the libraries. & \ref{sec:running}\\
-   \texttt{Test\_Hub\_Template/Start/out\_to\_in.sh} & Copies the output configurations of HS and Ising spins &\\
+   \mycomment{\texttt{Start/out\_to\_in.sh}} & Copies the output configurations of HS and Ising spins &\\
    & to the respective input files. & \ref{sec:running} \\
-   \texttt{Test\_Hub\_Template/Start/analysis.sh} & Starts the error analysis. & \ref{sec:analysis}
+   \mycomment{\texttt{Start/analysis.sh}} & Starts the error analysis. & \ref{sec:analysis}
    \end{tabular}
    \caption{Overview of the bash script files. 
    \mycomment{MB I have renamed the scripts here, but not yet in the git}
