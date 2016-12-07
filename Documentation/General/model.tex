@@ -180,7 +180,7 @@ To compute equal time as well as time-displaced observables,  one can make use o
 \end{eqnarray}
 In the subroutines   \texttt{Obser}  and \texttt{ObserT} of  the module \texttt{Hamiltonian\_Hub.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wicks theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
 
-\subsubsection{Reweighting}
+\subsubsection{Reweighting and the sign problem}
 
 In general, the action  $S(C) $ will be complex such, thereby inhibiting a direct Monte Carlo sampling of $P(C)$.   This leads to the infamous sign problem.  When the average sign is not too small, we can nevertheless  compute observables within a reweighting scheme.   Here we adopt the following scheme. First  note  that the partition function is real such that: 
 \begin{equation}

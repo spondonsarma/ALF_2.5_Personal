@@ -17,7 +17,7 @@ for filename in *_eq; do
 #    if [ "$filename1" -ot "$filename" ]; then
        cp $filename ineq
        $ANNAL/cov_eq.out
-       mv "equalJ"  $filename"J"
+       mv "equalJ"  $filename"JK"
        mv "equalJR" $filename"JR"
        rm ineq
 #    fi
