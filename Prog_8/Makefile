@@ -3,7 +3,6 @@ FC= $(f90)
 FLAGS= $(FL) -std=f2003
 LF = $(Lflags) -std=f2003
 LIBS= $(Libs)/Modules/modules_90.a \
-      $(Libs)/MyNag/libnag.a \
       $(LIB_BLAS_LAPACK)
 
 Hub:
