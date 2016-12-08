@@ -349,7 +349,7 @@ and then  call \texttt{ Make\_Lattice( L1\_p, L2\_p, a1\_p,  a2\_p, Latt ) } so 
 
 \begin{lstlisting}
 
-Allocate (List(Ndim,Norb), Invlist(Latt%N,Norb))
+Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
 nc = 0
 Do I = 1,Latt%N           ! Unit-cell index 
    Do no = 1,Norb         ! Orbital index

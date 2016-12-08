@@ -1,4 +1,4 @@
-    Module Hamiltonian
+      Module Hamiltonian
 
       Use Operator_mod
       Use Lattices_v3 
@@ -177,7 +177,7 @@
 
           ! This is for the orbital structure.
           Ndim = Latt%N*Norb
-          Allocate (List(Ndim,Norb), Invlist(Latt%N,Norb))
+          Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
           nc = 0
           Do I = 1,Latt%N
              Do no = 1,Norb
