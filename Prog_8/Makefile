@@ -6,9 +6,9 @@ LIBS= $(Libs)/Modules/modules_90.a \
       $(Libs)/MyNag/libnag.a \
       $(LIB_BLAS_LAPACK)
 
-Hub_Template:
+Examples:
 	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Hub_Template  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
+	(make -f Compile_Examples  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
 
 Hub:
 	cp $(Libs)/Modules/*.mod . ;\

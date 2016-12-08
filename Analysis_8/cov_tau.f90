@@ -154,7 +154,7 @@
          Open (Unit=10,File=File_out,status="unknown")
          do nt = 1, LT
             Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
-                 & dble(nt-1)*dtau,  Xmean(nt), sqrt(abs(dble(Xcov(nt,nt))))
+                 & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
          enddo
          If (N_cov == 1) Then ! Print  covariance
             Do nt = 1,LT
