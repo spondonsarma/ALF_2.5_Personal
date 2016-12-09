@@ -1,74 +1,77 @@
 ! compile with
-! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
+! gfortran -std=f2003  -I ../../../Prog_8/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test1.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 
-
+!
+!
 ! This test seems to be a bit sensitive with respect to
 ! the precise Implementation
 Program OPEXPMULTTEST
-
-Use Operator_mod
-
-
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(3,3) :: U
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(3,5) :: V
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(3) :: Z
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(5,5) :: matnew, matold
-        Complex (KIND = KIND(0.D0)) :: tmp, lexp
-        Integer, DIMENSION(3) :: P
-        Integer :: i, j, n, m, opn, Ndim
-        
-        
-        opn = 3
-        Ndim = 5
-        do i=1,Ndim
-            do j=1,Ndim
-                matnew(i,j) = CMPLX(i, j, kind(0.D0))
-                matold(i,j) = CMPLX(i, j, kind(0.D0))
-            enddo
-        enddo
-        
-        do i = 1, opn
-        do j = 1, Ndim
-        V(i,j) = CMPLX(i, j, kind(0.D0))
-        enddo
-        P(i) = i
-        Z(i) = exp(CMPLX(i, j, kind(0.D0)))
-        enddo
-        
-        do i = 1, opn
-        do j = 1, opn
-        U(i,j) = CMPLX(i, j, kind(0.D0))
-        enddo
-        enddo
-        
-        call opexpmult(V, U, P, matnew, Z, opn, Ndim)
-        
+!
+      Use Operator_mod
+!
+!
+      Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: U
+      Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: V
+      Complex (Kind=Kind(0.D0)), Dimension (:), Allocatable :: Z
+      Complex (Kind=Kind(0.D0)), Dimension (5, 5) :: matnew, matold
+      Complex (Kind=Kind(0.D0)) :: tmp, lexp
+      Integer, Dimension (:), Allocatable :: P
+      Integer :: i, j, n, m, opn, Ndim
+!
+!
+      Do opn = 1, 4
+         Allocate (U(opn, opn), V(opn, 5), P(opn), Z(opn))
+         Ndim = 5
+         Do i = 1, Ndim
+            Do j = 1, Ndim
+               matnew (i, j) = CMPLX (i, j, kind(0.D0))
+               matold (i, j) = CMPLX (i, j, kind(0.D0))
+            End Do
+         End Do
+!
+         Do i = 1, opn
+            Do j = 1, Ndim
+               V (i, j) = CMPLX (i, j, kind(0.D0))
+            End Do
+            P (i) = i
+            Z (i) = Exp (CMPLX(i, j, kind(0.D0)))
+         End Do
+!
+         Do i = 1, opn
+            Do j = 1, opn
+               U (i, j) = CMPLX (i, j, kind(0.D0))
+            End Do
+         End Do
+!
+         Call opexpmult (V, U, P, matnew, Z, opn, Ndim)
+!
 ! check against old version
-    do n = 1, opn
-        lexp = Z(n)
-        DO I = 1, Ndim
-!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1) 
-            tmp=cmplx(0.d0, 0.d0, kind(0.D0))
-            Do m = 1, opn
-                tmp = tmp + V(m,I) * U(m,n)
-            Enddo
-            Matold(I, P(n))  =  lexp * tmp
-        enddo
-    Enddo
-    
-    do i = 1,Ndim
-        do j = 1,Ndim
-        tmp = matold(i,j) - matnew(i,j)
-        if (Aimag(tmp) > Abs(Aimag(matnew(i,j)))*1.D-14  ) then
-        write (*,*) matold(i,j), matnew(i,j)
-        STOP 2
-        endif
-        if (Real(tmp) > Abs(Real(matnew(i,j)))*1.D-14  ) then
-        write (*,*) matold(i,j), matnew(i,j)
-        STOP 2
-        endif
-
-        enddo
-    enddo
-
-end Program OPEXPMULTTEST
+         Do n = 1, opn
+            lexp = Z (n)
+            Do i = 1, Ndim
+!             Mat(I,Op%P(n))  =  ExpMOp(n) * zdotu(Op%N,Op%U(1,n),1,VH(1,I),1)
+               tmp = CMPLX (0.d0, 0.d0, kind(0.D0))
+               Do m = 1, opn
+                  tmp = tmp + V (m, i) * U (m, n)
+               End Do
+               matold (i, P(n)) = lexp * tmp
+            End Do
+         End Do
+!
+         Do i = 1, Ndim
+            Do j = 1, Ndim
+               tmp = matold (i, j) - matnew (i, j)
+               If (Aimag(tmp) > Abs(Aimag(matnew(i, j)))*1.D-14) Then
+                  Write (*,*) matold (i, j), matnew (i, j)
+                  Stop 2
+               End If
+               If (Real(tmp) > Abs(Real(matnew(i, j)))*1.D-14) Then
+                  Write (*,*) matold (i, j), matnew (i, j)
+                  Stop 2
+               End If
+!
+            End Do
+         End Do
+         Deallocate (U, V, P, Z)
+      End Do
+End Program OPEXPMULTTEST
