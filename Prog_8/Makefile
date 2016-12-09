@@ -27,7 +27,7 @@ Kondo_Honey:
 	(make -f Compile_Kondo_Honey  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" ) 
 
 clean: 	
-	(make -f Compile_Hub_Template   clean );\
+	(make -f Compile_Examples   clean );\
 	(make -f Compile_Hub   clean );\
 	(make -f Compile_SPT   clean );\
 	(make -f Compile_Ising clean );\

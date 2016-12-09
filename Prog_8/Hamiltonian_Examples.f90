@@ -341,35 +341,39 @@
           Elseif  ( Model == "Hubbard_SU2_Ising" ) then
              Allocate(Op_V(3*Ndim,N_FL))
              do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
-                do i  =  Ndim+1, 3*Ndim
+                do i  =  1, N_coord*Ndim
                    call Op_make(Op_V(i,nf),2)
                 enddo
+                do i  = N_coord*Ndim +1 ,  N_coord*Ndim + Ndim ! For Hubbatd
+                   Call Op_make(Op_V(i,nf),1)
+                enddo
              enddo
-             Do i = 1,Ndim
-                Op_V(i,1)%P(1)   = i
-                Op_V(i,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                Op_V(i,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
-                Op_V(i,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
-                Op_V(i,1)%type   = 2
-             Enddo
              Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
                                       ! For the square lattice Ndim = Latt%N
-                nc1 = nc +  Ndim
                 I1 = L_bond_inv(nc,1)
                 if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
                 if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
-                Op_V(nc1,1)%P(1) = I1
-                Op_V(nc1,1)%P(2) = I2
-                Op_V(nc1,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                Op_V(nc1,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                Op_V(nc1,1)%g = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
-                Op_V(nc1,1)%alpha = cmplx(0d0,0.d0, kind(0.D0)) 
-                Op_V(nc1,1)%type =1
+                Op_V(nc,1)%P(1) = I1
+                Op_V(nc,1)%P(2) = I2
+                Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+                Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+                Op_V(nc,1)%g = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
+                Op_V(nc,1)%alpha = cmplx(0d0,0.d0, kind(0.D0)) 
+                Op_V(nc,1)%type =1
+                Call Op_set( Op_V(nc,1) )
              Enddo
-           Endif
+
+             Do i = 1,Ndim
+                nc1 = N_coord*Ndim + i
+                Op_V(nc1,1)%P(1)   = i
+                Op_V(nc1,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                Op_V(nc1,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
+                Op_V(nc1,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
+                Op_V(nc1,1)%type   = 2
+                Call Op_set( Op_V(nc1,1) )
+             Enddo
+
+          Endif
         end Subroutine Ham_V
 
 !===================================================================================           
@@ -577,7 +581,7 @@
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( Model == "Hubbard_SU2" ) then
+          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" ) then
             dec = 1
           else
             dec = 2
@@ -607,7 +611,7 @@
              Obs_eq(I)%N        = Obs_eq(I)%N + 1
              Obs_eq(I)%Ave_sign = Obs_eq(I)%Ave_sign + real(ZS,kind(0.d0))
           ENDDO
-          If ( Model == "Hubbard_SU2"  ) then 
+          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              Do I1 = 1,Ndim
                 I    = List(I1,1)
@@ -683,7 +687,7 @@
                 Obs_tau(I)%Ave_sign = Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
              ENDDO
           endif
-          If ( Model == "Hubbard_SU2"  ) then 
+          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising"  ) then 
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I1 = 1,Ndim
                 I    = List(I1,1)
