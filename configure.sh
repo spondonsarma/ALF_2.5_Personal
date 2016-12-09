@@ -1,5 +1,8 @@
-# setting QRREF has the highest priority. Setting nothing selects System lapack for the QR decomposition
-PROGRAMMCONFIGURATION="-DQRREF"
+# setting QRREF has the highest priority. Setting nothing selects System lapack for the QR decomposition.
+# Setting OLDNAG selects syntax of NAG Versions before NAG Mark 17 (roughly....).
+# In addition the NAG library has to be specified in LIB_BLAS_LAPACK.
+# -DMPI selects MPI.
+PROGRAMMCONFIGURATION=" -DMPI -DOLDNAG"
 DIR=`pwd`
 export DIR
 f90="gfortran"
