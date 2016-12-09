@@ -6,7 +6,7 @@ stages:
 .build_template: &build_definition
   stage: build
   script:
-    - . configure.sh
+    - . set_env.sh
     - cd Libraries
     - gfortran -v
     - make
@@ -19,7 +19,7 @@ stages:
 .warnconv_template: &warnconv_definition
   stage: warnconv
   script:
-    - . configure.sh
+    - . set_env.sh
     - export FL="$FL -Wconversion -Werror"
     - cd Libraries
     - gfortran -v
