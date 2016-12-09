@@ -1,12 +1,16 @@
-export DIR=`pwd`
-export f90="gfortran"
-export FL="-c -O3"
-export Libs=${DIR}"/Libraries/"
-export LIB_BLAS_LAPACK="-llapack -lblas"
-export Enable_MPI=false
-
-if $Enable_MPI ; then
-   echo '#define MPI' > Prog_8/machine
-else
-   echo '#define noMPI' > Prog_8/machine
-fi
+# setting QRREF has the highest priority. Setting nothing selects System lapack for the QR decomposition.
+# Setting OLDNAG selects syntax of NAG Versions before NAG Mark 17 (roughly....).
+# In addition the NAG library has to be specified in LIB_BLAS_LAPACK.
+# -DMPI selects MPI.
+PROGRAMMCONFIGURATION="-DQREF"
+DIR=`pwd`
+export DIR
+f90="gfortran"
+export f90
+FL="-c -O3 ${PROGRAMMCONFIGURATION}"
+export FL
+Libs=${DIR}"/Libraries/"
+export Libs
+LIB_BLAS_LAPACK="-llapack -lblas"
+LIB_BLAS_LAPACK=${HOME}"/lib_90/LaPack/lapack.a  "${HOME}"/lib_90/Blas/libblas.a"
+export LIB_BLAS_LAPACK
