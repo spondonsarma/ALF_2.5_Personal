@@ -12,5 +12,4 @@ export FL
 Libs=${DIR}"/Libraries/"
 export Libs
 LIB_BLAS_LAPACK="-llapack -lblas"
-LIB_BLAS_LAPACK=${HOME}"/lib_90/LaPack/lapack.a  "${HOME}"/lib_90/Blas/libblas.a"
 export LIB_BLAS_LAPACK
