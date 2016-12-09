@@ -22,7 +22,7 @@
 !>    Privat variables 
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
-      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem
+      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
       real (Kind=8),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
@@ -36,6 +36,10 @@
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
       
+!>    Storage for the Ising action
+      Real (Kind=8),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
+      Integer, allocatable, private :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
+
       
     contains 
 
@@ -55,6 +59,7 @@
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta
 
+          NAMELIST /VAR_Ising/    Ham_h, Ham_J, Ham_xi
 
 #ifdef MPI
           Integer        :: Isize, Irank
@@ -90,6 +95,13 @@
           elseif  ( Model == "Hubbard_SU2" ) then
              N_FL = 1
              N_SUN = 2
+          elseif  ( Model == "Hubbard_SU2_Ising" ) then
+             N_FL = 1
+             N_SUN = 2
+             If ( Lattice_type == "Honeycomb" ) then 
+                Write(6,*) "Hubbard_SU2_Ising is only implemented for a square lattice"
+                Stop
+             Endif
           else
              Write(6,*) "Model not yet implemented!"
              Stop
@@ -99,7 +111,9 @@
 #endif
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              READ(5,NML=VAR_Hubbard)
+             If ( Model == "Hubbard_SU2_Ising" )  Read(5,NML=VAR_Ising)
              CLOSE(5)
+             
 #ifdef MPI
           endif
           CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -107,10 +121,16 @@
           CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          If ( Model == "Hubbard_SU2_Ising" ) then
+             CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          Endif
 #endif
           Call Ham_hop
-
           Ltrot = nint(beta/dtau)
+
+          If  ( Model == "Hubbard_SU2_Ising" )  Call Setup_Ising_action
 #ifdef MPI
           If (Irank == 0) then
 #endif
@@ -126,6 +146,11 @@
              Write(50,*) 't             : ', Ham_T
              Write(50,*) 'Ham_U         : ', Ham_U
              Write(50,*) 'Ham_chem      : ', Ham_chem
+             If ( Model == "Hubbard_SU2_Ising" ) then
+                Write(50,*) 'Ham_xi        : ', Ham_xi
+                Write(50,*) 'Ham_J         : ', Ham_J
+                Write(50,*) 'Ham_h         : ', Ham_h
+             Endif
              close(50)
 #ifdef MPI
           endif
@@ -268,7 +293,7 @@
           
           Implicit none 
           
-          Integer :: nf, I, nc
+          Integer :: nf, I, I1, I2,  nc, nc1,  J
           Real (Kind=8) :: X
 
           
@@ -313,17 +338,130 @@
                    Call Op_set( Op_V(nc,nf) )
                 Enddo
              Enddo
-          Endif
+          Elseif  ( Model == "Hubbard_SU2_Ising" ) then
+             Allocate(Op_V(3*Ndim,N_FL))
+             do nf = 1,N_FL
+                do i  = 1, Ndim
+                   Call Op_make(Op_V(i,nf),1)
+                enddo
+                do i  =  Ndim+1, 3*Ndim
+                   call Op_make(Op_V(i,nf),2)
+                enddo
+             enddo
+             Do i = 1,Ndim
+                Op_V(i,1)%P(1)   = i
+                Op_V(i,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                Op_V(i,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
+                Op_V(i,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
+                Op_V(i,1)%type   = 2
+             Enddo
+             Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
+                                      ! For the square lattice Ndim = Latt%N
+                nc1 = nc +  Ndim
+                I1 = L_bond_inv(nc,1)
+                if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
+                if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
+                Op_V(nc1,1)%P(1) = I1
+                Op_V(nc1,1)%P(2) = I2
+                Op_V(nc1,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+                Op_V(nc1,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+                Op_V(nc1,1)%g = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
+                Op_V(nc1,1)%alpha = cmplx(0d0,0.d0, kind(0.D0)) 
+                Op_V(nc1,1)%type =1
+             Enddo
+           Endif
         end Subroutine Ham_V
 
 !===================================================================================           
         Real (Kind=8) function S0(n,nt)  
           Implicit none
-          Integer, Intent(IN) :: n,nt 
+          Integer, Intent(IN) :: n,nt
+          Integer :: nt1,I
           S0 = 1.d0
+          If ( Op_V(n,1)%type == 1 ) then 
+             do i = 1,4
+                S0 = S0*DW_Ising_space(nsigma(n,nt)*nsigma(Ising_nnlist(n,i),nt))
+             enddo
+             nt1 = nt +1 
+             if (nt1 > Ltrot) nt1 = 1
+             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             nt1 = nt - 1 
+             if (nt1 < 1  ) nt1 = Ltrot
+             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             If (S0 < 0.d0) Write(6,*) 'S0 : ', S0
+          endif
           
         end function S0
 
+!===================================================================================           
+        Subroutine Setup_Ising_action
+          
+          ! This subroutine sets up lists and arrays so as to enable an 
+          ! an efficient calculation of  S0(n,nt) 
+
+          Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation
+          Real (Kind=8) :: X_p(2)
+
+          ! Setup list of bonds for the square lattice.
+          Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*N_coord,2) )
+          
+          nc = 0
+          do nth = 1,2*N_coord  
+             Do n1= 1, L1/2
+                Do n2 = 1,L2
+                   nc = nc + 1
+                   If (nth == 1 ) then
+                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p 
+                      I1 = Inv_R(X_p,Latt)
+                      n_orientation = 1
+                   elseif (nth == 2) then
+                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p  + latt%a1_p
+                      I1 = Inv_R(X_p,Latt)
+                      n_orientation = 1
+                   elseif (nth == 3) then
+                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p 
+                      I1 = Inv_R(X_p,Latt)
+                      n_orientation = 2
+                   elseif (nth == 4) then
+                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p  + latt%a2_p
+                      I1 = Inv_R(X_p,Latt)
+                      n_orientation = 2
+                   endif
+                   L_bond(I1,n_orientation) = nc
+                   L_bond_inv(nc,1) = I1  
+                   L_bond_inv(nc,2) = n_orientation 
+                   ! The bond is given by  I1, I1 + a_(n_orientation).
+                Enddo
+             Enddo
+          Enddo
+          ! Setup the nearest neigbour lists for the Ising spins. 
+          allocate(Ising_nnlist(2*Latt%N,4)) 
+          do I  = 1,Latt%N
+             n  = L_bond(I,1)
+             n1 = L_bond(Latt%nnlist(I, 1, 0),2)
+             n2 = L_bond(Latt%nnlist(I, 0, 0),2)
+             n3 = L_bond(Latt%nnlist(I, 0,-1),2)
+             n4 = L_bond(Latt%nnlist(I, 1,-1),2)
+             Ising_nnlist(n,1) = n1
+             Ising_nnlist(n,2) = n2
+             Ising_nnlist(n,3) = n3
+             Ising_nnlist(n,4) = n4
+             n  = L_bond(I,2)
+             n1 = L_bond(Latt%nnlist(I, 0, 1),1)
+             n2 = L_bond(Latt%nnlist(I,-1, 1),1)
+             n3 = L_bond(Latt%nnlist(I,-1, 0),1)
+             n4 = L_bond(Latt%nnlist(I, 0, 0),1)
+             Ising_nnlist(n,1) = n1
+             Ising_nnlist(n,2) = n2
+             Ising_nnlist(n,3) = n3
+             Ising_nnlist(n,4) = n4
+          enddo
+          DW_Ising_tau  ( 1) = tanh(Dtau*Ham_h)
+          DW_Ising_tau  (-1) = 1.D0/DW_Ising_tau(1)
+          DW_Ising_Space( 1) = exp(-2.d0*Dtau*Ham_J) 
+          DW_Ising_Space(-1) = exp( 2.d0*Dtau*Ham_J) 
+          
+        End Subroutine Setup_Ising_action
 !===================================================================================           
         Subroutine  Alloc_obs(Ltau) 
 
