@@ -928,12 +928,24 @@
         INFO = 0
 
         ! Query optimal work space
+#if defined(QRREF)
+        CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
+#elif !defined(OLDNAG)
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
+#else
+! insert work array calculation again
+! We resort to old style NAG only if everything else is not set
+#endif
         LWORK = INT(DBLE(WORK(1)))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
+#if defined(QRREF)
+        CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
+#elif !defined(OLDNAG)
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
-!        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)
+#else
+!        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
+#endif
         CALL ZLACPY('U', NE, NE, TMP, LQ, V, Size(V,1))
 
         DETV = 1.D0
@@ -943,11 +955,15 @@
         ENDDO
 
         !Compute U
-
-!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
-!             & LQ, THETA, WORK, INFO)
 ! We assume that ZUNGQR and ZGEQRF can work on the same work array.
+#if defined(QRREF)
+        CALL ZUNGQR_REF(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
+#elif !defined(OLDNAG)
         CALL ZUNGQR(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
+#else
+!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
+!            & LQ, TAU, WORK, INFO)
+#endif
         CALL ZLACPY('A', LQ, NE, TMP, LQ, U, Size(U,1))
         DEALLOCATE(TAU, TMP, WORK)
         IF (DBLE(DETV).LT.0.D0) THEN
@@ -1041,7 +1057,7 @@
 #elif !defined(OLDNAG)
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-      !        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)  
+!        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
 #endif
         call ZLACPY('U', NE, NE, TMP, LQ, V, LDV)
         DETV = 1.D0
@@ -1056,8 +1072,8 @@
 #elif !defined(OLDNAG)
         CALL ZUNGQR(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-        !        CALL F01REF('Separate', LQ,NE, NE, TMP, &
-!             & LQ, THETA, WORK, INFO)
+!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
+!            & LQ, TAU, WORK, INFO)
 #endif
         call ZLACPY('A', LQ, NE, TMP, LQ, U, LDU)
         DEALLOCATE(WORK, TAU, TMP)
