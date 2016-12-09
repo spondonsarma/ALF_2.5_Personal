@@ -1036,11 +1036,11 @@
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
 #if defined(QRREF)
-        CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
+        CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #elif defined(OLDNAG)
 
 #else
-        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
+        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #endif
 !        CALL F01RCF(LQ,NE,TMP,LQ,THETA,IFAIL)
         call ZLACPY('U', NE, NE, TMP, LQ, V, LDV)
