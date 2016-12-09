@@ -944,7 +944,7 @@
 #elif !defined(OLDNAG)
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-!        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
+        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
 #endif
         CALL ZLACPY('U', NE, NE, TMP, LQ, V, Size(V,1))
 
@@ -961,8 +961,8 @@
 #elif !defined(OLDNAG)
         CALL ZUNGQR(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
-!            & LQ, TAU, WORK, INFO)
+        CALL F01REF('Separate', LQ,NE, NE, TMP, &
+            & LQ, TAU, WORK, INFO)
 #endif
         CALL ZLACPY('A', LQ, NE, TMP, LQ, U, Size(U,1))
         DEALLOCATE(TAU, TMP, WORK)
@@ -1057,7 +1057,7 @@
 #elif !defined(OLDNAG)
         CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-!        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
+        CALL F01RCF(LQ,NE,TMP,LQ,TAU,INFO)  
 #endif
         call ZLACPY('U', NE, NE, TMP, LQ, V, LDV)
         DETV = 1.D0
@@ -1072,8 +1072,8 @@
 #elif !defined(OLDNAG)
         CALL ZUNGQR(LQ, NE, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #else
-!        CALL F01REF('Separate', LQ,NE, NE, TMP, &
-!            & LQ, TAU, WORK, INFO)
+        CALL F01REF('Separate', LQ,NE, NE, TMP, &
+            & LQ, TAU, WORK, INFO)
 #endif
         call ZLACPY('A', LQ, NE, TMP, LQ, U, LDU)
         DEALLOCATE(WORK, TAU, TMP)
