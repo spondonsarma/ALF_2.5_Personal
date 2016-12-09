@@ -927,18 +927,18 @@
         !You now want to UDV TMP.
         INFO = 0
 
-        ! Query optimal work space
+        ! Query optimal work space. Old style NAG routines use the previously allocated work array
+#if !defined(OLDNAG)
 #if defined(QRREF)
         CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
-#elif !defined(OLDNAG)
-        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
 #else
-! insert work array calculation again
-! We resort to old style NAG only if everything else is not set
+        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
 #endif
         LWORK = INT(DBLE(WORK(1)))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
+#endif
+
 #if defined(QRREF)
         CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #elif !defined(OLDNAG)
@@ -1040,18 +1040,17 @@
         !You now want to UDV TMP. Nag routines.
         INFO = 0
 
-        ! Query optimal work space
+        ! Query optimal work space. Old style NAG routines use the previously allocated work array
+#if !defined(OLDNAG)
 #if defined(QRREF)
         CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
-#elif !defined(OLDNAG)
-        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
 #else
-! insert work array calculation again
-! We resort to old style NAG only if everything else is not set
+        CALL ZGEQRF(LQ, NE, TMP, LQ, TAU, WORK, -1, INFO)
 #endif
         LWORK = INT(DBLE(WORK(1)))
         DEALLOCATE(WORK)
         ALLOCATE(WORK(LWORK))
+#endif
 #if defined(QRREF)
         CALL ZGEQRF_REF(LQ, NE, TMP, LQ, TAU, WORK, LWORK, INFO)
 #elif !defined(OLDNAG)
