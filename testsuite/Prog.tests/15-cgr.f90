@@ -106,7 +106,7 @@ end Program TESTCGR
         !Local
         COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, TPUP1M1, UUPM1, VUP1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
-        COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO
+        COMPLEX (Kind=8) ::  ZDUP1 ZDUP2, Z1
         Integer :: I,J, N_size, NCON
         Real (Kind=8) :: X, Xmax
         
