@@ -698,9 +698,6 @@
 !> This function calculates the UDV decomposition using the standard 
 !> QR algorithm of LaPack.
 !
-!> @note Using the Divide & Conquer algorithm would not yield 
-!> enough accuracy for using within an auxiliary field type algorithm.
-!
 !> @param[in] A a 2D array constituting the input matrix.
 !> @param[out] U a 2D array containing the left singular vectors.
 !> @param[out] D a 1D array containing the sorted singular values.
@@ -890,11 +887,8 @@
 !> Fakher Assaad and Florian Goth
 !
 !> @brief 
-!> This function calculates the UDV decomposition using the standard 
+!> This function calculates a UDV decomposition using the standard 
 !> QR algorithm of LaPack.
-!
-!> @note Using the Divide & Conquer algorithm would not yield 
-!> enough accuracy for using within an auxiliary field type algorithm.
 !
 !> @param[in] A a 2D array constituting the input matrix.
 !> @param[out] U a 2D array containing the left singular vectors.
