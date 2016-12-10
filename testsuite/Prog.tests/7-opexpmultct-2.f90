@@ -60,7 +60,7 @@ Program OPEXPMULTCTTEST
 !
          Do i = 1, Ndim
             Do j = 1, Ndim
-               If (matold(i, j) .Ne. matnew(i, j)) Then
+               If (ABS(matold(i, j) - matnew(i, j)) > ABS(matold(i,j))*1D-15 ) Then
                write (*,*) "ERROR"
                   Stop 2
                End If
