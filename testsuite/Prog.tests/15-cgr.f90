@@ -2,7 +2,7 @@
 ! gfortran -Wall -std=f2003 -I ../../../Prog_8/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/cgr1.o ../../../Prog_8/UDV_WRAP.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 
 Program TESTCGR
-
+implicit none
 interface
       SUBROUTINE CGRold(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
         COMPLEX(Kind=8), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
@@ -25,7 +25,7 @@ end interface
         COMPLEX(Kind=Kind(0.D0)), Dimension(:), allocatable ::  DLUP, DRUP
         COMPLEX(Kind=Kind(0.D0)), Dimension(:,:), allocatable :: GRUPnew, GRUPold
         COMPLEX(Kind=Kind(0.D0)) :: PHASEnew, Phaseold, Zre, Zim
-        INTEGER         :: NVAR, i, j
+        INTEGER         :: NVAR, i, j, N_size
         
         N_size = 5
         
@@ -67,14 +67,14 @@ call CGRold(PHASEold, NVAR, GRUPold, URUP, DRUP, VRUP, ULUP, DLUP, VLUP)
 ! compare GRUP results
     do i=1,N_size
     do j=1,N_size
-    Zre = real(GRUPnew(i,j)-GRUPold(i,j))
+    Zre = DBLE(GRUPnew(i,j)-GRUPold(i,j))
     Zim = aimag(GRUPnew(i,j)-GRUPold(i,j))
-    if (Abs(Zre) > MAX(ABS(real(GRUPnew(i,j))), ABS(real(GRUPold(i,j))) )*1D-15) then
-    write (*,*) "opn: ", opn, "N_type", N_type
-    write (*,*) "ERROR in real part", real(GRUPnew(i,j)), real(GRUPold(i,j))
+    if (Abs(Zre) > MAX(ABS(real(GRUPnew(i,j))), ABS(real(GRUPold(i,j))) )*1D-13) then
+    write (*,*) "ERROR in real part", real(GRUPnew(i,j)), real(GRUPold(i,j)), "diff: ", &
+    & Abs(Zre), "prec: ", MAX(ABS(real(GRUPnew(i,j))), ABS(real(GRUPold(i,j))) )*1D-13
     STOP 2
     endif
-    if (Abs(Zim) > MAX(ABS(aimag(GRUPnew(i,j))), ABS(aimag(GRUPold(i,j))) )*1D-15) then
+    if (Abs(Zim) > MAX(ABS(aimag(GRUPnew(i,j))), ABS(aimag(GRUPold(i,j))) )*1D-13) then
     write (*,*) "ERROR in imag part", aimag(GRUPnew(i,j)), aimag(GRUPold(i,j))
     STOP 3
     endif
@@ -106,7 +106,7 @@ end Program TESTCGR
         !Local
         COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1, TPUP1M1, UUPM1, VUP1
         COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
-        COMPLEX (Kind=8) ::  ZDUP1 ZDUP2, Z1
+        COMPLEX (Kind=8) ::  ZDUP1, ZDUP2, Z1
         Integer :: I,J, N_size, NCON
         Real (Kind=8) :: X, Xmax
         
@@ -127,7 +127,7 @@ end Program TESTCGR
         TPUP=TPUP + UUPM1
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
-           CALL UDV_WRAP(TPUP,UUP,DUP,VUP,NCON)
+           CALL UDV_WRAP_Pivot(TPUP,UUP,DUP,VUP,NCON, N_size, N_size)
            !CALL UDV(TPUP,UUP,DUP,VUP,NCON)
            CALL MMULT(TPUP,VUP,ULUP)
            !Do I = 1,N_size
@@ -141,7 +141,7 @@ end Program TESTCGR
         ELSE
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
            TPUP1 = Conjg(transpose((TPUP)))
-           CALL UDV_WRAP(TPUP1,UUP,DUP,VUP,NCON)
+           CALL UDV_WRAP_Pivot(TPUP1,UUP,DUP,VUP,NCON, N_size, N_size)
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
            TPUP = Conjg(Transpose((ULUP)))
            CALL MMULT(TPUPM1,TPUP,UUP)
