@@ -18,7 +18,7 @@ set_target_properties(${matmodtests} PROPERTIES COMPILE_FLAGS "-I ${CMAKE_CURREN
 
 foreach(iter ${matmodtests})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/modules_90.a )
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/MyNag/libnag.a)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/libqrref/libqrref.a)
 target_link_libraries(${iter} ${LAPACK_LIBRARIES})
 endforeach(iter)
 
