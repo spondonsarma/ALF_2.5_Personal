@@ -223,9 +223,6 @@
      End Subroutine UDV_Wrap_Pivot1
 !***************************************************************
      Subroutine UDV_Wrap(A,U,D,V,NCON)
-
-#include "machine"            
-
        Implicit None
 #ifdef MPI            
        INCLUDE 'mpif.h'
