@@ -83,7 +83,6 @@
            Use Lattices_v3
            Implicit none
 
-#include "machine"
 #ifdef MPI
            include 'mpif.h'
 #endif   
@@ -186,7 +185,6 @@
            
            Implicit none
 
-#include "machine"
 #ifdef MPI
            include 'mpif.h'
 #endif   

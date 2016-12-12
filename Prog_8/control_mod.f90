@@ -76,7 +76,6 @@
       
       Subroutine control_Print
         Implicit none
-#include "machine"
 #ifdef MPI
         include 'mpif.h'
 #endif
@@ -144,7 +143,6 @@
       ! The subroutine contains a hard-coded threshold (in unit of bins): 
       ! if time_remain/time_bin_duration < threshold the program terminates.
 
-#include "machine"
 #ifdef MPI
   include 'mpif.h'
 #endif  

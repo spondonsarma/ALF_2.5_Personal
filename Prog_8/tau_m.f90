@@ -2,8 +2,8 @@
 
        Use Hamiltonian 
        Use Operator_mod
-       Use Precdef
        Use Control
+       Use Precdef
        Use Hop_mod
 
        Contains

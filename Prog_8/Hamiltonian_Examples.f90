@@ -47,7 +47,7 @@
       Subroutine Ham_Set
 
           Implicit none
-#include "machine"
+
 #ifdef MPI
           include 'mpif.h'
 #endif   
