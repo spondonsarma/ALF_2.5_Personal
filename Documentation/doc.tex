@@ -19,6 +19,9 @@
 \usepackage{xcolor}
 \usepackage{lmodern}
 \usepackage{listings}
+\usepackage{url}
+\usepackage{booktabs}
+
 \lstset{language=Fortran,
   basicstyle=\ttfamily,
   keywordstyle=\color{red},
@@ -29,7 +32,6 @@
   showstringspaces=false,
   columns=flexible
 }
-
 
 \lstdefinestyle{custombash}{
 language=bash,
@@ -42,7 +44,6 @@ language=bash,
   showstringspaces=false,
   columns=flexible
 }
-
 
 \def\Tr{\mathop{\mathrm{Tr}}}
 \def\Trf{\mathop{\mathrm{Tr}_{\mathrm{F}}}}
@@ -75,7 +76,7 @@ language=bash,
 \title{
 The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) project release 1.0}
 \subtitle{Documentation for the  auxiliary field quantum Monte Carlo  code.}
-\author{Martin Bercx,  Florian Goth,  Fakher F. Assaad }
+\author{Martin Bercx,  Florian Goth,  Johannes Hofmann, Fakher F. Assaad }
 \maketitle
 \tableofcontents
 \clearpage
@@ -87,25 +88,28 @@ The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) pr
 \input{analysis}
 \input{running}
 
+\section{Performance}
+Next to the entire computational time is spent in BLAS routines such that the performance of the code will depend on the  implementation of this library. We have found that the code performs well, and that  an efficient  OpenMP  version  can be obtained merely by   loading the corresponding BLAS and LAPACK routines. 
+
+\section{Conclusions and future directions}
+In it's present form, the  ALF-project  allows to simulate a very large class of non-trivial models efficiently and at a minimal  programming cost.  There are many possible extensions which deserve to be considered in future releases.    The Hamiltonians we presently defining are imaginary time independent. This however, can be easily generalized  to time dependent Hamiltonians thus allowing, for example, to access  entanglement properties of interacting fermionic systems \cite{Broecker14,Assaad14,Assaad13a,Assaad15}. Generalizations to include global moves are equally desirable. This is a prerequisite to  play with recent ideas of self-learning algorithms  \cite{Xu16a} so as to  possibly avoid critical slowing down.  At present we are restricted to discrete fields such that  implementations  of  the long range Coulomb repulsion as introduced in \cite{Hohenadler14,Ulybyshev2013,Brower12} is not included in the package.   Extensions  to  continuous fields are certainly possible, but require an efficient upgrading scheme. Finally,  a ground state projective formulation   is equally desirable.
+
+
 \addcontentsline{toc}{section}{Acknowledgements}
-\section*{Acknowledgements}
+\section*{Acknowledgements} 
+We are very grateful to  S. Beyl, M. Hohenadler,  F. Parisen Toldin,  M. Raczkowski,  J. Schwab, T. Sato, Z. Wang and M. Weber,  for constant support during the development of this project.  FFA would also like to thank T. Lang   and Z.Y. Meng for  developments of the auxiliary field code as well as T. Grover. 
  MB thanks the the Bavarian Competence Network for Technical and Scientific High Performance Computing (KONWIRH) for financial support. FG thanks the SFB-1170 for  financial support under project (Z03).  FFA thanks the DFG-funded FOR1807 for partial financial support.
-Calculations  to extensively test this package were carried out on SuperMUC at the  Leibniz Supercomputing Centre and on  JURECA \cite{Jureca16} at the J\"ulich Supercomputing Centre (JSC). We thank those institutions for generous computer allocations.
-
+Calculations  to extensively test this package were carried out on SuperMUC at the  Leibniz Supercomputing Centre and on  JURECA \cite{Jureca16} at the J\"ulich Supercomputing Centre (JSC). We thank those institutions for generous computer allocations.  
 
 %\clearpage
-%\input{overview}
 %\clearpage
-%\input{files}
-%\input{hamiltonian}
 
-%\input{installation}
-%\input{reference}
-%\input{license}
-%\input{ideas}
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{./prXsty} 
 \bibliography{./fassaad}
+
+\addcontentsline{toc}{section}{License}
+\input{license}
 
 
 \end{document}

@@ -54,13 +54,17 @@ The indices have the following meaning:
 \item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard-Stratonovich transformation, the action will be block diagonal in the flavor index. 
 \item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $. 
 \item The indices $x,y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
-$N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{unit\;cell} N_{orbital}$, 
-where $N_{unit\;cell}$ is the number of unit cells of the underlying Bravais lattice and $N_{orbital}$ is the number of (spacial) orbitals per unit cell.
+
+$N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit cell}} N_{\mathrm{orbital}}$, 
+where $N_{\text{unit cell}}$ is the number of unit cells of the underlying Bravais lattice and $N_{\mathrm{orbital}}$ is the number of (spacial) orbitals per unit cell.
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$
-\item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition. 
+\item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition.
+\end{itemize}
+The Ising part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\mathcal{H}}_{0,I}+ \hat{\mathcal{H}}_{I}$ and  has the following properties:
+\begin{itemize}
 \item $\hat{Z}_k$ is an Ising spin operator which corresponds to the Pauli matrix $\hat{\sigma}_{z}$. It couples to a general one-body term. 
-\item  $\mathcal{H}_{0,I}$  gives the dynamics of the Ising spins. 
-This term has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{}).
+\item  The dynamics of the Ising spins is given by $\hat{\mathcal{H}}_{0,I}$. This term is not specified here; 
+it has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{sec:walk2} for an example).
 \end{itemize}
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
 The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
@@ -108,7 +112,7 @@ Z &=& \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
     \Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
     \prod_{k=1}^{M_V}   e^{  \sqrt{ \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]\right\} }
 \end{eqnarray}
-In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionc Fock space. 
+In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
 $S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{eqnarray}
@@ -177,9 +181,9 @@ To compute equal time as well as time-displaced observables,  one can make use o
      \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
  \end{bmatrix}
 \end{eqnarray}
-In the subroutines   \texttt{Obser}  and \texttt{ObserT} of  the module \texttt{Hamiltonian\_Hub.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wicks theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
+In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wicks theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
 
-\subsubsection{Reweighting and the sign problem}
+\subsubsection{Reweighting and the sign problem}\label{sec:reweight}
 
 In general, the action  $S(C) $ will be complex such, thereby inhibiting a direct Monte Carlo sampling of $P(C)$.   This leads to the infamous sign problem.  When the average sign is not too small, we can nevertheless  compute observables within a reweighting scheme.   Here we adopt the following scheme. First  note  that the partition function is real such that: 
 \begin{equation}
@@ -191,7 +195,7 @@ and with the definition
 \label{Sign.eq}
 	 \text{ sign }(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }\;,
 \end{equation}
-the computation of the observable [Eq.~(\ref{eqn:obs})] is reexpressed as follows:
+the computation of the observable [Eq.~(\ref{eqn:obs})] is re-expressed as follows:
 \begin{eqnarray}\label{eqn:obs_rw}
 \langle \hat{O}  \rangle  &=&  \frac{\sum_{C}  e^{-S(C)} \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}  e^{-S(C)}}       \nonumber \\ 
                           &=&  \frac{\sum_{C}   \Re \left[e^{-S(C)} \right]    \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)} }{\sum_{C}   \Re \left[e^{-S(C)} \right]}    \nonumber \\ 
@@ -210,9 +214,9 @@ the computation of the observable [Eq.~(\ref{eqn:obs})] is reexpressed as follow
 \end{eqnarray} 
 The average sign is 
 \begin{equation}\label{eqn:sign_rw}
-	 \langle \text{sign} (C) \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
+	 \langle \text{sign} \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
 \end{equation}
-where  $\langle \text{sign} (C) \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
+and we have  $\langle \text{sign} \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
 According to Eq.~(\ref{eqn:obs_rw}) and Eq.~(\ref{eqn:sign_rw}), the Monte Carlo simulation samples the probability distribution 
 \begin{equation}  
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
@@ -221,11 +225,6 @@ According to Eq.~(\ref{eqn:obs_rw}) and Eq.~(\ref{eqn:sign_rw}), the Monte Carlo
 % \begin{equation}
 % 	\langle \hat{O}  \rangle  = \frac{\sum_{C}   \langle  \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \rangle_{\overline{P}} } { \langle \text{sign} (C)   \rangle_{\overline{P}}}
 % \end{equation}
-In the subroutines  \texttt{Obser}  and \texttt{ObserT} of the module \texttt{Hamiltonian\_Hub.f90} (see Sec.~\ref{sec:obs})   the main program provides the  Monte Carlo phase of a configuration,
-\begin{equation}\label{eqn:phase}
-	\text{phase}(C)   =   \frac{e^{-S(C)}}{ \left| e^{-S(C) }\right| }\;,
-\end{equation}
-which then is used to compute both $ \text{sign}(C)$ and the factor $  \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} $. 
 
 
 

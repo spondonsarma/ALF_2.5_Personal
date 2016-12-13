@@ -1,0 +1,71 @@
+% !TEX root = Doc.tex
+\section{Running the code}\label{sec:running}
+In this section we describe the steps to compile and run the code and to perform the error analysis of the data.
+
+
+\subsection{Compilation}
+The environment variables are defined in the bash script \texttt{set\_env.sh} as follows:
+\lstset{style=custombash}
+\begin{lstlisting}
+
+# setting QRREF has the highest priority. Setting nothing selects 
+# system lapack for the QR decomposition.
+# -DMPI selects MPI.
+PROGRAMMCONFIGURATION="-DQRREF"
+f90="gfortran"
+export f90
+F90OPTFLAGS="-O3"
+export F90OPTFLAGS
+FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
+export FL
+DIR=`pwd`
+export DIR
+Libs=${DIR}"/Libraries/"
+export Libs
+LIB_BLAS_LAPACK="-llapack -lblas"
+export LIB_BLAS_LAPACK
+
+\end{lstlisting}
+The program can be compiled and ran either in single-thread mode (default) or 
+in multi-threading mode (define \texttt{-DMPI}) using the MPI standard for parallelization.
+To compile the libraries, the analysis programs and the quantum Monte Carlo program, the following steps should be executed:
+\begin{enumerate}
+\item Export  the environment variables:
+\begin{verbatim}
+source set_env.sh
+\end{verbatim}
+\item Compile the libraries and the error analysis routines
+\begin{verbatim}
+cd Libraries
+make
+cd ..
+cd Analysis
+make
+cd ..
+\end{verbatim}
+\item Compile the quantum Monte Carlo code
+\begin{verbatim}
+cd Prog
+make
+cd ..
+\end{verbatim}
+\end{enumerate}
+
+
+\subsection{Starting a simulation}
+To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
+To run a single-thread simulation for one of the  Hubbard model described in Sec.~\ref{sec:walk1} - \ref{sec:walk2}, issue the command
+\begin{verbatim}
+./Prog/Examples.out
+\end{verbatim}
+To restart the code using an existing simulation as a starting point, first run the script \texttt{out\_to\_in.sh} to set 
+the input configuration files.
+
+\subsection{Error analysis}
+To perform an error analysis, based on the jackknife scheme, of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
+(see Sec.~\ref{sec:analysis}).
+
+ 
+
+
+
