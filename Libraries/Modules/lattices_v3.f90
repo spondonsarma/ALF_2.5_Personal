@@ -149,7 +149,7 @@
           LQ = nc
           Latt%Ns = LQ
           Latt%N  = LQ
-          Write(6,*) L, LQ
+          !Write(6,*) L, LQ
 
 
           Allocate ( Latt%List(LQ,ndim), Latt%Invlist(-L:L, -L:L ) )

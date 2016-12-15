@@ -154,6 +154,9 @@
 #if defined(STAB1) 
              Write(50,*) 'STAB1 is defined '
 #endif
+#if defined(QRREF) 
+             Write(50,*) 'QRREF is defined '
+#endif
              close(50)
 #ifdef MPI
           endif
