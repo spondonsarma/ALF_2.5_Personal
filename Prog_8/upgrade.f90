@@ -79,7 +79,7 @@
         Weight = abs(  real(Phase * Ratiotot, kind=double)/real(Phase,kind=double) )
       
         Log = .false. 
-        if ( Weight > ranf() )  Then
+        if ( Weight > ranf_wrap() )  Then
            Log = .true.
            Phase = Phase * Ratiotot/weight
            !Write(6,*) 'Accepted : ', Ratiotot

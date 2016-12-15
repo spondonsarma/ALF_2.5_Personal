@@ -3,7 +3,7 @@
 # In addition the NAG library has to be specified in LIB_BLAS_LAPACK.
 # -DMPI selects MPI.
 PROGRAMMCONFIGURATION="-DQRREF -DSTAB1"
-PROGRAMMCONFIGURATION="-DQRREF"
+PROGRAMMCONFIGURATION=""
 f90="gfortran"
 export f90
 F90OPTFLAGS="-O3"
