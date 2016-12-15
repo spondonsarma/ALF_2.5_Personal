@@ -96,26 +96,26 @@ Module Random_Wrap
 !     end function ranf
 
 
-     real (Kind=8)  function  ranf_wrap(iq)
+     real (Kind=Kind(0.D0))  function  ranf_wrap(iq)
        implicit none
        integer, optional ::  iq
-       Real (Kind=8) :: X
+       Real (Kind=Kind(0.D0)) :: X
        Call Random_Number(X)
        ranf_wrap = X
      end function ranf_wrap
      
 
-     real (kind=8)  function  rang_wrap(iq)
+     real (kind=kind(0.D0))  function  rang_wrap(iq)
         
        ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
      
         integer, optional :: iq
-        real (Kind=8) ::  pi, ranmod, theta
+        real (Kind=kind(0.D0)) ::  pi, ranmod, theta
       
         PI = 3.1415926536D0
         RANMOD = SQRT(-2.D0 * LOG(RANF_Wrap(iq)))
         THETA  = 2.D0 * PI * RANF_wrap(iq)
-        rang = RANMOD * COS(THETA)
+        rang_wrap = RANMOD * COS(THETA)
         
       end function rang_wrap
 
