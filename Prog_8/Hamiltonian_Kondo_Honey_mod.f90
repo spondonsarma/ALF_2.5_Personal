@@ -136,6 +136,12 @@
              Write(50,*) 'U             : ', Ham_U
              Write(50,*) 'J             : ', Ham_J
              Write(50,*) 'Jz            : ', Ham_Jz
+#if defined(STAB1) 
+             Write(50,*) 'STAB1 flag is on'
+#endif
+#if defined(QRREF) 
+             Write(50,*) 'QRREF flag is on'
+#endif
              close(50)
 #ifdef MPI
           endif

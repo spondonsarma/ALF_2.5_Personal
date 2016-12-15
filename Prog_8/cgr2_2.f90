@@ -196,4 +196,5 @@
            call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB1, LQ)
         Endif
         DEALLOCATE(MYU2, HLPB1, HLPB2, U3B, V3B)
+        
       END SUBROUTINE CGR2_2

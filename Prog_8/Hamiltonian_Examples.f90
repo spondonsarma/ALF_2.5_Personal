@@ -151,6 +151,9 @@
                 Write(50,*) 'Ham_J         : ', Ham_J
                 Write(50,*) 'Ham_h         : ', Ham_h
              Endif
+#if defined(STAB1) 
+             Write(50,*) 'STAB1 is defined '
+#endif
              close(50)
 #ifdef MPI
           endif

@@ -2,7 +2,8 @@
 # Setting OLDNAG selects syntax of NAG Versions before NAG Mark 17 (roughly....).
 # In addition the NAG library has to be specified in LIB_BLAS_LAPACK.
 # -DMPI selects MPI.
-PROGRAMMCONFIGURATION="-DQRREF"
+PROGRAMMCONFIGURATION="-DQRREF -DSTAB1"
+PROGRAMMCONFIGURATION=""
 f90="gfortran"
 export f90
 F90OPTFLAGS="-O3"
