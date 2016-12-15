@@ -7,7 +7,6 @@ Program TESTOP_PHASE
 Use Operator_mod
 implicit none
 
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(3) :: ExpOp, ExpMOp, ExpOpold, ExpMOpold
         Real (KIND = KIND(0.D0)) :: spin
         Complex(Kind = Kind(0.D0)) :: Phasenew, Phaseold, diff
         Integer :: i,n, N_SUN, NSigma(3,3), nf,nt
@@ -39,7 +38,7 @@ implicit none
     do nf = 1,Size(Op,2)
        do n = 1,size(Op,1)
           do nt = 1,size(nsigma,2)
-             Phaseold = Phaseold*exp(cmplx(0.d0, Aimag( Op(n,nf)%g * Op(n,nf)%alpha ) * Phi(nsigma(n,nt),Op(n,nf)%type) ) )
+             Phaseold=Phaseold*exp(cmplx(0.d0,Aimag(Op(n,nf)%g*Op(n,nf)%alpha) * Phi(nsigma(n,nt),Op(n,nf)%type),kind(0.D0) ) )
           enddo
        enddo
     enddo
