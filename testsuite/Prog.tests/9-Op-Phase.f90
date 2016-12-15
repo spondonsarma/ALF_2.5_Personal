@@ -38,7 +38,7 @@ implicit none
     do nf = 1,Size(Op,2)
        do n = 1,size(Op,1)
           do nt = 1,size(nsigma,2)
-             Phaseold=Phaseold*exp(cmplx(0.d0,Aimag(Op(n,nf)%g*Op(n,nf)%alpha) * Phi(nsigma(n,nt),Op(n,nf)%type),kind(0.D0) ) )
+             Phaseold=Phaseold*exp(cmplx(0.d0,Aimag(Op(n,nf)%g*Op(n,nf)%alpha) * Phi(nsigma(n,nt),Op(n,nf)%type),kind(0.D0)))
           enddo
        enddo
     enddo
@@ -46,7 +46,7 @@ implicit none
     
     diff = Phaseold - Phasenew
     
-    if (abs(diff) < MAX(ABS(Phaseold),ABS(Phasenew))*1D-15) then
+    if (abs(diff) > MAX(ABS(Phaseold), ABS(Phasenew))*1D-15) then
     write (*,*) "ERROR", Phaseold, Phasenew
     STOP 2
     endif
