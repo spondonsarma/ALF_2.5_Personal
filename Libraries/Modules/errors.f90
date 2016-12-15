@@ -782,7 +782,7 @@
            REAL (KIND=8), DIMENSION(:,:) :: XCOV
            REAL (KIND=8), DIMENSION(:)   :: XMEAN 
            
-           Integer :: ntau, I, M, ISeed
+           Integer :: ntau, I, M, ISeed, ISEED_VEC(1)
            Real (Kind = 8) :: X
 
            Real (Kind=8), Dimension(:,:),  allocatable ::  UC
@@ -790,6 +790,9 @@
 
            ntau = size(Xmean,1) 
            Allocate (UC(ntau,ntau), XMEAN_1(ntau), SIG_1(ntau) ) 
+
+           ISEED_VEC(1) = ISEED
+           CALL RANSET(ISEED_VEC)
 
            CALL DIAG(XCOV,UC,SIG_1)
            
@@ -804,7 +807,7 @@
               IF (SIG_1(I).LT.0.d0) Then 
                   write(6,*) 'Error in Cov_err', SIG_1(I)
               Endif
-              XMEAN_1(I) = XMEAN_1(I) + SQRT(ABS(SIG_1(I)))*RANG(ISEED)
+              XMEAN_1(I) = XMEAN_1(I) + SQRT(ABS(SIG_1(I)))*RANG_WRAP()
            ENDDO
            DO I = 1,NTAU
               X = 0.D0
@@ -813,6 +816,9 @@
               ENDDO
               XMEAN(I) = X
            ENDDO
+
+           CALL RANGET(ISEED_VEC)
+           ISEED  = ISEED_VEC(1)
 
            Deallocate (UC, XMEAN_1, SIG_1) 
 
@@ -863,11 +869,14 @@
            INTEGER, INTENT(INOUT) :: ISEED
            COMPLEX (KIND=8), INTENT(OUT) :: ZM,ZERR
            
+
            !Local
-           INTEGER :: NP, NB, I, J
+           INTEGER :: NP, NB, I, J, ISEED_VEC(1)
            COMPLEX (KIND=8) :: Z,  Z1,Z2,Z12
-           !REAL (KIND=8), EXTERNAL :: RANF
            
+
+           ISEED_VEC(1) = ISEED
+           CALL RANSET(Iseed_vec)
            NP = SIZE(A,1) 
            ZM   = CMPLX(0.d0,0.d0,Kind=8)
            ZERR = CMPLX(0.d0,0.d0,Kind=8)
@@ -876,7 +885,7 @@
               Z2  = cmplx(0.d0,0.d0,Kind=8)
               Z12 = cmplx(0.d0,0.d0,Kind=8)
               DO I = 1,NP
-                 J = NINT( DBLE(NP)* RANF(ISEED) + 0.5 )
+                 J = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
                  IF (J == 0) J = 1
                  IF (J > NP) J = NP
                  Z1 = Z1  + A(J)
@@ -896,6 +905,10 @@
            
            Z = ZERR -  ZM*ZM
            ZERR = SQRT(Z)
+           
+           CALL RANGET(Iseed_vec)
+           ISEED = ISEED_VEC(1)
+
 
          END SUBROUTINE BOOTSTRAPC_FLUC
 
@@ -905,8 +918,14 @@
            REAL (KIND=8), DIMENSION(:) ::  EN
            REAL (KIND=8)               ::  XM, XERR,  X
            INTEGER                     ::  NP, NT, NBOOT, NB, I, ISEED
+           
+           ! Local 
+           INTEGER :: ISEED_VEC(1)
  
            NP = SIZE(EN)
+           ISEED_VEC(1) = ISEED
+           CALL RANSET(Iseed_vec)
+           
            
            ! Build the Bootstrap samples
            
@@ -915,7 +934,7 @@
            DO NB = 1,NBOOT
               X = 0.D0
               DO NT = 1, NP
-                 I = NINT( DBLE(NP)* RANF(ISEED) + 0.5 )
+                 I = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
                  IF (I.EQ.0 .OR. I.GT.NP ) THEN
                     WRITE(6,*) 'ERROR IN BOOTSTRAP'
                     STOP
@@ -933,6 +952,9 @@
            X = XERR - XM*XM
            XERR = 0.d0
            IF (X.GT.0.d0) XERR = SQRT(X)
+
+           CALL RANGET(Iseed_vec)
+           ISEED = ISEED_VEC(1) 
 
          END SUBROUTINE BOOTSTRAP
 

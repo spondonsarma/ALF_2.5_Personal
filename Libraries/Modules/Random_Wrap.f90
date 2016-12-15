@@ -78,13 +78,13 @@ Module Random_Wrap
 20     ranf_imada = dble(iq)/2.0D0**31
      end function ranf_imada
 
-     real (Kind=8)  function  ranf(iq)
-       implicit none
-       integer, optional ::  iq
-       Real (Kind=8) :: X
-       Call Random_Number(X)
-       ranf = X
-     end function ranf
+!     real (Kind=8)  function  ranf(iq)
+!       implicit none
+!       integer, optional ::  iq
+!       Real (Kind=8) :: X
+!       Call Random_Number(X)
+!       ranf = X
+!     end function ranf
 
 
      real (Kind=8)  function  ranf_wrap(iq)
@@ -96,18 +96,34 @@ Module Random_Wrap
      end function ranf_wrap
      
 
-      real (kind=8)  function  rang(iq)
-
-        ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
-      
-        integer iq
+     real (kind=8)  function  rang_wrap(iq)
+        
+       ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
+     
+        integer, optional :: iq
         real (Kind=8) ::  pi, ranmod, theta
       
         PI = 3.1415926536D0
-        RANMOD = SQRT(-2.D0 * LOG(RANF(iq)))
-        THETA  = 2.D0 * PI * RANF(iq)
+        RANMOD = SQRT(-2.D0 * LOG(RANF_Wrap(iq)))
+        THETA  = 2.D0 * PI * RANF_wrap(iq)
         rang = RANMOD * COS(THETA)
         
-      end function rang
+      end function rang_wrap
+
+
+
+!      real (kind=8)  function  rang(iq)
+
+        ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
+      
+!        integer iq
+!        real (Kind=8) ::  pi, ranmod, theta
+!      
+!        PI = 3.1415926536D0
+!        RANMOD = SQRT(-2.D0 * LOG(RANF(iq)))
+!        THETA  = 2.D0 * PI * RANF(iq)
+!        rang = RANMOD * COS(THETA)
+!        
+!      end function rang
    
    end Module Random_Wrap

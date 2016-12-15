@@ -71,7 +71,7 @@
             Deallocate(Seed_vec)
             do NT = 1,LTROT
                do I = 1,Size(Op_V,1)
-                  X = RANF()
+                  X = RANF_WRAP()
                   NSIGMA(I,NT) = 1
                   IF (X.GT.0.5) NSIGMA(I,NT) = -1
                enddo
@@ -114,7 +114,7 @@
             Deallocate(Seed_vec)
             do NT = 1,LTROT
                do I = 1,Size(Op_V,1)
-                  X = RANF()
+                  X = RANF_WRAP()
                   NSIGMA(I,NT) = 1
                   IF (X.GT.0.5) NSIGMA(I,NT) = -1
                enddo
