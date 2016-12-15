@@ -1,12 +1,8 @@
         SUBROUTINE confin 
 
          Use Hamiltonian
-
          Implicit none
-
-         
-
-         
+   
 #ifdef MPI
          INCLUDE 'mpif.h'
          ! Local
@@ -64,7 +60,7 @@
             !Write(6,*) K
             Allocate(Seed_vec(K))
             Do I = 1,K
-               X =  Ranf_Imada(Seed_in)
+               X =  lcg(Seed_in)
                Seed_vec(I) = Seed_in
             enddo
             Call Ranset(Seed_vec)
@@ -107,7 +103,7 @@
             !Write(6,*) K
             Allocate(Seed_vec(K))
             Do I = 1,K
-               X =  Ranf_Imada(Seed_in)
+               X =  lcg(Seed_in)
                Seed_vec(I) = Seed_in
             enddo
             Call Ranset(Seed_vec)

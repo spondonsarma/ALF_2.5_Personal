@@ -30,7 +30,7 @@ Module Random_Wrap
           if (i <= N) then 
              SEED_Start(i) = Iseed_vec(i)
           else
-             X = Ranf_Imada(Iseed)
+             X = lcg(Iseed)
              SEED_Start(i) = Iseed
           endif
        enddo
@@ -57,7 +57,7 @@ Module Random_Wrap
           if (i <= K) then 
              Iseed_vec(i)  =  SEED_end(i)
           else
-             X = Ranf_Imada(Iseed)
+             X = lcg(Iseed)
              Iseed_vec(i) = Iseed
           endif
        enddo
@@ -65,18 +65,27 @@ Module Random_Wrap
 
      end Subroutine Ranget
 
-     real (Kind=8)  function  ranf_imada(iq)
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief 
+!> This function returns a real Pseudo-Random Number using a Linear congrential
+!> Random number generator. The range of the returned values is [0.0, 1.0).
+!> Note that the value 1.0 will not be returned.
+!
+!> @param[in] seed An integer to seed the LCG.
+!-------------------------------------------------------------------- 
+     real (Kind=Kind(0.D0)) function lcg(seed)
        implicit none
-       integer iq
-       integer IP,IR
-       parameter (IP = 48828125, IR = 2147483647)
+       integer :: seed
+       integer(8) :: res, norm
        
-       iq=iq* IP
-       ! print *,'iq = ',iq
-       if(iq) 10,20,20
-10     iq=(iq+IR)+1
-20     ranf_imada = dble(iq)/2.0D0**31
-     end function ranf_imada
+       res = seed ! convert type
+       res = 62089911*res + 4349
+       norm = 2147483648_8 !specify 8 byte integer
+       lcg = DBLE(MODULO(res, 2147483647))/DBLE(norm)
+     end function lcg
 
      real (Kind=8)  function  ranf(iq)
        implicit none
