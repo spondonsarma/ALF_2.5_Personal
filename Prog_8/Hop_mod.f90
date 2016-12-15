@@ -27,7 +27,7 @@
              Stop
           Endif
           Ndim_hop = Op_T(1,1)%N
-          Write(6,*) 'In Hop_mod: ', Ndim, Ndim_hop, Ncheck
+          !Write(6,*) 'In Hop_mod: ', Ndim, Ndim_hop, Ncheck
           Do nc = 1, Ncheck
              do nf = 1,N_FL
                 if ( Ndim_hop /= Op_T(nc,nf)%N ) Then 
