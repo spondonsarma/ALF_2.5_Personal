@@ -45,11 +45,12 @@ stages:
     - make
     - cd ..
     - cd testsuite
-    - mkdir tests
+    - cmake -E make_directory tests
     - cd tests
-    - cmake -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
-    - make
-    - make test
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
+    - cmake --build . --target all --config Release
+    - ctest -O log.txt
+    - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 GQMCT_Wheezy:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
