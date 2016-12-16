@@ -1,4 +1,4 @@
-# General  finite temperature auxiliary field code #
+# General finite temperature auxiliary field code - ALF#
 
 ## General information ##
 Last version of the code is in Prog_8
@@ -23,9 +23,25 @@ Compiler: gfortran  or ifort
 
 
 ## CONFIGURATION FOR COMPILATION ##
-
+See set_env.sh
 
 ## TESTING ##
+We have about 30 tests that test various parts of the program in the folder testsuite.
+As testing framework we employ CTest.
+From the subfolder testsuite the tests can be run as follows
+- mkdir tests
+- cd tests
+- cmake ..
+- make
+- make test
+
+## LICENSE ##
+The various works that make up the ALF project are placed under licenses that put
+a strong emphasis on the attribution of the original authors and the sharing of the contained knowledge.
+To that end we have placed the ALF source code under the GPL version 3 license (see license.GPL)
+and took the liberty as per GPLv3 section 7 to include additional terms that deal with the attribution
+of the original authors(see license.additional). 
+We mention that we link against parts of lapack which licensed under a BSD license(see license.BSD).
 
 ## USAGE ##
 
