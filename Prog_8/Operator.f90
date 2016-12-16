@@ -33,9 +33,6 @@
 
 Module Operator_mod
 
-  !!!!!! This version of  Operator.f90 contains optimization carried out by Johannes Hofmann
-  !!!!!! The original version of this module can be found in Operator_FFA.f90 
-  !!!!!! Both versions  must give the same results
 
   Use MyMats
 
