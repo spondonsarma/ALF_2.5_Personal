@@ -44,10 +44,10 @@
 !*************
        SUBROUTINE DIAG_GEN(Z_MAT,U,W,LR,ICON)
          IMPLICIT NONE
-         COMPLEX   (KIND=8), INTENT(IN), DIMENSION(:,:) :: Z_MAT
+         COMPLEX   (Kind=Kind(0.d0)), INTENT(IN), DIMENSION(:,:) :: Z_MAT
          CHARACTER (LEN=1),  INTENT(IN)  :: LR
-         COMPLEX   (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U
-         COMPLEX   (KIND=8), INTENT(INOUT), DIMENSION(:) :: W
+         COMPLEX   (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U
+         COMPLEX   (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: W
          INTEGER :: ICON
 
          !!!! Uses Lapack !!!
@@ -58,12 +58,12 @@
          !  Local space
          INTEGER :: N, LDA, LDVL, LDVR, INFO, LWORK, I, J, M
          CHARACTER (LEN=1) ::   JOBVL, JOBVR
-         COMPLEX (KIND=8), ALLOCATABLE, DIMENSION(:,:) :: A, VL, VR
-         REAL (KIND=8)   , ALLOCATABLE, DIMENSION(:) :: RWORK
-         COMPLEX (KIND=8), ALLOCATABLE, DIMENSION(:) :: WORK
+         COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE, DIMENSION(:,:) :: A, VL, VR
+         REAL (Kind=Kind(0.d0))   , ALLOCATABLE, DIMENSION(:) :: RWORK
+         COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE, DIMENSION(:) :: WORK
          
-         REAL    (KIND=8) :: XMAX, X
-         COMPLEX (KIND=8) :: Z
+         REAL    (Kind=Kind(0.d0)) :: XMAX, X
+         COMPLEX (Kind=Kind(0.d0)) :: Z
          
          N = SIZE(Z_MAT,1)
          ALLOCATE(A(N,N))
@@ -138,8 +138,8 @@
 !*************
        SUBROUTINE MMULT_R(C, A, B)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,B,C
-         REAL (KIND=8) :: ALP, BET
+         REAL (Kind=Kind(0.d0)), DIMENSION(:,:) :: A,B,C
+         REAL (Kind=Kind(0.d0)) :: ALP, BET
          INTEGER N, M, P, LDA, LDB, LDC
          N = SIZE(A,1) ! Rows in A
          M = SIZE(A,2) ! Columns in A
@@ -166,8 +166,8 @@
 
        SUBROUTINE MMULT_C(C, A, B)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A,B,C
-         COMPLEX (KIND=8) :: ALP, BET
+         COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:) :: A,B,C
+         COMPLEX (Kind=Kind(0.d0)) :: ALP, BET
          INTEGER N, M, P, LDA, LDB, LDC
 
          N = SIZE(A,1)
@@ -197,8 +197,8 @@
 !*********
        SUBROUTINE INITD_R(A,X)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A
-         REAL (KIND=8) X
+         REAL (Kind=Kind(0.d0)), DIMENSION(:,:) :: A
+         REAL (Kind=Kind(0.d0)) X
          INTEGER I,J, N, M
 
          N = SIZE(A,1)
@@ -447,14 +447,14 @@
 !*************
        SUBROUTINE INV_R2(A,AINV)
          IMPLICIT NONE
-         REAL (KIND=8), DIMENSION(:,:) :: A,AINV
+         REAL (Kind=Kind(0.d0)), DIMENSION(:,:) :: A,AINV
 
          INTEGER I, J
 
 ! Uses Lapack routines.
 
 ! Working space.
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: WORK
+         REAL (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE :: WORK
          INTEGER, DIMENSION(:), ALLOCATABLE :: IPIV
          INTEGER INFO, LDA, LWORK
 
@@ -646,11 +646,11 @@
 
        SUBROUTINE COMPARE_C(A,B,XMAX,XMEAN)
          IMPLICIT NONE
-         COMPLEX (KIND=8), DIMENSION(:,:) :: A,B
-         REAL (KIND=8) :: XMAX, XMEAN
+         COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:) :: A,B
+         REAL (Kind=Kind(0.d0)) :: XMAX, XMEAN
          INTEGER I,J, N, M
 
-         REAL (KIND=8) :: DIFF
+         REAL (Kind=Kind(0.d0)) :: DIFF
 
          N = SIZE(A,1)
          M = SIZE(A,2)
@@ -669,11 +669,11 @@
 
        SUBROUTINE COMPARE_R(A,B,XMAX,XMEAN)
          IMPLICIT NONE
-         REAL (KIND=8) , INTENT(IN), DIMENSION(:,:) :: A,B
-         REAL (KIND=8) , INTENT(INOUT) :: XMAX, XMEAN
+         REAL (Kind=Kind(0.d0)) , INTENT(IN), DIMENSION(:,:) :: A,B
+         REAL (Kind=Kind(0.d0)) , INTENT(INOUT) :: XMAX, XMEAN
          INTEGER I,J, N, M
 
-         REAL (KIND=8) :: DIFF
+         REAL (Kind=Kind(0.d0)) :: DIFF
 
          N = SIZE(A,1)
          M = SIZE(A,2)
@@ -693,20 +693,20 @@
 !*****************
        SUBROUTINE UDV1_R(A,U,D,V,NCON)
          IMPLICIT NONE
-         REAL (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-         REAL (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-         REAL (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+         REAL (Kind=Kind(0.d0)), INTENT(IN), DIMENSION(:,:) :: A
+         REAL (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+         REAL (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
          INTEGER, INTENT(IN) :: NCON
          INTEGER I,J,K, ND1, ND2, NR, IMAX, IFAIL
 
 !        The Det of V is not equal to unity. 
 ! Locals:
          INTEGER, DIMENSION(:), ALLOCATABLE :: IVPT, IVPTM1
-         REAL (KIND=8), DIMENSION(:), ALLOCATABLE :: XNORM, VHELP,&
+         REAL (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE :: XNORM, VHELP,&
               & THETA, WORK
-         REAL (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
+         REAL (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE :: TMP, V1,&
               & TEST, TEST1, TEST2
-         REAL (KIND=8) :: XMAX, XMEAN, Z
+         REAL (Kind=Kind(0.d0)) :: XMAX, XMEAN, Z
 
          ND1 = SIZE(A,1)
          ND2 = SIZE(A,2)
@@ -875,17 +875,17 @@
         !#include "machine"
 
         IMPLICIT NONE
-        COMPLEX (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+        COMPLEX (Kind=Kind(0.d0)), INTENT(IN), DIMENSION(:,:) :: A
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
         INTEGER, INTENT(IN) :: NCON
         INTEGER :: NE, LQ, IFAIL, I, J, NR
 
         !Local
-        COMPLEX (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
-        COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: THETA, WORK
-        COMPLEX (KIND=8) :: Z
-        REAL (KIND=8) :: DETV, XMDIFF, X
+        COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
+        COMPLEX (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE :: THETA, WORK
+        COMPLEX (Kind=Kind(0.d0)) :: Z
+        REAL (Kind=Kind(0.d0)) :: DETV, XMDIFF, X
 
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
@@ -980,16 +980,16 @@
         !#include "machine"
 
         IMPLICIT NONE
-        COMPLEX (KIND=8), INTENT(IN), DIMENSION(:,:) :: A
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
+        COMPLEX (Kind=Kind(0.d0)), INTENT(IN), DIMENSION(:,:) :: A
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
         INTEGER, INTENT(IN) :: NCON
         INTEGER :: NE, LQ, IFAIL, I, J, NR, LDV, LDU, DU2, DV2
 
         !Local
-        COMPLEX (KIND=8), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
-        COMPLEX (KIND=8), DIMENSION(:), ALLOCATABLE :: THETA, WORK
-        COMPLEX (KIND=8) :: Z
-        REAL (KIND=8) :: DETV, XMDIFF, X
+        COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE :: TMP, TEST
+        COMPLEX (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE :: THETA, WORK
+        COMPLEX (Kind=Kind(0.d0)) :: Z
+        REAL (Kind=Kind(0.d0)) :: DETV, XMDIFF, X
 
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
@@ -1175,18 +1175,18 @@
       SUBROUTINE DIAG_I(A,U,W)
         ! Uses Lapack
         IMPLICIT NONE
-        COMPLEX (KIND=8), INTENT(IN)   , DIMENSION(:,:) :: A
-        COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U
-        REAL    (KIND=8), INTENT(INOUT), DIMENSION(:)   :: W
+        COMPLEX (Kind=Kind(0.d0)), INTENT(IN)   , DIMENSION(:,:) :: A
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U
+        REAL    (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:)   :: W
         
         CHARACTER (len=1) :: UPLO, JOBZ
         INTEGER :: N, LWORK, INFO
-        COMPLEX (KIND=8), allocatable :: WORK (:)
-        REAL    (KIND=8), allocatable :: RWORK(:)
+        COMPLEX (Kind=Kind(0.d0)), allocatable :: WORK (:)
+        REAL    (Kind=Kind(0.d0)), allocatable :: RWORK(:)
         Logical :: Test
         Integer :: I,J,m
-        Complex (Kind=8) :: Z 
-        Real (Kind=8) :: X, XMAX
+        Complex (Kind=Kind(0.d0)) :: Z 
+        Real (Kind=Kind(0.d0)) :: X, XMAX
 
         JOBZ = "V"
         UPLO = "U"
@@ -1207,9 +1207,9 @@
            XMAX = 0.d0
            DO I = 1,N
               DO J = 1,N
-                 Z = cmplx(0.d0,0.d0,kind=8)
+                 Z = cmplx(0.d0,0.d0,Kind=Kind(0.d0))
                  DO m = 1,N
-                    Z =  Z + U(I,m)*cmplx(W(m),0.d0, Kind=8)*Conjg(U(J,m))
+                    Z =  Z + U(I,m)*cmplx(W(m),0.d0, Kind=Kind(0.d0))*Conjg(U(J,m))
                  ENDDO
                  Z = Z - A(I,J)
                  X = ABS(Z)
@@ -1223,78 +1223,7 @@
 
       SUBROUTINE SECONDS(X)
         IMPLICIT NONE
-        REAL (KIND=8), INTENT(INOUT) :: X
+        REAL (Kind=Kind(0.d0)), INTENT(INOUT) :: X
 
         !DATE_AND_TIME(date, time, zone, values)
         !date_and_time([date][,time][,zone][,values])
-        !Subroutine. Die Parameter haben das Attribut intent(out), geben also Werte zurück.
-
-        ! date: skalare, normale Zeichenvariable von wenigstens 8 Zeichen. Die linken 8 Zeichen bekommen einen Wert der Form JJJJMMTT . JJJJ Jahr, MM Monat, TT Tag im Monat.
-        !time: skalare, normale Zeichenvariable von wenigstens 10 Zeichen. Die linken 10 Zeichen bekommen einen Wert der Form hhmmss.sss , wobei hh die Stunde des Tages ist, mm die Minute innerhalb der Stunde, und ss.sss die Sekunde mit Bruchteilen.
-        ! zone: skalare, normale Zeichenvariable von wenigstens 5 Zeichen. Die linken 5 Zeichen bekommen einen Wert der Form hhmm . hh Stunden, mm Minuten Zeitdifferenz gegenüber der UTC-Weltzeit.
-        !values: Eindimensionales Integer-Feld. Länge wenigstens 8. 1: Jahr, z.B. 1993. 2: Monat. 3: Monatstag. 4: Zeitdifferenz zur Weltzeit in Minuten. 5: Stunde des Tages. 6: Minute innerhalb der Stunde. 7: Sekunden 8. Millisekunden.
-
-        !character(len=10) :: d,t
-        integer,dimension(8) :: V
-        !d = ""
-        !call date_and_time(date=d,time=t)
-        call date_and_time(values=V)
-
-        X = DBLE(V(5)*3600 + V(6)*60 + V(7))
-
-      END SUBROUTINE SECONDS
-
-!====================================================
-      Complex (Kind=8) Function DET_C(Mat,N)
-
-        Implicit none
-        
-        ! Arguments
-        Integer, intent(in) :: N 
-        Complex(kind=8), intent(inout) :: mat(N,N)
-        
-        integer :: i, info
-        integer :: ipiv(N)
-
-        integer :: sgn
-
-        ipiv = 0
-
-        !Lapack LU decomposition
-        call zgetrf(N, N, mat, N, ipiv, info)
-        
-        det_C = cmplx(1.d0, 0.d0, kind(0.d0) )
-        do i = 1, N
-           det_C = det_C*mat(i, i)
-        enddo
-        
-        sgn =  1
-        do i = 1, N
-           if(ipiv(i) /= i)  sgn = -sgn
-        enddo
-        if (sgn == -1 ) det_C = - det_C 
-
-      end function DET_C
-
-!--------------------------------------------------------------------
-!> @author
-!> Florian Goth
-!
-!> @brief 
-!> This function returns the Conjugate Transpose, hence the name CT,
-!> of a complex input matrix.
-!
-!> @note The employed variant of chaining a transposition and a conjugation 
-!> is well optimized by gcc in the sense that it generates a tight inner loop.
-!> The original double loop generates quite some additional integer operations.
-!
-!> @param[in] A a 2D array constituting the input matrix.
-!> @return the Conjugate Transpose of A
-!--------------------------------------------------------------------
-    function ct(a) result(b) ! return the conjugate transpose of a matrix
-        complex(kind=kind(0.D0)), dimension(:,:), intent(in) :: a
-        complex(kind=kind(0.D0)), dimension(size(a,1),size(a,1)) :: b
-        b = conjg(transpose(a))
-    end function ct
-
-    END MODULE MyMats

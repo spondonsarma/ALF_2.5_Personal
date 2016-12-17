@@ -1,12 +1,12 @@
       Module Log_Mesh
 
         Type logmesh
-           Real (Kind=8)  :: Lambda, Center, Log_Lambda
-           Real (Kind=8)  :: Range
-           Real (Kind=8)  :: Om_st, Om_en, dom
-           Real (Kind=8)  :: Precision
+           Real (Kind=Kind(0.d0))  :: Lambda, Center, Log_Lambda
+           Real (Kind=Kind(0.d0))  :: Range
+           Real (Kind=Kind(0.d0))  :: Om_st, Om_en, dom
+           Real (Kind=Kind(0.d0))  :: Precision
            Integer        :: Nom,Nw
-           Real (Kind=8), pointer :: Xom(:),DXom(:)
+           Real (Kind=Kind(0.d0)), pointer :: Xom(:),DXom(:)
            Character(len=10) :: Type
         end Type logmesh
 
@@ -25,12 +25,12 @@
           Implicit None
 
           Type (logmesh)      :: Mesh
-          Real (Kind=8)       :: Lambda, Center, Range
+          Real (Kind=Kind(0.d0))       :: Lambda, Center, Range
           Integer, Optional   :: Nw_1 
           Integer             :: N, Nw 
           Character(len=10)   :: Type
 
-          Real (Kind=8)  :: Dom, Om_st, Om_en
+          Real (Kind=Kind(0.d0))  :: Dom, Om_st, Om_en
 
           Mesh%Center     = Center
           Mesh%Range      = Range
@@ -103,7 +103,7 @@
           Implicit None
 
           Type (logmesh) :: Mesh
-          Real (Kind=8)  :: X
+          Real (Kind=Kind(0.d0))  :: X
           Integer        :: m
           
           if ( Mesh%Type  == "Log" ) then 
@@ -140,17 +140,17 @@
           
         end Function m_find
 !*******
-        Real(Kind=8) Function  Lookup_log_mesh_R(f, x,Mesh,m_1)
+        Real(Kind=Kind(0.d0)) Function  Lookup_log_mesh_R(f, x,Mesh,m_1)
 
           Implicit None
 
           Type (logmesh) :: Mesh
-          Real (Kind=8), dimension(:) :: f
-          Real (Kind=8)  :: X
+          Real (Kind=Kind(0.d0)), dimension(:) :: f
+          Real (Kind=Kind(0.d0))  :: X
           Integer      , Optional     :: m_1
 
           Integer ::  m
-          Real (Kind=8) :: X1,X2,Y1,Y2,a,b 
+          Real (Kind=Kind(0.d0)) :: X1,X2,Y1,Y2,a,b 
 
           m = m_find(X,Mesh)
           if (m == 0 ) then
@@ -172,18 +172,18 @@
 
 
 !*******
-!!$        Complex (Kind=8) Function  Lookup_log_mesh_C(f, x,Mesh,m_1)
+!!$        Complex (Kind=Kind(0.d0)) Function  Lookup_log_mesh_C(f, x,Mesh,m_1)
 !!$
 !!$          Implicit None
 !!$
 !!$          Type (logmesh) :: Mesh
-!!$          Complex (Kind=8), dimension(:) :: f
-!!$          Real    (Kind=8)               :: X
+!!$          Complex (Kind=Kind(0.d0)), dimension(:) :: f
+!!$          Real    (Kind=Kind(0.d0))               :: X
 !!$          Integer      , Optional     :: m_1
 !!$
 !!$
 !!$          Integer  ::  n, m
-!!$          Complex  (Kind=8) :: X1,X2,Y1,Y2,a,b 
+!!$          Complex  (Kind=Kind(0.d0)) :: X1,X2,Y1,Y2,a,b 
 !!$
 !!$          m = m_find(X,Mesh)
 !!$          if (m == 0 ) then
@@ -202,19 +202,19 @@
 !!$
 !!$        end Function Lookup_log_mesh_C
 
-        Complex (Kind=8) Function  Lookup_log_mesh_C(f, x,Mesh,m_1)
+        Complex (Kind=Kind(0.d0)) Function  Lookup_log_mesh_C(f, x,Mesh,m_1)
 
           Implicit None
 
           Type (logmesh) :: Mesh
-          Complex (Kind=8), dimension(:) :: f
-          Real    (Kind=8)               :: X
+          Complex (Kind=Kind(0.d0)), dimension(:) :: f
+          Real    (Kind=Kind(0.d0))               :: X
           Integer      , Optional     :: m_1
 
 
           Integer  ::  m
-          Complex  (Kind=8) :: Z1,Z2, Z
-          Real     (Kind=8) :: x1,x2,t
+          Complex  (Kind=Kind(0.d0)) :: Z1,Z2, Z
+          Real     (Kind=Kind(0.d0)) :: x1,x2,t
 
           m = m_find(X,Mesh)
           if (m == 0 ) then
@@ -235,13 +235,13 @@
 
 
 !******
-        Real (Kind=8) Function  Inter_log_mesh_R(f,Mesh)
+        Real (Kind=Kind(0.d0)) Function  Inter_log_mesh_R(f,Mesh)
 
           Implicit None
 
           Type     (logmesh) :: Mesh
-          Real     (Kind=8), dimension(:) :: f
-          Real     (Kind=8)  :: X
+          Real     (Kind=Kind(0.d0)), dimension(:) :: f
+          Real     (Kind=Kind(0.d0))  :: X
           Integer            :: n
 
           X = 0.d0
@@ -253,13 +253,13 @@
         end Function Inter_log_mesh_R
 
 !******
-        Complex (Kind=8) Function  Inter_log_mesh_C(f,Mesh)
+        Complex (Kind=Kind(0.d0)) Function  Inter_log_mesh_C(f,Mesh)
 
           Implicit None
 
           Type     (logmesh) :: Mesh
-          Complex     (Kind=8), dimension(:) :: f
-          Complex     (Kind=8)  :: Z
+          Complex     (Kind=Kind(0.d0)), dimension(:) :: f
+          Complex     (Kind=Kind(0.d0))  :: Z
           Integer               :: n
 
           Z = cmplx(0.d0, 0.d0, kind(0.D0))

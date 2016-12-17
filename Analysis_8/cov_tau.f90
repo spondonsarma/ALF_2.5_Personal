@@ -1,5 +1,44 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
        Program Cov_tau
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Analysis of imaginary time displaced  correlation functions.
+!
+!--------------------------------------------------------------------         
          Use Errors
          Use MyMats
          Use Matrix
@@ -7,25 +46,18 @@
 
          Implicit none
 
-!!$         Interface
-!!$            Integer function Rot90(n, Xk_p, Nunit)
-!!$              Implicit none
-!!$              Integer, INTENT(IN)       :: Nunit,n
-!!$              Real (Kind=8), INTENT(IN) :: Xk_p(2,Nunit)
-!!$            end function Rot90
-!!$         end Interface
 
          Integer :: Nunit, Norb
          Integer :: no, no1, n, nbins, n_skip, nb, NT, NT1, Lt, N_rebin, N_cov, ierr
-         real    (Kind=8):: X, Y,  dtau, X_diag
-         Complex (Kind=8), allocatable :: Xmean(:), Xcov(:,:)
-         Complex (Kind=8) :: Z, Z_diag
-         Real    (Kind=8) :: Zero=1.D-8
-         Real    (Kind=8), allocatable :: Phase(:)
-         Complex (Kind=8), allocatable :: Bins(:,:,:)
-         Complex (Kind=8), allocatable :: Bins0(:,:)
-         Complex (Kind=8), allocatable :: V_help(:,:)
-         Real    (Kind=8), allocatable :: Xk_p(:,:)
+         real    (Kind=Kind(0.d0)):: X, Y,  dtau, X_diag
+         Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
+         Complex (Kind=Kind(0.d0)) :: Z, Z_diag
+         Real    (Kind=Kind(0.d0)) :: Zero=1.D-8
+         Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
+         Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
+         Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
+         Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
+         Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
          Character (len=64) :: File_out
 
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov
@@ -168,30 +200,39 @@
 
        end Program Cov_tau
 
-       Integer function Rot90(n, Xk_p, Nunit)
-         
-         Implicit none
-         Integer, INTENT(IN)       :: Nunit,n
-         Real (Kind=8), INTENT(IN) :: Xk_p(2,Nunit)
-         
-         !Local
-         real (Kind=8) :: X1_p(2), Zero, pi, X
-         Integer :: m
-         
-         Zero = 1.D-4
-         pi = acos(-1.d0)
-         X1_p(1)  =  Xk_p(2,n)   
-         X1_p(2)  = -Xk_p(1,n)   
-         if (X1_p(1) < -pi + Zero )  X1_p(1) = X1_p(1) + 2.0*pi
-         if (X1_p(2) < -pi + Zero )  X1_p(2) = X1_p(2) + 2.0*pi
-         
-         Rot90 = 0
-         Do m = 1,Nunit
-            X = sqrt( (X1_p(1) -Xk_p(1,m))**2 +  (X1_p(2) -Xk_p(2,m))**2 )
-            If ( X < Zero) then
-               Rot90 = m
-               exit
-            endif
-         Enddo
-         
-       end function Rot90
+
+!!$         Interface
+!!$            Integer function Rot90(n, Xk_p, Nunit)
+!!$              Implicit none
+!!$              Integer, INTENT(IN)       :: Nunit,n
+!!$              Real (Kind=Kind(0.d0)), INTENT(IN) :: Xk_p(2,Nunit)
+!!$            end function Rot90
+!!$         end Interface
+!!$
+!!$       Integer function Rot90(n, Xk_p, Nunit)
+!!$         
+!!$         Implicit none
+!!$         Integer, INTENT(IN)       :: Nunit,n
+!!$         Real (Kind=Kind(0.d0)), INTENT(IN) :: Xk_p(2,Nunit)
+!!$         
+!!$         !Local
+!!$         real (Kind=Kind(0.d0)) :: X1_p(2), Zero, pi, X
+!!$         Integer :: m
+!!$         
+!!$         Zero = 1.D-4
+!!$         pi = acos(-1.d0)
+!!$         X1_p(1)  =  Xk_p(2,n)   
+!!$         X1_p(2)  = -Xk_p(1,n)   
+!!$         if (X1_p(1) < -pi + Zero )  X1_p(1) = X1_p(1) + 2.0*pi
+!!$         if (X1_p(2) < -pi + Zero )  X1_p(2) = X1_p(2) + 2.0*pi
+!!$         
+!!$         Rot90 = 0
+!!$         Do m = 1,Nunit
+!!$            X = sqrt( (X1_p(1) -Xk_p(1,m))**2 +  (X1_p(2) -Xk_p(2,m))**2 )
+!!$            If ( X < Zero) then
+!!$               Rot90 = m
+!!$               exit
+!!$            endif
+!!$         Enddo
+!!$         
+!!$       end function Rot90
