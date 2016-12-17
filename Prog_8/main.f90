@@ -29,7 +29,18 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+
 Program Main
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Main program. Reads in VAR_QMC  namelist.  Calls Ham_set. Carries 
+!> out the sweeps. 
+!
+!--------------------------------------------------------------------
 
   Use Operator_mod
   Use Lattices_v3 
@@ -112,7 +123,6 @@ Program Main
   COMPLEX (Kind=8), Dimension(:,:,:,:), Allocatable :: UST,  VST
 
   ! For tests
-  Integer, external :: nranf
   Real (kind=8) :: Weight, Weight_tot
   Integer :: nr,nth, nth1
   Logical :: Log
@@ -132,13 +142,9 @@ Program Main
   CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
   
-  ! Write(6,*) 'Call Ham_set'
   Call Ham_set
-  ! Write(6,*) 'End Call Ham_set'
   Call confin 
   Call Hop_mod_init
-  !Call Hop_mod_test 
-  !stop
 
 
 #ifdef MPI
@@ -186,9 +192,6 @@ Program Main
      Stab_nt(n) = nwrap*n
   enddo
   Stab_nt(Nstm) = Ltrot
-  !do n = 1,Nstm
-  !   Write(6,*) n,stab_nt(n)
-  !enddo
 
 #ifdef MPI
   if ( Irank == 0 ) then
@@ -245,29 +248,6 @@ Program Main
   NT1 = stab_nt(1)
   CALL WRAPUL(NT1,0, UL ,DL, VL)
 
-!!$  DO NT = LTROT-NWRAP,NWRAP,-1
-!!$     IF ( MOD(NT,NWRAP)  == 0 ) THEN
-!!$        NT1 = NT + NWRAP
-!!$        !Write(6,*) 'Calling Wrapul:', NT1,NT 
-!!$        CALL WRAPUL(NT1,NT,UL,DL, VL)
-!!$        NST = NINT( DBLE(NT)/DBLE(NWRAP) )
-!!$        !Write(6,*) "Write UL ", NST
-!!$        Do nf = 1,N_FL
-!!$           DO I = 1,Ndim
-!!$              DO J = 1,Ndim
-!!$                 UST(I,J,NST,nf) = UL(I,J,nf)
-!!$                 VST(I,J,NST,nf) = VL(I,J,nf)
-!!$              ENDDO
-!!$           ENDDO
-!!$           DO I = 1,Ndim
-!!$              DST(I,NST,nf) = DL(I,nf)
-!!$           ENDDO
-!!$        ENDDO
-!!$     ENDIF
-!!$  ENDDO
-!!$  CALL WRAPUL(NWRAP,0, UL ,DL, VL)
-  !WRITE(6,*) 'Filling up storage'
-  !Write(6,*) 'Done wrapping'
   
 
   NVAR = 1
@@ -281,15 +261,6 @@ Program Main
   !WRITE(6,*) 'Phase is: ', Irank, PHASE, GR(1,1,1)
 #else
   !WRITE(6,*) 'Phase is: ',  PHASE
-!!$  if (N_FL == 1) then
-!!$     Do n = 1,Ndim
-!!$        Write(6,*) GR(1,n,1)
-!!$     enddo
-!!$  else
-!!$     Do n = 1,Ndim
-!!$        Write(6,*) GR(1,n,1), GR(1,n,2)
-!!$     enddo
-!!$  endif
 #endif
 
   Call Control_init
@@ -317,33 +288,25 @@ Program Main
         NST = 1
         DO NTAU = 0, LTROT-1
            NTAU1 = NTAU + 1
-           !Write(6,*) "Hi"
            CALL WRAPGRUP(GR,NTAU,PHASE) 
-           !Write(6,*) "Hi1"
-!!$           IF ( MOD(NTAU1,NWRAP ) .EQ. 0 ) THEN
-!!$              NST = NINT( DBLE(NTAU1)/DBLE(NWRAP) )
-!!$              NT1 = NTAU1 - NWRAP
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
-              !Write(6,*) 'Wrapur : ', NT1, NTAU1
               CALL WRAPUR(NT1, NTAU1,UR, DR, VR)
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               Do nf = 1, N_FL
+                 ! Read from storage left propagation from LTROT to  NTAU1
                  UL(:,:,nf) = UST(:,:,NST,nf)
                  VL(:,:,nf) = VST(:,:,NST,nf)
                  DL(:,  nf) = DST(:  ,NST,nf)
-                 ! Write in store Right prop from 1 to LTROT/NWRAP
-                 ! Write(6,*)  'Write UR, read UL ', NTAU1, NST
+                 ! Write in storage right prop from 1 to NTAU1
                  UST(:,:,NST,nf) = UR(:,:,nf)
                  VST(:,:,NST,nf) = VR(:,:,nf)
                  DST(:  ,NST,nf) = DR(:  ,nf)
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
-                 !Write(6,*) ' Call Cgr'
                  TEST(:,:) = GR(:,:,nf)
                  CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
                  Z = Z*Z1
-                 !Write(6,*) 'Calling control ',NTAU1, Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
               call Op_phase(Z,OP_V,Nsigma,N_SUN) 
@@ -353,11 +316,8 @@ Program Main
            ENDIF
 
            IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
-              !Write(6,*) 'Call obser ', Ntau1
               CALL Obser( GR, PHASE, Ntau1 )
-              !Write(6,*) 'Return obser'
            ENDIF
-           !Write(6,*) NTAU1
         ENDDO
         
         Do nf = 1,N_FL
@@ -373,10 +333,6 @@ Program Main
            IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
               CALL Obser( GR, PHASE, Ntau1 )
            ENDIF
-!!$           IF ( MOD(NTAU1,NWRAP).EQ.0 .AND. NTAU1.NE.0 ) THEN
-!!$              ! WRITE(50,*) 'Recalc at  :', NTAU1
-!!$              NST = NINT( DBLE(NTAU1)/DBLE(NWRAP) )
-!!$              NT1 = NTAU1 + NWRAP
            IF ( Stab_nt(NST) == NTAU1 .AND. NTAU1.NE.0 ) THEN
               NT1 = Stab_nt(NST+1)
               !Write(6,*) 'Wrapul : ', NT1, NTAU1
@@ -384,6 +340,7 @@ Program Main
               !Write(6,*)  'Write UL, read UR ', NTAU1, NST
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               do nf = 1,N_FL
+                 ! Read from store the right prop. from 1 to LTROT/NWRAP-1
                  UR(:,:,nf) = UST(:,:,NST,nf)
                  VR(:,:,nf) = VST(:,:,NST,nf)
                  DR(:  ,nf) = DST(:  ,NST,nf)
@@ -393,11 +350,9 @@ Program Main
                  DST(:  ,NST,nf) =  DL(:  ,nf)
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
-                 !Write(6,*) ' Call Cgr'
                  TEST(:,:) = GR(:,:,nf)
                  CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
                  Z = Z*Z1
-                 !Write(6,*) 'Calling control: ', NTAU1, Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
               call Op_phase(Z,OP_V,Nsigma,N_SUN) 
@@ -410,7 +365,6 @@ Program Main
         !Calculate and compare green functions on time slice 0.
         NT1 = Stab_nt(0)
         NT  = Stab_nt(1)
-        !Write(6,*) 'Wrapul : ', NT, NT1
         CALL WRAPUL(NT,NT1, UL, DL, VL )
         
         do nf = 1,N_FL
@@ -424,7 +378,6 @@ Program Main
            NVAR = 1
            CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
            Z = Z*Z1
-           !Write(6,*) 'Calling control  0', Z1
            Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
         ENDDO
         call Op_phase(Z,OP_V,Nsigma,N_SUN) 
@@ -441,18 +394,8 @@ Program Main
            ENDDO
         enddo
         IF ( LTAU == 1 ) then
-!!$#ifdef MPI
-!!$           Write(6,*) Irank, 'Calling Tau_m', NWRAP, NSTM
-!!$#else
-!!$           Write(6,*)  'Calling Tau_m', NWRAP, NSTM
-!!$#endif
-
+           ! Call for imaginary time displaced  correlation fuctions. 
            Call TAU_M( UST,DST,VST, GR, PHASE, NSTM, NWRAP, STAB_NT ) 
-!!$#ifdef MPI
-!!$           Write(6,*) Irank, 'Back Calling Tau_m'
-!!$#else
-!!$           Write(6,*)  'Back Calling Tau_m'
-!!$#endif
         endif
            
      ENDDO

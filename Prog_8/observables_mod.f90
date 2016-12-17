@@ -1,14 +1,45 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
      Module Observables
 
        Use Files_mod
 !--------------------------------------------------------------------
 !> @author
-!> Fakher Assaad
+!> ALF-project
 !
 !> @brief 
-!> This module. 
-!> 1) Obser_Vec 
-!> 2) Obser_Latt
+!> This module defines the Obser_Vec and Obser_Latt types and provides  
+!> routine to initialize them and to print out the bins
+!
 !--------------------------------------------------------------------
     
        Type Obser_Vec
@@ -49,6 +80,7 @@
            Allocate (Obs%Obs_Latt0(No)         )
            Obs%File_Latt = Filename
          end subroutine Obser_Latt_make
+!--------------------------------------------------------------------
 
          Subroutine Obser_Latt_Init(Obs)
            Implicit none
@@ -59,6 +91,7 @@
            Obs%Ave_Sign  = 0.d0
          end subroutine Obser_Latt_Init
          
+!--------------------------------------------------------------------
 
          Subroutine Obser_Vec_make(Obs,N,Filename)
            Implicit none
@@ -68,6 +101,7 @@
            Allocate (Obs%Obs_vec(N))
            Obs%File_Vec = Filename
          end subroutine Obser_Vec_make
+!--------------------------------------------------------------------
          
          Subroutine Obser_Vec_Init(Obs)
            Implicit none
@@ -77,7 +111,7 @@
            Obs%Ave_Sign= 0.d0
          end subroutine Obser_Vec_Init
 
-!!!!!!!!!!!!!!!         
+!--------------------------------------------------------------------
          
          Subroutine  Print_bin_Latt(Obs,Latt,dtau)
            Use Lattices_v3
@@ -179,8 +213,8 @@
 
          End Subroutine Print_bin_Latt
          
+!--------------------------------------------------------------------
 
-!============================================================
          Subroutine  Print_bin_Vec(Obs)
            
            Implicit none

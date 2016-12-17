@@ -1,3 +1,35 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
+
 !--------------------------------------------------------------------
 !> @author
 !> Florian Goth
@@ -91,29 +123,38 @@
            deallocate(HLPB1)
            end subroutine solve_extended_System
 
+!--------------------------------------------------------------------
+
       SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ)
 
-      
-        !       B2 = U2*D2*V2 is right (i.e. from time slice 0 to tau) propagation to time tau 
-        !       B1 = V1*D1*U1 is left  (i.e. from time slice Ltrot to tau) propagation to time tau
-        !Calc:      (  1   B1 )^-1       ( G00    G0T )   
-        !           (-B2   1  )     ==   ( GT0    GTT )
-        !            
-        !       G00 = (1 + B1*B2)^-1   G0T = -(1 -  G00)*B2^-1
-        !       GT0  =   B2 * G00      GTT = (1 + B2*B1)^-1
- 
-        !(  1   V1*D1*U1 )^-1      ( ( V1   0 )   ( V1^-1     D1*U1 ) )^-1
-        !(-U2*D2*V2   1  )      == ( ( 0   U2 ) * (-D2*V2     U2^-1 ) )       == I
-        !  You should transpose before carrying out the singular value decomposition 
-        !
-        !     
-        !       ( ( V1   0 )   ( V1^-1     D1*U1 )^*^* )^-1                      ( V1^-1    0 ) 
-        ! I ==  ( ( 0   U2 ) * (-D2*V2     U2^-1 )     )      =   (UDV^*)^(-1) * ( 0     U2^-1) =
-        !
-        !                                      ( V1^-1    0 )
-        !  ==   U * D^(*,-1) * V^(*,-1)     *  ( 0     U2^-1)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Given      B2 = U2*D2*V2 is right (i.e. from time slice 0 to tau) propagation to time tau 
+!>            B1 = V1*D1*U1 is left  (i.e. from time slice Ltrot to tau) propagation to time tau
+!> Calc:      (  1   B1 )^-1       ( G00    G0T )   
+!>            (-B2   1  )     ==   ( GT0    GTT )
+!>            
+!>       G00 = (1 + B1*B2)^-1   G0T = -(1 -  G00)*B2^-1
+!>       GT0  =   B2 * G00      GTT = (1 + B2*B1)^-1
+!>
+!>(  1   V1*D1*U1 )^-1      ( ( V1   0 )   ( V1^-1     D1*U1 ) )^-1
+!>(-U2*D2*V2   1  )      == ( ( 0   U2 ) * (-D2*V2     U2^-1 ) )       == I
+!>  Transpose before carrying out the singular value decomposition 
+!>
+!>     
+!>       ( ( V1   0 )   ( V1^-1     D1*U1 )^*^* )^-1                      ( V1^-1    0 ) 
+!> I ==  ( ( 0   U2 ) * (-D2*V2     U2^-1 )     )      =   (UDV^*)^(-1) * ( 0     U2^-1) =
+!>
+!>                                      ( V1^-1    0 )
+!>  ==   U * D^(*,-1) * V^(*,-1)     *  ( 0     U2^-1)
+!
+!--------------------------------------------------------------------
 
-        ! Let's see if this could work.
+      
+
         Use Precdef
         Use MyMats
         Use UDV_WRAP_mod

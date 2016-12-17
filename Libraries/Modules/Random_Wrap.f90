@@ -107,15 +107,25 @@ Module Random_Wrap
         
        ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
      
-        integer, optional :: iq
-        real (Kind=kind(0.D0)) ::  pi, ranmod, theta
-      
-        PI = 3.1415926536D0
-        RANMOD = SQRT(-2.D0 * LOG(RANF_Wrap(iq)))
-        THETA  = 2.D0 * PI * RANF_wrap(iq)
-        rang_wrap = RANMOD * COS(THETA)
-        
-      end function rang_wrap
-
-   
+       integer, optional :: iq
+       real (Kind=kind(0.D0)) ::  pi, ranmod, theta
+       
+       PI = 3.1415926536D0
+       RANMOD = SQRT(-2.D0 * LOG(RANF_Wrap(iq)))
+       THETA  = 2.D0 * PI * RANF_wrap(iq)
+       rang_wrap = RANMOD * COS(THETA)
+       
+     end function rang_wrap
+     
+     integer function nranf(N)
+       implicit none
+       integer :: N
+       
+       nranf  = nint(ranf_wrap()*dble(N) + 0.5)
+       
+       if (nranf .lt. 1 ) nranf = 1
+       if (nranf .gt. N ) nranf = N 
+       
+     end function nranf
+     
    end Module Random_Wrap

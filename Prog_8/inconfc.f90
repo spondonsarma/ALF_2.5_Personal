@@ -31,29 +31,30 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-        SUBROUTINE confin 
+        SUBROUTINE CONFIN 
 
 !--------------------------------------------------------------------
 !
 !> @brief 
-!> Reads in the field configuration if present. If not present  the 
+!> Reads in the field configuration and seeds if present so as to 
+!> pursue a run. If  the configuration is not  present  the 
 !> routine will generate one based on the seeds read in from the file
 !> seeds
 !
 !--------------------------------------------------------------------
-         Use Hamiltonian
-         Implicit none
+         USE HAMILTONIAN
+         IMPLICIT NONE
    
 #ifdef MPI
-         INCLUDE 'mpif.h'
-         ! Local
+         INCLUDE 'MPIF.H'
+         ! LOCAL
 #endif   
 
-         Integer        :: I, IERR, ISIZE, IRANK, seed_in, K, iseed, Nt
-         Integer, dimension(:), allocatable :: Seed_vec
-         Real (Kind=8)  :: X
-         Logical ::   lconf 
-         character (len=64) :: file_sr, File_tg
+         INTEGER        :: I, IERR, ISIZE, IRANK, SEED_IN, K, ISEED, NT
+         INTEGER, DIMENSION(:), ALLOCATABLE :: SEED_VEC
+         REAL (KIND=8)  :: X
+         LOGICAL ::   LCONF 
+         CHARACTER (LEN=64) :: FILE_SR, FILE_TG
 
 #ifdef MPI
          INTEGER        :: STATUS(MPI_STATUS_SIZE)
@@ -61,92 +62,92 @@
          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
 
-         Allocate (Nsigma(Size(Op_V,1),Ltrot))
+         ALLOCATE (NSIGMA(SIZE(OP_V,1),LTROT))
          
 #ifdef MPI
-         INQUIRE (FILE='confin_0', EXIST=lconf)
-         If (lconf) Then
-            file_sr = "confin"
-            Call Get_seed_Len(K)
-            Allocate(Seed_vec(K))
-            file_tg = File_i(file_sr,IRANK)
-            Open (Unit = 10, File=File_tg, status='old', ACTION='read')
-            Read(10,*) Seed_vec
-            Call Ranset(Seed_vec)
-            do NT = 1,LTROT
-               do I = 1,Size(Op_V,1)
-                  Read(10,*) NSIGMA(I,NT) 
-               enddo
-            enddo
-            close(10)
-            Deallocate(Seed_vec)
-         else
-            If (Irank == 0) then
-               Write(6,*) 'No initial configuration'
-               OPEN(UNIT=5,FILE='seeds',STATUS='old',ACTION='read',IOSTAT=ierr)
-               IF (ierr /= 0) THEN
-                  WRITE(*,*) 'unable to open <seeds>',ierr
+         INQUIRE (FILE='confin_0', EXIST=LCONF)
+         IF (LCONF) THEN
+            FILE_SR = "confin"
+            CALL GET_SEED_LEN(K)
+            ALLOCATE(SEED_VEC(K))
+            FILE_TG = FILE_I(FILE_SR,IRANK)
+            OPEN (UNIT = 10, FILE=FILE_TG, STATUS='OLD', ACTION='READ')
+            READ(10,*) SEED_VEC
+            CALL RANSET(SEED_VEC)
+            DO NT = 1,LTROT
+               DO I = 1,SIZE(OP_V,1)
+                  READ(10,*) NSIGMA(I,NT) 
+               ENDDO
+            ENDDO
+            CLOSE(10)
+            DEALLOCATE(SEED_VEC)
+         ELSE
+            IF (IRANK == 0) THEN
+               WRITE(6,*) 'No initial configuration'
+               OPEN(UNIT=5,FILE='SEEDS',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+               IF (IERR /= 0) THEN
+                  WRITE(*,*) 'UNABLE TO OPEN <SEEDS>',IERR
                   STOP
                END IF
-               DO I = Isize-1,1,-1
-                  Read (5,*) Seed_in
-                  CALL MPI_SEND(Seed_in,1,MPI_INTEGER, I, I+1024,MPI_COMM_WORLD,IERR)
-               enddo
-               Read(5,*) Seed_in
+               DO I = ISIZE-1,1,-1
+                  READ (5,*) SEED_IN
+                  CALL MPI_SEND(SEED_IN,1,MPI_INTEGER, I, I+1024,MPI_COMM_WORLD,IERR)
+               ENDDO
+               READ(5,*) SEED_IN
                CLOSE(5)
-            else
-               CALL MPI_RECV(Seed_in, 1, MPI_INTEGER,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
-            endif
-            Allocate (Seed_vec(1))
-            Seed_vec(1) = Seed_in
-            Call Ranset(Seed_vec)
-            Deallocate(Seed_vec)
-            do NT = 1,LTROT
-               do I = 1,Size(Op_V,1)
+            ELSE
+               CALL MPI_RECV(SEED_IN, 1, MPI_INTEGER,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
+            ENDIF
+            ALLOCATE (SEED_VEC(1))
+            SEED_VEC(1) = SEED_IN
+            CALL RANSET(SEED_VEC)
+            DEALLOCATE(SEED_VEC)
+            DO NT = 1,LTROT
+               DO I = 1,SIZE(OP_V,1)
                   X = RANF_WRAP()
                   NSIGMA(I,NT) = 1
                   IF (X.GT.0.5) NSIGMA(I,NT) = -1
-               enddo
-            enddo
-         endif
+               ENDDO
+            ENDDO
+         ENDIF
             
 #else   
-         INQUIRE (FILE='confin_0', EXIST=lconf)
-         If (lconf) Then
-            file_tg = "confin_0"
-            Call Get_seed_Len(K)
-            Allocate(Seed_vec(K))
-            Open (Unit = 10, File=File_tg, status='old', ACTION='read')
-            Read(10,*) Seed_vec
-            Call Ranset(Seed_vec)
-            do NT = 1,LTROT
-               do I = 1,Size(Op_V,1)
-                  Read(10,*) NSIGMA(I,NT) 
-               enddo
-            enddo
-            close(10)
-            Deallocate(Seed_vec)
-         else
-            Write(6,*) 'No initial configuration'
-            OPEN(UNIT=5,FILE='seeds',STATUS='old',ACTION='read',IOSTAT=ierr)
-            IF (ierr /= 0) THEN
-               WRITE(*,*) 'unable to open <seeds>',ierr
+         INQUIRE (FILE='CONFIN_0', EXIST=LCONF)
+         IF (LCONF) THEN
+            FILE_TG = "confin_0"
+            CALL GET_SEED_LEN(K)
+            ALLOCATE(SEED_VEC(K))
+            OPEN (UNIT = 10, FILE=FILE_TG, STATUS='OLD', ACTION='READ')
+            READ(10,*) SEED_VEC
+            CALL RANSET(SEED_VEC)
+            DO NT = 1,LTROT
+               DO I = 1,SIZE(OP_V,1)
+                  READ(10,*) NSIGMA(I,NT) 
+               ENDDO
+            ENDDO
+            CLOSE(10)
+            DEALLOCATE(SEED_VEC)
+         ELSE
+            WRITE(6,*) 'NO INITIAL CONFIGURATION'
+            OPEN(UNIT=5,FILE='SEEDS',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+            IF (IERR /= 0) THEN
+               WRITE(*,*) 'UNABLE TO OPEN <SEEDS>',IERR
                STOP
             END IF
-            Read (5,*) Seed_in
+            READ (5,*) SEED_IN
             CLOSE(5)
-            Allocate(Seed_vec(1))
-            Seed_vec(1) = Seed_in
-            Call Ranset(Seed_vec)
-            Deallocate(Seed_vec)
-            do NT = 1,LTROT
-               do I = 1,Size(Op_V,1)
+            ALLOCATE(SEED_VEC(1))
+            SEED_VEC(1) = SEED_IN
+            CALL RANSET(SEED_VEC)
+            DEALLOCATE(SEED_VEC)
+            DO NT = 1,LTROT
+               DO I = 1,SIZE(OP_V,1)
                   X = RANF_WRAP()
                   NSIGMA(I,NT) = 1
                   IF (X.GT.0.5) NSIGMA(I,NT) = -1
-               enddo
-            enddo
-         endif
+               ENDDO
+            ENDDO
+         ENDIF
 #endif
          
        END SUBROUTINE CONFIN

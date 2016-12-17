@@ -1,11 +1,55 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!  This file is part of the ALF project.
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
   module Control
+
+!--------------------------------------------------------------------
+!
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This module handles the  calculation of the acceptance ratio. It also  
+!> monitors the precision of the code, as well as the timing.
+!
+!--------------------------------------------------------------------
 
     Use MyMats
     Implicit none
 
-    real (Kind=8)   , private, save :: XMEANG, XMAXG, XMAXP, CPU_time_st, CPU_time_en, Xmean_tau, Xmax_tau
-    Integer         , private, save :: NCG, NCG_tau
-    Integer (Kind=8), private, save :: NC_up, ACC_up
+    real    (Kind=8) , private, save :: XMEANG, XMAXG, XMAXP, CPU_time_st, CPU_time_en, Xmean_tau, Xmax_tau
+    Integer          , private, save :: NCG, NCG_tau
+    Integer (Kind=8) , private, save :: NC_up, ACC_up
  
     
     Contains
@@ -37,14 +81,12 @@
         Complex (Kind=8) :: A(Ndim,Ndim), B(Ndim,Ndim) 
         Real    (Kind=8) :: XMAX, XMEAN
 
-        !Local 
         NCG = NCG + 1
         XMEAN = 0.d0
         XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAXG) XMAXG = XMAX
         XMEANG = XMEANG + XMEAN
-        !Write(6,*) 'Control', XMEAN, XMAX
       End Subroutine Control_PrecisionG
 
       Subroutine Control_Precision_tau(A,B,Ndim)
@@ -54,14 +96,12 @@
         Complex (Kind=8) :: A(Ndim,Ndim), B(Ndim,Ndim) 
         Real    (Kind=8) :: XMAX, XMEAN
 
-        !Local 
         NCG_tau = NCG_tau + 1
         XMEAN = 0.d0
         XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAX_tau) XMAX_tau = XMAX
         XMEAN_tau = XMEAN_tau + XMEAN
-        !Write(6,*) 'Control_tau', XMEAN, XMAX
       End Subroutine Control_Precision_tau
 
 
@@ -81,7 +121,7 @@
 #endif
         Real (Kind=8) :: Time, Acc
 #ifdef MPI
-        REAL (KIND=8)  :: X
+        REAL (Kind=8)  :: X
         Integer        :: Ierr, Isize, Irank
         INTEGER        :: STATUS(MPI_STATUS_SIZE)
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)

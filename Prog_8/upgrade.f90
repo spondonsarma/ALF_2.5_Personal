@@ -1,9 +1,45 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
       Subroutine Upgrade(GR,N_op,NT,PHASE,Op_dim) 
 
-!!!!!! This version of  Upgrade.f90  contains optimization carried out by Johannes Hofmann
-!!!!!! The original version of this routine can be found in upgrade_FFA.f90 
-!!!!!! Both versions  must give the same results
-
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This routine updates the field associated to the operator N_op on time 
+!> slice NT. If  the local flip is accepted, the Green function is updated.
+!
+!--------------------------------------------------------------------
        
         Use Hamiltonian
         Use Random_wrap
@@ -20,7 +56,6 @@
         Complex (Kind=double) :: Ratio(N_FL), Ratiotot, Z1 
         Integer :: ns_new, ns_old, n,m,nf, i,j
         Complex (Kind= double) :: ZK, Z, D_Mat, Z2, myexp, s1, s2
-        Integer, external :: nranf
         
         Real (Kind = double) :: Weight, reZ, imZ
         Complex (Kind = double) :: u(Ndim,Op_dim), v(Ndim,Op_dim) ,alpha, beta

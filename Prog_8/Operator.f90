@@ -33,6 +33,15 @@
 
 Module Operator_mod
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Defines the Operator type, and provides a number of operations on this
+!> type. 
+!
+!--------------------------------------------------------------------
 
   Use MyMats
 
@@ -42,7 +51,6 @@ Module Operator_mod
   Integer ::  NFLIPL(-2:2,3)
   
 
-  ! What information should the operator contain
   Type Operator
      Integer          :: N, N_non_zero
      complex (kind=8), pointer :: O(:,:), U (:,:)
@@ -62,6 +70,7 @@ Module Operator_mod
 Contains
 
   Subroutine Op_SetHS
+
     Implicit none
     Integer ::  n 
     Phi = 0.d0
@@ -111,7 +120,7 @@ Contains
 !> @param[in] Nsigma
 !> @param[in] N_SUN 
 !--------------------------------------------------------------------
-  Pure Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) ! This also goes in Operator  (Input is nsigma, Op_V).
+  Pure Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) 
     Implicit none
 
     Complex  (Kind=8), Intent(Inout) :: Phase
@@ -134,6 +143,7 @@ Contains
     
   end Subroutine Op_phase
   
+!--------------------------------------------------------------------
 
   Pure subroutine Op_make(Op,N)
     Implicit none
@@ -150,6 +160,8 @@ Contains
     Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
   end subroutine Op_make
 
+!--------------------------------------------------------------------
+
   Pure subroutine Op_clear(Op,N)
     Implicit none
     Type (Operator), intent(INOUT) :: Op
@@ -157,7 +169,8 @@ Contains
     Deallocate (Op%O, Op%U, Op%E, Op%P)
   end subroutine Op_clear 
 
-!==========================================================================
+!--------------------------------------------------------------------
+
   subroutine Op_set(Op)
     Implicit none
     Type (Operator), intent(INOUT) :: Op
@@ -168,7 +181,6 @@ Contains
     Integer :: N, I, np,nz
 
     If (Op%N > 1) then
-       !Write(6,*) 'Calling diag', Op%O(1,2), Size(Op%O,1), Size(Op%U,1), Size(Op%E,1)
        N = Op%N
        Allocate (U(N,N), E(N))
        Call Diag(Op%O,U, E)  
@@ -195,8 +207,9 @@ Contains
        Op%U(1,1) = cmplx(1.d0, 0.d0 , kind(0.D0))
        Op%N_non_zero = 1
     endif
-!==========================================================================
   end subroutine Op_set
+
+!--------------------------------------------------------------------
 
 
   Pure subroutine Op_exp(g,Op,Mat)
@@ -504,7 +517,7 @@ Contains
     deallocate(VH, Z)
   end subroutine Op_mmultL
 
-  !--------------------------------------------------------------------
+!--------------------------------------------------------------------
 !> @author
 !>
 !
@@ -550,23 +563,25 @@ Contains
 !> @param[in] Op The Operator whose eigenvalues we exponentiate
 !> @param[in] spin The spin direction that we consider
 !--------------------------------------------------------------------
-Pure subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
+  Pure subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
     Implicit none
     Type (Operator) , INTENT(IN) :: Op
     Complex(kind = kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
     Real(kind = kind(0.D0)), Intent(in) :: spin
     Integer :: n
+    
+    do n = 1, Op%N
+       ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
+       ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
+       if ( n <= OP%N_non_Zero) then
+          ExpOp(n) = exp(Op%g*(Op%E(n)*spin))
+          ExpMop(n) = 1.D0/ExpOp(n)
+       endif
+    enddo
+    
+  end subroutine FillExpOps
 
-       do n = 1, Op%N
-          ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-          ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-          if ( n <= OP%N_non_Zero) then
-            ExpOp(n) = exp(Op%g*(Op%E(n)*spin))
-            ExpMop(n) = 1.D0/ExpOp(n)
-          endif
-       enddo
-
-end subroutine
+!--------------------------------------------------------------------
 
   Subroutine Op_Wrapup(Mat,Op,spin,Ndim,N_Type)
 
@@ -581,8 +596,7 @@ end subroutine
     ! Local 
     Complex (Kind=8) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim)
     
-!     nop=size(Op%U,1)
-    
+    !     nop=size(Op%U,1)
     !!!!! N_Type ==1
     !    exp(Op%g*spin*Op%E)*(Op%U^{dagger})*Mat*Op%U*exp(-Op%g*spin*Op%E)
     !    
@@ -604,9 +618,11 @@ end subroutine
     endif
   end Subroutine Op_Wrapup
 
+!--------------------------------------------------------------------
+
   Subroutine Op_Wrapdo(Mat,Op,spin,Ndim,N_Type)
     Implicit none 
-
+    
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
@@ -620,7 +636,7 @@ end subroutine
     Complex (Kind = Kind(0.D0)), Dimension(:, :), allocatable :: VH, tmp, tmp2
 
     alpha = 1.D0
-    beta = 0.D0
+    beta  = 0.D0
     !!!!! N_Type == 1
     !    Op%U*exp(-Op%g*spin*Op%E)*Mat*exp(Op%g*spin*Op%E)*(Op%U^{dagger})
     !    
