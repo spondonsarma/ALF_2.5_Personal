@@ -49,16 +49,16 @@
         Implicit None
 
         ! Arguments
-        COMPLEX (KIND=8) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
-        COMPLEX (KIND=8) :: DR(Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
         Integer :: NTAU1, NTAU
 
 
         ! Working space.
-        Complex (Kind=8) :: Z_ONE
-        COMPLEX (Kind=8) :: V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
+        Complex (Kind=Kind(0.d0)) :: Z_ONE
+        COMPLEX (Kind=Kind(0.d0)) :: V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
         Integer ::NCON, NT, I, J, n, nf
-        Real (Kind=8) :: X
+        Real (Kind=Kind(0.d0)) :: X
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))

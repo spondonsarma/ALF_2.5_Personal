@@ -47,10 +47,10 @@
       Use MyMats 
       
       ! Private variables
-      Complex (Kind=8), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
-      Complex (Kind=8), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
+      Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
+      Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
       Integer, private, save ::  Ncheck, Ndim_hop
-      Real (Kind=8), private, save  :: Zero
+      Real (Kind=Kind(0.d0)), private, save  :: Zero
 
       Contains
         
@@ -59,7 +59,7 @@
           Implicit none
           
           Integer :: nc, nf
-          Complex (Kind=8) :: g
+          Complex (Kind=Kind(0.d0)) :: g
 
           Ncheck = size(Op_T,1)
           If ( size(Op_T,2) /= N_FL ) then 
@@ -108,8 +108,8 @@
           ! Out:  OUT = e^{ -dtau T }.IN
           Implicit none
           
-          Complex (Kind=8), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=8), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
           Integer, intent(IN) :: nf
           
           !Local 
@@ -142,8 +142,8 @@
           ! Out:  OUT = e^{  dtau T }.IN
           Implicit none
           
-          Complex (Kind=8), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=8), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
           Integer :: nf
           
           !Local 
@@ -178,8 +178,8 @@
           ! Out:  OUT = IN * e^{ -dtau T }
           Implicit none
           
-          Complex (Kind=8), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=8), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
           Integer :: nf
           
           !Local 
@@ -209,8 +209,8 @@
           ! Out:  OUT = IN * e^{ dtau T }
           Implicit none
           
-          Complex (Kind=8), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=8), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
           Integer :: nf
           
           !Local 
@@ -236,8 +236,8 @@
 !!$          
 !!$          Implicit none
 !!$
-!!$          Complex (Kind=8) ::  IN(Ndim,Ndim),Out(Ndim,Ndim)
-!!$          Complex (Kind=8) ::  Test(Ndim,Ndim)
+!!$          Complex (Kind=Kind(0.d0)) ::  IN(Ndim,Ndim),Out(Ndim,Ndim)
+!!$          Complex (Kind=Kind(0.d0)) ::  Test(Ndim,Ndim)
 !!$
 !!$          Integer :: I,J
 !!$

@@ -53,16 +53,16 @@
      Subroutine UDV_Wrap_Pivot(A,U,D,V,NCON,N1,N2)
        
        Implicit NONE
-       COMPLEX (KIND=8), INTENT(IN),    DIMENSION(:,:) :: A
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+       COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
        INTEGER, INTENT(IN) :: NCON
        INTEGER, INTENT(IN) :: N1,N2
        
        ! Locals
-       REAL (Kind=8) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
+       REAL (Kind=Kind(0.d0)) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
        INTEGER :: IVPT(N2), IVPTM1(N2), I, J, K, IMAX
-       COMPLEX (KIND=8)  :: A1(N1,N2), A2(N1,N2), V1(N2,N2)
+       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2)
        
        DO I = 1,N2
           XNORM(I) = 0.D0
@@ -115,16 +115,16 @@
      Subroutine UDV_Wrap_Pivot(A,U,D,V,NCON,N1,N2)
        
        Implicit NONE
-       COMPLEX (KIND=8), INTENT(IN),    DIMENSION(:,:) :: A
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+       COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
        INTEGER, INTENT(IN) :: NCON
        INTEGER, INTENT(IN) :: N1,N2
        
        ! Locals
-       REAL (Kind=8) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
+       REAL (Kind=Kind(0.d0)) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
        INTEGER :: IVPT(N2), IVPTM1(N2), I, J, K, IMAX
-       COMPLEX (KIND=8)  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), U1(N2,N2), Z
+       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), U1(N2,N2), Z
        
        DO I = 1,N2
           XNORM(I) = 0.D0
@@ -198,13 +198,13 @@
 #ifdef MPI            
        INCLUDE 'mpif.h'
 #endif
-       COMPLEX (KIND=8), INTENT(IN),    DIMENSION(:,:) :: A
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:,:) :: U,V
-       COMPLEX (KIND=8), INTENT(INOUT), DIMENSION(:) :: D
+       COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
        INTEGER, INTENT(IN) :: NCON
        
        !Local 
-       Complex (Kind=8), Allocatable ::  A1(:,:),U1(:,:)
+       Complex (Kind=Kind(0.d0)), Allocatable ::  A1(:,:),U1(:,:)
        Integer :: N,I,J
        character (len=64) :: file_sr, File
 #ifdef MPI  

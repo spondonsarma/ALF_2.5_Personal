@@ -51,16 +51,16 @@
         Implicit none
 
         ! Arguments
-        COMPLEX (KIND=8) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-        COMPLEX (KIND=8) :: DL(Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
         Integer :: NTAU1, NTAU
 
 
         ! Working space.
-        COMPLEX (Kind=8) ::  U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
-        COMPLEX (Kind=8) ::  D1(Ndim), Z_ONE, beta
+        COMPLEX (Kind=Kind(0.d0)) ::  U1(Ndim,Ndim), V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
+        COMPLEX (Kind=Kind(0.d0)) ::  D1(Ndim), Z_ONE, beta
         Integer :: NT, NCON, n, nf
-        Real    (Kind=8) ::  X
+        Real    (Kind=Kind(0.d0)) ::  X
  
 
 

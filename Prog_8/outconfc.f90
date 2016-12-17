@@ -54,7 +54,7 @@
          ! LOCAL
          INTEGER        :: I, IERR, ISIZE, IRANK, SEED_IN, K, ISEED, NT, NR
          INTEGER, DIMENSION(:), ALLOCATABLE :: SEED_VEC
-         REAL (KIND=8)  :: X
+         REAL (Kind=Kind(0.d0))  :: X
          LOGICAL        :: LCONF 
          CHARACTER (LEN=64) :: FILE_SR, FILE_TG
 

@@ -44,26 +44,25 @@
         Use Hamiltonian
         Use Random_wrap
         Use Control
-        Use Precdef
         Implicit none 
         
-        Complex (Kind=double) :: GR(Ndim,Ndim, N_FL)
-        Integer, INTENT(IN) :: N_op, Nt, Op_dim
-        Complex (Kind=double) :: Phase
+        Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
+        Integer, INTENT(IN)       :: N_op, Nt, Op_dim
+        Complex (Kind=Kind(0.d0)) :: Phase
 
         ! Local ::
-        Complex (Kind=double) :: Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL)
-        Complex (Kind=double) :: Ratio(N_FL), Ratiotot, Z1 
+        Complex (Kind=Kind(0.d0)) :: Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL)
+        Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1 
         Integer :: ns_new, ns_old, n,m,nf, i,j
-        Complex (Kind= double) :: ZK, Z, D_Mat, Z2, myexp, s1, s2
+        Complex (Kind=Kind(0.d0)) :: ZK, Z, D_Mat, Z2, myexp, s1, s2
         
-        Real (Kind = double) :: Weight, reZ, imZ
-        Complex (Kind = double) :: u(Ndim,Op_dim), v(Ndim,Op_dim) ,alpha, beta
-        Complex (Kind = double) :: y_v(Ndim,Op_dim), xp_v(Ndim,Op_dim)
-        Complex (Kind = double) :: x_v(Ndim,Op_dim)
+        Real    (Kind=Kind(0.d0)) :: Weight, reZ, imZ
+        Complex (Kind=Kind(0.d0)) :: u(Ndim,Op_dim), v(Ndim,Op_dim) ,alpha, beta
+        Complex (Kind=Kind(0.d0)) :: y_v(Ndim,Op_dim), xp_v(Ndim,Op_dim)
+        Complex (Kind=Kind(0.d0)) :: x_v(Ndim,Op_dim)
         Logical :: Log
-        Complex (Kind = Kind(0.D0)), Dimension(:, :), Allocatable :: Zarr, grarr
-        Complex (Kind = Kind(0.D0)), Dimension(:), Allocatable :: sxv, syu
+        Complex (Kind=Kind(0.D0)), Dimension(:, :), Allocatable :: Zarr, grarr
+        Complex (Kind=Kind(0.D0)), Dimension(:), Allocatable :: sxv, syu
 
         if ( abs(OP_V(n_op,1)%g) < 1.D-6 ) return
 
@@ -111,7 +110,7 @@
 
         !Write(6,*) Ratiotot
         
-        Weight = abs(  real(Phase * Ratiotot, kind=double)/real(Phase,kind=double) )
+        Weight = abs(  real(Phase * Ratiotot, kind=Kind(0.d0))/real(Phase,kind=Kind(0.d0)) )
       
         Log = .false. 
         if ( Weight > ranf_wrap() )  Then
@@ -175,7 +174,7 @@
 
 
 !!!!!         Requires additional space
-!             Complex (Kind = double) ::  tmpMat(Ndim,Ndim), tmp
+!             Complex (Kind =Kind(0.d0)) ::  tmpMat(Ndim,Ndim), tmp
 !           
 ! 	      !$OMP PARALLEL DO PRIVATE(tmp)
 !               do j = 1,Ndim

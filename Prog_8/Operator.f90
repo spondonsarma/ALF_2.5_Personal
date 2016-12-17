@@ -47,17 +47,17 @@ Module Operator_mod
 
   Implicit none
 
-  Real (Kind=8) :: Phi(-2:2,2),  Gaml(-2:2,2)
+  Real (Kind=Kind(0.d0)) :: Phi(-2:2,2),  Gaml(-2:2,2)
   Integer ::  NFLIPL(-2:2,3)
   
 
   Type Operator
      Integer          :: N, N_non_zero
-     complex (kind=8), pointer :: O(:,:), U (:,:)
-     Real    (kind=8), pointer :: E(:)
+     complex (Kind=Kind(0.d0)), pointer :: O(:,:), U (:,:)
+     Real    (Kind=Kind(0.d0)), pointer :: E(:)
      Integer, pointer :: P(:)
-     complex (kind=8) :: g
-     complex (kind=8) :: alpha
+     complex (Kind=Kind(0.d0)) :: g
+     complex (Kind=Kind(0.d0)) :: alpha
      Integer          :: Type 
      ! P is an N X Ndim matrix such that  P.T*O*P*  =  A  
      ! P has only one non-zero entry per column which is specified by P
@@ -75,7 +75,7 @@ Contains
     Integer ::  n 
     Phi = 0.d0
     do n = -2,2
-       Phi(n,1) = real(n,kind=8)
+       Phi(n,1) = real(n,Kind=Kind(0.d0))
     enddo
     Phi(-2,2) = - SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
     Phi(-1,2) = - SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
@@ -123,11 +123,11 @@ Contains
   Pure Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) 
     Implicit none
 
-    Complex  (Kind=8), Intent(Inout) :: Phase
+    Complex  (Kind=Kind(0.d0)), Intent(Inout) :: Phase
     Integer,           Intent(IN)    :: N_SUN
     Integer,           dimension(:,:), Intent(In) :: Nsigma
     Type (Operator),   dimension(:,:), Intent(In) :: Op_V
-    Real  (Kind=8)                   :: angle
+    Real  (Kind=Kind(0.d0))                   :: angle
     
     Integer :: n, nf, nt
     
@@ -175,9 +175,9 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
 
-    Complex (Kind=8), allocatable :: U(:,:)
-    Real    (Kind=8), allocatable :: E(:)
-    Real    (Kind=8) :: Zero = 1.E-9
+    Complex (Kind=Kind(0.d0)), allocatable :: U(:,:)
+    Real    (Kind=Kind(0.d0)), allocatable :: E(:)
+    Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
     Integer :: N, I, np,nz
 
     If (Op%N > 1) then
@@ -215,9 +215,9 @@ Contains
   Pure subroutine Op_exp(g,Op,Mat)
     Implicit none 
     Type (Operator), Intent(IN)  :: Op
-    Complex (Kind=8), Dimension(:,:), INTENT(OUT) :: Mat
-    Complex (Kind=8), INTENT(IN) :: g
-    Complex (Kind=8) :: Z, Z1
+    Complex (Kind=Kind(0.d0)), Dimension(:,:), INTENT(OUT) :: Mat
+    Complex (Kind=Kind(0.d0)), INTENT(IN) :: g
+    Complex (Kind=Kind(0.d0)) :: Z, Z1
 
     Integer :: n, j, iters
     
@@ -499,12 +499,12 @@ Contains
     Implicit none 
     Integer :: Ndim
     Type (Operator) , INTENT(IN)   :: Op
-    Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=8), INTENT(IN)   :: spin
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Real    (Kind=Kind(0.d0)), INTENT(IN)   :: spin
 
     ! Local 
-    Complex (Kind=8), Dimension(:, :), allocatable :: VH
-    Complex (Kind=8), Dimension(:), allocatable :: Z
+    Complex (Kind=Kind(0.d0)), Dimension(:, :), allocatable :: VH
+    Complex (Kind=Kind(0.d0)), Dimension(:), allocatable :: Z
 
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
@@ -533,12 +533,12 @@ Contains
     Implicit none
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
-    Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=8), INTENT(IN )   :: spin
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Real    (Kind=Kind(0.d0)), INTENT(IN )   :: spin
 
     ! Local 
-    Complex (Kind=8), Dimension(:, :), allocatable :: VH
-    Complex (Kind=8), Dimension(:), allocatable :: Z
+    Complex (Kind=Kind(0.d0)), Dimension(:, :), allocatable :: VH
+    Complex (Kind=Kind(0.d0)), Dimension(:), allocatable :: Z
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
@@ -589,12 +589,12 @@ Contains
 
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
-    Complex (Kind=8), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=8), INTENT(IN )   :: spin
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Real    (Kind=Kind(0.d0)), INTENT(IN )   :: spin
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=8) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim)
+    Complex (Kind=Kind(0.d0)) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim)
     
     !     nop=size(Op%U,1)
     !!!!! N_Type ==1

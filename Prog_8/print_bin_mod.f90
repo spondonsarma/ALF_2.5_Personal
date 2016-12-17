@@ -14,20 +14,20 @@
            include 'mpif.h'
 #endif   
 
-           Complex (Kind=8), Dimension(:,:,:), Intent(inout):: Dat_eq
-           Complex (Kind=8), Dimension(:)    , Intent(inout):: Dat_eq0
+           Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(inout):: Dat_eq
+           Complex (Kind=Kind(0.d0)), Dimension(:)    , Intent(inout):: Dat_eq0
            Type (Lattice),                     Intent(In)   :: Latt
-           Complex (Kind=8),                   Intent(In)   :: Phase_bin_tmp
+           Complex (Kind=Kind(0.d0)),                   Intent(In)   :: Phase_bin_tmp
            Character (len=64),                 Intent(In)   :: File_pr
            Integer,                            Intent(In)   :: Nobs
           
            ! Local
            Integer :: Norb, I, no,no1
-           Complex (Kind=8), allocatable :: Tmp(:,:,:), Tmp1(:)
-           Real    (Kind=8)              :: x_p(2) 
-           Complex (Kind=8)              :: Phase_bin
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Real    (Kind=Kind(0.d0))              :: x_p(2) 
+           Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
-           Complex (Kind=8):: Z
+           Complex (Kind=Kind(0.d0)):: Z
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
@@ -100,21 +100,21 @@
            include 'mpif.h'
 #endif   
            
-           Real    (Kind=8), Dimension(:,:,:), Intent(inout) :: Dat_eq
-           Real    (Kind=8), Dimension(:)    , Intent(inout) :: Dat_eq0
+           Real    (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(inout) :: Dat_eq
+           Real    (Kind=Kind(0.d0)), Dimension(:)    , Intent(inout) :: Dat_eq0
            Type (Lattice),                     Intent(In)    :: Latt
-           Complex (Kind=8),                   Intent(In)    :: Phase_bin_tmp
+           Complex (Kind=Kind(0.d0)),                   Intent(In)    :: Phase_bin_tmp
            Character (len=64),                 Intent(In)    :: File_pr
            Integer,                            Intent(In)    :: Nobs
            
            ! Local
            Integer :: Norb, I, no,no1
-           Real    (Kind=8), allocatable :: Tmp(:,:,:), Tmp1(:)
-           Real    (Kind=8)              :: x_p(2) 
-           Complex (Kind=8)              :: Phase_bin
+           Real    (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Real    (Kind=Kind(0.d0))              :: x_p(2) 
+           Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
-           Complex (Kind=8)              :: Z
+           Complex (Kind=Kind(0.d0))              :: Z
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -181,13 +181,13 @@
            include 'mpif.h'
 #endif   
            
-           Complex   (Kind=8), Dimension(:), Intent(inout) :: Obs
+           Complex   (Kind=Kind(0.d0)), Dimension(:), Intent(inout) :: Obs
            Character (len=64),               Intent(In)    :: File_pr
            Integer,                          Intent(In)    :: Nobs
            
            ! Local
            Integer :: Norb,I
-           Complex  (Kind=8), allocatable :: Tmp(:)
+           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
@@ -222,21 +222,21 @@
            include 'mpif.h'
 #endif   
 
-           Complex (Kind=8), Dimension(:,:,:,:), Intent(inout):: Dat_tau   ! (Latt%N, Ltau,Norb, Norb)
-           Complex (Kind=8), Dimension(:      ), Intent(inout), optional :: Dat0_tau  ! (Norb)
+           Complex (Kind=Kind(0.d0)), Dimension(:,:,:,:), Intent(inout):: Dat_tau   ! (Latt%N, Ltau,Norb, Norb)
+           Complex (Kind=Kind(0.d0)), Dimension(:      ), Intent(inout), optional :: Dat0_tau  ! (Norb)
            Type (Lattice),                       Intent(In)   :: Latt
-           Complex (Kind=8),                     Intent(In)   :: Phase_bin
+           Complex (Kind=Kind(0.d0)),                     Intent(In)   :: Phase_bin
            Character (len=64),                   Intent(In)   :: File_pr
            Integer,                              Intent(In)   :: Nobs
-           Real (kind=8),                        Intent(In)   :: dtau
+           Real (Kind=Kind(0.d0)),                        Intent(In)   :: dtau
           
            ! Local
            Integer :: Norb, I, no,no1, LT, nt
-           Complex (Kind=8), allocatable :: Tmp(:,:,:,:), Tmp0(:)
-           Complex (Kind=8) :: Phase_mean 
-           Real    (Kind=8)              :: x_p(2) 
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:), Tmp0(:)
+           Complex (Kind=Kind(0.d0)) :: Phase_mean 
+           Real    (Kind=Kind(0.d0))              :: x_p(2) 
 #ifdef MPI
-           Complex (Kind=8):: Z
+           Complex (Kind=Kind(0.d0)):: Z
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)

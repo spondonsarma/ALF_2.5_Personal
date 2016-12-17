@@ -155,22 +155,21 @@
 
       
 
-        Use Precdef
         Use MyMats
         Use UDV_WRAP_mod
         Implicit none
 
         !  Arguments
         Integer,  intent(in) :: LQ
-        Complex (Kind=double), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
-        Complex (Kind=double), intent(in)    :: D2(LQ), D1(LQ)
-        Complex (Kind=double), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
+        Complex (Kind=Kind(0.d0)), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
+        Complex (Kind=Kind(0.d0)), intent(in)    :: D2(LQ), D1(LQ)
+        Complex (Kind=Kind(0.d0)), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
 
 
         ! Local::
-        Complex  (Kind=double) :: V1INV(LQ,LQ)
-        Complex  (Kind=double) :: D3B(2*LQ)
-        Complex  (Kind=double) :: Z, alpha, beta
+        Complex  (Kind=Kind(0.d0)) :: V1INV(LQ,LQ)
+        Complex  (Kind=Kind(0.d0)) :: D3B(2*LQ)
+        Complex  (Kind=Kind(0.d0)) :: Z, alpha, beta
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2, HLPB1, HLPB2, U3B, V3B
         Integer :: LQ2, I,J, NCON
         
@@ -204,16 +203,16 @@
 ! !!$                 Z = Z + U3B(I,N) *conjg(U3B(J,N))
 ! !!$              ENDDO
 ! !!$              if (I == J)  Z = Z - cmplx(1.d0,0.d0)
-! !!$              X = real(SQRT( Z* conjg(Z)),kind=8)
+! !!$              X = real(SQRT( Z* conjg(Z)),Kind=Kind(0.d0))
 ! !!$              if (X > Xmax) Xmax = X
 ! !!$           ENDDO
 ! !!$        ENDDO
 ! !!$        !Write(6,*) 'Cgr2_2, ortho: ', Xmax
 ! !!$        DO I = 1,LQ2
 ! !!$           Z =  D3B(I)
-! !!$           if (I == 1)  Xmax = real(SQRT( Z* conjg(Z)),kind=8) 
-! !!$           if ( real(SQRT( Z* conjg(Z)),kind=8)  < Xmax ) Xmax = &
-! !!$                & real(SQRT( Z* conjg(Z)),kind=8)
+! !!$           if (I == 1)  Xmax = real(SQRT( Z* conjg(Z)),Kind=Kind(0.d0)) 
+! !!$           if ( real(SQRT( Z* conjg(Z)),Kind=Kind(0.d0))  < Xmax ) Xmax = &
+! !!$                & real(SQRT( Z* conjg(Z)),Kind=Kind(0.d0))
 ! !!$        ENDDO
 ! !!$        !Write(6,*) 'Cgr2_2, Cutoff: ', Xmax
 ! !!$!!!!!!!!!!!!! End Tests

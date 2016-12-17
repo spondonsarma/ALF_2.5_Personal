@@ -43,7 +43,6 @@
        Use Hamiltonian 
        Use Operator_mod
        Use Control
-       Use Precdef
        Use Hop_mod
 
        Contains
@@ -56,70 +55,37 @@
               SUBROUTINE WRAPUL(NTAU1, NTAU, UL ,DL, VL)
                 Use Hamiltonian
                 Implicit none
-                COMPLEX (KIND=8) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-                COMPLEX (KIND=8) :: DL(Ndim,N_FL)
+                COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
+                COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
                 Integer :: NTAU1, NTAU
               END SUBROUTINE WRAPUL
               SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ)
-                Use Precdef
                 Use MyMats
                 Use UDV_WRAP_mod
                 Implicit none
-                
                 !  Arguments
                 Integer,  intent(in) :: LQ
-                Complex (Kind=double), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
-                Complex (Kind=double), intent(in)    :: D2(LQ), D1(LQ)
-                Complex (Kind=double), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
+                Complex (Kind=Kind(0.d0)), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
+                Complex (Kind=Kind(0.d0)), intent(in)    :: D2(LQ), D1(LQ)
+                Complex (Kind=Kind(0.d0)), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
               end SUBROUTINE CGR2_2
-              SUBROUTINE CGR2_1(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ, NVAR)
-                Use Precdef
-                Use MyMats
-                USe UDV_Wrap_mod
-                Implicit none
-                !  Arguments
-                Integer,  intent(in) :: LQ, NVAR
-                Complex (Kind=double), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
-                Complex (Kind=double), intent(in)    :: D2(LQ), D1(LQ)
-                Complex (Kind=double), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
-              end SUBROUTINE CGR2_1
-              SUBROUTINE CGR2(GRT0, GR00, GRTT, GR0T, U2, D2, V2, U1, D1, V1, LQ)
-          
-                !       B2 = U2*D2*V2
-                !       B1 = V1*D1*U1
-                !Calc:      (  1   B1 )^-1   i.e. 2*LQ \times 2*LQ matrix
-                !           (-B2   1  )
-                
-                
-                Use Precdef
-                Use UDV_WRAP_mod
-                Use MyMats
-                
-                Implicit none
-                
-                !  Arguments
-                Integer :: LQ
-                Complex (Kind=double), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
-                Complex (Kind=double), intent(in)    :: D2(LQ), D1(LQ)
-                Complex (Kind=double), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
-              end SUBROUTINE CGR2
            end Interface
      
            Integer, Intent(In) :: NSTM, NWRAP
-           Complex (Kind=double), Intent(in) :: UST(NDIM,NDIM,NSTM,N_FL), VST(NDIM,NDIM,NSTM,N_FL), DST(NDIM,NSTM,N_FL) 
-           Complex (Kind=double), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
+           Complex (Kind=Kind(0.d0)), Intent(in) :: UST(NDIM,NDIM,NSTM,N_FL), VST(NDIM,NDIM,NSTM,N_FL), DST(NDIM,NSTM,N_FL) 
+           Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
            Integer, Intent(In) :: STAB_NT(0:NSTM)         
 
            
 
            ! Local 
            ! This could be placed as  private for the module 
-           Complex (Kind=double)  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
-           Complex (Kind=double)  :: UL(Ndim,Ndim,N_FL), DL(Ndim,N_FL), VL(Ndim,Ndim,N_FL) 
-           Complex (Kind=double)  :: UR(Ndim,Ndim,N_FL), DR(Ndim,N_FL), VR(Ndim,Ndim,N_FL) 
-           Complex (Kind=double)  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
+           Complex (Kind=Kind(0.d0))  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
+           Complex (Kind=Kind(0.d0))  :: UL(Ndim,Ndim,N_FL), DL(Ndim,N_FL), VL(Ndim,Ndim,N_FL) 
+           Complex (Kind=Kind(0.d0))  :: UR(Ndim,Ndim,N_FL), DR(Ndim,N_FL), VR(Ndim,Ndim,N_FL) 
+           Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
-           Complex (Kind=double)  ::  Z
+           Complex (Kind=Kind(0.d0))  ::  Z
            Integer  ::  I, J, nf, NT, NT1, NTST, NST, NVAR
            
            !Tau = 0
@@ -127,7 +93,7 @@
               DO J = 1,Ndim 
                  DO I = 1,Ndim
                     Z = cmplx(0.d0, 0.d0, kind(0.D0))
-                    if (I == J ) Z = cone
+                    if (I == J ) Z = cmplx(1.d0,0.d0,kind(0.d0))
                     G00(I,J,nf) = GR(I,J,nf)
                     GT0(I,J,nf) = GR(I,J,nf)
                     GTT(I,J,nf) = GR(I,J,nf)
@@ -139,11 +105,12 @@
            ! In Module Hamiltonian
            CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
            
+           Z = cmplx(1.d0,0.d0,kind(0.d0))
            Do nf = 1, N_FL
-              CALL INITD(UR(:,:,nf),cone)
-              CALL INITD(VR(:,:,nf),cone)
+              CALL INITD(UR(:,:,nf),Z)
+              CALL INITD(VR(:,:,nf),Z)
            enddo
-           DR = cone
+           DR = Z
               
            NST = 1
            DO NT = 0,LTROT - 1

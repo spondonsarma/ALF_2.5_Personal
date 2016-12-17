@@ -22,8 +22,8 @@
 !>    Privat variables 
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
-      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
-      real (Kind=8),        private :: Dtau, Beta
+      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
+      real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
       Integer,              private :: N_coord, Norb
@@ -37,7 +37,7 @@
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
       
 !>    Storage for the Ising action
-      Real (Kind=8),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
+      Real (Kind=Kind(0.d0)),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
       Integer, allocatable, private :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
 
       
@@ -169,7 +169,7 @@
           Implicit none
           !Set the lattice
           
-          Real (Kind=8)  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
+          Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
           Integer :: I, nc, no
 
           If ( Lattice_type =="Square" ) then
@@ -300,7 +300,7 @@
           Implicit none 
           
           Integer :: nf, I, I1, I2,  nc, nc1,  J
-          Real (Kind=8) :: X
+          Real (Kind=Kind(0.d0)) :: X
 
           
           If (Model == "Hubbard_SU2")  then
@@ -383,7 +383,7 @@
         end Subroutine Ham_V
 
 !===================================================================================           
-        Real (Kind=8) function S0(n,nt)  
+        Real (Kind=Kind(0.d0)) function S0(n,nt)  
           Implicit none
           Integer, Intent(IN) :: n,nt
           Integer :: nt1,I
@@ -410,7 +410,7 @@
           ! an efficient calculation of  S0(n,nt) 
 
           Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation
-          Real (Kind=8) :: X_p(2)
+          Real (Kind=Kind(0.d0)) :: X_p(2)
 
           ! Setup list of bonds for the square lattice.
           Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*N_coord,2) )
@@ -546,13 +546,13 @@
           
           Implicit none
           
-          Complex (Kind=8), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
-          Complex (Kind=8), Intent(IN) :: PHASE
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
+          Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS
           Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J
           
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -678,11 +678,11 @@
           Implicit none
           
           Integer         , INTENT(IN) :: NT
-          Complex (Kind=8), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
-          Complex (Kind=8), INTENT(IN) :: Phase
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
           
           !Locals
-          Complex (Kind=8) :: Z, ZP, ZS
+          Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
           Integer :: IMJ, I, J, I1, J1, no_I, no_J
 
           ZP = PHASE/Real(Phase, kind(0.D0))

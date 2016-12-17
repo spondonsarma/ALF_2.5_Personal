@@ -47,9 +47,9 @@
     Use MyMats
     Implicit none
 
-    real    (Kind=8) , private, save :: XMEANG, XMAXG, XMAXP, CPU_time_st, CPU_time_en, Xmean_tau, Xmax_tau
+    real    (Kind=Kind(0.d0)) , private, save :: XMEANG, XMAXG, XMAXP, CPU_time_st, CPU_time_en, Xmean_tau, Xmax_tau
     Integer          , private, save :: NCG, NCG_tau
-    Integer (Kind=8) , private, save :: NC_up, ACC_up
+    Integer (Kind=Kind(0.d0)) , private, save :: NC_up, ACC_up
  
     
     Contains
@@ -78,8 +78,8 @@
         Implicit none
         
         Integer :: Ndim
-        Complex (Kind=8) :: A(Ndim,Ndim), B(Ndim,Ndim) 
-        Real    (Kind=8) :: XMAX, XMEAN
+        Complex (Kind=Kind(0.d0)) :: A(Ndim,Ndim), B(Ndim,Ndim) 
+        Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG = NCG + 1
         XMEAN = 0.d0
@@ -93,8 +93,8 @@
         Implicit none
         
         Integer :: Ndim
-        Complex (Kind=8) :: A(Ndim,Ndim), B(Ndim,Ndim) 
-        Real    (Kind=8) :: XMAX, XMEAN
+        Complex (Kind=Kind(0.d0)) :: A(Ndim,Ndim), B(Ndim,Ndim) 
+        Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG_tau = NCG_tau + 1
         XMEAN = 0.d0
@@ -119,9 +119,9 @@
 #ifdef MPI
         include 'mpif.h'
 #endif
-        Real (Kind=8) :: Time, Acc
+        Real (Kind=Kind(0.d0)) :: Time, Acc
 #ifdef MPI
-        REAL (Kind=8)  :: X
+        REAL (Kind=Kind(0.d0))  :: X
         Integer        :: Ierr, Isize, Irank
         INTEGER        :: STATUS(MPI_STATUS_SIZE)
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
@@ -188,10 +188,10 @@
 #endif  
     
       logical, intent(out)     :: prog_truncation
-      real(kind=8), intent(in) :: cpu_max, time_bin_start, time_bin_end
-      real(kind=8)             :: time_bin_duration,time_alloc_end,time_remain,bins_remain,threshold
+      real(Kind=Kind(0.d0)), intent(in) :: cpu_max, time_bin_start, time_bin_end
+      real(Kind=Kind(0.d0))             :: time_bin_duration,time_alloc_end,time_remain,bins_remain,threshold
 #ifdef MPI   
-      real(kind=8)             :: bins_remain_mpi
+      real(Kind=Kind(0.d0))             :: bins_remain_mpi
       integer                  :: err_mpi,rank_mpi,tasks_mpi
 #endif
       threshold = 1.5d0

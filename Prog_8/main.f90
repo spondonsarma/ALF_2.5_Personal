@@ -60,76 +60,76 @@ Program Main
      SUBROUTINE WRAPUL(NTAU1, NTAU, UL ,DL, VL)
        Use Hamiltonian
        Implicit none
-       COMPLEX (KIND=8) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-       COMPLEX (KIND=8) :: DL(Ndim,N_FL)
+       COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
+       COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
        Integer :: NTAU1, NTAU
      END SUBROUTINE WRAPUL
      SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
        Use UDV_Wrap_mod
        Implicit None
-       COMPLEX(Kind=8), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
-       COMPLEX(Kind=8), Dimension(:), Intent(In)      :: DLUP, DRUP
-       COMPLEX(Kind=8), Dimension(:,:), Intent(Inout) :: GRUP
-       COMPLEX(Kind=8) :: PHASE
+       COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
+       COMPLEX(Kind=Kind(0.d0)), Dimension(:), Intent(In)      :: DLUP, DRUP
+       COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+       COMPLEX(Kind=Kind(0.d0)) :: PHASE
        INTEGER         :: NVAR
      END SUBROUTINE CGR
      SUBROUTINE WRAPGRUP(GR,NTAU,PHASE)
        Use Hamiltonian
        Implicit none
-       COMPLEX (Kind=8), INTENT(INOUT) ::  GR(Ndim,Ndim,N_FL)
-       COMPLEX (Kind=8), INTENT(INOUT) ::  PHASE
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  GR(Ndim,Ndim,N_FL)
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  PHASE
        INTEGER, INTENT(IN) :: NTAU
      END SUBROUTINE WRAPGRUP
      SUBROUTINE WRAPGRDO(GR,NTAU,PHASE)
        Use Hamiltonian 
        Implicit None
-       COMPLEX (Kind=8), INTENT(INOUT) :: GR(NDIM,NDIM,N_FL)
-       COMPLEX (Kind=8), INTENT(INOUT) :: PHASE
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(NDIM,NDIM,N_FL)
+       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) :: PHASE
        Integer :: NTAU
      end SUBROUTINE WRAPGRDO
      SUBROUTINE WRAPUR(NTAU, NTAU1, UR, DR, VR)
        Use Hamiltonian
        Use UDV_Wrap_mod
        Implicit None
-       COMPLEX (KIND=8) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
-       COMPLEX (KIND=8) :: DR(Ndim,N_FL)
+       COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
+       COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
        Integer :: NTAU1, NTAU
      END SUBROUTINE WRAPUR
 
      
   end Interface
 
-  COMPLEX (KIND=8), Dimension(:,:)  , Allocatable   ::  TEST
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
 
-  COMPLEX (Kind=8), Dimension(:,:)  , Allocatable    :: DL, DR
-  COMPLEX (Kind=8), Dimension(:,:,:), Allocatable    :: UL, VL, UR, VR
-  COMPLEX (Kind=8), Dimension(:,:,:), Allocatable    :: GR
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable    :: DL, DR
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: UL, VL, UR, VR
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR
   
 
   Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
   Integer :: NTAU, NTAU1
-  Real(Kind=8) :: CPU_MAX 
+  Real(Kind=Kind(0.d0)) :: CPU_MAX 
 
 
   NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX
 
   Integer :: Ierr, I,nf, nst, n
-  Complex (Kind=8) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
-  Real    (Kind=8) :: ZERO = 10D-8
+  Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
+  Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8
   Integer, dimension(:), allocatable :: Stab_nt
   
   ! Space for storage.
-  COMPLEX (Kind=8), Dimension(:,:,:)  , Allocatable :: DST
-  COMPLEX (Kind=8), Dimension(:,:,:,:), Allocatable :: UST,  VST
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , Allocatable :: DST
+  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), Allocatable :: UST,  VST
 
   ! For tests
-  Real (kind=8) :: Weight, Weight_tot
+  Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
   Integer :: nr,nth, nth1
   Logical :: Log
   
   ! For the truncation of the program:
   Logical        :: prog_truncation
-  Real(kind=8)   :: time_bin_start,time_bin_end
+  Real(Kind=Kind(0.d0))   :: time_bin_start,time_bin_end
     
   write (*,*) "ALF Copyright (C) 2016 The ALF project contributors"
   write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"

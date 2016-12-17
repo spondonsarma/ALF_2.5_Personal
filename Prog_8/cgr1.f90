@@ -48,17 +48,17 @@
 
 
 	!Arguments.
-        COMPLEX(Kind=8), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
-        COMPLEX(Kind=8), Dimension(:),   Intent(In)   ::  DLUP, DRUP
-        COMPLEX(Kind=8), Dimension(:,:), Intent(INOUT) :: GRUP
-        COMPLEX(Kind=8) :: PHASE
+        COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
+        COMPLEX(Kind=Kind(0.d0)), Dimension(:),   Intent(In)   ::  DLUP, DRUP
+        COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
+        COMPLEX(Kind=Kind(0.d0)) :: PHASE
         INTEGER         :: NVAR
  
         !Local
-        COMPLEX (Kind=8), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1
-        COMPLEX (Kind=8), Dimension(:) , Allocatable ::  DUP
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  UUP, VUP, TPUP, TPUP1, TPUPM1
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:) , Allocatable ::  DUP
         INTEGER, Dimension(:), Allocatable :: IPVT
-        COMPLEX (Kind=8) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
+        COMPLEX (Kind=Kind(0.d0)) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
         Integer :: I,J, N_size, NCON, info
         Real (Kind=Kind(0.D0)) :: X, Xmax, sv
         

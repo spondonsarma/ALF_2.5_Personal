@@ -50,23 +50,23 @@
            Subroutine Upgrade(GR,N_op,NT,PHASE,Op_dim) 
              Use Hamiltonian 
              Implicit none 
-             Complex (Kind=8) :: GR(Ndim,Ndim, N_FL) 
+             Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL) 
              Integer, INTENT(IN) :: N_op, Nt, Op_dim
-             Complex (Kind=8) :: Phase
+             Complex (Kind=Kind(0.d0)) :: Phase
            End Subroutine Upgrade
         End Interface
 
         
 
         ! Arguments
-        COMPLEX (Kind=8), INTENT(INOUT) ::  GR(Ndim,Ndim,N_FL)
-        COMPLEX (Kind=8), INTENT(INOUT) ::  PHASE
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  GR(Ndim,Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  PHASE
         INTEGER, INTENT(IN) :: NTAU
         
         !Local 
         Integer :: nf, N_Type, NTAU1,n 
-        Complex (Kind=8) :: Mat_TMP(Ndim,Ndim)
-        Real    (Kind=8) :: X
+        Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim)
+        Real    (Kind=Kind(0.d0)) :: X
 
         ! Wrap up, upgrade ntau1.  with B^{1}(tau1) 
         NTAU1 = NTAU + 1

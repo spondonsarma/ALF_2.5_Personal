@@ -46,8 +46,8 @@
 !>  Data structure for 
 !>  < O_n >  n : =1, size(Obs,1)  
           Integer            :: N                    ! Number of measurements
-          real      (kind=8) :: Ave_Sign             ! Averarge sign
-          complex   (kind=8), pointer :: Obs_vec(:)  ! Vector of observables
+          real      (Kind=Kind(0.d0)) :: Ave_Sign             ! Averarge sign
+          complex   (Kind=Kind(0.d0)), pointer :: Obs_vec(:)  ! Vector of observables
           Character (len=64) :: File_Vec             ! Name of file in which the bins will be written out
        end type Obser_Vec
        
@@ -61,9 +61,9 @@
 !>  For equal   time correlation functions, tau runs from 1,1 
 !>  For unequal time correlation functions, tau runs from 1,Ltrot+1  
           Integer            :: N                           ! Number of measurements
-          Real      (kind=8) :: Ave_Sign                    ! Averarge sign
-          complex   (kind=8), pointer :: Obs_Latt (:,:,:,:) ! i-j, tau, norb, norb  
-          complex   (kind=8), pointer :: Obs_Latt0(:)       ! norb 
+          Real      (Kind=Kind(0.d0)) :: Ave_Sign                    ! Averarge sign
+          complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt (:,:,:,:) ! i-j, tau, norb, norb  
+          complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt0(:)       ! norb 
           Character (len=64) :: File_Latt                   ! Name of file in which the bins will be written out
        end type Obser_Latt
        
@@ -123,17 +123,17 @@
 
            Type (Obser_Latt),        Intent(Inout)   :: Obs
            Type (Lattice),           Intent(In)      :: Latt
-           Real (Kind=8),            Intent(In)      :: dtau
+           Real (Kind=Kind(0.d0)),            Intent(In)      :: dtau
 
            ! Local
            Integer :: Ns,Nt, Norb, no, no1, I , Ntau
-           Complex (Kind=8), allocatable :: Tmp(:,:,:,:), Tmp1(:)
-           Real    (Kind=8)              :: x_p(2) 
-           Complex (Kind=8)              :: Sign_bin
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:), Tmp1(:)
+           Real    (Kind=Kind(0.d0))              :: x_p(2) 
+           Complex (Kind=Kind(0.d0))              :: Sign_bin
            Character (len=64)            :: File_pr, File_suff
 #ifdef MPI
-           Complex (Kind=8):: Z
-           Real    (Kind=8):: X
+           Complex (Kind=Kind(0.d0)):: Z
+           Real    (Kind=Kind(0.d0)):: X
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
@@ -233,8 +233,8 @@
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
-           Complex  (Kind=8), allocatable :: Tmp(:)
-           Real     (Kind=8) :: X
+           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
+           Real     (Kind=Kind(0.d0)) :: X
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
