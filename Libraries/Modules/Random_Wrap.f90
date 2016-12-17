@@ -1,3 +1,6 @@
+
+
+
 Module Random_Wrap
 
    contains
@@ -35,7 +38,7 @@ Module Random_Wrap
           endif
        enddo
        CALL RANDOM_SEED (PUT = SEED_start(1:K)) 
-       !Write(6,*) 'Starting seeds ', SEED_Start
+       Write(6,*) 'Starting seeds ', SEED_Start
 
      end Subroutine Ranset
        
@@ -76,6 +79,7 @@ Module Random_Wrap
 !
 !> @param[in] seed An integer to seed the LCG.
 !-------------------------------------------------------------------- 
+
      real (Kind=Kind(0.D0)) function lcg(seed)
        implicit none
        integer :: seed
@@ -85,15 +89,9 @@ Module Random_Wrap
        res = 62089911*res + 4349
        norm = 2147483648_8 !specify 8 byte integer
        lcg = DBLE(MODULO(res, 2147483647))/DBLE(norm)
+       seed = res ! convert back
      end function lcg
 
-!     real (Kind=8)  function  ranf(iq)
-!       implicit none
-!       integer, optional ::  iq
-!       Real (Kind=8) :: X
-!       Call Random_Number(X)
-!       ranf = X
-!     end function ranf
 
 
      real (Kind=Kind(0.D0))  function  ranf_wrap(iq)
@@ -119,20 +117,5 @@ Module Random_Wrap
         
       end function rang_wrap
 
-
-
-!      real (kind=8)  function  rang(iq)
-
-        ! Random variable according to the distribution:  exp(-x**2/2)/(sqrt(2*3.1415927))
-      
-!        integer iq
-!        real (Kind=8) ::  pi, ranmod, theta
-!      
-!        PI = 3.1415926536D0
-!        RANMOD = SQRT(-2.D0 * LOG(RANF(iq)))
-!        THETA  = 2.D0 * PI * RANF(iq)
-!        rang = RANMOD * COS(THETA)
-!        
-!      end function rang
    
    end Module Random_Wrap

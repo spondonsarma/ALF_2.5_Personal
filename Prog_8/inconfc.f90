@@ -1,5 +1,46 @@
+!  Copyright (C) 2016 The ALF project
+! 
+!  This file is part of the ALF project.
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
         SUBROUTINE confin 
 
+!--------------------------------------------------------------------
+!
+!> @brief 
+!> Reads in the field configuration if present. If not present  the 
+!> routine will generate one based on the seeds read in from the file
+!> seeds
+!
+!--------------------------------------------------------------------
          Use Hamiltonian
          Implicit none
    
@@ -56,13 +97,8 @@
             else
                CALL MPI_RECV(Seed_in, 1, MPI_INTEGER,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
             endif
-            Call Get_seed_Len(K)
-            !Write(6,*) K
-            Allocate(Seed_vec(K))
-            Do I = 1,K
-               X =  lcg(Seed_in)
-               Seed_vec(I) = Seed_in
-            enddo
+            Allocate (Seed_vec(1))
+            Seed_vec(1) = Seed_in
             Call Ranset(Seed_vec)
             Deallocate(Seed_vec)
             do NT = 1,LTROT
@@ -99,13 +135,8 @@
             END IF
             Read (5,*) Seed_in
             CLOSE(5)
-            Call Get_seed_Len(K)
-            !Write(6,*) K
-            Allocate(Seed_vec(K))
-            Do I = 1,K
-               X =  lcg(Seed_in)
-               Seed_vec(I) = Seed_in
-            enddo
+            Allocate(Seed_vec(1))
+            Seed_vec(1) = Seed_in
             Call Ranset(Seed_vec)
             Deallocate(Seed_vec)
             do NT = 1,LTROT
