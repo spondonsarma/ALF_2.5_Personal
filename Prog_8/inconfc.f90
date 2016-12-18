@@ -46,7 +46,7 @@
          IMPLICIT NONE
    
 #ifdef MPI
-         INCLUDE 'MPIF.H'
+         INCLUDE 'mpif.h'
          ! LOCAL
 #endif   
 
@@ -84,9 +84,9 @@
          ELSE
             IF (IRANK == 0) THEN
                WRITE(6,*) 'No initial configuration'
-               OPEN(UNIT=5,FILE='SEEDS',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+               OPEN(UNIT=5,FILE='seeds',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
                IF (IERR /= 0) THEN
-                  WRITE(*,*) 'UNABLE TO OPEN <SEEDS>',IERR
+                  WRITE(*,*) 'UNABLE TO OPEN <seeds>',IERR
                   STOP
                END IF
                DO I = ISIZE-1,1,-1
@@ -129,9 +129,9 @@
             DEALLOCATE(SEED_VEC)
          ELSE
             WRITE(6,*) 'No initial configuration'
-            OPEN(UNIT=5,FILE='SEEDS',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+            OPEN(UNIT=5,FILE='seeds',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
             IF (IERR /= 0) THEN
-               WRITE(*,*) 'UNABLE TO OPEN <SEEDS>',IERR
+               WRITE(*,*) 'UNABLE TO OPEN <seeds>',IERR
                STOP
             END IF
             READ (5,*) SEED_IN

@@ -49,7 +49,7 @@
          
 
 #ifdef MPI
-         INCLUDE 'MPIF.H'
+         INCLUDE 'mpif.h'
 #endif
          ! LOCAL
          INTEGER        :: I, IERR, ISIZE, IRANK, SEED_IN, K, ISEED, NT, NR

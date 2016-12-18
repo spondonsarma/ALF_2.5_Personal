@@ -131,12 +131,22 @@ Program Main
   Logical        :: prog_truncation
   Real(Kind=Kind(0.d0))   :: time_bin_start,time_bin_end
     
-  write (*,*) "ALF Copyright (C) 2016 The ALF project contributors"
-  write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
-  write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
 #ifdef MPI
   Integer        ::  Isize, Irank
   INTEGER        :: STATUS(MPI_STATUS_SIZE)
+#endif
+
+#ifdef MPI
+  If (  Irank == 0 ) then
+#endif
+     write (*,*) "ALF Copyright (C) 2016 The ALF project contributors"
+     write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
+     write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
+#ifdef MPI
+  endif
+#endif
+
+#ifdef MPI
   CALL MPI_INIT(ierr)
   CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
   CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
