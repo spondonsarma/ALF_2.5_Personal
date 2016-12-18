@@ -11,23 +11,23 @@ Compiler: gfortran  or ifort
 
 
 ## CONFIGURATION FOR COMPILATION ##
-See set_env.sh 
+Edit ** set_env.sh **   to provide compiler information and flags as well as  location of Lapack and Blas.
 
-## FILES AND DIRECTORIES
+## FILES AND DIRECTORIES ##
 
 **Libraries**    Libraries. Once that the environment is set in the file set_env.sh  the Libraries can be compiled with the **make** command. 
 
 **Prog**   Main program and subroutines.   The command **make Examples** will  generate the **Examples.out** executable. 
 
-   
-**Analysis** Analysis programs. The command **make** will generate three executables required to analyze scale, equal time and time displaced observables. 
+**Analysis** Analysis programs. The command **make** will generate three executables required  for the error analysis  of scalar, equal time and time displaced observables. 
 
-**Start**   This directory contain the files required to start a run. In particular it contains the parameter file   that specifies the model and lattice. 
+**Start**   This directory contain the files required to start a run. In particular it contains the parameter file   that specifies the model the lattice and various   parameters for the Monte Carlo run and  error analysis. 
 
-**Examples** This directory provides a set of short example runs. 
+**Examples** This directory provides a set of short example runs.  
 
-**Documentation**  Here we have included an extensive documentation, in the file ALF-05.pdf
+**Documentation**  We have included in the file ALF-05.pdf an extensive documentation, 
  
+
 
 ## TESTING ## 
 We have about 30 tests that test various parts of the program in the folder testsuite.
