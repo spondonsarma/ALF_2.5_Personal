@@ -1,5 +1,14 @@
+% Copyright (c) 2016 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
 % !TEX root = Doc.tex
+%------------------------------------------------------------
 \section{Walkthrough: the $SU(2)$-Hubbard model on a square lattice}\label{sec:walk1}
+%------------------------------------------------------------
+
 To implement a Hamiltonian, the user has to provide  a module   which  specifies the lattice, the model, as well as the observables  he/she  wishes to compute. 
 In this section, we describe the module \\
 \texttt{Hamiltonian\_Examples.f90} which contains an implementation of the Hubbard model on the square lattice. 
@@ -20,11 +29,12 @@ We can make contact with the general form of the Hamiltonian by setting:
 $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   -\frac{U}{2}$, 
  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   =  \frac{1}{2}  $ and $M_I       = 0 $.
 
-
-
+%------------------------------------------------------------
 \subsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
+%------------------------------------------------------------
+
 The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.f90}.
-This  subroutine  defines the  public variables
+The latter  subroutine  defines the  public variables
 \begin{lstlisting}
 
   Type (Operator), dimension(:,:), allocatable  :: Op_V 
@@ -33,49 +43,21 @@ This  subroutine  defines the  public variables
   Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
 
 \end{lstlisting}
-which specify the model.  This  routine will first  read the parameter file,  then set the lattice, \texttt{Call Ham\_latt},  set the hopping \texttt{Call Ham\_hop}  and set the interaction
+which specify the model. The array \texttt{nsigma} contains the HS field. The  routine \texttt{Ham\_set}  will first  read the parameter file,  then set the lattice, \texttt{Call Ham\_latt},  set the hopping \texttt{Call Ham\_hop}  and set the interaction
 \texttt{call Ham\_V}.  
 The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:input}.
-% \begin{lstlisting}
-% 
-% ===============================================================================
-% !  Variables for the Hubb program
-% !-------------------------------------------------------------------------------
-% &VAR_lattice
-% L1=4                    ! Length in direction a_1
-% L2=4                    ! Length in direction a_2
-% Lattice_type = "Square"	! a_1 = (1,0) and a_2=(0,1)
-% Model = "Hubbard_SU2"   ! Sets  Nf = 1, N_sun = 2
-% /
-% &VAR_Hubbard            ! Variables for the Hubbard model
-% ham_T   =1.D0
-% ham_chem=0.D0
-% ham_U   =4.D0
-% Beta    =5.D0
-% dtau    =0.1D0          ! Thereby Ltrot=Beta/dtau
-% /
-% &VAR_QMC      ! Variables for the QMC run
-% Nwrap   = 10  ! Stabilization. Green functions will be computed from scratch 
-%               ! after each time interval  Nwrap*Dtau
-% NSweep  = 500 ! Number of sweeps
-% NBin    = 2   ! Number of bins
-% Ltau    = 1   ! 1 for calculation of time displaced. 0 otherwise
-% LOBS_ST = 1   ! Start measurements at time slice LOBS_ST
-% LOBS_EN =50   ! End   measurements at time slice LOBS_EN
-% CPU_MAX= 0.1  ! Code will stop after CPU_MAX hours. 
-%               ! If not specified, code will stop after Nbin bins.
-% /
-% 
-% \end{lstlisting}
-% %\end{verbatim}
-% Here we have three name lists relevant for  defining the lattice, model parameters as well  as the Monte Carlo run.   Thereby, \texttt{Ltrot=Beta/dtau}. 
 
+%------------------------------------------------------------
 \subsubsection{The lattice:   \texttt{Call Ham\_latt} }
+%------------------------------------------------------------
+
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . 
 For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  =  \texttt{Latt\%N}$. 
 
-
+%------------------------------------------------------------
 \subsubsection{The hopping term: \texttt{Call Ham\_hop}}
+%------------------------------------------------------------
+
 The hopping matrix is implemented as follows. 
 We allocate an array of dimension $1\times 1$ of type operator  called \texttt{Op\_T} and set the  dimension for the hopping  matrix to $N=N_{\mathrm{dim}}$. One  allocates and initializes this type by a single call to the subroutine \texttt{Op\_make}: 
 \begin{lstlisting}
@@ -83,7 +65,7 @@ We allocate an array of dimension $1\times 1$ of type operator  called \texttt{O
 call Op_make(Op_T(1,1),Ndim)
 
 \end{lstlisting}
-Since the hopping  does not  break down into small blocks ${\bm P}=\mathds{1}$   and  
+Since the hopping  does not  break down into small blocks, we have ${\bm P}=\mathds{1}$   and  
 \begin{lstlisting}
 
 Do i= 1,Ndim
@@ -110,7 +92,10 @@ already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as t
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
 Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices
 
+%------------------------------------------------------------
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
+%------------------------------------------------------------
+
 To implement this interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 1$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
 
@@ -136,17 +121,20 @@ Enddo
 \end{lstlisting}
 so as to completely define the interaction term. 
 
+%------------------------------------------------------------
 \subsection{Observables}
+%------------------------------------------------------------
+
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
 If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again 
 
-
 The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
 
-\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} 
-\label{Alloc_obs_sec}
+%------------------------------------------------------------------------------------
+\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
+%-------------------------------------------------------------------------------------
 
- For  four scalar  or vector observables,  the user will have to  declare the following: 
+For  four scalar  or vector observables,  the user will have to  declare the following: 
 \begin{lstlisting}
 
 Allocate ( Obs_scal(4) )
@@ -192,8 +180,9 @@ enddo
  For the Hubbard model \texttt{Norb = 1} and for   equal time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal time correlation functions will be used albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
  \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
+%-------------------------------------------------------------------------------------
 \subsubsection{Measuring equal time observables: \texttt{Obser(GR,Phase,Ntau)}}
-
+%-------------------------------------------------------------------------------------
 
 The equal time  green function,
 \begin{equation}
@@ -238,18 +227,19 @@ Do I1 = 1,Ndim
       J    = List(J1,1)
       no_J = List(J1,2)
       imj = latt%imj(I,J)
-      Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J)  + &
-                     &     (    GRC(I1,I1,1)  * GRC(J1,J1,1)  * NSUN * NSUN       + &
-                     &          GRC(I1,J1,1)  * GR (I1,J1,1   * NSUN              )* ZP*ZS  
+      Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &     (    GRC(I1,I1,1) * GRC(J1,J1,1) * N_SUN * N_SUN      + &
+                     &          GRC(I1,J1,1) * GR(I1,J1,1) * N_SUN   ) * ZP * ZS 
    Enddo
-   Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +   GRC(I1,I1,1) * NSUN * ZP * ZS
+   Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +   GRC(I1,I1,1) * N_SUN * ZP * ZS
 Enddo
 
 \end{lstlisting} 
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
-
+%-------------------------------------------------------------------------------------
 \subsubsection{Measuring time-displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
+%-------------------------------------------------------------------------------------
 
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
 \begin{eqnarray}
@@ -268,10 +258,9 @@ are thereby given by:
 Note that the above holds for the SU(2) HS transformation discussed in this chapter. 
 The handling of time-displaced correlation functions is identical to that of equal time correlations. 
 
-
-
-
+%-------------------------------------------------------------------------------------
 \section{Walkthrough: the $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
+%-------------------------------------------------------------------------------------
 
 The Hubbard Hamiltonian can equally be written as:
 \begin{equation}
@@ -289,7 +278,10 @@ $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T
  The coupling of the HS  to the z-component of   the magnetization breaks the SU(2) spin symmetry. Nevertheless the z-component of spin remains a good quantum number such that  the imaginary time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry the simulation in the above representation. 
  With respect to the SU(2) case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and calculation of observables.  We note that  in this formulation the  hopping matrix can be favor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
  A sample run for this model can be found in \texttt{Examples/Hubbard\_Mz\_Square/}.
- \subsection{The interaction term: \texttt{Call Ham\_V} } 
+
+%-------------------------------------------------------------------------------------
+\subsection{The interaction term: \texttt{Call Ham\_V} } 
+%-------------------------------------------------------------------------------------
 The interaction term is now given by: 
 
 \begin{lstlisting}
@@ -318,23 +310,30 @@ Enddo
 \end{lstlisting}
 In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors.  
 
+%-------------------------------------------------------------------------------------
  \subsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
+%-------------------------------------------------------------------------------------
+
  Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal time spin-spin correlation functions,
  $ 4 \langle \langle \hat{S}^{z}_{\vec{i}}   \hat{S}^{z}_{\vec{j}} \rangle \rangle   $, calculated in the subroutine  \texttt{Obser},  will take the form: 
   \begin{eqnarray}
    4 \langle \langle \hat{S}^{z}_{x}   \hat{S}^{z}_{y} \rangle \rangle   =  & &  \texttt{  GRC(x,y,1) * GR(x,y,1) + GRC(x,y,2) * GR(x,y,2) + }  \nonumber \\ 
 & & \texttt{   (GRC(x,x,2) - GRC(x,x,1))*(GRC(y,y,2) - GRC(y,y,1))}  \nonumber
   \end{eqnarray}
-  Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal time and time displaced observables. 
+Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal time and time displaced observables. 
   
-  Apart from these modifications, the program  will run in exactly the same manner as for the SU(2) case. 
+Apart from these modifications, the program  will run in exactly the same manner as for the SU(2) case. 
   
-  
+%-------------------------------------------------------------------------------------  
 \section{Walkthrough: the $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
+%-------------------------------------------------------------------------------------
+
 The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simulations for  the the Hubbard model on the Honeycomb lattice by setting in the parameter file  (see Sec.~\ref{sec:input})   \texttt{Lattice\_type = "Honeycomb"}.
  A sample run for this model can be found in \texttt{Examples/Hubbard\_SU2\_Honeycomb/}.
- 
+
+ %-------------------------------------------------------------------------------------
 \subsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} }
+%-------------------------------------------------------------------------------------
 
   This model is an example of  a multi-orbital unit cell, and the aim of this section is to document how  implement this in the code.  The  Honeycomb lattice is a  triangular Bravais lattice the two orbitals per unit cell.  The routine  \texttt{Ham\_Latt} will set: 
 
@@ -368,7 +367,9 @@ Enddo
 
 With the above lists one can run trough all the orbitals and at each time keep track of the unit-cell and orbital index.    We note that when translation symmetry is completely absent  one can work with on unit cell, and the  number of orbitals will then correspond to the  number of lattice sites. 
 
+%-------------------------------------------------------------------------------------
 \subsection{The hopping term:  \texttt{Call Ham\_Hop} }
+%-------------------------------------------------------------------------------------
 
 Some care has to be taken when setting the hopping matrix.    In the Hamilton module \path{Hamiltonian_Examples.f90}   we do this in the following way. 
 
@@ -399,13 +400,15 @@ Enddo
 \end{lstlisting}
 As apparent from the above, hopping matrix elements   are non-zero only between the A and B  sublattices. 
 
-
+%-------------------------------------------------------------------------------------
 \subsection{Observables:  \texttt{Call Obser},   \texttt{Call ObserT}}
+%-------------------------------------------------------------------------------------
 
 In the multi-orbital case,  the correlation functions have additional orbital indices. This is automatically taken care of in the routines \texttt{Call Obser} and \texttt{Call ObserT}  since  we considered the  Hubbard model on the square lattice to correspond to a multi-orbital unit cell albeit with the special choice of one orbital per unit cell. 
 
- 
+%------------------------------------------------------------------------------------- 
 \section{Walkthrough: the $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}\label{sec:walk2}
+%-------------------------------------------------------------------------------------
 
 The model we consider here  is very similar to the  above,  but has an additional coupling to a transverse field. 
 \begin{eqnarray}
@@ -427,12 +430,14 @@ $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T
  The last two terms of the  above Hamiltonian describes a  transverse Ising field model on the bonds of the square lattice.  This  type of Hamiltonian  has  recently been extensively discussed  \cite{Schattner15,Xu16,Assaad16}.  Here we adopt the notation of Ref.~\cite{Assaad16}. Note that   $\langle \langle x,y \rangle \langle x',y' \rangle \rangle $ denotes nearest neighbor bonds.
 The modifications  required to generalize the Hubbard model code to the above model are two-fold. 
 
-
 Firstly,  one has to specify the function \texttt{Real (Kind=8) function S0(n,nt)} and  secondly  modify the interaction \texttt{Call Ham\_V}.
 
 A sample run for this model can be found in \texttt{Examples/Hubbard\_SU2\_Ising\_Square/}.
 
+%-------------------------------------------------------------------------------------
 \subsection{The interaction term: \texttt{Call Ham\_V}}
+%-------------------------------------------------------------------------------------
+
 The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=(3*N_{\mathrm{dim}}) \times 1$. 
 We set the effective dimension  for the Hubbard term to  $N=1$  and to  $N=2$ for the Ising term. The allocation of this array of operators reads: 
 
@@ -484,8 +489,10 @@ Enddo
 
 \end{lstlisting}
 
-
+%-------------------------------------------------------------------------------------
 \subsection{The function \texttt{Real (Kind=8) function S0(n,nt)} }\label{sec:s0}
+%-------------------------------------------------------------------------------------
+
 As mentioned above,  a configuration is given by
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
@@ -499,62 +506,5 @@ fields corresponds to the Hubbard  interaction and the next \texttt{2*Ndim} ones
 That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n -  Ndim } 
  
 
-\section{Other models}
-  The aim of this section is to briefly mention  a small  selection of  other models that can be simulated within the ALF-project.  
-\subsection{The Kondo lattice}
- Simulating the Kondo lattice within the ALF-project   requires rewriting of the model along the lines of Refs.~\cite{Assaad99a,Capponi00,Beach04}.   Adopting the notation of these articles,   the Hamiltonian that one will simulate reads: 
- \begin{equation}
- 	\hat{H}  = 
-	\underbrace{-t \sum_{\langle  \vec{i},\vec{j} \rangle,\sigma} \left( \hat{c}_{\vec{i},\sigma}^{\dagger}  \hat{c}_{\vec{j},\sigma}^{\phantom\dagger}   + \text{H.c.} \right) }_{\equiv \hat{H}_t} - \frac{J}{4} 
-	\sum_{\vec{i}} \left( \sum_{\sigma} \hat{c}_{\vec{i},\sigma}^{\dagger}  \hat{f}_{\vec{i},\sigma}^{\phantom\dagger}  + 
-	                                                        \hat{f}_{\vec{i},\sigma}^{\dagger}  \hat{c}_{\vec{i},\sigma}^{\phantom\dagger}   \right)^{2}   +
-        \underbrace{\frac{U}{2}   \sum_{\vec{i}}   \left( \hat{n}^{f}_{\vec{i}} -1 \right)^2}_{\equiv \hat{H}_U}.
- \end{equation}
-This from is included in Eq.~\ref{eqn:general_ham_i}    such the above  Hamiltonian can  be implemented in our program package.  The  relation to the Kondo lattice mdel follows  from expanding the square  of the hybridization to obtain: 
- \begin{equation}
- 	\hat{H}  =\hat{H}_t   
-	+ J \sum_{\vec{i}}  \left(  \hat{\vec{S}}^{c}_{\vec{i}} \cdot  \hat{\vec{S}}^{f}_{\vec{i}}    +   \hat{\eta}^{z,c}_{\vec{i}} \cdot  \hat{\eta}^{z,f}_{\vec{i}}  
-		-  \hat{\eta}^{x,c}_{\vec{i}} \cdot  \hat{\eta}^{x,f}_{\vec{i}}  -  \hat{\eta}^{y,c}_{\vec{i}} \cdot  \hat{\eta}^{y,f}_{\vec{i}} \right) 
-	 + \hat{H}_U.
- \end{equation}
- where the $\eta$-operators  related to the spin-operators via a particle-hole transformation in one spin sector: 
- \begin{equation} 
- 	\hat{\eta}^{\alpha}_{\vec{i}}  = \hat{P}^{-1}  \hat{S}^{\alpha}_{\vec{i}} \hat{P}  	\; \text{ with }  \;   
-	\hat{P}^{-1}  \hat{c}^{\phantom\dagger}_{\vec{i},\uparrow} \hat{P}  =   (-1)^{i_x+i_y} \hat{c}^{\dagger}_{\vec{i},\uparrow}  \; \text{ and }  \;   
-	\hat{P}^{-1}  \hat{c}^{\phantom\dagger}_{\vec{i},\downarrow} \hat{P}  = \hat{c}^{\phantom\dagger}_{\vec{i},\downarrow} 
- \end{equation}
- Since the $\hat{\eta}^{f} $ and $ \hat{S}^{f} $ operators  do not alter the  parity [$(-1)^{\hat{n}^{f}_{\vec{i}}}$ ] of the $f-$sites, 
- \begin{equation}
- 	\left[  \hat{H}, \hat{H}_U \right] = 0.
- \end{equation}
- Thereby,  and for positive values of $U$ ,  doubly occupied  or empty f-sites corresponding to even parity will be suppressed  by a  Boltzmann factor 
- $e^{-\beta U/2} $ is comparison to odd parity ones.   Choosing $\beta U $ adequately will  essentially allow to  restrict the Hilbert space to  odd parity f-sites.  In this Hilbert space $\hat{\eta}^{x,f} = \hat{\eta}^{y,f} =  \hat{\eta}^{z,f} =0$  such that the Hamiltonian reduces to the Kondo lattice model. 
- 
-\subsection{SU(N) Hubbard-Heisenberg models}
-SU(2N) Hubbard-Heisenberg \cite{Assaad04,Lang13} models can be written as:
-\begin{equation}
- \hat{H}  =  
- \underbrace{ - t \sum_{ \langle \vec{i},\vec{j} \rangle }    \left(  \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom{\dagger}}_{\vec{j}} + \text{H.c.} \right) }_{\equiv \hat{H}_t} \; \; 
-\underbrace{ -\frac{J}{2 N}  \sum_{ \langle \vec{i},\vec{j} \rangle  } \left(
-           \hat{D}^{\dagger}_{ \vec{i},\vec{j} }\hat{D}^{\phantom\dagger}_{ \vec{i},\vec{j}}  +
-            \hat{D}^{\phantom\dagger}_{ \vec{i},\vec{j} } \hat{D}^{\dagger}_{ \vec{i},\vec{j} }  \right) }_{\equiv\hat{H}_J}
-            + 
- \underbrace{\frac{U}{N}  \sum_{\vec{i}} \left(
-             \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2}_{\equiv \hat{H}_U}
-\end{equation}
-Here,
-$ \vec{\hat{c}}^{\dagger}_{\vec{i}} =
-(\hat{c}^{\dagger}_{\vec{i},1},  \hat{c}^{\dagger}_{\vec{i},2}, \cdots, \hat{c}^{\dagger}_{\vec{i}, N } ) $  is an
-$N$-flavored spinor, and $ \hat{D}_{ \vec{i},\vec{j}} = \vec{\hat{c}}^{\dagger}_{\vec{i}}
-\vec{\hat{c}}_{\vec{j}}  $.
-To use the present package to simulate this model, one will rewrite  the $J$-term as a sum of perfect squares, 
-\begin{equation}
-        \hat{H}_J =  -\frac{J}{4 N}  \sum_{  \langle \vec{i}, \vec{j} \rangle }
-        \left(\hat{D}^{\dagger}_{  \langle \vec{i}, \vec{j} \rangle  } +  \hat{D}_{  \langle \vec{i}, \vec{j} \rangle }  \right)^2  -
-        \left(\hat{D}^{\dagger}_{   \langle \vec{i}, \vec{j} \rangle } -  \hat{D}_{  \langle \vec{i}, \vec{j} \rangle}  \right)^2,
-\end{equation}
-so to manifestly bring it into the form of Eq.~\ref{eqn:general_ham_i}.  It is amusing to note that setting the hopping $t=0$,    charge fluctuations  will be suppressed by the  Boltzmann factor $e^{\beta U /N \left(  \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2 } $ since in this case  
-$ \left[   \hat{H}, \hat{H}_U \right]  = 0 $. This provides a route to use the auxiliary field QMC algorithm so as to simulate -- free of the sign problem -- SU(2N) Heisenberg models in the self-adjoint antisymmetric representation  \footnote{ This corresponds to a Young tableau with single column and $N/2$ rows.}  
-For odd values of $N$ recent progress  in our understanding of the  origins of the sign problem \cite{Wei16}  will allows us to simulate -- without encountering the sign problem -- a set of non-trivial Hamiltonians \cite{Li15,Assaad16}.
- 
+
 

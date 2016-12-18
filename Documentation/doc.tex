@@ -1,10 +1,15 @@
+% Copyright (c) 2016 The ALF project.
+% This is the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
 \documentclass[10pt,Arial]{scrartcl}
 \usepackage{graphicx}
-%\usepackage{a4wide}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[utf8]{inputenc}
-\usepackage{bbm}               % for getting a nice 1
-\usepackage[fleqn]{amsmath} % math environments and more by the AMS
+\usepackage{bbm}            
+\usepackage[fleqn]{amsmath} 
 \usepackage{amssymb}
 \usepackage{wasysym}
 \usepackage{color}
@@ -21,6 +26,7 @@
 \usepackage{listings}
 \usepackage{url}
 \usepackage{booktabs}
+\usepackage{hyperref} 
 
 \lstset{language=Fortran,
   basicstyle=\ttfamily,
@@ -47,37 +53,29 @@ language=bash,
 
 \def\Tr{\mathop{\mathrm{Tr}}}
 \def\Trf{\mathop{\mathrm{Tr}_{\mathrm{F}}}}
-\definecolor{dark-gray}{gray}{0.4}
-\definecolor{light-gray}{gray}{0.9}
-\definecolor{babyblueeyes}{rgb}{0.63, 0.79, 0.95}
-%\titleformat{\section}
-%{\color{blue}\normalfont\Large\bfseries}
-%{\color{blue}\thesection}{1em}{}
-%\titleformat{\subsection}
-%{\color{dark-gray}\normalfont\large\bfseries}
-%{\color{dark-gray}\thesubsection}{1em}{}
-% \newcommand{\comment}[1]{{\color{red} #1}}
-
-\newcommand{\mycomment}[1]{{\color{blue} #1}}
-\newcommand{\FAcomment}[1]{{\color{red} #1}}
-% \begin{tcolorbox}[width=\textwidth,colback={babyblueeyes},title={},colbacktitle=yellow,coltitle=blue]    
-% text ...
-% \end{tcolorbox}
-
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
-
 \setkomafont{author}{\large}
 \setkomafont{date}{\large}
 
+\newcommand{\mycomment}[1]{{\color{blue} #1}}
+\newcommand{\FAcomment}[1]{{\color{red} #1}}
 
 \makeindex
 \begin{document}
-\title{
-The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) project release 1.0}
+%---------------------------------------------------------------------------------------------------------
+\title{The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) project release 0.5}
 \subtitle{Documentation for the  auxiliary field quantum Monte Carlo  code.}
-\author{Martin Bercx,  Florian Goth,  Johannes Hofmann, Fakher F. Assaad }
+\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Fakher F. Assaad }
+%---------------------------------------------------------------------------------------------------------
 \maketitle
+
+Copyright \textcopyright ~2016, The \textit{ALF} Project.\\
+This is the ALF Project Documentation by the ALF contributors.
+It is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+You are free to share and benefit from this documentation as long as this license is preserved
+and proper attribution to the authors is given. For details see the ALF project
+homepage \url{alf.physik.uni-wuerzburg.de}.
 \tableofcontents
 \clearpage
 \input{intro}
@@ -85,31 +83,17 @@ The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) pr
 \input{implementation}
 \input{files}
 \input{walkthrough_hubbard}
+\input{other_models}
 \input{analysis}
 \input{running}
-
-\section{Performance}
-Next to the entire computational time is spent in BLAS routines such that the performance of the code will depend on the  implementation of this library. We have found that the code performs well, and that  an efficient  OpenMP  version  can be obtained merely by   loading the corresponding BLAS and LAPACK routines. 
-
-\section{Conclusions and future directions}
-In it's present form, the  ALF-project  allows to simulate a very large class of non-trivial models efficiently and at a minimal  programming cost.  There are many possible extensions which deserve to be considered in future releases.    The Hamiltonians we presently defining are imaginary time independent. This however, can be easily generalized  to time dependent Hamiltonians thus allowing, for example, to access  entanglement properties of interacting fermionic systems \cite{Broecker14,Assaad14,Assaad13a,Assaad15}. Generalizations to include global moves are equally desirable. This is a prerequisite to  play with recent ideas of self-learning algorithms  \cite{Xu16a} so as to  possibly avoid critical slowing down.  At present we are restricted to discrete fields such that  implementations  of  the long range Coulomb repulsion as introduced in \cite{Hohenadler14,Ulybyshev2013,Brower12} is not included in the package.   Extensions  to  continuous fields are certainly possible, but require an efficient upgrading scheme. Finally,  a ground state projective formulation   is equally desirable.
-
-
-\addcontentsline{toc}{section}{Acknowledgements}
-\section*{Acknowledgements} 
-We are very grateful to  S. Beyl, M. Hohenadler,  F. Parisen Toldin,  M. Raczkowski,  J. Schwab, T. Sato, Z. Wang and M. Weber,  for constant support during the development of this project.  FFA would also like to thank T. Lang   and Z.Y. Meng for  developments of the auxiliary field code as well as T. Grover. 
- MB thanks the the Bavarian Competence Network for Technical and Scientific High Performance Computing (KONWIRH) for financial support. FG thanks the SFB-1170 for  financial support under project (Z03).  FFA thanks the DFG-funded FOR1807 for partial financial support.
-Calculations  to extensively test this package were carried out on SuperMUC at the  Leibniz Supercomputing Centre and on  JURECA \cite{Jureca16} at the J\"ulich Supercomputing Centre (JSC). We thank those institutions for generous computer allocations.  
-
-%\clearpage
-%\clearpage
-
+\input{performance}
+\input{conclusion}
+\addcontentsline{toc}{section}{Acknowledgments}
+\input{acknowledgment}
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{./prXsty} 
 \bibliography{./fassaad}
-
 \addcontentsline{toc}{section}{License}
 \input{license}
-
 
 \end{document}

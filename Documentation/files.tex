@@ -1,5 +1,13 @@
+% Copyright (c) 2016 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
 % !TEX root = Doc.tex
+%------------------------------------------------------------
 \section{File structure}\label{sec:files}
+%------------------------------------------------------------
 %
 \begin{table}[h]
    \begin{tabular}{@{} l l @{}}\toprule
@@ -20,8 +28,10 @@
 The code package consists of the program directories \path{Prog/}, \path{Libraries/} and \path{Analysis/}. 
 The sample simulations corresponding to the walkthroughs of Sec.~\ref{sec:walk1} - \ref{sec:walk2} are included in \path{Examples/}. 
 The package content is summarized in Table~\ref{table:files}.
-%
+
+%------------------------------------------------------------
 \subsection{Input files}\label{sec:input}
+%------------------------------------------------------------
 %
 \begin{table}[h]
    \begin{tabular}{@{} l l @{}}\toprule
@@ -87,7 +97,9 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 \end{lstlisting}
 %
 
+%------------------------------------------------------------
 \subsection{Output files} \label{sec:output}
+%------------------------------------------------------------
 %
 \begin{table}[h]
    \begin{tabular}{@{} l l @{}}\toprule
@@ -115,7 +127,7 @@ The formatting of the output for a single bin depends on the observable type: \p
 For each additional bin, a single new line is added to the output file.
 In case of an observable with \path{N_size} components, the formatting is 
 \begin{verbatim}
-N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured phase>
+N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured sign>
 \end{verbatim}
 The counter variable \path{N_size+1} refers to the number of measurements per line, including the phase measurement. 
 This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
@@ -128,7 +140,7 @@ The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to
 and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
 For imaginary-time displaced correlation functions, the formatting of the block follows this scheme:
 \begin{alltt}
-<measured phase>  <N_orbital>  <N_unit_cell> <N_time_slices> <dtau>
+<measured sign>  <N_orbital>  <N_unit_cell> <N_time_slices> <dtau>
 do alpha = 1, N_orbital
     \(\langle\hat{O}\sb{\alpha}\rangle \)
 enddo
@@ -146,17 +158,26 @@ enddo
 The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>} and \path{<dtau>} 
 which are not present in the latter.
 Using this structure for the bins as input,
-the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analyis routine (see Sec.~\ref{sec:analysis})
+the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analysis routine (see Sec.~\ref{sec:analysis})
 \end{itemize}
 
+%------------------------------------------------------------
 \subsubsection{The \texttt{info}  file and stabilization}
-The finite temperature  auxiliary field QMC algorithm is known to be numerically  unstable. The origin the numerical instabilities arise  from the imaginary time  propagation which invariably leads to exponentially small and exponentially large scales.  Numerical stabilization of the code is delicate and has been pioneered in Ref.~\cite{White89}   for the finite temperature algorithm and in Refs.\cite{Sugiyama86,Sorella89} for the zero  projective algorithm.  As shown in Ref.~\cite{Assaad08_rev}  scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite temperature code.   Apart from runtime information, the file \texttt{info} contains important information concerning the stability of the code. For example, in the directory \path{Examples/Hubbard_SU2_Square}   simulating the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$ the \texttt{info} file contains the lines
+%------------------------------------------------------------
+
+The finite temperature  auxiliary field QMC algorithm is known to be numerically  unstable. 
+The origin the numerical instabilities arises  from the imaginary time propagation which invariably leads to exponentially small and exponentially large scales.
+Numerical stabilization of the code is delicate and has been pioneered in Ref.~\cite{White89}  for the finite temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero  temperature projective algorithm.
+As shown in Ref.~\cite{Assaad08_rev}  scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite temperature code. Apart from runtime information, the file \texttt{info} contains important information concerning the stability of the code.
+For example, in the directory \path{Examples/Hubbard_SU2_Square} an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$, the \texttt{info} file contains the lines
 \begin{alltt}
 Precision Green  Mean, Max :    1.2918865817224671E-014   4.0983018995027644E-011
 Precision Phase, Max       :    5.0272908791449966E-012
 Precision tau    Mean, Max :    8.4596701790588625E-015   3.5033530012121281E-011
 \end{alltt}
-showing the  the mean and maximum difference between the {\it  wrapped }  and from scratched  computed equal  and time displaced  Green functions \cite{Assaad08_rev}.  A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order 1. Numerical stabilization is delicate and there is no guarantee  that it will work for all models.   For example switching to a HS   field coupling to the z-component of the magnetization will yield (see directory \path{Examples/Hubbard_Mz_Square}):
+showing the mean and maximum difference between the {\it  wrapped }  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
+A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order 1. Numerical stabilization is delicate and there is no guarantee  that it will work for all models.
+For example switching to a HS field which couples to the z-component of the magnetization will yield (see directory \path{Examples/Hubbard_Mz_Square}):
  \begin{alltt}
 Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
 Precision Phase, Max       :    0.0000000000000000     
@@ -164,10 +185,16 @@ Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-00
 \end{alltt}
 This is still an excellent precision but nevertheless a couple of order of magnitudes less precise than a HS decomposition coupling to the charge. 
 If the numerical stabilization turns out to be bad, one option is to reduce the  value of the parameter \texttt{Nwrap} in the parameter file. 
+For performing the stabilization of the involved matrix multiplications we rely on routines from lapack. Hence it is very likely that your results may change significantly if you switch libraries.
+In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines we have included parts of the lapack-3.6.1 reference implementation from
+\url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the lapack reference implementation by including the switch \texttt{-DQRREF} into their PROGRAMMCONFIGURATION string.
+To use these routines you need to link against a lapack library that implements at least the lapack-3.4.0 interface. \footnote{ We have encountered some compiling issues with this flag. In particular  the  older  intel  ifort  compiler version 10.1  fails for all optimization levels.} 
 
-Since numerical stabilization is delicate we have  include in the package  the  set of Lapack version 3.6.1 routines which  we use for  purposes of numerical stabilization.  These routines will be used if the  compilation flag  QRREF  is set. 
+To provide further flexibility, we have incorporated different stabilization schemes.  Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch \texttt{-DSTAB1}   in the \texttt{set\_env.sh}  file and recompile the code. 
 
+%------------------------------------------------------------
 \subsection{Scripts}\label{sec:scripts}
+%------------------------------------------------------------
 %
 \begin{table}[h]
    \begin{tabular}{@{} l l l @{}}\toprule
