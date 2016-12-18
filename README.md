@@ -11,7 +11,7 @@ Compiler: gfortran  or ifort
 
 
 ## CONFIGURATION FOR COMPILATION ##
-Edit ** set_env.sh **   to provide compiler information and flags as well as  location of Lapack and Blas.
+Edit **set_env.sh**   to provide compiler information and flags as well as  location of Lapack and Blas.
 
 ## FILES AND DIRECTORIES ##
 
@@ -28,8 +28,8 @@ Edit ** set_env.sh **   to provide compiler information and flags as well as  lo
 **Documentation**  We have included in the file ALF-05.pdf an extensive documentation, 
  
 
+## TESTING ##
 
-## TESTING ## 
 We have about 30 tests that test various parts of the program in the folder testsuite.
 As testing framework we employ CTest.
 From the subfolder testsuite the tests can be run as follows
