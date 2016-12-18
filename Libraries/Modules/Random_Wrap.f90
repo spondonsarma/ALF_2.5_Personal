@@ -74,7 +74,7 @@ Module Random_Wrap
           endif
        enddo
        CALL RANDOM_SEED (PUT = SEED_start(1:K)) 
-       Write(6,*) 'Starting seeds ', SEED_Start
+       !Write(6,*) 'Starting seeds ', SEED_Start
 
      end Subroutine Ranset
        

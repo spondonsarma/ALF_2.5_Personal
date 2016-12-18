@@ -128,7 +128,7 @@
             CLOSE(10)
             DEALLOCATE(SEED_VEC)
          ELSE
-            WRITE(6,*) 'NO INITIAL CONFIGURATION'
+            WRITE(6,*) 'No initial configuration'
             OPEN(UNIT=5,FILE='SEEDS',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
             IF (IERR /= 0) THEN
                WRITE(*,*) 'UNABLE TO OPEN <SEEDS>',IERR
