@@ -115,7 +115,7 @@
                Z_diag = cmplx(0.d0,0.d0,kind(0.d0))
                Do no = 1,Norb
                   Read(10,*)   Z 
-                  If ( Nback == 1 )   bins0(nb-n_skip,no) = Z
+                  If ( N_back == 1 )   bins0(nb-n_skip,no) = Z
                   Z_diag =  Z_diag + bins0(nb-n_skip,no)*bins0(nb-n_skip,no)
                Enddo
                do n = 1,Nunit
