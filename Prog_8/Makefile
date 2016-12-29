@@ -10,6 +10,10 @@ Examples:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Examples  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
 
+Hub_Ising:
+	cp $(Libs)/Modules/*.mod . ;\
+	(make -f Compile_Hub_Ising  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
+
 Hub:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Hub  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
