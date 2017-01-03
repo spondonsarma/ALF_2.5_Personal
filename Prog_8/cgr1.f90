@@ -74,6 +74,10 @@
             TPUP(:,J) = DRUP(:)*VUP(:,J)*DLUP(J)
         ENDDO
         CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, alpha, TPUP, N_size)
+        !>  Syntax 
+        !>  ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+        !>  C := alpha*op( A )*op( B ) + beta*C
+        !>  TPUP =  (URUP)^(dagger) ULUP^(dagger) + TPUP
         IF (NVAR.EQ.1) THEN
            !WRITE(6,*) 'UDV of U + DR * V * DL'
            CALL UDV_WRAP_Pivot(TPUP,UUP,DUP,VUP,NCON,N_size,N_Size)
@@ -82,15 +86,16 @@
            !Do I = 1,N_size
            !   Write(6,*) DLUP(I)
            !enddo
-           CALL INV(TPUP,TPUPM1,ZDUP1)
+           CALL INV  (TPUP,TPUPM1,ZDUP1)
            CALL MMULT(TPUP1,URUP,UUP)
            CALL ZGETRF(N_size, N_size, TPUP1, N_size, IPVT, info)
+           !>  TPUP1 = P * L * U   LU-decomposition
            Z1 = ZDUP1
            Do i = 1, N_size
-           IF (IPVT(i) .ne. i) THEN
-            Z1 = -Z1
-           endif
-           Z1 = Z1 * TPUP1(I, I)
+              IF (IPVT(i) .ne. i) THEN
+                 Z1 = -Z1
+              endif
+              Z1 = Z1 * TPUP1(I, I)
            enddo
         ELSE
            !WRITE(6,*) 'UDV of (U + DR * V * DL)^{*}'
@@ -100,12 +105,13 @@
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP, N_size, UUP, N_size, beta, TPUPM1, N_size)
            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, URUP, N_size, VUP, N_size, beta, TPUP1, N_size)
            CALL ZGETRF(N_size, N_size, TPUP1, N_size, IPVT, info)
+           !>  TPUP1 = P * L * U   LU-decomposition
            ZDUP2 = 1.D0
            do i = 1, N_size
-           ZDUP2 = ZDUP2 * TPUP1(I,I)
-           IF (IPVT(i) .ne. i) THEN
-            ZDUP2 = -ZDUP2
-           endif
+              ZDUP2 = ZDUP2 * TPUP1(I,I)
+              IF (IPVT(i) .ne. i) THEN
+                 ZDUP2 = -ZDUP2
+              endif
            enddo
            TPUP = TPUPM1
            ZDUP1 = DET_C(TPUP, N_size)! Det destroys its argument
@@ -122,6 +128,10 @@
            ENDDO
         ENDDO
         call ZGETRS('T', N_size, N_size, TPUP1, N_size, IPVT, UUP, N_size, info)
+        !> Syntax
+        !> ZGETRS( TRANS, N, NRHS, A, LDA, IPIV, B, LDB, INFO )
+        !> Op(A) * X = B 
+        !> On output  B = X
         GRUP = TRANSPOSE(UUP)
         PHASE = Z1/ABS(Z1)
         Deallocate(UUP, VUP, TPUP,TPUP1,TPUPM1, DUP, IPVT )
