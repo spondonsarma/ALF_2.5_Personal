@@ -465,43 +465,57 @@
           !> nsigma_old contains a copy of nsigma upon entry
           
           !> Local
-          Integer :: I,I1, nt,nt1, n, ns_old, n1,n2,n3,n4, dx, dy,dt,sx,sy,st
+          Integer :: I,I1, nt,nt1, n, ns_old, n1,n2,n3,n4, dx, dy,dt,sx,sy,st, I_st
           Real (Kind=Kind(0.d0)) :: Weight, Ratio
           
           If (Model == "Hubbard_SU2_Ising" ) then 
              
              
              I = nranf(Latt%N)
-             nt= nranf(Ltrot )
-
-             dx = nranf(L1/2)
-             sx = 1; 
-             if (nranf(2) == 2 ) sx = -1
-             dy = nranf(L2/2)
-             sy = 1
-             if ( nranf(2) == 2) sy = -1
-             dt = nranf(Ltrot/2)
-             st = 1
-             if ( nranf(2) == 2) st = -1 
-
-             Do n = 1,dx
-                I1 = Latt%nnlist(I,sx,0)
-                nsigma(L_bond(I,2),nt) = - nsigma(L_bond(I,2),nt)
-                I = I1
-             enddo
-             Do n = 1,dy
-                I1 = Latt%nnlist(I,0,sy)
-                nsigma(L_bond(I,1),nt) = - nsigma(L_bond(I,1),nt)
-                I = I1
-             enddo
-             Do n = 1,dt
-                nt1  = nt + st
-                if (nt1 > Ltrot ) nt1 = nt1 - Ltrot
-                if (nt1 < 1     ) nt1 = nt1 + Ltrot
-                nsigma(L_bond(I,1),nt1) = - nsigma(L_bond(I,1),nt1)
-                nt = nt1
-             enddo
-             
+             I_st = I
+             If ( ranf_wrap() > 0.5 ) then 
+                nt= nranf(Ltrot )
+                dx = nranf(L1/2)
+                sx = 1; 
+                if (nranf(2) == 2 ) sx = -1
+                dy = nranf(L2/2)
+                sy = 1
+                if ( nranf(2) == 2) sy = -1
+                dt = nranf(Ltrot/2)
+                st = 1
+                if ( nranf(2) == 2) st = -1 
+                
+                Do n = 1,dx
+                   I1 = Latt%nnlist(I,sx,0)
+                   nsigma(L_bond(I,2),nt) = - nsigma(L_bond(I,2),nt)
+                   I = I1
+                enddo
+                Do n = 1,dy
+                   I1 = Latt%nnlist(I,0,sy)
+                   nsigma(L_bond(I,1),nt) = - nsigma(L_bond(I,1),nt)
+                   I = I1
+                enddo
+                Do n = 1,dt
+                   nt1  = nt + st
+                   if (nt1 > Ltrot ) nt1 = nt1 - Ltrot
+                   if (nt1 < 1     ) nt1 = nt1 + Ltrot
+                   nsigma(L_bond(I,1),nt1) = - nsigma(L_bond(I,1),nt1)
+                   nt = nt1
+                enddo
+             else
+                !Write(6,*)  ' Flux tube '
+                I = I_st
+                n1  = L_bond(I,1)
+                n2  = L_bond(I,2)
+                n3  = L_bond(Latt%nnlist(I,-1,0),1)
+                n4  = L_bond(Latt%nnlist(I,0,-1),2)
+                do nt = 1,Ltrot
+                   nsigma(n1,nt) = -nsigma(n1,nt)
+                   nsigma(n2,nt) = -nsigma(n2,nt)
+                   nsigma(n3,nt) = -nsigma(n3,nt)
+                   nsigma(n4,nt) = -nsigma(n4,nt)
+                enddo
+             Endif
              
              Ratio = Delta_S0_global(Nsigma_old)
              Weight = 1.d0 - 1.d0/(1.d0+Ratio)
@@ -514,17 +528,6 @@
 
              !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
 
-!!$             I = nranf(Latt%N) 
-!!$             n1  = L_bond(I,1)
-!!$             n2  = L_bond(I,2)
-!!$             n3  = L_bond(Latt%nnlist(I,-1,0),1)
-!!$             n4  = L_bond(Latt%nnlist(I,0,-1),2)
-!!$             do nt = 1,Ltrot
-!!$                nsigma(n1,nt) = -nsigma(n1,nt)
-!!$                nsigma(n2,nt) = -nsigma(n2,nt)
-!!$                nsigma(n3,nt) = -nsigma(n3,nt)
-!!$                nsigma(n4,nt) = -nsigma(n4,nt)
-!!$             enddo
           endif
 
           !nt = nranf(Ltrot)
