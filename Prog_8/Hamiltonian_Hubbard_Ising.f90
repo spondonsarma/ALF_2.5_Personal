@@ -475,10 +475,10 @@
              I_st = I
              If ( ranf_wrap() > 0.5 ) then 
                 nt= nranf(Ltrot )
-                dx = nranf(L1/2)
+                dx = 0 ! nranf(L1/2)
                 sx = 1; 
                 if (nranf(2) == 2 ) sx = -1
-                dy = nranf(L2/2)
+                dy = 0 !nranf(L2/2)
                 sy = 1
                 if ( nranf(2) == 2) sy = -1
                 dt = nranf(Ltrot/2)
@@ -527,6 +527,7 @@
              endif
 
              !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
+             !Write(6,*)  Ratio, T0_Proposal_ratio
 
           endif
 
