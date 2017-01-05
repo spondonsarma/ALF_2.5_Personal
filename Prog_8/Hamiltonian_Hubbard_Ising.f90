@@ -512,7 +512,7 @@
                 T0_Proposal_ratio = 1.d0/Ratio
              endif
 
-             Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
+             !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
 
 !!$             I = nranf(Latt%N) 
 !!$             n1  = L_bond(I,1)
