@@ -37,8 +37,10 @@
 !
 !> @brief 
 !>    Cmputes  GRUP = (1 + UR*DR*VR*VL*DL*UL)^-1
+!>    and      PHASE = det(1 + UR*DR*VR*VL*DL*UL) / abs(det(1 + UR*DR*VR*VL*DL*UL)) 
 !>    NVAR = 1 Big scales are in DL
 !>    NVAR = 2 Big scales are in DR
+!>    
 !
 !--------------------------------------------------------------------
 
