@@ -53,6 +53,7 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . 
 For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  =  \texttt{Latt\%N}$. 
+\mycomment{Since $N_{\text{unit cell}} = \texttt{Latt\%N}$, this equation is a bit confusing.}
 
 %------------------------------------------------------------
 \subsubsection{The hopping term: \texttt{Call Ham\_hop}}
@@ -92,6 +93,8 @@ already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as t
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
 Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices
 
+ \mycomment{Perhaps also mention \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and \texttt{Call Op\_set(Op\_T(1,1))} here} 
+
 %------------------------------------------------------------
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
 %------------------------------------------------------------
@@ -121,12 +124,15 @@ Enddo
 \end{lstlisting}
 so as to completely define the interaction term. 
 
+\mycomment{Perhaps also mention \texttt{Call Op\_set(Op\_T(nc,n))} here}
+
 %------------------------------------------------------------
 \subsection{Observables}
 %------------------------------------------------------------
 
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
 If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again 
+\mycomment{Sentence doesn't finish}
 
 The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
 
@@ -253,7 +259,7 @@ In the above we have omitted the color index since  the  Green functions are col
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
 are thereby given by: 
 \begin{equation}
-	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   = - 2 \; \texttt{G0T(J,I,1) } \texttt{GT0(I,J1) } 
+	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   = - 2 \; \texttt{G0T(J1,I1,1) } \texttt{GT0(I1,J1,1) } 
 \end{equation}
 Note that the above holds for the SU(2) HS transformation discussed in this chapter. 
 The handling of time-displaced correlation functions is identical to that of equal time correlations. 
@@ -276,7 +282,7 @@ We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:
 $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
  The coupling of the HS  to the z-component of   the magnetization breaks the SU(2) spin symmetry. Nevertheless the z-component of spin remains a good quantum number such that  the imaginary time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry the simulation in the above representation. 
- With respect to the SU(2) case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and calculation of observables.  We note that  in this formulation the  hopping matrix can be favor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+ With respect to the SU(2) case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
  A sample run for this model can be found in \texttt{Examples/Hubbard\_Mz\_Square/}.
 
 %-------------------------------------------------------------------------------------
@@ -478,7 +484,7 @@ As for the Hubbard case, the first \texttt{Ndim}  operators read:
 \begin{lstlisting}
 
 nc = N_coord*Ndim 
-Do nc  = i = 1, Ndim
+Do i = 1, Ndim
     nc = nc + 1
     Op_V(nc,1)%P(1)   = i 
     Op_V(nc,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
@@ -498,13 +504,15 @@ As mentioned above,  a configuration is given by
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
 \end{equation}
 and is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary time, the first \path{Ndim} 
-fields corresponds to the Hubbard  interaction and the next \texttt{2*Ndim} ones to the Ising interaction.    The first   argument of the function \texttt{S0}, \texttt{n},  corresponds to the index of the operator  string 
+fields corresponds to the Hubbard  interaction and the next \texttt{2*Ndim} ones to the Ising interaction.
+\mycomment{Actually, in the above it's the other way around: The first \texttt{2*Ndim} fields correspond to the Ising interaction and the net \path{Ndim} ones to the Hubbard interaction.}
+The first   argument of the function \texttt{S0}, \texttt{n},  corresponds to the index of the operator  string 
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2},    \texttt{S0(n,nt)}  returns 1.  If   \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
 \begin{equation}
 \frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{m,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{m,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
 \end{equation}
 That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n -  Ndim } 
  
-
+\mycomment{Since the ordering of the interaction terms is the other way around, it's \texttt{ m = n }.}
 
 
