@@ -94,9 +94,10 @@ Wheezy-PGI:
   script:
     - . set_env.sh
     - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - export FL="$FL -Minform=inform"
     - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
     - cd Libraries
-    - gfortran -v
+    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
     - cd ..
     - cd Prog_8
@@ -139,6 +140,22 @@ GQMCT_OpenSuse-13.2_conv:
 GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
+  
+Wheezy-PGI_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
+  stage: build
+  script:
+    - . set_env.sh
+    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - cd Libraries
+    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
+    - make
+    - cd ..
+    - cd Prog_8
+    - make
+    - make Ising
+    - make Kondo_Honey
   
 GQMCT_Wheezy_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
