@@ -204,7 +204,7 @@ GQMCT_OpenSuse-42.1_tests:
   <<: *test_definition
 
 GQMCT_Jessie-PGI_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
   script:
     - . set_env.sh
