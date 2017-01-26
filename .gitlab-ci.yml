@@ -105,11 +105,11 @@ GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
 
-Wheezy-PGI:
+GQMCT_Wheezy-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   <<: *build_definition_pgi
 
-Jessie-PGI:
+GQMCT_Jessie-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
   <<: *build_definition_pgi
   
@@ -149,7 +149,7 @@ GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
   
-Wheezy-PGI_conv:
+GQMCT_Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   stage: warnconv
   script:
@@ -203,7 +203,7 @@ GQMCT_OpenSuse-42.1_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *test_definition
 
-Jessie-PGI_tests:
+GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
   stage: test
   script:
