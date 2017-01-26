@@ -5,12 +5,10 @@
 PROGRAMMCONFIGURATION="-DQRREF -DSTAB1"
 PROGRAMMCONFIGURATION=""
 f90="ifort"
-f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
 export f90
 F90OPTFLAGS="-O3 "
 F90OPTFLAGS="-O3 -Wconversion  -fcheck=all"
-F90OPTFLAGS="-O3 -Minform=inform"
-F90USEFULFLAGS="-Mpreprocess -Minform=inform"
+F90USEFULFLAGS="-cpp -std=f2003"
 export F90USEFULFLAGS
 export F90OPTFLAGS
 FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
@@ -19,5 +17,5 @@ DIR=`pwd`
 export DIR
 Libs=${DIR}"/Libraries/"
 export Libs
-LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+LIB_BLAS_LAPACK="-llapack -lblas"
 export LIB_BLAS_LAPACK

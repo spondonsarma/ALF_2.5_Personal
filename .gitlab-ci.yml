@@ -24,6 +24,7 @@ stages:
     - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
     - export FL="-O3"
     - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - export F90USEFULFLAGS="-Mpreprocess"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
