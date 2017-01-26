@@ -157,6 +157,7 @@ Wheezy-PGI_conv:
     - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
     - export FL="-O3 -Minform=inform"
     - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
