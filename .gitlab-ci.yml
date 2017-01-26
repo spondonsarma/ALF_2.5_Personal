@@ -17,6 +17,22 @@ stages:
     - make Ising
     - make Kondo_Honey
 
+.build_template_pgi: &build_definition_pgi
+  stage: build
+  script:
+    - . set_env.sh
+    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - export FL="-O3"
+    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - cd Libraries
+    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
+    - make
+    - cd ..
+    - cd Prog_8
+    - make
+    - make Ising
+    - make Kondo_Honey
+
 .warnconv_template: &warnconv_definition
   stage: warnconv
   script:
@@ -90,20 +106,11 @@ GQMCT_OpenSuse-42.1:
 
 Wheezy-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
-  stage: build
-  script:
-    - . set_env.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog_8
-    - make
-    - make Ising
-    - make Kondo_Honey
+  <<: *build_definition_pgi
+
+Jessie-PGI:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
+  <<: *build_definition_pgi
   
 GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
