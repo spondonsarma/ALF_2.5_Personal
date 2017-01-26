@@ -94,7 +94,7 @@ Wheezy-PGI:
   script:
     - . set_env.sh
     - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="$FL -Minform=inform"
+    - export FL="-O3"
     - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
@@ -143,10 +143,11 @@ GQMCT_OpenSuse-42.1_conv:
   
 Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
-  stage: build
+  stage: warnconv
   script:
     - . set_env.sh
     - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - export FL="-O3 -Minform=inform"
     - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
