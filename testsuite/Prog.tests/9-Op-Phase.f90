@@ -1,5 +1,5 @@
 ! compile with
-!gfortran -std=f2003  -I ../../../Libraries/Modules/ -I ../../../Prog_8/  -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
+!gfortran -std=f2003  -I ../../../Libraries/Modules/ -I ../../../Prog_8/  -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 
 Program TESTOP_PHASE
@@ -46,9 +46,13 @@ implicit none
     
     diff = Phaseold - Phasenew
     
-    if (abs(diff) > MAX(ABS(Phaseold), ABS(Phasenew))*1D-15) then
-    write (*,*) "ERROR", Phaseold, Phasenew
+    if (abs(DBLE(diff)) > MAX(ABS(DBLE(Phaseold)), ABS(DBLE(Phasenew)))*1D-14) then
+    write (*,*) "ERROR in real", Phaseold, Phasenew, DBLE(diff), MAX(ABS(DBLE(Phaseold)), ABS(DBLE(Phasenew)))*1D-14
     STOP 2
+    endif
+    if (abs(AIMAG(diff)) > MAX(ABS(AIMAG(Phaseold)), ABS(AIMAG(Phasenew)))*2D-14) then
+    write (*,*) "ERROR in imag", Phaseold, Phasenew, diff, MAX(ABS(AIMAG(Phaseold)), ABS(AIMAG(Phasenew)))*2D-14
+    STOP 3
     endif
     write (*,*) "success"
 end Program TESTOP_PHASE
