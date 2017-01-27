@@ -1,5 +1,5 @@
 ! compile with
-!gfortran -std=f2003  -I ../../../Libraries/Modules/ -I ../../../Prog_8/  -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
+!gfortran -std=f2003  -I ../../Libraries/Modules/ -I ../../Prog_8/  -L ../../Libraries/Modules/ 9-Op-Phase.f90 ../../Prog_8/Operator.o ../../Libraries/Modules/modules_90.a -llapack -lblas
 
 
 Program TESTOP_PHASE
