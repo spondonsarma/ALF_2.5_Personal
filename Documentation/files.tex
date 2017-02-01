@@ -116,9 +116,8 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
-The output of the measured data is organized in bins. One bin corresponds to the geometric average 
-\mycomment{Isn't it arithmetic average?}
- over a fixed number of individual measurements which depends 
+The output of the measured data is organized in bins. One bin corresponds to the arithmetic average 
+over a fixed number of individual measurements which depends 
 on the chosen measurement interval \path{[LOBS_ST,LOBS_EN]} on the imaginary time axis and on the number \path{NSweep} of Monte Carlo sweeps. If the user run a parallelized version of the code, the average also extends 
 over the number of MPI threads. 
 The standard output files are listed in Table~\ref{table:output}. 

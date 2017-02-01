@@ -52,7 +52,7 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 %------------------------------------------------------------
 
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . 
-For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  =  \texttt{Latt\%N}$. 
+For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  \equiv \texttt{Latt\%N} \cdot \texttt{NORB}$. 
 \mycomment{Since $N_{\text{unit cell}} = \texttt{Latt\%N}$, this equation is a bit confusing.}
 
 %------------------------------------------------------------
@@ -90,10 +90,11 @@ ENDDO
 \end{lstlisting}
 Here,    the integer  function \texttt{  j=  Latt\%nnlist(I,n,m)}   is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$. Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter, \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
+To completely define the hopping  we further set: \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,1))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,1))\%type}  is not  required. 
 %Finally,   \texttt{ Op_T(1,1)\%g = -Dtau }
 Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices
 
- \mycomment{Perhaps also mention \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and \texttt{Call Op\_set(Op\_T(1,1))} here} 
+% \mycomment{Perhaps also mention \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and \texttt{Call Op\_set(Op\_T(1,1))} here} 
 
 %------------------------------------------------------------
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
@@ -119,20 +120,21 @@ Do i = 1,Ndim
    Op_V(i,1)%g      = sqrt(cmplx(-dtau*ham_U/(dble(N_SUN)),0.D0,kind(0.D0)))
    Op_V(i,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
    Op_V(i,1)%type   = 2
+   Call Op_set( Op_V(i,1) )
 Enddo
 
 \end{lstlisting}
 so as to completely define the interaction term. 
 
-\mycomment{Perhaps also mention \texttt{Call Op\_set(Op\_T(nc,n))} here}
+%\mycomment{Perhaps also mention \texttt{Call Op\_set(Op\_V(nc,n))} here}
 
 %------------------------------------------------------------
 \subsection{Observables}
 %------------------------------------------------------------
 
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
-If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again 
-\mycomment{Sentence doesn't finish}
+If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again  provided by the user and handles  imaginary time displaced correlation functions. 
+%\mycomment{Sentence doesn't finish}
 
 The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
 
@@ -503,16 +505,13 @@ As mentioned above,  a configuration is given by
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}
 \end{equation}
-and is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary time, the first \path{Ndim} 
-fields corresponds to the Hubbard  interaction and the next \texttt{2*Ndim} ones to the Ising interaction.
-\mycomment{Actually, in the above it's the other way around: The first \texttt{2*Ndim} fields correspond to the Ising interaction and the net \path{Ndim} ones to the Hubbard interaction.}
+and is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary time, the first \texttt{2*Ndim} fields correspond to the Ising interaction and the next \path{Ndim} ones to the Hubbard interaction.
 The first   argument of the function \texttt{S0}, \texttt{n},  corresponds to the index of the operator  string 
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2},    \texttt{S0(n,nt)}  returns 1.  If   \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
 \begin{equation}
 \frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{m,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{m,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
 \end{equation}
-That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n -  Ndim } 
- 
-\mycomment{Since the ordering of the interaction terms is the other way around, it's \texttt{ m = n }.}
+That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new to old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n } 
+%\mycomment{Since the ordering of the interaction terms is the other way around, it's \texttt{ m = n }.}
 
 
