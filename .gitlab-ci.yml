@@ -162,7 +162,7 @@ GQMCT_OpenSuse-42.1_tests:
   <<: *test_definition
 
 GQMCT_jessie_valgrind:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack-valgrind
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack-valgrind
   stage: memleaks
   script:
       - . set_env.sh
