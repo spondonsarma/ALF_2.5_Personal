@@ -167,7 +167,7 @@ GQMCT_jessie_valgrind:
   script:
       - . set_env.sh
       - export f90="gfortran"
-      - export F90OPTFLAGS="${F90OPTFLAGS} -g"
+      - export FL="${FL} -g"
       - cd Libraries
       - gfortran -v
       - make
