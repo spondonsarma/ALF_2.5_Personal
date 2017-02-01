@@ -51,7 +51,7 @@ Our project is at the prototype level.  Our code is to be found  on our Git serv
 Quantum Monte Carlo methods are  computationally very demanding. One central aspect of the project is to maintain  efficiency for general models.  Our code  heavily relies on BLAS, and comes with a parallel MPI-based implementation. We are in contact with KONWIHR   (Kom\-pe\-tenz\-netz\-werk f\"ur Wissen\-schaft\-liches H\"ochst\-leistungs\-rechnen in Bayern)  and with the JSC (J\"ulich Supercomputing Centre)  so as to optimize further the code and to bring  it to ever higher programming standards.  
 
 {\bf User pool } \\ 
-The ALF project  is unique. To the best of our knowledge  there is no package as general as ours for lattice fermions. The potential pool of users are solid state physicists interested in low  temperature collective phenomena.    Researches in the domain of cold atoms {\it build} models that can be simulated with the ALF-package. We hence foresee that the ALF-package, if easy to use, will find interest in this community so as to benchmark their experimental results. Finally  the high energy lattice gauge  researchers work with very similar algorithms and models such that we can equally  foresee  a substantial overlap with this community.   To date,  our user pool counts researchers at the following institutions:  IOP (Institute of Physics) in Beijing,  Beijing Normal University, University of California at San-Diego,  University of Iowa,  RWTH Aachen, University of Erlangen, J\"ulich Supercomputing Centre and of course the  University of W\"urzburg.   As mentioned above,  we are still testing the software. Once we believe that it is as user friendly as possible it will be available as an open-source package. 
+The ALF project  is unique. To the best of our knowledge  there is no package as general as ours for lattice fermions. The potential pool of users are solid state physicists interested in low  temperature collective phenomena.    Researchers in the domain of cold atoms {\it build} models that can be simulated with the ALF-package. We hence foresee that the ALF-package, if easy to use, will find interest in this community so as to benchmark their experimental results. Finally  the high energy lattice gauge  researchers work with very similar algorithms and models such that we can equally  foresee  a substantial overlap with this community.   To date,  our user pool counts researchers at the following institutions:  IOP (Institute of Physics) in Beijing,  Beijing Normal University, University of California at San-Diego,  University of Iowa,  RWTH Aachen, University of Erlangen, J\"ulich Supercomputing Centre and of course the  University of W\"urzburg.   As mentioned above,  we are still testing the software. Once we believe that it is as user friendly as possible it will be available as an open-source package. 
 
 {\bf Licence} \\ 
 We have opted to licence the code under  the terms of the GNU General Public License as published by
@@ -63,14 +63,31 @@ the Free Software Foundation, either version 3 of the License, or any later vers
 The success of such a project relies on dedicated man-power. One has to continually develop and  maintain the package, provide user support, communicate with the user pool so as to identify  future developments and issues.   Our long term  goals  are  to enhance  our toolbox of algorithms  and to  make sure that the package is user friendly. This will allow  non-specialists  in quantum Monte Carlo methods to  use it and literally play with model systems of correlated fermions.  We will equally  enhance the pool of predefined models, and provide an ever growing set of test cases and reference material. 
 
 {\bf Requested funding } \\
-As it stands this project has essentially been carried out in our {\it free time}  albeit with the help of  Dr. F. Goth who is funded by the SFB1170   in the aim of providing support for program development and optimization. To pursue our effort we will have to create a small team around our program package. We thus would like to apply for two positions, one senior and one junior. In other words: \\ 
+As it stands this project has essentially been carried out in our {\it free time}  albeit with the help of  Dr. F. Goth who is funded by the SFB1170   in the aim of providing support for program development and optimization. To pursue our effort  and to achieve our goals we will have to create a small team around our program package.  We thus would like to apply for two positions, one senior and one junior, or in other words \\
 
 One Postdoctoral researcher for 3 years  and \\
 One PhD student for 3 years. \\
 
-To provide training for the program package, we also plan to organize a workshop. For this we  will need a total of 25 K\euro.  \\
+Their responsibilities will include the following. 
+\begin{itemize}
+\item   Ensure that  research developments in our field  trickle down into our software package
+\item   Ensure that our software runs optimally on novel hardware architectures 
+\item   Enhance the scope of the package by include new algorithms  and updating schemes
+\item   Provide support for the user pool
+\end{itemize}
 
-Our Git server will have to be updated  and extended. For this we foresee hardware costs of  25 K\euro. \\
+
+To provide training for the program package, we also plan to organize an international  workshop. For this we  will need a total of 25 K\euro.  \\
+
+To facilitate development of the package and communication within the user pool we need a  
+robust central infrastructure. We have opted to host our own Gitlab instance and the server will have to be updated to keep up with the demands of the users. 
+With the use of Gitlab we gain version control, effective issue tracking and basic tools for monitoring the workflow. To 
+keep the quality of our software at a high level and to keep the turnaround time for debugging at a minimal level,
+ we employ automated tests and profiling. These tests run on additional, separate machines that will have to be maintained.
+ In addition we foresee the need for virtualized environments so as to have  the ability to quickly test our software in 
+different environments. Use cases include the software environments of our users as well as those available at  
+supercomputer centers. To be able to continually provide those high level services  we foresee hardware costs of 10 K \euro.
+
 
 
 
