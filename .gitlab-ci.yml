@@ -178,4 +178,4 @@ GQMCT_jessie_valgrind:
       - cd ../Test_SPT/Start/
       - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
       - cat vglog.txt
-      - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} - 536))
+      - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
