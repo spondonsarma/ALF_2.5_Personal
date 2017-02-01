@@ -2,6 +2,7 @@ stages:
   - build
   - warnconv
   - test
+  - memleaks
 
 .build_template: &build_definition
   stage: build
@@ -159,3 +160,20 @@ GQMCT_OpenSuse-13.2_tests:
 GQMCT_OpenSuse-42.1_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *test_definition
+
+GQMCT_jessie_valgrind:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack-valgrind
+  stage: memleaks
+  script:
+      - . set_env.sh
+      - export f90="gfortran"
+      - export F90OPTFLAGS="${F90OPTFLAGS} -g"
+      - cd Libraries
+      - gfortran -v
+      - make
+      - cd ..
+      - cd Prog_8
+      - make SPT
+      - cp SPT.out ../Test_SPT/Start/
+      - cd ../Test_SPT/Start/
+      - valgrind --leak-check=full ./SPT.out
