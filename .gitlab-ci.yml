@@ -2,6 +2,7 @@ stages:
   - build
   - warnconv
   - test
+  - memleaks
 
 .build_template: &build_definition
   stage: build
@@ -226,3 +227,24 @@ GQMCT_Jessie-PGI_tests:
     - cmake --build . --target all --config Release
     - ctest -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
+
+GQMCT_jessie_valgrind:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-blas-lapack-valgrind
+  stage: memleaks
+  script:
+      - . set_env.sh
+      - export f90="gfortran"
+      - export FL="${FL} -g"
+      - cd Libraries
+      - gfortran -v
+      - make
+      - cd ..
+      - cd Prog_8
+      - make SPT
+      - cp SPT.out ../Test_SPT/Start/
+      - cd ../Test_SPT/Start/
+      - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
+      - cat vglog.txt
+      - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
+
+
