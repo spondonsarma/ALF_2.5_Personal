@@ -74,11 +74,11 @@ Since  the  $\bm{P}$ matrices have only one non-vanishing entry per column,  the
 \end{equation}  
 There are  many useful  identities which emerge from this  structure. For example: 
 \begin{equation}
-	e^{\bm{X}} =  e^{\bm{P}^{T} \bm{O} \bm{P}}   = \sum_{n=0}^{\infty}  \frac{\left( \bm{P}^{T} \bm{O} \bm{P} \right)^n}{n!} =  \bm{P}^{T} e^{ \bm{O} } \bm{P}
+	e^{\bm{X}} =  e^{\bm{P}^{T} \bm{O} \bm{P}}   = \sum_{n=0}^{\infty}  \frac{\left( \bm{P}^{T} \bm{O} \bm{P} \right)^n}{n!} = \mathds{1}+ \bm{P}^{T} \left(e^{ \bm{O} }-\mathds{1} \right) \bm{P}
 \end{equation}
 since 
 \begin{equation} 
-	 \bm{P} \bm{P}^{T}= 1_{N\times N}.
+	 \bm{P} \bm{P}^{T}= \mathds{1}_{N\times N}.
 \end{equation}
 
 In the code, we define a structure called \path{Operator} to capture the above. 
