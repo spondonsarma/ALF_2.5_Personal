@@ -41,7 +41,7 @@
 !
 !--------------------------------------------------------------------
 
-
+#if defined(STAB2) 
         !NOTE:    NTAU1 > NTAU.
         Use Operator_mod, only : Phi
         Use Hamiltonian
@@ -92,6 +92,46 @@
            VL(:, :, nf) = TMP1
            DL(:, nf) = D1
         ENDDO
-        
+
+#else
+        !NOTE:    NTAU1 > NTAU.
+        Use Operator_mod, only : Phi
+        Use Hop_mod
+        Use Wrap_helpers
+        Implicit none
+
+        ! Arguments
+        COMPLEX (Kind=Kind(0.d0)), intent(inout) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
+        COMPLEX (Kind=Kind(0.d0)), intent(inout) :: DL(Ndim,N_FL)
+        Integer, intent(in) :: NTAU1, NTAU
+
+
+        ! Working space.
+        COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
+        Integer :: NT, NCON, n, nf
+        Real    (Kind=Kind(0.d0)) ::  X
+ 
+        NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
+        Allocate (TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
+        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+        Do nf = 1, N_FL
+           CALL INITD(TMP,Z_ONE)
+           DO NT = NTAU1, NTAU+1 , -1
+              Do n = Size(Op_V,1),1,-1
+                 X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultL(TMP,Op_V(n,nf),X,Ndim)
+              enddo
+              !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
+              Call  Hop_mod_mmthl (TMP, TMP1,nf)
+              TMP = TMP1
+           ENDDO
+           
+           !Carry out U,D,V decomposition.
+           CALL ul_update_matrices(UL(:,:,nf), DL(:, nf), VL(:,:,nf), TMP, TMP1, Ndim, NCON)
+           UL(:, :, nf) = CONJG(TRANSPOSE(UL(:,:,nf)))
+        ENDDO
+        deallocate(TMP, TMP1)
+#endif
       END SUBROUTINE WRAPUL
       

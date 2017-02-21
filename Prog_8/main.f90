@@ -128,9 +128,9 @@ Program Main
   Logical :: Log
   
   ! For the truncation of the program:
-  Logical        :: prog_truncation
-  Real(Kind=Kind(0.d0))   :: time_bin_start,time_bin_end
-    
+  logical                   :: prog_truncation
+  integer (kind=kind(0.d0)) :: count_bin_start, count_bin_end
+
 #ifdef MPI
   Integer        ::  Isize, Irank
   INTEGER        :: STATUS(MPI_STATUS_SIZE)
@@ -212,7 +212,7 @@ Program Main
      Write(50,*) 'Measure Int.       : ', LOBS_ST, LOBS_EN
      Write(50,*) 'Stabilization,Wrap : ', Nwrap
      Write(50,*) 'Nstm               : ', NSTM
-     Write(50,*) 'Ltau               : ', Ltau 
+     Write(50,*) 'Ltau               : ', Ltau     
 #ifdef MPI
      Write(50,*) 'Number of  threads : ', ISIZE
 #endif   
@@ -286,7 +286,7 @@ Program Main
      ! Here, you have the green functions on time slice 1.
      ! Set bin observables to zero.
 
-     Call cpu_time(time_bin_start) 
+     call system_clock(count_bin_start)
      
      Call Init_obs(Ltau)
 
@@ -423,11 +423,11 @@ Program Main
      ENDDO
      Call Pr_obs(Ltau)
      Call confout
-          
-     Call cpu_time(time_bin_end)
+
+     call system_clock(count_bin_end)
      prog_truncation = .false.
      if ( abs(CPU_MAX) > Zero ) then
-        Call make_truncation(prog_truncation,CPU_MAX,time_bin_start,time_bin_end)
+        Call make_truncation(prog_truncation,CPU_MAX,count_bin_start,count_bin_end)        
      endif
      If (prog_truncation) then 
         Nbin_eff = nbc

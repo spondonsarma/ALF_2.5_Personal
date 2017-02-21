@@ -47,7 +47,8 @@
     Use MyMats
     Implicit none
 
-    real    (Kind=Kind(0.d0)) , private, save :: XMEANG, XMAXG, XMAXP, CPU_time_st, CPU_time_en, Xmean_tau, Xmax_tau
+    real    (Kind=Kind(0.d0)), private, save :: XMEANG, XMAXG, XMAXP,  Xmean_tau, Xmax_tau
+    Integer (Kind=Kind(0.d0)), private, save :: count_CPU_start,count_CPU_end,count_rate,count_max
     Integer          , private, save :: NCG, NCG_tau
     Integer (Kind=Kind(0.d0)) , private, save :: NC_up, ACC_up
     Integer (Kind=kind(0.d0)),  private, save :: NC_Glob_up, ACC_Glob_up
@@ -74,7 +75,8 @@
         NC_Glob_up   = 0
         ACC_Glob_up  = 0
         NC_Phase_GLob= 0
-        Call CPU_TIME(CPU_time_st)
+
+        call system_clock(count_CPU_start,count_rate,count_max)
       end subroutine control_init
       
       Subroutine Control_upgrade(toggle) 
@@ -147,7 +149,7 @@
 #ifdef MPI
         include 'mpif.h'
 #endif
-        Real (Kind=Kind(0.d0)) :: passedTime, Acc, Acc_Glob
+        Real (Kind=Kind(0.d0)) :: Time, Acc, Acc_Glob
 #ifdef MPI
         REAL (Kind=Kind(0.d0))  :: X
         Integer        :: Ierr, Isize, Irank
@@ -162,8 +164,10 @@
         IF (NC_Glob_up    > 0 )  ACC_Glob    = dble(ACC_Glob_up)/dble(NC_Glob_up)
         IF (NC_Phase_GLob > 0 ) XMEANP_Glob  = XMEANP_Glob/dble(NC_Phase_GLob)
 
-        Call CPU_TIME(CPU_time_en)
-        passedTime = CPU_time_en -  CPU_time_st
+        call system_clock(count_CPU_end)
+        time = (count_CPU_end-count_CPU_start)/dble(count_rate)
+        if (count_CPU_end .lt. count_CPU_start) time = (count_max+count_CPU_end-count_CPU_start)/dble(count_rate)      
+
 #ifdef MPI
 
 
@@ -222,14 +226,15 @@
               Write(50,*) ' Mean Phase diff Glob       : ', XMEANP_Glob 
               Write(50,*) ' Max  Phase diff Glob       : ', XMAXP_Glob
            !endif
-           Write(50,*) ' CPU Time                   : ', passedTime
+           Write(50,*) ' CPU Time                   : ', Time
            Close(50)
 #ifdef MPI
         endif
 #endif
       end Subroutine Control_Print
       
-      subroutine make_truncation(prog_truncation,cpu_max,time_bin_start,time_bin_end)
+     
+      subroutine make_truncation(prog_truncation,cpu_max,count_bin_start,count_bin_end)
       !!!!!!! Written by M. Bercx
       ! This subroutine checks if the conditions for a controlled termination of the program are met.
       ! The subroutine contains a hard-coded threshold (in unit of bins): 
@@ -239,12 +244,14 @@
   include 'mpif.h'
 #endif  
     
-      logical, intent(out)     :: prog_truncation
-      real(Kind=Kind(0.d0)), intent(in) :: cpu_max, time_bin_start, time_bin_end
-      real(Kind=Kind(0.d0))             :: time_bin_duration,time_alloc_end,time_remain,bins_remain,threshold
+      logical, intent(out)                 :: prog_truncation
+      real(kind=kind(0.d0)), intent(in)    :: cpu_max
+      integer(kind=kind(0.d0)), intent(in) :: count_bin_start, count_bin_end
+      real(kind=kind(0.d0))                :: count_alloc_end
+      real(kind=kind(0.d0))                :: time_bin_duration,time_remain,bins_remain,threshold
 #ifdef MPI   
-      real(Kind=Kind(0.d0))             :: bins_remain_mpi
-      integer                  :: err_mpi,rank_mpi,tasks_mpi
+      real(kind=kind(0.d0))                :: bins_remain_mpi
+      integer                              :: err_mpi,rank_mpi,tasks_mpi
 #endif
       threshold = 1.5d0
       prog_truncation = .false.
@@ -253,9 +260,13 @@
       call mpi_comm_size(mpi_comm_world, tasks_mpi, err_mpi)
       call mpi_comm_rank(mpi_comm_world, rank_mpi, err_mpi) 
 #endif    
-      time_alloc_end    = cpu_time_st + cpu_max*3600 
-      time_bin_duration = time_bin_end-time_bin_start
-      time_remain       = time_alloc_end - time_bin_end
+      count_alloc_end   = count_CPU_start + cpu_max*3600*count_rate 
+      time_bin_duration = (count_bin_end-count_bin_start)/dble(count_rate)
+      time_remain       = (count_alloc_end - count_bin_end)/dble(count_rate)
+      if (count_bin_end .lt. count_bin_start) then ! the counter has wrapped around
+         time_bin_duration = (count_max+count_bin_end-count_bin_start)/dble(count_rate)
+         time_remain       = (count_alloc_end - count_bin_end-count_max)/dble(count_rate)     
+      endif
       bins_remain       = time_remain/time_bin_duration
       
 #ifdef MPI
@@ -271,7 +282,6 @@
 #endif
       end subroutine make_truncation
      
-
     end module control
   
   

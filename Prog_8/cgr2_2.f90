@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016, 2017  The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@
 
       end Subroutine
 
+#if defined(STAB2) 
 !--------------------------------------------------------------------
 !> @author
 !> Florian Goth
@@ -121,7 +122,69 @@
            deallocate (TMPVEC)
            CALL MMULT(HLP, U3, HLPB1)
            deallocate(HLPB1)
-           end subroutine solve_extended_System
+         end subroutine solve_extended_System
+#else
+!--------------------------------------------------------------------
+!> @author
+!> Florian Goth
+!
+!> @brief
+!> This functions constructs an extended matrix H1 from UCT and VINV for use as the rhs of
+!> an equation. Then the solution X of the System P^* V^* * X = H1 is sought.
+!> Then a scaling by D and a multiplication by a unitary matrix is performed.
+!
+!> The rationale for constructing this extended matrix is that Fakher says it's more stable.
+!>
+!> @param[inout] HLP The result matrix
+!> @param[in] UCT Matrix, dimension(LQ, LQ)
+!> @param[in] V1INV Matrix, dimension(LQ, LQ)
+!> @param[in] A The input matrix that contains the Householder reflectors on its subdiagonal
+!>              and the upper triangular matrix R in its upper part as returned by ?GETRF
+!> @param[in] D A vector containing the scales.
+!> @param[in] TAU A vecto containing the scalar factors of the Householder decomposition
+!> @param[in] IPVT A permutation vector usable by ?LAPMR/?LAPMT
+!> @param[in] LQ The dimension of the matrices UCT and V1INV
+!> @param[in] WORK work space
+!> @param[in] LWORK The size of the work space.
+!--------------------------------------------------------------------
+         Subroutine solve_extended_System(HLP, UCT, VINV, A, D, TAU, PIVT, LQ, WORK, LWORK)
+           Implicit none
+           Integer, intent(in) :: LQ, LWORK
+           Complex (Kind=Kind(0.D0)), intent(in) :: A(2*LQ, 2*LQ), D(2*LQ), TAU(2*LQ), UCT(LQ,LQ), VINV(LQ,LQ), WORK(LWORK)
+           Integer, Dimension(:), intent(in) :: PIVT(2*LQ)
+           Complex (Kind=Kind(0.D0)), intent(inout) :: HLP(2*LQ, 2*LQ)
+           Complex (Kind=Kind(0.D0)), Allocatable, Dimension(:) :: TMPVEC
+           Integer :: LQ2, info, I, j
+           Complex (Kind=Kind(0.D0)) :: z
+           LOGICAL :: FORWRD
+
+           z = 0.D0
+           LQ2 = 2*LQ
+           ALLOCATE(TMPVEC(LQ2))
+           TMPVEC = conjg(1.D0/D)
+           ! set HLP equal to zero
+           call zlaset('A', LQ2, LQ2, z, z, HLP, LQ2)
+           DO I = 1, LQ
+              DO J = 1, LQ
+                 HLP(I   , J    ) =  UCT(I, J)
+                 HLP(I+LQ, J+LQ ) =  VINV(I,J)
+              ENDDO
+           ENDDO
+           z = 1.D0
+           !P * V3^* X = H1
+           FORWRD = .true.
+           CALL ZLAPMR(FORWRD, LQ2, LQ2, HLP(1, 1), LQ2, PIVT(1))
+           CALL ZTRSM('L', 'U', 'C', 'N', LQ2, LQ2, z, A(1, 1), LQ2, HLP(1, 1), LQ2)! Block structure of HLPB1 is not exploited
+           DO J = 1,LQ2
+              DO I = 1,LQ2
+                 HLP(I, J)  = TMPVEC(I)*HLP(I, J)
+              ENDDO
+           ENDDO
+           deallocate (TMPVEC)
+           ! Res = U * HLP
+           CALL ZUNMQR('L', 'N', LQ2, LQ2, LQ2, A(1, 1), LQ2, TAU(1), HLP(1, 1), LQ2, WORK(1), LWORK, INFO)
+         end subroutine solve_extended_System
+#endif
 
 !--------------------------------------------------------------------
 
@@ -153,7 +216,8 @@
 !
 !--------------------------------------------------------------------
 
-      
+   
+#if defined(STAB2)   
 
         Use MyMats
         Use UDV_WRAP_mod
@@ -236,5 +300,65 @@
            call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB1, LQ)
         Endif
         DEALLOCATE(MYU2, HLPB1, HLPB2, U3B, V3B)
+#else
+        Use MyMats
+        Use QDRP_mod
+        Implicit none
+
+        !  Arguments
+        Integer,  intent(in) :: LQ
+        Complex (Kind=Kind(0.d0)), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
+        Complex (Kind=Kind(0.d0)), intent(in)    :: D2(LQ), D1(LQ)
+        Complex (Kind=Kind(0.d0)), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
+
+
+        ! Local::
+        Complex  (Kind=Kind(0.d0)), allocatable, Dimension(:) :: D3
+        Complex  (Kind=Kind(0.d0)) :: Z
+        Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2, HLPB1, HLPB2, V1INV
+        Integer :: LQ2, I, J, NCON, LWORK, info
+        
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
+        INTEGER, Dimension(:), Allocatable :: IPVT
+        
+        LQ2 = LQ*2
+        NCON = 0
+        ALLOCATE(MYU2(LQ, LQ), V1INV(LQ,LQ), HLPB1(LQ2, LQ2), HLPB2(LQ2, LQ2), D3(LQ2))
+        Allocate(IPVT(LQ2), TAU(LQ2))
+        IPVT = 0
+        MYU2 = CONJG(TRANSPOSE(U2))
+        CALL INV(V1,V1INV,Z)
+        If (dble(D1(1)) >  dble(D2(1)) ) Then 
+           !Write(6,*) "D1(1) >  D2(1)", dble(D1(1)), dble(D2(1))
+           DO J = 1,LQ
+              DO I = 1,LQ
+                 HLPB2(I   , J    ) =  V1INV(I,J)
+                 HLPB2(I   , J+LQ ) =  D1(I)*U1(I,J)
+                 HLPB2(I+LQ, J+LQ ) =  MYU2(I, J)
+                 HLPB2(I+LQ, J    ) = -D2(I)*V2(I,J)
+              ENDDO
+           ENDDO
+           HLPB1 = CT(HLPB2)
+           call QDRP_decompose(LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
+           call solve_extended_System(HLPB2, V1INV, MYU2, HLPB1, D3, TAU, IPVT, LQ, WORK, LWORK)
+           call get_blocks(GR00, GR0T, GRT0, GRTT, HLPB2, LQ)
+        Else
+           !Write(6,*) "D1(1) <  D2(1)", dble(D1(1)), dble(D2(1))
+           DO J = 1,LQ
+              DO I = 1,LQ
+                 HLPB2(I   , J    ) =  MYU2(I, J)
+                 HLPB2(I   , J+LQ ) = -D2(I)*V2(I,J)
+                 HLPB2(I+LQ, J+LQ ) =  V1INV(I,J)
+                 HLPB2(I+LQ, J    ) =  D1(I)*U1(I,J)
+              ENDDO
+           ENDDO
+           HLPB1 = CT(HLPB2)
+           call QDRP_decompose(LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
+           call solve_extended_System(HLPB2, MYU2, V1INV, HLPB1, D3, TAU, IPVT, LQ, WORK, LWORK)
+           call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB2, LQ)
+        Endif
+        DEALLOCATE(MYU2, V1INV, HLPB1, HLPB2, WORK, IPVT, TAU, D3)
+
+#endif
         
       END SUBROUTINE CGR2_2
