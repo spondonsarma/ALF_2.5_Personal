@@ -48,7 +48,7 @@
 
 
 
-#if defined(STAB2)
+#if defined(STAB2) || defined(STAB1)
         Use UDV_Wrap_mod
 
         Implicit None
