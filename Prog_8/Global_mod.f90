@@ -39,7 +39,7 @@ Module Global_mod
 !
 !> @brief 
 !> Handles global updates.
-!> 
+!> Handles parrallel tempering
 !
 !--------------------------------------------------------------------
 
@@ -52,7 +52,93 @@ Module Global_mod
 
   
 Contains
+#if defined(TEMPERING)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Handles parrallel tempering
+!> This subroutine is called only if the tempering flag is switch on. In this 
+!> case the MPI flag is also switched on. 
+!> 
+!--------------------------------------------------------------------
+  Subroutine Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
 
+    Implicit none
+
+    include 'mpif.h'
+
+    Interface
+       SUBROUTINE WRAPUL(NTAU1, NTAU, UL ,DL, VL)
+         Use Hamiltonian
+         Implicit none
+         COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
+         COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
+         Integer :: NTAU1, NTAU
+       END SUBROUTINE WRAPUL
+       SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+         Use UDV_Wrap_mod
+         Implicit None
+         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
+         COMPLEX(Kind=Kind(0.d0)), Dimension(:)  , Intent(In)    :: DLUP, DRUP
+         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+         COMPLEX(Kind=Kind(0.d0)) :: PHASE
+         INTEGER         :: NVAR
+       END SUBROUTINE CGR
+    end Interface
+    
+!>  Arguments
+    COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , INTENT(INOUT), allocatable :: DL, DR
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: UL, VL, UR, VR
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
+    INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
+!>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+
+
+!>  Local variables.
+    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC
+    Integer, Dimension(:,:),  allocatable :: nsigma_old
+    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
+    Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
+    Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
+    Logical :: TOGGLE, L_Test
+
+
+    Integer        :: Isize, Irank, Ierr
+    Integer        :: STATUS(MPI_STATUS_SIZE)
+    CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+    CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+    
+
+    n1 = size(nsigma,1)
+    n2 = size(nsigma,2)
+    NSTM = Size(UST,3)
+    Allocate ( nsigma_old(n1,n2) )
+    Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
+    Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
+
+!>  Compute for each core the old weights.     
+    L_test = .true.
+    ! Set old weight. 
+    Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
+    do nf = 1,N_Fl
+       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+       Phase_det_old(nf) = Z
+       Phase_old = Phase_old*Z
+    Enddo
+    call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+    If (L_test) then
+       Write(6,*) 'Testing global : ', Irank,  Phase_old, Phase
+    Endif
+
+
+  end Subroutine Exchange_Step
+#endif
+!---------------------------------------------------------------------
   Subroutine Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
 
     Implicit none
@@ -84,6 +170,8 @@ Contains
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
+!>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+
     
 !>  Local variables.
     Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC

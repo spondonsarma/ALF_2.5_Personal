@@ -313,14 +313,18 @@ Program Main
      
      Call Init_obs(Ltau)
 
+
+#if defined(TEMPERING)
+     CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
+#endif
+
      DO NSW = 1, NSWEEP
- 
 
         ! Global updates
         If (Global_moves) Call Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
 
-        !Propagation from 1 to Ltrot
-        !Set the right storage to 1
+        ! Propagation from 1 to Ltrot
+        ! Set the right storage to 1
         
         do nf = 1,N_FL
            CALL INITD(UR(:,:,nf),Z_ONE)
