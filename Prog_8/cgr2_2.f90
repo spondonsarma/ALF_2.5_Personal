@@ -67,7 +67,7 @@
 
       end Subroutine
 
-#if defined(STAB2) 
+#if defined(STAB2) || defined(STAB1)
 !--------------------------------------------------------------------
 !> @author
 !> Florian Goth
@@ -217,7 +217,7 @@
 !--------------------------------------------------------------------
 
    
-#if defined(STAB2)   
+#if defined(STAB2) || defined(STAB1)   
 
         Use MyMats
         Use UDV_WRAP_mod

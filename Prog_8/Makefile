@@ -1,5 +1,5 @@
-FC= $(mpif90)
 FC= $(f90)
+FC= $(mpif90)
 FLAGS= $(FL)
 LF = $(Lflags)
 LIBS= $(Libs)/Modules/modules_90.a \

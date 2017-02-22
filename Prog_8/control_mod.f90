@@ -149,6 +149,7 @@
 #ifdef MPI
         include 'mpif.h'
 #endif
+        Character (len=64) :: file1 
         Real (Kind=Kind(0.d0)) :: Time, Acc, Acc_Glob
 #ifdef MPI
         REAL (Kind=Kind(0.d0))  :: X
@@ -157,7 +158,7 @@
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
-        
+       
         ACC = 0.d0
         IF (NC_up > 0 )  ACC = dble(ACC_up)/dble(NC_up)
         ACC_Glob = 0.d0
@@ -168,9 +169,7 @@
         time = (count_CPU_end-count_CPU_start)/dble(count_rate)
         if (count_CPU_end .lt. count_CPU_start) time = (count_max+count_CPU_end-count_CPU_start)/dble(count_rate)      
 
-#ifdef MPI
-
-
+#if defined(MPI)  && !defined(TEMPERING) 
         X = 0.d0
         CALL MPI_REDUCE(ACC,X,1,MPI_REAL8,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
         ACC = X/dble(Isize)
@@ -206,11 +205,19 @@
         CALL MPI_REDUCE(XMAXP_GLOB,X,1,MPI_REAL8,MPI_MAX, 0,MPI_COMM_WORLD,IERR)
         XMAXP_GLOB = X
         
+#endif
 
+#if defined(TEMPERING) 
+        write(File1,'(A,I0,A)') "Temp_",Irank,"/info"
+#else
+        File1 = "info"
+#endif
+
+#if defined(MPI)  && !defined(TEMPERING) 
         If (Irank == 0 ) then
 #endif
 
-           Open (Unit=50,file="info", status="unknown", position="append")
+           Open (Unit=50,file=file1, status="unknown", position="append")
            If (NCG > 0 ) then 
               XMEANG = XMEANG/dble(NCG)
               Write(50,*) ' Precision Green  Mean, Max : ', XMEANG, XMAXG
@@ -228,7 +235,7 @@
            !endif
            Write(50,*) ' CPU Time                   : ', Time
            Close(50)
-#ifdef MPI
+#if defined(MPI)  && !defined(TEMPERING) 
         endif
 #endif
       end Subroutine Control_Print

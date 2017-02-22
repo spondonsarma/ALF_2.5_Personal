@@ -109,9 +109,11 @@ Program Main
   Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
   Integer :: NTAU, NTAU1
   Real(Kind=Kind(0.d0)) :: CPU_MAX 
+  Character (len=64) :: file1
 
 
-  NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX
+  NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX 
+
 
   Integer :: Ierr, I,nf, nst, n
   Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
@@ -152,10 +154,7 @@ Program Main
 #ifdef MPI
   endif
 #endif
-  
-  Call Ham_set
-  Call confin 
-  Call Hop_mod_init
+ 
 
 
 #ifdef MPI
@@ -172,15 +171,20 @@ Program Main
      NBin_eff = NBin
 #ifdef MPI
   Endif
-  CALL MPI_BCAST(Nwrap   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(NSweep  ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(NBin    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(Ltau    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(LOBS_EN ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(LOBS_ST ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-  CALL MPI_BCAST(CPU_MAX ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(Nwrap          ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(NSweep         ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(NBin           ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(Ltau           ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(LOBS_EN        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(LOBS_ST        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+  CALL MPI_BCAST(CPU_MAX        ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
 #endif
+
  
+  Call Ham_set
+  Call confin 
+  Call Hop_mod_init
+
   IF (ABS(CPU_MAX) > Zero ) NBIN = 1000000
  
   Call control_init
@@ -204,16 +208,22 @@ Program Main
   enddo
   Stab_nt(Nstm) = Ltrot
 
-#ifdef MPI
+#if defined(TEMPERING)
+           write(File1,'(A,I0,A)') "Temp_",Irank,"/info"
+#else
+           File1 = "info"
+#endif
+           
+#if defined(MPI) && !defined(TEMPERING)
   if ( Irank == 0 ) then
 #endif
-     Open (Unit = 50,file="info",status="unknown",position="append")
+     Open (Unit = 50,file=file1,status="unknown",position="append")
      Write(50,*) 'Sweeps             : ', Nsweep
      Write(50,*) 'Measure Int.       : ', LOBS_ST, LOBS_EN
      Write(50,*) 'Stabilization,Wrap : ', Nwrap
      Write(50,*) 'Nstm               : ', NSTM
      Write(50,*) 'Ltau               : ', Ltau     
-#ifdef MPI
+#if defined(MPI) && !defined(TEMPERING)
      Write(50,*) 'Number of  threads : ', ISIZE
 #endif   
      If ( abs(CPU_MAX) < ZERO ) then
@@ -222,8 +232,21 @@ Program Main
      else
         Write(50,'("Prog will stop after hours:",2x,F8.4)') CPU_MAX
      endif
+#if defined(STAB1) 
+     Write(50,*) 'STAB1 is defined '
+#endif
+#if defined(STAB2) 
+     Write(50,*) 'STAB2 is defined '
+#endif
+#if defined(QRREF) 
+     Write(50,*) 'QRREF is defined '
+#endif
+#if defined(TEMPERING) 
+     Write(50,*) 'TEMPERING is defined '
+#endif
+     
      close(50)
-#ifdef MPI
+#if defined(MPI) && !defined(TEMPERING)
   endif
 #endif
 
@@ -290,14 +313,18 @@ Program Main
      
      Call Init_obs(Ltau)
 
+
+#if defined(TEMPERING)
+     CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
+#endif
+
      DO NSW = 1, NSWEEP
- 
 
         ! Global updates
         If (Global_moves) Call Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
 
-        !Propagation from 1 to Ltrot
-        !Set the right storage to 1
+        ! Propagation from 1 to Ltrot
+        ! Set the right storage to 1
         
         do nf = 1,N_FL
            CALL INITD(UR(:,:,nf),Z_ONE)
@@ -437,15 +464,20 @@ Program Main
   DEALLOCATE(DL, DR, UL, UR, VR, VL, GR, UST, VST, DST, TEST, Stab_nt)
   Call Control_Print
 
-#ifdef MPI
+#if defined(MPI) && !defined(TEMPERING)
   If (Irank == 0 ) then
 #endif
      if ( abs(CPU_MAX) > Zero ) then
-        Open (Unit=50,file="info", status="unknown", position="append")
+#if defined(TEMPERING)
+        write(File1,'(A,I0,A)') "Temp_",Irank,"/info"
+#else
+        File1 = "info"
+#endif
+        Open (Unit=50,file=File1, status="unknown", position="append")
         Write(50,*)' Effective number of bins   : ', Nbin_eff
         Close(50)
      endif
-#ifdef MPI
+#if defined(MPI) && !defined(TEMPERING)
   endif
 #endif
  
