@@ -48,6 +48,7 @@ Module Global_mod
   Use Operator_mod
   Use Control
 
+
   Implicit none
 
   
@@ -97,16 +98,17 @@ Contains
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
-
-
+    
+    
 !>  Local variables.
-    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC
+    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step
     Integer, Dimension(:,:),  allocatable :: nsigma_old
     Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
     Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
     Logical :: TOGGLE, L_Test
 
+    Integer, allocatable :: List_partner(:)
 
     Integer        :: Isize, Irank, Ierr
     Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -120,6 +122,7 @@ Contains
     Allocate ( nsigma_old(n1,n2) )
     Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
     Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
+    Allocate ( List_partner(0:Isize-1) )
 
 !>  Compute for each core the old weights.     
     L_test = .true.
@@ -131,10 +134,26 @@ Contains
        Phase_old = Phase_old*Z
     Enddo
     call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
-    If (L_test) then
-       Write(6,*) 'Testing global : ', Irank,  Phase_old, Phase
-    Endif
 
+!>  Set the partner rank on each core
+    If (Irank == 0 ) then
+       n_step = 1
+       if (  ranf_wrap() > 0.5d0 ) n_step = -1
+       Do I = 0,Isize-1,2
+          List_partner(I) =  npbc_tempering(I   + n_step,Isize)
+          List_partner(npbc_tempering(I   + n_step, Isize)) =  I
+       enddo
+    endif
+    CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
+    
+    If (L_test) then
+       Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank), Phase_old, Phase
+    Endif
+    
+    Deallocate ( nsigma_old )
+    Deallocate ( Det_vec_old, Det_vec_new ) 
+    Deallocate ( Phase_Det_new, Phase_Det_old )
+    Deallocate ( List_partner )
 
   end Subroutine Exchange_Step
 #endif
@@ -194,6 +213,7 @@ Contains
 
     
     L_test = .false.
+    Write(6,*)
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
@@ -451,5 +471,14 @@ Contains
     Deallocate ( TP,U,D,V )
 
   end subroutine Compute_Fermion_Det
+!---------------------------------------------------------------
+  Integer function  npbc_tempering(n,Isize)
+    implicit none
+    Integer,  INTENT(IN)   :: Isize,n
+    
+    npbc_tempering = n
+    if (  npbc_tempering < 0       ) npbc_tempering = npbc_tempering +  Isize
+    if (  npbc_tempering > Isize -1) npbc_tempering = npbc_tempering -  Isize
 
+  end function npbc_tempering
 end Module Global_mod

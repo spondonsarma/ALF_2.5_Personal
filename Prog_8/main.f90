@@ -315,7 +315,11 @@ Program Main
 
 
 #if defined(TEMPERING)
+     
+     CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
      CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
+     CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+     If (Irank == 0 ) Write(6,*)
 #endif
 
      DO NSW = 1, NSWEEP
