@@ -612,8 +612,17 @@ Contains
     Deallocate ( TP,U,D,V )
 
   end subroutine Compute_Fermion_Det
-!---------------------------------------------------------------
+
+!--------------------------------------------------------------------
   Integer function  npbc_tempering(n,Isize)
+!--------------------------------------------------------------------
+!> @author 
+!> Fakher Assaad 
+!>
+!> @brief 
+!> Periodic boundary conditions required to defined master and slave for the  
+!> tempering
+!--------------------------------------------------------------------
     implicit none
     Integer,  INTENT(IN)   :: Isize,n
     
