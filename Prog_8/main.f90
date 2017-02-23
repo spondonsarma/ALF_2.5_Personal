@@ -111,6 +111,11 @@ Program Main
   Real(Kind=Kind(0.d0)) :: CPU_MAX 
   Character (len=64) :: file1
 
+  
+#if defined(TEMPERING)
+  Integer :: N_exchange_steps, N_Tempering_frequency
+  NAMELIST /VAR_TEMP/  N_exchange_steps, N_Tempering_frequency
+#endif
 
   NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX 
 
@@ -169,6 +174,15 @@ Program Main
      READ(5,NML=VAR_QMC)
      CLOSE(5)
      NBin_eff = NBin
+#if defined(TEMPERING) 
+     OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+     IF (ierr /= 0) THEN
+        WRITE(*,*) 'unable to open <parameters>',ierr
+        STOP
+     END IF
+     READ(5,NML=VAR_TEMP)
+     CLOSE(5)
+#endif     
 #ifdef MPI
   Endif
   CALL MPI_BCAST(Nwrap          ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
@@ -178,6 +192,10 @@ Program Main
   CALL MPI_BCAST(LOBS_EN        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
   CALL MPI_BCAST(LOBS_ST        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
   CALL MPI_BCAST(CPU_MAX        ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
+#if defined(TEMPERING) 
+   CALL MPI_BCAST(N_exchange_steps        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+   CALL MPI_BCAST(N_Tempering_frequency   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+#endif  
 #endif
 
  
@@ -242,9 +260,9 @@ Program Main
      Write(50,*) 'QRREF is defined '
 #endif
 #if defined(TEMPERING) 
-     Write(50,*) 'TEMPERING is defined '
+     Write(50,*) '# of exchange steps  ',N_exchange_steps 
+     Write(50,*) 'Tempering frequency  ',N_Tempering_frequency
 #endif
-     
      close(50)
 #if defined(MPI) && !defined(TEMPERING)
   endif
@@ -313,13 +331,14 @@ Program Main
      
      Call Init_obs(Ltau)
 
-
-#if defined(TEMPERING)
-     CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
-#endif
-
      DO NSW = 1, NSWEEP
 
+#if defined(TEMPERING)
+        IF (MOD(NSW,N_Tempering_frequency) == 0) then
+           !Write(6,*) "Irank, Call tempering", Irank, NSW
+           CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST,N_exchange_steps)
+        endif
+#endif
         ! Global updates
         If (Global_moves) Call Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
 

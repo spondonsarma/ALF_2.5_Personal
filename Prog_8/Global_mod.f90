@@ -64,7 +64,7 @@ Contains
 !> case the MPI flag is also switched on. 
 !> 
 !--------------------------------------------------------------------
-  Subroutine Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
+  Subroutine Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST,N_exchange_steps)
 
     Implicit none
 
@@ -101,11 +101,12 @@ Contains
     
     
 !>  Local variables.
-    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_Tempering=4, N_count
+    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count
     Integer, Dimension(:,:),  allocatable :: nsigma_old
-    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
+    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
     Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
+    Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
     Logical :: TOGGLE, L_Test
 
     Integer, allocatable :: List_partner(:)
@@ -138,7 +139,7 @@ Contains
     nsigma_old = nsigma 
 
 
-    DO N_count = 1,N_Tempering
+    DO N_count = 1,N_exchange_steps
        
        !>  Set the partner rank on each core
        If (Irank == 0 ) then
@@ -217,20 +218,23 @@ Contains
        
        T0_Proposal_ratio = 1.d0
        Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-            &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio) 
+            &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
        
-       If (L_Test)  Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot
+       If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
     
        !>  Acceptace/rejection decision taken on master node after receiving information from slave
        Do I = 0,Isize-1,2
           If (Irank == I ) Then
-             CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+             !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
+             CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
           else if (IRANK == List_Partner(I) ) Then
-             CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-             Weight = abs(Ratiotot_p*Ratiotot)
+             !CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 , MPI_COMM_WORLD,STATUS,IERR)
+             CALL MPI_RECV(Ratio_p    , 2, MPI_COMPLEX16,  I, I+1024, MPI_COMM_WORLD,STATUS,IERR)
+             !Weight = abs(Ratiotot_p*Ratiotot)
+             Weight= abs(Ratio(1) * Ratio_p(1) * exp( Ratio_p(2) + Ratio(2)  ) )
              TOGGLE = .false. 
              if ( Weight > ranf_wrap() )  Toggle =.true.
-             If (L_Test) Write(6,*) 'Master : ', List_Partner(I), I, Ratiotot_p,Ratiotot, Toggle
+             If (L_Test) Write(6,*) 'Master : ', List_Partner(I), I, Weight, Toggle
           endif
        enddo
 
@@ -338,6 +342,7 @@ Contains
     Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
     Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
+    Complex (Kind=Kind(0.d0)) :: Ratio(2)
     Logical :: TOGGLE, L_Test
 
  
@@ -430,7 +435,7 @@ Contains
           call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
           
           Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-               &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio) 
+               &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio, Ratio) 
           
           !Write(6,*) 'Ratio_global: ', Ratiotot
           
@@ -498,7 +503,7 @@ Contains
 
 !--------------------------------------------------------------------
   Complex (Kind=Kind(0.d0)) Function Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-       &                    Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio)
+       &                    Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio)
 !--------------------------------------------------------------------
 !> @author
 !> Fakher Assaad 
@@ -510,7 +515,7 @@ Contains
 !> 
 !> Note that the new configuration, nsigma, is contained in the Hamiltonian moddule
 !> The fermionic determinant stems from the routine Compute_Fermion_Det. 
-!> 
+!> Since the ratio can be a very large number, it is encoded as Ratio(1)*exp(Ratio(2))
 !--------------------------------------------------------------------
 
     
@@ -520,44 +525,55 @@ Contains
     Complex (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Phase_Det_old(:), Phase_Det_new(:), &
          &                                                Det_vec_old(:,:), Det_vec_new(:,:)
     Real    (Kind=Kind(0.d0)) :: T0_proposal_ratio 
-    Integer,    allocatable :: nsigma_old(:,:)
+    Integer, allocatable      :: nsigma_old(:,:)
+    Complex (Kind=Kind(0.d0)), INTENT(out) :: Ratio(2)
 
     !> Local 
     Integer                                :: Nf, i, nt
     Complex (Kind=Kind(0.d0)) :: Z, Z1
-    Real    (Kind=Kind(0.d0)) :: X
+    Real    (Kind=Kind(0.d0)) :: X, Ratio_2
 
-
-    X = 1.d0
+    Ratio = cmplx(0.d0,0.d0)
+    Ratio_2 = 0.d0
+    !X = 1.d0
     Do nf = 1,N_Fl
        DO I = 1,Ndim
-          X= X*real(Det_vec_new(I,nf),kind(0.d0)) / Real(Det_vec_old(I,nf),kind(0.d0) )
+          !X= X*real(Det_vec_new(I,nf),kind(0.d0)) / Real(Det_vec_old(I,nf),kind(0.d0) )
+          Ratio_2 = Ratio_2 +  log(real(Det_vec_new(I,nf),kind(0.d0))) - log( Real(Det_vec_old(I,nf),kind(0.d0) ) )
        enddo
     enddo
-    Z = cmplx(X,0.d0,kind(0.d0))
+    !Z = cmplx(X,0.d0,kind(0.d0))
+    Ratio(1) = cmplx(1.d0,0.d0,kind(0.d0))
     Do nf = 1,N_FL
-       Z = Z*Phase_Det_new(nf)/Phase_Det_old(nf)
+       !Z = Z*Phase_Det_new(nf)/Phase_Det_old(nf)
+       Ratio(1) = Ratio(1) *  Phase_Det_new(nf)/Phase_Det_old(nf)
     enddo
-    Z = Z**N_SUN 
+    !Z = Z**N_SUN 
+    Ratio(1) = Ratio(1)**N_SUN
+    Ratio_2 = real(N_SUN,kind(0.d0))*Ratio_2
 
     Do I = 1,Size(Op_V,1)
        If (Op_V(i,1)%type == 2) then 
           X = 0.d0
           Do nt = 1,Ltrot
              if ( nsigma(i,nt) /= nsigma_old(i,nt) )  then 
-                Z = Z * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) ) 
+                !Z = Z * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) ) 
+                Ratio(1) = Ratio(1) * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) )
                 X = X + Phi(nsigma(i,nt),2) - Phi(nsigma_old(i,nt),2)
              endif
           Enddo
           Do nf = 1,N_FL
-             Z = Z * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
+             !Z = Z * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
+             Ratio(1) = Ratio(1) * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
           Enddo
        endif   
     Enddo
-    Z =  Z * cmplx( Delta_S0_global(Nsigma_old),0.d0,kind(0.d0) )
-    Z =  Z * cmplx( T0_Proposal_ratio, 0.d0,kind(0.d0))
+    !Z =  Z * cmplx( Delta_S0_global(Nsigma_old),0.d0,kind(0.d0) )
+    !Z =  Z * cmplx( T0_Proposal_ratio, 0.d0,kind(0.d0))
+    Ratio_2 = Ratio_2 + log(Delta_S0_global(Nsigma_old)) + log(T0_Proposal_ratio)
 
-    Compute_Ratio_Global = Z
+    Ratio(2) = Ratio_2
+    Compute_Ratio_Global = Ratio(1)*exp(Ratio(2))
 
 
   end Function Compute_Ratio_Global
