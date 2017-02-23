@@ -58,6 +58,8 @@ language=bash,
 \makesavenoteenv{table}
 \setkomafont{author}{\large}
 \setkomafont{date}{\large}
+\RedeclareSectionCommand[style=section,indent=0pt]{part}
+\renewcommand*\partformat{\thepart\autodot\enskip}
 
 \newcommand{\mycomment}[1]{{\color{blue} #1}}
 \newcommand{\FAcomment}[1]{{\color{red} #1}}
@@ -79,15 +81,20 @@ and proper attribution to the authors is given. For details see the ALF project
 homepage \url{alf.physik.uni-wuerzburg.de}.
 \tableofcontents
 \clearpage
+\part{Introduction}
 \input{intro}
+\part{QMC Essentials}
 \input{model}
-\input{implementation}
 \input{updating}
+\part{Data Structures and I/O}
+\input{implementation}
 \input{files}
-\input{walkthrough_hubbard}
-\input{other_models}
 \input{analysis}
 \input{running}
+\part{Examples}
+\input{walkthrough_hubbard}
+\part{Miscellaneous}
+\input{other_models}
 \input{performance}
 \input{conclusion}
 \addcontentsline{toc}{section}{Acknowledgments}
