@@ -101,10 +101,10 @@ Contains
     
     
 !>  Local variables.
-    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step
+    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_Tempering=4, N_count
     Integer, Dimension(:,:),  allocatable :: nsigma_old
     Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
-    Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
+    Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
     Logical :: TOGGLE, L_Test
 
@@ -125,7 +125,7 @@ Contains
     Allocate ( List_partner(0:Isize-1) )
 
 !>  Compute for each core the old weights.     
-    L_test = .true.
+    L_test = .false.
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
@@ -134,21 +134,161 @@ Contains
        Phase_old = Phase_old*Z
     Enddo
     call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+    !> Store old configuration
+    nsigma_old = nsigma 
 
-!>  Set the partner rank on each core
-    If (Irank == 0 ) then
-       n_step = 1
-       if (  ranf_wrap() > 0.5d0 ) n_step = -1
-       Do I = 0,Isize-1,2
-          List_partner(I) =  npbc_tempering(I   + n_step,Isize)
-          List_partner(npbc_tempering(I   + n_step, Isize)) =  I
-       enddo
-    endif
-    CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
+
+    DO N_count = 1,N_Tempering
+       
+       !>  Set the partner rank on each core
+       If (Irank == 0 ) then
+          n_step = 1
+          if (  ranf_wrap() > 0.5d0 ) n_step = -1
+          Do I = 0,Isize-1,2
+             List_partner(I) =  npbc_tempering(I   + n_step,Isize)
+             List_partner(npbc_tempering(I   + n_step, Isize)) =  I
+          enddo
+       endif
+       CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
     
-    If (L_test) then
-       Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank), Phase_old, Phase
+       !    If (L_test) then
+       !       Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank), Phase_old, Phase
+       !    Endif
+       
+!!$    select case (IRANK)
+!!$    case(0)
+!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = 1
+!!$    case(1)
+!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = 1
+!!$    case(2)
+!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = -1
+!!$    case(3)
+!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = -1
+!!$    case default
+!!$    end select
+    
+
+       !>  Exchange configurations
+       n = size(nsigma_old,1)*size(nsigma_old,2) 
+       Do I = 0,Isize-1
+          If (Irank == I ) Then
+             ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
+             CALL MPI_SEND(nsigma_old,n, MPI_INTEGER  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+          else if (IRANK == List_Partner(I) ) Then
+             ! Write(6,*) 'Rec from ', List_partner(IRANK), 'on, ', IRANK, I + 512
+             CALL MPI_RECV(nsigma   , n, MPI_INTEGER,   List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+          endif
+       enddo
+       
+       !>  Each node now has a new configuration nsigma
+
+!!$    If (L_test) then
+!!$       Write(6,*) 'Testing global : ', Irank,List_partner(IRANK), nsigma_old(1,1),  nsigma_old(2,1), nsigma(1,1),  nsigma(2,1) 
+!!$    Endif
+
+
+
+       !>  Compute ratio on weights one each rank
+       DO nf = 1,N_FL
+          CALL INITD(UL(:,:,Nf),Z_ONE)
+          DL(:,nf) = Z_ONE
+          CALL INITD(VL(:,:,nf),Z_ONE)
+       ENDDO
+       DO NST = NSTM-1,1,-1
+          NT1 = Stab_nt(NST+1)
+          NT  = Stab_nt(NST  )
+          !Write(6,*) NT1,NT, NST
+          CALL WRAPUL(NT1,NT,UL,DL, VL)
+          Do nf = 1,N_FL
+             UST(:,:,NST,nf) = UL(:,:,nf)
+             VST(:,:,NST,nf) = VL(:,:,nf)
+             DST(:  ,NST,nf) = DL(:  ,nf)
+          ENDDO
+       ENDDO
+       NT1 = stab_nt(1)
+       CALL WRAPUL(NT1,0, UL ,DL, VL)
+       Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
+       do nf = 1,N_Fl
+          Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+          Phase_det_new(nf) = Z
+          Phase_new = Phase_new*Z
+       Enddo
+       call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
+       
+       T0_Proposal_ratio = 1.d0
+       Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
+            &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio) 
+       
+       If (L_Test)  Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot
+    
+       !>  Acceptace/rejection decision taken on master node after receiving information from slave
+       Do I = 0,Isize-1,2
+          If (Irank == I ) Then
+             CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+          else if (IRANK == List_Partner(I) ) Then
+             CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+             Weight = abs(Ratiotot_p*Ratiotot)
+             TOGGLE = .false. 
+             if ( Weight > ranf_wrap() )  Toggle =.true.
+             If (L_Test) Write(6,*) 'Master : ', List_Partner(I), I, Ratiotot_p,Ratiotot, Toggle
+          endif
+       enddo
+
+       !>  Send result of acceptance/rejection decision form master to slave
+       Do I = 0,Isize-1,2
+          If (Irank == List_Partner(I) ) Then
+             ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
+             CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
+          else if (IRANK == I ) Then
+             CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+             If (L_Test) Write(6,*) 'Slave : ', Irank,  Toggle
+          endif
+       enddo
+       
+       If (L_Test) Write(6,*) 'Final: ',  Irank, List_partner(Irank), toggle
+
+       Call Control_upgrade_Temp(toggle) 
+       If (toggle)  then
+          !>     Move has been accepted
+          Phase_old     = Phase_new
+          Phase_det_old = Phase_det_new
+          nsigma_old    = nsigma
+          Det_vec_old   = Det_vec_new
+       else
+          nsigma = nsigma_old
+       endif
+    enddo
+
+    !> Finalize
+    !> If move has been accepted, no use to recomute storage
+    If (.not.TOGGLE) then
+       DO nf = 1,N_FL
+          CALL INITD(UL(:,:,Nf),Z_ONE)
+          DL(:,nf) = Z_ONE
+          CALL INITD(VL(:,:,nf),Z_ONE)
+       ENDDO
+       DO NST = NSTM-1,1,-1
+          NT1 = Stab_nt(NST+1)
+          NT  = Stab_nt(NST  )
+          !Write(6,*) NT1,NT, NST
+          CALL WRAPUL(NT1,NT,UL,DL, VL)
+          Do nf = 1,N_FL
+             UST(:,:,NST,nf) = UL(:,:,nf)
+             VST(:,:,NST,nf) = VL(:,:,nf)
+             DST(:  ,NST,nf) = DL(:  ,nf)
+          ENDDO
+       ENDDO
+       NT1 = stab_nt(1)
+       CALL WRAPUL(NT1,0, UL ,DL, VL)
     Endif
+    !> Compute the Green functions so as to provide correct starting point for the sequential updates.
+    NVAR  = 1
+    Phase = cmplx(1.d0,0.d0,kind(0.d0))
+    do nf = 1,N_Fl
+       CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
+       Phase = Phase*Z
+    Enddo
+    call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
     
     Deallocate ( nsigma_old )
     Deallocate ( Det_vec_old, Det_vec_new ) 
@@ -337,14 +477,15 @@ Contains
           CALL WRAPUL(NT1,0, UL ,DL, VL)
        Endif
        !Compute the Green functions so as to provide correct starting point for the sequential updates.
-       NVAR = 1
-       Phase =cmplx(1.d0,0.d0,kind(0.d0))
+       NVAR  = 1
+       Phase = cmplx(1.d0,0.d0,kind(0.d0))
        do nf = 1,N_Fl
           CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
           Phase = Phase*Z
        Enddo
        call Op_phase(Phase,OP_V,Nsigma,N_SUN) 
     endif
+   
     
     Deallocate ( nsigma_old)
     Deallocate ( Det_vec_old  , Det_vec_new  ) 
