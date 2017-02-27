@@ -6,7 +6,7 @@
 
 % !TEX root = Doc.tex
 %------------------------------------------------------------
-\section{Implementation of the model} \label{sec:imp}
+\subsection{Implementation of the Hamiltonian \& the lattice} 
 %------------------------------------------------------------
 
 In general, the module \path{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). 
@@ -41,7 +41,7 @@ To specify the Hamiltonian, one needs  an  \path{Operator} and \path{Lattice} ty
 %
 
 %------------------------------------------------------------
-\subsection{The \texttt{Operator} type}\label{sec:op}
+\subsubsection{The \texttt{Operator} type}\label{sec:op}
 %------------------------------------------------------------
 
 The fundamental data structure in the code is the derived data type \path{Operator}. 
@@ -167,7 +167,7 @@ we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_{fl}$) 
 \end{itemize}
 
 %------------------------------------------------------------
-\subsection{The \texttt{Lattice} type}\label{sec:latt}
+\subsubsection{The \texttt{Lattice} type}\label{sec:latt}
 %------------------------------------------------------------
 
 We have a lattice module  which can generate one and two dimensional Bravais lattices.

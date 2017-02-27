@@ -6,7 +6,7 @@
 
 % !TEX root = Doc.tex
 %------------------------------------------------------------
-\section{Walkthrough: the $SU(2)$-Hubbard model on a square lattice}\label{sec:walk1}
+\subsection{The $SU(2)$-Hubbard model on a square lattice}\label{sec:walk1}
 %------------------------------------------------------------
 
 To implement a Hamiltonian, the user has to provide  a module   which  specifies the lattice, the model, as well as the observables  he/she  wishes to compute. 
@@ -30,7 +30,7 @@ $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T
  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 0 $.
 
 %------------------------------------------------------------
-\subsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
+\subsubsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
 %------------------------------------------------------------
 
 The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.f90}.
@@ -48,7 +48,7 @@ which specify the model. The array \texttt{nsigma} contains the HS field. The  r
 The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:input}.
 
 %------------------------------------------------------------
-\subsubsection{The lattice:   \texttt{Call Ham\_latt} }
+\paragraph{The lattice:   \texttt{Call Ham\_latt} }
 %------------------------------------------------------------
 
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . 
@@ -56,7 +56,7 @@ For the Hubbard model on the square lattice, the number of orbitals per unit cel
 \mycomment{Since $N_{\text{unit cell}} = \texttt{Latt\%N}$, this equation is a bit confusing.}
 
 %------------------------------------------------------------
-\subsubsection{The hopping term: \texttt{Call Ham\_hop}}
+\paragraph{The hopping term: \texttt{Call Ham\_hop}}
 %------------------------------------------------------------
 
 The hopping matrix is implemented as follows. 
@@ -97,7 +97,7 @@ Note that although a checkerboard decomposition is not  used here,  it can be im
 % \mycomment{Perhaps also mention \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and \texttt{Call Op\_set(Op\_T(1,1))} here} 
 
 %------------------------------------------------------------
-\subsubsection{The interaction term: \texttt{Call Ham\_V}}
+\paragraph{The interaction term: \texttt{Call Ham\_V}}
 %------------------------------------------------------------
 
 To implement this interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 1$. 
@@ -129,7 +129,7 @@ so as to completely define the interaction term.
 %\mycomment{Perhaps also mention \texttt{Call Op\_set(Op\_V(nc,n))} here}
 
 %------------------------------------------------------------
-\subsection{Observables}
+\subsubsection{Observables}
 %------------------------------------------------------------
 
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
@@ -139,7 +139,7 @@ If \texttt{Ltau=1} the the main program will call the routine \texttt{ObserT(NT,
 The user will have to  implement the  observables  he/she  wants to compute. Here  we  will describe how to  proceed. 
 
 %------------------------------------------------------------------------------------
-\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
+\paragraph{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
 %-------------------------------------------------------------------------------------
 
 For  four scalar  or vector observables,  the user will have to  declare the following: 
@@ -189,7 +189,7 @@ enddo
  \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring equal time observables: \texttt{Obser(GR,Phase,Ntau)}}
+\paragraph{Measuring equal time observables: \texttt{Obser(GR,Phase,Ntau)}}
 %-------------------------------------------------------------------------------------
 
 The equal time  green function,
@@ -246,7 +246,7 @@ Enddo
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring time-displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
+\paragraph{Measuring time-displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
 %-------------------------------------------------------------------------------------
 
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
@@ -267,7 +267,7 @@ Note that the above holds for the SU(2) HS transformation discussed in this chap
 The handling of time-displaced correlation functions is identical to that of equal time correlations. 
 
 %-------------------------------------------------------------------------------------
-\section{Walkthrough: the $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
+\subsection{The $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
 %-------------------------------------------------------------------------------------
 
 The Hubbard Hamiltonian can equally be written as:
@@ -288,7 +288,7 @@ $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T
  A sample run for this model can be found in \texttt{Examples/Hubbard\_Mz\_Square/}.
 
 %-------------------------------------------------------------------------------------
-\subsection{The interaction term: \texttt{Call Ham\_V} } 
+\subsubsection{The interaction term: \texttt{Call Ham\_V} } 
 %-------------------------------------------------------------------------------------
 The interaction term is now given by: 
 
@@ -319,7 +319,7 @@ Enddo
 In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors.  
 
 %-------------------------------------------------------------------------------------
- \subsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
+ \subsubsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
 %-------------------------------------------------------------------------------------
 
  Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal time spin-spin correlation functions,
@@ -333,14 +333,14 @@ Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will ha
 Apart from these modifications, the program  will run in exactly the same manner as for the SU(2) case. 
   
 %-------------------------------------------------------------------------------------  
-\section{Walkthrough: the $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
+\subsection{The $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
 %-------------------------------------------------------------------------------------
 
 The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simulations for  the the Hubbard model on the Honeycomb lattice by setting in the parameter file  (see Sec.~\ref{sec:input})   \texttt{Lattice\_type = "Honeycomb"}.
  A sample run for this model can be found in \texttt{Examples/Hubbard\_SU2\_Honeycomb/}.
 
  %-------------------------------------------------------------------------------------
-\subsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} }
+\subsubsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} }
 %-------------------------------------------------------------------------------------
 
   This model is an example of  a multi-orbital unit cell, and the aim of this section is to document how  implement this in the code.  The  Honeycomb lattice is a  triangular Bravais lattice the two orbitals per unit cell.  The routine  \texttt{Ham\_Latt} will set: 
@@ -376,7 +376,7 @@ Enddo
 With the above lists one can run trough all the orbitals and at each time keep track of the unit-cell and orbital index.    We note that when translation symmetry is completely absent  one can work with on unit cell, and the  number of orbitals will then correspond to the  number of lattice sites. 
 
 %-------------------------------------------------------------------------------------
-\subsection{The hopping term:  \texttt{Call Ham\_Hop} }
+\subsubsection{The hopping term:  \texttt{Call Ham\_Hop} }
 %-------------------------------------------------------------------------------------
 
 Some care has to be taken when setting the hopping matrix.    In the Hamilton module \path{Hamiltonian_Examples.f90}   we do this in the following way. 
@@ -409,13 +409,13 @@ Enddo
 As apparent from the above, hopping matrix elements   are non-zero only between the A and B  sublattices. 
 
 %-------------------------------------------------------------------------------------
-\subsection{Observables:  \texttt{Call Obser},   \texttt{Call ObserT}}
+\subsubsection{Observables:  \texttt{Call Obser},   \texttt{Call ObserT}}
 %-------------------------------------------------------------------------------------
 
 In the multi-orbital case,  the correlation functions have additional orbital indices. This is automatically taken care of in the routines \texttt{Call Obser} and \texttt{Call ObserT}  since  we considered the  Hubbard model on the square lattice to correspond to a multi-orbital unit cell albeit with the special choice of one orbital per unit cell. 
 
 %------------------------------------------------------------------------------------- 
-\section{Walkthrough: the $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}\label{sec:walk2}
+\subsection{The $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}\label{sec:walk2}
 %-------------------------------------------------------------------------------------
 
 The model we consider here  is very similar to the  above,  but has an additional coupling to a transverse field. 
@@ -443,7 +443,7 @@ Firstly,  one has to specify the function \texttt{Real (Kind=8) function S0(n,nt
 A sample run for this model can be found in \texttt{Examples/Hubbard\_SU2\_Ising\_Square/}.
 
 %-------------------------------------------------------------------------------------
-\subsection{The interaction term: \texttt{Call Ham\_V}}
+\subsubsection{The interaction term: \texttt{Call Ham\_V}}
 %-------------------------------------------------------------------------------------
 
 The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=(3*N_{\mathrm{dim}}) \times 1$. 
@@ -498,7 +498,7 @@ Enddo
 \end{lstlisting}
 
 %-------------------------------------------------------------------------------------
-\subsection{The function \texttt{Real (Kind=8) function S0(n,nt)} }\label{sec:s0}
+\subsubsection{The function \texttt{Real (Kind=8) function S0(n,nt)} }\label{sec:s0}
 %-------------------------------------------------------------------------------------
 
 As mentioned above,  a configuration is given by

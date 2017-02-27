@@ -5,68 +5,7 @@
 % For the licensing details of the documentation see license.CCBYSA.
 
 % !TEX root = Doc.tex
-%------------------------------------------------------------
-\section{Definition of the model Hamiltonian}\label{sec:def}
-%------------------------------------------------------------
 
-The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that have the following general form:
-\begin{eqnarray}
-\hat{\mathcal{H}}&=&\hat{\mathcal{H}}_{T}+\hat{\mathcal{H}}_{V} +  \hat{\mathcal{H}}_{I} +   \hat{\mathcal{H}}_{0,I}\;,\mathrm{where}
-\label{eqn:general_ham}\\
-\hat{\mathcal{H}}_{T}
-&=&
-\sum\limits_{k=1}^{M_T}
-\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{s=1}^{N_{\mathrm{fl}}}
-\sum\limits_{x,y}^{N_{\mathrm{dim}}}
-\hat{c}^{\dagger}_{x \sigma   s}T_{xy}^{(k s)} \hat{c}^{\phantom\dagger}_{y \sigma s}  \equiv  \sum\limits_{k=1}^{M_T} \hat{T}^{(k)}
-\label{eqn:general_ham_t}\\
-\hat{\mathcal{H}}_{V}
-&=&
-\sum\limits_{k=1}^{M_V}U_{k}
-\left\{
-\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{s=1}^{N_{\mathrm{fl}}}
-\left[
-\left(
-\sum\limits_{x,y}^{N_{\mathrm{dim}}}
-\hat{c}^{\dagger}_{x \sigma s}V_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}
-\right)
-+\alpha_{k s} 
-\right]
-\right\}^{2}  \equiv   
-\sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}^{(k)} \right)^2
-\label{eqn:general_ham_v}\\
-\hat{\mathcal{H}}_{I}  & = &
-\sum\limits_{k=1}^{M_I} \hat{Z}_{k} 
-\left(
-\sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\sum\limits_{s=1}^{N_{\mathrm{fl}}}
-\sum\limits_{x,y}^{N_{\mathrm{dim}}}
-\hat{c}^{\dagger}_{x \sigma s} I_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}
-\right) \equiv \sum\limits_{k=1}^{M_I} \hat{Z}_{k}    \hat{I}^{(k)} 
-\;.\label{eqn:general_ham_i}
-\end{eqnarray}
-The indices have the following meaning:
-\begin{itemize}
-\item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard-Stratonovich transformation, the action will be block diagonal in the flavor index. 
-\item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $. 
-\item The indices $x,y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
-
-$N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit cell}} N_{\mathrm{orbital}}$, 
-where $N_{\text{unit cell}}$ is the number of unit cells of the underlying Bravais lattice and $N_{\mathrm{orbital}}$ is the number of (spacial) orbitals per unit cell.
-\item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$
-\item The number of interaction terms  is labelled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition.
-\end{itemize}
-The Ising part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\mathcal{H}}_{0,I}+ \hat{\mathcal{H}}_{I}$ and  has the following properties:
-\begin{itemize}
-\item $\hat{Z}_k$ is an Ising spin operator which corresponds to the Pauli matrix $\hat{\sigma}_{z}$. It couples to a general one-body term. 
-\item  The dynamics of the Ising spins is given by $\hat{\mathcal{H}}_{0,I}$. This term is not specified here; 
-it has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{sec:walk2} for an example).
-\end{itemize}
-Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
-the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  Hermitian.
 
 %------------------------------------------------------------
 \subsection{Formulation of the QMC}  

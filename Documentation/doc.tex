@@ -29,6 +29,15 @@
 \usepackage{booktabs}
 \usepackage{hyperref} 
 
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+            {-2.5ex\@plus -1ex \@minus -.25ex}%
+            {1.25ex \@plus .25ex}%
+            {\normalfont\normalsize\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{4} 
+\setcounter{tocdepth}{4}
+
 \lstset{language=Fortran,
   basicstyle=\ttfamily,
   keywordstyle=\color{red},
@@ -56,10 +65,12 @@ language=bash,
 \def\Trf{\mathop{\mathrm{Tr}_{\mathrm{F}}}}
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
+
+% % only for the scrartcl class:
 \setkomafont{author}{\large}
 \setkomafont{date}{\large}
-\RedeclareSectionCommand[style=section,indent=0pt]{part}
-\renewcommand*\partformat{\thepart\autodot\enskip}
+% \RedeclareSectionCommand[style=section,indent=0pt]{part}
+% \renewcommand*\partformat{\thepart\autodot\enskip}
 
 \newcommand{\mycomment}[1]{{\color{blue} #1}}
 \newcommand{\FAcomment}[1]{{\color{red} #1}}
@@ -81,21 +92,22 @@ and proper attribution to the authors is given. For details see the ALF project
 homepage \url{alf.physik.uni-wuerzburg.de}.
 \tableofcontents
 \clearpage
-\part{Introduction}
+\section{Introduction}\label{sec:intro}
 \input{intro}
-\part{QMC Essentials}
+\section{QMC Essentials}\label{sec:def}
 \input{model}
 \input{updating}
-\part{Data Structures and I/O}
+\section{Data Structures and I/O}\label{sec:imp}
 \input{implementation}
 \input{files}
 \input{analysis}
 \input{running}
-\part{Examples}
+\section{Examples}
 \input{walkthrough_hubbard}
-\part{Miscellaneous}
+\section{Miscellaneous}
 \input{other_models}
 \input{performance}
+\section{Conclusions and future directions}
 \input{conclusion}
 \addcontentsline{toc}{section}{Acknowledgments}
 \input{acknowledgment}

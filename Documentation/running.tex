@@ -6,13 +6,13 @@
 
 % !TEX root = Doc.tex
 %-------------------------------------------------------------------------------------
-\section{Running the code}\label{sec:running}
+\subsection{Running the code}\label{sec:running}
 %-------------------------------------------------------------------------------------
 
 In this section we describe the steps to compile and run the code and to perform the error analysis of the data.
 
 %-------------------------------------------------------------------------------------
-\subsection{Compilation}
+\subsubsection{Compilation}
 %-------------------------------------------------------------------------------------
 
 The environment variables are defined in the bash script \texttt{set\_env.sh} as follows:
@@ -72,7 +72,7 @@ cd ..
 \end{enumerate}
 
 %-------------------------------------------------------------------------------------
-\subsection{Starting a simulation}
+\subsubsection{Starting a simulation}
 %-------------------------------------------------------------------------------------
 
 To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
@@ -84,7 +84,7 @@ To restart the code using an existing simulation as a starting point, first run 
 the input configuration files.
 
 %-------------------------------------------------------------------------------------
-\subsection{Error analysis}
+\subsubsection{Error analysis}
 %-------------------------------------------------------------------------------------
 
 To perform an error analysis, based on the jackknife scheme, of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
