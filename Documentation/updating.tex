@@ -62,5 +62,19 @@ a global variable declared in the module, \texttt{Hamiltonian}.
 
 Note that global updates are expensive since they require a complete recalculation of the weight. We thereby  allow the user to set a variable \texttt{N\_Global} that allows to  determine how many global updates per sweeps will be carried out. 
 
- 
+\subsection{Parallel Tempering} 
+Parallel tempering or exchange Monte Carlo   is very useful  when  one encounters  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.    In this situation parallel tempering may be in efficient way to solve the problem.  For example, in the realm of spin glasses, $h$, could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, to implement parallel tempering  one will carry out in parallel simulations at   consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with for instance $h_{1} < h_2 < \cdots h_n$ and one will sample the probability distribution: 
+\begin{equation}
+	P(\left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right] ) =  \frac{W(h_1,C_1) W(h_2,C_2) \cdots   W(h_n,C_n) } {\sum_{C_1, C_2, \cdots, C_n} W( h_1,C_1) W( h_2,C_2) \cdots   W(h_n,C_n)}
+\end{equation}
+where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C.     Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$-independent runs.  Parallel tempering  includes the following   exchange step:
+\begin{equation}
+	\left[h_1,C_1\right], \cdots, \left[h_i,C_i\right],\left[h_{i+1},C_{i+1}\right] \cdots, \left[h_n,C_n\right]   \rightarrow 
+	\left[h_1,C_1\right], \cdots, \left[h_i,C_{i+1}\right],\left[h_{i+1},C_{i}\right] \cdots, \left[h_n,C_n\right] 
+\end{equation}
+which, for a symmetric proposal matrix, will  be accepted with probability: 
+\begin{equation}
+	\text{ min} \left( 1,   \frac{ W(h_i,C_{i+1}) W(h_{i+1},C_{i})}{W(h_i,C_{i}) W(h_{i+1},C_{i+1})} \right).
+\end{equation}
+ Thereby,  a configuration can meander in parameter space $h$ and  explore parameter regions where ergodicity  is not an issue.     In other words, and in the context of spin-glasses,  a low temperature  configuration, stuck in a local minima, can heat up, overcome the potential  barrier and then cool down again. 
  
