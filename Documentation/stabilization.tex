@@ -1,1 +1,29 @@
 \subsection{Stabilization - A Peculiarity of the BSS Algorithm}
+From \eqref{eqn:partition_2} it can be seen that for the calculation of the Monte Carlo weight
+and for the observables a long product of Matrixexponentials has to be formed.
+On top of that we need to be able to extract the single- particle Greensfunction from 
+the equation 
+\begin{equation}
+G = \left( 1 + \prod_{i = 1}^{N_\tau} B(\tau_i, \tau_{i+1})\right)^{-1}
+\end{equation}
+To boil this down to more familiar terms from linear algebra we remark that we can recast this problem as the question to the solution of the linear system
+\begin{equation}
+(1 + \prod_i B_i) x = b
+\end{equation}
+From standard perturbation theory for linear systems it is known that the computed solution $\tilde{x}$ would 
+contain a relative error of
+\begin{equation}
+\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa(1 + \prod_i B_i)\right).
+\end{equation}
+Here $\epsilon$ denotes the machine precision which is $2^{-53}$ for IEEE double precision numbers.
+and $\kappa(M)$ is the condition number of the matrix $M$.
+The important fact that makes straight-forward inversion so badly suited is the point that
+each of the $B_i$ contains exponentially large and small scales as can be seen in \eqref{eqn:partition_2}. The condition number in the above expression is the product of the $B_i$
+and hence can be virtually unbounded in size. This means that the so computed solution $\tilde{x}$
+will contain no correct digits at all.
+So, to circumvent that more sophisticted methods have to be employed. ALF is by default employing
+the strategy of forming a product of QR-decompositions which was proven to be weakly backwards stable in \cite{Bai2011}. The key idea is to try separate the scales from the plain rotations. This can be achieved using a QR decomposition of the $B_i = Q_i \tilde{R_i}$. Now $Q_i$ is a unitary matrix and hence $\kappa(Q_i) = 1$. To get a handle on the condition number of $\tilde{R}_i$ we will form the diagonal matrix $(D_i)_{jj} = |(\tilde{R}_i)_{jj}|$ and rescale $\tilde{R}_i$ accordingly, $\tilde{R}_i = D_i R_i$. This gives the decomposition
+\begin{equation}
+B_i = Q_i D_i R_i
+\end{equation}
+$D_i$ now contains the row norms of the original $\tilde{R}_i$ matrix and hence separates off the total scales of the problem since $R_i$ is now of only modest condition number.
