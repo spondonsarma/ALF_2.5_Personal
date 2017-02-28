@@ -75,11 +75,10 @@ a global variable declared in the module, \texttt{Hamiltonian}.
 Note that global updates are expensive since they require a complete recalculation of the weight. We thereby  allow the user to set a variable \texttt{N\_Global} that allows to  determine how many global updates per sweeps will be carried out. 
 % 
 %------------------------------------------------------------
-\subsubsection{Parallel Tempering} 
+\subsubsection{Parallel Tempering } 
 %------------------------------------------------------------
 % 
-Parallel tempering or exchange Monte Carlo   is very useful  when  one encounters  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.    In this situation parallel tempering may be in efficient way to solve the problem.  For example, in the realm of spin glasses, $h$, could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, to implement parallel tempering  one will carry out in parallel simulations at   consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with for instance $h_{1} < h_2 < \cdots h_n$ and one will sample the probability distribution: 
-\begin{equation}
+Exchange Monte Carlo \cite{Hukushima96}  or parallel tempering \cite{Greyer91}   is very useful  when  one encounters  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$, could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with for instance $h_{1} < h_2 < \cdots h_n$.  One will sample the extended ensemble: \begin{equation}
 	P(\left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right] ) =  \frac{W(h_1,C_1) W(h_2,C_2) \cdots   W(h_n,C_n) } {\sum_{C_1, C_2, \cdots, C_n} W( h_1,C_1) W( h_2,C_2) \cdots   W(h_n,C_n)}
 \end{equation}
 where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C.     Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$-independent runs.  Parallel tempering  includes the following   exchange step:
@@ -93,3 +92,22 @@ which, for a symmetric proposal matrix, will  be accepted with probability:
 \end{equation}
  Thereby,  a configuration can meander in parameter space $h$ and  explore parameter regions where ergodicity  is not an issue.     In other words, and in the context of spin-glasses,  a low temperature  configuration, stuck in a local minima, can heat up, overcome the potential  barrier and then cool down again. 
  
+The choice of the   $h_i$'s  is important  to  obtain a good acceptance rate for the exchange step.  With  $W(h,C)  = e^{- S(h,C) }$, the  distribution of the action $S$  reads:
+\begin{equation}
+	 {\cal P}( h, S ) =   \sum_{C}     P( h,C )   \delta ( S(h,C) -  S ). 
+\end{equation} 
+Acceptance of the exchange  step requires the distributions  ${ \cal P}( h, S )  $ and       ${ \cal P}( h  + \Delta h , S )  $ to overlap. For 
+$\langle S \rangle_{h}  < \langle S \rangle_{h +  \Delta h} $   one can formulate this  requirement as:
+\begin{equation}
+	\langle S \rangle_{h}  +\langle \Delta S \rangle_{h}   \simeq \langle S \rangle_{h +  \Delta h}  - \langle \Delta S \rangle_{h + \Delta h} ,  \text{    with   }   
+\langle \Delta S \rangle_{h}   =  \sqrt{ \langle \left(    S -  \langle S   \rangle_h  	\right)^2 \rangle_h} .
+\end{equation}
+Assuming  $ \langle \Delta S \rangle_{h + \Delta_h}  \simeq \langle \Delta S \rangle_{h} $  and expanding in $\Delta h$ one obtains: 
+\begin{equation}
+	\Delta h \simeq \frac{ 2  \langle \Delta S \rangle_{h}    }{ \partial \langle S \rangle_{h} / \partial h}.  
+\end{equation} 
+The above equation becomes transparent  for  classical systems  with $ S(h,C) =  h H(C) $.  In this case, the above equation reads: 
+\begin{equation}
+	\Delta h       \simeq  2 h \frac{  \sqrt{C} } { C    + h \langle H \rangle_h},  \text{   with  } C = h^2    \langle \left(  H -  \langle H   \rangle_h \right)^2 \rangle_h
+\end{equation} 
+Two comments are in order. i)    Let us identify $h$ to the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  h. 
