@@ -10,12 +10,12 @@
 %-----------------------------------------
 
 The auxiliary field quantum Monte Carlo (QMC) approach is the algorithm of choice to simulate a variety of correlated electron systems in the solid state and beyond \cite{Blankenbecler81,Assaad08_rev}.  
-The phenomena  one can investigate in detail include correlation effects in in the bulk and surfaces of topological insulators, quantum phase transitions between semimetals (Dirac fermions)  and insulators,  
-deconfined quantum critical points, topologically ordered phases, heavy fermion systems, nematic and magnetic quantum phase transitions in metals,   superconductivity in spin orbit split bands, SU(N) symmetric models,  etc. 
-This ever growing list of phenomena is based on  recent symmetry related insights that enable one to  find  sign free formulations of the  problem thus allowing solutions in polynomial time \cite{Wu04,Wei16}.   
-The aim of this project is to introduce a general formulation of the finite temperature  auxiliary field method  so as to quickly be able to play with different model Hamiltonians  at  minimal programming cost.      
-The reader is expected to be familiar with the auxiliary field QMC  approach. A detailed review containing all  the prerequisites for understanding  the code can be found in \cite{Assaad08_rev}.    
-In this documentation, we will briefly list the most important equations of the auxiliary field QMC and then show in all details how to implement a variety of models, run the code, and produce  results for  equal time and time displaced correlation functions. 
+The phenomena  one can investigate in detail include correlation effects in the bulk and surfaces of topological insulators, quantum phase transitions between semimetals (Dirac fermions)  and insulators,  
+deconfined quantum critical points, topologically ordered phases, heavy fermion systems, nematic and magnetic quantum phase transitions in metals,   superconductivity in spin-orbit split bands, SU(N) symmetric models,  etc. 
+This ever growing list of phenomena is based on  recent symmetry related insights enabling one to  find  sign-free formulations of the  problem thus allowing for solutions in polynomial time \cite{Wu04,Wei16}.   
+The aim of the ALF project is to introduce a general formulation of the finite temperature  auxiliary field QMC method  so as to quickly be able to play with different model Hamiltonians  at  minimal programming cost.      
+The reader is expected to be somewhat familiar with the auxiliary field QMC  approach. A detailed review containing all  the prerequisites for understanding  the code can be found in \cite{Assaad08_rev}.    
+In this documentation, we briefly list the most important equations of the auxiliary field QMC method and then show in all details how to implement a variety of models, run the code, and produce  results for  equal-time and time-displaced correlation functions. 
 The program code is written in Fortran according to the 2003 standard. 
 
 
@@ -23,11 +23,11 @@ The program code is written in Fortran according to the 2003 standard.
 \subsection{Definition of the Hamiltonian}
 %------------------------------------------------------------
 
-The first and most important  part is to define a general Hamiltonian  that  can  accommodate a large class of models. 
-Our approach is to express the model as a sum of one-body terms, a sum of two-body terms each written as a perfect square of a one one body term, as well as one-body  term  coupled to an Ising field with  dynamics to be specified by the user. 
+The first and most important  part is to define a general Hamiltonian which  can  accommodate a large class of models. 
+Our approach is to express the model as a sum of one-body terms, a sum of two-body terms each written as a perfect square of a one body term, as well as one-body  term  coupled to an Ising field with  dynamics to be specified by the user. 
 The form of the interaction in terms of sums of perfect squares allows us to use generic forms of  discrete  approximations to the  Hubbard-Stratonovich (HS)  transformation. 
 Symmetry considerations  are  imperative to enhance the speed of the code.  
-We thereby include a \textit{color} index  reflecting  an underlying  SU(N) color symmetry as  well as a flavor index  reflecting  the fact that  after  the HS  transformation,  the  fermionic determinant is block diagonal in this index.
+We therefore include a \textit{color} index  reflecting  an underlying  SU(N) color symmetry as  well as a flavor index  reflecting  the fact that  after  the HS  transformation,  the  fermionic determinant is block diagonal in this index.
 
 The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that have the following general form:
 \begin{eqnarray}
@@ -82,7 +82,7 @@ The Ising part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\math
 \begin{itemize}
 \item $\hat{Z}_k$ is an Ising spin operator which corresponds to the Pauli matrix $\hat{\sigma}_{z}$. It couples to a general one-body term. 
 \item  The dynamics of the Ising spins is given by $\hat{\mathcal{H}}_{0,I}$. This term is not specified here; 
-it has to be specified by the user and is only relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{sec:walk2} for an example).
+it has to be specified by the user and becomes relevant when the Monte Carlo update probability is computed in the code (see Sec.~\ref{sec:walk2} for an example).
 \end{itemize}
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
 The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)    symmetric.  We also require
@@ -92,15 +92,17 @@ the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  Herm
 \subsection{Outline}
 %------------------------------------------------------------
 
-To use the code, one will require a minimal understanding of the algorithm.  
-In Section~\ref{sec:def}, we very briefly show how to go through  the steps required  to formulated the many body imaginary time propagation in terms of a sum  over HS and Ising fields  of one body  imaginary time propagator.   
-The user will have to provide this one body imaginary time propagator for a given configuration of   HS and  Ising fields.   
+To use the code, a minimal understanding of the algorithm is necessary. 
+In Sec.~\ref{sec:def}, we go very briefly through  the steps required  to formulate the many-body imaginary-time propagation in terms of a sum  over HS and Ising fields  of one-body  imaginary time-propagators.   
+The user has to provide this one-body imaginary-time propagator for a given configuration of   HS and  Ising fields. 
+We equally discuss the Monte Carlo updates as well as the strategies for numerical stabilization of the code. 
 
-Section \ref{sec:imp} is devoted to the data structures which  need to implement the model.  
-This includes  an \texttt{Operator} type to  optimally work with sparse Hermitian matrices, a \texttt{Lattice} type  to define one and two dimensional Bravais lattices, and   two   \texttt{Observable} types to handle equal time, time displaced and scalar observables. 
+Section \ref{sec:imp} is devoted to the data structures that are needed to implement the model, as well as to the input and output file structure.   
+The data structure includes  an \texttt{Operator} type to  optimally work with sparse Hermitian matrices, a \texttt{Lattice} type  to define one- and two-dimensional Bravais lattices, and   two   \texttt{Observable} types to handle site-dependent equal-time and  time-displaced observables, as well as scalar observables. 
 
-The Monte Carlo run and the  data analysis  are separate: the QMC run  dumps the results of \textit{bins}  sequentially into files  which are then analyzed by  analysis programs. In Sec.~\ref{sec:analysis}, we provide a brief description of the analysis programs  for our three observable types.  The analysis program allow for omitting a given number of initial bins so as to allow for warmup and to rebin  so as to a posteriori take into account long autocorrelation times.  Finally, Sec.~\ref{sec:running}  will provide all details required to compile and run the code. 
+The Monte Carlo run and the  data analysis  are separated: the QMC run  dumps the results of \textit{bins}  sequentially into files  which are then analyzed by  analysis programs. In Sec.~\ref{sec:analysis}, we provide a brief description of the analysis programs  for our three observable types.  The analysis programs allow for omitting a given number of initial bins in order to account for warmup times. Also, a rebinning analysis is included  to a posteriori take  account of long autocorrelation times.  Finally, Sec.~\ref{sec:running} provides all the necessary details  to compile and run the code. 
 
 
-We  give explicit examples on how to use the code for  the  Hubbard model on square and honeycomb lattices  for different choices of the Hubbard  Stratonovich transformation  (See Secs.~\ref{sec:walk1},~\ref{sec:walk1.1} and ~\ref{sec:walk1.2})  as well as the Hubbard model on a square lattice coupled to a transverse Ising field (see Sec.~\ref{sec:walk2} ).   Our implementation is rather general such that  a variety of other models can be simulated. In Sec.~\ref{sec:other_models}   we provide  some information on how to simulate the Kondo lattice as well as the SU(N) symmetric Hubbard-Heisenberg model. 
+We  give explicit examples on how to use the code for  the  Hubbard model on square and honeycomb lattices,  for different choices of the Hubbard-Stratonovich transformation  (see Secs.~\ref{sec:walk1},~\ref{sec:walk1.1} and ~\ref{sec:walk1.2})  as well as for the Hubbard model on a square lattice coupled to a transverse Ising field (see Sec.~\ref{sec:walk2} ).   Our implementation is rather general such that  a variety of other models can be simulated. In Sec.~\ref{sec:misc}   we provide  some information on how to simulate the Kondo lattice as well as the SU(N) symmetric Hubbard-Heisenberg model. 
 
+Finally, in Sec.~\ref{sec:con} we list a number of features that are considered for  future releases of the ALF program package.
