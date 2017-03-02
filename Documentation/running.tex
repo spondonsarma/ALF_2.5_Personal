@@ -25,7 +25,7 @@ The environment variables are defined in the bash script \texttt{set\_env.sh} as
 # -DQRREF selects  a reference implementation of the QR decomposition. 
 # Setting nothing selects system lapack for the QR decomposition.
 # -DSTAB1 selects an alternative stabilization scheme.
-# Setting nothing selects the default stabilizatiion
+# Setting nothing selects the default stabilizatition
 PROGRAMMCONFIGURATION=""
 f90="gfortran"
 export f90
@@ -76,7 +76,7 @@ cd ..
 %-------------------------------------------------------------------------------------
 
 To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
-To run a single-thread simulation for one of the  Hubbard model described in Sec.~\ref{sec:walk1} - \ref{sec:walk2}, issue the command
+To run a single-thread simulation, for example by using the parameters of one of the  Hubbard models described in Sec.~\ref{sec:ex}, issue the command
 \begin{verbatim}
 ./Prog/Examples.out
 \end{verbatim}
@@ -87,7 +87,7 @@ the input configuration files.
 \subsubsection{Error analysis}
 %-------------------------------------------------------------------------------------
 
-To perform an error analysis, based on the jackknife scheme, of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
+To perform an error analysis (based on the jackknife scheme) of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
 (see Sec.~\ref{sec:analysis}).
 
  
