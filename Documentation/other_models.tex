@@ -74,8 +74,8 @@ To use the QMC code of the ALF project  to simulate this model, one will rewrite
         \left(\hat{D}^{\dagger}_{   \langle \vec{i}, \vec{j} \rangle } -  \hat{D}_{  \langle \vec{i}, \vec{j} \rangle}  \right)^2,
 \end{equation}
 so to manifestly bring it into the form of the general Hamiltonian(\ref{eqn:general_ham}). 
-It is amusing to note that setting the hopping $t=0$,    charge fluctuations  will be suppressed by the  Boltzmann factor $e^{\beta U /N \left(  \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2 } $ 
-\mycomment{MB: Missing minus sign in the exponent ($U>0$)?}
+It is amusing to note that setting the hopping $t=0$,    charge fluctuations  will be suppressed by the  Boltzmann factor $e^{-\beta U /N \left(  \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2 } $ 
+\mycomment{MB: corrected minus sign in the exponent}
 since in this case  $ \left[   \hat{\mathcal{H}}, \hat{\mathcal{H}}_U \right]  = 0 $.
 \mycomment{MB: I suggest to use only the J-term here, $ \left[   \hat{\mathcal{H}}_{J}, \hat{\mathcal{H}}_U \right]  = 0 $.}
 This provides a route to use the auxiliary field QMC algorithm  to simulate -- free of the sign problem -- SU(2N) Heisenberg models in the self-adjoint antisymmetric representation  \footnote{ This corresponds to a Young tableau with single column and $N/2$ rows.}  
