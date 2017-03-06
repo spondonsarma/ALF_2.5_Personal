@@ -9,9 +9,9 @@
 \subsection{Updating schemes}\label{sec:updating}
 %------------------------------------------------------------
 %
-The program allows for different types of updating schemes.    Given a configuration $C$ we propose a new one, $C'$, with probability $T_0(C \rightarrow C')$  and accept it according to 
+The program allows for different types of updating schemes.    Given a configuration $C$ we propose a new one, $C'$, with probability $T_0(C \rightarrow C')$  and accept it according to   the  Metropolis-Hastings   acceptance-rejection probability, 
 \begin{equation}
-	P(C \rightarrow C') =  \text{min}  \left( 1, \frac{T_0(C' \rightarrow C) W(C')}{T_0(C \rightarrow C') W(C)} \right)
+	P(C \rightarrow C') =  \text{min}  \left( 1, \frac{T_0(C' \rightarrow C) W(C')}{T_0(C \rightarrow C') W(C)} \right),
 \end{equation}
 so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[ e^{-S(C)} \right] \right|   $.
 
@@ -111,6 +111,6 @@ The above equation becomes transparent  for  classical systems  with $ S(h,C) = 
 \begin{equation}
 	\Delta h       \simeq  2 h \frac{  \sqrt{C} } { C    + h \langle H \rangle_h},  \text{   with  } C = h^2    \langle \left(  H -  \langle H   \rangle_h \right)^2 \rangle_h
 \end{equation} 
-Two comments are in order. i)    Let us identify $h$ to the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  h. 
+Several comments are in order. i)    Let us identify $h$ to the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  h.  iii)  Since the action is formulation dependent,   one expects the acceptance of the  exchange move to equally depend  upon the fomulation. 
 
  ALF  comes with a parallel tempering  compiler option which we will discuss  in section \ref{Parallel.Sec}. 

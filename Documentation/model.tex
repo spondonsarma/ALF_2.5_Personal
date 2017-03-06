@@ -13,8 +13,8 @@
 
 The formulation of the  Monte Carlo simulation is based on the following.
 \begin{itemize}
-\item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $
-\item  We will use  the   discrete Hubbard-Stratonovich transformation:
+\item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $ \cite{Fye86}
+\item  We will use  the   discrete Hubbard-Stratonovich transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
         e^{\Delta \tau  \lambda  \hat{A}^2 } =
@@ -55,7 +55,7 @@ Z &=& \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  \right]\right\} }+ \mathcal{O}(\Delta\tau^{2})\;.
 \end{eqnarray}
 In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
-$S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.
+$S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.  We have adopted the short hand notation $\eta_{k,\tau}  = \eta(l_{k,\tau})$   and $\gamma_{k,\tau}  = \gamma(l_{k,\tau})$.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{eqnarray}
  &\quad&\Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[   \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
@@ -103,9 +103,10 @@ For a given configuration $C$  one can use Wicks theorem to compute $O (C) $   f
 \end{equation}
 where $ {\cal T} $ corresponds to the imaginary time ordering operator.   The  corresponding equal time quantity reads, 
 \begin{equation}
-       G( x,\sigma,s, \tau |    x',\sigma',s', \tau)   =       \langle \langle {\cal T} \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau) \rangle \rangle_{C}
+       G( x,\sigma,s, \tau |    x',\sigma',s', \tau)   =       \langle \langle  \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau) \rangle \rangle_{C}.
 \end{equation}
 Since  for a given HS field translation invariance in imaginary time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent on the color index.  The later reflects the  explicit SU(N)   color symmetry present at the level of individual HS configurations. 
+
 
 To compute equal time as well as time-displaced observables,  one can make use of Wicks theorem. A convenient formulation of this theorem for  QMC simulations reads: 
 \begin{eqnarray}
@@ -132,7 +133,8 @@ In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamilt
 \subsubsection{Reweighting and the sign problem}\label{sec:reweight}
 %------------------------------------------------------------
 
-In general, the action  $S(C) $ will be complex, thereby inhibiting a direct Monte Carlo sampling of $P(C)$.   This leads to the infamous sign problem.  When the average sign is not too small, we can nevertheless  compute observables within a reweighting scheme.   Here we adopt the following scheme. First  note  that the partition function is real such that: 
+In general, the action  $S(C) $ will be complex, thereby inhibiting a direct Monte Carlo sampling of $P(C)$.   This leads to the infamous sign problem.     The sign problem is formulation dependent and as noted above, much progress has been made at understanding the class of models that  can be formulated without encountering this problem 
+\cite{Wu04,Huffman14,Yao14a,Wei16}.  When the average sign is not too small, we can nevertheless  compute observables within a reweighting scheme.   Here we adopt the following scheme. First  note  that the partition function is real such that: 
 \begin{equation}
 	Z =   \sum_{C}  e^{-S(C)}    =  \sum_{C}  \overline{e^{-S(C)}} = \sum_{C}  \Re \left[e^{-S(C)} \right]. 
 \end{equation}

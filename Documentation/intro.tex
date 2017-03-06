@@ -9,10 +9,10 @@
 \subsection{Motivation}
 %-----------------------------------------
 
-The auxiliary field quantum Monte Carlo (QMC) approach is the algorithm of choice to simulate a variety of correlated electron systems in the solid state and beyond \cite{Blankenbecler81,Assaad08_rev}.  
-The phenomena  one can investigate in detail include correlation effects in the bulk and surfaces of topological insulators, quantum phase transitions between semimetals (Dirac fermions)  and insulators,  
+The auxiliary field quantum Monte Carlo (QMC) approach is the algorithm of choice to simulate a variety of correlated electron systems in the solid state and beyond \cite{Blankenbecler81,White89,Assaad08_rev}.  
+Apart from the canonical Hubbard model, the phenomena  one can investigate in detail include correlation effects in the bulk and surfaces of topological insulators \cite{Hohenadler10}, quantum phase transitions between semimetals (Dirac fermions)  and insulators,  
 deconfined quantum critical points, topologically ordered phases, heavy fermion systems, nematic and magnetic quantum phase transitions in metals,   superconductivity in spin-orbit split bands, SU(N) symmetric models,  etc. 
-This ever growing list of phenomena is based on  recent symmetry related insights enabling one to  find  sign-free formulations of the  problem thus allowing for solutions in polynomial time \cite{Wu04,Wei16}.   
+This ever growing list of phenomena is based on  recent symmetry related insights enabling one to  find  sign-free formulations of  interesting  Hamiltonians thus allowing for solutions in polynomial time \cite{Wu04,Huffman14,Yao14a,Wei16}.   
 The aim of the ALF project is to introduce a general formulation of the finite temperature  auxiliary field QMC method  so as to quickly be able to play with different model Hamiltonians  at  minimal programming cost.      
 The reader is expected to be somewhat familiar with the auxiliary field QMC  approach. A detailed review containing all  the prerequisites for understanding  the code can be found in \cite{Assaad08_rev}.    
 In this documentation, we briefly list the most important equations of the auxiliary field QMC method and then show in all details how to implement a variety of models, run the code, and produce  results for  equal time and time displaced correlation functions. 
@@ -70,7 +70,7 @@ The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that hav
 The indices have the following meaning:
 \begin{itemize}
 \item The number of fermion \textit{flavors} is set by $N_{\mathrm{fl}}$.  After the Hubbard-Stratonovich transformation, the action will be block diagonal in the flavor index. 
-\item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $. 
+\item The number of fermion \textit{colors} is set by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations. \footnote{Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $.} 
 \item The indices $x,y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
 
 $N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit cell}} N_{\mathrm{orbital}}$, 
