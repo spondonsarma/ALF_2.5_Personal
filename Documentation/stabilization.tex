@@ -1,10 +1,12 @@
+% !TEX root = Doc.tex
+
 \subsection{Stabilization - A Peculiarity of the BSS Algorithm}
 From \eqref{eqn:partition_2} it can be seen that for the calculation of the Monte Carlo weight
 and for the observables a long product of matrix exponentials has to be formed.
 On top of that we need to be able to extract the single particle Greensfunction from 
 the equation 
 \begin{equation}
-G = \left( 1 + \prod_{i = 1}^{N_\tau} B(\tau_i, \tau_{i+1})\right)^{-1}
+G = \left( 1 + \prod_{i = 1}^{L_{Trotter}} B(\tau_i, \tau_{i+1})\right)^{-1}
 \end{equation}
 To boil this down to more familiar terms from linear algebra we remark that we can recast this problem as the question to the solution of the linear system
 \begin{equation}

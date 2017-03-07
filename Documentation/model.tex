@@ -105,7 +105,15 @@ where $ {\cal T} $ corresponds to the imaginary time ordering operator.   The  c
 \begin{equation}
        G( x,\sigma,s, \tau |    x',\sigma',s', \tau)   =       \langle \langle  \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau) \rangle \rangle_{C}.
 \end{equation}
-Since  for a given HS field translation invariance in imaginary time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent on the color index.  The later reflects the  explicit SU(N)   color symmetry present at the level of individual HS configurations. 
+Since  for a given HS field translation invariance in imaginary time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent on the color index. The later reflects the  explicit SU(N)   color symmetry present at the level of individual HS configurations.   As an example,  one can show that the equal time Green function at $\tau = 0$ reads:
+\begin{equation}
+G(x,\sigma,s,0| x',\sigma,s,0 )  =   \left(  1  +  \prod_{\tau = 1}^{L_{\text{Trotter}}}  B_{\tau}^{(s)}   \right)^{-1}_{x,x'}
+\end{equation}
+with
+\begin{equation}
+	B_{\tau}^{(s)} =  \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}}  
+    \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}.
+\end{equation}
 
 
 To compute equal time as well as time-displaced observables,  one can make use of Wicks theorem. A convenient formulation of this theorem for  QMC simulations reads: 
