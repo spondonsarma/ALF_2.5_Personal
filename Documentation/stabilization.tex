@@ -45,7 +45,7 @@ This gives the decomposition
 \begin{equation}
 {\cal B}_i = Q_i D_i R_i.
 \end{equation}
-$D_i$ now contains the row norms of the original $\tilde{R}_i$ matrix and hence separates off the total scales of the problem since $R_i$ is now only of modest condition number.  \mycomment{ FFA. You are guessing this.}
+$D_i$ now contains the row norms of the original $\tilde{R}_i$ matrix and hence separates off the total scales of the problem since $\tilde{R}_i$ is now only of modest condition number.  \mycomment{ FFA. You are guessing this.}
 This given an initial decomposition of $B_{j-1} = Q_{j-1} D_{j-1} T_{j-1}$ any product 
 of ${\cal B}$ matrices is formed in the following two steps:
 \begin{enumerate}
@@ -65,4 +65,4 @@ file. For most simulations there are two values to look out for:
 \end{itemize}
 The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
 For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is  of the order of $10^{-8}$  or better.  
-
+\mycomment{Think about formulation}
