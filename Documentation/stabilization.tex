@@ -25,7 +25,7 @@ the condition number  will grow exponentially so that the computed solution $\ti
 will often contain no correct digits at all.
 To circumvent this more sophisticated methods have to be employed.   We will first of all assume that  the multiplication of  \texttt{NWRAP}  B matrices   has an acceptable condition number.   Assuming for simplicity that \texttt{NWRAP} is a multiple of  $L_{\text{Trotter}}$, we  can write: 
 \begin{equation}
-G = \left( 1 + \prod_{ i = 0}^{L_{\text{Trotter}} /\texttt{NWRAP} -1}       \underbrace{\prod_{\tau=1}^{\texttt{NWRAP}} B_{i + \tau} }_{ \equiv {\cal B}_i}\right)^{-1}.
+G = \left( 1 + \prod_{ i = 0}^{L_{\text{Trotter}} /\texttt{NWrap} -1}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} B_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv {\cal B}_i}\right)^{-1}.
 \end{equation}
 
 ALF is by default employing
