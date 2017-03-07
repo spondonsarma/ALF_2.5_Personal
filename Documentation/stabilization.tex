@@ -1,56 +1,55 @@
-<<<<<<< HEAD
 % !TEX root = Doc.tex
 
-\subsection{Stabilization - A Peculiarity of the BSS Algorithm}
-=======
+
 \subsection{Stabilization - A Peculiarity of the BSS Algorithm}\label{sec:stable}
->>>>>>> c0571a3b5af6806e540e4433141f098d93d327fa
 From \eqref{eqn:partition_2} it can be seen that for the calculation of the Monte Carlo weight
 and for the observables a long product of matrix exponentials has to be formed.
-On top of that we need to be able to extract the single particle Greensfunction from 
-the equation 
+On top of that we need to be able to extract the single particle Green function  for a given flavor index at say time slice $\tau = 0$.  As  mentioned above, this quantity is given by: 
 \begin{equation}
-G = \left( 1 + \prod_{i = 1}^{L_{Trotter}} B(\tau_i, \tau_{i+1})\right)^{-1}
+G = \left( 1 + \prod_{ \tau= 1}^{L_{\text{Trotter}}} B_\tau \right)^{-1}.
 \end{equation}
 To boil this down to more familiar terms from linear algebra we remark that we can recast this problem as the question to the solution of the linear system
 \begin{equation}
-(1 + \prod_i B_i) x = b.
+(1 + \prod_\tau B_\tau) x = b.
 \end{equation}
-The $B_i$ depend on the system size as well as other physical parameters that can be chosen such that a matrix norm of $B_i$ can have any number.
+The $B_\tau$ depend on the system size as well as other physical parameters that can be chosen such that a matrix norm of $B_i$ can have any number.
 From standard perturbation theory for linear systems it is known that the computed solution $\tilde{x}$ would 
 contain a relative error of
 \begin{equation}
-\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa(1 + \prod_i B_i)\right).
+\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa(1 + \prod_\tau B_\tau)\right).
 \end{equation}
 Here $\epsilon$ denotes the machine precision which is $2^{-53}$ for IEEE double precision numbers
 and $\kappa(M)$ is the condition number of the matrix $M$.
-The important fact that makes straight-forward inversion so badly suited is the point that
-each of the $B_i$ contains exponentially large and small scales as can be seen in \eqref{eqn:partition_2}.
-The condition number in the above expression is determined by the product of the $B_i$
-and hence can be virtually unbounded in size. This means that the so computed solution $\tilde{x}$
+The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau B_\tau $ contains exponentially large and small scales as can be seen in \eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
+the condition number  will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
-To circumvent that more sophisticated methods have to be employed. ALF is by default employing
+To circumvent this more sophisticated methods have to be employed.   We will first of all assume that  the multiplication of  \texttt{NWRAP}  B matrices   has an acceptable condition number.   Assuming for simplicity that \texttt{NWRAP} is a multiple of  $L_{\text{Trotter}}$, we  can write: 
+\begin{equation}
+G = \left( 1 + \prod_{ i = 0}^{L_{\text{Trotter}} /\texttt{NWRAP} -1}       \underbrace{\prod_{\tau=1}^{\texttt{NWRAP}} B_{i + \tau} }_{ \equiv {\cal B}_i}\right)^{-1}.
+\end{equation}
+
+ALF is by default employing
 the strategy of forming a product of QR-decompositions which was proven to be weakly backwards stable in \cite{Bai2011}.
 The key idea is to efficiently separate the scales of a matrix from the orthogonal part of a matrix.
-This can be achieved using a QR decomposition of the $B_i = Q_i \tilde{R_i}$. Now $Q_i$ is a unitary matrix and hence $\kappa(Q_i) = 1$.
+This can be achieved using a QR decomposition of the ${\cal B}_i = Q_i \tilde{R_i}$. $Q_i$ is a unitary matrix and hence $\kappa(Q_i) = 1$.
 To get a handle on the condition number of $\tilde{R}_i$ we will form the
 diagonal matrix $(D_i)_{jj} = |(\tilde{R}_i)_{jj}|$ and rescale $\tilde{R}_i$ accordingly, $\tilde{R}_i = D_i R_i$.
 This gives the decomposition
 \begin{equation}
-B_i = Q_i D_i R_i
+{\cal B}_i = Q_i D_i R_i.
 \end{equation}
-$D_i$ now contains the row norms of the original $\tilde{R}_i$ matrix and hence separates off the total scales of the problem since $R_i$ is now only of modest condition number.
-So given an initial decomposition of $B_{j-1} = Q_{j-1} D_{j-1} T_{j-1}$ any product 
-of $B$ matrices is formed in the following two steps:
+$D_i$ now contains the row norms of the original $\tilde{R}_i$ matrix and hence separates off the total scales of the problem since $R_i$ is now only of modest condition number.  \mycomment{ FFA. You are guessing this.}
+This given an initial decomposition of $B_{j-1} = Q_{j-1} D_{j-1} T_{j-1}$ any product 
+of ${\cal B}$ matrices is formed in the following two steps:
 \begin{enumerate}
-\item Form $ M_j = (B_j Q_{j-1}) D_{j-1}$. Note the parentheses.
+\item Form $ M_j = ({\cal B}_j Q_{j-1}) D_{j-1}$. Note the parentheses.
 \item Do a QR decomposition of $M_j = Q_j D_j R_j$.
 \item Form the updated $R$ matrices $T_j = R_j T_{j-1}$.
 \end{enumerate}
-While this provides provides a stable method to calculate the involved matrix product
-it can be pretty expensive. Therefore the user can specify to skip a certain number of 
-QR Decompositions and perform plain multiplications instead. This is specified in the parameters file by the \path{NWrap} parameter.
-\path{NWrap}~=~1 corresponds to always performing QR decompositions whereas larger integers give longer intervals where no QR decomposition will be performed.
+%While this provides provides a stable method to calculate the involved matrix product
+%it can be pretty expensive. Therefore the user can specify to skip a certain number of 
+%QR Decompositions and perform plain multiplications instead. This is specified in the parameters file by the \path{NWrap} parameter.
+%\path{NWrap}~=~1 corresponds to always performing QR decompositions whereas larger integers give longer intervals where no QR decomposition will be performed.
 The effectiveness of the stabilization \emph{HAS} to be judged for every simulation from the info
 file. For most simulations there are two values to look out for:
 \begin{itemize}
@@ -58,8 +57,4 @@ file. For most simulations there are two values to look out for:
 \item \path{Precision Phase}
 \end{itemize}
 The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
-<<<<<<< HEAD
-For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is between of the order of $10^{-8}  or better.  
-=======
-For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is between of the order of $10^{-8}$  or better.  
->>>>>>> c0571a3b5af6806e540e4433141f098d93d327fa
+For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is  of the order of $10^{-8}$  or better.  
