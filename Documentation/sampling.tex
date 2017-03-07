@@ -5,12 +5,8 @@
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
 %------------------------------------------------------------
-<<<<<<< HEAD:Documentation/caveats.tex
-\subsection{MC sampling}
-\label{sec:caveats}
-=======
+%
 \subsection{MC sampling}\label{sec:sampling}
->>>>>>> c0571a3b5af6806e540e4433141f098d93d327fa:Documentation/sampling.tex
 %------------------------------------------------------------
 %
 The default updating scheme consists of local moves which changes (upon acceptance) only one single entry of $L_{\mathrm{Trotter}}(M_I+M_V)$ spins (see Sec. \ref{sec:updating}). It is obvious that a single spin flip does not generate a independent configuration $C$. Hence it will require at least as many local spin flips as there are spins in the configuration space. This is however only the lower bound as there can be a region in the spin space where the fields are correlated and it requires a larger or even global move to significantly change the configuration to an independent one. One might imagine a ferromagnet due to spontaneous symmetry breaking. All spins are parallel aligned and, let' say, point upwards. The configuration of only down spins is equally justified, but rotating one to the other requires a global operation. Flipping the spins individually one after another generates intermediate states of relative high energy which corresponds to a low probability in the QMC algorithm.
