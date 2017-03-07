@@ -15,12 +15,13 @@ To describe the quantum statistical behavior induced by the general Hamiltonian 
 we conveniently use the  grand-canonical probability distribution of internal energies of the system. 
 The quantum nature of the Hamiltonian with $d$ space dimensions is captured by the additional imaginary time dimension, 
 resulting in a $d+1$-dimensional quantum system. 
-Upon evenly discretizing the imaginary axis and upon applying a Hubbard-Stratonovich  transformation \cite{Hubbard59} to the interacting density operators, 
+Upon evenly discretizing the imaginary axis and upon applying a Hubbard-Stratonovich  transformation \cite{Hubbard59} to the interacting  (two-body) imaginary-time propagators,  
 the grand-canonical partition function becomes a functional integral in the domain $\mathcal{C}$ of space- and time-dependent auxiliary fields $\phi(i,\tau)$:
 \begin{equation}
 Z = \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}
 = \int_{\mathcal{C}}\mathrm{d}\phi \;e^{-S[\phi]}
 \end{equation}
+Note that the chemical potential term is already included in the definition of the one-body term $\hat{\mathcal{H}_{T}}$ (\ref{eqn:general_ham_t}) of the general Hamiltonian.  
 In order to calculate expectation values, we sample the configuration space $\mathcal{C}$  with the standard Markov chain Monte Carlo method using the Metropolis algorithm \cite{Metropolis, Kennedy, Binder}. 
 By default, the auxiliary fields are updated one after the other by moving sequentially through the space-time lattice.
 \mycomment{MB: do we want to comment on the absence of detailed balance? }
