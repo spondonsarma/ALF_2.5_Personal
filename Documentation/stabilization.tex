@@ -27,13 +27,13 @@ contain a relative error of
 \end{equation}
 Here $\epsilon$ denotes the machine precision which is $2^{-53}$ for IEEE double precision numbers
 and $\kappa(\bm{M})$ is the condition number of the matrix $\bm{M}$.
-The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in \eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
+The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in Eq.~\eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
 the condition number  will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
-To circumvent this more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWRAP} $\bm{B}$ matrices has an acceptable condition number.
+To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWRAP} $\bm{B}$ matrices has an acceptable condition number.
 Assuming for simplicity that \texttt{NWRAP} is a multiple of $L_{\text{Trotter}}$, we can write:
 \begin{equation}
-\bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv {\cal \bm{B}}_i}\right)^{-1}.
+\bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.
 \end{equation}
 
 Within the auxiliary field QMC implementation of the ALF project, we are by default employing
@@ -58,10 +58,10 @@ $\mathcal{D}$ in the sense that
 \begin{equation*}
 \kappa_p((\bm{D}_i)^{-1} \bm{R}_i ) \leq n^{1/p} \min_{\bm{D} \in \mathcal{D}} \kappa_p(\bm{D}^{-1} \bm{R}_i).
 \end{equation*}
-Now, given an initial decomposition of $\bm{A}_{j-1} = \prod_i {\cal \bm{B}}_i = \bm{Q}_{j-1} \bm{D}_{j-1} \bm{T}_{j-1}$ an update
-${\cal \bm{B}}_j \bm{A}_{j-1}$ is formed in the following three steps:
+Now, given an initial decomposition of $\bm{A}_{j-1} = \prod_i \mathcal{\bm{B}}_i = \bm{Q}_{j-1} \bm{D}_{j-1} \bm{T}_{j-1}$ an update
+$\mathcal{\bm{B}}_j \bm{A}_{j-1}$ is formed in the following three steps:
 \begin{enumerate}
-\item Form $ \bm{M}_j = ({\cal \bm{B}}_j \bm{Q}_{j-1}) \bm{D}_{j-1}$. Note the parentheses.
+\item Form $ \bm{M}_j = (\mathcal{\bm{B}}_j \bm{Q}_{j-1}) \bm{D}_{j-1}$. Note the parentheses.
 \item Do a QR decomposition of $\bm{M}_j = \bm{Q}_j \bm{D}_j \bm{R}_j$. This gives the final $\bm{Q}_j$ and $\bm{D}_j$.
 \item Form the updated $\bm{T}$ matrices $\bm{T}_j = \bm{R}_j \bm{T}_{j-1}$.
 \end{enumerate}
