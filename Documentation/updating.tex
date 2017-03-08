@@ -29,7 +29,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 \end{table}
 % 
 %------------------------------------------------------------
-\subsubsection{The Default: sequential  single spin flips}
+\subsubsection{The default: sequential  single spin flips}
 %------------------------------------------------------------
 %
 The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will flip it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
@@ -76,7 +76,7 @@ a global variable declared in the module, \texttt{Hamiltonian}.
 Note that global updates are expensive since they require a complete recalculation of the weight. We thereby  allow the user to set a variable \texttt{N\_Global} that allows to  determine how many global updates per sweeps will be carried out. 
 % 
 %------------------------------------------------------------
-\subsubsection{Parallel Tempering } 
+\subsubsection{Parallel tempering } 
 %------------------------------------------------------------
 % 
 Exchange Monte Carlo \cite{Hukushima96}  or parallel tempering \cite{Greyer91}   is a possible route  overcome  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$, could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}

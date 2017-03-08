@@ -8,38 +8,38 @@
 
 
 %------------------------------------------------------------
-\subsection{Formulation of the QMC}  
+\subsection{Formulation of the auxiliary field quantum Monte Carlo method}  
 %------------------------------------------------------------
 Our aim is to compute observables  for the general Hamiltonian  (\ref{eqn:general_ham}) in
- thermodynamic equilibrium as described by the grand canonical ensemble.
-We will show below  how the grand canonical partition function is rewritten as 
+ thermodynamic equilibrium as described by the grand-canonical ensemble.
+We will show below  how the grand-canonical partition function is rewritten as 
 \begin{equation}
 Z = \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}
 = \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})
 \end{equation}
-and define the configuration space  $C$.
+and define the space of configurations  $C$.
 Note that the chemical potential term is already included in the definition of the one-body term ${\mathcal{\hat{H}}_{T}}$ (\ref{eqn:general_ham_t}) of the general Hamiltonian.  
 
-The outline of this section is as follows. First, we derive the detailed form of the partition function and outline the computation of observables (Sec.~\ref{sec:part} -\ref{sec:reweight}). 
+The outline of this section is as follows. First, we derive the detailed form of the partition function and outline the computation of observables (Sec.~\ref{sec:part} - \ref{sec:reweight}). 
 Next, we present a number of update strategies, namely local updates, global updates, and parallel tempering (Sec.~\ref{sec:updating}). 
-We equally discuss the measures we have implemented to make the code numerical stable (Sec.~\ref{sec:stable}). Finally, we discuss the autocorrelations and associated time scales during 
+We equally discuss the measures we have implemented to make the code numerically stable (Sec.~\ref{sec:stable}). Finally, we discuss the autocorrelations and associated time scales during the 
 Monte Carlo sampling process (Sec.~\ref{sec:sampling}). 
 
 The essential ingredients of the auxiliary field quantum Monte Carlo implementation in the ALF package are the following:
 \begin{itemize}
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $.   Generically this introduces a systematic Trotter error of order $(\Delta \tau)^2$  \cite{Fye86}. 
 We note that there has been considerable effort at getting rid of the Trotter systematic error and to 
-formulate a genuine continuos time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} and   face  two issues.   The first issue is that they are restricted to a class of models with Hubbard-type interactions
+formulate a genuine continuos-time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} and   face  two issues.   The first issue is that they are restricted to a class of models with Hubbard-type interactions
 \begin{equation}
         \left(  \hat{n}_{i}- 1\right)^{2}  = \left(  \hat{n}_{i}- 1\right)^{4} ,
 \end{equation}
 such that  the  basic CT-AUX equation \cite{Rombouts98}
 \begin{equation}
-          1   + \frac{U}{K} \left(  \hat{n}_{i}- 1\right)^{2}    = \frac{1}{2}\sum_{s=\pm 1}   e^{ \alpha s \left(  \hat{n}_{i}- 1\right) }  \; \text{ with  }  \;  \frac{U}{K} = \cosh(\alpha) -1
+          1   + \frac{U}{K} \left(  \hat{n}_{i}- 1\right)^{2}    = \frac{1}{2}\sum_{s=\pm 1}   e^{ \alpha s \left(  \hat{n}_{i}- 1\right) }  \; \text{ with  }  \;  \frac{U}{K} = \cosh(\alpha) -1 \; \text{ and  }  \; K\in\mathbb{R}
 \end{equation}
 holds.
-The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation it turns out that the multi-grid method \cite{Rost12,Rost13,Bluemer08}  is an efficient  scheme to   extrapolate to  small imaginary time steps so as to  eliminate the Trotter error.
-\item  Having isolate the two body term,  we will use  the   discrete Hubbard-Stratonovich transformation \cite{Motome97,Assaad97}:
+The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation it turns out that the multi-grid method \cite{Rost12,Rost13,Bluemer08}  is an efficient  scheme to   extrapolate to  small imaginary-time steps so as to  eliminate the Trotter error.
+\item  Having isolated the two-body term,  we will use  the   discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
         e^{\Delta \tau  \lambda  \hat{A}^2 } =
@@ -57,11 +57,11 @@ where the fields $\eta$ and $\gamma$ take the values:
 Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, this transformation is next to exact. 
 \item  We will work in  a basis for the Ising spins  where  $\hat{Z}_k$ is diagonal: $\hat{Z}_{k}|s_{k}\rangle = s_{k}|s_{k}\rangle$, where $s_{k}=\pm 1$.
 \item From the above it follows that the  Monte Carlo configuration space $C$  
-is given by the combined spaces of Ising spin configurations  and of Hubbard-Stratonovich discrete field configurations:
+is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}
 \end{equation}
-Here, the Ising spins take the values  $s_{i,\tau} = \pm 1$ and  the Hubbard-Stratonovich fields take the values  $l_{j,\tau}  = \pm 2, \pm 1 $.
+Here, the Ising spins take the values  $s_{i,\tau} = \pm 1$ and  the HS fields take the values  $l_{j,\tau}  = \pm 2, \pm 1 $.
 \end{itemize}
 
 %------------------------------------------------------------
