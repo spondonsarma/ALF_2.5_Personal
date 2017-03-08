@@ -15,9 +15,9 @@ Apart from the physics of the  canonical Hubbard model
 deconfined quantum critical points \cite{Li15a,Assaad16}, topologically ordered phases \cite{Assaad16}, heavy fermion systems \cite{Assaad99a,Capponi00}, nematic \cite{Schattner15} and magnetic  \cite{Xu16b} quantum phase transitions in metals, antiferromagnetism in metals \cite{Berg12},    superconductivity in spin-orbit split bands \cite{Tang14_1}, SU(N) symmetric models \cite{Assaad04,Lang13},  long ranged Coulomb interactions in graphene systems \cite{Hohenadler14,Tang15},  cold atomic gasses  \cite{Rigol03},  low energy nuclear physics \cite{Lee09},  entanglement entropies and spectra \cite{Grover13,Broecker14,Assaad13a,Assaad15},  etc. 
 This ever growing list of phenomena is based on  recent symmetry related insights enabling one to  find  sign problem  free formulations of a number of model systems thus allowing for solutions in polynomial time \cite{Wu04,Huffman14,Yao14a,Wei16}.  
 
-Auxiliary field methods  can be formulated in very different ways.  The auxiliary field, $C$,  can from the Hubbard Stratonovich (HS)  transformation required to decouple the  many-body interacting term into a sum of non-interacting problems.  It can also be an field with predefined dynamic such as a phonon mode.  In all cases, the result is that  the grand  canonical partition function  takes the form, 
+Auxiliary field methods  can be formulated in very different ways.  The auxiliary field, defined by its configuration space $C$,  can emerge from the Hubbard Stratonovich (HS)  transformation required to decouple the  many-body interacting term into a sum of non-interacting problems.  It can also be an field with predefined dynamic such as a phonon mode.  In all cases, the result is that  the grand  canonical partition function  takes the form, 
 \begin{equation}
-	 Z = \text{ Tr} e^{-\beta H}   = \sum_{C} e^{-S(C) },
+	 Z = \text{Tr}\left( e^{-\beta \hat{\mathcal{H}}}\right)   = \int\limits_{C} e^{-S(C) },
 \end{equation}
 where  $S$  is the action of non-interacting fermions subject to a  space-time fluctuating auxiliary field.  The high dimensional  integration is carried out with Monte Carlo importance sampling \cite{Sokal89}.
 The formulations are by no means unique and differ in the choices HS transformations or formulation of the action.  
