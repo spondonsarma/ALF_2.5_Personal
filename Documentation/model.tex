@@ -116,22 +116,22 @@ This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  con
 \subsubsection{Observables}\label{Observables.General}
 %------------------------------------------------------------
 
-In the auxiliary field QMC approach, the single particle Green function plays a crucial role.  It determines the Monte Carlo dynamics and is used to compute  observables:
+In the auxiliary field QMC approach, the single-particle Green function plays a crucial role.  It determines the Monte Carlo dynamics and is used to compute  observables:
 \begin{equation}\label{eqn:obs}
 \langle \hat{O}  \rangle  = \frac{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \hat{O}   \right] }{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \right] } =   \sum_{C}   P(C) 
    \langle \langle \hat{O}  \rangle \rangle_{(C)} , \text{   with   } 
   P(C)   = \frac{ e^{-S(C)}}{\sum_C e^{-S(C)}}\;,
 \end{equation}
 and $\langle \langle \hat{O}  \rangle \rangle_{(C)} $ denotes the observed value of $\hat{O}$ for a given configuration $C$.
-For a given configuration $C$  one can use Wicks theorem to compute $O (C) $   from the knowledge of the single particle Green function: 
+For a given configuration $C$  one can use Wick's theorem to compute $O (C) $   from the knowledge of the single-particle Green function: 
 \begin{equation}
-       G( x,\sigma,s, \tau |    x',\sigma',s', \tau')   =       \langle \langle {\cal T} \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau') \rangle \rangle_{C}
+       G( x,\sigma,s, \tau |    x',\sigma',s', \tau')   =       \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau') \rangle \rangle_{C}
 \end{equation}
-where $ {\cal T} $ corresponds to the imaginary time ordering operator.   The  corresponding equal time quantity reads, 
+where $ \mathcal{T} $ corresponds to the imaginary-time ordering operator.   The  corresponding equal time quantity reads, 
 \begin{equation}
        G( x,\sigma,s, \tau |    x',\sigma',s', \tau)   =       \langle \langle  \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau) \rangle \rangle_{C}.
 \end{equation}
-Since  for a given HS field translation invariance in imaginary time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent on the color index. The later reflects the  explicit SU(N)   color symmetry present at the level of individual HS configurations.   As an example,  one can show that the equal time Green function at $\tau = 0$ reads \cite{Assaad08_rev}:
+Since  for a given HS field translation invariance in imaginary-time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent on the color index. The later reflects the  explicit $SU(N)$   color symmetry present at the level of individual HS configurations.   As an example,  one can show that the equal time Green function at $\tau = 0$ reads \cite{Assaad08_rev}:
 \begin{equation}\label{eqn:Green_eq}
 G(x,\sigma,s,0| x',\sigma,s,0 )  =   \left(  \mathds{1}  +  \prod_{\tau = 1}^{L_{\text{Trotter}}}  \bm{B}_{\tau}^{(s)}   \right)^{-1}_{x,x'}
 \end{equation}
@@ -142,26 +142,26 @@ with
 \end{equation}
 
 
-To compute equal time as well as time-displaced observables,  one can make use of Wicks theorem. A convenient formulation of this theorem for  QMC simulations reads: 
+To compute equal time as well as time displaced observables,  one can make use of Wick's theorem. A convenient formulation of this theorem for  QMC simulations reads: 
 \begin{eqnarray}
-& & \langle \langle 	{\cal T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
+& & \langle \langle 	\mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
 \cdots c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n}) 
 \rangle \rangle_{C} =
 \nonumber \\ & & \det  
 \begin{bmatrix}
-   \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C} & 
-    \langle \langle  {\cal T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots   &   
-    \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}  \\
-    \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}  & 
-      \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots  &
-       \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}   \\
+   \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C} & 
+    \langle \langle  \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots   &   
+    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}  \\
+    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}  & 
+      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots  &
+       \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}   \\
     \vdots & \vdots &  \ddots & \vdots \\
-    \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}   & 
-     \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}   & \dots  & 
-     \langle \langle   {\cal T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
+    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}   & 
+     \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}   & \dots  & 
+     \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
  \end{bmatrix}
 \end{eqnarray}
-In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wicks theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
+In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wick's theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
 
 %------------------------------------------------------------
 \subsubsection{Reweighting and the sign problem}\label{sec:reweight}

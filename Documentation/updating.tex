@@ -32,7 +32,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 \subsubsection{The default: sequential  single spin flips}
 %------------------------------------------------------------
 %
-The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will flip it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
+The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will \st{flip} \mycomment{MB: propose} it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
  \begin{equation}
  	P(C \rightarrow C') =  \text{min}  \left( 1, \frac{ W(C')}{W(C)} \right)
  \end{equation}
@@ -42,16 +42,17 @@ The default updating scheme is a  sequential single  spin flip algorithm.   Cons
 \subsubsection{Sampling of $e^{-S_0}$}
 %------------------------------------------------------------
 % 
-Consider an Ising spin at space time $i,\tau$ and the configuration $C$. Flipping this spin will generate the configuration $C'$ and we will propose the move according to 
+Consider an Ising spin at space-time $i,\tau$ and the configuration $C$. Flipping this spin will generate the configuration $C'$ and we will propose the move according to 
   \begin{equation}
  T_0(C \rightarrow C')  =  \frac{e^{-S_0(C')}}{ e^{-S_0(C')} + e^{-S_0(C)} }   = 1 - \frac{1}{1 +  e^{-S_0(C')} /e^{-S_0(C)}}
   \end{equation}
- Note that the function $\texttt{S0}$ in the  \texttt{Hamitonian\_example.f90}  module  computes precisely the ratio $e^{-S_0(C')} /e^{-S_0(C)} $ so that  $T_0(C \rightarrow C') $ does not require any further programming. 
+ Note that the function $\texttt{S0}$ in the  \texttt{Hamitonian\_example.f90}  module  computes precisely the ratio\\
+ ${e^{-S_0(C')} /e^{-S_0(C)}}$ so that  $T_0(C \rightarrow C') $ does not require any further programming. 
  Thereby one will accept  the proposed move with the probability: 
  \begin{equation}
- P(C \rightarrow C') =  \text{min}  \left( 1,  \frac{e^{-S_0(C)}   W(C')}{ e^{-S_0(C)'} W(C)} \right).
+ P(C \rightarrow C') =  \text{min}  \left( 1,  \frac{e^{-S_0(C)}   W(C')}{ e^{-S_0(C')} W(C)} \right).
  \end{equation}
- With Eq.~\ref{eqn:partition_2}  one sees that the bare action $S_0(C)$  determining the  dynamics of the Ising spin  in the absence of coupling to the fermions  does not enter the Metropolis acceptance rejection step.  This sampling scheme is used  if the logical variable \texttt{Propose\_S0}   is switched on. 
+ With Eq.~\ref{eqn:partition_2}  one sees that the bare action $S_0(C)$  determining the  dynamics of the Ising spin  in the absence of coupling to the fermions  does not enter the Metropolis acceptance-rejection step.  This sampling scheme is used  if the logical variable \texttt{Propose\_S0}   is switched on. 
 % 
 %------------------------------------------------------------
 \subsubsection{Global updates}
@@ -59,19 +60,19 @@ Consider an Ising spin at space time $i,\tau$ and the configuration $C$. Flippin
 %  
 The code equally allows for global updates.  The user will have to provide two other functions in the module \texttt{Hamiltonian\_Examples.f90}.   
 
-The subroutine  \texttt{Global\_move(T0\_Proposal\_ratio,nsigma\_old)}  proposes  a global move. \\
-\texttt{nsigma\_old(M\_V+ M\_I, Ltrot)} is a two dimensional  array containing  the full  configuration $C$.  On output, the new configuration, C',-- determined by the user -- is to be stored in the 
-array  \texttt{nsigma(M\_V+ M\_I, Ltrot)}.    \texttt{nsigma(M\_V+ M\_I, Ltrot)} is a global variable declared in the module, \texttt{Hamiltonian}.  Equally, on output, the variable 
+The subroutine  \texttt{Global\_move(T0\_Proposal\_ratio,nsigma\_old)}  proposes  a global move. 
+The two-dimensional array \texttt{nsigma\_old(M\_V+ M\_I, Ltrot)}  contains  the full  configuration $C$.  On output, the new configuration,  -- C', determined by the user -- is to be stored in the 
+array  \texttt{nsigma(M\_V+ M\_I, Ltrot)}.   The global variable \texttt{nsigma(M\_V+ M\_I, Ltrot)} is declared in the module \texttt{Hamiltonian}.  Equally, on output, the variable 
 \texttt{T0\_Proposal\_ratio} contains the proposal ratio 
 \begin{equation}
-	 \frac{T_0(C' \rightarrow C)}{T_0(C \rightarrow C') }  
+	 \frac{T_0(C' \rightarrow C)}{T_0(C \rightarrow C') }  \;.
 \end{equation}
 Since we allow for a stochastic  generation of  the global move, it may very well be that no change is proposed. In this case, \texttt{T0\_Proposal\_ratio}   takes the value 0 upon exit, and  
 \texttt{nsigma=nsigma\_old}.   
 
-To compute the acceptance rejection ratio,  the user  will equally have to provide the function \\
+To compute the acceptance-rejection ratio,  the user  will equally have to provide the function \\
 \texttt{Delta\_S0\_global(Nsigma\_old)} that computes the ratio $e^{-S_0(C')}/e^{-S_0(C)}$. Again the configuration $C'$ is   given by the array \texttt{nsigma(M\_V+ M\_I, Ltrot)}  which is 
-a global variable declared in the module, \texttt{Hamiltonian}.
+a global variable declared in the module \texttt{Hamiltonian}.
 
 Note that global updates are expensive since they require a complete recalculation of the weight. We thereby  allow the user to set a variable \texttt{N\_Global} that allows to  determine how many global updates per sweeps will be carried out. 
 % 
@@ -79,7 +80,7 @@ Note that global updates are expensive since they require a complete recalculati
 \subsubsection{Parallel tempering } 
 %------------------------------------------------------------
 % 
-Exchange Monte Carlo \cite{Hukushima96}  or parallel tempering \cite{Greyer91}   is a possible route  overcome  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$, could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}
+Exchange Monte Carlo \cite{Hukushima96}  or parallel tempering \cite{Greyer91}   is a possible route to overcome  sampling issues in part of  parameter space.  Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$  could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}
 	P(\left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right] ) =  \frac{W(h_1,C_1) W(h_2,C_2) \cdots   W(h_n,C_n) } {\sum_{C_1, C_2, \cdots, C_n} W( h_1,C_1) W( h_2,C_2) \cdots   W(h_n,C_n)}
 \end{equation}
 where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C.     Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$-independent runs.  However, parallel tempering  includes the following   exchange step:
@@ -111,7 +112,7 @@ The above equation becomes transparent  for  classical systems  with $ S(h,C) = 
 \begin{equation}
 	\Delta h       \simeq  2 h \frac{  \sqrt{C} } { C    + h \langle H \rangle_h},  \text{   with  } C = h^2    \langle \left(  H -  \langle H   \rangle_h \right)^2 \rangle_h
 \end{equation} 
-Several comments are in order. i)    Let us identify $h$ to the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  h.  iii)  Since the action is formulation dependent,   one expects the acceptance of the  exchange move to equally depend  upon the fomulation. 
+Several comments are in order. i)    Let us identify $h$ with the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  $h$.  iii)  Since the action is formulation dependent,   one expects the acceptance of the  exchange move to equally depend  upon the fomulation. 
 \mycomment{MB: Do you track the $n-1$ exchange acceptance rates $acc(i,i+1)$ for the $n$ replicas in the code? Could the exchange rates be an efficient way to locate  a phase transition in the parameters space of $h$, without a priori knowing the order parameter? Also for topological phase transitions w/o an order parameter?  }
 \mycomment{FFA:  Yes I do track the individual acceptances and I do see  singularities in the  acceptance at the phase transition. However, owing to comment iii) at would now be very careful at interpreting the results since they are really formulation dependent. }
- ALF  comes with a parallel tempering  compiler option which we will discuss  in section \ref{Parallel.Sec}. 
+ The auxiliary field quantum Monte Carlo code in the ALF project  comes with a parallel tempering  compiler option which we will discuss  in section \ref{Parallel.Sec}. 
