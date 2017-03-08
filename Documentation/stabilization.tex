@@ -30,7 +30,8 @@ and $\kappa(\bm{M})$ is the condition number of the matrix $\bm{M}$.
 The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in \eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
 the condition number  will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
-To circumvent this more sophisticated methods have to be employed.   We will first of all assume that  the multiplication of  \texttt{NWRAP}  $\bm{B}$ matrices   has an acceptable condition number.   Assuming for simplicity that \texttt{NWRAP} is a multiple of  $L_{\text{Trotter}}$, we  can write: 
+To circumvent this more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWRAP} $\bm{B}$ matrices has an acceptable condition number.
+Assuming for simplicity that \texttt{NWRAP} is a multiple of $L_{\text{Trotter}}$, we can write:
 \begin{equation}
 \bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv {\cal \bm{B}}_i}\right)^{-1}.
 \end{equation}
@@ -38,20 +39,31 @@ To circumvent this more sophisticated methods have to be employed.   We will fir
 Within the auxiliary field QMC implementation of the ALF project, we are by default employing
 the strategy of forming a product of QR-decompositions which was proven to be weakly backwards stable in \cite{Bai2011}.
 The key idea is to efficiently separate the scales of a matrix from the orthogonal part of a matrix.
-This can be achieved using a QR decomposition of the ${\cal\bm{B}}_i = \bm{Q}_i \tilde{\bm{R}_i}$. The matrix $\bm{Q}_i$ is unitary and hence $\kappa(\bm{Q}_i) = 1$.
-To get a handle on the condition number of $\tilde{\bm{R}}_i$ we will form the
-diagonal matrix $(D_i)_{xx} = |(\tilde{R}_i)_{xx}|$ and rescale $\tilde{\bm{R}}_i$ accordingly, $\tilde{\bm{R}}_i = \bm{D}_i \bm{R}_i$.
+This can be achieved using a QR decomposition of a matrix $\bm{A}$ in the form $\bm{A}_i = \bm{Q}_i \bm{R}_i$. The matrix $\bm{Q}_i$ is unitary and hence $\kappa(\bm{Q}_i) = 1$.
+To get a handle on the condition number of $\bm{R}_i$ we will form the
+diagonal matrix
+\begin{equation}
+(\bm{D}_i)_{n,n} = |(\bm{R}_i)_{n,n}|
+\label{eq:diagnorm}
+\end{equation}
+and set $\tilde{\bm{R}}_i = \bm{D}_i^{-1} \bm{R}_i$
 This gives the decomposition
 \begin{equation}
-{\cal\bm{ B}}_i = \bm{Q}_i \bm{D}_i \bm{R}_i.
+\bm{A}_i = \bm{Q}_i \bm{D}_i \tilde{\bm{R}}_i.
 \end{equation}
-$\bm{D}_i$ now contains the row norms of the original $\tilde{\bm{R}}_i$ matrix and hence separates off the total scales of the problem since $\tilde{\bm{R}}_i$ is now only of modest condition number.  \mycomment{ FFA. You are guessing this.}
-This given an initial decomposition of $\bm{B}_{j-1} = \bm{Q}_{j-1} \bm{D}_{j-1} \bm{T}_{j-1}$ any product 
-of ${\cal\bm{ B}}$ matrices is formed in the following two steps:
+$\bm{D}_i$ now contains the row norms of the original $\bm{R}_i$ matrix and hence attempts to separate off the total scales of the problem from $\bm{R}_i$.
+This is similar in spirit to the so-called matrix equilibration which tries to improve the condition number of a matrix by suitably chosen column and row scalings.
+Due to a theorem by van der Sluis \cite{vanderSluis1969} we know that the choice in \eqref{eq:diagnorm} is almost optimal among all diagonal matrices $\bm{D}$ from the space of diagonal matrices 
+$\mathcal{D}$ in the sense that
+\begin{equation*}
+\kappa_p((\bm{D}_i)^{-1} \bm{R}_i ) \leq n^{1/p} \min_{\bm{D} \in \mathcal{D}} \kappa_p(\bm{D}^{-1} \bm{R}_i).
+\end{equation*}
+Now, given an initial decomposition of $\bm{A}_{j-1} = \prod_i {\cal \bm{B}}_i = \bm{Q}_{j-1} \bm{D}_{j-1} \bm{T}_{j-1}$ an update
+${\cal \bm{B}}_j \bm{A}_{j-1}$ is formed in the following three steps:
 \begin{enumerate}
 \item Form $ \bm{M}_j = ({\cal \bm{B}}_j \bm{Q}_{j-1}) \bm{D}_{j-1}$. Note the parentheses.
-\item Do a QR decomposition of $\bm{M}_j = \bm{Q}_j \bm{D}_j \bm{R}_j$.
-\item Form the updated $\bm{R}$ matrices $\bm{T}_j = \bm{R}_j \bm{T}_{j-1}$.
+\item Do a QR decomposition of $\bm{M}_j = \bm{Q}_j \bm{D}_j \bm{R}_j$. This gives the final $\bm{Q}_j$ and $\bm{D}_j$.
+\item Form the updated $\bm{T}$ matrices $\bm{T}_j = \bm{R}_j \bm{T}_{j-1}$.
 \end{enumerate}
 %While this provides provides a stable method to calculate the involved matrix product
 %it can be pretty expensive. Therefore the user can specify to skip a certain number of 
@@ -64,5 +76,5 @@ file. For most simulations there are two values to look out for:
 \item \path{Precision Phase}
 \end{itemize}
 The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
-For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is  of the order of $10^{-8}$  or better.  
+For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
 \mycomment{Think about formulation}
