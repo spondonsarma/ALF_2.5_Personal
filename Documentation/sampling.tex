@@ -12,7 +12,7 @@
 The default updating scheme consists of local moves which change (upon acceptance) only one  entry of $L_{\mathrm{Trotter}}(M_I+M_V)$  fields (see Sec. \ref{sec:updating}). 
 To generate  an independent configuration $C$,   one has to visit at least each field  once.  Our unit of \textit{sweeps} is defined such that each field is visited twice in a sequential propagation from $\tau = 0$ to $\tau = L_{\text{ Trotter}}$  and back.  A single sweep will  generically not  suffice to produce an independent  configuration.
 % This is however only the lower bound as there can be a region in the spin space where the fields are correlated and it requires a larger or even global move to significantly change the configuration to an independent one. One might imagine a ferromagnet due to spontaneous symmetry breaking. All spins are parallel aligned and, let' say, point upwards. The configuration of only down spins is equally justified, but rotating one to the other requires a global operation. Flipping the spins individually one after another generates intermediate states of relative high energy which corresponds to a low probability in the QMC algorithm.
-In fact, the autocorrelation time $T_\mathrm{auto}$ characterizes the required time scale to generate an independent configuration og values $\langle\langle\hat{O}\rangle\rangle_C$ for the observable $O$.
+In fact, the autocorrelation time $T_\mathrm{auto}$ characterizes the required time scale to generate an independent configuration or values $\langle\langle\hat{O}\rangle\rangle_C$ for the observable $O$.
 
 This has several consequences for the Monte Carlo simulation:
 \begin{itemize}
