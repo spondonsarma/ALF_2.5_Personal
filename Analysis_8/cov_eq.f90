@@ -1,32 +1,64 @@
+      
+!  Copyright (C) 2016 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
        Program Cov_eq
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Analysis program for equal time observables.
+!> 
+!
+!--------------------------------------------------------------------
          Use Errors
          Use MyMats
          Use Matrix
          Use Lattices_v3 
-         !   This version of the analysis program requires the information of the lattice, for fourier transforms xs
 
          Implicit none
 
 
-!!$         Interface
-!!$            Integer function Rot90(n, Xk_p, Nunit)
-!!$              Implicit none
-!!$              Integer, INTENT(IN)       :: Nunit,n
-!!$              Real (Kind=8), INTENT(IN) :: Xk_p(2,Nunit)
-!!$            end function Rot90
-!!$         end Interface
-
          Integer      :: Nunit, Norb, ierr
-         Integer      :: no, no1, n, n1,m,  nbins, n_skip, nb, N_rebin, N_cov
-         real (Kind=8):: X, Y 
-         Complex (Kind=8), allocatable :: Phase(:)
+         Integer      :: no, no1, n, n1,m,  nbins, n_skip, nb, N_rebin, N_cov, N_Back
+         real (Kind=Kind(0.d0)):: X, Y 
+         Complex (Kind=Kind(0.d0)), allocatable :: Phase(:)
          Type  (Mat_C), allocatable :: Bins (:,:), Bins_R(:,:)
-         Complex (Kind=8), allocatable :: Bins0(:,:)
-         Complex (Kind=8) :: Z, Xmean,Xerr, Xmean_r, Xerr_r
-         Real    (Kind=8) :: Xk_p(2), XR_p(2) , XR1_p(2)
-         Complex (Kind=8), allocatable :: V_help(:), V_help_R(:)
-         Real (Kind=8) :: Pi, a1_p(2), a2_p(2), L1_p(2), L2_p(2), del_p(2)
+         Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
+         Complex (Kind=Kind(0.d0)) :: Z, Xmean,Xerr, Xmean_r, Xerr_r
+         Real    (Kind=Kind(0.d0)) :: Xk_p(2), XR_p(2) , XR1_p(2)
+         Complex (Kind=Kind(0.d0)), allocatable :: V_help(:), V_help_R(:)
+         Real (Kind=Kind(0.d0)) :: Pi, a1_p(2), a2_p(2), L1_p(2), L2_p(2), del_p(2)
 
          Integer             :: L1, L2, I
          Character (len=64)  :: Model, Lattice_type
@@ -34,10 +66,12 @@
          
 
          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
-         NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov
+         NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back
 
 
 
+         
+         N_Back = 1
          OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
          IF (ierr /= 0) THEN
             WRITE(*,*) 'unable to open <parameters>',ierr
@@ -115,13 +149,15 @@
                bins  (n,nb)%el = cmplx(0.d0,0.d0,kind(0.d0))
             Enddo
          Enddo
+         Bins0 = cmplx(0.d0,0.d0,kind(0.d0))
          Open ( Unit=10, File="ineq", status="unknown" ) 
          do nb = 1, nbins + n_skip
             if (nb > n_skip ) then
                Read(10,*,End=10) X,no,no1
                Phase(nb-n_skip) = cmplx(X,0.d0,kind(0.d0))
                Do no = 1,Norb
-                  Read(10,*) Bins0(nb-n_skip,no)
+                  Read(10,*) Z
+                  if (N_Back == 1 ) Bins0(nb-n_skip,no) = Z
                enddo
                do n = 1,Nunit
                   Read(10,*) Xk_p(1), Xk_p(2)
@@ -211,6 +247,7 @@
 !!$            call ERRCALCJ(V_help,   XMean, XERR, N_rebin ) 
 !!$            Write(33,"('# Suscpetibility: ', F12.6,2x,F12.6)")  dble(Xmean  ), dble(Xerr  )
 !!$         endif
+
          Close(33)
          Close(34)
 
@@ -218,14 +255,22 @@
       
        end Program Cov_eq
 
+
+!!$         Interface
+!!$            Integer function Rot90(n, Xk_p, Nunit)
+!!$              Implicit none
+!!$              Integer, INTENT(IN)       :: Nunit,n
+!!$              Real (Kind=Kind(0.d0)), INTENT(IN) :: Xk_p(2,Nunit)
+!!$            end function Rot90
+!!$         end Interface
 !!$       Integer function Rot90(n, Xk_p, Nunit)
 !!$
 !!$         Implicit none
 !!$         Integer, INTENT(IN)       :: Nunit,n
-!!$         Real (Kind=8), INTENT(IN) :: Xk_p(2,Nunit)
+!!$         Real (Kind=Kind(0.d0)), INTENT(IN) :: Xk_p(2,Nunit)
 !!$
 !!$         !Local
-!!$         real (Kind=8) :: X1_p(2), Zero, pi, X
+!!$         real (Kind=Kind(0.d0)) :: X1_p(2), Zero, pi, X
 !!$         Integer :: m
 !!$
 !!$         Zero = 1.D-4

@@ -17,13 +17,16 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
+!>    Variables for updating scheme
+      Logical              :: Propose_S0, Global_moves
+      Integer              :: N_Global
       
 
 !>    Privat variables 
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
-      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
-      real (Kind=8),        private :: Dtau, Beta
+      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
+      real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
       Integer,              private :: N_coord, Norb
@@ -37,7 +40,7 @@
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
       
 !>    Storage for the Ising action
-      Real (Kind=8),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
+      Real (Kind=Kind(0.d0)),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
       Integer, allocatable, private :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
 
       
@@ -47,7 +50,7 @@
       Subroutine Ham_Set
 
           Implicit none
-#include "machine"
+
 #ifdef MPI
           include 'mpif.h'
 #endif   
@@ -89,6 +92,9 @@
 #endif
           Call Ham_latt
 
+          Propose_S0 = .false.
+          Global_moves =.false.
+          N_Global = 1
           If ( Model == "Hubbard_Mz") then
              N_FL = 2
              N_SUN = 1
@@ -151,6 +157,12 @@
                 Write(50,*) 'Ham_J         : ', Ham_J
                 Write(50,*) 'Ham_h         : ', Ham_h
              Endif
+#if defined(STAB1) 
+             Write(50,*) 'STAB1 is defined '
+#endif
+#if defined(QRREF) 
+             Write(50,*) 'QRREF is defined '
+#endif
              close(50)
 #ifdef MPI
           endif
@@ -163,7 +175,7 @@
           Implicit none
           !Set the lattice
           
-          Real (Kind=8)  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
+          Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
           Integer :: I, nc, no
 
           If ( Lattice_type =="Square" ) then
@@ -257,6 +269,7 @@
                          Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                       enddo
                       I1 = Invlist(I,1)
+                      J1 = I1
                       Do nc1 = 1,N_coord
                          select case (nc1)
                          case (1)
@@ -267,6 +280,7 @@
                             J1 = invlist(Latt%nnlist(I,0,-1),2) 
                          case default
                             Write(6,*) ' Error in  Ham_Hop '  
+                            Stop
                          end select
                          Op_T(nc,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                          Op_T(nc,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
@@ -294,7 +308,7 @@
           Implicit none 
           
           Integer :: nf, I, I1, I2,  nc, nc1,  J
-          Real (Kind=8) :: X
+          Real (Kind=Kind(0.d0)) :: X
 
           
           If (Model == "Hubbard_SU2")  then
@@ -351,6 +365,7 @@
              Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
                                       ! For the square lattice Ndim = Latt%N
                 I1 = L_bond_inv(nc,1)
+                I2 = I1
                 if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
                 if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
                 Op_V(nc,1)%P(1) = I1
@@ -377,7 +392,7 @@
         end Subroutine Ham_V
 
 !===================================================================================           
-        Real (Kind=8) function S0(n,nt)  
+        Real (Kind=Kind(0.d0)) function S0(n,nt)  
           Implicit none
           Integer, Intent(IN) :: n,nt
           Integer :: nt1,I
@@ -404,7 +419,7 @@
           ! an efficient calculation of  S0(n,nt) 
 
           Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation
-          Real (Kind=8) :: X_p(2)
+          Real (Kind=Kind(0.d0)) :: X_p(2)
 
           ! Setup list of bonds for the square lattice.
           Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*N_coord,2) )
@@ -414,6 +429,8 @@
              Do n1= 1, L1/2
                 Do n2 = 1,L2
                    nc = nc + 1
+                   n_orientation = 1
+                   I1 = 1
                    If (nth == 1 ) then
                       X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p 
                       I1 = Inv_R(X_p,Latt)
@@ -536,17 +553,44 @@
 
         
 !========================================================================
+        ! Functions for Global moves.  These move are not implemented in this example.
+        Subroutine Global_move(T0_Proposal_ratio,nsigma_old)
+          
+          !>  The input is the field nsigma declared in this module. This routine generates a 
+          !>  global update with  and returns the propability  
+          !>  T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)  
+          !>   
+          Implicit none
+          Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio
+          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+
+          T0_Proposal_ratio  = 0.d0
+
+        End Subroutine Global_move
+!========================================================================
+        Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
+
+          !>  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
+          Implicit none 
+          
+          !> Arguments
+          Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
+
+          Delta_S0_global = 0.d0
+
+        end Function Delta_S0_global
+!========================================================================
         Subroutine Obser(GR,Phase,Ntau)
           
           Implicit none
           
-          Complex (Kind=8), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
-          Complex (Kind=8), Intent(IN) :: PHASE
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=8) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=8) :: Zrho, Zkin, ZPot, Z, ZP,ZS
+          Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS
           Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J
           
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -672,11 +716,11 @@
           Implicit none
           
           Integer         , INTENT(IN) :: NT
-          Complex (Kind=8), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
-          Complex (Kind=8), INTENT(IN) :: Phase
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
           
           !Locals
-          Complex (Kind=8) :: Z, ZP, ZS
+          Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
           Integer :: IMJ, I, J, I1, J1, no_I, no_J
 
           ZP = PHASE/Real(Phase, kind(0.D0))
