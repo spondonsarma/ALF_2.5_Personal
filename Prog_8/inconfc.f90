@@ -115,7 +115,7 @@
 #if defined(TEMPERING) 
          write(FILE_TG,'(A,I0,A)') "Temp_",Irank,"/confin_0"
 #else
-         FILE_TG = confin_0
+         FILE_TG = "confin_0"
 #endif
          INQUIRE (FILE=FILE_TG, EXIST=LCONF)
          IF (LCONF) THEN
