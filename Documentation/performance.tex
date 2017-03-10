@@ -5,11 +5,46 @@
 % For the licensing details of the documentation see license.CCBYSA.
 
 %-------------------------------------------------------------------------------------
-\subsection{Performance}
+\subsection{Performance, memory requirements and parallelization}
 %-------------------------------------------------------------------------------------
 
-Next to the entire computational time is spent in BLAS routines such that the performance of the code will depend on the particular  implementation of this library. 
-We have found that the code performs well, and that  an efficient  OpenMP  version of the library  can be obtained merely by   loading the corresponding BLAS and LAPACK routines. 
-\mycomment{MB: Do we want to say more about OpenMP here, i.e. that it can be useful when warm-up time is a problem (and getting many CPUs is not). 
-In all other cases, the MPI parallelization is always better than the trivial OpenMP parallelization of library algos.}
 
+We mentioned already in the introduction, that the algorithm scales as $\beta N^3$ caused by updating the Greens function, a $N\times N$ upon the acceptance of a spin flip. A single update is essentially adding an outer product of two vector like matrices to the Matrix, hence scales as $N^2$. As there are $L_{\text{Trotter}}\times N$ spins to be flipped, the total cost is the $\beta N^3$. This operation accordingly dominates the performance. A Profiling analysis of our code proved that 80-90\% of the CPU time is spend in ZGEMM calls of the BLAS library provided in the MKL package by Intel. Consequently, the single-core performance is next to optimal.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[scale=.8]{Figures/Size_scaling_ALF.pdf}
+	\end{center}
+	\caption{\label{fig_scaling_size}Size Scaling behavior of ALF on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich. The leading scaling order is due to matrix multiplication, hence the scaling is consistent with the fact, that the runtime is dominated by ZGEMM calls. This also shows that the relative importance of BLAS increases with the system size reaching 80-90\% and above. Here we represented $N_{dim}$ as degrees of freedom (DOF).}
+\end{figure}
+
+For a $\beta$-linear implementation one has to store $L_{\text{Trotter}}/\texttt{NWrap}$ intermediate propagation matrices of dimension $N\times N$. For large lattices and/or low temperatures this dominates the total memory requirements and can exceed 2~GB memory for a sequential version.
+
+At the heart of many Monte Carlo schemes lies a random walk through the given configuration space. This is easily parallalized via MPI by associating one random walker to each MPI task. For each task, we start from a random configuration and have to invest the autocorrelation time $T_\mathrm{auto}$ to produce an equilibrated configuration.
+Additionally we can also profit from an OpenMP parallelized version of the BLAS/LAPACK library for an additional speedup, which also effects equilibration overhead $N_\text{MPI}\times T_\text{auto} / N_\text{OpenMP}$. For a given number of independent measurements  $N_\text{meas}$, we  therefore need a wall-clock time given by
+\begin{equation}\label{eqn:scaling}
+T  =  \frac{T_\text{auto}}{N_\text{OpenMP}} \left( 1   +    \frac{N_\text{meas}}{N_\text{MPI}}  \right) \,.
+\end{equation}
+As we typically have $ N_\text{meas}/N_\text{MPI} \gg 1 $, 
+the speedup is expected to be almost perfect, in accordance with
+the performance test results for the auxiliary-field
+QMC code on SuperMUC (see Fig.~\ref{fig_scaling} (left)).
+
+For many problem sizes, 2~GB memory per MPI task (random walker) suffices such that we typically start as many MPI tasks as there are physical cores per node. Due to the large amount of CPU time spend in MKL routines, we do not profit from the hyper-threading option. For large systems, the memory requirement increases and this is tackled by increasing the amount of OpenMP threads to decrease the stress on the memory system and to simultaneously reduce the equilibration overhead (see Fig.~\ref{fig_scaling} (right)). For the displayed speedup, it was crucial to pin the MPI tasks as well as the OpenMP threads in a pattern which keeps the threads as compact as possible to profit from a shared cache. This also explains the drop in efficiency from 14 to 28 threads where the OpenMP threads are spread over both sockets. 
+
+We store the field configurations of the random walker as checkpoints, such that a long simulation can be easily split into several short simulations. This procedure allows us to take advantage of chained jobs using the dependency chains provided by the batch system.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[scale=0.6]{Figures/MPI_scaling_ALF.pdf}
+		\includegraphics[scale=0.6]{Figures/OMP_scaling_ALF.pdf}
+	\end{center}
+	\caption{\label{fig_scaling}MPI (left) and OpenMP (right) scaling behavior of ALF on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich.
+		The MPI scaling data was obtained with a problem size of $N_{dim}=400$. This is a medium to small system size that are the least favorable in terms of MPI synchronization effects.
+		The OpenMP data was obtained with a problem size of $N_{dim}=1296$. Using 2 and 4 OpenMP threads introduces some synchronization/management overhead such that the per core performance is slightly reduce, compare to the single thread efficiency. Further increasing the amount of threads to 7 and 14 keeps the efficiency constant. The drop in performance of the 28 thread configuration is due to the architecture as the threads are now spread over both sockets of the node. To obtain the above results, it was crucial to pin the processes in a fashion that keeps the OpenMP threads as compact as possible.}
+\end{figure}
+
+%Next to the entire computational time is spent in BLAS routines such that the performance of the code will depend on the particular  implementation of this library. 
+%We have found that the code performs well, and that  an efficient  OpenMP  version of the library  can be obtained merely by   loading the corresponding BLAS and LAPACK routines. 
+%\mycomment{MB: Do we want to say more about OpenMP here, i.e. that it can be useful when warm-up time is a problem (and getting many CPUs is not). 
+%In all other cases, the MPI parallelization is always better than the trivial OpenMP parallelization of library algos.}
