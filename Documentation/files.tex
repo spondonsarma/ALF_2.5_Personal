@@ -48,7 +48,9 @@ The input files are listed in Table~\ref{table:input}.
 The parameter file \path{Start/parameters} has the following form --
 using as an example  the $SU(2)$-symmetric Hubbard model on a square lattice (see Sec.~\ref{sec:walk1} for a detailed walkthrough):
 %
+\lstset{style=fortran}
 \begin{lstlisting} 
+
 ===============================================================================
 !  Variables for the Hubb program
 !-------------------------------------------------------------------------------
@@ -78,11 +80,12 @@ Ham_h  = 2.d0
 /
 
 &VAR_QMC                  ! Variables for the QMC run
-Nwrap   = 10              ! Stabilization. Green functions will be computed from scratch 
-                          ! after each time interval  Nwrap*Dtau
+Nwrap   = 10              ! Stabilization. Green functions will be computed from 
+                          ! scratch after each time interval  Nwrap*Dtau
 NSweep  = 500             ! Number of sweeps
 NBin    = 2               ! Number of bins
-Ltau    = 1               ! 1 for calculation of time displaced Green functions. 0 otherwise
+Ltau    = 1               ! 1 for calculation of time displaced Green functions;
+                          ! 0 otherwise
 LOBS_ST = 1               ! Start measurements at time slice LOBS_ST
 LOBS_EN = 50              ! End   measurements at time slice LOBS_EN
 CPU_MAX = 0.1             ! Code will stop after CPU_MAX hours. 
@@ -98,7 +101,7 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 %
 
 %------------------------------------------------------------
-\subsubsection{Output files} \label{sec:output}
+\subsubsection{Output: Observables} \label{sec:output_obs}
 %------------------------------------------------------------
 %
 \begin{table}[h]
@@ -117,13 +120,11 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
   See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{table}
 %
+The standard output files are listed in Table~\ref{table:output}. 
 The output of the measured data is organized in bins. One bin corresponds to the arithmetic average 
 over a fixed number of individual measurements which depends 
 on the chosen measurement interval \path{[LOBS_ST,LOBS_EN]} on the imaginary-time axis and on the number \path{NSweep} of Monte Carlo sweeps. If the user runs a MPI parallelized version of the code, the average also extends 
-over the number of MPI threads. 
-The standard output files are listed in Table~\ref{table:output}. 
-
-The formatting of the output for a single bin depends on the observable type: \path{Obs_vec} or \path{Obs_Latt}.
+over the number of MPI threads. The formatting of the output for a single bin depends on the observable type,  \path{Obs_vec} or \path{Obs_Latt}:
 \begin{itemize}
 \item Observables of type \path{Obs_vec}:
 For each additional bin, a single new line is added to the output file.
@@ -163,29 +164,20 @@ Using this structure for the bins as input,
 the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analysis routine (see Sec.~\ref{sec:analysis})
 \end{itemize}
 
+%
 %------------------------------------------------------------
-\paragraph{The \texttt{info}  file and stabilization}
+\subsubsection{Output: Precision} \label{sec:output_prec}
 %------------------------------------------------------------
-
-The finite temperature  auxiliary field QMC algorithm is known to be numerically  unstable. 
+%
+The finite temperature  auxiliary field QMC algorithm is known to be numerically  unstable, as discussed in Sec.~\ref{sec:stable}.
 The origin the numerical instabilities arises  from the imaginary-time propagation which invariably leads to exponentially small and exponentially large scales.
-Numerical stabilization of the code is delicate and has been pioneered in Ref.~\cite{White89}  for the finite temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero  temperature projective algorithm.
-As shown in Ref.~\cite{Assaad08_rev}  scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite temperature code. Apart from runtime information, the file \texttt{info} contains important information concerning the stability of the code.
-For example, in the directory \path{Examples/Hubbard_SU2_Square} an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$, the \texttt{info} file contains the lines
-\begin{alltt}
-Precision Green  Mean, Max :    1.2918865817224671E-014   4.0983018995027644E-011
-Precision Phase, Max       :    5.0272908791449966E-012
-Precision tau    Mean, Max :    8.4596701790588625E-015   3.5033530012121281E-011
-\end{alltt}
-showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
-A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order 1. Numerical stabilization is delicate and there is no guarantee  that it will work for all models.
-For example switching to a HS field which couples to the z-component of the magnetization will yield (see directory \path{Examples/Hubbard_Mz_Square}):
- \begin{alltt}
-Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
-Precision Phase, Max       :    0.0000000000000000     
-Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
-\end{alltt}
-This is still an excellent precision but nevertheless a couple of order of magnitudes less precise than a HS decomposition coupling to the charge. 
+Numerical stabilization of the code is delicate and has been pioneered in Ref.~\cite{White89}  for the finite-temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero temperature projective algorithm.
+As shown in Ref.~\cite{Assaad08_rev}  scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite-temperature code. Apart from runtime information, the file \texttt{info} contains important information concerning the stability of the code.
+It is important to know that numerical stabilization is delicate and there is no guarantee  that it will work for all models.
+
+
+
+
 If the numerical stabilization turns out to be bad, one option is to reduce the  value of the parameter \texttt{Nwrap} in the parameter file. 
 For performing the stabilization of the involved matrix multiplications we rely on routines from lapack. Hence it is very likely that your results may change significantly if the you switch libraries.
 In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines we have included parts of the lapack-3.6.1 reference implementation from
@@ -194,6 +186,7 @@ To use these routines you need to link against a lapack library that implements 
 
 To provide further flexibility, we have  kept the history of different stabilization schemes.   Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch \texttt{-DSTAB2}   or  \texttt{-DSTAB1}  in the \texttt{set\_env.sh}  file and recompile the code.  
 
+Typical values for the numerical precision can be found in the examples of Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
 
 %------------------------------------------------------------
 \subsection{Scripts}\label{sec:scripts}
