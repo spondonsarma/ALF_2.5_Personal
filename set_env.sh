@@ -6,12 +6,6 @@ PROGRAMMCONFIGURATION="-DQRREF -DSTAB1"
 PROGRAMMCONFIGURATION="-DSTAB2"
 PROGRAMMCONFIGURATION="-DMPI -DTEMPERING"
 PROGRAMMCONFIGURATION=""
-#GITCONFIGURATION=""
-#if [ -d .git ]
-#then 
-#  echo "Git repo found"
-#  GITCONFIGURATION="-DGIT -DGIT_COMMIT_HASH=\\\\\\\""$(git log -1 --format=%h)"\\\\\\\" -DGIT_BRANCH=\\\\\\\""$(git rev-parse --abbrev-ref HEAD)"\\\\\\\""
-#fi
 f90="ifort"
 f90="gfortran"
 mpif90=$mpif90
@@ -23,7 +17,6 @@ F90USEFULFLAGS="-cpp "
 export F90USEFULFLAGS
 export F90OPTFLAGS
 FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
-# ${GITCONFIGURATION}"
 export FL
 DIR=`pwd`
 export DIR
