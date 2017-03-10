@@ -35,6 +35,7 @@ $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T
 
 The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.f90}.
 The latter  subroutine  defines the  public variables
+\lstset{style=fortran}
 \begin{lstlisting}
 
   Type (Operator), dimension(:,:), allocatable  :: Op_V 
@@ -74,6 +75,7 @@ Enddo
 
 \end{lstlisting}
 We set the hopping matrix  with 
+
 \begin{lstlisting}
 
 DO I = 1, Latt%N
@@ -223,11 +225,12 @@ such that \texttt{GRC(x,y,s)}    corresponds to  $ \langle \langle  \hat{c}_{x,s
 In the program code, the calculation of the equal time density-density correlation function looks as follows:
 \begin{lstlisting} 
 
-Obs_eq(4)%N     = Obs_eq(4)%N + 1       ! Even if it is redundant, each observable carries 
-Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))  ! its own counter and sign.
+Obs_eq(4)%N     = Obs_eq(4)%N + 1       ! Even if it is redundant, each observable  
+                                        ! carries its own counter and sign.
+Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))  
 Do I1 = 1,Ndim
-   I    = List(I1,1)                    ! = I  For the Hubbard model  on the square
-   no_I = List(I1,2)                    ! = 1  lattice there is one orbital per unit-cell. 
+   I    = List(I1,1)                    ! = I1  (The Hubbard model  on the square
+   no_I = List(I1,2)                    ! = 1   lattice has one orbital per unit-cell)
    Do J1 = 1,Ndim
       J    = List(J1,1)
       no_J = List(J1,2)
@@ -236,9 +239,8 @@ Do I1 = 1,Ndim
                      &     (    GRC(I1,I1,1) * GRC(J1,J1,1) * N_SUN * N_SUN      + &
                      &          GRC(I1,J1,1) * GR(I1,J1,1) * N_SUN   ) * ZP * ZS 
    Enddo
-   Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +   GRC(I1,I1,1) * N_SUN * ZP * ZS
+   Obs_eq(4)%Obs_Latt0(no_I) = Obs_eq(4)%Obs_Latt0(no_I) + GRC(I1,I1,1) * N_SUN*ZP*ZS
 Enddo
-
 \end{lstlisting} 
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
@@ -262,6 +264,20 @@ are thereby given by:
 \end{equation}
 Note that the above holds for the $SU(2)$ HS transformation discussed in this chapter. 
 The handling of time displaced correlation functions is identical to that of equal time correlations. 
+
+%-------------------------------------------------------------------------------------
+\subsubsection{Numerical precision}\label{sec:prec_charge}
+%-------------------------------------------------------------------------------------
+The directory \path{Examples/Hubbard_SU2_Square}  contains an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$. 
+Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}:
+\begin{alltt}
+Precision Green  Mean, Max :    1.2918865817224671E-014   4.0983018995027644E-011
+Precision Phase, Max       :    5.0272908791449966E-012
+Precision tau    Mean, Max :    8.4596701790588625E-015   3.5033530012121281E-011
+\end{alltt}
+showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
+A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order one. 
+
 
 %-------------------------------------------------------------------------------------
 \subsection{The $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
@@ -328,7 +344,25 @@ In the above, one will see explicitly that  there is a sign   difference between
 Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal time and time displaced observables. 
   
 Apart from these modifications, the program  will run in exactly the same manner as for the $SU(2)$ case. 
+    
   
+%-------------------------------------------------------------------------------------
+\subsubsection{Numerical precision}\label{sec:prec_spin}
+%-------------------------------------------------------------------------------------
+The directory \path{Examples/Hubbard_Mz_Square}  contains an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$. 
+Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}:
+ \begin{alltt}
+Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
+Precision Phase, Max       :    0.0000000000000000     
+Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
+\end{alltt}
+
+This is still an excellent precision but nevertheless choosing a 
+ HS field which couples to the z-component of the magnetization apparently leads to numerical results that are 
+a couple of order of magnitudes less precise than a HS decomposition coupling to the charge (compare with Sec.~\ref{sec:prec_charge}).
+
+    
+
 %-------------------------------------------------------------------------------------  
 \subsection{The $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
 %-------------------------------------------------------------------------------------
@@ -359,12 +393,14 @@ and then  call \path{ Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt ) } so as to g
 
 Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
 nc = 0
-Do I = 1,Latt%N           ! Unit-cell index 
-   Do no = 1,Norb         ! Orbital index
-      nc = nc + 1         ! Super index labeling unit cell and orbital
-      List(nc,1) = I      ! Unit-cell  of super index  nc
-      List(nc,2) = no     ! Orbital of super inde nc
-      Invlist(I,no) = nc  ! Super index for given  unit cell and orbital
+Do I = 1,Latt%N                               ! Unit-cell index 
+   Do no = 1,Norb                             ! Orbital index
+      nc = nc + 1                             ! Super-index labeling unit cell
+                                              ! and orbital
+      List(nc,1) = I                          ! Unit-cell  of super index  nc
+      List(nc,2) = no                         ! Orbital of super inde nc
+      Invlist(I,no) = nc                      ! Super-index for given  unit cell
+                                              ! and orbital
   Enddo
 Enddo
 
@@ -381,7 +417,8 @@ Some care has to be taken when setting the hopping matrix.    In the Hamilton mo
 \begin{lstlisting}
 
 DO I = 1, Latt%N                              ! Loop over unit cell 
-   do no = 1,Norb                             ! Runs over orbitals and sets chemical potential
+   do no = 1,Norb                             ! Runs over orbitals and 
+                                              ! sets the chemical potential
       I1 = invlist(I,no)  
       Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
    enddo
@@ -448,10 +485,10 @@ We set the effective dimension  for the Hubbard term to  $N=1$  and to  $N=2$ fo
 
 \begin{lstlisting}
 
-do i  = 1,N_coord*Ndim    !  Runs  over bonds for Ising variable
+do i  = 1,N_coord*Ndim                     ! Runs over bonds for Ising interaction.
   call Op_make(Op_V(i,1),2)
 enddo
-do i  =  N_coord*Ndim+1, (N_coord+1)*Ndim   ! Runs over sites for Hubbard
+do i  =  N_coord*Ndim+1, (N_coord+1)*Ndim  ! Runs over sites for Hubbard interaction.
   call Op_make(Op_V(i,1),1)
 enddo
 
@@ -460,12 +497,12 @@ enddo
 The  first  \texttt{N\_coord*Ndim} operators run through the $2N$ bonds of the square lattice and   are given by:
 \begin{lstlisting}
 
-Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
-                         ! For the square lattice Ndim = Latt%N
+Do nc = 1,Ndim*N_coord                     ! Runs over bonds. Coordination number = 2.
+                                           ! For the square lattice Ndim = Latt%N
   
-   I1 = L_bond_inv(nc,1) ! Site one of the bond.  
-	                 ! L_bond_inv is setup in Setup_Ising_action
-   if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)   ! Site two of the bond 
+   I1 = L_bond_inv(nc,1)                   ! Site one of the bond.  
+	                                   ! L_bond_inv is setup in Setup_Ising_action
+   if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)       ! Site two of the bond 
    if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1) 
    Op_V(nc,1)%P(1) = I1
    Op_V(nc,1)%P(2) = I2
