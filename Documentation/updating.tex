@@ -32,7 +32,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 \subsubsection{The default: sequential  single spin flips}
 %------------------------------------------------------------
 %
-The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will \st{flip} \mycomment{MB: propose} it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
+The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will flip it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
  \begin{equation}
  	P(C \rightarrow C') =  \text{min}  \left( 1, \frac{ W(C')}{W(C)} \right)
  \end{equation}
@@ -61,7 +61,7 @@ Consider an Ising spin at space-time $i,\tau$ and the configuration $C$. Flippin
 The code equally allows for global updates.  The user will have to provide two other functions in the module \texttt{Hamiltonian\_Examples.f90}.   
 
 The subroutine  \texttt{Global\_move(T0\_Proposal\_ratio,nsigma\_old)}  proposes  a global move. 
-The two-dimensional array \texttt{nsigma\_old(M\_V+ M\_I, Ltrot)}  contains  the full  configuration $C$.  On output, the new configuration,  -- C', determined by the user -- is to be stored in the 
+The two-dimensional array \texttt{nsigma\_old(M\_V+ M\_I, Ltrot)}  contains  the full  configuration $C$.  On output, the new configuration,   C', determined by the user,  is to be stored in the 
 array  \texttt{nsigma(M\_V+ M\_I, Ltrot)}.   The global variable \texttt{nsigma(M\_V+ M\_I, Ltrot)} is declared in the module \texttt{Hamiltonian}.  Equally, on output, the variable 
 \texttt{T0\_Proposal\_ratio} contains the proposal ratio 
 \begin{equation}
@@ -113,6 +113,7 @@ The above equation becomes transparent  for  classical systems  with $ S(h,C) = 
 	\Delta h       \simeq  2 h \frac{  \sqrt{C} } { C    + h \langle H \rangle_h},  \text{   with  } C = h^2    \langle \left(  H -  \langle H   \rangle_h \right)^2 \rangle_h
 \end{equation} 
 Several comments are in order. i)    Let us identify $h$ with the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.   ii) In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  $h$.  iii)  Since the action is formulation dependent,   one expects the acceptance of the  exchange move to equally depend  upon the fomulation. 
-\mycomment{MB: Do you track the $n-1$ exchange acceptance rates $acc(i,i+1)$ for the $n$ replicas in the code? Could the exchange rates be an efficient way to locate  a phase transition in the parameters space of $h$, without a priori knowing the order parameter? Also for topological phase transitions w/o an order parameter?  }
-\mycomment{FFA:  Yes I do track the individual acceptances and I do see  singularities in the  acceptance at the phase transition. However, owing to comment iii) at would now be very careful at interpreting the results since they are really formulation dependent. }
+
+%\mycomment{MB: Do you track the $n-1$ exchange acceptance rates $acc(i,i+1)$ for the $n$ replicas in the code? Could the exchange rates be an efficient way to locate  a phase transition in the parameters space of $h$, without a priori knowing the order parameter? Also for topological phase transitions w/o an order parameter?  }
+%\mycomment{FFA:  Yes I do track the individual acceptances and I do see  singularities in the  acceptance at the phase transition. However, owing to comment iii) at would now be very careful at interpreting the results since they are really formulation dependent. }
  The auxiliary field quantum Monte Carlo code in the ALF project  comes with a parallel tempering  compiler option which we will discuss  in section \ref{Parallel.Sec}. 
