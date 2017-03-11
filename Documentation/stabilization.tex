@@ -30,8 +30,8 @@ and $\kappa(\bm{M})$ is the condition number of the matrix $\bm{M}$.
 The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in Eq.~\eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
 the condition number  will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
-To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWRAP} $\bm{B}$ matrices has an acceptable condition number.
-Assuming for simplicity that \texttt{NWRAP} is a multiple of $L_{\text{Trotter}}$, we can write:
+To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number.
+Assuming for simplicity that \texttt{NWrap} is a multiple of $L_{\text{Trotter}}$, we can write:
 \begin{equation}
 \bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.
 \end{equation}
@@ -76,5 +76,5 @@ file. For most simulations there are two values to look out for:
 \item \path{Precision Phase}
 \end{itemize}
 The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
-For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
-\mycomment{Think about formulation}
+For that reason we recommend that \path{NWrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
+

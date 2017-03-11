@@ -32,11 +32,11 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 \subsubsection{The default: sequential  single spin flips}
 %------------------------------------------------------------
 %
-The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$, we will flip it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
+The default updating scheme is a  sequential single  spin flip algorithm.   Consider   the Ising spin $s_{i,\tau}$. We will flip it with probability one such that for  this local move  the  proposal matrix is symmetric.  If we are considering the Hubbard-Stratonovich field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.   Again, for this local move, the proposal matrix is symmetric.  Hence in both cases we will accept or reject the move according to 
  \begin{equation}
  	P(C \rightarrow C') =  \text{min}  \left( 1, \frac{ W(C')}{W(C)} \right)
  \end{equation}
- It is worth noting that this type of sequential spin flip updating does not satisfy detailed balance but the more fundamental stationarity condition. 
+ It is worth noting that this type of sequential spin flip updating does not satisfy detailed balance but the more fundamental stationarity condition \cite{Sokal89}. 
 % 
 %------------------------------------------------------------
 \subsubsection{Sampling of $e^{-S_0}$}
