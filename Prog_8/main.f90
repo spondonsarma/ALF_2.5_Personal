@@ -55,6 +55,7 @@ Program Main
 #ifdef MPI
   include 'mpif.h'
 #endif   
+#include "git.h"
 
 
   Interface
@@ -153,7 +154,7 @@ Program Main
 #ifdef MPI
   If (  Irank == 0 ) then
 #endif
-     write (*,*) "ALF Copyright (C) 2016 The ALF project contributors"
+     write (*,*) "ALF Copyright (C) 2016,2017 The ALF project contributors"
      write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
      write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
 #ifdef MPI
@@ -244,11 +245,15 @@ Program Main
 #if defined(MPI) && !defined(TEMPERING)
      Write(50,*) 'Number of  threads : ', ISIZE
 #endif   
+#if defined(GIT)
+     Write(50,*) 'This executable represents commit '&
+&      , GIT_COMMIT_HASH , ' of branch ' , GIT_BRANCH , '.'
+#endif
      If ( abs(CPU_MAX) < ZERO ) then
         Write(50,*) 'Bin                : ', NBin
         Write(50,*) 'No CPU-time limitation '
      else
-        Write(50,'("Prog will stop after hours:",2x,F8.4)') CPU_MAX
+        Write(50,'(" Prog will stop after hours:",2x,F8.4)') CPU_MAX
      endif
 #if defined(STAB1) 
      Write(50,*) 'STAB1 is defined '
