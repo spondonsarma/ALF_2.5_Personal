@@ -10,8 +10,8 @@ f90="ifort"
 f90="gfortran"
 mpif90=$mpif90
 export f90
-F90OPTFLAGS="-O3 -Wconversion  -fcheck=all"
 F90OPTFLAGS="-O3 "
+F90OPTFLAGS="-O3 -Wconversion  -fcheck=all"
 F90USEFULFLAGS="-cpp -std=f2003"
 F90USEFULFLAGS="-cpp "
 export F90USEFULFLAGS
