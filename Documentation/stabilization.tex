@@ -19,19 +19,19 @@ To boil this down to more familiar terms from linear algebra we remark that we c
 \begin{equation}
 (\mathds{1} + \prod_\tau \bm{B}_\tau) x = b.
 \end{equation}
-The $\bm{B}_\tau$ depend on the system size as well as other physical parameters that can be chosen such that a matrix norm of $B_i$ can have any number.
+The $\bm{B}_\tau \in \mathbb{C}^{n\times n}$ depend on the lattice size as well as other physical parameters that can be chosen such that a matrix norm of $\bm{B}_i$ can have any number.
 From standard perturbation theory for linear systems it is known that the computed solution $\tilde{x}$ would 
 contain a relative error of
 \begin{equation}
-\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa(\mathds{1} + \prod_\tau \bm{B}_\tau)\right).
+\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa_p\left(\mathds{1} + \prod_\tau \bm{B}_\tau\right)\right).
 \end{equation}
 Here $\epsilon$ denotes the machine precision which is $2^{-53}$ for IEEE double precision numbers
-and $\kappa(\bm{M})$ is the condition number of the matrix $\bm{M}$.
+and $\kappa_p(\bm{M})$ is the condition number of the matrix $\bm{M}$ with respect ot the matrix $p$-norm.
 The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in Eq.~\eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
-the condition number  will grow exponentially so that the computed solution $\tilde{x}$
+the condition number will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
-To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWRAP} $\bm{B}$ matrices has an acceptable condition number.
-Assuming for simplicity that \texttt{NWRAP} is a multiple of $L_{\text{Trotter}}$, we can write:
+To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number.
+Assuming for simplicity that \texttt{NWrap} is a multiple of $L_{\text{Trotter}}$, we can write:
 \begin{equation}
 \bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.
 \end{equation}
@@ -39,7 +39,7 @@ Assuming for simplicity that \texttt{NWRAP} is a multiple of $L_{\text{Trotter}}
 Within the auxiliary field QMC implementation of the ALF project, we are by default employing
 the strategy of forming a product of QR-decompositions which was proven to be weakly backwards stable in \cite{Bai2011}.
 The key idea is to efficiently separate the scales of a matrix from the orthogonal part of a matrix.
-This can be achieved using a QR decomposition of a matrix $\bm{A}$ in the form $\bm{A}_i = \bm{Q}_i \bm{R}_i$. The matrix $\bm{Q}_i$ is unitary and hence $\kappa(\bm{Q}_i) = 1$.
+This can be achieved using a QR decomposition of a matrix $\bm{A}$ in the form $\bm{A}_i = \bm{Q}_i \bm{R}_i$. The matrix $\bm{Q}_i$ is unitary and hence in the usual $2$-norm it holds that $\kappa_2(\bm{Q}_i) = 1$.
 To get a handle on the condition number of $\bm{R}_i$ we will form the
 diagonal matrix
 \begin{equation}
@@ -76,5 +76,5 @@ file. For most simulations there are two values to look out for:
 \item \path{Precision Phase}
 \end{itemize}
 The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
-For that reason we recommend that \path{Nwrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
-\mycomment{Think about formulation}
+For that reason we recommend that \path{NWrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
+

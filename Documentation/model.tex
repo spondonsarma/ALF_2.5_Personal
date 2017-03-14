@@ -29,7 +29,7 @@ The essential ingredients of the auxiliary field quantum Monte Carlo implementat
 \begin{itemize}
 \item  We will discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $.   Generically this introduces a systematic Trotter error of order $(\Delta \tau)^2$  \cite{Fye86}. 
 We note that there has been considerable effort at getting rid of the Trotter systematic error and to 
-formulate a genuine continuos-time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} and   face  two issues.   The first issue is that they are restricted to a class of models with Hubbard-type interactions
+formulate a genuine continuous-time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} and   face  two issues.   The first issue is that they are restricted to a class of models with Hubbard-type interactions
 \begin{equation}
         \left(  \hat{n}_{i}- 1\right)^{2}  = \left(  \hat{n}_{i}- 1\right)^{4} ,
 \end{equation}
@@ -38,7 +38,7 @@ such that  the  basic CT-AUX equation \cite{Rombouts98}
           1   + \frac{U}{K} \left(  \hat{n}_{i}- 1\right)^{2}    = \frac{1}{2}\sum_{s=\pm 1}   e^{ \alpha s \left(  \hat{n}_{i}- 1\right) }  \; \text{ with  }  \;  \frac{U}{K} = \cosh(\alpha) -1 \; \text{ and  }  \; K\in\mathbb{R}
 \end{equation}
 holds.
-The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation it turns out that the multi-grid method \cite{Rost12,Rost13,Bluemer08}  is an efficient  scheme to   extrapolate to  small imaginary-time steps so as to  eliminate the Trotter error.
+The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation it turns out that the multi-grid method \cite{Rost12,Rost13,Bluemer08}  is an efficient  scheme to   extrapolate to  small imaginary-time steps so as to  eliminate the Trotter systematic error if required.
 \item  Having isolated the two-body term,  we will use  the   discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
@@ -59,7 +59,7 @@ Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, 
 \item From the above it follows that the  Monte Carlo configuration space $C$  
 is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
 \begin{equation}
-	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}
+	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}.
 \end{equation}
 Here, the Ising spins take the values  $s_{i,\tau} = \pm 1$ and  the HS fields take the values  $l_{j,\tau}  = \pm 2, \pm 1 $.
 \end{itemize}
@@ -159,8 +159,9 @@ To compute equal time as well as time displaced observables,  one can make use o
     \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}   & 
      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}   & \dots  & 
      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
- \end{bmatrix}
+ \end{bmatrix}.
 \end{eqnarray}
+Here, we have defined the super-index $\underline{ x} = \left\{   x,\sigma,s \right\}$.
 In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples.f90} (see Sec.~\ref{sec:obs})   the user is provided with the equal time and time displaced correlation function. Using the  above  formulation  of  Wick's theorem, arbitrary  correlation functions can be computed. We note however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
 
 %------------------------------------------------------------
@@ -200,10 +201,24 @@ The average sign is
 	 \langle \text{sign} \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
 \end{equation}
 and we have  $\langle \text{sign} \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
-According to Eq.~(\ref{eqn:obs_rw}) and Eq.~(\ref{eqn:sign_rw}), the Monte Carlo simulation samples the probability distribution 
+The Monte Carlo simulation samples the probability distribution 
 \begin{equation}  
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
 \end{equation}
+such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be computed.   
+
+The negative sign problem is an issue average sign is a ratio of two partition functions such that one can argue  that 
+\begin{equation}
+ \langle \text{sign} \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta}.
+\end{equation}
+$\Delta $ is intensive positive quantity and $N \beta$ denotes the  Euclidean volume.    In a Monte Carlo simulation, the  error scales as $ 1/\sqrt{T_{CPU}} $   where $T_{CPU}$ corresponds to the computational  time.  Since the error on the  average sign has to be much smaller than the average sign itself,   one sees that:
+\begin{equation}
+	T_{CPU}  \gg e^{2 \Delta N \beta}.
+\end{equation}   
+Two comments are in order. i)  The presence of  a sign problem invariably leads to an exponential increase of CPU time as a function of the Euclidean volume. ii)  $\Delta$ is formulation dependent.  
+For instance,  at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:walk1}   has a much more severe sign problem than the formulation presented in Sec.~\ref{sec:walk1.1} where the HS field couples to the z-component of the magnetization. 
+
+
 
 
  

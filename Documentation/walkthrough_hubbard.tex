@@ -52,7 +52,7 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 \paragraph{The lattice:   \texttt{Call Ham\_latt} }
 %------------------------------------------------------------
 
-The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \path{ Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice} . 
+The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}. 
 For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  = \texttt{Latt\%N} \cdot \texttt{NORB}$, since $N_{\text{unit cell}} = \texttt{Latt\%N}$.
 
 %------------------------------------------------------------
@@ -89,7 +89,7 @@ DO I = 1, Latt%N
 ENDDO
 
 \end{lstlisting}
-Here,    the integer  function \texttt{  j=  Latt\%nnlist(I,n,m)}   is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$ \mycomment{MB: should be $ \vec{I} =  n \vec{a}_1 +  m \vec{a}_2$ } Note that periodic boundary conditions are 
+Here,    the integer  function \texttt{  j=  Latt\%nnlist(I,n,m)}   is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$ \mycomment{MB: should be $ \vec{I} =  n \vec{a}_1 +  m \vec{a}_2$ }  \mycomment{FA: What is written in the text is correct Martin} Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
 To completely define the hopping  we further set: \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha=cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,1))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,1))\%type}  is not  required. 
 Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices.
@@ -116,7 +116,7 @@ For each lattice site $i$, the  matrices ${\bm P}$ are of dimension $1\times N_{
 Do i = 1,Ndim
    Op_V(i,1)%P(1)   = i
    Op_V(i,1)%O(1,1) = cmplx(1.d0,0.d0, kind(0.D0))
-   Op_V(i,1)%g      = sqrt(cmplx(-dtau*ham_U/(dble(N_SUN)),0.D0,kind(0.D0)))
+   Op_V(i,1)%g      = sqrt(cmplx(-dtau*ham_U/dble(N_SUN),0.D0,kind(0.D0)))
    Op_V(i,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
    Op_V(i,1)%type   = 2
    Call Op_set( Op_V(i,1) )
@@ -231,7 +231,7 @@ Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))
 Do I1 = 1,Ndim
    I    = List(I1,1)                    ! = I1  (The Hubbard model  on the square
    no_I = List(I1,2)                    ! = 1   lattice has one orbital per unit-cell)
-   Do J1 = 1,Ndim
+   Do J1 = 1,Ndim                       
       J    = List(J1,1)
       no_J = List(J1,2)
       imj = latt%imj(I,J)
@@ -242,6 +242,7 @@ Do I1 = 1,Ndim
    Obs_eq(4)%Obs_Latt0(no_I) = Obs_eq(4)%Obs_Latt0(no_I) + GRC(I1,I1,1) * N_SUN*ZP*ZS
 Enddo
 \end{lstlisting} 
+Note that we consider the  square lattice of the single site Hubbard model as a special case of a multiorbital problem as described in Sec.~\ref{sec:multi-orbital}
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
@@ -371,7 +372,7 @@ The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simu
  A sample run for this model can be found in \path{Examples/Hubbard_SU2_Honeycomb/}.
 
  %-------------------------------------------------------------------------------------
-\subsubsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} }
+\subsubsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} } \label{sec:multi-orbital}
 %-------------------------------------------------------------------------------------
 
   This model is an example of  a multi-orbital unit cell, and the aim of this section is to document how to implement this in the code.  The  Honeycomb lattice is a  triangular Bravais lattice with two orbitals per unit cell.  The routine  \texttt{Ham\_Latt} will set: 
@@ -398,7 +399,7 @@ Do I = 1,Latt%N                               ! Unit-cell index
       nc = nc + 1                             ! Super-index labeling unit cell
                                               ! and orbital
       List(nc,1) = I                          ! Unit-cell  of super index  nc
-      List(nc,2) = no                         ! Orbital of super inde nc
+      List(nc,2) = no                         ! Orbital of super index nc
       Invlist(I,no) = nc                      ! Super-index for given  unit cell
                                               ! and orbital
   Enddo
@@ -430,7 +431,7 @@ DO I = 1, Latt%N                              ! Loop over unit cell
       case (2)
          J1 = invlist(Latt%nnlist(I,1,-1),2)  ! Orbital B of unit cell i + a_1 - a_2
       case (3)
-         J1 = invlist(Latt%nnlist(I,0,-1),2)  ! Orbital B of unit cell i - a_1 
+         J1 = invlist(Latt%nnlist(I,0,-1),2)  ! Orbital B of unit cell i - a_2 
       case default
          Write(6,*) ' Error in  Ham_Hop '  
       end select
@@ -476,12 +477,33 @@ First,  one has to specify the function \path{Real (Kind=8) function S0(n,nt)}, 
 
 A sample run for this model can be found in \path{Examples/Hubbard_SU2_Ising_Square/}.
 
+
+%-------------------------------------------------------------------------------------
+\subsubsection{The Ising term.}
+%-------------------------------------------------------------------------------------
+Since the Ising field lives on bonds we have to provide a data structure defining this quantity.  A bond has an anchor site as well as an orientation. The routine \path{Setup_Ising_action}   initializes  the arrays \path{L_bond} and  \path{L_bond_inv} that contain this information. 
+
+
+\begin{lstlisting}
+
+nc = 0
+Do n_orientation = 1,N_coord
+Do I = 1, Latt%N
+   nc = nc + 1
+   L_bond(I,n_orientation) = nc
+   L_bond_inv(nc,1) = I    
+   L_bond_inv(nc,2) = n_orientation
+enddo
+enddo
+\end{lstlisting}
+The two legs of the bond are given by  the anchor $\vec{I}$ and $\vec{I}+ \vec{a}_{n_{orientation}}$
 %-------------------------------------------------------------------------------------
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
 %-------------------------------------------------------------------------------------
 
-The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=(3*N_{\mathrm{dim}}) \times 1$. 
-We set the effective dimension  for the Hubbard term to  $N=1$  and to  $N=2$ for the Ising term. The allocation of this array of operators reads: 
+The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=((N_{coord} +  1 )N_{\mathrm{dim}}) \times 1$ since each site has $N_{coord} =2$ bonds   for the square lattice.
+
+
 
 \begin{lstlisting}
 
@@ -500,22 +522,22 @@ The  first  \texttt{N\_coord*Ndim} operators run through the $2N$ bonds of the s
 Do nc = 1,Ndim*N_coord                     ! Runs over bonds. Coordination number = 2.
                                            ! For the square lattice Ndim = Latt%N
   
-   I1 = L_bond_inv(nc,1)                   ! Site one of the bond.  
+   I1 = L_bond_inv(nc,1)                   ! Anchor of the bond
 	                                   ! L_bond_inv is setup in Setup_Ising_action
-   if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)       ! Site two of the bond 
+   if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)  ! Second site of the bond 
    if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1) 
    Op_V(nc,1)%P(1) = I1
    Op_V(nc,1)%P(2) = I2
    Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0))
    Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-   Op_V(nc,1)%g = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
-   Op_V(nc,1)%alpha = cmplx(0d0,0.d0, kind(0.D0))
-   Op_V(nc,1)%type =1
+   Op_V(nc,1)%g      = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
+   Op_V(nc,1)%alpha  = cmplx(0d0,0.d0, kind(0.D0))
+   Op_V(nc,1)%type   = 1
 Enddo
 
 \end{lstlisting}
 Here,  \texttt{ham\_xi} defines the coupling strength  between the Ising  and fermion degree of freedom.
-As for the Hubbard case, the first \texttt{Ndim}  operators read: 
+As for the Hubbard case, the last \texttt{Ndim}  operators read: 
 
 \begin{lstlisting}
 
@@ -544,9 +566,7 @@ The first   argument of the function \texttt{S0}, namely \texttt{n},  correspond
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2} then   \texttt{S0(n,nt)}  returns 1. Note that \texttt{type=2} refers to spins that stem from a  HS transformation. 
 If however  \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
 \begin{equation}
-\frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{m,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{m,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
+\frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{n,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{n,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
 \end{equation}
-That is,  $ \texttt{S0(n,nt)} $  returns the ratio of the new weight to the old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{m,\tau} $. Note that in  this specific case  \texttt{ m = n } \mycomment{MB: Change $m\rightarrow n$ in the above equation?}
-%\mycomment{Since the ordering of the interaction terms is the other way around, it's \texttt{ m = n }.}
-
+That is,   if $n \leq 2* \texttt{Ndim} $,    $ \texttt{S0(n,nt)} $  returns the ratio of the new weight to the old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{n,\tau} $.  Otherwise, $ \texttt{S0(n,nt)} $   returns unity. 
 

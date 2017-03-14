@@ -125,7 +125,7 @@ In case of the  perfect-square term,  we additionally have to set the constant $
 The data structures which hold all the above information are variables of the type \path{Operator} (see Table \ref{table:operator}). 
 For each pair of indices $(k,s)$, we store the following parameters in a \path{Operator} variable:
 \begin{itemize}
-\item the matrix $\mathbf{X}$ [see Eq.~(\ref{eqn:xeqpdop})]
+\item $\vec{P}$ and   $ \mathbf{O}$   defining the matrix $\mathbf{X}$ [see Eq.~(\ref{eqn:xeqpdop})]
 \item the constants $g$, $\alpha$
 \item optionally: the type \texttt{type} of the discrete fields $\phi$
 \end{itemize}
@@ -190,7 +190,7 @@ The function call
 \begin{lstlisting} 
 Call Make_Lattice( L1, L2, a1,  a2, Latt )
 \end{lstlisting}
-will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note that  the structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
+will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note again that  the orbital structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
 \begin{equation}
 \label{Latt.G.eq}
 	\vec{a}_i  \cdot \vec{g}_i = 2 \pi \delta_{i,j}, 
