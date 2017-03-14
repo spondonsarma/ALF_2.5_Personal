@@ -579,7 +579,6 @@ Contains
   end Function Compute_Ratio_Global
 
 
-
 !--------------------------------------------------------------------
   subroutine Compute_Fermion_Det(Phase,Det_Vec,UL,DL,VL)
 !--------------------------------------------------------------------
