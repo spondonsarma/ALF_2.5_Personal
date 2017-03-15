@@ -69,12 +69,13 @@ $\mathcal{\bm{B}}_j \bm{A}_{j-1}$ is formed in the following three steps:
 %it can be pretty expensive. Therefore the user can specify to skip a certain number of 
 %QR Decompositions and perform plain multiplications instead. This is specified in the parameters file by the \path{NWrap} parameter.
 %\path{NWrap}~=~1 corresponds to always performing QR decompositions whereas larger integers give longer intervals where no QR decomposition will be performed.
-The effectiveness of the stabilization \emph{has} to be judged for every simulation from the info
-file. For most simulations there are two values to look out for:
+The effectiveness of the stabilization \emph{has} to be judged for every simulation from the output file \path{info} (Sec.~\ref{sec:output_prec}). For most simulations there are two values to look out for:
 \begin{itemize}
-\item \path{Precision Green}
-\item \path{Precision Phase}
+\item \texttt{Precision Green}
+\item \texttt{Precision Phase}
 \end{itemize}
-The Green's function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
+The Green function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
 For that reason we recommend that \path{NWrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
+We have included typical values of \texttt{Precision Phase} and of the mean and the maximal values of \texttt{Precision Green} in the 
+discussion of example simulations, see Sec.~\ref{sec:prec_charge} and Sec.~\ref{sec:prec_spin}.
 

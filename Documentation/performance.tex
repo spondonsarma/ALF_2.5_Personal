@@ -13,17 +13,19 @@ As mentioned in the  introduction, the auxiliary field QMC algorithm scales line
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[scale=.8]{Figures/Size_scaling_ALF.pdf}
+		\includegraphics[scale=.8]{Figures/Size_scaling_ALF_2.pdf}
 	\end{center}
-	\caption{\label{fig_scaling_size}Size scaling behavior of the auxiliary field QMC code of the ALF project on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich. \st{Here, the number of  degrees of freedom (DOF)} \mycomment{The volume} correspond to \mycomment{the number of sites, }  $N_{\text{dim}}$ . \mycomment{MB: I suggest to replace DOF by "$N_{dim}$" in the label, and to use  "Wall clock time" which is the somehow established terminology }   The plot confirms that the leading scaling order is due to matrix multiplication such that the runtime is dominated by calls to ZGEMM. }
+	\caption{\label{fig_scaling_size}Volume scaling behavior of the auxiliary field QMC code of the ALF project on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich. The number of sites $N_{\text{dim}}$ corresponds to the system volume.
+	The plot confirms that the leading scaling order is due to matrix multiplications such that the runtime is dominated by calls to ZGEMM. }
 \end{figure}
 
 For the implementation which scales linearly in $\beta$, one has to store $L_{\text{Trotter}}/\texttt{NWrap}$ intermediate propagation matrices of dimension $N\times N$. For large lattices and/or low temperatures this dominates the total memory requirements that can exceed 2~GB memory for a sequential version.
 
-At the heart of many Monte Carlo schemes lies a random walk through the given configuration space. This is easily parallalized via MPI by associating one random walker to each MPI task. For each task, we start from a random configuration and have to invest the autocorrelation time $T_\mathrm{auto}$ to produce an equilibrated configuration.
-Additionally we can also profit from an OpenMP parallelized version of the BLAS/LAPACK library for an additional speedup, which also effects equilibration overhead $N_\text{MPI}\times T_\text{auto} / N_\text{OpenMP}$. For a given number of independent measurements  $N_\text{meas}$, we  therefore need a wall-clock time given by
+At the heart of Monte Carlo schemes lies a random walk through the given configuration space. This is easily parallalized via MPI by associating one random walker to each MPI task. For each task, we start from a random configuration and have to invest the autocorrelation time $T_\mathrm{auto}$ to produce an equilibrated configuration.
+Additionally we can also profit from an OpenMP parallelized version of the BLAS/LAPACK library for an additional speedup, which also effects equilibration overhead $N_\text{MPI}\times T_\text{auto} / N_\text{OMP}$, where $N_{\text{MPI}}$ is the number of cores and $N_{\text{OMP}}$ the number of OpenMP threads.
+For a given number of independent measurements  $N_\text{meas}$, we  therefore need a wall-clock time given by
 \begin{equation}\label{eqn:scaling}
-T  =  \frac{T_\text{auto}}{N_\text{OpenMP}} \left( 1   +    \frac{N_\text{meas}}{N_\text{MPI}}  \right) \,.
+T  =  \frac{T_\text{auto}}{N_\text{OMP}} \left( 1   +    \frac{N_\text{meas}}{N_\text{MPI}}  \right) \,.
 \end{equation}
 As we typically have $ N_\text{meas}/N_\text{MPI} \gg 1 $, 
 the speedup is expected to be almost perfect, in accordance with
@@ -36,12 +38,12 @@ We store the field configurations of the random walker as checkpoints, such that
 
 \begin{figure}[H]
 	\begin{center}
-		\includegraphics[scale=0.6]{Figures/MPI_scaling_ALF.pdf}
-		\includegraphics[scale=0.6]{Figures/OMP_scaling_ALF.pdf}
+		\includegraphics[scale=0.6]{Figures/MPI_scaling_ALF_2.pdf}
+		\includegraphics[scale=0.6]{Figures/OMP_scaling_ALF_2.pdf}
 	\end{center}
-	\caption{\label{fig_scaling} \mycomment{MB: larger font size \& ALF $\rightarrow$ QMC simulation, since ALF is not a code name} MPI (left) and OpenMP (right) scaling behavior of the auxiliary field QMC code of the ALF project on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich.
-		The MPI scaling data was obtained with a problem size of $N_{\text{dim}}=400$. This is a medium to small system size that are the least favorable in terms of MPI synchronization effects.
-		The OpenMP data was obtained with a problem size of $N_{\text{dim}}=1296$. Using 2 and 4 OpenMP threads introduces some synchronization/management overhead such that the per core performance is slightly reduced, compared to the single thread efficiency. Further increasing the amount of threads to 7 and 14 keeps the efficiency constant. The drop in performance of the 28 thread configuration is due to the architecture as the threads are now spread over both sockets of the node. To obtain the above results, it was crucial to pin the processes in a fashion that keeps the OpenMP threads as compact as possible.}
+	\caption{\label{fig_scaling} MPI (left) and OpenMP (right) scaling behavior of the auxiliary field QMC code of the ALF project on SuperMUC (phase 2/Haswell nodes) at the LRZ in Munich.
+		The MPI performance data was normalized to 28 cores and was obtained using a problem size of $N_{\text{dim}}=400$. This is a medium to small system size that is the least favorable in terms of MPI synchronization effects.
+		The OpenMP performance data was obtained using a problem size of $N_{\text{dim}}=1296$. Employing 2 and 4 OpenMP threads introduces some synchronization/management overhead such that the per-core performance is slightly reduced, compared to the single thread efficiency. Further increasing the amount of threads to 7 and 14 keeps the efficiency constant. The drop in performance of the 28 thread configuration is due to the architecture as the threads are now spread over both sockets of the node. To obtain the above results, it was crucial to pin the processes in a fashion that keeps the OpenMP threads as compact as possible.}
 \end{figure}
 
 %Next to the entire computational time is spent in BLAS routines such that the performance of the code will depend on the particular  implementation of this library. 
