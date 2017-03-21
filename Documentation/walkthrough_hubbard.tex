@@ -38,10 +38,10 @@ The latter  subroutine  defines the  public variables
 \lstset{style=fortran}
 \begin{lstlisting}
 
-  Type (Operator), dimension(:,:), allocatable  :: Op_V 
-  Type (Operator), dimension(:,:), allocatable  :: Op_T
-  Integer, allocatable :: nsigma(:,:)
-  Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
+Type (Operator), dimension(:,:), allocatable  :: Op_V 
+Type (Operator), dimension(:,:), allocatable  :: Op_T
+Integer, allocatable :: nsigma(:,:)
+Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
 
 \end{lstlisting}
 which specify the model. The array \texttt{nsigma} contains the HS field. The  routine \texttt{Ham\_set}  will first  read the parameter file,  then set the lattice, \texttt{Call Ham\_latt},  set the hopping, \texttt{Call Ham\_hop},  and set the interaction, 

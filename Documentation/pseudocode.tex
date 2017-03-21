@@ -1,0 +1,72 @@
+% !TEX root = doc.tex
+% Copyright (c) 2017 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+%
+%------------------------------------------------------------
+\subsection{Pseudo code description}\label{sec:pseudocode}
+%------------------------------------------------------------
+%
+The following pseudo code describes the main structure of the quantum Monte Carlo program (see \path{Prog/main.f90}):
+\lstset{style=fortran_pseudo_code}
+\begin{lstlisting}
+
+! Set the Hamiltonian and the lattice:
+call ham_set
+
+! Read in an auxiliary-field configuration or generate it randomly:
+call confin
+
+! This loop fills the storage, needed for the first actual Monte Carlo sweep:
+do ntau = ltrot, 1, -1 
+   ! Compute propagation matrices and store them at the stabilization points:
+   call wrapul 
+enddo
+
+! Loop over bins. The bin defines the unit of Monte Carlo time:
+do nbc = 1, nbin 
+
+   ! Loop over sweeps. Each sweeps updates twice (sweeping upward and downward in time)
+   ! the whole space-time lattice of auxiliary fields:
+   do nsw = 1, nsweep 
+   
+      ! Upward sweep:
+      do ntau = 1, ltrot
+      
+         ! Propagate the Green function from time ntau -1 to ntau, 
+         ! and compute new estimate (using sequential update scheme) of Green at ntau: 
+         call wrapgrup
+         
+         ! Stabilization:      
+         if (ntau == stabilization point)
+            ! Compute propagation matrix from previous stabilization point to ntau: 
+            call wrapur
+            ! Read from storage: propagation from ltrot to ntau
+            ! Write to storage : the just computed propagation 
+                        
+            ! Recalculate Green function at time ntau in a stable way:
+            call cgr
+            
+            ! Check the precision between propagated and recalculated Green function
+         endif
+        
+         ! Measure observables:
+         call obser
+      enddo
+      
+      ! Downward sweep:
+      do ntau = ltrot, 1, -1
+         ! Repeat the above steps (update, propagation, stabilization, measurements) 
+         ! for the downward direction in imaginary time
+      enddo
+      
+   enddo ! Loop over sweeps
+    
+   ! Calculate averages of the measurements of the previous bin and write to disk
+   ! Write auxiliary-field configuration to disk
+   
+enddo ! Loop over bins        
+
+\end{lstlisting}

@@ -38,6 +38,7 @@
 \makeatother
 \setcounter{secnumdepth}{4} 
 \setcounter{tocdepth}{4}
+\definecolor{light-gray}{gray}{0.95}
 
 \lstdefinestyle{fortran}{
   language=Fortran,
@@ -48,7 +49,24 @@
   breakatwhitespace=false,
   keepspaces=true,
   showstringspaces=false,
-  columns=flexible
+  columns=flexible,
+  backgroundcolor=\color{light-gray},
+  frame=single
+}
+
+\lstdefinestyle{fortran_pseudo_code}{
+  language=Fortran,
+  basicstyle=\ttfamily,
+  keywordstyle=\color{red},
+  commentstyle=\normalfont\color{black},
+  morecomment=[l]{!\ }% Comment only with space after !
+  breakatwhitespace=false,
+  keepspaces=true,
+  showstringspaces=false,
+  columns=flexible,
+  backgroundcolor=\color{white},
+  frame=single,
+  escapeinside={\!*}{*)},
 }
 
 \lstdefinestyle{bash}{
@@ -102,6 +120,7 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 \input{updating}
 \input{stabilization}
 \input{sampling}
+\input{pseudocode}
 \section{Data Structures and Input/Output}\label{sec:imp}
 \input{implementation}
 \input{files}
