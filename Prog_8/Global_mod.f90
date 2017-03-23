@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016, 2017 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -533,7 +533,7 @@ Contains
     Complex (Kind=Kind(0.d0)) :: Z, Z1
     Real    (Kind=Kind(0.d0)) :: X, Ratio_2
 
-    Ratio = cmplx(0.d0,0.d0)
+    Ratio = cmplx(0.d0,0.d0,kind(0.d0))
     Ratio_2 = 0.d0
     !X = 1.d0
     Do nf = 1,N_Fl
@@ -577,7 +577,6 @@ Contains
 
 
   end Function Compute_Ratio_Global
-
 
 
 !--------------------------------------------------------------------
