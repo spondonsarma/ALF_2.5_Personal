@@ -160,7 +160,7 @@ Do I = 1,Size(Obs_scal,1)
    Call Obser_Vec_make(Obs_scal(I),N,Filename)
 enddo
 \end{lstlisting}
-Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the x -and -y components of the kinetic energy for example.  
+Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the $x$- and $y$-components of the kinetic energy for example.  
 
 For equal time correlation  functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal time Green functions. 
 \begin{lstlisting}
@@ -212,7 +212,7 @@ Enddo
 Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
 
 
-Equal time correlations  are also computed in this routine. As an explicit example, we  consider the equal time density-density correlation.
+Equal time correlations  are also computed in this routine. As an explicit example, we  consider the equal time density-density correlation:
 \begin{equation}
 	 \langle n_{\vec{i},\alpha}   n_{\vec{j},\beta} \rangle   -  \langle n_{\vec{i},\alpha} \rangle  \langle    n_{\vec{j},\beta}  \rangle \;.
 \end{equation} 
@@ -297,8 +297,8 @@ c^{\dagger}_{x, \uparrow} c^{\phantom\dagger}_{x \uparrow}  -   c^{\dagger}_{x, 
 We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:general_ham}) by setting: 
 $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
- The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless the $z$-component of spin remains a good quantum number such that  the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry the simulation in the above representation. 
- With respect to the $SU(2)$ case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+ The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry out the simulation in the above representation. 
+ With respect to the $SU(2)$ case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and the calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
  A sample run for this model can be found in \texttt{Examples/Hubbard\_Mz\_Square/}.
 
 %-------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ a couple of order of magnitudes less precise than a HS decomposition coupling to
 \subsection{The $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
 %-------------------------------------------------------------------------------------
 
-The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simulations for  the the Hubbard model on the Honeycomb lattice by setting in the parameter file   \path{Lattice_type = "Honeycomb"} (see Sec.~\ref{sec:input}).
+The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simulations for the Hubbard model on the Honeycomb lattice by setting in the parameter file   \path{Lattice_type = "Honeycomb"} (see Sec.~\ref{sec:input}).
  A sample run for this model can be found in \path{Examples/Hubbard_SU2_Honeycomb/}.
 
  %-------------------------------------------------------------------------------------
@@ -470,7 +470,7 @@ The model we consider here  is very similar to the  above,  but has an additiona
 We can make contact with the general form of the Hamiltonian by setting: 
 $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} \equiv N_{\mathrm{dim}}$,  $U_{k}       =   -\frac{U}{2}$, 
  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 2 N_{\text{unit cell}} $.  
- The last two terms of the  above Hamiltonian describes a  transverse Ising field model on the bonds of the square lattice.  This  type of Hamiltonian  has  recently been extensively discussed  \cite{Schattner15,Xu16,Assaad16}.  Here we adopt the notation of Ref.~\cite{Assaad16}. Note that   $\langle \langle x,y \rangle \langle x',y' \rangle \rangle $ denotes nearest neighbor bonds.
+ The last two terms of the  above Hamiltonian describe a transverse Ising field model on the bonds of the square lattice.  This  type of Hamiltonian  has  recently been extensively discussed  \cite{Schattner15,Xu16,Assaad16}.  Here we adopt the notation of Ref.~\cite{Assaad16}. Note that   $\langle \langle x,y \rangle \langle x',y' \rangle \rangle $ denotes nearest neighbor bonds.
 The modifications  required to generalize the Hubbard model code to the above model are two-fold. 
 
 First,  one has to specify the function \path{Real (Kind=8) function S0(n,nt)}, and  second,  modify the interaction \texttt{Call Ham\_V}.
@@ -561,7 +561,7 @@ As mentioned above,  a configuration now includes both HS spins and Ising spins 
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}\:.
 \end{equation}
-This configuration is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms,  and a for a given  imaginary-time, the first \texttt{2*Ndim} fields correspond to the Ising interaction and the next \path{Ndim} ones to the Hubbard interaction.
+This configuration is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms, and a for a given imaginary time, the first \texttt{2*Ndim} fields correspond to the Ising interaction and the next \path{Ndim} ones to the Hubbard interaction.
 The first   argument of the function \texttt{S0}, namely \texttt{n},  corresponds to the index of the operator  string 
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2} then   \texttt{S0(n,nt)}  returns 1. Note that \texttt{type=2} refers to spins that stem from a  HS transformation. 
 If however  \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
