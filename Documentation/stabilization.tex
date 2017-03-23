@@ -19,15 +19,15 @@ To boil this down to more familiar terms from linear algebra we remark that we c
 \begin{equation}
 (\mathds{1} + \prod_\tau \bm{B}_\tau) x = b.
 \end{equation}
-The $\bm{B}_\tau \in \mathbb{C}^{n\times n}$ depend on the lattice size as well as other physical parameters that can be chosen such that a matrix norm of $\bm{B}_i$ can have any number.
+The $\bm{B}_\tau \in \mathbb{C}^{n\times n}$ depend on the lattice size as well as other physical parameters that can be chosen such that a matrix norm of $\bm{B}_\tau$ can be unbound in size.
 From standard perturbation theory for linear systems it is known that the computed solution $\tilde{x}$ would 
 contain a relative error of
 \begin{equation}
 \frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa_p\left(\mathds{1} + \prod_\tau \bm{B}_\tau\right)\right).
 \end{equation}
-Here $\epsilon$ denotes the machine precision which is $2^{-53}$ for IEEE double precision numbers
-and $\kappa_p(\bm{M})$ is the condition number of the matrix $\bm{M}$ with respect ot the matrix $p$-norm.
-The important fact that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in Eq.~\eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
+Here $\epsilon$ denotes the machine precision, which is $2^{-53}$ for IEEE double precision numbers,
+and $\kappa_p(\bm{M})$ is the condition number of the matrix $\bm{M}$ with respect to the matrix $p$-norm.
+The important property that makes straight-forward inversion so badly suited  stems from the fact that $  \prod_ \tau \bm{B}_\tau $ contains exponentially large and small scales as can be seen in Eq.~\eqref{eqn:partition_2}.  Thereby, as a function of increasing inverse temperature, 
 the condition number will grow exponentially so that the computed solution $\tilde{x}$
 will often contain no correct digits at all.
 To circumvent this, more sophisticated methods have to be employed. We will first of all assume that the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number.
