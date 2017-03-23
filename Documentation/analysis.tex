@@ -35,7 +35,7 @@ The former will be the case if bins are  longer than the autocorrelation time.  
 This  number should be comparable to the autocorrelation time.     
 The  rebinning  variable \texttt{N\_rebin} will merge \texttt{N\_rebin}  bins into a single new bin. 
 If the autocorrelation time  is smaller than the effective bin size, the error should become independent of the bin size and thereby of the variable \texttt{N\_rebin}.  
-Our analysis is based on the Jackknife resampling.  
+Our analysis is based on the Jackknife resampling\cite{efron1981}.
 As listed in Table  \ref{table:analysis_programs}  we provide three analysis programs to account for the three observable types. The programs can be found in the directory \texttt{Analysis}  and   are executed by running the  bash shell script 
 \texttt{analysis.sh}.
 %
