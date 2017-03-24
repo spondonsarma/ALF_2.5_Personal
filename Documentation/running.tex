@@ -9,36 +9,59 @@
 \subsection{Running the code}\label{sec:running}
 %-------------------------------------------------------------------------------------
 
-In this section we describe the steps to compile and run the code and to perform the error analysis of the data.
+In this section we describe the steps how to compile and run the code, as well as how to perform the error analysis of the data.
 
 %-------------------------------------------------------------------------------------
 \subsubsection{Compilation}
 %-------------------------------------------------------------------------------------
 
-The environment variables are defined in the bash script \texttt{set\_env.sh} as follows:
+The environment variables and the directives to compile the code are set in the following makefile \texttt{Makefile}:
 \lstset{style=bash}
 \begin{lstlisting}
 
-# Description of PROGRAMMCONFIGURATION:
 # -DMPI selects MPI.
-# Setting nothing  compiles without mpi.
-# -DQRREF selects  a reference implementation of the QR decomposition. 
-# Setting nothing selects system lapack for the QR decomposition.
-# -DSTAB1, DSTAB2 selects an alternative stabilization scheme.
-# Setting nothing selects the default stabilizatition
-PROGRAMMCONFIGURATION=""
-f90="gfortran"
+# -DQRREF  Default  stabilization, using QR with pivoting.
+           Packed form of QR factorization  is used. 
+# -DSTAB1  Alternative stabilization, using the  singular value decomposition.
+# -DSTAB2  Alternative stabilization, using QR  with pivoting. 
+           Packed form of QR factorization  is not used.
+PROGRAMCONFIGURATION = -DMPI 
+PROGRAMCONFIGURATION = -DQRREF
+f90 = gfortran
 export f90
-F90OPTFLAGS="-O3"
+F90OPTFLAGS = -O3 -Wconversion  -fcheck=all
+F90OPTFLAGS = -O3
 export F90OPTFLAGS
-FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
+F90USEFULFLAGS = -cpp -std=f2003
+F90USEFULFLAGS = -cpp
+export F90USEFULFLAGS
+FL = -c ${F90OPTFLAGS} ${PROGRAMCONFIGURATION}
 export FL
-DIR=`pwd`
+DIR = ${CURDIR}
 export DIR
-Libs=${DIR}"/Libraries/"
+Libs = ${DIR}/Libraries/
 export Libs
-LIB_BLAS_LAPACK="-llapack -lblas"
+LIB_BLAS_LAPACK = -llapack -lblas
 export LIB_BLAS_LAPACK
+
+all: lib ana prog
+prog:
+	cd Prog && $(MAKE)
+lib:
+	cd Libraries && $(MAKE)
+ana:
+	cd Analysis && $(MAKE)
+clean: cleanall
+cleanall: cleanprog cleanlib cleanana
+cleanprog:
+	cd Prog && $(MAKE) clean
+cleanlib:
+	cd Libraries && $(MAKE) clean
+cleanana:
+	cd Analysis && $(MAKE) clean
+help:
+	@echo "The following are some of the valid targets of this Makefile"
+	@echo "all, prog, lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
 
 \end{lstlisting}
 In the above, the GNU Fortan compiler \texttt{gfortran} is set.\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
@@ -46,30 +69,16 @@ which \texttt{ifort} allocates on the stack. For large system sizes and/or low t
 a runtime error. One solution is to demand allocation of arrays above a certain size on the heap instead of the stack. 
 This is accomplished by the \texttt{ifort} compiler flag \texttt{-heap-arrays [n]} where \texttt{[n]} is the minimal size (in kilobytes, for example \texttt{n=1024}) of arrays 
 that are allocated on the heap.}
+We provide a set of options for compilation of the QMC code. The present options are \texttt{-DMPI}, \texttt{-DQRREF}, \texttt{-DSTAB1}, and \texttt{-DSTAB2}. 
+They can be included in the string variable \texttt{PROGRAMCONFIGURATION} by the user, as shown above.
 The program can be compiled and ran either in single-thread mode (default) or 
-in multi-threading mode (define \texttt{-DMPI}) using the MPI standard for parallelization.
-To compile the libraries, the analysis programs and the quantum Monte Carlo program, the following steps should be executed:
-\begin{enumerate}
-\item Export  the environment variables:
+in multi-threading mode (define \texttt{-DMPI}) using the MPI standard for parallelization. The remaining three compiler options select a particular stabilization scheme for the matrix multiplications (see Sec.~\ref{sec:output_prec}).
+To compile the libraries, the analysis routines and the QMC program at once, just execute the single command:
 \begin{verbatim}
-source set_env.sh
-\end{verbatim}
-\item Compile the libraries and the error analysis routines
-\begin{verbatim}
-cd Libraries
 make
-cd ..
-cd Analysis
-make
-cd ..
 \end{verbatim}
-\item Compile the quantum Monte Carlo code
-\begin{verbatim}
-cd Prog
-make
-cd ..
-\end{verbatim}
-\end{enumerate}
+To clean up all directories and remove the object files and executables, execute the command \texttt{make clean}. As can be seen in the above makefile, there exist also rules to compile/clean up the library, the analysis routines and the QMC program separately.  
+
 
 %-------------------------------------------------------------------------------------
 \subsubsection{Starting a simulation}

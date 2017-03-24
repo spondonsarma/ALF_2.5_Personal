@@ -182,11 +182,13 @@ It is important to know that numerical stabilization is delicate and there is no
 
 If the numerical stabilization turns out to be bad, one option is to reduce the  value of the parameter \texttt{Nwrap} in the parameter file. 
 For performing the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Hence it is very likely that your results may change significantly if you switch the LAPACK implementation.
-In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines we have included parts of the lapack-3.6.1 reference implementation from
-\url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the lapack reference implementation by including the switch \texttt{-DQRREF} into the PROGRAMMCONFIGURATION string.
-To use these routines you need to link against a lapack library that implements at least the lapack-3.4.0 interface. \footnote{ We have encountered some compiling issues with this flag. In particular  the  older  intel  ifort  compiler version 10.1  fails for all optimization levels.} 
+In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines we have included parts of the LAPACK-3.6.1 reference implementation from
+\url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the LAPACK reference implementation by including the switch \texttt{-DQRREF} into the PROGRAMMCONFIGURATION string.
+To use these routines you need to link against a lapack library that implements at least the LAPACK-3.4.0 interface.\footnote{ We have encountered some compiling issues with this flag. In particular  the  older  intel  ifort  compiler version 10.1  fails for all optimization levels.}
 
-To provide further flexibility, we have  kept the history of different stabilization schemes.   Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch \texttt{-DSTAB2}   or  \texttt{-DSTAB1}  in the \texttt{set\_env.sh}  file and recompile the code.  
+To provide further flexibility, we have  kept the history of different stabilization schemes.   Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch 
+\texttt{-DSTAB2} (stabilization scheme based on the QR decomposition, but not using the LAPACK reference implementation) or  
+\texttt{-DSTAB1} (stabilization scheme based on singular value decomposition)   in the header of the file \texttt{Makefile} and recompile the code.  
 
 Typical values for the numerical precision can be found in the examples of Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
 
@@ -197,8 +199,6 @@ Typical values for the numerical precision can be found in the examples of Sec.~
 \begin{table}[h]
    \begin{tabular}{@{} l l l @{}}\toprule
    Script & Description & Section\\\midrule
-   \path{set_env.sh} & Sets the environment variables for the compiler& \\
-   & and the libraries. & \ref{sec:running}\\
    \path{Start/out_to_in.sh} & Copies the output configurations of HS and Ising spins &\\
    & to the respective input files. & \ref{sec:running} \\
    \path{Start/analysis.sh} & Starts the error analysis. & \ref{sec:analysis}\\\bottomrule
