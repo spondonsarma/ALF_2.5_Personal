@@ -10,6 +10,68 @@
 %------------------------------------------------------------
 %
 The following pseudo code describes the main structure of the quantum Monte Carlo program (see \path{Prog/main.f90}):
+
+\begin{mdframed}[frametitle={Implementation of the auxiliary-field QMC method:}]
+{\setlength{\parindent}{0pt}
+Set the Hamiltonian and the lattice:\\
+\textbf{call} ham\_set\\
+Read in an auxiliary-field configuration or generate it randomly:\\
+\textbf{call} confin\\
+
+This loop fills the storage, needed for the first actual Monte Carlo sweep:\\
+\textbf{do} \texttt{ntau} from  \texttt{ltrot} to \texttt{1}\\
+\hspace*{2em} Compute propagation matrices and store them at the stabilization points:\\
+\hspace*{2em} \textbf{call} wrapul\\
+\textbf{enddo}\\
+ 
+Loop over bins. The bin defines the unit of Monte Carlo time:\\
+\textbf{do} \texttt{nbc} from  \texttt{1} to \texttt{nbin} \\
+
+   Loop over sweeps. Each sweep updates twice (sweeping upward and downward in time)\\
+   the whole space-time lattice of auxiliary fields:\\
+   \textbf{do} \texttt{nsw} from  \texttt{1} to \texttt{nsweep}  \\
+   
+      Upward sweep:\\
+      \textbf{do} \texttt{ntau} from \texttt{1} to \texttt{ltrot}\\
+      
+         Propagate the Green function from time \texttt{ntau -1} to \texttt{ntau},  \\
+         and compute new estimate (using sequential update scheme) of Green at \texttt{ntau}: \\
+         \textbf{call} wrapgrup\\
+         
+         Stabilization: \\     
+         \textbf{if} \texttt{ntau} is equal to a stabilization point)\\
+            Compute propagation matrix from previous stabilization point to \texttt{ntau}: \\
+            \textbf{call} wrapur\\
+            Read from storage: propagation from \texttt{ltrot} to \texttt{ntau}\\
+            Write to storage : the just computed propagation \\
+                        
+            Recalculate Green function at time \texttt{ntau} in a stable way:\\
+            \textbf{call} cgr\\
+            
+            Check the precision between propagated and recalculated Green function\\
+         \textbf{endif}\\
+        
+         Measure the equal time observables, \\
+         \textbf{if} \texttt{ntau} is in the intervall \texttt{[LOBS\_ST, LOBS\_EN]}:\\
+         \textbf{call} obser\\
+      \textbf{enddo}\\
+      
+      Downward sweep:\\
+      \textbf{do} \texttt{ntau} from \texttt{ltrot} to \texttt{1}\\
+         Repeat the above steps (update, propagation, stabilization, measurements) \\
+         for the downward direction in imaginary time\\
+      \textbf{enddo}\\
+      
+   \textbf{enddo} (loop over sweeps)\\
+    
+   Calculate averages of the measurements of the previous bin and write to disk\\
+   Write auxiliary-field configuration to disk\\
+   
+\textbf{enddo} (loop over bins)     
+   
+
+}
+\end{mdframed}
 % 
 % \noindent\fbox{%
 %     \parbox{\textwidth}{%
