@@ -9,7 +9,7 @@
 \subsection{Pseudo code description}\label{sec:pseudocode}
 %------------------------------------------------------------
 %
-\begin{mdframed}[frametitle={Structure of the main program \path{Prog/main.f90} of the auxiliary field QMC implementation:}]
+\begin{mdframed}[frametitle={Basic structure of the auxiliary field QMC implementation (\path{Prog/main.f90}):}]
 {\setlength{\parindent}{0pt}
 Set the Hamiltonian and the lattice:\\
 \textbf{Call} ham\_set\\
@@ -68,9 +68,9 @@ Loop over bins. The bin defines the unit of Monte Carlo time:\\
 \hspace*{1em} Write auxiliary-field configuration to disk: \\
 \hspace*{1em} \textbf{call} confout\\
 \textbf{Enddo} (loop over bins)\\
-
-Write the \texttt{info} file to disk:\\
-\textbf{call} control\_print
+% 
+% Write the \texttt{info} file to disk:\\
+% \textbf{call} control\_print
 }
 \end{mdframed}
 % 
