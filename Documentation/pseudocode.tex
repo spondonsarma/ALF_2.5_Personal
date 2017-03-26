@@ -55,12 +55,12 @@ Loop over bins. The bin defines the unit of Monte Carlo time:\\
 \hspace*{2em} \textbf{Do} \texttt{ntau} from \texttt{ltrot} to \texttt{1}\\
 \hspace*{3em} Repeat the above steps (update, propagation, stabilization, equal time measurements) \\
 \hspace*{3em} for the downward direction in imaginary time\\
-
-\hspace*{3em} Measure the time displaced observables: \\
-\hspace*{3em} \textbf{If} \texttt{ntau} equals \texttt{1} \textbf{then}\\
-\hspace*{4em} \textbf{Call} tau\_m\\
-\hspace*{3em} \textbf{Endif}\\
 \hspace*{2em} \textbf{Enddo}\\
+
+\hspace*{2em} Measure the time displaced observables: \\
+\hspace*{2em} \textbf{If} \texttt{ntau} equals \texttt{1} \textbf{then}\\
+\hspace*{3em} \textbf{Call} tau\_m\\
+\hspace*{2em} \textbf{Endif}\\
 \hspace*{1em} \textbf{Enddo} (loop over sweeps)\\
     
 \hspace*{1em} Calculate measurement averages for current bin and write them to disk:\\
