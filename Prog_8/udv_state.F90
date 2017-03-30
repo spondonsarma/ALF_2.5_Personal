@@ -36,6 +36,7 @@ MODULE UDV_State_mod
         COMPLEX (Kind=Kind(0.d0)), allocatable :: D(:)
         INTEGER :: ndim
 ! POINTER and ALLOTABLE give different semantics...
+
         CONTAINS
             PROCEDURE :: alloc => alloc_UDV_state
             PROCEDURE :: init => init_UDV_state
@@ -52,6 +53,7 @@ SUBROUTINE alloc_UDV_state(this, t)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     INTEGER :: t
+
     this%ndim = t
     ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim), this%D(this%ndim))
 END SUBROUTINE alloc_UDV_state
@@ -60,6 +62,7 @@ SUBROUTINE init_UDV_state(this, t)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     INTEGER :: t
+
     CALL this%alloc(t)
     CALL this%reset
 END SUBROUTINE init_UDV_state
@@ -67,6 +70,7 @@ END SUBROUTINE init_UDV_state
 SUBROUTINE dealloc_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
+
     DEALLOCATE(this%U, this%V, this%D)
 END SUBROUTINE dealloc_UDV_state
 
@@ -74,6 +78,7 @@ SUBROUTINE reset_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
+
     alpha = 0.D0
     beta = 1.D0
     CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U, this%ndim)
@@ -85,6 +90,7 @@ SUBROUTINE print_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(IN) :: this
     INTEGER :: i
+
     WRITE(*,*) "NDim = ", this%ndim
     DO i = 1, this%ndim
         WRITE(*,*) this%U(i, :)
@@ -101,6 +107,7 @@ SUBROUTINE assign_UDV_state(this, rhs)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     CLASS(UDV_State), INTENT(IN) :: rhs
+
     this%U = rhs%U
     this%V = rhs%V
     this%D = rhs%D
