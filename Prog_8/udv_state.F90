@@ -74,14 +74,11 @@ SUBROUTINE reset_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
-    INTEGER :: n
     alpha = 0.D0
     beta = 1.D0
     CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U, this%ndim)
     CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V, this%ndim)
-    DO n = 1, this%ndim
-        this%D(n) = beta
-    ENDDO
+    this%D = beta
 END SUBROUTINE reset_UDV_state
 
 SUBROUTINE print_UDV_state(this)
