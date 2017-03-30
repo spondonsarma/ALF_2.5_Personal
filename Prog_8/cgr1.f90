@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-      SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+      SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
 
 !--------------------------------------------------------------------
 !> @author 
@@ -148,10 +148,12 @@
 
         USE MyMats
         USE QDRP_mod
+        Use UDV_State_mod
         Implicit None
 	!Arguments.
-        COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
-        COMPLEX(Kind=Kind(0.d0)), Dimension(:),   Intent(IN)   ::  DLUP, DRUP
+!         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
+!         COMPLEX(Kind=Kind(0.d0)), Dimension(:),   Intent(IN)   ::  DLUP, DRUP
+        CLASS(UDV_State), INTENT(IN) :: udvl, udvr
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
         INTEGER         :: NVAR
@@ -167,19 +169,19 @@
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
         LOGICAL :: FORWRD
         
-        N_size = SIZE(DLUP,1)
+        N_size = udvl%ndim
         NCON = 0
         alpha = 1.D0
         beta = 0.D0
         Allocate(TPUP(N_size,N_size), RHS(N_size, N_size), IPVT(N_size), TAU(N_size), DUP(N_size))
         !Write(6,*) 'In CGR', N_size
-        CALL MMULT(TPUP,VRUP,VLUP)
+        CALL MMULT(TPUP, udvr%V, udvl%V)
         DO J = 1,N_size
-            TPUP(:,J) = DRUP(:)*TPUP(:,J)*DLUP(J)
+            TPUP(:,J) = udvr%D(:) *TPUP(:,J)*udvl%D(J)
         ENDDO
         ! can be inserted again once we are sure that we may assume that UR and UL stem from householder reflectors
 !        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, alpha, TPUP, N_size)
-        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, beta, RHS(1, 1), N_size)
+        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, udvr%U, N_size, udvl%U, N_size, beta, RHS(1, 1), N_size)
         TPUP = TPUP + RHS
         ! calculate determinant of UR*UL
         PHASE = CONJG(DET_C(RHS, N_size))
@@ -230,7 +232,7 @@
             ! This is supposed to solve the system 
             ! URUP U D V P^dagger ULUP G = 1
             ! initialize the rhs with CT(URUP)
-            RHS = CT(URUP)
+            RHS = CT(udvr%U)
             ! RHS = U^dagger * RHS
             CALL ZUNMQR('L', 'C', N_size, N_size, N_size, TPUP(1, 1), N_size, TAU(1), RHS(1,1), N_size, WORK(1), LWORK, INFO)
             DEALLOCATE(TAU, WORK)
@@ -252,12 +254,12 @@
             FORWRD = .false.
             CALL ZLAPMR(FORWRD, N_size, N_size, RHS(1,1), N_size, IPVT(1))
             ! perform multiplication with ULUP and store in GRUP
-            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, ULUP(1,1), N_size, RHS(1,1), N_size, beta, GRUP(1,1), N_size)
+            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl%U(1, 1), N_size, RHS(1,1), N_size, beta, GRUP(1,1), N_size)
         ELSE
             ! This solves the system G * URUP * P * R^dagger * D * U^dagger * ULUP = 1
             
             ! RHS = ULUP * UUP
-            RHS = CT(ULUP)
+            RHS = CT(udvl%U)
             CALL ZUNMQR('R', 'N', N_size, N_size, N_size, TPUP(1, 1), N_size, TAU(1), RHS(1, 1), N_size, WORK(1), LWORK, INFO)
             DEALLOCATE(TAU, WORK)
             ! apply D^-1 to RHS from the right
@@ -280,10 +282,9 @@
             FORWRD = .false.
             CALL ZLAPMT(FORWRD, N_size, N_size, RHS(1, 1), N_size, IPVT(1))
             ! perform multiplication with URUP
-            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, RHS(1, 1), N_size, URUP(1, 1), N_size, beta, GRUP(1, 1), N_size)
+            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, RHS(1, 1), N_size, udvr%U(1,1), N_size, beta, GRUP(1, 1), N_size)
         ENDIF
         Deallocate(TPUP, DUP, IPVT, VISITED, RHS)
 #endif
         
-
       END SUBROUTINE CGR
