@@ -73,7 +73,7 @@
            end Interface
      
            Integer, Intent(In) :: NSTM, NWRAP
-           TYPE(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst
+           CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst
            Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
            Integer, Intent(In) :: STAB_NT(0:NSTM)         
 
@@ -82,7 +82,7 @@
            ! Local 
            ! This could be placed as  private for the module 
            Complex (Kind=Kind(0.d0))  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
-           TYPE(UDV_State), DIMENSION(:), ALLOCATABLE :: udvr
+           CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvr
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z

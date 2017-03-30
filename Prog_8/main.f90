@@ -103,7 +103,7 @@ Program Main
 
   COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
   COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR
-  TYPE(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
+  CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
   
 
   Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
@@ -126,7 +126,7 @@ Program Main
   Integer, dimension(:), allocatable :: Stab_nt
   
   ! Space for storage.
-  TYPE(UDV_State), Dimension(:,:), ALLOCATABLE :: udvst
+  CLASS(UDV_State), Dimension(:,:), ALLOCATABLE :: udvst
 
   ! For tests
   Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
@@ -327,7 +327,7 @@ Program Main
         endif
 #endif
         ! Global updates
-!        If (Global_moves) Call Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
+      If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst)
 
         ! Propagation from 1 to Ltrot
         ! Set the right storage to 1

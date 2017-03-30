@@ -60,7 +60,7 @@ Contains
 !
 !> @brief 
 !> Handles parrallel tempering
-!> This subroutine is called only if the tempering flag is switch on. In this 
+!> This subroutine is called only if the tempering flag is switched on. In this 
 !> case the MPI flag is also switched on. 
 !> 
 !--------------------------------------------------------------------
@@ -302,23 +302,23 @@ Contains
   end Subroutine Exchange_Step
 #endif
 !---------------------------------------------------------------------
-  Subroutine Global_Updates(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST)
-
+  Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst)
+    Use UDV_State_mod
     Implicit none
 
     Interface
-       SUBROUTINE WRAPUL(NTAU1, NTAU, UL ,DL, VL)
+       SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
          Use Hamiltonian
+         Use UDV_State_mod
          Implicit none
-         COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-         COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
+         CLASS(UDV_State), intent(inout) :: udvl(N_FL)
          Integer :: NTAU1, NTAU
        END SUBROUTINE WRAPUL
-       SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+       SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
          Use UDV_Wrap_mod
+         Use UDV_State_mod
          Implicit None
-         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
-         COMPLEX(Kind=Kind(0.d0)), Dimension(:)  , Intent(In)    :: DLUP, DRUP
+         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
          COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
          COMPLEX(Kind=Kind(0.d0)) :: PHASE
          INTEGER         :: NVAR
@@ -327,11 +327,9 @@ Contains
     
 !>  Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , INTENT(INOUT), allocatable :: DL, DR
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: UL, VL, UR, VR
+    CLASS(UDV_State), DIMENSION(:), ALLOCATABLE, INTENT(INOUT) :: udvl, udvr
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
+    CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(INOUT) :: udvst
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
 
@@ -351,7 +349,7 @@ Contains
 
     n1 = size(nsigma,1)
     n2 = size(nsigma,2)
-    NSTM = Size(UST,3)
+    NSTM = Size(udvst, 1)
     Allocate ( nsigma_old(n1,n2) )
     Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
     Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
@@ -362,7 +360,7 @@ Contains
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
-       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf),udvl(nf)%U,udvl(nf)%D,udvl(nf)%V)
        Phase_det_old(nf) = Z
        Phase_old = Phase_old*Z
     Enddo
@@ -375,14 +373,12 @@ Contains
     If (L_test) then 
        ! Testing    
        Do nf = 1,N_FL
-          CALL INITD(UR(:,:,nf),Z_ONE)
-          CALL INITD(VR(:,:,nf),Z_ONE)
-          DR(:,nf) = Z_ONE
+          CALL udvr(nf)%reset
        Enddo
        NVAR = 1
        Phase = cmplx(1.d0,0.d0,kind(0.d0))
        do nf = 1,N_Fl
-          CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
+          CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf), udvl(nf))
           Phase = Phase*Z
        Enddo
        call Op_phase(Phase,OP_V,Nsigma,N_SUN) 
@@ -401,34 +397,30 @@ Contains
     !> Phase_old, Phase_det_old and Det_vec_old  are all set. 
     NC = 0
     Do n = 1,N_Global
-       !> Draw a new spin configuration. This is provides by the user in the Hamiltonian module
+       !> Draw a new spin configuration. This is provided by the user in the Hamiltonian module
        !> Note that nsigma is a variable in the module Hamiltonian
        Call Global_move(T0_Proposal_ratio,nsigma_old)
        If (T0_Proposal_ratio > 1.D-24) then
           NC = NC + 1
           !> Compute the new Green function
           DO nf = 1,N_FL
-             CALL INITD(UL(:,:,Nf),Z_ONE)
-             DL(:,nf) = Z_ONE
-             CALL INITD(VL(:,:,nf),Z_ONE)
+             CALL udvl(nf)%reset
           ENDDO
           DO NST = NSTM-1,1,-1
              NT1 = Stab_nt(NST+1)
              NT  = Stab_nt(NST  )
              !Write(6,*) NT1,NT, NST
-             CALL WRAPUL(NT1,NT,UL,DL, VL)
+             CALL WRAPUL(NT1,NT,udvl)
              Do nf = 1,N_FL
-                UST(:,:,NST,nf) = UL(:,:,nf)
-                VST(:,:,NST,nf) = VL(:,:,nf)
-                DST(:  ,NST,nf) = DL(:  ,nf)
+                udvst(NST, nf) = udvl(nf)
              ENDDO
           ENDDO
           NT1 = stab_nt(1)
-          CALL WRAPUL(NT1,0, UL ,DL, VL)
+          CALL WRAPUL(NT1,0, udvl)
           !You could now compute the det directly here.
           Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
           do nf = 1,N_Fl
-             Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+             Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf)%U,udvl(nf)%D,udvl(nf)%V)
              Phase_det_new(nf) = Z
              Phase_new = Phase_new*Z
           Enddo
@@ -463,29 +455,25 @@ Contains
     If (NC > 0 ) then
        If (.not.TOGGLE) then
           DO nf = 1,N_FL
-             CALL INITD(UL(:,:,Nf),Z_ONE)
-             DL(:,nf) = Z_ONE
-             CALL INITD(VL(:,:,nf),Z_ONE)
+             CALL udvl(nf)%reset
           ENDDO
           DO NST = NSTM-1,1,-1
              NT1 = Stab_nt(NST+1)
              NT  = Stab_nt(NST  )
              !Write(6,*) NT1,NT, NST
-             CALL WRAPUL(NT1,NT,UL,DL, VL)
+             CALL WRAPUL(NT1,NT, udvl)
              Do nf = 1,N_FL
-                UST(:,:,NST,nf) = UL(:,:,nf)
-                VST(:,:,NST,nf) = VL(:,:,nf)
-                DST(:  ,NST,nf) = DL(:  ,nf)
+                udvst(NST, nf) = udvl(nf)
              ENDDO
           ENDDO
           NT1 = stab_nt(1)
-          CALL WRAPUL(NT1,0, UL ,DL, VL)
+          CALL WRAPUL(NT1,0, udvl)
        Endif
        !Compute the Green functions so as to provide correct starting point for the sequential updates.
        NVAR  = 1
        Phase = cmplx(1.d0,0.d0,kind(0.d0))
        do nf = 1,N_Fl
-          CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
+          CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf), udvl(nf))
           Phase = Phase*Z
        Enddo
        call Op_phase(Phase,OP_V,Nsigma,N_SUN) 
