@@ -65,8 +65,6 @@ Program Main
        Use UDV_State_mod
        Implicit none
        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
-!        COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-!        COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
        Integer :: NTAU1, NTAU
      END SUBROUTINE WRAPUL
      SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
@@ -98,8 +96,6 @@ Program Main
        Use UDV_State_mod
        Implicit None
        CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
-!        COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
-!        COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
        Integer :: NTAU1, NTAU
      END SUBROUTINE WRAPUR
 
