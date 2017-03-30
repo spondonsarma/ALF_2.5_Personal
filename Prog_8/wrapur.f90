@@ -30,7 +30,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
-     SUBROUTINE WRAPUR(NTAU, NTAU1, UR, DR, VR)
+     SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
 
 !--------------------------------------------------------------------
 !> @author 
@@ -89,11 +89,13 @@
         Use Operator_mod, only : Phi
         Use Hop_mod
         Use Wrap_helpers
+        Use UDV_State_mod
         Implicit None
 
         ! Arguments
-        COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
-        COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
+!         COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
+!         COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
+        CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
         Integer :: NTAU1, NTAU
 
 
@@ -118,7 +120,7 @@
               ENDDO
            ENDDO
 
-           CALL ur_update_matrices(UR(:,:,nf), DR(:, nf), VR(:,:,nf), TMP, TMP1, Ndim, NCON)
+           CALL ur_update_matrices(UDVR(nf), TMP, TMP1, Ndim, NCON)
         ENDDO
         deallocate(TMP, TMP1)
 
