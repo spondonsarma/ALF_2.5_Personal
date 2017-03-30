@@ -42,6 +42,8 @@ MODULE UDV_State_mod
             PROCEDURE :: dealloc => dealloc_UDV_state
             PROCEDURE :: reset => reset_UDV_state
             PROCEDURE :: assign => assign_UDV_state
+            PROCEDURE :: matmultleft => matmultleft_UDV_state
+            PROCEDURE :: matmultright => matmultright_UDV_state
             PROCEDURE :: print => print_UDV_state
             GENERIC :: ASSIGNMENT(=) => assign
     END TYPE UDV_State
@@ -176,5 +178,108 @@ SUBROUTINE assign_UDV_state(this, src)
     END ASSOCIATE
     this%D = src%D
 END SUBROUTINE assign_UDV_state
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function updates the UDV matrices with the new matrix stored in TMP:
+!
+!> @param [in] U
+!> @param [inout] D
+!> @param [inout] V
+!> @param [in] TMP
+!> @param [in] TMP1
+!> @param [in] Ndim The size of the matrices
+!> @param [in] NCON wether we check.
+!-------------------------------------------------------------------
+ SUBROUTINE matmultright_UDV_state(UDVL, TMP, TMP1, Ndim, NCON)
+        Use QDRP_mod
+        Implicit None
+        INTEGER, intent(in) :: Ndim, NCON
+        COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, Dimension(: ,:) :: TMP
+        COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, Dimension(:, :) :: TMP1
+!        COMPLEX (Kind=Kind(0.d0)), intent(inout) :: U(Ndim,Ndim), V(Ndim,Ndim), D(Ndim)
+        CLASS(UDV_State), intent(inout) :: UDVL
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        INTEGER, allocatable, Dimension(:) :: IPVT
+        INTEGER :: INFO, i, j, LWORK
+        LOGICAL :: FORWRD
+
+        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+        beta = 0.D0
+        ! TMP1 = TMP^dagger * U^dagger
+        CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVL%U, Ndim, beta, TMP1(1, 1), Ndim)
+        ! TMP1 = TMP1 * D
+        DO i = 1,NDim
+            UDVL%U(:, i) = TMP1(:, i) * UDVL%D(i)
+        ENDDO
+        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+        IPVT = 0
+        call QDRP_decompose(Ndim, UDVL%U, UDVL%D, IPVT, TAU, WORK, LWORK)
+        ! Permute V, since we multiply with V from the left we have to permute its columns
+        FORWRD = .true.
+        CALL ZLAPMT(FORWRD, Ndim, Ndim, UDVL%V, Ndim, IPVT)
+        ! V = V * R^dagger
+        CALL ZTRMM('R', 'U', 'C', 'N', Ndim, Ndim, Z_ONE, UDVL%U, Ndim, UDVL%V, Ndim)
+        ! create explicitly U in the storage already present for it
+        CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
+        DEALLOCATE(TAU, WORK, IPVT)
+END SUBROUTINE matmultright_UDV_state
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function updates the UDV matrices with the new matrix stored in TMP.
+!> Essentially we calculate the product TMP * U * D * V
+!> For the result we generate a new decomposition in the form U, D, V
+!
+!> @param [inout] U A unitary matrix in full storage.
+!> @param [inout] D The entries of a diagonal matrix.
+!> @param [inout] V A full matrix
+!> @param [in] TMP A full matrix
+!> @param [in] TMP1 temporary storage
+!> @param [in] Ndim The size of the matrices
+!> @param [in] NCON wether we check.(TODO: currently not used)
+!-------------------------------------------------------------------
+ SUBROUTINE matmultleft_UDV_state(UDVR, TMP, TMP1, Ndim, NCON)
+        Use QDRP_mod
+        Implicit None
+        INTEGER, intent(in) :: Ndim, NCON
+        COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, dimension(:, :) :: TMP
+        COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:, :) :: TMP1
+        !COMPLEX (Kind=Kind(0.d0)), intent(inout) :: U(Ndim,Ndim), V(Ndim,Ndim), D(Ndim)
+        CLASS(UDV_State), intent(inout) :: UDVR
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        INTEGER :: INFO, i, j, LWORK
+        INTEGER, allocatable, Dimension(:) :: IPVT
+        LOGICAL :: FORWRD
+        
+        ! QR(TMP * U * D) * V
+        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+        beta = 0.D0
+        CALL ZGEMM('N', 'N', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVR%U, Ndim, beta, TMP1(1, 1), Ndim)
+        ! TMP1 = TMP1 * D
+        DO i = 1,NDim
+            UDVR%U(:, i) = TMP1(:, i)*UDVR%D(i)
+        ENDDO
+        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+        IPVT = 0
+        call QDRP_decompose(Ndim, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
+        ! Permute V. Since we multiply with V from the right we have to permute the rows.
+        ! A V = A P P^-1 V = Q R P^-1 V
+        FORWRD = .true.
+        CALL ZLAPMR(FORWRD, Ndim, Ndim, UDVR%V, Ndim, IPVT(1)) ! lapack 3.3
+        ! V = R * V
+        CALL ZTRMM('L', 'U', 'N', 'N', Ndim, Ndim, Z_ONE, UDVR%U, Ndim, UDVR%V, Ndim)
+        ! Generate explicitly U in the previously abused storage of U
+        CALL ZUNGQR(Ndim, Ndim, Ndim, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
+        DEALLOCATE(TAU, WORK, IPVT)
+END SUBROUTINE matmultleft_UDV_state
 
 END MODULE UDV_State_mod

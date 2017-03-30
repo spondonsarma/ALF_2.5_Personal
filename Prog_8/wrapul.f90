@@ -97,14 +97,11 @@
         !NOTE:    NTAU1 > NTAU.
         Use Operator_mod, only : Phi
         Use Hop_mod
-        Use Wrap_helpers
         Use UDV_State_mod
         Implicit none
 
         ! Arguments
         CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
-!         COMPLEX (Kind=Kind(0.d0)), intent(inout) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-!         COMPLEX (Kind=Kind(0.d0)), intent(inout) :: DL(Ndim,N_FL)
         Integer, intent(in) :: NTAU1, NTAU
 
 
@@ -130,10 +127,8 @@
            ENDDO
            
            !Carry out U,D,V decomposition.
-!           CALL ul_update_matrices(UL(:,:,nf), DL(:, nf), VL(:,:,nf), TMP, TMP1, Ndim, NCON)
-           CALL ul_update_matrices(UDVL(nf), TMP, TMP1, Ndim, NCON)
+           CALL UDVL(nf)%matmultright(TMP, TMP1, Ndim, NCON)
            UDVL(nf)%U = CONJG(TRANSPOSE(UDVL(nf)%U ))
-!           UL(:, :, nf) = CONJG(TRANSPOSE(UL(:,:,nf)))
         ENDDO
         deallocate(TMP, TMP1)
 #endif

@@ -88,13 +88,10 @@
 #else
         Use Operator_mod, only : Phi
         Use Hop_mod
-        Use Wrap_helpers
         Use UDV_State_mod
         Implicit None
 
         ! Arguments
-!         COMPLEX (Kind=Kind(0.d0)) :: UR(Ndim,Ndim,N_FL), VR(Ndim,Ndim,N_FL)
-!         COMPLEX (Kind=Kind(0.d0)) :: DR(Ndim,N_FL)
         CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
         Integer :: NTAU1, NTAU
 
@@ -120,7 +117,7 @@
               ENDDO
            ENDDO
 
-           CALL ur_update_matrices(UDVR(nf), TMP, TMP1, Ndim, NCON)
+           CALL UDVR(nf)%matmultleft(TMP, TMP1, Ndim, NCON)
         ENDDO
         deallocate(TMP, TMP1)
 
