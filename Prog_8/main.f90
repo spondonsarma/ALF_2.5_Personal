@@ -69,11 +69,11 @@ Program Main
 !        COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
        Integer :: NTAU1, NTAU
      END SUBROUTINE WRAPUL
-     SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+     SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
        Use UDV_Wrap_mod
+       Use UDV_State_mod
        Implicit None
-       COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
-       COMPLEX(Kind=Kind(0.d0)), Dimension(:), Intent(In)      :: DLUP, DRUP
+       CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
        COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
        COMPLEX(Kind=Kind(0.d0)) :: PHASE
        INTEGER         :: NVAR
@@ -300,7 +300,7 @@ Program Main
   NVAR = 1
   Phase = cmplx(1.d0, 0.d0, kind(0.D0))
   do nf = 1,N_Fl
-     CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
+     CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
      Phase = Phase*Z
   Enddo
   call Op_phase(Phase,OP_V,Nsigma,N_SUN)
@@ -356,7 +356,7 @@ Program Main
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
                  TEST(:,:) = GR(:,:,nf)
-                 CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
+                 CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
                  Z = Z*Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
@@ -396,7 +396,7 @@ Program Main
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
                  TEST(:,:) = GR(:,:,nf)
-                 CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
+                 CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
                  Z = Z*Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
@@ -419,7 +419,7 @@ Program Main
         do nf = 1,N_FL
            TEST(:,:) = GR(:,:,nf)
            NVAR = 1
-           CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
+           CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
            Z = Z*Z1
            Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
         ENDDO
