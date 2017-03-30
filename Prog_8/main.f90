@@ -106,9 +106,6 @@ Program Main
   end Interface
 
   COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
-
-  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable    :: DL, DR
-  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: UL, VL, UR, VR
   COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR
   TYPE(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
   
@@ -133,8 +130,6 @@ Program Main
   Integer, dimension(:), allocatable :: Stab_nt
   
   ! Space for storage.
-  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , Allocatable :: DST
-  COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), Allocatable :: UST,  VST
   TYPE(UDV_State), Dimension(:,:), ALLOCATABLE :: udvst
 
   ! For tests
@@ -217,11 +212,6 @@ Program Main
   Call Alloc_obs(Ltau)
   Call Op_SetHS
 
-  Allocate( DL(NDIM,N_FL), DR(NDIM,N_FL) )
-  Allocate( UL(NDIM,NDIM,N_FL), VL(NDIM,NDIM,N_FL), &
-       &    UR(NDIM,NDIM,N_FL), VR(NDIM,NDIM,N_FL), GR(NDIM,NDIM,N_FL ) )
-
-
   If ( mod(Ltrot,nwrap) == 0  ) then 
      Nstm = Ltrot/nwrap
   else
@@ -282,8 +272,7 @@ Program Main
 
 
   !Call Test_Hamiltonian
-  Allocate ( UST(NDIM,NDIM,NSTM,N_FL), VST(NDIM,NDIM,NSTM,N_FL), DST(NDIM,NSTM,N_FL) )
-  Allocate ( Test(Ndim,Ndim) )
+  Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL ) )
   ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
   do nf = 1, N_FL
   CALL udvl(nf)%init(ndim)
@@ -311,7 +300,6 @@ Program Main
   NVAR = 1
   Phase = cmplx(1.d0, 0.d0, kind(0.D0))
   do nf = 1,N_Fl
-!     CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
      CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
      Phase = Phase*Z
   Enddo
@@ -350,11 +338,6 @@ Program Main
         
         do nf = 1,N_FL
            CALL udvr(nf)%reset
-! ! !            CALL INITD(UR(:,:,nf),Z_ONE)
-! ! !            CALL INITD(VR(:,:,nf),Z_ONE)
-! ! !            do n = 1,Ndim
-! ! !               DR(n,nf)= Z_ONE
-! ! !            Enddo
         Enddo
         
         NST = 1
@@ -364,24 +347,16 @@ Program Main
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
               CALL WRAPUR(NT1, NTAU1, udvr)
-! ! !               CALL WRAPUR(NT1, NTAU1,UR, DR, VR)
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               Do nf = 1, N_FL
                  ! Read from storage left propagation from LTROT to  NTAU1
                  udvl(nf) = udvst(NST, nf)
-! ! !                  UL(:,:,nf) = UST(:,:,NST,nf)
-! ! !                  VL(:,:,nf) = VST(:,:,NST,nf)
-! ! !                  DL(:,  nf) = DST(:  ,NST,nf)
                  ! Write in storage right prop from 1 to NTAU1
                  udvst(NST, nf) = udvr(nf)
-!                  UST(:,:,NST,nf) = UR(:,:,nf)
-!                  VST(:,:,NST,nf) = VR(:,:,nf)
-!                  DST(:  ,NST,nf) = DR(:  ,nf)
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
                  TEST(:,:) = GR(:,:,nf)
                  CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
-! ! !                  CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
                  Z = Z*Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
@@ -398,9 +373,6 @@ Program Main
         
         Do nf = 1,N_FL
            CALL udvl(nf)%reset
-! ! !            CALL INITD(UL(:,:,nf),Z_ONE)
-! ! !            CALL INITD(VL(:,:,nf),Z_ONE)
-! ! !            DL(:,nf)  = Z_ONE
         ENDDO
         
         NST = NSTM-1
@@ -414,25 +386,17 @@ Program Main
               NT1 = Stab_nt(NST+1)
               !Write(6,*) 'Wrapul : ', NT1, NTAU1
               CALL WRAPUL(NT1, NTAU1, udvl)
-! ! !               CALL WRAPUL(NT1,NTAU1, UL, DL, VL )
               !Write(6,*)  'Write UL, read UR ', NTAU1, NST
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               do nf = 1,N_FL
                  ! Read from store the right prop. from 1 to LTROT/NWRAP-1
                  udvr(nf) = udvst(NST, nf)
-! ! !                  UR(:,:,nf) = UST(:,:,NST,nf)
-! ! !                  VR(:,:,nf) = VST(:,:,NST,nf)
-! ! !                  DR(:  ,nf) = DST(:  ,NST,nf)
                  ! WRITE in store the left prop. from LTROT/NWRAP-1 to 1
                  udvst(NST, nf) = udvl(nf)
-! ! !                  UST(:,:,NST,nf) =  UL(:,:,nf)
-! ! !                  VST(:,:,NST,nf) =  VL(:,:,nf)
-! ! !                  DST(:  ,NST,nf) =  DL(:  ,nf)
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
                  TEST(:,:) = GR(:,:,nf)
                  CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
-! ! !                  CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
                  Z = Z*Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
               ENDDO
@@ -447,20 +411,15 @@ Program Main
         NT1 = Stab_nt(0)
         NT  = Stab_nt(1)
         CALL WRAPUL(NT, NT1, udvl)
-! ! !         CALL WRAPUL(NT,NT1, UL, DL, VL )
         
         do nf = 1,N_FL
            CALL udvr(nf)%reset
-! ! !            CALL INITD(UR(:,:,nf),Z_ONE)
-! ! !            CALL INITD(VR(:,:,nf),Z_ONE)
-! ! !            DR(:,nf) = Z_ONE
         ENDDO
         Z = cmplx(1.d0, 0.d0, kind(0.D0))
         do nf = 1,N_FL
            TEST(:,:) = GR(:,:,nf)
            NVAR = 1
            CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf)%U, UDVR(nf)%D, UDVR(nf)%V, UDVL(nf)%U, UDVL(nf)%D, UDVL(nf)%V)
-! ! !            CALL CGR(Z1, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
            Z = Z*Z1
            Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
         ENDDO
@@ -470,13 +429,6 @@ Program Main
         NST =  NSTM
         Do nf = 1,N_FL
            CALL udvst(NST, nf)%reset
-! ! !            UST(:,:,NST,nf) = CMPLX(0.D0, 0.D0, kind(0.D0))
-! ! !            VST(:,:,NST,nf) = CMPLX(0.D0, 0.D0, kind(0.D0))
-! ! !            DO I = 1,Ndim
-! ! !               DST(I  ,NST,nf)  = CMPLX(1.D0, 0.D0, kind(0.D0))
-! ! !               UST(I,I,NST,nf)  = CMPLX(1.D0, 0.D0, kind(0.D0))
-! ! !               VST(I,I,NST,nf)  = CMPLX(1.D0, 0.D0, kind(0.D0))
-! ! !            ENDDO
         enddo
         IF ( LTAU == 1 ) then
            ! Call for imaginary time displaced  correlation fuctions. 
@@ -497,6 +449,7 @@ Program Main
         exit !exit the loop over the bin index, labelled NBC.
      Endif
   Enddo
+
   DO nf = 1, N_FL
     CALL udvl(nf)%dealloc
     CALL udvr(nf)%dealloc
@@ -505,7 +458,7 @@ Program Main
     ENDDO
   ENDDO
   DEALLOCATE(udvl, udvr, udvst)
-  DEALLOCATE(DL, DR, UL, UR, VR, VL, GR, UST, VST, DST, TEST, Stab_nt)
+  DEALLOCATE(GR, TEST, Stab_nt)
   Call Control_Print
 
 #if defined(MPI) && !defined(TEMPERING)
