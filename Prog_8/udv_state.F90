@@ -41,6 +41,7 @@ MODULE UDV_State_mod
             PROCEDURE :: dealloc => dealloc_UDV_state
             PROCEDURE :: reset => reset_UDV_state
             PROCEDURE :: assign => assign_UDV_state
+            PROCEDURE :: print => print_UDV_state
             GENERIC :: ASSIGNMENT(=) => assign
     END TYPE UDV_State
 
@@ -73,6 +74,22 @@ SUBROUTINE reset_UDV_state(this)
         this%D(n) = beta
     ENDDO
 END SUBROUTINE reset_UDV_state
+
+SUBROUTINE print_UDV_state(this)
+    IMPLICIT NONE
+    CLASS(UDV_State), INTENT(IN) :: this
+    INTEGER :: i
+    WRITE(*,*) "NDim = ", this%ndim
+    DO i = 1, this%ndim
+        WRITE(*,*) this%U(i, :)
+    ENDDO
+    WRITE(*,*) "======================"
+    DO i = 1, this%ndim
+        WRITE(*,*) this%V(i, :)
+    ENDDO
+    WRITE(*,*) "======================"
+    WRITE(*,*) this%D(:)
+END SUBROUTINE print_UDV_state
 
 SUBROUTINE assign_UDV_state(this, rhs)
     IMPLICIT NONE
