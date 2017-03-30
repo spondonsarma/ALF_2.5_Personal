@@ -68,8 +68,6 @@
                 !  Arguments
                 Integer,  intent(in) :: LQ
                 CLASS(UDV_State), intent(in) :: udv1, udv2
-! ! !                 Complex (Kind=Kind(0.d0)), intent(in)    :: U1(LQ,LQ), V1(LQ,LQ), U2(LQ,LQ), V2(LQ,LQ)
-! ! !                 Complex (Kind=Kind(0.d0)), intent(in)    :: D2(LQ), D1(LQ)
                 Complex (Kind=Kind(0.d0)), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
               end SUBROUTINE CGR2_2
            end Interface
@@ -84,9 +82,7 @@
            ! Local 
            ! This could be placed as  private for the module 
            Complex (Kind=Kind(0.d0))  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
-           TYPE(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
-!            Complex (Kind=Kind(0.d0))  :: UL(Ndim,Ndim,N_FL), DL(Ndim,N_FL), VL(Ndim,Ndim,N_FL) 
-!            Complex (Kind=Kind(0.d0))  :: UR(Ndim,Ndim,N_FL), DR(Ndim,N_FL), VR(Ndim,Ndim,N_FL) 
+           TYPE(UDV_State), DIMENSION(:), ALLOCATABLE :: udvr
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z
@@ -109,7 +105,7 @@
            ! In Module Hamiltonian
            CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
            
-           ALLOCATE(udvl(N_FL), udvr(N_FL))
+           ALLOCATE(udvr(N_FL))
            Z = cmplx(1.d0,0.d0,kind(0.d0))
            Do nf = 1, N_FL
               CALL udvr(nf)%init(ndim)
@@ -133,16 +129,13 @@
                  ! WRITE(6,*) 'NT1, NST: ', NT1,NST
                  CALL WRAPUR(NTST, NT1, udvr)
                  DO nf = 1,N_FL
-                    udvl(nf) = udvst(NST, nf)
-                 Enddo
-                 Do nf = 1,N_FL
                     HLP4(:,:) = GTT(:,:,nf)
                     HLP5(:,:) = GT0(:,:,nf)
                     HLP6(:,:) = G0T(:,:,nf)
                     NVAR = 1
                     IF (NT1  >  LTROT/2) NVAR = 2
                     Call CGR2_2(GT0(:,:,nf), G00(:,:,nf), GTT(:,:,nf), G0T(:,:,nf), &
-                         & udvr(nf), udvl(nf),NDIM)
+                         & udvr(nf), udvst(NST, nf), NDIM)
                     Call Control_Precision_tau(GR(:,:,nf), G00(:,:,nf), Ndim)
                     Call Control_Precision_tau(HLP4      , GTT(:,:,nf), Ndim)
                     Call Control_Precision_tau(HLP5      , GT0(:,:,nf), Ndim)
@@ -153,10 +146,9 @@
            ENDDO
            
            DO nf = 1, N_Fl
-              CALL udvl(nf)%dealloc
               CALL udvr(nf)%dealloc
            ENDDO
-           DEALLOCATE(udvl, udvr)
+           DEALLOCATE(udvr)
          END SUBROUTINE TAU_M
 
 !--------------------------------------------------------------------
