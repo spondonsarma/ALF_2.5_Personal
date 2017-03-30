@@ -38,6 +38,7 @@ MODULE UDV_State_mod
 ! POINTER and ALLOTABLE give different semantics...
         CONTAINS
             PROCEDURE :: alloc => alloc_UDV_state
+            PROCEDURE :: init => init_UDV_state
             PROCEDURE :: dealloc => dealloc_UDV_state
             PROCEDURE :: reset => reset_UDV_state
             PROCEDURE :: assign => assign_UDV_state
@@ -54,6 +55,14 @@ SUBROUTINE alloc_UDV_state(this, t)
     this%ndim = t
     ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim), this%D(this%ndim))
 END SUBROUTINE alloc_UDV_state
+
+SUBROUTINE init_UDV_state(this, t)
+    IMPLICIT NONE
+    CLASS(UDV_State), INTENT(INOUT) :: this
+    INTEGER :: t
+    CALL this%alloc(t)
+    CALL this%reset
+END SUBROUTINE init_UDV_state
 
 SUBROUTINE dealloc_UDV_state(this)
     IMPLICIT NONE
