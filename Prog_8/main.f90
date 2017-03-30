@@ -432,7 +432,7 @@ Program Main
         enddo
         IF ( LTAU == 1 ) then
            ! Call for imaginary time displaced  correlation fuctions. 
-!            Call TAU_M( UST,DST,VST, GR, PHASE, NSTM, NWRAP, STAB_NT ) 
+           Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT ) 
         endif
            
      ENDDO
