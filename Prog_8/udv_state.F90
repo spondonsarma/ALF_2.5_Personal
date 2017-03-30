@@ -81,8 +81,8 @@ SUBROUTINE reset_UDV_state(this)
 
     alpha = 0.D0
     beta = 1.D0
-    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U, this%ndim)
-    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V, this%ndim)
+    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
+    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V(1, 1), this%ndim)
     this%D = beta
 END SUBROUTINE reset_UDV_state
 
@@ -107,11 +107,15 @@ SUBROUTINE assign_UDV_state(this, rhs)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     CLASS(UDV_State), INTENT(IN) :: rhs
-
-    this%U = rhs%U
-    this%V = rhs%V
-    this%D = rhs%D
+    
     this%ndim = rhs%ndim
+    IF(.not. ALLOCATED(this%U)) ALLOCATE(this%U(this%ndim, this%ndim))
+    IF(.not. ALLOCATED(this%V)) ALLOCATE(this%V(this%ndim, this%ndim))
+    ASSOCIATE(ndim => rhs%ndim)
+        CALL ZLACPY('A', ndim, ndim, rhs%U(1, 1), ndim, this%U(1, 1), ndim)
+        CALL ZLACPY('A', ndim, ndim, rhs%V(1, 1), ndim, this%V(1, 1), ndim)
+    END ASSOCIATE
+    this%D = rhs%D
 END SUBROUTINE assign_UDV_state
 
 END MODULE UDV_State_mod
