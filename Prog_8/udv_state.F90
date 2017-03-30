@@ -35,7 +35,6 @@ MODULE UDV_State_mod
         COMPLEX (Kind=Kind(0.d0)), allocatable :: U(:, :), V(:, :)
         COMPLEX (Kind=Kind(0.d0)), allocatable :: D(:)
         INTEGER :: ndim
-! POINTER and ALLOTABLE give different semantics...
 
         CONTAINS
             PROCEDURE :: alloc => alloc_UDV_state
@@ -49,15 +48,36 @@ MODULE UDV_State_mod
 
 CONTAINS
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function initializes the memory of an object.
+!>
+!> @param [inout] this The object to be modified.
+!> @param [in] t the size of the involved matrices.
+!-------------------------------------------------------------------
 SUBROUTINE alloc_UDV_state(this, t)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-    INTEGER :: t
+    INTEGER, INTENT(IN) :: t
 
     this%ndim = t
     ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim), this%D(this%ndim))
 END SUBROUTINE alloc_UDV_state
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function initializes the memory of an object and initializes
+!> the U and V matrices to unit matrices and sets the D vector to one.
+!>
+!> @param [inout] this The object to be modified.
+!> @param [in] t the size of the involved matrices.
+!-------------------------------------------------------------------
 SUBROUTINE init_UDV_state(this, t)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
@@ -67,6 +87,15 @@ SUBROUTINE init_UDV_state(this, t)
     CALL this%reset
 END SUBROUTINE init_UDV_state
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function deallocates the occupied memory.
+!>
+!> @param [inout] this The object to be modified.
+!-------------------------------------------------------------------
 SUBROUTINE dealloc_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
@@ -74,6 +103,16 @@ SUBROUTINE dealloc_UDV_state(this)
     DEALLOCATE(this%U, this%V, this%D)
 END SUBROUTINE dealloc_UDV_state
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function reinitializes the
+!> U and V matrices to unit matrices and sets the D vector to one.
+!>
+!> @param [inout] this The object to be reset.
+!-------------------------------------------------------------------
 SUBROUTINE reset_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
@@ -86,6 +125,15 @@ SUBROUTINE reset_UDV_state(this)
     this%D = beta
 END SUBROUTINE reset_UDV_state
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> A helper function to print the state.
+!>
+!> @param [inout] this The object to be modified.
+!-------------------------------------------------------------------
 SUBROUTINE print_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(IN) :: this
@@ -103,19 +151,30 @@ SUBROUTINE print_UDV_state(this)
     WRITE(*,*) this%D(:)
 END SUBROUTINE print_UDV_state
 
-SUBROUTINE assign_UDV_state(this, rhs)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function sets this to the values stored in src,
+!> thereby implementing assignment.
+!>
+!> @param [inout] this It gets overwritten with values in src.
+!> @param [inout] src The matrices are taken from here
+!-------------------------------------------------------------------
+SUBROUTINE assign_UDV_state(this, src)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-    CLASS(UDV_State), INTENT(IN) :: rhs
+    CLASS(UDV_State), INTENT(IN) :: src
     
-    this%ndim = rhs%ndim
+    this%ndim = src%ndim
     IF(.not. ALLOCATED(this%U)) ALLOCATE(this%U(this%ndim, this%ndim))
     IF(.not. ALLOCATED(this%V)) ALLOCATE(this%V(this%ndim, this%ndim))
-    ASSOCIATE(ndim => rhs%ndim)
-        CALL ZLACPY('A', ndim, ndim, rhs%U(1, 1), ndim, this%U(1, 1), ndim)
-        CALL ZLACPY('A', ndim, ndim, rhs%V(1, 1), ndim, this%V(1, 1), ndim)
+    ASSOCIATE(ndim => src%ndim)
+        CALL ZLACPY('A', ndim, ndim, src%U(1, 1), ndim, this%U(1, 1), ndim)
+        CALL ZLACPY('A', ndim, ndim, src%V(1, 1), ndim, this%V(1, 1), ndim)
     END ASSOCIATE
-    this%D = rhs%D
+    this%D = src%D
 END SUBROUTINE assign_UDV_state
 
 END MODULE UDV_State_mod
