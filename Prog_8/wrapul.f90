@@ -127,7 +127,7 @@
            ENDDO
            
            !Carry out U,D,V decomposition.
-           CALL UDVL(nf)%matmultright(TMP, TMP1, Ndim, NCON)
+           CALL UDVL(nf)%matmultright(TMP, TMP1, NCON)
            UDVL(nf)%U = CONJG(TRANSPOSE(UDVL(nf)%U ))
         ENDDO
         deallocate(TMP, TMP1)

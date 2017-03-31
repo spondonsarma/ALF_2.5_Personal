@@ -36,7 +36,7 @@ end interface
         udvl%D = Dold
         TMPold = TMP
         NCON = 1
-        CALL UDVL%matmultleft(TMP, TMP1, Ndim, NCON)
+        CALL UDVL%matmultleft(TMP, TMP1, NCON)
         call ur_update_matrices_old(Uold, Dold, Vold, V1, TMPold, TMP1, Ndim, NCON)
         
         ! compare
