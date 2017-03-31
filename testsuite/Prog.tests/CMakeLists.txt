@@ -28,8 +28,8 @@ set(operatorparts 1-copy-sel-rows 2-copy-sel-columns 3-opmult 4-opmultct 5-FillE
 set(cgr2_2tests 16-get-blocks 17-solve-extended-system)
 #set(cgr2_1tests 8-scalematrix-1 8-scalematrix-2)
 set(cgr1tests 15-cgr 20-qdrp)
-set(wraptests 18-ul-update-matrices 19-ur-update-matrices)
-set(progtests ${operatorparts} ${cgr1tests} ${cgr2_1tests} ${cgr2_2tests} ${wraptests})
+set(udvstatetests 18-ul-update-matrices 19-ur-update-matrices)
+set(progtests ${operatorparts} ${cgr1tests} ${cgr2_1tests} ${cgr2_2tests} ${udvstatetests})
 
 set_target_properties(${progtests} PROPERTIES COMPILE_FLAGS "-Wall -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/ -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/ -L ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/")
 
@@ -55,9 +55,9 @@ target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/UDV_WRAP.
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/QDRP_decompose.o)
 endforeach(iter)
 
-foreach(iter ${wraptests})
+foreach(iter ${udvstatetests})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/UDV_WRAP.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/wrap_helpers.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/udv_state.o)
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/QDRP_decompose.o)
 endforeach(iter)
 
