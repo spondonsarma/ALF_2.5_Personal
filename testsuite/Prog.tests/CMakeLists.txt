@@ -41,6 +41,7 @@ foreach(iter ${cgr2_2tests})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/cgr2_2.o)
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/UDV_WRAP.o)
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/QDRP_decompose.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog_8/udv_state.o)
 endforeach(iter)
 
 #foreach(iter ${cgr2_1tests})
