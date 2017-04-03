@@ -87,8 +87,8 @@
            CALL UDV_WRAP_Pivot(TMP1,U1,D1,V1,NCON,Ndim,Ndim)
            !CALL UDV(TMP,U1,D1,V1,NCON)
            udvl(nf)%U = CONJG(TRANSPOSE(U1))
-           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, udvl(nf)%V(nf), Ndim, V1, Ndim, beta, TMP1, Ndim)
-           udvl(nf)%V(nf) = TMP1
+           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, udvl(nf)%V(1,1), Ndim, V1, Ndim, beta, TMP1, Ndim)
+           udvl(nf)%V = TMP1
            udvl(nf)%D = D1
         ENDDO
 
