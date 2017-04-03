@@ -73,7 +73,7 @@
         alpha = 1.D0
         beta = 0.D0
         Allocate(TPUP(N_size,N_size), TPUP1(N_size,N_size), TPUPM1(N_size,N_size), IPVT(N_size) )
-        CALL udvlocal%alloc
+        CALL udvlocal%alloc(N_size)
         !Write(6,*) 'In CGR', N_size
         CALL MMULT(udvlocal%V, udvr%V, udvl%V)
         DO J = 1,N_size
