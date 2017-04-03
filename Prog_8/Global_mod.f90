@@ -64,25 +64,25 @@ Contains
 !> case the MPI flag is also switched on. 
 !> 
 !--------------------------------------------------------------------
-  Subroutine Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST,N_exchange_steps)
-
+  Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps)
+    Use UDV_State_mod
     Implicit none
 
     include 'mpif.h'
 
     Interface
-       SUBROUTINE WRAPUL(NTAU1, NTAU, UL ,DL, VL)
+       SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
          Use Hamiltonian
+         Use UDV_State_mod
          Implicit none
-         COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-         COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
+         CLASS(UDV_State), intent(inout) :: udvl(N_FL)
          Integer :: NTAU1, NTAU
        END SUBROUTINE WRAPUL
-       SUBROUTINE CGR(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+       SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
          Use UDV_Wrap_mod
+         Use UDV_State_mod
          Implicit None
-         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(In)    :: URUP, VRUP, ULUP, VLUP
-         COMPLEX(Kind=Kind(0.d0)), Dimension(:)  , Intent(In)    :: DLUP, DRUP
+         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
          COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
          COMPLEX(Kind=Kind(0.d0)) :: PHASE
          INTEGER         :: NVAR
@@ -91,11 +91,13 @@ Contains
     
 !>  Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , INTENT(INOUT), allocatable :: DL, DR
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: UL, VL, UR, VR
+!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , INTENT(INOUT), allocatable :: DL, DR
+!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: UL, VL, UR, VR
+    CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
+!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
+!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
+    CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvl, udvst
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
     
@@ -119,7 +121,7 @@ Contains
 
     n1 = size(nsigma,1)
     n2 = size(nsigma,2)
-    NSTM = Size(UST,3)
+    NSTM = Size(udvst, 1)
     Allocate ( nsigma_old(n1,n2) )
     Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
     Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
@@ -130,14 +132,13 @@ Contains
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
-       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
        Phase_det_old(nf) = Z
        Phase_old = Phase_old*Z
     Enddo
     call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
     !> Store old configuration
     nsigma_old = nsigma 
-
 
     DO N_count = 1,N_exchange_steps
        
@@ -170,7 +171,7 @@ Contains
     
 
        !>  Exchange configurations
-       n = size(nsigma_old,1)*size(nsigma_old,2) 
+       n = size(nsigma_old,1)*size(nsigma_old,2)
        Do I = 0,Isize-1
           If (Irank == I ) Then
              ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
@@ -191,26 +192,22 @@ Contains
 
        !>  Compute ratio on weights one each rank
        DO nf = 1,N_FL
-          CALL INITD(UL(:,:,Nf),Z_ONE)
-          DL(:,nf) = Z_ONE
-          CALL INITD(VL(:,:,nf),Z_ONE)
+          CALL udvl%reset
        ENDDO
        DO NST = NSTM-1,1,-1
           NT1 = Stab_nt(NST+1)
           NT  = Stab_nt(NST  )
           !Write(6,*) NT1,NT, NST
-          CALL WRAPUL(NT1,NT,UL,DL, VL)
+          CALL WRAPUL(NT1,NT, udvl)
           Do nf = 1,N_FL
-             UST(:,:,NST,nf) = UL(:,:,nf)
-             VST(:,:,NST,nf) = VL(:,:,nf)
-             DST(:  ,NST,nf) = DL(:  ,nf)
+             udvst(NST, nf) = udvl(nf)
           ENDDO
        ENDDO
        NT1 = stab_nt(1)
-       CALL WRAPUL(NT1,0, UL ,DL, VL)
+       CALL WRAPUL(NT1,0, udvl)
        Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
        do nf = 1,N_Fl
-          Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),UL(:,:,nf),DL(:,nf),VL(:,:,nf))
+          Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf))
           Phase_det_new(nf) = Z
           Phase_new = Phase_new*Z
        Enddo
@@ -267,29 +264,25 @@ Contains
     !> If move has been accepted, no use to recomute storage
     If (.not.TOGGLE) then
        DO nf = 1,N_FL
-          CALL INITD(UL(:,:,Nf),Z_ONE)
-          DL(:,nf) = Z_ONE
-          CALL INITD(VL(:,:,nf),Z_ONE)
+          CALL udvl%reset
        ENDDO
        DO NST = NSTM-1,1,-1
           NT1 = Stab_nt(NST+1)
           NT  = Stab_nt(NST  )
           !Write(6,*) NT1,NT, NST
-          CALL WRAPUL(NT1,NT,UL,DL, VL)
+          CALL WRAPUL(NT1,NT, udvl)
           Do nf = 1,N_FL
-             UST(:,:,NST,nf) = UL(:,:,nf)
-             VST(:,:,NST,nf) = VL(:,:,nf)
-             DST(:  ,NST,nf) = DL(:  ,nf)
+             udvst(NST, nf) = udvl(nf)
           ENDDO
        ENDDO
        NT1 = stab_nt(1)
-       CALL WRAPUL(NT1,0, UL ,DL, VL)
+       CALL WRAPUL(NT1,0, udvl)
     Endif
     !> Compute the Green functions so as to provide correct starting point for the sequential updates.
     NVAR  = 1
     Phase = cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
-       CALL CGR(Z, NVAR, GR(:,:,nf), UR(:,:,nf),DR(:,nf),VR(:,:,nf),  UL(:,:,nf),DL(:,nf),VL(:,:,nf)  )
+       CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
        Phase = Phase*Z
     Enddo
     call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
@@ -360,7 +353,7 @@ Contains
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
-       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf),udvl(nf)%U,udvl(nf)%D,udvl(nf)%V)
+       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
        Phase_det_old(nf) = Z
        Phase_old = Phase_old*Z
     Enddo
@@ -420,7 +413,7 @@ Contains
           !You could now compute the det directly here.
           Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
           do nf = 1,N_Fl
-             Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf)%U,udvl(nf)%D,udvl(nf)%V)
+             Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf))
              Phase_det_new(nf) = Z
              Phase_new = Phase_new*Z
           Enddo
@@ -568,7 +561,7 @@ Contains
 
 
 !--------------------------------------------------------------------
-  subroutine Compute_Fermion_Det(Phase,Det_Vec,UL,DL,VL)
+  subroutine Compute_Fermion_Det(Phase,Det_Vec, udvl)
 !--------------------------------------------------------------------
 !> @author 
 !> Fakher Assaad 
@@ -581,38 +574,41 @@ Contains
 !--------------------------------------------------------------------
 
     Use  UDV_Wrap_mod
-
+    Use UDV_State_mod
     Implicit none
-    
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  UL, VL
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:),   Intent(In)   ::  DL
-    Complex (Kind=Kind(0.d0)), Dimension(:),   Intent(OUT)  ::  Det_Vec
+
+    CLASS(UDV_State), INTENT(INOUT) :: udvl
+    Complex (Kind=Kind(0.d0)), Dimension(:), Intent(OUT)  ::  Det_Vec
     Complex (Kind=Kind(0.d0)) :: Phase
 
     !> Local variables
     Integer ::  N_size, NCON, J
     COMPLEX (Kind=Kind(0.d0)) :: alpha,beta, Z, Z1
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP, U, V
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:), Allocatable :: D
+    TYPE(UDV_State) :: udvlocal
+    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP!, U, V
+!    COMPLEX (Kind=Kind(0.d0)), Dimension(:), Allocatable :: D
 
-    N_size = SIZE(DL,1)
+!    N_size = SIZE(DL,1)
+    N_size = udvl%ndim
     NCON  = 0
     alpha = cmplx(1.d0,0.d0,kind(0.d0))
     beta  = cmplx(0.d0,0.d0,kind(0.d0))
-    Allocate (TP(N_Size,N_Size), U(N_size,N_Size), D(N_size), V(N_size,N_size) )
-    TP = CT(UL)
+    Allocate (TP(N_Size,N_Size))
+    TP = CT(udvl%U)
     DO J = 1,N_size
-       TP(:,J) = TP(:,J) +  VL(:,J)*DL(J)
+       TP(:,J) = TP(:,J) +  udvl%V(:,J)*udvl%D(J)
     ENDDO
-    Call  UDV_WRAP_Pivot(TP,U,D,V,NCON,N_size,N_Size)
-    Z  = DET_C(V, N_size) ! Det destroys its argument
-    Call MMULT(TP,UL,U)
-    Z1 = Det_C(TP,N_size) 
+    CALL udvlocal%alloc(N_size)
+    Call  UDV_WRAP_Pivot(TP,udvlocal%U, udvlocal%D, udvlocal%V, NCON,N_size,N_Size)
+    Z  = DET_C(udvlocal%V, N_size) ! Det destroys its argument
+    Call MMULT(TP, udvl%U, udvlocal%U)
+    Z1 = Det_C(TP, N_size) 
+    Deallocate (TP)
     Phase   = Z*Z1/ABS(Z*Z1)
-    Det_vec = D
+    Det_vec = udvlocal%D
     Det_vec(1) = Det_vec(1)*ABS(Z*Z1)
 
-    Deallocate ( TP,U,D,V )
+    CALL udvlocal%dealloc
 
   end subroutine Compute_Fermion_Det
 
