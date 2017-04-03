@@ -91,13 +91,9 @@ Contains
     
 !>  Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , INTENT(INOUT), allocatable :: DL, DR
-!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: UL, VL, UR, VR
     CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
-!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:)  , INTENT(INOUT), allocatable :: DST
-!     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:,:), INTENT(INOUT), allocatable :: UST,  VST
-    CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvl, udvst
+    CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvst
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
     
