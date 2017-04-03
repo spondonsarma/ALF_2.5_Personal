@@ -188,7 +188,7 @@ Contains
 
        !>  Compute ratio on weights one each rank
        DO nf = 1,N_FL
-          CALL udvl%reset
+          CALL udvl(nf)%reset
        ENDDO
        DO NST = NSTM-1,1,-1
           NT1 = Stab_nt(NST+1)
@@ -260,7 +260,7 @@ Contains
     !> If move has been accepted, no use to recomute storage
     If (.not.TOGGLE) then
        DO nf = 1,N_FL
-          CALL udvl%reset
+          CALL udvl(nf)%reset
        ENDDO
        DO NST = NSTM-1,1,-1
           NT1 = Stab_nt(NST+1)
