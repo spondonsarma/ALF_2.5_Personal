@@ -41,9 +41,10 @@
 !
 !--------------------------------------------------------------------
 
-#if defined(STAB2) ||  defined(STAB1) 
         !NOTE:    NTAU1 > NTAU.
         Use Operator_mod, only : Phi
+        Use UDV_State_mod
+#if defined(STAB2) ||  defined(STAB1) 
         Use Hamiltonian
         Use Hop_mod
         Use UDV_Wrap_mod
@@ -51,8 +52,7 @@
         Implicit none
 
         ! Arguments
-        COMPLEX (Kind=Kind(0.d0)) :: UL(Ndim,Ndim,N_FL), VL(Ndim,Ndim,N_FL)
-        COMPLEX (Kind=Kind(0.d0)) :: DL(Ndim,N_FL)
+        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
         Integer :: NTAU1, NTAU
 
 
@@ -62,7 +62,6 @@
         Integer :: NT, NCON, n, nf
         Real    (Kind=Kind(0.d0)) ::  X
  
-
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
 
@@ -81,23 +80,20 @@
            ENDDO
            
            !Carry out U,D,V decomposition.
-           CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, UL(1, 1, nf), Ndim, beta, TMP1, Ndim)
+           CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
            DO n = 1,NDim
-              TMP1(:, n) = TMP1(:, n) * DL(n, nf)
+              TMP1(:, n) = TMP1(:, n) * udvl(nf)%D(n)
            ENDDO
            CALL UDV_WRAP_Pivot(TMP1,U1,D1,V1,NCON,Ndim,Ndim)
            !CALL UDV(TMP,U1,D1,V1,NCON)
-           UL(:, :, nf) = CONJG(TRANSPOSE(U1))
-           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, VL(1, 1, nf), Ndim, V1, Ndim, beta, TMP1, Ndim)
-           VL(:, :, nf) = TMP1
-           DL(:, nf) = D1
+           udvl(nf)%U = CONJG(TRANSPOSE(U1))
+           CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, udvl(nf)%V(nf), Ndim, V1, Ndim, beta, TMP1, Ndim)
+           udvl(nf)%V(nf) = TMP1
+           udvl(nf)%D = D1
         ENDDO
 
 #else
-        !NOTE:    NTAU1 > NTAU.
-        Use Operator_mod, only : Phi
         Use Hop_mod
-        Use UDV_State_mod
         Implicit none
 
         ! Arguments
