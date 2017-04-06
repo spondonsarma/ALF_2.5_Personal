@@ -31,6 +31,8 @@
 
 MODULE UDV_State_mod
     IMPLICIT NONE
+    PRIVATE
+    PUBLIC :: UDV_State
     TYPE UDV_State
         COMPLEX (Kind=Kind(0.d0)), allocatable :: U(:, :), V(:, :)
         COMPLEX (Kind=Kind(0.d0)), allocatable :: D(:)
@@ -49,7 +51,6 @@ MODULE UDV_State_mod
     END TYPE UDV_State
 
 CONTAINS
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
