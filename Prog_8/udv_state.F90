@@ -187,11 +187,9 @@ END SUBROUTINE assign_UDV_state
 !> @brief 
 !> This function updates the UDV matrices with the new matrix stored in TMP:
 !
-!> @param [in] U
-!> @param [inout] D
-!> @param [inout] V
-!> @param [in] TMP
-!> @param [in] TMP1
+!> @param [inout] UDVL The UDV object which we update
+!> @param [in] TMP A full matrix
+!> @param [in] TMP1 temporary storage
 !> @param [in] NCON wether we check.
 !-------------------------------------------------------------------
  SUBROUTINE matmultright_UDV_state(UDVL, TMP, TMP1, NCON)
@@ -238,9 +236,7 @@ END SUBROUTINE matmultright_UDV_state
 !> Essentially we calculate the product TMP * U * D * V
 !> For the result we generate a new decomposition in the form U, D, V
 !
-!> @param [inout] U A unitary matrix in full storage.
-!> @param [inout] D The entries of a diagonal matrix.
-!> @param [inout] V A full matrix
+!> @param [inout] UDVR The UDV object which we update
 !> @param [in] TMP A full matrix
 !> @param [in] TMP1 temporary storage
 !> @param [in] NCON wether we check.(TODO: currently not used)
