@@ -323,7 +323,7 @@ Program Main
 #if defined(TEMPERING)
         IF (MOD(NSW,N_Tempering_frequency) == 0) then
            !Write(6,*) "Irank, Call tempering", Irank, NSW
-!           CALL Exchange_Step(Phase,GR,UR,DR,VR, UL,DL,VL,Stab_nt, UST, VST, DST,N_exchange_steps)
+           CALL Exchange_Step(Phase,GR,udvr, udvl,Stab_nt, udvst,N_exchange_steps)
         endif
 #endif
         ! Global updates
