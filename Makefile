@@ -7,10 +7,10 @@
 # Recommendation:  just use the -DMPI flag if you want to run in parallel or leave it empy for serial jobs.  
 # The default stabilization, no flag, is generically the best. 
 PROGRAMCONFIGURATION = -DMPI 
-PROGRAMCONFIGURATION = -DMPI  -DTEMPERING
 PROGRAMCONFIGURATION = 
-f90 = $(mpif90)
+PROGRAMCONFIGURATION = -DMPI  -DTEMPERING
 f90 = gfortran
+f90 = $(mpif90)
 export f90
 F90OPTFLAGS = -O3 -Wconversion  -fcheck=all
 F90OPTFLAGS = -O3
