@@ -10,6 +10,11 @@ Examples:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Examples  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
 
+U1_Ising:
+	./Git_config.sh; \
+	cp $(Libs)/Modules/*.mod . ;\
+	(make -f Compile_U1_Ising  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+
 Hub_Ising:
 	./Git_config.sh; \
 	cp $(Libs)/Modules/*.mod . ;\
@@ -48,4 +53,5 @@ clean:
 	(make -f Compile_SPT   clean );\
 	(make -f Compile_Ising clean );\
 	(make -f Compile_Kondo_Honey clean );\
-	rm *.mod *~ \#* 
+	(make -f Compile_U1_Ising clean );\
+	rm -f *.mod *~ \#* 

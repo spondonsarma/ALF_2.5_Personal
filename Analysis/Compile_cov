@@ -1,5 +1,5 @@
-TARGET= jackv5.out
-OBJS=  jackv5.o
+TARGET= cov_tau.out
+OBJS=  cov_tau.o
 
   
 .SUFFIXES: .f90 .f
@@ -10,5 +10,5 @@ $(TARGET): $(OBJS)
 	$(FC) $(LF) -o $(TARGET) $(OBJS) $(LIBS)
 
 clean:
-	rm  $(OBJS)
+	rm -f  $(OBJS)
 

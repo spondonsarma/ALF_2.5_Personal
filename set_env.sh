@@ -8,8 +8,8 @@ PROGRAMMCONFIGURATION="-DSTAB2"
 PROGRAMMCONFIGURATION="-DSTAB1"
 PROGRAMMCONFIGURATION=""
 f90="ifort"
-f90="gfortran"
 mpif90=$mpif90
+f90="gfortran"
 export f90
 F90OPTFLAGS="-O3 "
 F90OPTFLAGS="-O3 -Wconversion  -fcheck=all"

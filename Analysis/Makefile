@@ -21,4 +21,4 @@ clean:
 	(make -f Compile_Max  clean );\
 	(make -f Compile_Max_ph  clean );\
 	(make -f Compile_eq  clean );\
-	rm *.mod *~ \#* *.out
+	rm -f *.mod *~ \#* *.out
