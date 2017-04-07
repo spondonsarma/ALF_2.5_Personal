@@ -17,7 +17,7 @@ Compiler: gfortran  or ifort
 ## CONFIGURATION FOR COMPILATION ##
 **setenv.sh**   sets the default set of envorinment variables.  Do not change  this since this default set of  environment variables is required for the tests to run adequaltely.
 
-The full compilation is done from the **Makefile** 
+The full compilation is done from the **Makefile**.  Your compilation options should be inserted here. 
 
 ## FILES AND DIRECTORIES ##
 
@@ -31,7 +31,7 @@ The full compilation is done from the **Makefile**
 
 **Examples** This directory provides a set of short example runs.  
 
-**Documentation**  We have included in the file ALF-05.pdf an extensive documentation, 
+**Documentation**  We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/raw/documentation_new/Documentation/doc.pdf)   an extensive documentation. 
  
 
 ## TESTING ##
