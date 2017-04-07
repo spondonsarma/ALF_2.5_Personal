@@ -22,10 +22,11 @@ This loop fills the storage, needed for the first actual Monte Carlo sweep:\\
 \hspace*{1em} \textbf{Call} wrapul\\
 \textbf{Enddo}\\
  
-Loop over bins. The bin defines the unit of Monte Carlo time:\\
+Loop over bins: \\
 \textbf{Do} \texttt{nbc} from  \texttt{1} to \texttt{nbin} \\
 \hspace*{1em} Loop over sweeps. Each sweep updates twice (sweeping upward and downward in time)\\
-\hspace*{1em} the whole space-time lattice of auxiliary fields:\\
+\hspace*{1em} the whole space-time lattice of auxiliary fields.
+\hspace*{1em} The sweep defines the unit of Monte Carlo time:\\
 \hspace*{1em} \textbf{Do} \texttt{nsw} from  \texttt{1} to \texttt{nsweep}  \\
 \hspace*{2em} Upward sweep:\\
 \hspace*{2em} \textbf{Do} \texttt{ntau} from \texttt{1} to \texttt{ltrot}\\      
