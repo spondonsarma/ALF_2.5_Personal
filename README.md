@@ -31,7 +31,7 @@ The full compilation is done from the **Makefile**.  Your compilation options sh
 
 **Examples** This directory provides a set of short example runs.  
 
-**Documentation**  We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/raw/documentation_new/Documentation/doc.pdf)   an extensive documentation. 
+**Documentation**  We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/raw/documentation_new/Documentation/doc.pdf)   an extensive documentation. The development of the doucmentation will take place **only** in the documentation_new branch. In this branch you all have permission to push things so that we can keep on improving  things. 
  
 
 ## TESTING ##
