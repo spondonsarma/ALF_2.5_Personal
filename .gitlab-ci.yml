@@ -241,8 +241,8 @@ GQMCT_jessie_valgrind:
       - cd ..
       - cd Prog
       - make SPT
-      - cp SPT.out ../Test_SPT/Start/
-      - cd ../Test_SPT/Start/
+      - cp SPT.out ../Test_Runs/Test_SPT/Start/
+      - cd ../Test_Runs/Test_SPT/Start/
       - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
