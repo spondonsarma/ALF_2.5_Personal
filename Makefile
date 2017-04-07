@@ -9,8 +9,8 @@
 PROGRAMCONFIGURATION = -DMPI 
 PROGRAMCONFIGURATION = -DMPI  -DTEMPERING
 PROGRAMCONFIGURATION = 
-f90 = gfortran
 f90 = $(mpif90)
+f90 = gfortran
 export f90
 F90OPTFLAGS = -O3 -Wconversion  -fcheck=all
 F90OPTFLAGS = -O3
@@ -27,7 +27,7 @@ export Libs
 LIB_BLAS_LAPACK = -llapack -lblas
 export LIB_BLAS_LAPACK
 
-all: lib ana program  Hub_Ising SPT Hub
+all: lib ana program  Hub_Ising SPT Hub Hub_Can Kondo_Honey
 
 lib:
 	cd Libraries && $(MAKE)
@@ -41,6 +41,10 @@ SPT:
 	cd Prog && $(MAKE) SPT
 Hub:
 	cd Prog && $(MAKE) Hub
+Hub_Can:
+	cd Prog && $(MAKE) Hub_Can
+Kondo_Honey:
+	cd Prog && $(MAKE) Kondo_Honey
 
 
 clean: cleanall
@@ -54,3 +58,4 @@ cleanana:
 help:
 	@echo "The following are some of the valid targets of this Makefile"
 	@echo "all, program, lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
+	@echo "Hub_Ising SPT Hub Hub_Can Kondo_Honey"
