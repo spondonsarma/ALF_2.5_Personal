@@ -246,7 +246,7 @@
 *
 *              Apply H**H to A(i:m,i+ib:n) from the left
 *
-               CALL ZLARFB_REF( 'Left', 'Conjugate transpose', 'Forward',
+               CALL ZLARFB_REF( 'Left','Conjugate transpose','Forward',
      $                      'Columnwise', M-I+1, N-I-IB+1, IB,
      $                      A( I, I ), LDA, WORK, LDWORK, A( I, I+IB ),
      $                      LDA, WORK( IB+1 ), LDWORK )

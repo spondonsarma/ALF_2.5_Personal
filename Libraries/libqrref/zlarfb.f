@@ -192,7 +192,7 @@
 *> \endverbatim
 *>
 *  =====================================================================
-      SUBROUTINE ZLARFB_REF( SIDE, TRANS, DIRECT, STOREV, M, N, K, V, LDV,
+      SUBROUTINE ZLARFB_REF(SIDE,TRANS,DIRECT,STOREV, M, N,K,V,LDV,
      $                   T, LDT, C, LDC, WORK, LDWORK )
 *
 *  -- LAPACK auxiliary routine (version 3.7.0) --
