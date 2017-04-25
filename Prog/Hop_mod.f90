@@ -44,7 +44,6 @@
 
       Use Hamiltonian
       Use Random_wrap
-      Use MyMats
       
       ! Private variables
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
@@ -53,7 +52,15 @@
       Real (Kind=Kind(0.d0)), private, save  :: Zero
 
       Contains
-        
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This functions sets up the exponentiated matrices.
+!> We symmetrize the upper part of those matrices.
+!
+!--------------------------------------------------------------------        
         subroutine Hop_mod_init
 
           Implicit none
