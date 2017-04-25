@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016, 2017 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@
 
       Use Hamiltonian
       Use Random_wrap
-      Use MyMats 
       
       ! Private variables
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
@@ -58,7 +57,7 @@
 
           Implicit none
           
-          Integer :: nc, nf
+          Integer :: nc, nf, i,j
           Complex (Kind=Kind(0.d0)) :: g
 
           Ncheck = size(Op_T,1)
@@ -92,6 +91,13 @@
                 Call  Op_exp(g,Op_T(nc,nf),Exp_T(:,:,nc,nf))
                 g = -Op_T(nc,nf)%g
                 Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1(:,:,nc,nf))
+                ! symmetrize the upper part of Exp_T and Exp_T_M1
+                DO i = 1, Ndim_hop
+                    DO j = i, Ndim_hop
+                    Exp_T(i, j, nc, nf) = 5D-1*(Exp_T(i, j, nc, nf) + Exp_T(j, i, nc, nf))
+                    Exp_T_M1(i, j, nc, nf) = 5D-1*(Exp_T_M1(i, j, nc, nf) + Exp_T_M1(j, i, nc, nf))
+                    ENDDO
+                ENDDO
              enddo
           enddo
           
@@ -124,7 +130,7 @@
                 do n = 1,Ndim_hop
                     call ZCOPY(Ndim, Out(Op_T(nc,nf)%P(n),1), NDim, U_Hlp(1, n), 1)
                 enddo
-                Call ZGEMM('N', 'T', Ndim, Ndim_hop, Ndim_hop, alpha, U_Hlp, NDim, Exp_T(:,:,nc,nf), Ndim_hop, beta, U_HLP1, Ndim)
+                CALL ZHEMM('R', 'U', Ndim, Ndim_hop, alpha, Exp_T(:, :, nc, nf), Ndim_hop, U_hlp(1,1), NDim, beta, U_HLP1(1,1),Ndim)
                 do n = 1,Ndim_hop
                     call ZCOPY(Ndim, U_hlp1(1,n), 1, OUT(OP_T(nc,nf)%P(n),1), Ndim)
                 Enddo
@@ -148,7 +154,9 @@
           
           !Local 
           Integer :: nc, I, n 
-          
+          Complex (Kind=Kind(0.D0)) :: a, b
+          a = 1.D0
+          b = 0.D0
           
           Out = In
           do nc =  1,Ncheck
@@ -158,7 +166,7 @@
                       V_Hlp(n,I) = Out(Op_T(nc,nf)%P(n),I)
                    enddo
                 enddo
-                Call mmult(V_HLP1,Exp_T_m1(:,:,nc,nf),V_Hlp)
+                CALL ZHEMM('L','U', Ndim_hop, Ndim, a, Exp_T_m1(:, :,nc,nf),Ndim_hop, V_hlp(1,1), NDim_hop, b, V_HLP1(1,1),Ndim_hop)
                 DO I = 1,Ndim
                    do n = 1,Ndim_hop
                       OUT(OP_T(nc,nf)%P(n),I) = V_hlp1(n,I)
@@ -183,15 +191,18 @@
           Integer :: nf
           
           !Local 
-          Integer :: nc, I, n  
+          Integer :: nc, n
+          Complex (Kind=Kind(0.D0)) :: alpha, beta
           
+          alpha = 1.D0
+          beta = 0.D0
           Out = In
           do nc =  1, Ncheck
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
                 do n = 1,Ndim_hop
                   call zcopy(Ndim, Out(1, Op_T(nc,nf)%P(n)), 1, U_Hlp(1, n), 1)
                 enddo
-                Call mmult(U_Hlp1,U_Hlp,Exp_T(:,:,nc,nf))
+                CALL ZHEMM('R', 'U', Ndim, Ndim_hop, alpha, Exp_T(:, :, nc, nf), Ndim_hop, U_hlp(1,1), NDim, beta, U_HLP1(1,1),Ndim)
                 do n = 1,Ndim_hop
                   call zcopy(Ndim, U_hlp1(1, n), 1, OUT(1,OP_T(nc,nf)%P(n)), 1)
                 Enddo
@@ -202,7 +213,7 @@
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthl_m1 (In, Out,nf)
+        Subroutine Hop_mod_mmthl_m1 (In, Out, nf)
           
 
           ! In:   IN
@@ -214,7 +225,10 @@
           Integer :: nf
           
           !Local 
-          Integer :: nc, I, n  
+          Integer :: nc, n
+          Complex (Kind=Kind(0.D0)) :: a, b
+          a = 1.D0
+          b = 0.D0
           
           Out = In
           do nc =  Ncheck,1,-1
@@ -222,7 +236,7 @@
                 do n = 1,Ndim_hop
                    call zcopy(Ndim, Out(1, Op_T(nc,nf)%P(n)), 1, U_Hlp(1, n), 1)
                 enddo
-                Call mmult(U_Hlp1,U_Hlp,Exp_T_M1(:,:,nc,nf))
+                CALL ZHEMM('R','U', Ndim, Ndim_hop, a, Exp_T_m1(:, :,nc,nf),Ndim_hop, U_hlp(1,1), NDim, b, U_HLP1(1,1),Ndim)
                 do n = 1,Ndim_hop
                    call zcopy(Ndim, U_Hlp1(1, n), 1, Out(1, Op_T(nc,nf)%P(n)), 1)
                 Enddo
