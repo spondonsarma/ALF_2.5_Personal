@@ -44,6 +44,7 @@
 
       Use Hamiltonian
       Use Random_wrap
+      Use MyMats
       
       ! Private variables
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
@@ -94,8 +95,8 @@
                 ! symmetrize the upper part of Exp_T and Exp_T_M1
                 DO i = 1, Ndim_hop
                     DO j = i, Ndim_hop
-                    Exp_T(i, j, nc, nf) = 5D-1*(Exp_T(i, j, nc, nf) + Exp_T(j, i, nc, nf))
-                    Exp_T_M1(i, j, nc, nf) = 5D-1*(Exp_T_M1(i, j, nc, nf) + Exp_T_M1(j, i, nc, nf))
+                    Exp_T(i, j, nc, nf) = (Exp_T(i, j, nc, nf) + Conjg(Exp_T(j, i, nc, nf)))/2.D0
+                    Exp_T_M1(i, j, nc, nf) = (Exp_T_M1(i, j, nc, nf) + Conjg(Exp_T_M1(j, i, nc, nf)))/2.D0
                     ENDDO
                 ENDDO
              enddo
@@ -120,23 +121,25 @@
           
           !Local 
           Complex (Kind=Kind(0.D0)) :: alpha, beta
+          Complex(Kind = Kind(0.D0)), allocatable, dimension(:,:) :: tmp
           Integer :: nc, n
           
           Out = In
           alpha = 1.D0
           beta = 0.D0
+          Allocate(tmp(Ndim_hop, Ndim_hop))
           do nc =  Ncheck,1,-1
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
                 do n = 1,Ndim_hop
-                    call ZCOPY(Ndim, Out(Op_T(nc,nf)%P(n),1), NDim, U_Hlp(1, n), 1)
+                    call ZCOPY(Ndim, Out(Op_T(nc,nf)%P(n),1), NDim, V_Hlp(n, 1), Ndim_hop)
                 enddo
-                CALL ZHEMM('R', 'U', Ndim, Ndim_hop, alpha, Exp_T(:, :, nc, nf), Ndim_hop, U_hlp(1,1), NDim, beta, U_HLP1(1,1),Ndim)
+                CALL ZHEMM('L', 'U', Ndim_hop, Ndim, alpha, Exp_T(:,:,nc,nf),Ndim_hop,V_hlp(1,1),NDim_hop,beta,V_HLP1(1,1),Ndim_hop)
                 do n = 1,Ndim_hop
-                    call ZCOPY(Ndim, U_hlp1(1,n), 1, OUT(OP_T(nc,nf)%P(n),1), Ndim)
+                    call ZCOPY(Ndim, V_hlp1(n,1), Ndim_hop, OUT(OP_T(nc,nf)%P(n),1), Ndim)
                 Enddo
              Endif
           Enddo
-          
+          deallocate(tmp)
         end Subroutine Hop_mod_mmthr
 
 !--------------------------------------------------------------------
