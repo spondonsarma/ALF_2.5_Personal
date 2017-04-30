@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # The following jobscript contains a few 'variables' marked by the ##...## pattern.
-# The user as to provide the appropriate values, e.g. replace ##Nnodes## by 1 it the job is supposed to run on a single node.
+# The user has to provide the appropriate values, e.g. replace ##Nnodes## by 1 it the job is supposed to run on a single node.
 # The usual policies apply, e.g. Nnodes*NtaskPnode = Ntasks.
 # Most variables are selfexplaning, one exceptions might be Nthreads, which is refering to the number of OpenMP threads per MPI task.
 # Useful configurations on Phase2 (28 cores) for Nthreads are 1,2,4,7,14 (4 is less suitable as one of the 7 tasked is ditributed across two sockets)
