@@ -175,9 +175,12 @@
               ! gr(:,:,nf) -= xp_v(:,:) * y_v(:,:)^T
               ! Replace by Zgemm 
               alpha = cmplx (-1.0d0, 0.0d0, kind(0.D0))
-              beta  = cmplx ( 1.0d0, 0.0d0, kind(0.D0))
-              CALL ZGEMM('N','T',Ndim,Ndim,Op_dim,alpha,xp_v,size(xp_v,1),y_v,size(y_v,1),beta,gr(1,1,nf),size(gr,1))
-
+              if (Op_dim == 1) THEN
+                    CALL ZGERU(Ndim, Ndim, alpha, xp_v(1,1), 1, y_v(1, 1), 1, gr(1,1,nf), Ndim)
+              ELSE
+                    beta  = cmplx ( 1.0d0, 0.0d0, kind(0.D0))
+                    CALL ZGEMM('N','T',Ndim,Ndim,Op_dim,alpha,xp_v,size(xp_v,1),y_v,size(y_v,1),beta,gr(1,1,nf),size(gr,1))
+              ENDIF
 
 !!!!!         Requires additional space
 !             Complex (Kind =Kind(0.d0)) ::  tmpMat(Ndim,Ndim), tmp
