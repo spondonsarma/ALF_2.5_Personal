@@ -34,5 +34,5 @@ export I_MPI_PIN_CELL=core
 export I_MPI_PIN_DOMAIN=auto:cache3
 export I_MPI_PIN_ORDER=scatter
 
-./out_to_in.c >/dev/null 2>&1
+./out_to_in.sh >/dev/null 2>&1
 srun ##EXECUTABLE##

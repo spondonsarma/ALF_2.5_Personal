@@ -43,5 +43,6 @@ export I_MPI_PIN_CELL=core
 export I_MPI_PIN_DOMAIN=auto:cache3
 export I_MPI_PIN_ORDER=scatter
 
+./out_to_in.sh >/dev/null 2>&1
 mpiexec -n ##Ntasks## ##EXECUTABLE##
 
