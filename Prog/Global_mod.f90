@@ -106,6 +106,7 @@ Contains
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
     Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
     Logical :: TOGGLE, L_Test
+    Real (Kind=Kind(0.d0)) :: size_clust
 
     Integer, allocatable :: List_partner(:)
 
@@ -331,7 +332,7 @@ Contains
     Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
     Complex (Kind=Kind(0.d0)) :: Ratio(2)
     Logical :: TOGGLE, L_Test
-
+    Real    (Kind=Kind(0.d0)) :: size_clust
  
 
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
@@ -388,7 +389,7 @@ Contains
     Do n = 1,N_Global
        !> Draw a new spin configuration. This is provided by the user in the Hamiltonian module
        !> Note that nsigma is a variable in the module Hamiltonian
-       Call Global_move(T0_Proposal_ratio,nsigma_old)
+       Call Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
        If (T0_Proposal_ratio > 1.D-24) then
           NC = NC + 1
           !> Compute the new Green function
@@ -437,7 +438,7 @@ Contains
           else
              nsigma = nsigma_old
           endif
-          Call Control_upgrade_Glob(TOGGLE)
+          Call Control_upgrade_Glob(TOGGLE,size_clust)
        endif
     Enddo
 
