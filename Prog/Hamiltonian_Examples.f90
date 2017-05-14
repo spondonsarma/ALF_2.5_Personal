@@ -20,7 +20,9 @@
 !>    Variables for updating scheme
       Logical              :: Propose_S0, Global_moves
       Integer              :: N_Global
-      
+      Integer              :: Nt_sequential_start, Nt_sequential_end
+      Integer              :: N_Global_tau
+
 
 !>    Privat variables 
       Type (Lattice),       private :: Latt 
@@ -168,6 +170,11 @@
           endif
 #endif
           call Ham_V
+          
+          Nt_sequential_start = 1 
+          Nt_sequential_end   = Size(OP_V,1)
+          N_Global_tau = 0
+
 
         end Subroutine Ham_Set
 !=============================================================================
@@ -237,8 +244,11 @@
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
           Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
+          Real  ( Kind=Kind(0.d0) ) :: Boundary_X, Boundary_Y
 
           Ncheck = 1
+          Boundary_X = -1.d0
+          Boundary_Y = -1.d0
           allocate(Op_T(Ncheck,N_FL))
           do n = 1,N_FL
              Do nc = 1,Ncheck
@@ -260,6 +270,14 @@
                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                          Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                         If (Latt%List(I,1) == 2 ) then 
+                            Op_T(nc,n)%O(I,I2) = cmplx(-Boundary_Y*Ham_T,    0.d0, kind(0.D0))
+                            Op_T(nc,n)%O(I2,I) = cmplx(-Boundary_Y*Ham_T,    0.d0, kind(0.D0))
+                         endif
+                         If (Latt%List(I,1) == 1 ) then 
+                            Op_T(nc,n)%O(I,I1) = cmplx(-Boundary_X*Ham_T,    0.d0, kind(0.D0))
+                            Op_T(nc,n)%O(I1,I) = cmplx(-Boundary_X*Ham_T,    0.d0, kind(0.D0))
+                         endif
                       ENDDO
                    endif
                 elseif ( Lattice_type=="Honeycomb" ) then
@@ -847,5 +865,54 @@
           Endif
 
         end Subroutine Init_obs
+!---------------------------------------------------------------------
+        Subroutine  Hamiltonian_set_random_nsigma
+          
+          ! The user can set the initial configuration
+          
+          Implicit none
+          
+          Integer :: I, nt
+          
+          Do nt = 1,Ltrot
+             Do I = 1,Size(OP_V,1)
+                nsigma(I,nt)  = 1
+                if ( ranf_wrap()  > 0.5D0 ) nsigma(I,nt)  = -1
+             enddo
+          enddo
+          
+        end Subroutine Hamiltonian_set_random_nsigma
+
+!---------------------------------------------------------------------
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio,  T0_proposal,&
+             &                     Flip_list, Flip_length,Flip_value,ntau)
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> On input: 
+!> GR(tau,m) as defined in  Global_tau_mod_PlaceGR and the direction of updating scheme
+!> direction=u --> You are visiting the time slices from tau = 1  to tau =Ltrot
+!> direction=d --> You are visiting the time slices from tau = Ltrot to tau = 1
+!> 
+!> On input the field configuration is in the array nsigma.
+!> On output: 
+!> Flip_list   ::  A list of spins that are to be fliped. Refers to the entires  in OP_V
+!> Flip_values ::  The values of the fliped spins
+!> Flip_length ::  The number of flips. The first Flip_length entries of Flip_list and Flip_values are relevant
+!> S0_ratio          = e^( S_0(sigma_new) ) / e^( S_0(sigma) )
+!> T0_Proposal_ratio = T0( sigma_new -> sigma ) /  T0( sigma -> sigma_new)  
+!> T0_proposal       = T0 ( sigma -> sigma_new )
+!--------------------------------------------------------------------
+          
+          Implicit none 
+          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio, T0_Proposal, S0_ratio
+          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
+          Integer, INTENT(INOUT) :: Flip_length
+          Integer, INTENT(IN)    :: ntau
+
+        end Subroutine Global_move_tau
 
       end Module Hamiltonian
