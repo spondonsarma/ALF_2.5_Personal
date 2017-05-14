@@ -51,6 +51,7 @@ Program Main
   Use Hop_mod
   Use Global_mod
   Use UDV_State_mod
+  Use Wrapgr_mod
  
   Implicit none
 #ifdef MPI
@@ -76,20 +77,6 @@ Program Main
        COMPLEX(Kind=Kind(0.d0)) :: PHASE
        INTEGER         :: NVAR
      END SUBROUTINE CGR
-     SUBROUTINE WRAPGRUP(GR,NTAU,PHASE)
-       Use Hamiltonian
-       Implicit none
-       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  GR(Ndim,Ndim,N_FL)
-       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  PHASE
-       INTEGER, INTENT(IN) :: NTAU
-     END SUBROUTINE WRAPGRUP
-     SUBROUTINE WRAPGRDO(GR,NTAU,PHASE)
-       Use Hamiltonian 
-       Implicit None
-       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(NDIM,NDIM,N_FL)
-       COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) :: PHASE
-       Integer :: NTAU
-     end SUBROUTINE WRAPGRDO
      SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
        Use Hamiltonian
        Use UDV_Wrap_mod
@@ -203,6 +190,10 @@ Program Main
   Call Hop_mod_init
 
   IF (ABS(CPU_MAX) > Zero ) NBIN = 1000000
+
+  If (N_Global_tau > 0) then
+     Call Wrapgr_alloc
+  endif
  
   Call control_init
   Call Alloc_obs(Ltau)
@@ -327,7 +318,7 @@ Program Main
         endif
 #endif
         ! Global updates
-      If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst)
+        If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst)
 
         ! Propagation from 1 to Ltrot
         ! Set the right storage to 1
@@ -363,6 +354,8 @@ Program Main
            ENDIF
 
            IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
+              !Call  Global_tau_mod_Test(Gr,ntau1)
+              !Stop
               CALL Obser( GR, PHASE, Ntau1 )
            ENDIF
         ENDDO
@@ -446,6 +439,7 @@ Program Main
      Endif
   Enddo
 
+! Deallocate things
   DO nf = 1, N_FL
     CALL udvl(nf)%dealloc
     CALL udvr(nf)%dealloc
@@ -455,6 +449,10 @@ Program Main
   ENDDO
   DEALLOCATE(udvl, udvr, udvst)
   DEALLOCATE(GR, TEST, Stab_nt)
+  If (N_Global_tau > 0) then
+     Call Wrapgr_dealloc
+  endif
+  
   Call Control_Print
 
 #if defined(MPI) && !defined(TEMPERING)
@@ -474,6 +472,7 @@ Program Main
   endif
 #endif
  
+
 #ifdef MPI
    CALL MPI_FINALIZE(ierr)
 #endif

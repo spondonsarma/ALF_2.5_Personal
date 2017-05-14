@@ -15,6 +15,11 @@ U1_Ising:
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_U1_Ising  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
 
+Z2_Slave:
+	./Git_config.sh; \
+	cp $(Libs)/Modules/*.mod . ;\
+	(make -f Compile_Z2_Slave  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+
 Hub_Ising:
 	./Git_config.sh; \
 	cp $(Libs)/Modules/*.mod . ;\
@@ -54,4 +59,5 @@ clean:
 	(make -f Compile_Ising clean );\
 	(make -f Compile_Kondo_Honey clean );\
 	(make -f Compile_U1_Ising clean );\
+	(make -f Compile_Z2_Slave clean );\
 	rm -f *.mod *~ \#* 

@@ -210,7 +210,7 @@
 #endif
            call Ham_V
            Nt_sequential_start = 1
-           Nt_sequential_end   = N_coord*ndim !Size(Op_V,1)
+           Nt_sequential_end   = 0 ! Size(Op_V,1)
            N_Global_tau = Size(Op_V,1) ! 0
 
          end Subroutine Ham_Set
@@ -249,7 +249,6 @@
              L1_p    =  dble(L1) * a1_p
              L2_p    =  dble(L2) * a2_p
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-
           else
              Write(6,*) "Lattice not yet implemented!"
              Stop
@@ -352,63 +351,14 @@
           Integer :: nf, I, I1, I2,  nc, nc1,  J
           Real (Kind=Kind(0.d0)) :: X
 
-          
-          If (Model == "Hubbard_SU2")  then
-             !Write(50,*) 'Model is ', Model
-             Allocate(Op_V(Ndim,N_FL))
-             do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
-             enddo
-             Do nf = 1,N_FL
-                nc = 0
-                Do i = 1,Ndim
-                   nc = nc + 1
-                   Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
-                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%type   = 2
-                   Call Op_set( Op_V(nc,nf) )
-                Enddo
-             Enddo
-          Elseif (Model == "Hubbard_Mz")  then
-             Allocate(Op_V(Ndim,N_FL))
-             do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
-             enddo
-             Do nf = 1,N_FL
-                nc = 0
-                X = 1.d0
-                if (nf == 2) X = -1.d0
-                Do i = 1,Ndim
-                   nc = nc + 1
-                   Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
-                   Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
-                   Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
-                   Op_V(nc,nf)%type   = 2
-                   Call Op_set( Op_V(nc,nf) )
-                Enddo
-             Enddo
-          Elseif  ( Model == "Hubbard_SU2_Ising" ) then
-             If ( Abs(Ham_U) > 1.d-6) then
-                Allocate(Op_V(3*Ndim,N_FL))
-             else
-                Allocate(Op_V(2*Ndim,N_FL))
-             endif
+          If  ( Model == "Hubbard_SU2_Ising" ) then
+             Allocate(Op_V(N_coord*Ndim +1, N_FL))
              do nf = 1,N_FL
                 do i  =  1, N_coord*Ndim
                    call Op_make(Op_V(i,nf),2)
                 enddo
-                If ( Abs(Ham_U) > 1.d-6) then
-                   do i  = N_coord*Ndim +1 ,  N_coord*Ndim + Ndim ! For Hubbard
-                      Call Op_make(Op_V(i,nf),1)
-                   enddo
-                endif
+                call Op_make(Op_V(N_coord*Ndim + 1 ,nf),1 )   
+                ! This is for the reference spin on lattice site I = Latt%N
              enddo
              Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
                                       ! For the square lattice Ndim = Latt%N
@@ -417,25 +367,24 @@
                 if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
                 Op_V(nc,1)%P(1) = I1
                 Op_V(nc,1)%P(2) = I2
-                Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+                Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0))
+                Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
                 Op_V(nc,1)%g      = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
-                Op_V(nc,1)%alpha  = cmplx(0d0,0.d0, kind(0.D0)) 
+                Op_V(nc,1)%alpha  = cmplx(0d0,0.d0, kind(0.D0))
                 Op_V(nc,1)%type   = 1
                 Call Op_set( Op_V(nc,1) )
              Enddo
-
-             If ( Abs(Ham_U) > 1.d-6) then
-                Do i = 1,Ndim
-                   nc1 = N_coord*Ndim + i
-                   Op_V(nc1,1)%P(1)   = i
-                   Op_V(nc1,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                   Op_V(nc1,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
-                   Op_V(nc1,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
-                   Op_V(nc1,1)%type   = 2
-                   Call Op_set( Op_V(nc1,1) )
-                Enddo
-             Endif
+             I1 = Latt%N
+             nc = Ndim*N_coord  +  1
+             Op_V(nc,1)%P(1) = I1
+             Op_V(nc,1)%O(1,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+             Op_V(nc,1)%g      = cmplx(0.d0,0.D0,kind(0.D0))
+             Op_V(nc,1)%alpha  = cmplx(0d0,0.d0, kind(0.D0)) 
+             Op_V(nc,1)%type   = 1
+             Call Op_set( Op_V(nc,1) )
+          Else
+             Write(6,*) 'No model '
+             Stop
           Endif
         end Subroutine Ham_V
 
@@ -520,34 +469,59 @@
 
 
           !Local 
-          Integer :: ns , nc, n_op
-          
+          Integer                   ::  ns , nc, n_op, ntau_p1, ntau_m1, I,n 
+          Integer, allocatable      ::  Isigma1(:),Isigma2(:),Isigma3(:) 
+          Real  (Kind = Kind(0.d0)) ::  S0_Matter
+
           ! Write(6,*) 'In GLob_move', m,direction,ntau, size(Flip_list,1), Size(Flip_value,1), Flip_list(1)
           ! Ising from n_op = 1,N_coord*Ndim  
           ! Hubbard from n_op = N_coord*Ndim +1, Size(OP_V,1) = N_coord*Ndim +  Ndim
-          
-          If ( ranf_wrap() > 0.5 ) then 
-             ! Write(6,*) 'Global_move_tau ' , S0(Flip_list(1),ntau)
-             Flip_length  = 1
-             n_op = nranf(N_coord*Ndim)
-             Flip_list(1) = n_op
-             ns = nsigma(n_op,ntau)
-             T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau))
-             T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
-             S0_ratio          =  S0(n_op,ntau)
-             Flip_value(1)     = - ns
-          else
-             Flip_length    = 2
-             do nc = 1,Flip_length
-                n_op = nranf(Ndim) +N_coord*Ndim
-                Flip_list (nc)  = n_op
-                Flip_value(nc)  = NFLIPL(nsigma(n_op,ntau),nranf(3))
-             enddo
-             T0_Proposal       = 1.d0 
-             T0_Proposal_ratio = 1.d0
-             S0_ratio          = 1.d0
-          endif
+          ! Write(6,*) 'Global_move_tau ' , S0(Flip_list(1),ntau)
 
+          Allocate (Isigma1(Latt%N), Isigma2(Latt%N), Isigma3(Latt%N) )
+
+          I  =  nranf(Latt%N)
+          Flip_length = 4
+          do n = 1,4
+             select case(n) 
+             case (1)
+                n_op = L_bond(I,1) 
+             case (2)
+                n_op = L_bond(I,2) 
+             case (3)
+                n_op = L_bond(latt%nnlist(I,-1,0),1) 
+             case (4)
+                n_op = L_bond(latt%nnlist(I,0,-1),2) 
+             case default
+                Write(6,*) ' Error  '
+                stop
+             end select
+             Flip_list(n)  = n_op
+             ns            = nsigma(n_op,ntau)
+             Flip_value(n) = - ns
+          enddo
+          If ( I == Latt%N )   then 
+             Flip_length   = 5
+             n             = 5
+             n_op          = N_coord*Ndim + 1 
+             Flip_list(n)  = n_op
+             ns            = nsigma(n_op,ntau)
+             Flip_value(n) = - ns
+          endif
+          
+          ntau_p1 = ntau + 1 
+          if (ntau == Ltrot) ntau_p1 = 1
+          ntau_m1 = ntau -1
+          if (ntau == 1    ) ntau_m1 = Ltrot
+          Call Hamiltonian_set_Z2_matter(Isigma1,ntau_p1)
+          Call Hamiltonian_set_Z2_matter(Isigma2,ntau   )
+          Call Hamiltonian_set_Z2_matter(Isigma3,ntau_m1)
+          S0_Matter = DW_Ising_tau ( Isigma1(I)*Isigma2(I) ) * DW_Ising_tau( Isigma2(I)*Isigma3(I) )
+          T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_Matter)
+          T0_Proposal_ratio =  1.d0 / S0_Matter
+          S0_ratio          =  S0_Matter
+
+          Deallocate (Isigma1,Isigma2, Isigma3)
 !!$          Flip_length    = 1
 !!$          n_op = nranf(size(OP_V,1))
 !!$          Flip_list(1)   = n_op
@@ -725,41 +699,44 @@
           ! This subroutine sets up lists and arrays so as to enable an 
           ! an efficient calculation of  S0(n,nt) 
 
-          Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation
+          Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation, Ix, Iy
           Real (Kind=Kind(0.d0)) :: X_p(2)
 
           ! Setup list of bonds for the square lattice.
           Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*N_coord,2) )
           
           nc = 0
-          do nth = 1,2*N_coord  
-             Do n1= 1, L1/2
-                Do n2 = 1,L2
+          DO I = 1,Latt%N
+             Ix = Latt%list(I,1)
+             Iy = Latt%list(I,2)
+             if (mod(Ix + Iy,2) == 0 ) then 
+                do n = 1,4
                    nc = nc + 1
-                   If (nth == 1 ) then
-                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p 
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 1
-                   elseif (nth == 2) then
-                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p  + latt%a1_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 1
-                   elseif (nth == 3) then
-                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p 
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 2
-                   elseif (nth == 4) then
-                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p  + latt%a2_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 2
-                   endif
+                   select case (n)
+                   case (1)
+                      I1 = I                  ;  n_orientation  = 1
+                   case (2)
+                      I1 = I                  ;  n_orientation  = 2 
+                   case (3)
+                      I1 = latt%nnlist(I,-1,0);  n_orientation  = 1
+                   case (4)
+                      I1 = latt%nnlist(I,0,-1);  n_orientation  = 2
+                   case default
+                      Write(6,*) ' Error in Setup_Ising_action '
+                   end select
                    L_bond(I1,n_orientation) = nc
                    L_bond_inv(nc,1) = I1  
                    L_bond_inv(nc,2) = n_orientation 
                    ! The bond is given by  I1, I1 + a_(n_orientation).
-                Enddo
-             Enddo
+                enddo
+             endif
           Enddo
+          !Test
+          !Do I = 1,Latt%N
+          !   Write(6,*)
+          !   Write(6,*) Latt%list(I,1), Latt%list(I,2), I
+          !   Write(6,*) L_bond(I,1), L_bond(I,2), L_bond( latt%nnlist(I,-1,0),1), L_bond( latt%nnlist(I,0,-1),2)
+          !Enddo
           ! Setup the nearest neigbour lists for the Ising spins. 
           allocate(Ising_nnlist(2*Latt%N,4)) 
           do I  = 1,Latt%N
@@ -1374,28 +1351,76 @@
       end Function iFlux
 
 !===================================================================================
-      Subroutine  Pi_flux_ini_conf
+      Subroutine  Hamiltonian_set_random_nsigma
+
+        ! The user can set the initial configuration
         
         Implicit none
         
-        Integer :: I,nt, n
-
+        Integer :: I,nc, I1, nt
+        Integer, allocatable::  Isigma(:), Isigma1(:)
+        
+        allocate (Isigma(Latt%N), Isigma1(Latt%N) )
         Do nt = 1,Ltrot
-           Do I = 1, Latt%N
-              if (mod( Latt%list(i,1) + latt%list(i,2), 2 ) == 0 ) then 
-                 nsigma(L_bond(I,1),nt) =  1
-                 nsigma(L_bond(I,2),nt) = -1
-              else
-                 nsigma(L_bond(I,1),nt) =  1
-                 nsigma(L_bond(I,2),nt) = 1
+           Do I = 1,Latt%N
+              Isigma(I) = 1
+              if ( ranf_wrap()  > 0.5D0 ) Isigma(I)  = -1
+           enddo
+           nsigma(N_coord*Latt%N +1,nt) = Isigma(Latt%N) 
+           do nc = 1,N_coord*Latt%N
+              I = L_bond_inv(nc,1)
+              if (  L_bond_inv(nc,2) == 1 )  I1 = latt%nnlist(I,1,0)
+              if (  L_bond_inv(nc,2) == 2 )  I1 = latt%nnlist(I,0,1)
+              nsigma(nc,nt) = Isigma(I)*Isigma(I1)
+           enddo
+           Call Hamiltonian_set_Z2_matter(Isigma1,nt)
+           Do nc = 1,Latt%N
+              if ( Isigma(nc) .ne.  Isigma1(nc)  ) then
+                 Write(6,*) 'Error in Hamiltonian_set_Z2_matter'
+                 Stop
               endif
-           Enddo
+           enddo
+           !Write(6,*)
+           !Do nc = 1,Latt%N
+           !   Write(6,*) Isigma(nc), Isigma1(nc)
+           !enddo
         enddo
+        deallocate (Isigma, Isigma1)
         
         Call Print_fluxes
         
+      end Subroutine Hamiltonian_set_random_nsigma
+!===================================================================================
+      Subroutine  Hamiltonian_set_Z2_matter(Isigma,nt)
         
-      end Subroutine Pi_flux_ini_conf
+        ! On input :  Link variables  nsigma(:,nt)
+        ! On output:  The Z2_matter fields Isigma on the time slice.
+         
+        Implicit none
+        
+        Integer, Intent(IN)                  :: nt
+        Integer, allocatable, INTENT(INOUT)  ::   Isigma(:)
+        
+        !Local
+        Integer :: I, I1, nx, ny
+        
+        Isigma(Latt%N) = nsigma( N_coord*Ndim + 1, nt )
+        I = Latt%N
+        do nx = 1,L1
+           do ny = 1,L2 
+              I1 = latt%nnlist(I,0,1)
+              Isigma(I1)  = Isigma(I)*nsigma(L_bond(I,2),nt)
+              !Write(6,*) Latt%list(I,1), Latt%list(I,2), ' -> ', Latt%list(I1,1), Latt%list(I1,2)
+              I = I1
+           enddo
+           I1          = latt%nnlist(I,1,0) 
+           Isigma(I1)  = Isigma(I)*nsigma(L_bond(I,1),nt)
+           !Write(6,*) Latt%list(I,1), Latt%list(I,2), ' -> ', Latt%list(I1,1), Latt%list(I1,2)
+           I = I1
+        enddo
+        
+      end Subroutine Hamiltonian_set_Z2_matter
+      
 !===================================================================================
 
       Subroutine Print_fluxes
@@ -1429,7 +1454,7 @@
         Do nt = 1,Ltrot
            Do i  = 1,Ndim
               n = iFlux(I,nt)
-              if (n == 1 ) then
+              if (n == -1 ) then
                  ix = Latt%list(i,1)
                  iy = Latt%list(i,2)
                  Write(10,'(I4,2x,I4,2x,I4)')   IX, IY, NT

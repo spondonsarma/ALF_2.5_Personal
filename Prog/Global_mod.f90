@@ -345,7 +345,7 @@ Contains
 
     
     L_test = .false.
-    Write(6,*)
+    ! Write(6,*)
     ! Set old weight. 
     Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
     do nf = 1,N_Fl
@@ -626,4 +626,6 @@ Contains
     if (  npbc_tempering > Isize -1) npbc_tempering = npbc_tempering -  Isize
 
   end function npbc_tempering
+
+
 end Module Global_mod
