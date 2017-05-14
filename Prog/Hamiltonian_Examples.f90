@@ -28,6 +28,8 @@
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
+      real (Kind=Kind(0.d0)),        private :: Boundary_X,  Boundary_Y
+
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
@@ -60,7 +62,7 @@
           integer :: ierr
 
           
-          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
+          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, Boundary_X, Boundary_Y 
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta
 
@@ -91,6 +93,8 @@
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
+          CALL MPI_BCAST(Boundary_X  ,1  ,MPI_REAL8    , 0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(Boundary_Y  ,1  ,MPI_REAL8    , 0,MPI_COMM_WORLD,ierr)
 #endif
           Call Ham_latt
 
@@ -244,11 +248,8 @@
           !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
           Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
-          Real  ( Kind=Kind(0.d0) ) :: Boundary_X, Boundary_Y
 
           Ncheck = 1
-          Boundary_X = -1.d0
-          Boundary_Y = -1.d0
           allocate(Op_T(Ncheck,N_FL))
           do n = 1,N_FL
              Do nc = 1,Ncheck
