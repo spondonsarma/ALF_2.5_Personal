@@ -150,6 +150,8 @@
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
+             Write(50,*) 'Boundary_X    : ', Boundary_X
+             Write(50,*) 'Boundary_Y    : ', Boundary_Y
              Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Beta          : ', Beta
              Write(50,*) 'dtau,Ltrot    : ', dtau,Ltrot
