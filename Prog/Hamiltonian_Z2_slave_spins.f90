@@ -370,7 +370,7 @@
                 Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0))
                 Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
                 Op_V(nc,1)%g      = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
-                Op_V(nc,1)%alpha  = cmplx(0d0,0.d0, kind(0.D0))
+                Op_V(nc,1)%alpha  = cmplx(0d0  ,0.d0, kind(0.D0))
                 Op_V(nc,1)%type   = 1
                 Call Op_set( Op_V(nc,1) )
              Enddo
@@ -779,7 +779,7 @@
           Character (len=64) ::  Filename
 
           ! Scalar observables
-          Allocate ( Obs_scal(13) )
+          Allocate ( Obs_scal(6) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
@@ -793,27 +793,7 @@
              case (5)
                 N = 1;   Filename ="Flux"
              case (6)
-                N = 1;   Filename ="X"
-             case (7)
-                N = L1/2       
-                If (L2 > L1 ) N = L2/2; Filename ="Wilson"
-             case (8)
-                N = L1/2 + L2/2;        Filename ="Vison"
-             case (9)
-                N = L1/2       
-                If (L2 > L1 ) N = L2/2; Filename ="Prop"
-             case (10)
-                N = 1      
-                Filename ="Q"
-             case (11)
-                N = 1      
-                Filename ="Star"
-             case (12)
-                N = 1 
-                Filename ="QT"
-             case (13)
-                N = 1 
-                Filename ="QTT"
+                N = 1;   Filename ="Q"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -822,7 +802,7 @@
 
 
           ! Equal time correlators
-          Allocate ( Obs_eq(5) )
+          Allocate ( Obs_eq(6) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
@@ -835,8 +815,8 @@
                 Ns = Latt%N;  No = Norb;  Filename ="Den"
              case (5)
                 Ns = Latt%N;  No = Norb;  Filename ="Flux"
-!!$             case (6)
-!!$                Ns = Latt%N;  No = Norb;  Filename ="Vison"
+             case (6)
+                Ns = Latt%N;  No = Norb;  Filename ="QQ"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -883,11 +863,12 @@
           
           !Local 
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, Z1, Z2
           Complex (Kind=Kind(0.d0)) :: ZQ, ZSTAR, ZQT, ZQTT
           Integer :: I,J, imj, nf, dec, I1, I2,I3,I4, J1, no_I, no_J,  iFlux_tot,  &
                &     no, ntau1, L_Vison, L_Wilson, n, nx,ny
           Real (Kind=Kind(0.d0)) :: X_ave, X, XI1,XI2,XI3,XI4
+          Integer,  allocatable  :: Isigma(:), Isigma1(:)
 
 #if defined(Machine_Learning)
           Character (len=64) :: File1
@@ -900,7 +881,7 @@
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           
-
+          Allocate ( Isigma(Latt%N), Isigma1(Latt%N) )
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
@@ -916,30 +897,34 @@
              Obs_scal(I)%N         =  Obs_scal(I)%N + 1
              Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
           Enddo
-             
+
+          ntau1 = ntau + 1
+          If (ntau == Ltrot)  ntau1 = 1
+          Call Hamiltonian_set_Z2_matter(Isigma ,ntau )
+          Call Hamiltonian_set_Z2_matter(Isigma1,ntau1)
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
-             Do J = 1,Ndim
-                Zkin = Zkin + sum(Op_T(1,nf)%O(:, j)*Grc(:, j, nf))
-             ENddo
+             Do I = 1,Latt%N
+                I1 = latt%nnlist(I,1,0) 
+                I2 = latt%nnlist(I,0,1) 
+                Z1 = cmplx(real(Isigma(I)*Isigma(I1), kind(0.d0)), 0.d0,kind(0.d0))
+                Z2 = cmplx(real(Isigma(I)*Isigma(I2), kind(0.d0)), 0.d0,kind(0.d0))
+                Zkin = Zkin + Z1 * ( GRC(I,I1,1) + GRC(I1,I,1) ) + &
+                     &        Z2 * ( GRC(I,I2,1) + GRC(I2,I,1) ) 
+             Enddo
           Enddo
-          Zkin = Zkin * dble(N_SUN)
+          Zkin = Zkin * dble(N_SUN)* dble(Ham_Xi)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" ) then
-            dec = 1
-          else
-            dec = 2
-          endif
-          Do I = 1,Ndim
-             ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
+          X_ave = 0.d0
+          Do I = 1,Latt%N
+             X_ave = X_ave + DW_Ising_tau( Isigma(I)*Isigma1(I) )
           Enddo
-          Zpot = Zpot*ham_U
+          Zpot = cmplx(-X_ave*Ham_h,0.d0,kind(0.d0))
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
-
 
           Zrho = cmplx(0.d0,0.d0, kind(0.D0))
           Do nf = 1,N_FL
@@ -959,107 +944,12 @@
           Enddo
           Obs_scal(5)%Obs_vec(1)  =   Obs_scal(5)%Obs_vec(1) + cmplx(dble(iFlux_tot),0.d0,kind(0.d0))*ZP*ZS
 
-
-          X_ave = 0.d0
-          ntau1 = ntau + 1
-          If (ntau == Ltrot)  ntau1 = 1
-          Do I = 1,Latt%N
-             do no = 1,2
-                X_ave = X_ave + DW_Ising_tau( nsigma(L_bond(I,no),ntau)*nsigma(L_bond(I,no),ntau1) )
-             Enddo
-          Enddo
-          Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1) + cmplx(X_ave,0.d0,kind(0.d0))*ZP*ZS
-
-
-
-          Do I = 1,Latt%N
-             do L_Wilson = 1,Size(Obs_scal(7)%Obs_vec,1)
-                X  = 1.d0
-                I1 = I
-                I2 = I
-                Do n = 1,L_Wilson
-                   X = X *nsigma(L_bond(I1,1),ntau)
-                   I1 = Latt%nnlist(I1,1,0)
-                   X = X *nsigma(L_bond(I2,2),ntau)
-                   I2 = Latt%nnlist(I2,0,1)
-                enddo
-                Do n = 1,L_Wilson
-                   X = X *nsigma(L_bond(I1,2),ntau)
-                   I1 = Latt%nnlist(I1,0,1)
-                   X = X* nsigma(L_bond(I2,1),ntau)
-                   I2 = Latt%nnlist(I2,1,0)
-                enddo
-                Obs_scal(7)%Obs_vec(L_Wilson) = Obs_scal(7)%Obs_vec(L_Wilson) + cmplx(X,0.d0,kind(0.d0)) *  ZP * ZS
-
-                X  = 1.d0
-                I1 = I
-                Do n = 1,L_Wilson/2
-                   X = X *nsigma(L_bond(I1,2),ntau)
-                   I1 = Latt%nnlist(I1,0,1)
-                enddo
-                Do n = 1,L_Wilson
-                   X = X *nsigma(L_bond(I1,1),ntau)
-                   I1 = Latt%nnlist(I1,1,0)
-                enddo
-                Do n = 1,L_Wilson/2
-                   I1 = Latt%nnlist(I1,0,-1)
-                   X = X *nsigma(L_bond(I1,2),ntau)
-                enddo
-                Z = cmplx(0.d0,0.d0,kind(0.d0))
-                Do nf = 1,N_FL
-                   Z = Z  + cmplx(X,0.d0,kind(0.d0))* Grc(I, I1, nf)
-                enddo
-                Obs_scal(9)%Obs_vec(L_Wilson)   = Obs_scal(9)%Obs_vec(L_Wilson) +  Z *  ZP * ZS
-             Enddo
-          Enddo
-
-          
-          Do I = 1, Latt%N
-             I1 = I
-             X  = 1.d0
-             DO L_Vison = 1,L1/2
-                X = X*DW_Ising_tau( nsigma(L_bond(I1 ,2),ntau)*nsigma(L_bond(I1 ,2),ntau1) )
-                Obs_scal(8)%Obs_vec(L_Vison) =   Obs_scal(8)%Obs_vec(L_Vison) + cmplx(X,0.d0,kind(0.d0)) * ZP * ZS
-                I1 = Latt%nnlist(I1,1,0)
-             Enddo
-             I1 = Latt%nnlist(I1,0,1)
-             DO L_Vison = L1/2 + 1, L1/2 + L2/2
-                X = X*DW_Ising_tau( nsigma(L_bond(I1 ,1),ntau)*nsigma(L_bond(I1 ,1),ntau1) )
-                Obs_scal(8)%Obs_vec(L_Vison) =   Obs_scal(8)%Obs_vec(L_Vison) + cmplx(X,0.d0,kind(0.d0)) * ZP * ZS
-                I1 = Latt%nnlist(I1,0,1)
-             Enddo
-           Enddo
-
-          ZQ    = cmplx(0.d0,0.d0,kind(0.d0))
-          ZQT   = cmplx(0.d0,0.d0,kind(0.d0))
-          ZQTT  = cmplx(0.d0,0.d0,kind(0.d0))
-          ZStar = cmplx(0.d0,0.d0,kind(0.d0))
-          If (ntau == Ltrot)  ntau1 = 1
-          Do I = 1,Latt%N
-             If ( mod(N_SUN,2) == 0 ) then
-                X = 1.d0
-             else
-                X = (-1.d0)**( Latt%List(I,1) +  Latt%List(I,2) )
-             endif
-             I1 = Latt%nnlist(I, 1, 0)
-             I2 = Latt%nnlist(I, 0, 1)
-             I3 = Latt%nnlist(I,-1, 0)
-             I4 = Latt%nnlist(I, 0,-1)
-             XI1 = DW_Ising_tau( nsigma(L_bond(I ,1),ntau)*nsigma(L_bond(I ,1),ntau1) )
-             XI2 = DW_Ising_tau( nsigma(L_bond(I ,2),ntau)*nsigma(L_bond(I ,2),ntau1) )
-             XI3 = DW_Ising_tau( nsigma(L_bond(I3,1),ntau)*nsigma(L_bond(I3,1),ntau1) )
-             XI4 = DW_Ising_tau( nsigma(L_bond(I4,2),ntau)*nsigma(L_bond(I4,2),ntau1) )
+          ZQ = cmplx(0.d0,0.d0,kind(0.d0))
+          DO I = 1,Latt%N
              Z    =  ( cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I,I,1) )**(N_SUN)
-             ZQ   = ZQ    + cmplx(X*XI1*XI2*XI3*XI4,0.d0,kind(0.d0)) * Z
-             ZQT  = ZQT   + cmplx(X*XI1*XI2*XI3*XI4,0.d0,kind(0.d0))  +  Z
-             ZQTT = ZQTT  + cmplx(X*XI1*XI2,0.d0,kind(0.d0))  +  cmplx(X*XI3*XI4,0.d0,kind(0.d0))*Z
-             ZStar= ZStar + cmplx(XI1*XI2*XI3*XI4  ,0.d0,kind(0.d0))
+             ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)),0.d0,kind(0.d0) ) * Z
           Enddo
-          Obs_scal(10)%Obs_vec(1) = Obs_scal(10)%Obs_vec(1) + ZQ    * ZP*ZS
-          Obs_scal(11)%Obs_vec(1) = Obs_scal(11)%Obs_vec(1) + ZStar * ZP*ZS
-          Obs_scal(12)%Obs_vec(1) = Obs_scal(12)%Obs_vec(1) + ZQT   *ZP*ZS
-          Obs_scal(13)%Obs_vec(1) = Obs_scal(13)%Obs_vec(1) + ZQTT  *ZP*ZS
-
+          Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
 
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
           DO I = 1,Size(Obs_eq,1)
@@ -1076,8 +966,10 @@
                    no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    ! Green
+                   Z1 = cmplx(real(Isigma(I1)*Isigma(J1), kind(0.d0)), 0.d0,kind(0.d0))
+
                    Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &               Z * GRC(I1,J1,1) *  ZP*ZS 
+                        &               Z * Z1*GRC(I1,J1,1) *  ZP*ZS 
                    ! SpinZ
                    Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
                         &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
@@ -1092,6 +984,15 @@
                    !Flux
                    Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + &
                         &         cmplx(real(iFlux(I1,Ntau)*iFlux(J1,Ntau),kind(0.d0)),0.d0,kind(0.d0))*ZP*ZS
+                   
+                   Z1 =   (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)) *  &
+                        & (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(J1,J1,1)) +  &
+                        &  cmplx(4.d0,0.d0,kind(0.d0)) * GRC(I1,J1,1)*GR(I1,J1,1)
+                   Z1 = Z1**(N_SUN)
+                   ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1))*DW_Ising_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
+                   If (I1 == J1 )  ZQ = cmplx(1.d0,0.d0,kind(0.d0))
+                   Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) + ZQ*ZP*ZS
+                   
                 ENDDO
                 Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
                 Obs_eq(5)%Obs_Latt0(no_I) =  Obs_eq(5)%Obs_Latt0(no_I) +  &
@@ -1184,6 +1085,7 @@
              endif
           endif
 #endif
+          Deallocate ( Isigma )
 
         end Subroutine Obser
 !=====================================================
