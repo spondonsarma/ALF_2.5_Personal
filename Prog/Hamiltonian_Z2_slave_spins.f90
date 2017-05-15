@@ -516,9 +516,12 @@
           Call Hamiltonian_set_Z2_matter(Isigma1,ntau_p1)
           Call Hamiltonian_set_Z2_matter(Isigma2,ntau   )
           Call Hamiltonian_set_Z2_matter(Isigma3,ntau_m1)
+          !  Check the dynamics and the ergodicity 
           S0_Matter = DW_Ising_tau ( Isigma1(I)*Isigma2(I) ) * DW_Ising_tau( Isigma2(I)*Isigma3(I) )
-          T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_Matter)
-          T0_Proposal_ratio =  1.d0 / S0_Matter
+          !T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_Matter)  !  Move acceptance probability. 
+          !T0_Proposal_ratio =  1.d0 / S0_Matter
+          T0_Proposal       =  1.d0 
+          T0_Proposal_ratio =  1.d0 
           S0_ratio          =  S0_Matter
 
           Deallocate (Isigma1,Isigma2, Isigma3)
