@@ -84,7 +84,7 @@ Contains
 !> NTAU: [0:LTROT-1]
 !
 !--------------------------------------------------------------------
-
+ 
     Use Hamiltonian
     Use Hop_mod
     Implicit none
@@ -397,15 +397,15 @@ Contains
     Logical                   :: Acc
     Character (Len=64)        :: Mode
     Integer,      allocatable :: Flip_list(:), Flip_value(:), Flip_value_st(:)
-
+    Real    (Kind=Kind(0.d0)) :: Zero = 10D-8
 
     Allocate ( Flip_list(Size(Op_V,1)), Flip_value(Size(Op_V,1)), Flip_value_st(Size(Op_V,1)) )
 
     Do ng_c = 1,N_Global_tau
        ! New configuration
-       Call Global_move_tau(T0_Proposal_ratio, S0_ratio,  T0_proposal, Flip_list, Flip_length,Flip_value,ntau )
+       Call Global_move_tau(T0_Proposal_ratio, S0_ratio,  Flip_list, Flip_length,Flip_value,ntau )
        !Write(6,*)  "Calling global move",  m, Flip_list(1), nsigma(Flip_list(1),ntau),Flip_value(1)
-       If ( T0_Proposal  >  ranf_wrap() )  Then
+       If ( T0_Proposal_ratio  >  Zero )  Then
           ! Order the list
           Call wrapgr_sort(Flip_length,Flip_list,Flip_value)
           If ( Flip_length > 1 ) then
@@ -475,6 +475,7 @@ Contains
                    nsigma( Flip_list(Flip_count), ntau  ) = Flip_value_st(Flip_count)  
                 Enddo
              Endif
+             !If (Acc) Call Hamiltonian_Print(Ntau)
           endif
        endif
     Enddo

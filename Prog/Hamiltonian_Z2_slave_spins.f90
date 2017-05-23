@@ -438,7 +438,7 @@
         end function S0
 
 !===================================================================================           
-        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio,  T0_proposal,&
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
 
 !--------------------------------------------------------------------
@@ -458,11 +458,12 @@
 !> Flip_length ::  The number of flips. The first Flip_length entries of Flip_list and Flip_values are relevant
 !> S0_ratio          = e^( S_0(sigma_new) ) / e^( S_0(sigma) )
 !> T0_Proposal_ratio = T0( sigma_new -> sigma ) /  T0( sigma -> sigma_new)  
-!> T0_proposal       = T0 ( sigma -> sigma_new )
+!> The move will be carried out with prbablity  T0 ( sigma -> sigma_new ).   If T0 ( sigma -> sigma_new ) > Ranf 
+!>  then T0_Proposal_ratio  will be initialized. Otherwise the latter quantity is set to zero. 
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio, T0_Proposal, S0_ratio
+          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio, S0_ratio
           Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
@@ -471,7 +472,7 @@
           !Local 
           Integer                   ::  ns , nc, n_op, ntau_p1, ntau_m1, I,n 
           Integer, allocatable      ::  Isigma1(:),Isigma2(:),Isigma3(:) 
-          Real  (Kind = Kind(0.d0)) ::  S0_Matter
+          Real  (Kind = Kind(0.d0)) ::  S0_Matter, T0_Proposal
 
           ! Write(6,*) 'In GLob_move', m,direction,ntau, size(Flip_list,1), Size(Flip_value,1), Flip_list(1)
           ! Ising from n_op = 1,N_coord*Ndim  
@@ -518,10 +519,15 @@
           Call Hamiltonian_set_Z2_matter(Isigma3,ntau_m1)
           !  Check the dynamics and the ergodicity 
           S0_Matter = DW_Ising_tau ( Isigma1(I)*Isigma2(I) ) * DW_Ising_tau( Isigma2(I)*Isigma3(I) )
-          T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_Matter)  !  Move acceptance probability. 
-          T0_Proposal_ratio =  1.d0 / S0_Matter
-          !T0_Proposal       =  1.d0 
-          !T0_Proposal_ratio =  1.d0 
+          T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_Matter)  
+          !  Move acceptance probability. 
+          If ( T0_Proposal > Ranf_wrap() )  then
+             T0_Proposal_ratio =  1.d0 / S0_Matter
+             !T0_Proposal       =  1.d0 
+             !T0_Proposal_ratio =  1.d0 
+          else
+             T0_Proposal_ratio = 0.d0
+          endif
           S0_ratio          =  S0_Matter
 
           Deallocate (Isigma1,Isigma2, Isigma3)
@@ -782,7 +788,7 @@
           Character (len=64) ::  Filename
 
           ! Scalar observables
-          Allocate ( Obs_scal(6) )
+          Allocate ( Obs_scal(7) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
@@ -797,6 +803,8 @@
                 N = 1;   Filename ="Flux"
              case (6)
                 N = 1;   Filename ="Q"
+             case (7)
+                N = 2;   Filename ="Boundary"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -872,6 +880,8 @@
                &     no, ntau1, L_Vison, L_Wilson, n, nx,ny
           Real (Kind=Kind(0.d0)) :: X_ave, X, XI1,XI2,XI3,XI4
           Integer,  allocatable  :: Isigma(:), Isigma1(:)
+          Integer ::  IB_x, IB_y, Ix, Iy
+
 
 #if defined(Machine_Learning)
           Character (len=64) :: File1
@@ -953,6 +963,24 @@
              ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)),0.d0,kind(0.d0) ) * Z
           Enddo
           Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
+
+          Do I = 1,Latt%N
+             IB_y = 1
+             IB_X = 1
+             I1 = I
+             Do Ix = 1,L1
+                IB_X = IB_X*nsigma(L_bond(I1,1),ntau)
+                I1 = Latt%nnlist(I1,1,0)
+             enddo
+             I1 = I
+             Do Iy = 1,L2
+                IB_Y = IB_Y*nsigma(L_bond(I1,2),ntau)
+                I1 = Latt%nnlist(I1,0,1)
+             enddo
+             Obs_scal(7)%Obs_vec(1) = Obs_scal(7)%Obs_vec(1)  + cmplx(real(IB_X,kind=kind(0.d0)),0.d0,kind(0.d0)) * ZP*ZS
+             Obs_scal(7)%Obs_vec(2) = Obs_scal(7)%Obs_vec(2)  + cmplx(real(IB_Y,kind=kind(0.d0)),0.d0,kind(0.d0)) * ZP*ZS
+          Enddo
+          
 
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
           DO I = 1,Size(Obs_eq,1)
@@ -1327,6 +1355,30 @@
       end Subroutine Hamiltonian_set_Z2_matter
       
 !===================================================================================
+      Subroutine Hamiltonian_Print(Ntau)
+        
+        Integer, Intent(IN) :: Ntau
+
+        Integer, allocatable :: Isigma(:)
+        Integer :: I, Ix, Iy
+
+        allocate (Isigma(Latt%N))
+        
+        Call Hamiltonian_set_Z2_matter(Isigma,ntau)
+        
+        Write(6,*)'-----'
+        I = 1
+        Do Iy = 1,L2
+           Do Ix = 1,L1
+              Write(6,"(I2,1x)", advance='no')  Isigma(I)
+              I = Latt%nnlist(I,1,0)
+           enddo
+           Write(6,*)
+           I = Latt%nnlist(I,0,1)
+        enddo
+
+        deallocate (Isigma)
+      End Subroutine Hamiltonian_Print
 !===================================================================================
 
       Subroutine Print_fluxes

@@ -79,6 +79,8 @@
 #ifdef MPI
           If (Irank == 0 ) then
 #endif
+             Boundary_X = 1.d0
+             Boundary_Y = 1.d0
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
@@ -178,8 +180,8 @@
           call Ham_V
           
           Nt_sequential_start = 1 
-          Nt_sequential_end   = Size(OP_V,1)
-          N_Global_tau = 0
+          Nt_sequential_end   = 0 !Size(OP_V,1)
+          N_Global_tau = Size(OP_V,1)
 
 
         end Subroutine Ham_Set
@@ -915,6 +917,30 @@
           Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
+
+
+          ! Local
+          Integer :: n_op, n, ns
+          Flip_length = nranf(5)
+          
+          do n = 1,flip_length 
+             n_op = nranf(size(OP_V,1))
+             Flip_list(n)  = n_op
+             ns            = nsigma(n_op,ntau)
+             If ( OP_V(n_op,1)%type == 1 ) then 
+                ns = nsigma(n_op,ntau)
+                T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
+                T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
+                S0_ratio          =  S0(n_op,ntau)
+                Flip_value(n)     = - ns
+             else
+                Flip_value(n)     = NFLIPL(nsigma(n_op,ntau),nranf(3))
+                T0_Proposal       = 1.d0 
+                T0_Proposal_ratio = 1.d0
+                S0_ratio          = 1.d0
+             endif
+          Enddo
+
 
         end Subroutine Global_move_tau
 
