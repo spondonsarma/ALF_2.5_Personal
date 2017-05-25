@@ -13,9 +13,6 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
-!>    Variables for updating scheme
-      Logical              :: Propose_S0, Global_moves
-      Integer              :: N_Global
 
 
       
@@ -106,10 +103,7 @@
 #endif
           Call Ham_latt
 
-          Propose_S0 = .false.
-          Global_moves =.false.
-          N_Global = 1
-
+1
           N_FL  = 1
           N_SUN = 1
           

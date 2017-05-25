@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-      Subroutine Upgrade(GR,N_op,NT,PHASE,Op_dim) 
+      Subroutine Upgrade(GR,N_op,NT,PHASE,Op_dim,Propose_S0) 
 
 !--------------------------------------------------------------------
 !> @author 
@@ -49,6 +49,8 @@
         Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
         Integer, INTENT(IN)       :: N_op, Nt, Op_dim
         Complex (Kind=Kind(0.d0)) :: Phase
+        LOGICAL, INTENT(IN)       :: Propose_S0
+
 
         ! Local ::
         Complex (Kind=Kind(0.d0)) :: Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL)

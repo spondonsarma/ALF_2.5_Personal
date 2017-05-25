@@ -291,7 +291,7 @@ Contains
   end Subroutine Exchange_Step
 #endif
 !---------------------------------------------------------------------
-  Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst)
+  Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
     Use UDV_State_mod
     Implicit none
 
@@ -316,10 +316,11 @@ Contains
     
 !>  Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-    CLASS(UDV_State), DIMENSION(:), ALLOCATABLE, INTENT(INOUT) :: udvl, udvr
+    CLASS   (UDV_State), DIMENSION(:), ALLOCATABLE, INTENT(INOUT) :: udvl, udvr
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
     CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(INOUT) :: udvst
     INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
+    Integer, INTENT(IN) :: N_Global
 !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
 
     

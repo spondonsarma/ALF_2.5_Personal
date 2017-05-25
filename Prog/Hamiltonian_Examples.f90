@@ -17,18 +17,12 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
-!>    Variables for updating scheme
-      Logical              :: Propose_S0, Global_moves
-      Integer              :: N_Global
-      Integer              :: Nt_sequential_start, Nt_sequential_end
-      Integer              :: N_Global_tau
 
 
 !>    Privat variables 
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi
-      real (Kind=Kind(0.d0)),        private :: Boundary_X,  Boundary_Y
 
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
@@ -62,7 +56,7 @@
           integer :: ierr
 
           
-          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, Boundary_X, Boundary_Y 
+          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta
 
@@ -79,8 +73,6 @@
 #ifdef MPI
           If (Irank == 0 ) then
 #endif
-             Boundary_X = 1.d0
-             Boundary_Y = 1.d0
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
@@ -95,14 +87,9 @@
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
-          CALL MPI_BCAST(Boundary_X  ,1  ,MPI_REAL8    , 0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(Boundary_Y  ,1  ,MPI_REAL8    , 0,MPI_COMM_WORLD,ierr)
 #endif
           Call Ham_latt
 
-          Propose_S0 = .false.
-          Global_moves =.false.
-          N_Global = 1
           If ( Model == "Hubbard_Mz") then
              N_FL = 2
              N_SUN = 1
@@ -152,8 +139,6 @@
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
-             Write(50,*) 'Boundary_X    : ', Boundary_X
-             Write(50,*) 'Boundary_Y    : ', Boundary_Y
              Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Beta          : ', Beta
              Write(50,*) 'dtau,Ltrot    : ', dtau,Ltrot
@@ -179,9 +164,6 @@
 #endif
           call Ham_V
           
-          Nt_sequential_start = 1 
-          Nt_sequential_end   = 0 !Size(OP_V,1)
-          N_Global_tau = Size(OP_V,1)
 
 
         end Subroutine Ham_Set
@@ -275,14 +257,6 @@
                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                          Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                         If (Latt%List(I,1) == 2 ) then 
-                            Op_T(nc,n)%O(I,I2) = cmplx(-Boundary_Y*Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(I2,I) = cmplx(-Boundary_Y*Ham_T,    0.d0, kind(0.D0))
-                         endif
-                         If (Latt%List(I,1) == 1 ) then 
-                            Op_T(nc,n)%O(I,I1) = cmplx(-Boundary_X*Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(I1,I) = cmplx(-Boundary_X*Ham_T,    0.d0, kind(0.D0))
-                         endif
                       ENDDO
                    endif
                 elseif ( Lattice_type=="Honeycomb" ) then
@@ -889,7 +863,7 @@
         end Subroutine Hamiltonian_set_random_nsigma
 
 !---------------------------------------------------------------------
-        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio,  T0_proposal,&
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
 
 !--------------------------------------------------------------------
@@ -913,7 +887,7 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio, T0_Proposal, S0_ratio
+          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
           Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
@@ -921,7 +895,8 @@
 
           ! Local
           Integer :: n_op, n, ns
-          Flip_length = nranf(5)
+          Real (Kind=Kind(0.d0)) :: T0_proposal
+          Flip_length = nranf(1)
           
           do n = 1,flip_length 
              n_op = nranf(size(OP_V,1))
@@ -930,12 +905,15 @@
              If ( OP_V(n_op,1)%type == 1 ) then 
                 ns = nsigma(n_op,ntau)
                 T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
-                T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
+                If ( T0_Proposal > Ranf_wrap() ) then
+                   T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
+                else
+                   T0_Proposal_ratio = 0.d0
+                endif
                 S0_ratio          =  S0(n_op,ntau)
                 Flip_value(n)     = - ns
              else
                 Flip_value(n)     = NFLIPL(nsigma(n_op,ntau),nranf(3))
-                T0_Proposal       = 1.d0 
                 T0_Proposal_ratio = 1.d0
                 S0_ratio          = 1.d0
              endif

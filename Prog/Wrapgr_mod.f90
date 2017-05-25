@@ -73,7 +73,7 @@ Contains
   end Subroutine Wrapgr_dealloc
 
 !--------------------------------------------------------------------
-  SUBROUTINE WRAPGRUP(GR,NTAU,PHASE)
+  SUBROUTINE WRAPGRUP(GR,NTAU,PHASE,Propose_S0,Nt_sequential_start, Nt_sequential_end, N_Global_tau)
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -110,7 +110,9 @@ Contains
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  GR(:,:,:)
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) ::  PHASE
     INTEGER, INTENT(IN) :: NTAU
-    
+    LOGICAL, INTENT(IN) :: Propose_S0
+    INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
+
     !Local 
     Integer :: nf, N_Type, NTAU1,n, m, Flip_value(1)
     Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim),  Prev_Ratiotot
@@ -159,7 +161,7 @@ Contains
     If ( N_Global_tau > 0 ) then 
        m         = Nt_sequential_end
        !if ( Nt_sequential_start >  Nt_sequential_end ) m = Nt_sequential_start 
-       Call Wrapgr_Random_update(GR,m,ntau1, PHASE )
+       Call Wrapgr_Random_update(GR,m,ntau1, PHASE, N_Global_tau )
        Call Wrapgr_PlaceGR(GR,m, Size(OP_V,1), ntau1)
     Endif
 
@@ -167,7 +169,7 @@ Contains
 
 
 !--------------------------------------------------------------------    
-  SUBROUTINE WRAPGRDO(GR,NTAU,PHASE)
+  SUBROUTINE WRAPGRDO(GR,NTAU,PHASE,Propose_S0,Nt_sequential_start, Nt_sequential_end, N_Global_tau)
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -205,7 +207,9 @@ Contains
     
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), allocatable :: GR(:,:,:)
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT) :: PHASE
-    Integer :: NTAU
+    Integer, INTENT(IN) :: NTAU
+    LOGICAL, INTENT(IN) :: Propose_S0
+    INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
     
     ! Local
     Integer :: nf, N_Type, n, m, Flip_value(1)
@@ -218,7 +222,7 @@ Contains
     If ( N_Global_tau > 0 ) then 
        m         = Size(OP_V,1)
        !Write(6,*) 'Call Ran_up ', m,ntau
-       Call Wrapgr_Random_update(GR,m,ntau, PHASE )
+       Call Wrapgr_Random_update(GR,m,ntau, PHASE, N_Global_tau )
        Call Wrapgr_PlaceGR(GR,m, Nt_sequential_end, ntau)
     Endif
 
@@ -335,7 +339,7 @@ Contains
 
 
 !--------------------------------------------------------------------
-  Subroutine  Wrapgr_Random_update( GR,m,ntau, PHASE )
+  Subroutine  Wrapgr_Random_update( GR,m,ntau, PHASE, N_Global_tau )
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -385,7 +389,7 @@ Contains
     ! Arguments 
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
     Integer,           INTENT(INOUT) :: m
-    Integer,           INTENT(IN)    :: ntau
+    Integer,           INTENT(IN)    :: ntau, N_Global_tau 
     Complex  (Kind=Kind(0.d0)), INTENT(INOUT) :: PHASE
     
 

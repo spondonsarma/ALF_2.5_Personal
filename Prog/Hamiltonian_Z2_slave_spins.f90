@@ -7,7 +7,6 @@
       Use Files_mod
       Use Matrix
       Use Observables
-
       
       Implicit none
 
@@ -16,11 +15,6 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
-!>    Variables for updating scheme
-      Logical              :: Propose_S0, Global_moves
-      Integer              :: N_Global 
-      Integer              :: Nt_sequential_start, Nt_sequential_end
-      Integer              :: N_Global_tau
 
 
 !>    Privat variables 
@@ -69,11 +63,11 @@
 
 #if defined(Machine_Learning)
           NAMELIST /VAR_Hub_Ising/  ham_T, ham_chem, ham_U, Dtau, Beta, &
-               &                    Ham_h, Ham_J, Ham_xi, Ham_F, Propose_S0, Global_moves, N_Global, &
+               &                    Ham_h, Ham_J, Ham_xi, Ham_F,  &
                &                    N_printout
 #else 
           NAMELIST /VAR_Hub_Ising/  ham_T, ham_chem, ham_U, Dtau, Beta, &
-               &                    Ham_h, Ham_J, Ham_xi, Ham_F, Propose_S0, Global_moves, N_Global
+               &                    Ham_h, Ham_J, Ham_xi, Ham_F
 #endif
 #ifdef MPI
           Integer        :: Isize, Irank
@@ -93,7 +87,6 @@
              END IF
              READ(5,NML=VAR_lattice)
              CLOSE(5)
- 
 #ifdef MPI
           Endif
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
@@ -102,7 +95,7 @@
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
 #endif
           Call Ham_latt
-
+          
           If ( Model == "Hubbard_Mz") then
              N_FL = 2
              N_SUN = 1
@@ -122,9 +115,6 @@
           endif
 
 #if defined(TEMPERING) 
-          Propose_S0   = .false.
-          Global_moves = .false.
-          N_Global = 1
           write(File1,'(A,I0,A)') "Temp_",Irank,"/parameters"
           OPEN(UNIT=5,File=file1,STATUS='old',ACTION='read',IOSTAT=ierr)
           If ( Model == "Hubbard_Mz"        )  READ(5,NML=VAR_Hubbard)
@@ -138,15 +128,11 @@
 #if defined(MPI) 
           If (Irank == 0 ) then
 #endif
-             Propose_S0   = .false.
-             Global_moves = .false.
-             N_Global = 1
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              If ( Model == "Hubbard_Mz"        )  READ(5,NML=VAR_Hubbard)
              If ( Model == "Hubbard_SU2"       )  READ(5,NML=VAR_Hubbard)
              If ( Model == "Hubbard_SU2_Ising" )  READ(5,NML=VAR_Hub_Ising)
              CLOSE(5)
-             
 #ifdef MPI
           endif
           CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -159,9 +145,6 @@
              CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(Ham_F    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Global_moves, 1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Propose_S0,   1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(N_Global,     1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
           Endif
 #endif
 #endif                
@@ -198,20 +181,12 @@
                  Write(50,*) 'Ham_J         : ', Ham_J
                  Write(50,*) 'Ham_h         : ', Ham_h
                  Write(50,*) 'Ham_F         : ', Ham_F
-                 If ( Propose_S0 )  Write(50,*) 'Propose Ising moves according to  bare Ising action'
-                 If ( Global_moves ) Then
-                    Write(50,*) 'Global moves are enabled   '
-                    Write(50,*) '# of global moves / sweep :', N_Global
-                 Endif
               Endif
               close(50)
 #if defined(MPI) && !defined(TEMPERING)
            endif
 #endif
            call Ham_V
-           Nt_sequential_start = 1
-           Nt_sequential_end   = 0 ! Size(Op_V,1)
-           N_Global_tau = Size(Op_V,1) ! 0
 
          end Subroutine Ham_Set
 !=============================================================================
