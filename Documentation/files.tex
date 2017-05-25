@@ -102,6 +102,42 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 \end{lstlisting}
 %
 
+The program allows for a number of different  updating schemes.  If no other variables are specified in the \texttt{VAR\_QMC} name space, then the program will run in its default mode, namely the sequential single spin-flip mode.   The additional optional variables in   \texttt{VAR\_QMC}   include the following: 
+\lstset{style=fortran}
+\begin{lstlisting} 
+
+&VAR_QMC                ! Variables for the QMC run 
+..........
+Propose_S0      =.true. ! Proposes single spin flip moves  with probability exp(-S0) 
+Global_moves    =.true. ! Allows for global moves in space and time 
+N_Global        =1      ! Number of global moves  per sweep 
+Global_tau_moves=.true. ! Allows for global moves on a single time slice.  
+N_Global_tau    =10     ! Number of global moves that will be carried out on a 
+                        ! single time slice
+Nt_sequential_start= 1  ! One can combine sequential and global moves on 
+                        ! a time slice.  
+Nt_sequential_end  =    ! The program will carry our sequential local moves  
+                        ! in the range  [Nt_sequential_start, Nt_sequential_end] 
+                        ! and then N_Global_tau  global moves
+/   
+\end{lstlisting}
+Note that if \texttt{Nt\_sequential\_start}  and \texttt{Nt\_sequential\_end}  are not specified and that the variable \texttt{Global\_tau\_moves}  is set to true, then  the program will  carry out only global moves, by setting  \\  \texttt{Nt\_sequential\_start=1}  and \texttt{Nt\_sequential\_end=0}. 
+
+
+If the program is compiled with the parallel tempering flag, then the additional name space \texttt{VAR\_TEMP}   has to be included in the parameter file.
+\lstset{style=fortran}
+\begin{lstlisting} 
+
+&VAR_TEMP                ! Variables for  parallel tempering
+N_exchange_steps     =6  ! Number of exchange moves (be more precise)
+N_Tempering_frequency=10 ! The frequency in units of sweeps at which  
+                         ! the exchange moves will be carried 
+/
+\end{lstlisting}
+
+
+
+
 %------------------------------------------------------------
 \subsubsection{Output: Observables} \label{sec:output_obs}
 %------------------------------------------------------------
