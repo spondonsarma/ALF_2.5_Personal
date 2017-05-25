@@ -418,69 +418,49 @@ Contains
              Enddo
           endif
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
-          If ( Flip_length == 0 ) then 
-             n = Flip_list(1)
+          !Write(6,*) "-----", Flip_length
+          do Flip_count = 1,Flip_length
+             n = Flip_list(Flip_count)
              !Write(6,*)  "PlaceGR",  m, n-1,ntau
              Call Wrapgr_PlaceGR(GR,m, n-1, ntau)
+             !Write(6,*)  "Back from PlaceGR",  m, n-1,ntau
+             If ( Flip_count == 1 .and. Flip_length > 1 ) GR_st = Gr
              Do nf = 1, N_FL
                 X = Phi(nsigma(n,ntau),Op_V(n,nf)%type)
                 N_type = 1
                 Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
              enddo
              nf = 1
-             mode = "Final"
-             Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(1), Prev_Ratiotot, S0_ratio, &
-                  &        T0_Proposal_ratio, Acc, mode ) 
-             do nf = 1,N_FL
-                N_type =  2
-                Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
-             enddo
-             m = n
-          else
-             !Write(6,*) "-----", Flip_length
-             do Flip_count = 1,Flip_length
-                n = Flip_list(Flip_count)
-                !Write(6,*)  "PlaceGR",  m, n-1,ntau
-                Call Wrapgr_PlaceGR(GR,m, n-1, ntau)
-                !Write(6,*)  "Back from PlaceGR",  m, n-1,ntau
-                If ( Flip_count == 1 .and. Flip_length > 1 ) GR_st = Gr
-                Do nf = 1, N_FL
-                   X = Phi(nsigma(n,ntau),Op_V(n,nf)%type)
-                   N_type = 1
+             If (Flip_count <  Flip_length)  then 
+                mode = "Intermediate"
+                Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
+                     &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
+                do nf = 1,N_FL
+                   N_type =  2
                    Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
                 enddo
-                nf = 1
-                If (Flip_count <  Flip_length)  then 
-                   mode = "Intermediate"
-                   Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
-                        &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
-                   do nf = 1,N_FL
-                      N_type =  2
-                      Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
-                   enddo
-                else
-                   !Write(6,*)  "Call Up mode final", n,ntau
-                   mode = "Final"
-                   Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
-                        &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
-                   !Write(6,*)  "Back from up mode final", n,ntau
-                   !Write(6,*)  "Acceptance", Acc
-                   do nf = 1,N_FL
-                      N_type =  2
-                      Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
-                   enddo
-                endif
-                m = n
-             enddo
-             If ( .not. Acc .and. Flip_length > 1 ) then
-                Gr = Gr_st
-                m = Flip_list(1) - 1
-                Do Flip_count = 1, Flip_length-1 
-                   nsigma( Flip_list(Flip_count), ntau  ) = Flip_value_st(Flip_count)  
-                Enddo
-             Endif
-             !If (Acc) Call Hamiltonian_Print(Ntau)
-          endif
+             else
+                !Write(6,*)  "Call Up mode final", n,ntau
+                mode = "Final"
+                Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
+                     &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
+                !Write(6,*)  "Back from up mode final", n,ntau
+                !Write(6,*)  "Acceptance", Acc
+                do nf = 1,N_FL
+                   N_type =  2
+                   Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+                enddo
+             endif
+             m = n
+          enddo
+          If ( .not. Acc .and. Flip_length > 1 ) then
+             Gr = Gr_st
+             m = Flip_list(1) - 1
+             Do Flip_count = 1, Flip_length-1 
+                nsigma( Flip_list(Flip_count), ntau  ) = Flip_value_st(Flip_count)  
+             Enddo
+          Endif
+          !If (Acc) Call Hamiltonian_Print(Ntau)
        endif
     Enddo
     
