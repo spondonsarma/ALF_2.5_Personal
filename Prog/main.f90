@@ -113,7 +113,7 @@ Program Main
 
   NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX, &
        &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
-       &                Nt_sequential_start, Nt_sequential_end, N_Global_tau
+       &               Nt_sequential_start, Nt_sequential_end, N_Global_tau
 
 
   Integer :: Ierr, I,nf, nst, n
