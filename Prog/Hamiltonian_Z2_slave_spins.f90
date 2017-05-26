@@ -26,9 +26,6 @@
       Logical,               private :: One_dimensional
       Integer,               private :: N_coord, Norb
       Integer, allocatable,  private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
-#if defined(Machine_Learning)
-      Integer,              private :: N_printout_count, N_printout
-#endif 
 
 
 
@@ -58,17 +55,10 @@
           
           NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta
 
+          NAMELIST /VAR_Z2_Slave/  ham_T, ham_chem, ham_U, Dtau, Beta, &
+               &                   Ham_h, Ham_J, Ham_xi, Ham_F
 
-#if defined(Machine_Learning)
-          NAMELIST /VAR_Hub_Ising/  ham_T, ham_chem, ham_U, Dtau, Beta, &
-               &                    Ham_h, Ham_J, Ham_xi, Ham_F,  &
-               &                    N_printout
-#else 
-          NAMELIST /VAR_Hub_Ising/  ham_T, ham_chem, ham_U, Dtau, Beta, &
-               &                    Ham_h, Ham_J, Ham_xi, Ham_F
-#endif
 #ifdef MPI
           Integer        :: Isize, Irank
           Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -96,17 +86,11 @@
 #endif
           Call Ham_latt
           
-          If ( Model == "Hubbard_Mz") then
-             N_FL = 2
-             N_SUN = 1
-          elseif  ( Model == "Hubbard_SU2" ) then
-             N_FL = 1
-             N_SUN = 2
-          elseif  ( Model == "Hubbard_SU2_Ising" ) then
+          if ( Model == "Z2_Slave" ) then
              N_FL = 1
              N_SUN = 2
              If ( Lattice_type == "Honeycomb" ) then 
-                Write(6,*) "Hubbard_SU2_Ising is only implemented for a square lattice"
+                Write(6,*) "Z2_Slave is only implemented for a square lattice"
                 Stop
              Endif
           else
@@ -117,21 +101,16 @@
 #if defined(TEMPERING) 
           write(File1,'(A,I0,A)') "Temp_",Irank,"/parameters"
           OPEN(UNIT=5,File=file1,STATUS='old',ACTION='read',IOSTAT=ierr)
-          If ( Model == "Hubbard_Mz"        )  READ(5,NML=VAR_Hubbard)
-          If ( Model == "Hubbard_SU2"       )  READ(5,NML=VAR_Hubbard)
-          If ( Model == "Hubbard_SU2_Ising" )  READ(5,NML=VAR_Hub_Ising)
+          ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
+          READ(5,NML=VAR_Z2_Slave)
           CLOSE(5)
-#if defined(Machine_Learning)
-          N_printout_count = 0
-#endif
 #else
 #if defined(MPI) 
           If (Irank == 0 ) then
 #endif
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-             If ( Model == "Hubbard_Mz"        )  READ(5,NML=VAR_Hubbard)
-             If ( Model == "Hubbard_SU2"       )  READ(5,NML=VAR_Hubbard)
-             If ( Model == "Hubbard_SU2_Ising" )  READ(5,NML=VAR_Hub_Ising)
+             ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
+             READ(5,NML=VAR_Z2_Slave)
              CLOSE(5)
 #ifdef MPI
           endif
@@ -140,19 +119,17 @@
           CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-          If ( Model == "Hubbard_SU2_Ising" ) then
-             CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_F    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-          Endif
+          CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(Ham_F    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
 #endif
 #endif                
            
            Call Ham_hop
            Ltrot = nint(beta/dtau)
            
-           If  ( Model == "Hubbard_SU2_Ising" )  Call Setup_Ising_action
+           If  ( Model == "Z2_Slave" )  Call Setup_Ising_action
 
 #if defined(TEMPERING)
            write(File1,'(A,I0,A)') "Temp_",Irank,"/info"
@@ -176,7 +153,7 @@
               Write(50,*) 't             : ', Ham_T
               Write(50,*) 'Ham_U         : ', Ham_U
               Write(50,*) 'Ham_chem      : ', Ham_chem
-              If ( Model == "Hubbard_SU2_Ising" ) then
+              If ( Model == "Z2_Slave" ) then
                  Write(50,*) 'Ham_xi        : ', Ham_xi
                  Write(50,*) 'Ham_J         : ', Ham_J
                  Write(50,*) 'Ham_h         : ', Ham_h
@@ -326,7 +303,7 @@
           Integer :: nf, I, I1, I2,  nc, nc1,  J
           Real (Kind=Kind(0.d0)) :: X
 
-          If  ( Model == "Hubbard_SU2_Ising" ) then
+          If  ( Model == "Z2_Slave" ) then
              Allocate(Op_V(N_coord*Ndim +1, N_FL))
              do nf = 1,N_FL
                 do i  =  1, N_coord*Ndim
@@ -539,7 +516,7 @@
           Integer :: I,I1, nt,nt1, n, ns_old, n1,n2,n3,n4, dx, dy,dt,sx,sy,st
           Real (Kind=Kind(0.d0)) :: Weight, Ratio
           
-          If (Model == "Hubbard_SU2_Ising" ) then 
+          If (Model == "Z2_Slave" ) then 
              
              
              I = nranf(Latt%N)
@@ -595,8 +572,8 @@
              T0_Proposal_ratio = 1.d0/Ratio
           endif
           
-             !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
-             !Write(6,*)  Ratio, T0_Proposal_ratio
+          !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
+          !Write(6,*)  Ratio, T0_Proposal_ratio
 
           !endif
 
@@ -763,7 +740,7 @@
           Character (len=64) ::  Filename
 
           ! Scalar observables
-          Allocate ( Obs_scal(7) )
+          Allocate ( Obs_scal(6) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
@@ -778,8 +755,6 @@
                 N = 1;   Filename ="Flux"
              case (6)
                 N = 1;   Filename ="Q"
-             case (7)
-                N = 2;   Filename ="Boundary"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -939,158 +914,54 @@
           Enddo
           Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
 
-          Do I = 1,Latt%N
-             IB_y = 1
-             IB_X = 1
-             I1 = I
-             Do Ix = 1,L1
-                IB_X = IB_X*nsigma(L_bond(I1,1),ntau)
-                I1 = Latt%nnlist(I1,1,0)
-             enddo
-             I1 = I
-             Do Iy = 1,L2
-                IB_Y = IB_Y*nsigma(L_bond(I1,2),ntau)
-                I1 = Latt%nnlist(I1,0,1)
-             enddo
-             Obs_scal(7)%Obs_vec(1) = Obs_scal(7)%Obs_vec(1)  + cmplx(real(IB_X,kind=kind(0.d0)),0.d0,kind(0.d0)) * ZP*ZS
-             Obs_scal(7)%Obs_vec(2) = Obs_scal(7)%Obs_vec(2)  + cmplx(real(IB_Y,kind=kind(0.d0)),0.d0,kind(0.d0)) * ZP*ZS
-          Enddo
-          
 
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
           DO I = 1,Size(Obs_eq,1)
              Obs_eq(I)%N        = Obs_eq(I)%N + 1
              Obs_eq(I)%Ave_sign = Obs_eq(I)%Ave_sign + real(ZS,kind(0.d0))
           ENDDO
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising"  ) then 
-             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
-             Do I1 = 1,Ndim
-                I    = List(I1,1)
-                no_I = List(I1,2)
-                Do J1 = 1,Ndim
-                   J    = List(J1,1)
-                   no_J = List(J1,2)
-                   imj = latt%imj(I,J)
-                   ! Green
-                   Z1 = cmplx(real(Isigma(I1)*Isigma(J1), kind(0.d0)), 0.d0,kind(0.d0))
-
-                   Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &               Z * Z1*GRC(I1,J1,1) *  ZP*ZS 
-                   ! SpinZ
-                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
-                   ! SpinXY
-                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
-                   ! Den
-                   Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J)  +  &
-                        &     (    GRC(I1,I1,1) * GRC(J1,J1,1) *Z     + &
-                        &          GRC(I1,J1,1) * GR(I1,J1,1 )           &
-                        &                                   ) * Z* ZP*ZS
-                   !Flux
-                   Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &         cmplx(real(iFlux(I1,Ntau)*iFlux(J1,Ntau),kind(0.d0)),0.d0,kind(0.d0))*ZP*ZS
-                   
-                   Z1 =   (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)) *  &
-                        & (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(J1,J1,1)) +  &
-                        &  cmplx(4.d0,0.d0,kind(0.d0)) * GRC(I1,J1,1)*GR(I1,J1,1)
-                   Z1 = Z1**(N_SUN)
-                   ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1))*DW_Ising_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
-                   If (I1 == J1 )  ZQ = cmplx(1.d0,0.d0,kind(0.d0))
-                   Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) + ZQ*ZP*ZS
-                   
-                ENDDO
-                Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
-                Obs_eq(5)%Obs_Latt0(no_I) =  Obs_eq(5)%Obs_Latt0(no_I) +  &
-                     &   cmplx(real(iFlux(I1,Ntau),kind(0.d0)),0.d0,kind(0.d0)) * ZP * ZS
+          Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
+          Do I1 = 1,Ndim
+             I    = List(I1,1)
+             no_I = List(I1,2)
+             Do J1 = 1,Ndim
+                J    = List(J1,1)
+                no_J = List(J1,2)
+                imj = latt%imj(I,J)
+                ! Green
+                Z1 = cmplx(real(Isigma(I1)*Isigma(J1), kind(0.d0)), 0.d0,kind(0.d0))
+                
+                Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &               Z * Z1*GRC(I1,J1,1) *  ZP*ZS 
+                ! SpinZ
+                Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
+                ! SpinXY
+                Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
+                ! Den
+                Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J)  +  &
+                     &     (    GRC(I1,I1,1) * GRC(J1,J1,1) *Z     + &
+                     &          GRC(I1,J1,1) * GR(I1,J1,1 )           &
+                     &                                   ) * Z* ZP*ZS
+                !Flux
+                Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &         cmplx(real(iFlux(I1,Ntau)*iFlux(J1,Ntau),kind(0.d0)),0.d0,kind(0.d0))*ZP*ZS
+                
+                Z1 =   (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)) *  &
+                     & (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(J1,J1,1)) +  &
+                     &  cmplx(4.d0,0.d0,kind(0.d0)) * GRC(I1,J1,1)*GR(I1,J1,1)
+                Z1 = Z1**(N_SUN)
+                ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1))*DW_Ising_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
+                If (I1 == J1 )  ZQ = cmplx(1.d0,0.d0,kind(0.d0))
+                Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(6)%Obs_Latt(imj,1,no_I,no_J) + ZQ*ZP*ZS
+                
              ENDDO
-             ! Compute Vison-Vison correlations
-!!$             Do I = 1,Latt%N
-!!$                X = 1.d0
-!!$                J = I
-!!$                Do ny = 1,L2/2
-!!$                   J   = Latt%nnlist(J,1,0)
-!!$                   Do nx = 1,L1-1
-!!$                      X   = X*DW_Ising_tau( nsigma(L_bond(J ,2),ntau)*nsigma(L_bond(J ,2),ntau1) )
-!!$                      imj = Latt%imj(i,j)
-!!$                      Obs_eq(6)%Obs_Latt(imj,1,1,1) = Obs_eq(6)%Obs_Latt(imj,1,1,1) + &
-!!$                           & cmplx(X,0.d0,kind(0.d0))* ZP * ZS
-!!$                      J   = Latt%nnlist(J,1,0)
-!!$                   Enddo
-!!$                   ! J = I + L1*a_1
-!!$                   J = Latt%nnlist(J,-1,1)
-!!$                   X   = X*DW_Ising_tau( nsigma(L_bond(J ,1),ntau)*nsigma(L_bond(J ,1),ntau1) )
-!!$                   imj = Latt%imj(i,j)
-!!$                   Obs_eq(6)%Obs_Latt(imj,1,1,1) = Obs_eq(6)%Obs_Latt(imj,1,1,1) + &
-!!$                        & cmplx(X,0.d0,kind(0.d0))* ZP * ZS
-!!$                   Do nx = 1,L1-1
-!!$                      J   = Latt%nnlist(J,-1,0)
-!!$                      X   = X*DW_Ising_tau( nsigma(L_bond(J ,2),ntau)*nsigma(L_bond(J ,2),ntau1) )
-!!$                      imj = Latt%imj(i,j)
-!!$                      Obs_eq(6)%Obs_Latt(imj,1,1,1) = Obs_eq(6)%Obs_Latt(imj,1,1,1) + &
-!!$                           & cmplx(X,0.d0,kind(0.d0))* ZP * ZS
-!!$                   Enddo
-!!$                   if (ny /= L2/2) then
-!!$                      J = Latt%nnlist(J,0,1)
-!!$                      X   = X*DW_Ising_tau( nsigma(L_bond(J ,1),ntau)*nsigma(L_bond(J ,1),ntau1) )
-!!$                      imj = Latt%imj(i,j)
-!!$                      Obs_eq(6)%Obs_Latt(imj,1,1,1) = Obs_eq(6)%Obs_Latt(imj,1,1,1) + &
-!!$                           & cmplx(X,0.d0,kind(0.d0))* ZP * ZS
-!!$                   Endif
-!!$                   ! J = I + 2*ax
-!!$                Enddo
-!!$             Enddo
-          elseif (Model == "Hubbard_Mz" ) Then
-             Do I1 = 1,Ndim
-                I    = List(I1,1)
-                no_I = List(I1,2)
-                Do J1 = 1,Ndim
-                   J    = List(J1,1)
-                   no_J = List(J1,2)
-                   imj = latt%imj(I,J)
-                   ! Green
-                   Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
-                        &                          ( GRC(I1,J1,1) + GRC(I1,J1,2)) *  ZP*ZS 
-                   ! SpinZ
-                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
-                        & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                        &    (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))    ) * ZP*ZS
-                   ! SpinXY
-                   ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
-                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
-                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * ZP*ZS
-                   !Den
-                   Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
-                        & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                        &   (GRC(I1,I1,2) + GRC(I1,I1,1))*(GRC(J1,J1,2) + GRC(J1,J1,1))     ) * ZP*ZS
-                enddo
-                Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  (GRC(I1,I1,1) + GRC(I1,I1,2)) * ZP*ZS
-             enddo
-          Endif
-
-#if defined(Machine_Learning)
-          if (ntau == Ltrot/2) then 
-             N_printout_count = N_printout_count + 1
-             !Write(6,*) 'Irank,ntau: ', Irank,ntau, N_printout_count
-             if (N_printout_count == N_printout ) then
-                N_printout_count = 0
-                write(File1,'(A,I0,A)') "Temp_",Irank,"/green_functions"
-                Open (Unit=10,File=File1, status="unknown",  position="append")
-                Do J = 1,ndim
-                   Do I = 1,ndim
-                      write(10,*) dble(GRC(I,J,1))
-                   Enddo
-                Enddo
-                close(10)
-                write(File1,'(A,I0,A)') "Temp_",Irank,"/Ising_fields"
-                Open (Unit=10,File=File1, status="unknown",  position="append")
-                DO I = 1, Size(nsigma,1)
-                   Write(10,*) nsigma(I,ntau), nsigma(I,ntau+1)
-                Enddo
-                close(10)
-             endif
-          endif
-#endif
+             Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
+             Obs_eq(5)%Obs_Latt0(no_I) =  Obs_eq(5)%Obs_Latt0(no_I) +  &
+                  &   cmplx(real(iFlux(I1,Ntau),kind(0.d0)),0.d0,kind(0.d0)) * ZP * ZS
+          ENDDO
+          
           Deallocate ( Isigma )
 
         end Subroutine Obser
