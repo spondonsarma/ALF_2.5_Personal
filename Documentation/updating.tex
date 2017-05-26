@@ -66,6 +66,7 @@ If the boolean variable \texttt{Sequential\_Sweeps}  is set to true, then  the p
 
 %------------------------------------------------------------
 \subsubsection{Global updates in space}
+\label{Global_space.sec}
 This option allows  carry out  user defined global moves on a single time slice.  This option is enabled by setting the logical variable  \texttt{Global\_tau\_moves}   to true.  To set the stage  we recall that the propagation over a time step $\Delta \tau$   (see Eq. \ref{Btau.eq}) can be  written as: 
 \begin{equation}
 	e^{-V_{M_I+M_V}(s_{M_I+M_V,\tau})}  \cdots e^{-V_{1}(s_{1,\tau})}  \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(k)}}  
