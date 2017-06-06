@@ -508,7 +508,7 @@
 
 
           ! Equal time correlators
-          Allocate ( Obs_eq(4) )
+          Allocate ( Obs_eq(5) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
@@ -519,6 +519,8 @@
                 Ns = Latt%N;  No = Norb;  Filename ="SpinXY"
              case (4)
                 Ns = Latt%N;  No = Norb;  Filename ="Den"
+             case (5)
+                Ns = Latt%N;  No = Norb;  Filename ="SpinT"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -587,7 +589,7 @@
           
           !Local 
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZZ, ZXY
           Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J
           
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -670,6 +672,9 @@
                    ! SpinXY
                    Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
                         &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
+                   ! SpinT
+                   Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + &
+                        &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
                    ! Den
                    Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J)  +  &
                         &     (    GRC(I1,I1,1) * GRC(J1,J1,1) *Z     + &
@@ -690,13 +695,15 @@
                    Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
                         &                          ( GRC(I1,J1,1) + GRC(I1,J1,2)) *  ZP*ZS 
                    ! SpinZ
-                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + &
-                        & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                        &    (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))    ) * ZP*ZS
+                   ZZ =       GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
+                        &    (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))  
+                   Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + ZZ* ZP*ZS
                    ! SpinXY
                    ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
-                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + &
-                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * ZP*ZS
+                   ZXY =  GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1) 
+                   Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + ZXY* ZP*ZS
+                   ! SpinT
+                   Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
                    !Den
                    Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
                         & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
