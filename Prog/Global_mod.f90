@@ -43,16 +43,16 @@ Module Global_mod
 !
 !--------------------------------------------------------------------
 
-  Use Hamiltonian
-  Use MyMats 
-  Use Operator_mod
-  Use Control
-
-
-  Implicit none
-
-  
-Contains
+      Use Hamiltonian
+      Use MyMats 
+      Use Operator_mod
+      Use Control
+      
+      
+      Implicit none
+      
+      
+    Contains
 #if defined(TEMPERING)
 !--------------------------------------------------------------------
 !> @author 
@@ -64,95 +64,112 @@ Contains
 !> case the MPI flag is also switched on. 
 !> 
 !--------------------------------------------------------------------
-  Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps)
-    Use UDV_State_mod
-    Implicit none
+      Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps)
+        Use UDV_State_mod
+        Implicit none
+        
+        include 'mpif.h'
+        
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+             COMPLEX(Kind=Kind(0.d0)) :: PHASE
+             INTEGER         :: NVAR
+           END SUBROUTINE CGR
+        end Interface
+        
+        !>  Arguments
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
+        CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
+        CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvst
+        INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
+        !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+        
+        
+        !>  Local variables.
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count
+        Integer, Dimension(:,:),  allocatable :: nsigma_old
+        Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
+        Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
+        Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
+        Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
+        Logical :: TOGGLE, L_Test
+        
+        Integer, allocatable :: List_partner(:)
+        
+        Integer        :: Isize, Irank, Ierr, irank_g, isize_g, igroup
+        Integer        :: STATUS(MPI_STATUS_SIZE)
+        CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+        CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+        call MPI_Comm_rank(Group_Comm, irank_g, ierr)
+        call MPI_Comm_size(Group_Comm, isize_g, ierr)
+        igroup           = irank/isize_g
+        
+        
+        
+        n1 = size(nsigma,1)
+        n2 = size(nsigma,2)
+        NSTM = Size(udvst, 1)
+        Allocate ( nsigma_old(n1,n2) )
+        Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
+        Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
+        Allocate ( List_partner(0:Isize-1) )
+        
+        !>  Compute for each core the old weights.     
+        L_test = .false.
+        ! Set old weight. 
+        Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
+        do nf = 1,N_Fl
+           Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
+           Phase_det_old(nf) = Z
+           Phase_old = Phase_old*Z
+        Enddo
+        call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+        !> Store old configuration
+        nsigma_old = nsigma 
 
-    include 'mpif.h'
-
-    Interface
-       SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-         Use Hamiltonian
-         Use UDV_State_mod
-         Implicit none
-         CLASS(UDV_State), intent(inout) :: udvl(N_FL)
-         Integer :: NTAU1, NTAU
-       END SUBROUTINE WRAPUL
-       SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-         Use UDV_Wrap_mod
-         Use UDV_State_mod
-         Implicit None
-         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-         COMPLEX(Kind=Kind(0.d0)) :: PHASE
-         INTEGER         :: NVAR
-       END SUBROUTINE CGR
-    end Interface
-    
-!>  Arguments
-    COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-    CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
-    COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
-    CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvst
-    INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
-!>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
-    
-    
-!>  Local variables.
-    Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count
-    Integer, Dimension(:,:),  allocatable :: nsigma_old
-    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
-    Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
-    Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
-    Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
-    Logical :: TOGGLE, L_Test
-
-    Integer, allocatable :: List_partner(:)
-
-    Integer        :: Isize, Irank, Ierr
-    Integer        :: STATUS(MPI_STATUS_SIZE)
-    CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-    CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-    
-
-    n1 = size(nsigma,1)
-    n2 = size(nsigma,2)
-    NSTM = Size(udvst, 1)
-    Allocate ( nsigma_old(n1,n2) )
-    Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
-    Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
-    Allocate ( List_partner(0:Isize-1) )
-
-!>  Compute for each core the old weights.     
-    L_test = .false.
-    ! Set old weight. 
-    Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
-    do nf = 1,N_Fl
-       Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
-       Phase_det_old(nf) = Z
-       Phase_old = Phase_old*Z
-    Enddo
-    call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
-    !> Store old configuration
-    nsigma_old = nsigma 
-
-    DO N_count = 1,N_exchange_steps
-       
-       !>  Set the partner rank on each core
-       If (Irank == 0 ) then
-          n_step = 1
-          if (  ranf_wrap() > 0.5d0 ) n_step = -1
-          Do I = 0,Isize-1,2
-             List_partner(I) =  npbc_tempering(I   + n_step,Isize)
-             List_partner(npbc_tempering(I   + n_step, Isize)) =  I
-          enddo
-       endif
-       CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-    
-       !    If (L_test) then
-       !       Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank), Phase_old, Phase
-       !    Endif
-       
+        DO N_count = 1,N_exchange_steps
+           
+           !>  Set the partner rank on each core
+           If (Irank == 0 ) then
+              n_step = isize_g
+              if (  ranf_wrap() > 0.5d0 ) n_step = -isize_g
+              !write(6,*) 'Step: ', n_step
+              if ( n_step  > 0 ) then
+                 Do I = 0,Isize-1,2*isize_g
+                    do n = 0,isize_g-1
+                       List_partner(I + n ) =  npbc_tempering(I + n   + n_step,Isize)
+                       List_partner(npbc_tempering(I  + n  + n_step, Isize)) =  I + n
+                    enddo
+                 enddo
+              else
+                 Do I = 0,Isize-1,2*isize_g
+                    do n = 0,isize_g-1
+                       List_partner(npbc_tempering(I - n             ,Isize)) =  npbc_tempering(I -  n   + n_step,Isize)
+                       List_partner(npbc_tempering(I  -  n  + n_step, Isize)) =  npbc_tempering(I - n            ,Isize)
+                    enddo
+                 enddo
+              endif
+           endif
+           CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
+           
+           !Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank) !, Phase_old, Phase
+           !    If (L_test) then
+           !    Endif
+           !call MPI_Barrier(MPI_COMM_WORLD)
+           !Write(6,*) '---------'
 !!$    select case (IRANK)
 !!$    case(0)
 !!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = 1
@@ -166,129 +183,129 @@ Contains
 !!$    end select
     
 
-       !>  Exchange configurations
-       n = size(nsigma_old,1)*size(nsigma_old,2)
-       Do I = 0,Isize-1
-          If (Irank == I ) Then
-             ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
-             CALL MPI_SEND(nsigma_old,n, MPI_INTEGER  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
-          else if (IRANK == List_Partner(I) ) Then
-             ! Write(6,*) 'Rec from ', List_partner(IRANK), 'on, ', IRANK, I + 512
-             CALL MPI_RECV(nsigma   , n, MPI_INTEGER,   List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-          endif
-       enddo
-       
-       !>  Each node now has a new configuration nsigma
-
+           !>  Exchange configurations
+           n = size(nsigma_old,1)*size(nsigma_old,2)
+           Do I = 0,Isize-1
+              If (Irank == I ) Then
+                 ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
+                 CALL MPI_SEND(nsigma_old,n, MPI_INTEGER  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+              else if (IRANK == List_Partner(I) ) Then
+                 ! Write(6,*) 'Rec from ', List_partner(IRANK), 'on, ', IRANK, I + 512
+                 CALL MPI_RECV(nsigma   , n, MPI_INTEGER,   List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+              endif
+           enddo
+           
+           !>  Each node now has a new configuration nsigma
+           
 !!$    If (L_test) then
 !!$       Write(6,*) 'Testing global : ', Irank,List_partner(IRANK), nsigma_old(1,1),  nsigma_old(2,1), nsigma(1,1),  nsigma(2,1) 
 !!$    Endif
-
-
-
-       !>  Compute ratio on weights one each rank
-       DO nf = 1,N_FL
-          CALL udvl(nf)%reset
-       ENDDO
-       DO NST = NSTM-1,1,-1
-          NT1 = Stab_nt(NST+1)
-          NT  = Stab_nt(NST  )
-          !Write(6,*) NT1,NT, NST
-          CALL WRAPUL(NT1,NT, udvl)
-          Do nf = 1,N_FL
-             udvst(NST, nf) = udvl(nf)
-          ENDDO
-       ENDDO
-       NT1 = stab_nt(1)
-       CALL WRAPUL(NT1,0, udvl)
-       Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
-       do nf = 1,N_Fl
-          Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf))
-          Phase_det_new(nf) = Z
-          Phase_new = Phase_new*Z
-       Enddo
-       call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
-       
-       T0_Proposal_ratio = 1.d0
-       Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-            &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
-       
-       If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
-    
-       !>  Acceptace/rejection decision taken on master node after receiving information from slave
-       Do I = 0,Isize-1,2
-          If (Irank == I ) Then
-             !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
-             CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
-          else if (IRANK == List_Partner(I) ) Then
-             !CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 , MPI_COMM_WORLD,STATUS,IERR)
-             CALL MPI_RECV(Ratio_p    , 2, MPI_COMPLEX16,  I, I+1024, MPI_COMM_WORLD,STATUS,IERR)
-             !Weight = abs(Ratiotot_p*Ratiotot)
-             Weight= abs(Ratio(1) * Ratio_p(1) * exp( Ratio_p(2) + Ratio(2)  ) )
-             TOGGLE = .false. 
-             if ( Weight > ranf_wrap() )  Toggle =.true.
-             If (L_Test) Write(6,*) 'Master : ', List_Partner(I), I, Weight, Toggle
-          endif
-       enddo
-
-       !>  Send result of acceptance/rejection decision form master to slave
-       Do I = 0,Isize-1,2
-          If (Irank == List_Partner(I) ) Then
-             ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
-             CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
-          else if (IRANK == I ) Then
-             CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-             If (L_Test) Write(6,*) 'Slave : ', Irank,  Toggle
-          endif
-       enddo
-       
-       If (L_Test) Write(6,*) 'Final: ',  Irank, List_partner(Irank), toggle
-
-       Call Control_upgrade_Temp(toggle) 
-       If (toggle)  then
-          !>     Move has been accepted
-          Phase_old     = Phase_new
-          Phase_det_old = Phase_det_new
-          nsigma_old    = nsigma
-          Det_vec_old   = Det_vec_new
-       else
-          nsigma = nsigma_old
-       endif
-    enddo
-
-    !> Finalize
-    !> If move has been accepted, no use to recomute storage
-    If (.not.TOGGLE) then
-       DO nf = 1,N_FL
-          CALL udvl(nf)%reset
-       ENDDO
-       DO NST = NSTM-1,1,-1
-          NT1 = Stab_nt(NST+1)
-          NT  = Stab_nt(NST  )
-          !Write(6,*) NT1,NT, NST
-          CALL WRAPUL(NT1,NT, udvl)
-          Do nf = 1,N_FL
-             udvst(NST, nf) = udvl(nf)
-          ENDDO
-       ENDDO
-       NT1 = stab_nt(1)
-       CALL WRAPUL(NT1,0, udvl)
-    Endif
-    !> Compute the Green functions so as to provide correct starting point for the sequential updates.
-    NVAR  = 1
-    Phase = cmplx(1.d0,0.d0,kind(0.d0))
-    do nf = 1,N_Fl
-       CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
-       Phase = Phase*Z
-    Enddo
-    call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
-    
-    Deallocate ( nsigma_old )
-    Deallocate ( Det_vec_old, Det_vec_new ) 
-    Deallocate ( Phase_Det_new, Phase_Det_old )
-    Deallocate ( List_partner )
-
-  end Subroutine Exchange_Step
+           
+           
+           
+           !>  Compute ratio on weights one each rank
+           DO nf = 1,N_FL
+              CALL udvl(nf)%reset
+           ENDDO
+           DO NST = NSTM-1,1,-1
+              NT1 = Stab_nt(NST+1)
+              NT  = Stab_nt(NST  )
+              !Write(6,*) NT1,NT, NST
+              CALL WRAPUL(NT1,NT, udvl)
+              Do nf = 1,N_FL
+                 udvst(NST, nf) = udvl(nf)
+              ENDDO
+           ENDDO
+           NT1 = stab_nt(1)
+           CALL WRAPUL(NT1,0, udvl)
+           Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
+           do nf = 1,N_Fl
+              Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf))
+              Phase_det_new(nf) = Z
+              Phase_new = Phase_new*Z
+           Enddo
+           call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
+           
+           T0_Proposal_ratio = 1.d0
+           Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
+                &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
+           
+           If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
+           
+           !>  Acceptace/rejection decision taken on master node after receiving information from slave
+           Do I = 0,Isize-1,2
+              If (Irank == I ) Then
+                 !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
+                 CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
+              else if (IRANK == List_Partner(I) ) Then
+                 !CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 , MPI_COMM_WORLD,STATUS,IERR)
+                 CALL MPI_RECV(Ratio_p    , 2, MPI_COMPLEX16,  I, I+1024, MPI_COMM_WORLD,STATUS,IERR)
+                 !Weight = abs(Ratiotot_p*Ratiotot)
+                 Weight= abs(Ratio(1) * Ratio_p(1) * exp( Ratio_p(2) + Ratio(2)  ) )
+                 TOGGLE = .false. 
+                 if ( Weight > ranf_wrap() )  Toggle =.true.
+                 If (L_Test) Write(6,*) 'Master : ', List_Partner(I), I, Weight, Toggle
+              endif
+           enddo
+           
+           !>  Send result of acceptance/rejection decision form master to slave
+           Do I = 0,Isize-1,2
+              If (Irank == List_Partner(I) ) Then
+                 ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
+                 CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
+              else if (IRANK == I ) Then
+                 CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+                 If (L_Test) Write(6,*) 'Slave : ', Irank,  Toggle
+              endif
+           enddo
+           
+           If (L_Test) Write(6,*) 'Final: ',  Irank, List_partner(Irank), toggle
+           
+           Call Control_upgrade_Temp(toggle) 
+           If (toggle)  then
+              !>     Move has been accepted
+              Phase_old     = Phase_new
+              Phase_det_old = Phase_det_new
+              nsigma_old    = nsigma
+              Det_vec_old   = Det_vec_new
+           else
+              nsigma = nsigma_old
+           endif
+        enddo
+        
+        !> Finalize
+        !> If move has been accepted, no use to recomute storage
+        If (.not.TOGGLE) then
+           DO nf = 1,N_FL
+              CALL udvl(nf)%reset
+           ENDDO
+           DO NST = NSTM-1,1,-1
+              NT1 = Stab_nt(NST+1)
+              NT  = Stab_nt(NST  )
+              !Write(6,*) NT1,NT, NST
+              CALL WRAPUL(NT1,NT, udvl)
+              Do nf = 1,N_FL
+                 udvst(NST, nf) = udvl(nf)
+              ENDDO
+           ENDDO
+           NT1 = stab_nt(1)
+           CALL WRAPUL(NT1,0, udvl)
+        Endif
+        !> Compute the Green functions so as to provide correct starting point for the sequential updates.
+        NVAR  = 1
+        Phase = cmplx(1.d0,0.d0,kind(0.d0))
+        do nf = 1,N_Fl
+           CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
+           Phase = Phase*Z
+        Enddo
+        call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
+        
+        Deallocate ( nsigma_old )
+        Deallocate ( Det_vec_old, Det_vec_new ) 
+        Deallocate ( Phase_Det_new, Phase_Det_old )
+        Deallocate ( List_partner )
+        
+      end Subroutine Exchange_Step
 #endif
 !---------------------------------------------------------------------
   Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
