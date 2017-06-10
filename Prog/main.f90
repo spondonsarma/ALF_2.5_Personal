@@ -157,6 +157,11 @@ Program Main
         CALL MPI_BCAST(N_exchange_steps        ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(N_Tempering_frequency   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(mpi_per_parameter_set   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        if ( mod(ISIZE,mpi_per_parameter_set) .ne. 0 ) then
+           Write (6,*) "mpi_per_parameter_set is not a multiple of total mpi processes"
+           stop
+        endif
+        Call Global_Tempering_setup
 #else
         mpi_per_parameter_set = Isize
 #endif
@@ -360,6 +365,9 @@ Program Main
            call system_clock(count_bin_start)
            
            Call Init_obs(Ltau)
+#if defined(TEMPERING)
+           Call Global_Tempering_init_obs
+#endif           
            
            DO NSW = 1, NSWEEP
               
@@ -479,6 +487,10 @@ Program Main
               
            ENDDO
            Call Pr_obs(Ltau)
+#if defined(TEMPERING)
+           Call Global_Tempering_Pr
+#endif           
+
            Call confout
            
            call system_clock(count_bin_end)
