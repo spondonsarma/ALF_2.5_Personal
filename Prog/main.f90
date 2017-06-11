@@ -145,7 +145,7 @@ Program Main
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
         
-#if defined(TEMPERING)
+#if defined(TEMPERING) || defined(MPI)
         mpi_per_parameter_set = 1  ! Default value
         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
         IF (ierr /= 0) THEN
@@ -162,8 +162,10 @@ Program Main
            stop
         endif
         Call Global_Tempering_setup
-#else
+#elif !defined(TEMPERING)  && defined(MPI)
         mpi_per_parameter_set = Isize
+#elif defined(TEMPERING)  && !defined(MPI)
+        Write(6,*) 'Mpi has to be defined for tempering runs'
 #endif
 
 #ifdef MPI

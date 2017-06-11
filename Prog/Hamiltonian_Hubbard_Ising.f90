@@ -16,9 +16,8 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Integer, allocatable :: nsigma(:,:)
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot
-#ifdef MPI
+!>    Defines MPI communicator 
       Integer              :: Group_Comm
-#endif
 
 
 !>    Privat variables 
@@ -469,80 +468,166 @@
           !> nsigma_old contains a copy of nsigma upon entry
           
           !> Local
-          Integer :: I,I1, nt,nt1, n, ns_old, n1,n2,n3,n4, dx, dy,dt,sx,sy,st
-          Real (Kind=Kind(0.d0)) :: Weight, Ratio
-          
-          If (Model == "Hubbard_SU2_Ising" ) then 
-             
-             
-             I = nranf(Latt%N)
-!!$             If ( ranf_wrap() > -0.1 ) then 
-!!$                nt= nranf(Ltrot )
-!!$                dx = 0 ! nranf(L1/2)
-!!$                sx = 1; 
-!!$                if (nranf(2) == 2 ) sx = -1
-!!$                dy = 0 !nranf(L2/2)
-!!$                sy = 1
-!!$                if ( nranf(2) == 2) sy = -1
-!!$                dt = nranf(Ltrot/2)
-!!$                st = 1
-!!$                if ( nranf(2) == 2) st = -1 
-!!$                
-!!$                Do n = 1,dx
-!!$                   I1 = Latt%nnlist(I,sx,0)
-!!$                   nsigma(L_bond(I,2),nt) = - nsigma(L_bond(I,2),nt)
-!!$                   I = I1
-!!$                enddo
-!!$                Do n = 1,dy
-!!$                   I1 = Latt%nnlist(I,0,sy)
-!!$                   nsigma(L_bond(I,1),nt) = - nsigma(L_bond(I,1),nt)
-!!$                   I = I1
-!!$                enddo
-!!$                Do n = 1,dt
-!!$                   nt1  = nt + st
-!!$                   if (nt1 > Ltrot ) nt1 = nt1 - Ltrot
-!!$                   if (nt1 < 1     ) nt1 = nt1 + Ltrot
-!!$                   nsigma(L_bond(I,1),nt1) = - nsigma(L_bond(I,1),nt1)
-!!$                   nt = nt1
-!!$                enddo
-!!$             else
-                !Write(6,*)  ' Flux tube '
-             n1  = L_bond(I,1)
-             n2  = L_bond(I,2)
-             n3  = L_bond(Latt%nnlist(I,-1,0),1)
-             n4  = L_bond(Latt%nnlist(I,0,-1),2)
-             do nt = 1,Ltrot
-                nsigma(n1,nt) = -nsigma(n1,nt)
-                nsigma(n2,nt) = -nsigma(n2,nt)
-                nsigma(n3,nt) = -nsigma(n3,nt)
-                nsigma(n4,nt) = -nsigma(n4,nt)
-             enddo
-          Endif
-          
-          Ratio = Delta_S0_global(Nsigma_old)
-          !Write(6,*) Ratio
-          Weight = 1.d0 - 1.d0/(1.d0+Ratio)
-          If ( Weight < ranf_wrap() ) Then 
-             T0_Proposal_ratio = 0.d0
-             nsigma            = nsigma_old
-          else
-             T0_Proposal_ratio = 1.d0/Ratio
+          Integer :: I,I1, nt,nt1,nt_end,  n, ns_old, n1,n2,n3,n4, dx, dy,dt,sx,sy,st, nc, nb, n_kinks
+          Integer :: ndis, ndir,m, n_L, n_R, nw, nw_r,N_samples
+          Real (Kind=Kind(0.d0)) :: Weight, Ratio, X, Y
+          Integer, allocatable ::  Kinks(:), Pos(:)
+          Real (Kind=Kind(0.d0)), allocatable :: W(:), W1(:)
+
+          Logical :: Test
+
+          Test = .false.
+          If (Model == "Hubbard_SU2_Ising" ) then
+             if ( ranf_wrap() > 0.5d0 ) then
+                ! Move kinks along the imaginary time axis.
+                if (Test) write(6,*) '********Global *******'
+                Allocate ( Kinks(Ltrot), W(0:Ltrot), Pos(0:Ltrot), W1(0:Ltrot) )
+                Kinks   = 0
+                Pos     = 0
+                W       = 0.d0
+                n_kinks = 0
+                Kinks   = 0
+                I = nranf(Latt%N)
+                nb= nranf(N_coord)
+                do nt = 1,Ltrot
+                   nt1 = nt + 1
+                   if ( nt == Ltrot ) nt1 = 1
+                   if ( nsigma(L_bond(I,nb),nt)*nsigma(L_bond(I,nb),nt1) == -1 ) then
+                      n_kinks   = n_kinks + 1
+                      Kinks(n_kinks) = nt
+                   endif
+                enddo
+                
+                If (test) then
+                   Write(6,*) "----:", n_kinks
+                   do n = 1,n_kinks
+                      Write(6,*) Kinks(n)
+                   enddo
+                endif
+                
+                if ( n_kinks > 1 ) then
+                   n = nranf(n_kinks) ! The kink
+                   Pos(0) = Kinks(n)
+                   W  (0) = 1.d0
+                   
+                   if (test) WRITE(6,*) "The Kink:",N
+                   nc = 0
+                   n_L = n -1   ! The left kink
+                   if (n_L == 0) n_L = n_kinks
+                   n_R = n + 1  ! The right kink
+                   if (n_R > n_kinks) n_R = n_R - n_kinks
+                   nt = Kinks(n)
+                   X  = 1.d0
+                   nw = 0
+                   do
+                      nt  = nt + 1
+                      if (nt > Ltrot ) nt = 1
+                      if ( nt == Kinks(n_R) ) exit
+                      X = X*S0(L_bond(I,nb),nt)
+                      nw = nw + 1
+                      !Write(6,*) "R,nw: ", nw, S0(L_bond(I,nb),nt)
+                      W  (nw) = X
+                      Pos(nw) = nt
+                      nsigma(L_bond(I,nb),nt) = -  nsigma(L_bond(I,nb),nt)
+                   enddo
+                   nsigma =  nsigma_old
+                   nw_r = nw
+                   nt = Kinks(n) 
+                   X  = 1.d0
+                   do
+                      nt = nt - 1
+                      if ( nt == 0  )   nt = Ltrot
+                      if ( nt == Kinks(n_L) ) exit
+                      nt1 = nt+1
+                      if (nt1 > Ltrot) nt1 = 1
+                      X = X*S0(L_bond(I,nb),nt1)
+                      nw = nw + 1
+                      !Write(6,*) "L,nw: ", nw, S0(L_bond(I,nb),nt1)
+                      W(nw)   = X
+                      Pos(nw) = nt
+                      nsigma(L_bond(I,nb),nt1) = -  nsigma(L_bond(I,nb),nt1)
+                   enddo
+                   nsigma =  nsigma_old
+                   
+                   ! Normalize
+                   X = 0.d0
+                   do  m = 0,Nw
+                      X = X + W(m)
+                   enddo
+                   W = W/X
+                   ! Sample
+                   X = ranf_wrap()
+                   Y = 0.d0
+                   do m = 0,Nw
+                      Y = Y + W(m)
+                      if (X < Y) exit
+                   enddo
+                   nt_end = Pos(m)
+                   
+                   if (test) Write(6,*) 'Move: ', Pos(0), " to ", Pos(m)
+                   if ( m == 0 ) then
+                      T0_Proposal_ratio = 0.d0
+                   elseif ( m <= nw_r )  then
+                      nt = Kinks(n)
+                      if (test) Write(6,*) 'Up'
+                      do
+                         if ( nt == nt_end ) exit
+                         nt  = nt + 1
+                         if (nt > Ltrot ) nt = 1
+                         nsigma(L_bond(I,nb),nt) = -  nsigma(L_bond(I,nb),nt)
+                      enddo
+                      T0_Proposal_ratio = W(0)/W(m)
+                   else
+                      nt = Kinks(n) 
+                      if (test) Write(6,*) 'do'
+                      do
+                         if ( nt ==  nt_end ) exit
+                         nsigma(L_bond(I,nb),nt) = -  nsigma(L_bond(I,nb),nt)
+                         nt = nt - 1
+                         if ( nt == 0  )   nt = Ltrot
+                      enddo
+                      T0_Proposal_ratio = W(0)/W(m)
+                   end if
+                   if (test)  then
+                      ! Check
+                      n_kinks = 0
+                      do nt = 1,Ltrot
+                         nt1 = nt + 1
+                         if ( nt == Ltrot ) nt1 = 1
+                         if ( nsigma(L_bond(I,nb),nt)*nsigma(L_bond(I,nb),nt1) == -1 ) then
+                            n_kinks   = n_kinks + 1
+                            Kinks(n_kinks) = nt
+                         endif
+                      enddo
+                      Write(6,*) "----:", n_kinks
+                      do n = 1,n_kinks
+                         Write(6,*) Kinks(n)
+                      enddo
+                   endif
+                   deallocate (Kinks, W, Pos,W1)
+                Endif
+             else
+                I = nranf(Latt%N)
+                n1  = L_bond(I,1)
+                n2  = L_bond(I,2)
+                n3  = L_bond(Latt%nnlist(I,-1,0),1)
+                n4  = L_bond(Latt%nnlist(I,0,-1),2)
+                do nt = 1,Ltrot
+                   nsigma(n1,nt) = -nsigma(n1,nt)
+                   nsigma(n2,nt) = -nsigma(n2,nt)
+                   nsigma(n3,nt) = -nsigma(n3,nt)
+                   nsigma(n4,nt) = -nsigma(n4,nt)
+                enddo
+                Ratio = Delta_S0_global(Nsigma_old)
+                Weight = 1.d0 - 1.d0/(1.d0+Ratio)
+                If ( Weight < ranf_wrap() ) Then
+                   T0_Proposal_ratio = 0.d0
+                   nsigma            = nsigma_old
+                else
+                   T0_Proposal_ratio = 1.d0/Ratio
+                endif
+             endif
           endif
-          
-             !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
-             !Write(6,*)  Ratio, T0_Proposal_ratio
-
-          !endif
-
-          !nt = nranf(Ltrot)
-          !n  = nranf(size(Op_V,1)) ! 
-          !ns_old = nsigma(n,nt) 
-          !T0_Proposal_ratio = 1.d0
-          !if ( Op_V(n,1)%type == 1  ) then
-          !   nsigma(n,nt) = - Ns_old
-          !else
-          !   nsigma(n,nt) = NFLIPL(Ns_old,nranf(3))
-          !endif
 
         End Subroutine Global_move
 !===================================================================================           
