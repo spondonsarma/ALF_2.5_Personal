@@ -111,7 +111,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
         Logical :: TOGGLE, L_Test
         
-        Integer, allocatable :: List_partner(:)
+        Integer, allocatable :: List_partner(:), List_masters(:)
         
         Integer        :: Isize, Irank, Ierr, irank_g, isize_g, igroup
         Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -129,7 +129,7 @@ Module Global_mod
         Allocate ( nsigma_old(n1,n2) )
         Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
         Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
-        Allocate ( List_partner(0:Isize-1) )
+        Allocate ( List_partner(0:Isize-1), List_masters(Isize/2) )
         
         !>  Compute for each core the old weights.     
         L_test = .false.
@@ -142,8 +142,23 @@ Module Global_mod
         Enddo
         call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
         !> Store old configuration
-        nsigma_old = nsigma 
-
+        nsigma_old = nsigma
+        ! Setup the list of masters
+        nc = 0
+        Do I  = 0,Isize-1,2*isize_g
+           do n = 0,isize_g-1
+              nc = nc + 1
+              List_masters(nc)  = I + n
+           enddo
+        Enddo
+        if (L_Test) then
+           if (Irank == 0)  then
+              Write(6,*) 'List  of masters: '
+              Do nc = 1,Isize/2
+                 Write(6,*) nc, list_masters(nc)
+              Enddo
+           endif
+        endif
         DO N_count = 1,N_exchange_steps
            
            !>  Set the partner rank on each core
@@ -171,12 +186,12 @@ Module Global_mod
            CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
            
            If (L_test) then
-           if (Irank == 0 ) then
-           Write(6,*) 'Testing global : '
-           do  I = 0,Isize -1 
-               Write(6,*)  I, List_partner(I) !, Phase_old, Phase
-           enddo
-           endif
+              if (Irank == 0 ) then
+                 Write(6,*) 'Testing global : '
+                 do  I = 0,Isize -1 
+                    Write(6,*)  I, List_partner(I) !, Phase_old, Phase
+                 enddo
+              endif
            Endif
            !call MPI_Barrier(MPI_COMM_WORLD)
            !Write(6,*) '---------'
@@ -243,7 +258,8 @@ Module Global_mod
            If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
            
            !>  Acceptace/rejection decision taken on master node after receiving information from slave
-           Do I = 0,Isize-1,2
+           Do nc = 1,Isize/2 ! Loop over masters
+              I = List_masters(nc)
               If (Irank == I ) Then
                  !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
                  CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
@@ -259,7 +275,8 @@ Module Global_mod
            enddo
            
            !>  Send result of acceptance/rejection decision form master to slave
-           Do I = 0,Isize-1,2
+           Do nc =  1,Isize/2 ! Loop over masters
+              I = List_masters(nc)
               If (Irank == List_Partner(I) ) Then
                  ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
                  CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
@@ -313,7 +330,7 @@ Module Global_mod
         Deallocate ( nsigma_old )
         Deallocate ( Det_vec_old, Det_vec_new ) 
         Deallocate ( Phase_Det_new, Phase_Det_old )
-        Deallocate ( List_partner )
+        Deallocate ( List_partner, List_masters )
         
       end Subroutine Exchange_Step
 #endif

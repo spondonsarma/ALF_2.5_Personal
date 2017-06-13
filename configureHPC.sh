@@ -52,8 +52,8 @@ echo "Activating fallback option with gfortran for SERIAL JOB."
 F90OPTFLAGS="-O3 -ffree-line-length-none  -fcheck=all"
 F90USEFULFLAGS="-cpp"
 
-export f90="gfortran"
-#$mpif90
+export f90=$mpif90
+# "gfortran"
 export LIB_BLAS_LAPACK="-llapack -lblas"
 ;;
 
