@@ -167,11 +167,17 @@ Module Global_mod
                  enddo
               endif
            endif
+
            CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
            
-           !Write(6,*) 'Testing global : ', Isize, Irank, List_partner(Irank) !, Phase_old, Phase
-           !    If (L_test) then
-           !    Endif
+           If (L_test) then
+           if (Irank == 0 ) then
+           Write(6,*) 'Testing global : '
+           do  I = 0,Isize -1 
+               Write(6,*)  I, List_partner(I) !, Phase_old, Phase
+           enddo
+           endif
+           Endif
            !call MPI_Barrier(MPI_COMM_WORLD)
            !Write(6,*) '---------'
 !!$    select case (IRANK)

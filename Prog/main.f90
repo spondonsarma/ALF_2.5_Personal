@@ -175,6 +175,7 @@ Program Main
         call MPI_Comm_rank(Group_Comm, Irank_g, ierr)
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
+        !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
 #endif
 
 #ifdef MPI

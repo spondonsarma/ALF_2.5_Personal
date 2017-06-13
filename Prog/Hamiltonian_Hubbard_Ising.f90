@@ -71,7 +71,7 @@
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
-          if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
+          !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
           
 
@@ -147,13 +147,13 @@
            If  ( Model == "Hubbard_SU2_Ising" )  Call Setup_Ising_action
 
 #if defined(TEMPERING)
-           write(File1,'(A,I0,A)') "Temp_",igroup,"/info"           
+           write(File1,'(A,I0,A)') "Temp_",igroup,"/info"
 #else
            write(File1,'(A,I0)') "info"
 #endif
            
 #if defined(MPI) 
-           If (Irank_g == 0 ) then
+           If (Irank_g == 0)  then
 #endif
              
               Open (Unit = 50,file=file1,status="unknown",position="append")
@@ -177,6 +177,7 @@
               close(50)
 #if defined(MPI) 
            endif
+           
 #endif
            call Ham_V
            
@@ -478,7 +479,7 @@
 
           Test = .false.
           If (Model == "Hubbard_SU2_Ising" ) then
-             if ( ranf_wrap() > 0.5d0 ) then
+             if ( ranf_wrap() > 1.5d0 ) then
                 ! Move kinks along the imaginary time axis.
                 if (Test) write(6,*) '********Global *******'
                 Allocate ( Kinks(Ltrot), W(0:Ltrot), Pos(0:Ltrot), W1(0:Ltrot) )
