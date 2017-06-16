@@ -886,15 +886,18 @@
               X2 = 0.0
               X3 = 0.0
               DO nt1 = 1, nb - ntau
-                 X1 = X1 + DATA(nt1)*DATA(nt1 + ntau) 
-                 X2 = X2 + DATA(nt1)*DATA(nt1)
                  X3 = X3 + DATA(nt1)
+              ENDDO
+              X3 = X3 / dble(nb - ntau)
+
+              DO nt1 = 1, nb - ntau
+                 X1 = X1 + (DATA(nt1)-x3)*(DATA(nt1 + ntau)-x3) 
+                 X2 = X2 + (DATA(nt1)-x3)*(DATA(nt1)-x3)
               ENDDO
               X1 = X1 / dble(nb - ntau)
               X2 = X2 / dble(nb - ntau)
-              X3 = X3 / dble(nb - ntau)
               
-              Res(ntau)  = ( X1 - X3**2)/(X2 - X3**2)
+              Res(ntau)  = X1/X2
               
            ENDDO
            
