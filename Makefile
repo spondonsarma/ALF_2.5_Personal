@@ -27,7 +27,7 @@ export Libs
 LIB_BLAS_LAPACK = -llapack -lblas
 export LIB_BLAS_LAPACK
 
-all: lib ana program  Hub_Ising SPT Hub Hub_Can Kondo_Honey
+all: lib ana program  Hub_Ising SPT Hub_Can Kondo_Honey
 
 lib:
 	cd Libraries && $(MAKE)
@@ -39,8 +39,6 @@ Hub_Ising:
 	cd Prog && $(MAKE) Hub_Ising
 SPT:
 	cd Prog && $(MAKE) SPT
-Hub:
-	cd Prog && $(MAKE) Hub
 Hub_Can:
 	cd Prog && $(MAKE) Hub_Can
 Kondo_Honey:
