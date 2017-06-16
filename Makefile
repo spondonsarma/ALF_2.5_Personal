@@ -31,17 +31,17 @@ all: lib ana program  Hub_Ising SPT Hub_Can Kondo_Honey
 
 lib:
 	cd Libraries && $(MAKE)
-ana:
+ana: lib
 	cd Analysis && $(MAKE)
-program:
+program: lib
 	cd Prog && $(MAKE) Examples
-Hub_Ising:
+Hub_Ising: lib
 	cd Prog && $(MAKE) Hub_Ising
-SPT:
+SPT: lib
 	cd Prog && $(MAKE) SPT
-Hub_Can:
+Hub_Can: lib
 	cd Prog && $(MAKE) Hub_Can
-Kondo_Honey:
+Kondo_Honey: lib
 	cd Prog && $(MAKE) Kondo_Honey
 
 
