@@ -75,6 +75,7 @@
 
          
          N_Back = 1
+         N_auto = 0
          OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
          IF (ierr /= 0) THEN
             WRITE(*,*) 'unable to open <parameters>',ierr
@@ -140,7 +141,7 @@
          Write(6,*) "# of bins: ", Nbins
          nbins  = Nbins - n_skip
          Write(6,*) "Effective # of bins: ", Nbins
-
+         N_auto=min(N_auto,Nbins/3)
 
          ! Allocate  space
          Allocate ( bins(Nunit,Nbins), bins_r(Nunit,Nbins), Phase(Nbins),  V_help(Nbins), V_help_R(Nbins), Bins0(Nbins,Norb))
