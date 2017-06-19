@@ -89,14 +89,16 @@
            NP = SIZE(EN)
            
            XM  = 0.D0
-           XSQ = 0.D0
            DO NT = 1,NP
               XM  = XM  + EN(NT)
-              XSQ = XSQ + EN(NT)**2
            ENDDO
            XM    = XM /DBLE(NP)
+           XSQ = 0.D0
+           DO NT = 1,NP
+              XSQ = XSQ + (EN(NT)-XM)**2
+           ENDDO
            XSQ   = XSQ/DBLE(NP)
-           XERR  = (XSQ - XM**2)/DBLE(NP)
+           XERR  = XSQ/DBLE(NP)
            IF (XERR.GT.0.D0) THEN
               XERR = SQRT(XERR)
            ELSE
@@ -146,7 +148,7 @@
            IMPLICIT NONE
 
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
-           REAL (Kind=Kind(0.d0))               ::  XM, XERR, X
+           REAL (Kind=Kind(0.d0))               ::  XM, XERR, X, Xhelp
            REAL (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE ::  EN1
            INTEGER     :: NP, N, N1
 
@@ -155,11 +157,13 @@
            
            ! Build the jackknife averages and send to errcalc.
 
+           Xhelp = 0.D0
+           DO N1 = 1,NP
+              Xhelp = Xhelp + EN(N1)
+           ENDDO
+              
            DO N = 1,NP
-              X = 0.D0
-              DO N1 = 1,NP
-                 IF (N1.NE.N) X = X + EN(N1)
-              ENDDO
+              X = Xhelp - EN(N)
               EN1(N) = X / DBLE(NP -1)
            ENDDO
            CALL ERRCALC(EN1,XM,XERR)
@@ -177,7 +181,7 @@
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
-           COMPLEX (Kind=Kind(0.d0))               ::  ZM, ZERR, Z
+           COMPLEX (Kind=Kind(0.d0))               ::  ZM, ZERR, Z, Zhelp
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE ::  EN1
            INTEGER     :: NP, N, N1
 
@@ -186,11 +190,13 @@
            
            ! Build the jackknife averages and send to errcalc.
 
+           Zhelp = CMPLX(0.D0, 0.D0, kind(0.D0))
+           DO N1 = 1,NP
+              Zhelp = Zhelp + EN(N1)
+           ENDDO
+              
            DO N = 1,NP
-              Z = CMPLX(0.D0, 0.D0, kind(0.D0))
-              DO N1 = 1,NP
-                 IF (N1.NE.N) Z = Z + EN(N1)
-              ENDDO
+              Z =  Zhelp - EN(N)
               EN1(N) = Z / DBLE(NP -1)
            ENDDO
            CALL ERRCALC(EN1,ZM,ZERR)
