@@ -758,9 +758,9 @@
               
               DO NT = 1,NTDM
                  DO NT1= 1,NTDM
-                    X = 0.0
+                    X = 0.d0
                     DO NB = 1,NDATA
-                       X = X +  (HLP1(NT,NB)-XMEAN(NT))*(HLP1(NT1,NB)-XMEAN(NT1))
+                       X = X +  (HLP1(NT,NB)-XMEAN_R(NT))*(HLP1(NT1,NB)-XMEAN_R(NT1))
                     ENDDO
                     X = X/DBLE(NDATA)
                     XCOV(NT,NT1)  = XCOV(NT,NT1) + CONJG(Z)* X *DBLE(NDATA)
