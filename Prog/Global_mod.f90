@@ -652,8 +652,9 @@ Module Global_mod
         CALL udvlocal%dealloc
         
       end subroutine Compute_Fermion_Det
+
       
- !--------------------------------------------------------------------
+!--------------------------------------------------------------------
       Integer function  npbc_tempering(n,Isize)
 !--------------------------------------------------------------------
 !> @author 

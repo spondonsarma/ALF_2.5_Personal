@@ -145,7 +145,7 @@ Program Main
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
         
-#if defined(TEMPERING) || defined(MPI)
+#if defined(TEMPERING) && defined(MPI)
         mpi_per_parameter_set = 1  ! Default value
         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
         IF (ierr /= 0) THEN
