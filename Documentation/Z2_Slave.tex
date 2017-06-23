@@ -68,20 +68,23 @@ However the simulations suggest that
  \begin{equation}
  \frac{1}{N}\sum_{i,j} \langle \hat{Q}_{\vec{i}}   \hat{Q}_{\vec{j}} \rangle_{H_{Z_2}}  = N 
  \end{equation} 
- at low temperatures  where  $N$  corresponds  to size of the lattice.  Note that this measurement is very noise, and suffers from very long autocorrelation times.  Thereby, the constraint is dynamically imposed and   simulations of the attractive Hubbard model with  \texttt{Hamiltonian\_Examples.f90}  should yield identical results. To test this,  we have computed equal time Green functions:
+ at low temperatures  where  $N$  corresponds  to size of the lattice.  Note that this measurement is very noisy,  and suffers from very long autocorrelation times.  Thereby, the constraint is dynamically imposed and   simulations of the attractive Hubbard model with  \texttt{Hamiltonian\_Examples.f90}  should yield identical results. To test this,  we have computed equal time Green functions:
 \begin{equation}
 \langle  \hat{\tau}^{z}_{\vec{i}} \hat{f}^{\dagger}_{\vec{i},\sigma} \hat{\tau}^{z}_{\vec{j}} \vec{f}^{\phantom{\dagger}}_{\vec{j},\sigma} \rangle_{H_{Z_2}} = 
 \langle  \hat{c}^{\dagger}_{\vec{i},\sigma} \hat{c}^{\phantom{\dagger}}_{\vec{j},\sigma} \rangle_{H} 
 \end{equation}
 as obtained  from  the \texttt{Hamiltonian\_Examples.f90} and    \texttt{Hamiltonian\_Z2\_slave\_spins.f90 } codes.  
-A test run for the $4\times 4 $ lattice at $U/t = 4$ and $\beta t = 20$ gives: 
+A test run for the $8\times 8 $ lattice at $U/t = 4$ and $\beta t = 40$ gives: 
 \begin{center}
 \begin{tabular}{ l | c | r }
  \hline			
    k   &  $\langle n_k \rangle_{H} $  &  $\langle n_k \rangle_{H_{Z_2}} $ \\
   \hline
-   (0,0)    & 1.93290945    $\pm$      0.00061776 &  1.93390134   $\pm$      0.00132265\\
-   ($\pi$,$\pi$) & 0.06709055    $\pm$      0.00061776 &  0.06609866     $\pm$     0.00132265 \\
+   (0,0)                               & 1.93348548    $\pm$    0.00011322  & 1.93336807   $\pm$      0.00080473 \\
+   ($\pi/4$,$\pi/4$)             & 1.90120688     $\pm$   0.00014854  & 1.90107164    $\pm$     0.00097029  \\
+   ($\pi/2$,$\pi/2$)             & 0.99942957     $\pm$   0.00091377  & 1.00000000    $\pm$     0.00000000\\
+   ($3\pi/4$,$3\pi/4$)         &  0.09905425     $\pm$   0.00015940 & 0.09892836    $\pm$     0.00097029 \\
+   ($\pi$,$\pi$)                   & 0.06651452     $\pm$   0.00011321  & 0.06663193     $\pm$    0.00080473 \\
   \hline  
 \end{tabular}
 
