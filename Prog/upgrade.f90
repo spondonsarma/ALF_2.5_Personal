@@ -302,6 +302,7 @@
            Ratiotot = Ratiotot * Prev_Ratiotot
            !Write(6,*) "Up_f: ", Ratiotot
            Weight = S0_ratio * T0_proposal_ratio * abs(  real(Phase * Ratiotot, kind=Kind(0.d0))/real(Phase,kind=Kind(0.d0)) )
+           !Write(6,*) Phase, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, ns_old,ns_new
         elseif  (mode == "Intermediate" ) Then
            Weight = 1.5
            !Write(6,*) "Up_I: ", Ratiotot
