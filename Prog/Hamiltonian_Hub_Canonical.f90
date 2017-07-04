@@ -19,7 +19,7 @@
       ! What is below is  private 
       Type (Lattice),       private :: Latt
       Integer,              private :: L1, L2, n_Lambda
-      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem, Lambda
+      real (Kind=8),        private :: ham_T , ham_U,  Ham_chem, Lambda, RhoD
       real (Kind=8),        private :: Dtau, Beta, Phi_x
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
@@ -48,7 +48,7 @@
           
           NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, Phi_x
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta, Lambda, n_Lambda
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta, Lambda, n_Lambda, RhoD
 
 
 #ifdef MPI
@@ -96,6 +96,7 @@
 #ifdef MPI
           If (Irank == 0 ) then
 #endif
+             RhoD = 1.d0
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              READ(5,NML=VAR_Hubbard)
              CLOSE(5)
@@ -108,6 +109,7 @@
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Lambda   ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(n_Lambda ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(RhoD     ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
 #endif
           Call Ham_hop
 
@@ -127,6 +129,7 @@
              Write(50,*) 't             : ', Ham_T
              Write(50,*) 'Ham_U         : ', Ham_U
              Write(50,*) 'Ham_chem      : ', Ham_chem
+             Write(50,*) 'Desired Den   : ', RhoD
              Write(50,*) 'Lambda        : ', Lambda
              Write(50,*) 'n_Lambda      : ', n_Lambda
              close(50)
@@ -323,7 +326,7 @@
                       Op_V(nc,nf)%O(I,I) = cmplx(1.d0  ,0.d0, kind(0.D0))
                    enddo
                    Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*Lambda/dble(n_lambda), 0.D0, kind(0.D0))) 
-                   Op_V(nc,nf)%alpha  = cmplx(-DBLE(Latt%N)*0.5d0,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%alpha  = cmplx(-DBLE(Latt%N)*RhoD*0.5d0,0.d0, kind(0.D0))
                    Op_V(nc,nf)%type   = 2
                    Call Op_set( Op_V(nc,nf) )
                 enddo
@@ -509,7 +512,7 @@
                 ENDDO
                 Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  Z * GRC(I1,I1,1) * ZP * ZS
              ENDDO
-          elseif (Model == "Hubbard_Mz" ) Then
+          elseif (Model == "Hubard_Mz" ) Then
              Do I1 = 1,Ndim
                 I    = List(I1,1)
                 no_I = List(I1,2)
