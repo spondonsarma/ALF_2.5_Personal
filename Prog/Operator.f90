@@ -336,7 +336,7 @@ Contains
     select case (opn)
     case (1)
         DO I = 1, Ndim
-            Mat(P(1), I) = U(1,1) * V(1, I)
+            Mat(P(1), I) = V(1, I)
         enddo
     case (2)
         DO I = 1, Ndim
@@ -384,7 +384,7 @@ Contains
     select case (opn)
     case (1)
         DO I = 1, Ndim
-            Mat(I, P(1)) = conjg(U(1,1)) * V(1, I)
+            Mat(I, P(1)) = V(1, I)
         enddo
     case (2)
         DO I = 1, Ndim
@@ -433,7 +433,7 @@ Contains
     select case (opn)
     case (1)
         DO I = 1, Ndim
-            Mat(I, P(1)) = Z(1) * U(1, 1) * V(1, I)
+            Mat(I, P(1)) = Z(1) * V(1, I)
         enddo
     case (2)
         DO I = 1, Ndim
@@ -480,7 +480,7 @@ Contains
     select case (opn)
     case (1)
         DO I = 1, Ndim
-            Mat(P(1), I) = Z(1) * conjg(U(1, 1)) * V(1, I)
+            Mat(P(1), I) = Z(1) * V(1, I)
         enddo
     case (2)
         DO I = 1, Ndim
@@ -679,7 +679,7 @@ Contains
     select case (Op%N)
     case (1)
         DO I = 1, Ndim
-            Mat(I, Op%P(1)) = Op%U(1,1) * VH(1, I)
+            Mat(I, Op%P(1)) = VH(1, I)
         enddo
     case (2)
         DO I = 1, Ndim
@@ -696,7 +696,7 @@ Contains
       select case (Op%N)
         case (1)
             DO I = 1, Ndim
-                Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I)
+                Mat(Op%P(1), I) = VH(1, I)
             enddo
         case (2)
             DO I = 1, Ndim
