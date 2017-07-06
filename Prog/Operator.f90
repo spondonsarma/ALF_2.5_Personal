@@ -361,7 +361,7 @@ Contains
 !> writes the result to rows in mat specified by P.
 !
 !> @param[in] V
-!> @param[in] U
+!> @param[in] U A unitary matrix. For opn == 1 this means U == 1.0
 !> @param[in] P a vector wiht the rows that we write to
 !> @param[inout] Mat The Matrix that we update
 !> @param[in] opn The length of the vector P
@@ -410,7 +410,7 @@ Contains
 !> specified by P.
 !
 !> @param[in] V
-!> @param[in] U
+!> @param[in] U A unitary matrix. For opn == 1 this means U == 1.0
 !> @param[in] P a vector wiht the rows that we write to
 !> @param[inout] Mat The Matrix that we update
 !> @param[in] Z A vector that usually contains exponentials
@@ -660,19 +660,25 @@ Contains
     If (N_type == 1) then
        call FillExpOps(ExpOp, ExpMop, Op, spin)
        
-       Do n = 1,Op%N
-          expHere=ExpOp(n)
-          VH(n, :) = ExpHere * Mat(:, Op%P(n))
-       Enddo
-
-       call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
-
-       Do n = 1,Op%N
-          ExpHere=ExpMOp(n)
-          VH(n, :) = ExpHere * Mat(Op%P(n), :)
-       Enddo
-    
-       call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+       if (Op%N == 1) then
+            DO I = 1, Ndim
+                Mat(I, Op%P(1)) = ExpOp(1) * Mat(I, Op%P(1))
+            enddo
+            DO I = 1, Ndim
+                Mat(Op%P(1), I) = ExpMOp(1) * Mat(Op%P(1), I)
+            enddo
+       else
+            CALL ZLASET('A', Op%N, Ndim, beta, beta, VH, Op%N)
+            Do n = 1,Op%N
+                CALL ZAXPY(Ndim, ExpOp(n), Mat(1, Op%P(n)), 1, VH(n, 1), Op%N)
+            Enddo
+            call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+            CALL ZLASET('A', Op%N, Ndim, beta, beta, VH, Op%N)
+            Do n = 1,Op%N
+                CALL ZAXPY(Ndim, ExpMop(n), Mat(Op%P(n), 1), Ndim, VH(n, 1), Op%N)
+            Enddo
+            call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+        endif
     elseif (N_Type == 2) then
     call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
 
