@@ -75,14 +75,14 @@ Program OPEXPMULTCTTEST
          Do i = 1, Ndim
             Do j = 1, Ndim
                tmp = matold (i, j) - matnew (i, j)
-               IF(ABS(DBLE(tmp)) > 1D-13) THEN
+               IF(ABS(DBLE(tmp)) > 1D-12) THEN
                If (Abs(Aimag(tmp)) > Max(Abs(Aimag(matnew(i, j))), Abs(Aimag(matold(i, j))))*1D-13) Then
                   Write (*,*) "ERROR ", opn, matold (i, j), matnew (i, j), tmp
                   Stop 2
                End If
                ENDIF
-               IF(ABS(AIMAG(tmp)) > 1D-14) THEN
-               If (Abs(Real(tmp)) > Abs(Real(matnew(i, j)))*1D-13) Then
+               IF(ABS(AIMAG(tmp)) > 1D-12) THEN
+               If (Abs(DBLE(tmp)) > Abs(DBLE(matnew(i, j)))*1D-13) Then
                   Write (*,*) "ERROR ", matold (i, j), matnew (i, j)
                   Stop 3
                End If
