@@ -175,14 +175,14 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
 
-    Complex (Kind=Kind(0.d0)), allocatable :: U(:,:)
+    Complex (Kind=Kind(0.d0)), allocatable :: U(:,:), TMP(:, :)
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
     Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
     Integer :: N, I, np,nz
 
     If (Op%N > 1) then
        N = Op%N
-       Allocate (U(N,N), E(N))
+       Allocate (U(N,N), E(N), TMP(N, N))
        Call Diag(Op%O,U, E)  
        Np = 0
        Nz = 0
@@ -199,7 +199,13 @@ Contains
        enddo
        Op%N_non_zero = np
        !Write(6,*) "Op_set", np,N
-       deallocate (U, E)
+       TMP = Op%U ! that way we have the changes to the determinant due to the permutation
+       Z = Det_C(TMP, N)
+       ! Scale Op%U to be in SU(N) -> R will be diagonal with +-1 on the diagonal
+       DO I = 1, N
+            Op%U(I,1) = zladiv(Op%U(I, 1), Z)
+       ENDDO
+       deallocate (U, E, TMP)
        ! Op%U,Op%E)
        !Write(6,*) 'Calling diag 1'
     else
@@ -341,7 +347,7 @@ Contains
     case (2)
         DO I = 1, Ndim
             Mat(P(1), I) = U(1,1) * V(1, I) + U(1,2) * V(2, I)
-            Mat(P(2), I) = U(2,1) * V(1, I) + U(2,2) * V(2, I)
+            Mat(P(2), I) = U(2,1) * V(1, I) + conjg(U(1, 1)) * V(2, I)
         enddo
     case default
         Allocate(tmp(opn, Ndim))
@@ -389,7 +395,7 @@ Contains
     case (2)
         DO I = 1, Ndim
             Mat(I, P(1)) = conjg(U(1,1)) * V(1, I) + conjg(U(1,2)) * V(2, I)
-            Mat(I, P(2)) = conjg(U(2,1)) * V(1, I) + conjg(U(2,2)) * V(2, I)
+            Mat(I, P(2)) = conjg(U(2,1)) * V(1, I) + U(1, 1) * V(2, I)
         enddo
     case default
         Allocate(tmp(Ndim, opn))
@@ -438,7 +444,7 @@ Contains
     case (2)
         DO I = 1, Ndim
             Mat(I, P(1)) = Z(1) * (U(1, 1) * V(1, I) + U(2, 1) * V(2, I))
-            Mat(I, P(2)) = Z(2) * (U(1, 2) * V(1, I) + U(2, 2) * V(2, I))
+            Mat(I, P(2)) = Z(2) * (U(1, 2) * V(1, I) + conjg(U(1, 1)) * V(2, I))
         enddo
     case default
         do n = 1, opn
@@ -485,7 +491,7 @@ Contains
     case (2)
         DO I = 1, Ndim
             Mat(P(1), I) = Z(1) * (conjg(U(1, 1)) * V(1, I) + conjg(U(2, 1)) * V(2, I))
-            Mat(P(2), I) = Z(2) * (conjg(U(1, 2)) * V(1, I) + conjg(U(2, 2)) * V(2, I))
+            Mat(P(2), I) = Z(2) * (conjg(U(1, 2)) * V(1, I) + U(1, 1) * V(2, I))
         enddo
     case default
         do n = 1, opn
@@ -680,41 +686,35 @@ Contains
             call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
         endif
     elseif (N_Type == 2) then
-    call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
+        if (Op%N > 1) then
+        call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
 
-    select case (Op%N)
-    case (1)
-        DO I = 1, Ndim
-            Mat(I, Op%P(1)) = VH(1, I)
-        enddo
-    case (2)
-        DO I = 1, Ndim
-            Mat(I, Op%P(1)) = Op%U(1, 1) * VH(1, I) + Op%U(2, 1) * VH(2, I)
-            Mat(I, Op%P(2)) = Op%U(1, 2) * VH(1, I) + Op%U(2, 2) * VH(2, I)
-        enddo
-    case default
-        Allocate(tmp(Ndim, Op%N))
-        CALL ZGEMM('T','N', Ndim, op%N, op%N, alpha, VH, op%n, Op%U, op%n, beta, tmp, Ndim)
-        Mat(:, (Op%P)) = tmp
-        Deallocate(tmp)
-    end select
-      call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-      select case (Op%N)
-        case (1)
-            DO I = 1, Ndim
-                Mat(Op%P(1), I) = VH(1, I)
-            enddo
+        select case (Op%N)
         case (2)
             DO I = 1, Ndim
-                Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I) + conjg(Op%U(2,1)) * VH(2, I)
-                Mat(Op%P(2), I) = conjg(Op%U(1,2)) * VH(1, I) + conjg(Op%U(2,2)) * VH(2, I)
+                Mat(I, Op%P(1)) = Op%U(1, 1) * VH(1, I) + Op%U(2, 1) * VH(2, I)
+                Mat(I, Op%P(2)) = Op%U(1, 2) * VH(1, I) + conjg(Op%U(1, 1)) * VH(2, I)
             enddo
         case default
-            Allocate(tmp2(Op%N, Ndim))
-            CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U, op%n, VH, op%n, beta, tmp2, op%n)
-            Mat(Op%P, :) = tmp2
-            Deallocate(tmp2)
+            Allocate(tmp(Ndim, Op%N))
+            CALL ZGEMM('T','N', Ndim, op%N, op%N, alpha, VH, op%n, Op%U, op%n, beta, tmp, Ndim)
+            Mat(:, (Op%P)) = tmp
+            Deallocate(tmp)
         end select
+        call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
+        select case (Op%N)
+            case (2)
+                DO I = 1, Ndim
+                    Mat(Op%P(1), I) = conjg(Op%U(1,1)) * VH(1, I) + conjg(Op%U(2,1)) * VH(2, I)
+                    Mat(Op%P(2), I) = conjg(Op%U(1,2)) * VH(1, I) + Op%U(1,1) * VH(2, I)
+                enddo
+            case default
+                Allocate(tmp2(Op%N, Ndim))
+                CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U, op%n, VH, op%n, beta, tmp2, op%n)
+                Mat(Op%P, :) = tmp2
+                Deallocate(tmp2)
+            end select
+        endif
     endif
   end Subroutine Op_Wrapdo
 
