@@ -179,6 +179,8 @@ Contains
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
     Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
     Integer :: N, I, np,nz
+    Complex (Kind=Kind(0.d0)) :: Z
+    Complex (Kind=Kind(0.d0)) :: ZLADIV
 
     If (Op%N > 1) then
        N = Op%N
@@ -201,7 +203,7 @@ Contains
        !Write(6,*) "Op_set", np,N
        TMP = Op%U ! that way we have the changes to the determinant due to the permutation
        Z = Det_C(TMP, N)
-       ! Scale Op%U to be in SU(N) -> R will be diagonal with +-1 on the diagonal
+       ! Scale Op%U to be in SU(N)
        DO I = 1, N
             Op%U(I,1) = zladiv(Op%U(I, 1), Z)
        ENDDO
