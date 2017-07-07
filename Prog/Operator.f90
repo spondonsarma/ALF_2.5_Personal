@@ -661,8 +661,8 @@ Contains
     ! Local 
     Complex (Kind = Kind(0.D0)), Dimension(:), allocatable :: ExpOp, ExpMop
     Integer :: n, i
-    Complex (Kind = Kind(0.D0)) :: alpha, beta, ExpHere
-    Complex (Kind = Kind(0.D0)), Dimension(:, :), allocatable :: VH, tmp, tmp2
+    Complex (Kind = Kind(0.D0)) :: alpha, beta
+    Complex (Kind = Kind(0.D0)), Dimension(:, :), allocatable :: VH, tmp
 
     alpha = 1.D0
     beta  = 0.D0
@@ -673,8 +673,9 @@ Contains
     !!!!! N_Type == 2
     !    (Op%U^{dagger}) * Mat * Op%U
     !!!!!
-    Allocate(ExpOp(Op%N), ExpMop(Op%N))
+
     If (N_type == 1) then
+       Allocate(ExpOp(Op%N), ExpMop(Op%N))
        call FillExpOps(ExpOp, ExpMop, Op, spin)
        
        if (Op%N == 1) then
@@ -698,6 +699,7 @@ Contains
             call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
             Deallocate(VH)
         endif
+        Deallocate(ExpOp, ExpMop)
     elseif (N_Type == 2) then
         if (Op%N > 1) then
             Allocate(VH(Op%N,Ndim))
@@ -723,10 +725,10 @@ Contains
                         Mat(Op%P(2), I) = - Op%U(2, 1) * VH(1, I) + Op%U(1, 1) * VH(2, I)
                     enddo
                 case default
-                    Allocate(tmp2(Op%N, Ndim))
-                    CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U(1, 1), op%n, VH(1,1), op%n, beta, tmp2(1,1), op%n)
-                    Mat(Op%P, :) = tmp2
-                    Deallocate(tmp2)
+                    Allocate(tmp(Op%N, Ndim))
+                    CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U(1, 1), op%n, VH(1,1), op%n, beta, tmp(1, 1), op%n)
+                    Mat(Op%P, :) = tmp
+                    Deallocate(tmp)
             end select
             deallocate(VH)
         endif
