@@ -218,7 +218,16 @@ Contains
   end subroutine Op_set
 
 !--------------------------------------------------------------------
-
+!> @author
+!> The ALF Project contributors
+!
+!> @brief This calculates the exponentiated operator and returns a full matrix
+!<        representation: Mat = U exp(E) U^\dagger
+!
+!> @param[in] g 
+!> @param[in] Op 
+!> @param[out] Mat The full matrix of the exponentiated operator.
+!--------------------------------------------------------------------
 
   Pure subroutine Op_exp(g,Op,Mat)
     Implicit none 
