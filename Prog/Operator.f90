@@ -362,7 +362,7 @@ Contains
         enddo
     case default
         Allocate(tmp(opn, Ndim))
-        CALL ZGEMM('N','N', opn, Ndim, opn, alpha, U, opn, V, opn, beta, tmp, opn)
+        CALL ZGEMM('N','N', opn, Ndim, opn, alpha, U(1, 1), opn, V(1, 1), opn, beta, tmp(1, 1), opn)
         Mat((P), :) = tmp
         Deallocate(tmp)
     end select
@@ -410,7 +410,7 @@ Contains
         enddo
     case default
         Allocate(tmp(Ndim, opn))
-        CALL ZGEMM('T','C', Ndim, opn, opn, alpha, V, opn, U, opn, beta, tmp, Ndim)
+        CALL ZGEMM('T','C', Ndim, opn, opn, alpha, V(1, 1), opn, U(1, 1), opn, beta, tmp(1, 1), Ndim)
         Mat(:, (P)) = tmp
         Deallocate(tmp)
     end select
@@ -459,7 +459,7 @@ Contains
         enddo
     case default
         do n = 1, opn
-            call zgemv('T', opn, Ndim, Z(n), V, opn, U(:, n), 1, beta, Mat(:, P(n)), 1)
+            call zgemv('T', opn, Ndim, Z(n), V(1, 1), opn, U(:, n), 1, beta, Mat(:, P(n)), 1)
         Enddo
     end select
   end subroutine
@@ -506,7 +506,7 @@ Contains
         enddo
     case default
         do n = 1, opn
-            call zgemv('T', opn, Ndim, Z(n), V, opn, conjg(U(:, n)), 1, beta, Mat(P(n), 1), size(Mat, 1))
+            call zgemv('T', opn, Ndim, Z(n), V(1, 1), opn, conjg(U(:, n)), 1, beta, Mat(P(n), 1), size(Mat, 1))
         Enddo
     end select
 
@@ -673,7 +673,7 @@ Contains
     !!!!! N_Type == 2
     !    (Op%U^{dagger}) * Mat * Op%U
     !!!!!
-    Allocate(VH(Op%N,Ndim), ExpOp(Op%N), ExpMop(Op%N))
+    Allocate(ExpOp(Op%N), ExpMop(Op%N))
     If (N_type == 1) then
        call FillExpOps(ExpOp, ExpMop, Op, spin)
        
@@ -685,6 +685,7 @@ Contains
                 Mat(Op%P(1), I) = ExpMOp(1) * Mat(Op%P(1), I)
             enddo
        else
+            Allocate(VH(Op%N,Ndim))
             CALL ZLASET('A', Op%N, Ndim, beta, beta, VH, Op%N)
             Do n = 1,Op%N
                 CALL ZAXPY(Ndim, ExpOp(n), Mat(1, Op%P(n)), 1, VH(n, 1), Op%N)
@@ -695,9 +696,11 @@ Contains
                 CALL ZAXPY(Ndim, ExpMop(n), Mat(Op%P(n), 1), Ndim, VH(n, 1), Op%N)
             Enddo
             call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+            Deallocate(VH)
         endif
     elseif (N_Type == 2) then
         if (Op%N > 1) then
+            Allocate(VH(Op%N,Ndim))
             call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
 
             select case (Op%N)
@@ -708,7 +711,7 @@ Contains
                 enddo
             case default
                 Allocate(tmp(Ndim, Op%N))
-                CALL ZGEMM('T','N', Ndim, op%N, op%N, alpha, VH, op%n, Op%U, op%n, beta, tmp, Ndim)
+                CALL ZGEMM('T','N', Ndim, op%N, op%N, alpha, VH(1,1), op%n, Op%U(1,1), op%n, beta, tmp(1,1), Ndim)
                 Mat(:, (Op%P)) = tmp
                 Deallocate(tmp)
             end select
@@ -721,10 +724,11 @@ Contains
                     enddo
                 case default
                     Allocate(tmp2(Op%N, Ndim))
-                    CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U, op%n, VH, op%n, beta, tmp2, op%n)
+                    CALL ZGEMM('C','N', op%N, Ndim, op%N, alpha, Op%U(1, 1), op%n, VH(1,1), op%n, beta, tmp2(1,1), op%n)
                     Mat(Op%P, :) = tmp2
                     Deallocate(tmp2)
-                end select
+            end select
+            deallocate(VH)
         endif
     endif
   end Subroutine Op_Wrapdo
