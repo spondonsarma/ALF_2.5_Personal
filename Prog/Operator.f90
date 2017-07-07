@@ -474,7 +474,7 @@ Contains
 !> specified by P.
 !
 !> @param[in] V
-!> @param[in] U
+!> @param[in] U A special unitary matrix.
 !> @param[in] P a vector with the rows that we write to
 !> @param[inout] Mat The Matrix that we update
 !> @param[in] Z A vector that usually contains exponentials
