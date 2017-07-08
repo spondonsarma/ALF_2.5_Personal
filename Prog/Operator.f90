@@ -640,10 +640,12 @@ Contains
         call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
         call opexpmultct(VH, Op%U, Op%P, Mat, ExpOp, Op%N, Ndim)
     elseif (N_Type == 2) then
-        call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
-        call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
-        call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
-        call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+        if(Op%N > 1) then
+            call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
+            call opmultct(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+            call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
+            call opmult(VH, Op%U, Op%P, Mat, Op%N, Ndim)
+        endif
     endif
   end Subroutine Op_Wrapup
 
