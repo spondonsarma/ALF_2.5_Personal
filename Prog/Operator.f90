@@ -623,8 +623,8 @@ Contains
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Complex (Kind=Kind(0.d0)) :: ExpOp(Op%N), ExpMop(Op%N), VH(Op%N,Ndim)
-    
+    Complex (Kind=Kind(0.d0)) :: VH(Op%N,Ndim)
+    Complex (Kind = Kind(0.D0)), Dimension(:), allocatable :: ExpOp, ExpMop
     !     nop=size(Op%U,1)
     !!!!! N_Type ==1
     !    exp(Op%g*spin*Op%E)*(Op%U^{dagger})*Mat*Op%U*exp(-Op%g*spin*Op%E)
@@ -634,11 +634,13 @@ Contains
     !    Op%U * Mat * (Op%U^{dagger})
     !!!!!
     If (N_type == 1) then
+        Allocate(ExpOp(Op%N), ExpMop(Op%N))
         call FillExpOps(ExpOp, ExpMop, Op, spin)
         call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
         call opexpmult(VH, Op%U, Op%P, Mat, ExpMOp, Op%N, Ndim)
         call copy_select_columns(VH, Mat, Op%P, Op%N, Ndim)
         call opexpmultct(VH, Op%U, Op%P, Mat, ExpOp, Op%N, Ndim)
+        Deallocate(ExpOp, ExpMop)
     elseif (N_Type == 2) then
         if(Op%N > 1) then
             call copy_select_rows(VH, Mat, Op%P, Op%N, Ndim)
