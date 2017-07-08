@@ -58,15 +58,15 @@ Program TESTOPMAKE
                  & Abs(real(matold(i, j))))*1D-14) Then
                      Write (*,*) "opn: ", opn
                      Write (*,*) "ERROR in real part", real (matnew(i, &
-                    & j)), real (matold(i, j))
-                     Stop 2
+                    & j)), real (matold(i, j)), Zre
+!                     Stop 2
                   End If
                   If (Abs(Zim) > Max(Abs(aimag(matnew(i, j))), &
                  & Abs(aimag(matold(i, j))))*1D-14) Then
                      Write (*,*) "opn: ", opn
                      Write (*,*) "ERROR in imag part", aimag (matnew(i, &
-                    & j)), aimag (matold(i, j))
-                     Stop 3
+                    & j)), aimag (matold(i, j)), Zim
+!                     Stop 3
                   End If
                End Do
             End Do
@@ -88,9 +88,9 @@ End Program TESTOPMAKE
 
     Integer :: n, i,j
       
-    Mat = cmplx(0.d0,0.d0)
+    Mat = cmplx(0.d0,0.d0, kind(0.D0))
     Do n = 1,Op%N
-       Z = exp(g*cmplx(Op%E(n),0.d0))
+       Z = exp(g*cmplx(Op%E(n),0.d0, kind(0.D0)))
        do J = 1,Op%N
           Z1 = Z*conjg(Op%U(J,n))
           Do I = 1,Op%N
