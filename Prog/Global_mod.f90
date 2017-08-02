@@ -373,7 +373,7 @@ Module Global_mod
         if ( nsigma_old_irank /= nsigma_irank ) then
            CALL MPI_Sendrecv(Phase,     1, MPI_COMPLEX16, nsigma_old_irank, 0, &
                     &        Phase_new, 1, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
-           Phase = Phasse_new
+           Phase = Phase_new
                     
            n_GR = size(GR,1)*size(GR,2)*size(GR,3)
            Allocate ( GR_new(size(GR,1),size(GR,2),size(GR,3)) )
