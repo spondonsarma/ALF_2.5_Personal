@@ -47,7 +47,9 @@ MODULE UDV_State_mod
             PROCEDURE :: matmultleft => matmultleft_UDV_state
             PROCEDURE :: matmultright => matmultright_UDV_state
             PROCEDURE :: print => print_UDV_state
+#if defined(MPI)
             PROCEDURE :: MPI_Sendrecv => MPI_Sendrecv_UDV_state
+#endif
             GENERIC :: ASSIGNMENT(=) => assign
     END TYPE UDV_State
 
@@ -294,6 +296,7 @@ END SUBROUTINE matmultleft_UDV_state
 !> @param [out] STATUS
 !> @param [out] IERR
 !-------------------------------------------------------------------
+#if defined(MPI) 
  SUBROUTINE MPI_Sendrecv_UDV_state(this, dest, sendtag, source, recvtag, STATUS, IERR)
         Implicit None
         include 'mpif.h'
@@ -324,5 +327,6 @@ END SUBROUTINE matmultleft_UDV_state
         this%D = D_temp
         DEALLOCATE(D_temp)
 END SUBROUTINE MPI_Sendrecv_UDV_state
+#endif
 
 END MODULE UDV_State_mod
