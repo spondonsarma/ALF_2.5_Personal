@@ -225,11 +225,12 @@ Module Global_mod
            Do I = 0,Isize-1
               If (Irank == I ) Then
                  ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
-                 CALL MPI_SEND(nsigma_old,n, MPI_INTEGER  , List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+                 CALL MPI_SEND(nsigma_old      ,n, MPI_INTEGER, List_partner(I), I+512, MPI_COMM_WORLD,IERR)
+                 CALL MPI_SEND(nsigma_old_irank,1, MPI_INTEGER, List_partner(I), I+512, MPI_COMM_WORLD,IERR)
               else if (IRANK == List_Partner(I) ) Then
                  ! Write(6,*) 'Rec from ', List_partner(IRANK), 'on, ', IRANK, I + 512
-                 CALL MPI_RECV(nsigma   , n, MPI_INTEGER,   List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-                 nsigma_irank = List_partner(IRANK)
+                 CALL MPI_RECV(nsigma       , n, MPI_INTEGER, List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+                 CALL MPI_RECV(nsigma_irank , 1, MPI_INTEGER, List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
               endif
            enddo
            
@@ -380,7 +381,19 @@ Module Global_mod
            CALL MPI_Sendrecv(GR,     n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
                     &        GR_new, n_GR, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
            GR = GR_new
+           Deallocate ( GR_new )
            ! TODO: tranmission of udvr, udvl, udvst still missing
+           do nf = 1,N_Fl
+              CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+           enddo
+           do nf = 1,N_Fl
+              CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+           enddo
+           do NST = 1, NSTM
+              do nf = 1,N_Fl
+                 CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+           enddo
         endif
     endif
         
@@ -388,8 +401,6 @@ Module Global_mod
     if (Tempering_calc_det) then
         Deallocate ( Det_vec_old, Det_vec_new ) 
         Deallocate ( Phase_Det_new, Phase_Det_old )
-    else
-        Deallocate ( GR_new )
     endif
         Deallocate ( List_partner, List_masters )
         
