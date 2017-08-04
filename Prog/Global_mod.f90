@@ -357,86 +357,51 @@ Module Global_mod
         Enddo
         call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
     else
-!         !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
-!         !TODO 
-!         !  First step: Each node sends to IRANK=0 its value nsigma_irank, which is the node where its new Phase, GR, udvr, udvl, udvst is stored
-!         !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
-!         !              Finally, the variables get submitted
-!         If (Irank == 0) then
-!            Do I = 1,Isize-1
-!               CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
-!               If ( nsigma_irank_temp == 0) then
-!                  nsigma_old_irank = I
-!               else
-!                  CALL MPI_SEND(I , 1, MPI_INTEGER, nsigma_irank_temp, 0, MPI_COMM_WORLD,IERR)
-!               endif
-!            enddo
-!            If ( nsigma_irank /= 0 ) then
-!               CALL MPI_SEND(0 , 1, MPI_INTEGER, nsigma_irank, 0, MPI_COMM_WORLD,IERR)
-!            endif
-!         else
-!            CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
-!            CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
-!         endif
-!         
-!         if ( nsigma_old_irank /= nsigma_irank ) then
-!            CALL MPI_Sendrecv(Phase,     1, MPI_COMPLEX16, nsigma_old_irank, 0, &
-!                     &        Phase_new, 1, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
-!            Phase = Phase_new
-!            
-!            n_GR = size(GR,1)*size(GR,2)*size(GR,3)
-!            Allocate ( GR_new(size(GR,1),size(GR,2),size(GR,3)) )
-!            CALL MPI_Sendrecv(GR,     n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
-!                     &        GR_new, n_GR, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
-!            GR = GR_new
-!            Deallocate ( GR_new )
-!            
-!            do nf = 1,N_Fl
-!               CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-!            enddo
-!            do nf = 1,N_Fl
-!               CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-!            enddo
-!            do NST = 1, NSTM
-!               do nf = 1,N_Fl
-!                  CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-!               enddo
-!            enddo
-!            
-!            !Test
-!            Allocate ( nsigma_test(n1,n2) )
-!            CALL MPI_Sendrecv(nsigma_orig, n, MPI_INTEGER, nsigma_old_irank, 0, &
-!                     &        nsigma_test, n, MPI_INTEGER, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
-!            do I1 = 1,n1
-!               do I2 = 1,n2
-!                 if ( nsigma_test(I1,I2) /= nsigma(I1,I2) ) Write(6,*) "Error"
-!               enddo
-!            enddo
-!         endif
-!         If (.not.TOGGLE) then
-           DO nf = 1,N_FL
-              CALL udvl(nf)%reset
-           ENDDO
-           DO NST = NSTM-1,1,-1
-              NT1 = Stab_nt(NST+1)
-              NT  = Stab_nt(NST  )
-              !Write(6,*) NT1,NT, NST
-              CALL WRAPUL(NT1,NT, udvl)
-              Do nf = 1,N_FL
-                 udvst(NST, nf) = udvl(nf)
-              ENDDO
-           ENDDO
-           NT1 = stab_nt(1)
-           CALL WRAPUL(NT1,0, udvl)
-!         Endif
-        !> Compute the Green functions so as to provide correct starting point for the sequential updates.
-        NVAR  = 1
-        Phase = cmplx(1.d0,0.d0,kind(0.d0))
-        do nf = 1,N_Fl
-           CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
-           Phase = Phase*Z
-        Enddo
-        call Op_phase(Phase,OP_V,Nsigma,N_SUN)  
+        !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
+        !  First step: Each node sends to IRANK=0 its value nsigma_irank, which is the node where its new Phase, GR, udvr, udvl, udvst is stored
+        !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
+        !              Finally, the variables get submitted
+        If (Irank == 0) then
+           Do I = 1,Isize-1
+              CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
+              If ( nsigma_irank_temp == 0) then
+                 nsigma_old_irank = I
+              else
+                 CALL MPI_SEND(I , 1, MPI_INTEGER, nsigma_irank_temp, 0, MPI_COMM_WORLD,IERR)
+              endif
+           enddo
+           If ( nsigma_irank /= 0 ) then
+              CALL MPI_SEND(0 , 1, MPI_INTEGER, nsigma_irank, 0, MPI_COMM_WORLD,IERR)
+           endif
+        else
+           CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
+           CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
+        endif
+        
+        if ( nsigma_irank /= irank ) then
+           CALL MPI_Sendrecv(Phase,     1, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                    &        Phase_new, 1, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
+           Phase = Phase_new
+           
+           n_GR = size(GR,1)*size(GR,2)*size(GR,3)
+           Allocate ( GR_new(size(GR,1),size(GR,2),size(GR,3)) )
+           CALL MPI_Sendrecv(GR,     n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                    &        GR_new, n_GR, MPI_COMPLEX16, nsigma_irank    , 0, MPI_COMM_WORLD,STATUS,IERR)
+           GR = GR_new
+           Deallocate ( GR_new )
+           
+           do nf = 1,N_Fl
+              CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+           enddo
+           do nf = 1,N_Fl
+              CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+           enddo
+           do NST = 1, NSTM
+              do nf = 1,N_Fl
+                 CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+           enddo
+        endif   
     endif
         
         Deallocate ( nsigma_old )
