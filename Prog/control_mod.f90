@@ -51,6 +51,7 @@
     Integer (Kind=Kind(0.d0)), private, save :: count_CPU_start,count_CPU_end,count_rate,count_max
     Integer          , private, save :: NCG, NCG_tau
     Integer (Kind=Kind(0.d0)) , private, save :: NC_up, ACC_up
+    Integer (Kind=Kind(0.d0)) , private, save :: NC_eff_up, ACC_eff_up
     Integer (Kind=kind(0.d0)),  private, save :: NC_Glob_up, ACC_Glob_up
     Integer (Kind=kind(0.d0)),  private, save :: NC_Temp_up, ACC_Temp_up 
     real    (Kind=Kind(0.d0)),  private, save :: XMAXP_Glob, XMEANP_Glob
@@ -73,6 +74,8 @@
         NCG_tau      = 0
         NC_up        = 0
         ACC_up       = 0
+        NC_eff_up    = 0
+        ACC_eff_up   = 0
         NC_Glob_up   = 0
         ACC_Glob_up  = 0
         NC_Phase_GLob= 0
@@ -89,6 +92,13 @@
         NC_up = NC_up + 1
         if (toggle) ACC_up = ACC_up + 1
       end Subroutine Control_upgrade
+      
+      Subroutine Control_upgrade_eff(toggle) 
+        Implicit none
+        Logical :: toggle
+        NC_eff_up = NC_eff_up + 1
+        if (toggle) ACC_eff_up = ACC_eff_up + 1
+      end Subroutine Control_upgrade_eff
 
       Subroutine Control_upgrade_Temp(toggle) 
         Implicit none
@@ -164,7 +174,7 @@
         include 'mpif.h'
 #endif
         Character (len=64) :: file1 
-        Real (Kind=Kind(0.d0)) :: Time, Acc, Acc_Glob, Acc_Temp
+        Real (Kind=Kind(0.d0)) :: Time, Acc, Acc_eff, Acc_Glob, Acc_Temp
 #ifdef MPI
         REAL (Kind=Kind(0.d0))  :: X
         Integer        :: Ierr, Isize, Irank, irank_g, isize_g, igroup
@@ -178,6 +188,8 @@
        
         ACC = 0.d0
         IF (NC_up > 0 )  ACC = dble(ACC_up)/dble(NC_up)
+        ACC_eff = 0.d0
+        IF (NC_eff_up > 0 )  ACC_eff = dble(ACC_eff_up)/dble(NC_eff_up)
         ACC_Glob = 0.d0
         IF (NC_Glob_up    > 0 )  ACC_Glob    = dble(ACC_Glob_up)/dble(NC_Glob_up)
         ACC_TEMP = 0.d0
@@ -192,6 +204,9 @@
         X = 0.d0
         CALL MPI_REDUCE(ACC,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         ACC = X/dble(Isize_g)
+        X = 0.d0
+        CALL MPI_REDUCE(ACC_eff,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
+        ACC_eff = X/dble(Isize_g)
         X = 0.d0
         CALL MPI_REDUCE(ACC_Glob,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         ACC_Glob = X/dble(Isize_g)
@@ -250,6 +265,7 @@
               Write(50,*) ' Precision tau    Mean, Max : ', XMEAN_tau, XMAX_tau
            endif
            Write(50,*) ' Acceptance                 : ', ACC
+           Write(50,*) ' Effective Acceptance       : ', ACC_eff
 #if defined(TEMPERING) 
            Write(50,*) ' Acceptance Tempering       : ', ACC_Temp
 #endif
