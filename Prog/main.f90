@@ -313,6 +313,7 @@ Program Main
 #if defined(TEMPERING) 
            Write(50,*) '# of exchange steps  ',N_exchange_steps 
            Write(50,*) 'Tempering frequency  ',N_Tempering_frequency
+           Write(50,*) 'Tempering Calc_det   ',Tempering_calc_det
 #endif
            close(50)
 #if defined(MPI) 
