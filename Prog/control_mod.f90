@@ -227,6 +227,8 @@
         CALL MPI_REDUCE(ACC_Glob,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         ACC_Glob = X/dble(Isize_g)
         X = 0.d0
+        CALL MPI_REDUCE(ACC_Temp ,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
+        ACC_Temp  = X/dble(Isize_g)
         
         X = 0.d0
         CALL MPI_REDUCE(size_clust_Glob,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
@@ -234,9 +236,6 @@
         X = 0.d0
         CALL MPI_REDUCE(size_clust_Glob_ACC,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         size_clust_Glob_ACC = X/dble(Isize_g)
-        
-        CALL MPI_REDUCE(ACC_Temp ,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
-        ACC_Temp  = X/dble(Isize_g)
 
 
         X = 0.d0
