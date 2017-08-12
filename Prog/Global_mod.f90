@@ -227,17 +227,10 @@ Module Global_mod
 
            !>  Exchange configurations
            n = size(nsigma_old,1)*size(nsigma_old,2)
-           Do I = 0,Isize-1
-              If (Irank == I ) Then
-                 ! Write(6,*) 'Send from ', I, 'to, ', List_partner(I), I + 512
-                 CALL MPI_SEND(nsigma_old      ,n, MPI_INTEGER, List_partner(I), I+512, MPI_COMM_WORLD,IERR)
-                 CALL MPI_SEND(nsigma_old_irank,1, MPI_INTEGER, List_partner(I), I+512, MPI_COMM_WORLD,IERR)
-              else if (IRANK == List_Partner(I) ) Then
-                 ! Write(6,*) 'Rec from ', List_partner(IRANK), 'on, ', IRANK, I + 512
-                 CALL MPI_RECV(nsigma       , n, MPI_INTEGER, List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-                 CALL MPI_RECV(nsigma_irank , 1, MPI_INTEGER, List_partner(IRANK), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
-              endif
-           enddo
+           CALL MPI_Sendrecv(nsigma_old      , n, MPI_INTEGER, List_partner(IRANK), 0, &
+                    &        nsigma          , n, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+           CALL MPI_Sendrecv(nsigma_old_irank, 1, MPI_INTEGER, List_partner(IRANK), 0, &
+                    &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            
            !>  Each node now has a new configuration nsigma
            
@@ -455,6 +448,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:), Phase_Det_new(:), Phase_Det_old(:)
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
         Logical :: TOGGLE, L_Test
+        Real    (Kind=Kind(0.d0)) :: size_clust
         
         
         
@@ -512,7 +506,7 @@ Module Global_mod
         Do n = 1,N_Global
            !> Draw a new spin configuration. This is provided by the user in the Hamiltonian module
            !> Note that nsigma is a variable in the module Hamiltonian
-           Call Global_move(T0_Proposal_ratio,nsigma_old)
+           Call Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
            If (T0_Proposal_ratio > 1.D-24) then
               NC = NC + 1
               !> Compute the new Green function
@@ -561,7 +555,7 @@ Module Global_mod
               else
                  nsigma = nsigma_old
               endif
-              Call Control_upgrade_Glob(TOGGLE)
+              Call Control_upgrade_Glob(TOGGLE,size_clust)
            endif
         Enddo
         
