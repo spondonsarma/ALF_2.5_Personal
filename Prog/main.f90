@@ -146,7 +146,7 @@ Program Main
 #endif
         
 #if defined(TEMPERING) && defined(MPI)
-        mpi_per_parameter_set = 1  ! Default value
+        mpi_per_parameter_set = 1   ! Default value
         Tempering_calc_det = .true. ! Default value
         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
         IF (ierr /= 0) THEN
