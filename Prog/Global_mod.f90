@@ -118,8 +118,8 @@ Module Global_mod
         Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp ! Keeps track of where the configuration originally comes from
         Integer        :: n_GR
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), allocatable :: GR_new
-!         Integer, Dimension(:,:),  allocatable :: nsigma_orig, nsigma_test
-!         Integer :: I1, I2
+        !Integer, Dimension(:,:),  allocatable :: nsigma_orig, nsigma_test
+        !Integer :: I1, I2
         
         Integer        :: Isize, Irank, Ierr, irank_g, isize_g, igroup
         Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -136,33 +136,33 @@ Module Global_mod
         n2 = size(nsigma,2)
         NSTM = Size(udvst, 1)
         Allocate ( nsigma_old(n1,n2) )
-    if (Tempering_calc_det) then
-        Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
-        Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
-    endif
+        if (Tempering_calc_det) then
+           Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
+           Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
+        endif
         Allocate ( List_partner(0:Isize-1), List_masters(Isize/2) )
         
-!         Allocate ( nsigma_orig(n1,n2) )
-!         nsigma_orig = nsigma
+        !         Allocate ( nsigma_orig(n1,n2) )
+        !         nsigma_orig = nsigma
         
         !>  Compute for each core the old weights.     
         L_test = .false.
-    if (Tempering_calc_det) then
-        ! Set old weight. 
-        Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
-        do nf = 1,N_Fl
-           Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
-           Phase_det_old(nf) = Z
-           Phase_old = Phase_old*Z
-        Enddo
-        call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
-    endif
+        if (Tempering_calc_det) then
+           ! Set old weight. 
+           Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
+           do nf = 1,N_Fl
+              Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
+              Phase_det_old(nf) = Z
+              Phase_old = Phase_old*Z
+           Enddo
+           call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+        endif
         !> Store old configuration
         nsigma_old = nsigma
         nsigma_old_irank = nsigma_irank
         ! Setup the list of masters
         nc = 0
-        Do I  = 0,Isize-1,2*isize_g
+        Do I  = 0,Isize-1,2*Isize_g
            do n = 0,isize_g-1
               nc = nc + 1
               List_masters(nc)  = I + n
@@ -182,22 +182,12 @@ Module Global_mod
            If (Irank == 0 ) then
               n_step = isize_g
               if (  ranf_wrap() > 0.5d0 ) n_step = -isize_g
-              !write(6,*) 'Step: ', n_step
-              if ( n_step  > 0 ) then
-                 Do I = 0,Isize-1,2*isize_g
-                    do n = 0,isize_g-1
-                       List_partner(I + n ) =  npbc_tempering(I + n   + n_step,Isize)
-                       List_partner(npbc_tempering(I  + n  + n_step, Isize)) =  I + n
-                    enddo
+              Do I = 0,Isize-1,2*isize_g
+                 do n = 0,isize_g-1
+                    List_partner(npbc_tempering(I  + n             ,Isize)) =  npbc_tempering(I +  n   + n_step,Isize)
+                    List_partner(npbc_tempering(I  + n  + n_step  , Isize)) =  npbc_tempering(I + n            ,Isize)
                  enddo
-              else
-                 Do I = 0,Isize-1,2*isize_g
-                    do n = 0,isize_g-1
-                       List_partner(npbc_tempering(I - n             ,Isize)) =  npbc_tempering(I -  n   + n_step,Isize)
-                       List_partner(npbc_tempering(I  -  n  + n_step, Isize)) =  npbc_tempering(I - n            ,Isize)
-                    enddo
-                 enddo
-              endif
+              enddo
            endif
 
            CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
@@ -207,7 +197,9 @@ Module Global_mod
                  Write(6,*) 'Testing global : '
                  do  I = 0,Isize -1 
                     Write(6,*)  I, List_partner(I) !, Phase_old, Phase
+                    Write(11,*)  I, List_partner(I) !, Phase_old, Phase
                  enddo
+                 Write(11,*)
               endif
            Endif
            !call MPI_Barrier(MPI_COMM_WORLD)
@@ -269,12 +261,12 @@ Module Global_mod
                 &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
            
            If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
-    else
+        else
            Ratiotot = Delta_S0_global(Nsigma_old)
            Ratio(1) = Ratiotot
            Ratio(2) = 0
-    endif
-           
+        endif
+    
            !>  Acceptace/rejection decision taken on master node after receiving information from slave
            Do nc = 1,Isize/2 ! Loop over masters
               I = List_masters(nc)
