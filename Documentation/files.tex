@@ -128,11 +128,16 @@ If the program is compiled with the parallel tempering flag, then the additional
 \lstset{style=fortran}
 \begin{lstlisting} 
 
-&VAR_TEMP                ! Variables for  parallel tempering
-N_exchange_steps     =6  ! Number of exchange moves (be more precise)
-N_Tempering_frequency=10 ! The frequency in units of sweeps at which  
-                         ! the exchange moves will be carried 
-mpi_per_parameter_set=2  ! Number of mpi-processes per parameter set
+&VAR_TEMP                    ! Variables for  parallel tempering
+N_exchange_steps     =6      ! Number of exchange moves (be more precise)
+N_Tempering_frequency=10     ! The frequency in units of sweeps at which  
+                             ! the exchange moves will be carried 
+mpi_per_parameter_set=2      ! Number of mpi-processes per parameter set
+Tempering_calc_det   =.true. ! Specifies whether the fermion weight has to
+                             ! be taken into account while tempering. The
+                             ! default is .true., can be set to .false. if
+                             ! the parameters that get varied only enter 
+                             ! the Ising action S_0
 /
 \end{lstlisting}
 
