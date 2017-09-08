@@ -479,7 +479,7 @@
 
           Test = .false.
           If (Model == "Hubbard_SU2_Ising" ) then
-             if ( ranf_wrap() > 1.5d0 ) then
+             if ( ranf_wrap() > 0.5d0 ) then
                 ! Move kinks along the imaginary time axis.
                 if (Test) write(6,*) '********Global *******'
                 Allocate ( Kinks(Ltrot), W(0:Ltrot), Pos(0:Ltrot), W1(0:Ltrot) )
