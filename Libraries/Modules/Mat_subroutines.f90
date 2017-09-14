@@ -11,49 +11,43 @@ subroutine ZSLMM(side, op, N, M, A, P, Mat)
         Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(4)
         INTEGER :: I,L,IDX, NUMBLOCKS
         INTEGER, DIMENSION(:), ALLOCATABLE :: IDXLIST, DIMLIST
-        LOGICAL :: COMPACT, LEFT
-        
-        
-        IF ( side == 'L' .or. side == 'l' ) THEN
-          ! multiply op(A) from the left [ Mat = op(A)*Mat ]
-          LEFT = .TRUE.
-        ELSEIF ( side == 'R' .or. side == 'r' ) THEN
-          LEFT = .FALSE.
-        ELSE
-          write(*,*) 'Illegal argument for side: It is not one of [R,r,L,l] !'
-          call EXIT(1)
-        ENDIF
+        LOGICAL :: COMPACT, ALLOC
         
         alpha = 1.D0
         beta = 0.D0
         
         !identify possible block structure
-        COMPACT = .TRUE.
-        L = 1
-        IDX = 1
-        ALLOCATE(IDXLIST(N),DIMLIST(N))
-        NUMBLOCKS=0
-        DO I=1,N-1
-          IF ( P(I)+1 .ne. P(I+1) ) THEN
-            COMPACT = .FALSE.
-            NUMBLOCKS=NUMBLOCKS+1
-            IDXLIST(NUMBLOCKS)=IDX
-            DIMLIST(NUMBLOCKS)=L
-            IDX=IDX+L
-            L=1
-          ELSE
-            L=L+1
+        !only used in default case for n>4
+        IF(N > 4) THEN
+          COMPACT = .TRUE.
+          L = 1
+          IDX = 1
+          ALLOCATE(IDXLIST(N),DIMLIST(N))
+          ALLOC = .TRUE.
+          NUMBLOCKS=0
+          DO I=1,N-1
+            IF ( P(I)+1 .ne. P(I+1) ) THEN
+              COMPACT = .FALSE.
+              NUMBLOCKS=NUMBLOCKS+1
+              IDXLIST(NUMBLOCKS)=IDX
+              DIMLIST(NUMBLOCKS)=L
+              IDX=IDX+L
+              L=1
+            ELSE
+              L=L+1
+            ENDIF
+          ENDDO
+          IF(IDX<N+1) THEN
+            ! last block if need be
+              NUMBLOCKS=NUMBLOCKS+1
+              IDXLIST(NUMBLOCKS)=IDX
+              DIMLIST(NUMBLOCKS)=L
           ENDIF
-        ENDDO
-        IF(IDX<N+1) THEN
-          ! last block if need be
-            NUMBLOCKS=NUMBLOCKS+1
-            IDXLIST(NUMBLOCKS)=IDX
-            DIMLIST(NUMBLOCKS)=L
         ENDIF
         
-        IF (LEFT) THEN
-          ! multiply op(A) from the left [ Mat = op(A)*Mat ]
+        IF ( side == 'L' .or. side == 'l' ) THEN
+          ! multiply op(A) from the left  [ Mat = op(A)*Mat ]
+          
           SELECT CASE(N)
           CASE (1)
             ! Here only one row is rescaled
@@ -111,10 +105,12 @@ subroutine ZSLMM(side, op, N, M, A, P, Mat)
               DEALLOCATE(WORK2)
             ENDIF
             !free memory of first mat copy
-            DEALLOCATE(WORK)
+            DEALLOCATE(WORK,IDXLIST,DIMLIST)
           END SELECT
-        ELSE
+          
+        ELSEIF ( side == 'R' .or. side == 'r' ) THEN
           ! multiply op(A) from the right [ Mat = Mat*op(A) ]
+          
           SELECT CASE(N)
           CASE (1)
             ! Here only one column is rescaled
@@ -172,10 +168,13 @@ subroutine ZSLMM(side, op, N, M, A, P, Mat)
               DEALLOCATE(WORK2)
             ENDIF 
             !free memory of first mat copy
-            DEALLOCATE(WORK)
+            DEALLOCATE(WORK,IDXLIST,DIMLIST)
           END SELECT
+          
+        ELSE
+          write(*,*) 'Illegal argument for side: It is not one of [R,r,L,l] !'
+          call EXIT(1)
         ENDIF
-        DEALLOCATE(IDXLIST,DIMLIST)
 
 end subroutine ZSLMM
 
@@ -251,21 +250,5 @@ PROGRAM Main
         enddo
         Deallocate(Mat,MatL,MatR)
         write(*,*) "SUCCESS"
+        
 END PROGRAM Main
-
-!     select case (opn)
-!     case (1)
-!         DO I = 1, Ndim
-!             Mat(P(1), I) = V(1, I)
-!         enddo
-!     case (2)
-!         DO I = 1, Ndim
-!             Mat(P(1), I) = U(1, 1) * V(1, I) - conjg(U(2, 1)) * V(2, I)
-!             Mat(P(2), I) = U(2, 1) * V(1, I) + conjg(U(1, 1)) * V(2, I)
-!         enddo
-!     case default
-!         Allocate(tmp(opn, Ndim))
-!         CALL ZGEMM('N','N', opn, Ndim, opn, alpha, U(1, 1), opn, V(1, 1), opn, beta, tmp(1, 1), opn)
-!         Mat((P), :) = tmp
-!         Deallocate(tmp)
-!     end select
