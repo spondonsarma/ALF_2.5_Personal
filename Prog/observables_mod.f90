@@ -135,7 +135,8 @@
            Complex (Kind=Kind(0.d0)):: Z
            Real    (Kind=Kind(0.d0)):: X
            Integer         :: Ierr, Isize, Irank
-           INTEGER         :: STATUS(MPI_STATUS_SIZE),irank_g, isize_g, igroup
+           INTEGER         :: irank_g, isize_g, igroup
+
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
            call MPI_Comm_rank(Group_Comm, irank_g, ierr)
@@ -214,12 +215,11 @@
 #if defined(MPI) 
            Endif
 #endif
-              
+
            deallocate (Tmp, tmp1 )
-          
 
          End Subroutine Print_bin_Latt
-         
+
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
@@ -228,32 +228,29 @@
 #endif
            Implicit none
 
-
            Type (Obser_vec), intent(Inout) :: Obs
            Integer, INTENT(IN)  :: Group_Comm
 
            ! Local
            Integer :: No,I
            Character (len=64)             :: File_pr, File_suff
-
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
-           INTEGER        :: STATUS(MPI_STATUS_SIZE),irank_g, isize_g, igroup
+           INTEGER        :: irank_g, isize_g, igroup
            Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
            Real     (Kind=Kind(0.d0)) :: X
+
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
            call MPI_Comm_rank(Group_Comm, irank_g, ierr)
            call MPI_Comm_size(Group_Comm, isize_g, ierr)
            igroup           = irank/isize_g
 #endif
-           
            No = size(Obs%Obs_vec,1)
            Obs%Obs_vec  = Obs%Obs_vec /dble(Obs%N)
            Obs%Ave_sign = Obs%Ave_sign/dble(Obs%N)
            File_suff ="_scal"
            File_pr = file_add(Obs%File_Vec,File_suff)
-
 
 #if defined(MPI) 
            Allocate (Tmp(No) )
@@ -278,8 +275,7 @@
 #if defined(MPI) 
            endif
 #endif
-           
+
          End Subroutine Print_bin_Vec
 
-         
        end Module Observables
