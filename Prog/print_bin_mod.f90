@@ -10,7 +10,7 @@
          Subroutine  Print_bin_C(Dat_eq,Dat_eq0,Latt, Nobs, Phase_bin_tmp, file_pr)
            Use Lattices_v3
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 
@@ -94,7 +94,7 @@
          Subroutine  Print_bin_R(Dat_eq,Dat_eq0,Latt, Nobs, Phase_bin_tmp, file_pr)
            Use Lattices_v3
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 
@@ -144,7 +144,6 @@
            Dat_eq0 = Tmp1/DBLE(ISIZE)
 
 #endif
-           
               do no = 1,Norb
                  do no1 = 1,Norb
                     Call  Fourier_R_to_K(Dat_eq(:,no,no1), Tmp(:,no,no1), Latt)
@@ -174,7 +173,7 @@
 !============================================================
          Subroutine  Print_scal(Obs, Nobs, file_pr)
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 
@@ -215,7 +214,7 @@
          Subroutine  Print_bin_tau(Dat_tau, Latt, Nobs, Phase_bin, file_pr, dtau, Dat0_tau)
            Use Lattices_v3
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 

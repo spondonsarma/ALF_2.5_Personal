@@ -69,7 +69,7 @@
 
         Subroutine Ham_Set
 #ifdef MPI
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 
@@ -1453,7 +1453,7 @@
 
           Use Print_bin_mod
 #ifdef MPI
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 

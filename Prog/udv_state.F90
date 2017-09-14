@@ -298,7 +298,7 @@ END SUBROUTINE matmultleft_UDV_state
 !-------------------------------------------------------------------
 #if defined(MPI) 
  SUBROUTINE MPI_Sendrecv_UDV_state(this, dest, sendtag, source, recvtag, STATUS, IERR)
-        Use mpi_f08
+        Use mpi
         Implicit None
 
         CLASS(UDV_State), INTENT(INOUT) :: this

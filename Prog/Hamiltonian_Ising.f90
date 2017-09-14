@@ -50,7 +50,7 @@
       
          Subroutine Ham_Set
 #ifdef MPI
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 
@@ -481,7 +481,7 @@
         Subroutine  Pr_obs(LTAU)
           Use Print_bin_mod
 #ifdef MPI
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 

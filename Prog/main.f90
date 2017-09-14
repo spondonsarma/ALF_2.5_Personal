@@ -53,8 +53,8 @@ Program Main
         Use UDV_State_mod
         Use Wrapgr_mod
 #ifdef MPI
-        Use mpi_f08
-#endif   
+        Use mpi
+#endif
         Implicit none
 
 #include "git.h"

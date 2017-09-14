@@ -44,7 +44,7 @@
 
          USE HAMILTONIAN
 #ifdef MPI
-         Use mpi_f08
+         Use mpi
 #endif
          IMPLICIT NONE
 

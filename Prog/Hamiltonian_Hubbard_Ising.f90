@@ -47,7 +47,7 @@
 
       Subroutine Ham_Set
 #if defined (MPI) || defined(TEMPERING)
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 
@@ -1489,7 +1489,7 @@
 
       Subroutine Print_fluxes
 #if defined (MPI) || defined(TEMPERING)
-        Use mpi_f08
+        Use mpi
 #endif
         Implicit none
 

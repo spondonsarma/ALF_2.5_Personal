@@ -37,7 +37,7 @@
 
       Subroutine Ham_Set
 #ifdef MPI
-          Use mpi_f08
+          Use mpi
 #endif
           Implicit none
 

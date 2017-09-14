@@ -174,11 +174,11 @@
         XMEANP_Glob = XMEANP_Glob + X
         NC_Phase_GLob = NC_Phase_GLob + 1
       End Subroutine Control_PrecisionP_Glob
-      
-      
+
+
       Subroutine Control_Print(Group_Comm)
 #ifdef MPI
-        Use mpi_f08
+        Use mpi
 #endif
         Implicit none
 
@@ -309,8 +309,8 @@
 #endif
 
       end Subroutine Control_Print
-      
-     
+
+
       subroutine make_truncation(prog_truncation,cpu_max,count_bin_start,count_bin_end)
       !!!!!!! Written by M. Bercx
       ! This subroutine checks if the conditions for a controlled termination of the program are met.
@@ -318,7 +318,7 @@
       ! if time_remain/time_bin_duration < threshold the program terminates.
 
 #ifdef MPI
-      Use mpi_f08
+      Use mpi
 #endif
 
       logical, intent(out)                 :: prog_truncation

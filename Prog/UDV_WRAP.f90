@@ -192,7 +192,7 @@
 !***************************************************************
      Subroutine UDV_Wrap(A,U,D,V,NCON)
 #ifdef MPI
-       USE mpi_f08
+       USE mpi
 #endif
 
        Implicit None

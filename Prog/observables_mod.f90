@@ -116,7 +116,7 @@
          Subroutine  Print_bin_Latt(Obs,Latt,dtau,Group_Comm)
            Use Lattices_v3
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 
@@ -224,7 +224,7 @@
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
 #ifdef MPI
-           Use mpi_f08
+           Use mpi
 #endif
            Implicit none
 
