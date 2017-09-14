@@ -189,7 +189,7 @@
 #ifdef MPI
         REAL (Kind=Kind(0.d0))  :: X
         Integer        :: Ierr, Isize, Irank, irank_g, isize_g, igroup
-        INTEGER        :: STATUS(MPI_STATUS_SIZE)
+
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
         call MPI_Comm_rank(Group_Comm, irank_g, ierr)
@@ -238,7 +238,6 @@
         CALL MPI_REDUCE(size_clust_Glob_ACC,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         size_clust_Glob_ACC = X/dble(Isize_g)
 
-
         X = 0.d0
         CALL MPI_REDUCE(XMEANG,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
         XMEANG = X/dble(Isize_g)
@@ -265,7 +264,7 @@
 
         CALL MPI_REDUCE(XMAXP_GLOB,X,1,MPI_REAL8,MPI_MAX, 0,Group_Comm,IERR)
         XMAXP_GLOB = X
-        
+
 #endif
 
 #if defined(TEMPERING) 
@@ -300,7 +299,6 @@
               Write(50,*) ' Average cluster size         : ', size_clust_Glob
               Write(50,*) ' Average accepted cluster size: ', size_clust_Glob_ACC
            !endif
-              
 
            Write(50,*) ' CPU Time                   : ', Time
            Close(50)
