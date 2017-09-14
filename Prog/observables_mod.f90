@@ -115,11 +115,10 @@
          
          Subroutine  Print_bin_Latt(Obs,Latt,dtau,Group_Comm)
            Use Lattices_v3
-           Implicit none
-
 #ifdef MPI
-           include 'mpif.h'
-#endif   
+           Use mpi_f08
+#endif
+           Implicit none
 
            Type (Obser_Latt),        Intent(Inout)   :: Obs
            Type (Lattice),           Intent(In)      :: Latt
@@ -224,21 +223,19 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
-           
+#ifdef MPI
+           Use mpi_f08
+#endif
            Implicit none
 
-#ifdef MPI
-           include 'mpif.h'
-#endif   
-           
+
            Type (Obser_vec), intent(Inout) :: Obs
            Integer, INTENT(IN)  :: Group_Comm
-           
+
            ! Local
            Integer :: No,I
            Character (len=64)             :: File_pr, File_suff
-           
-           
+
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            INTEGER        :: STATUS(MPI_STATUS_SIZE),irank_g, isize_g, igroup

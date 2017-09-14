@@ -70,10 +70,9 @@ Module Global_mod
 !--------------------------------------------------------------------
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
         Use UDV_State_mod
+        Use mpi_f08
         Implicit none
-        
-        include 'mpif.h'
-        
+
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
              Use Hamiltonian

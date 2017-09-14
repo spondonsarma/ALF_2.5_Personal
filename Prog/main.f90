@@ -52,14 +52,13 @@ Program Main
         Use Global_mod
         Use UDV_State_mod
         Use Wrapgr_mod
-        
-        Implicit none
 #ifdef MPI
-        include 'mpif.h'
+        Use mpi_f08
 #endif   
+        Implicit none
+
 #include "git.h"
-        
-        
+
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
              Use Hamiltonian
@@ -85,9 +84,9 @@ Program Main
              CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
-           
+
         end Interface
-        
+
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR
         CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr

@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016, 2017 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -43,14 +43,11 @@
 !--------------------------------------------------------------------
 
          USE HAMILTONIAN
-
+#ifdef MPI
+         Use mpi_f08
+#endif
          IMPLICIT NONE
 
-         
-
-#ifdef MPI
-         INCLUDE 'mpif.h'
-#endif
          ! LOCAL
          INTEGER        :: I, IERR, ISIZE, IRANK, SEED_IN, K, ISEED, NT, NR
          INTEGER, DIMENSION(:), ALLOCATABLE :: SEED_VEC

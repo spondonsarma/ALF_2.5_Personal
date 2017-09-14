@@ -48,16 +48,16 @@
 
 
       Subroutine Ham_Set
-
+#ifdef MPI
+          Use mpi_f08
+#endif
           Implicit none
 
-#ifdef MPI
-          include 'mpif.h'
-#endif   
+
 
           integer :: ierr
 
-          
+
           NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, Dtau, Beta, XB_X, Phi_X

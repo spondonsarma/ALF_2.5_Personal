@@ -177,12 +177,13 @@
       
       
       Subroutine Control_Print(Group_Comm)
+#ifdef MPI
+        Use mpi_f08
+#endif
         Implicit none
 
         Integer, Intent(IN) :: Group_Comm
-#ifdef MPI
-        include 'mpif.h'
-#endif
+
         Character (len=64) :: file1 
         Real (Kind=Kind(0.d0)) :: Time, Acc, Acc_eff, Acc_Glob, Acc_Temp, size_clust_Glob, size_clust_Glob_ACC
 #ifdef MPI
@@ -317,9 +318,9 @@
       ! if time_remain/time_bin_duration < threshold the program terminates.
 
 #ifdef MPI
-  include 'mpif.h'
-#endif  
-    
+      Use mpi_f08
+#endif
+
       logical, intent(out)                 :: prog_truncation
       real(kind=kind(0.d0)), intent(in)    :: cpu_max
       integer(kind=kind(0.d0)), intent(in) :: count_bin_start, count_bin_end

@@ -191,29 +191,29 @@
 
 !***************************************************************
      Subroutine UDV_Wrap(A,U,D,V,NCON)
-
+#ifdef MPI
+       USE mpi_f08
+#endif
 
        Implicit None
-#ifdef MPI            
-       INCLUDE 'mpif.h'
-#endif
+
        COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U,V
        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:) :: D
        INTEGER, INTENT(IN) :: NCON
-       
-       !Local 
+
+       !Local
        Complex (Kind=Kind(0.d0)), Allocatable ::  A1(:,:),U1(:,:)
        Integer :: N,I,J
        character (len=64) :: file_sr, File
-#ifdef MPI  
+#ifdef MPI
        INTEGER :: STATUS(MPI_STATUS_SIZE)
        INTEGER :: Isize, Irank,Ierr
-            
+
        CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
        CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
-   
+
        File_sr = "SDV"
 #ifdef MPI 
        File = File_i(File_sr, Irank)
