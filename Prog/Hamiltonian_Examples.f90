@@ -115,6 +115,7 @@
                 Write(50,*) 'X_boundary    : ', XB_X
                 Write(50,*) 'Flux_X        : ', Phi_X
              Endif
+             Write(50,*) 'Checkerboard  : ', Checkerboard
              Close(50)
 #ifdef MPI
           Endif
@@ -474,6 +475,78 @@
                    Write(6,*) Op_T(nc,n)%E(I)
                 Enddo
              Enddo
+          else
+             select case (Lattice_type)
+             case ("Square")
+                Allocate(Op_T(N_coord*Latt%N,N_FL))
+                do n = 1,N_FL
+                   do i  =  1, N_coord*Latt%N
+                      call Op_make(Op_T(i,n),2)
+                   enddo
+                   nc = 0
+                   do I = 1,Latt%N
+                      I1 = I
+                      do nc1 = 1,N_coord
+                         nc = nc + 1
+                         if (nc1 == 1 ) I2 = latt%nnlist(I,1,0) 
+                         if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
+                         Op_T(nc,n)%P(1) = I1
+                         Op_T(nc,n)%P(2) = I2
+                         Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                         Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                         Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                         Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                         if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                            Op_T(nc,n)%g = 0.d0
+                         else
+                            Op_T(nc,n)%g = -Dtau
+                         endif
+                         Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                         Call Op_set( Op_T(nc,n) )
+                      Enddo
+                   Enddo
+                Enddo
+             case ("Pi_Flux")
+                Allocate(Op_T(N_coord*Latt%N,N_FL))
+                do n = 1,N_FL
+                   !Write(6,*) 'N_coord, Latt%N ',  N_coord, Latt%N
+                   do i  =  1, N_coord*Latt%N
+                      call Op_make(Op_T(i,n),2)
+                   enddo
+                   nc = 0
+                   do I = 1,Latt%N
+                      I1 = Invlist(I,1)
+                      do nc1 = 1,N_coord
+                         nc = nc + 1
+                         If (nc1 == 1 )  I2 = invlist(I,2)
+                         If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
+                         If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
+                         If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2) 
+                         Op_T(nc,n)%P(1) = I1
+                         Op_T(nc,n)%P(2) = I2
+                         if (nc1 == 1 ) then
+                            Op_T(nc,n)%O(1,2) = cmplx( Ham_T,    0.d0, kind(0.D0))
+                            Op_T(nc,n)%O(2,1) = cmplx( Ham_T,    0.d0, kind(0.D0))
+                         Else
+                            Op_T(nc,n)%O(1,2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                            Op_T(nc,n)%O(2,1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                         endif
+                         Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                         Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                         if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                            Op_T(nc,n)%g = 0.d0
+                         else
+                            Op_T(nc,n)%g = -Dtau
+                         endif
+                         Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                         Call Op_set( Op_T(nc,n) )
+                      Enddo
+                   Enddo
+                Enddo
+             case default
+                Write(6,*) "Checkeboard is not implemented for this lattice"
+                Stop
+             End select
           endif
           
         end Subroutine Ham_hop
@@ -822,7 +895,7 @@
           !Local 
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
           Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZZ, ZXY
-          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J
+          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J,n
           
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
@@ -846,10 +919,14 @@
              
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
-          Do nf = 1,N_FL
-             Do J = 1,Ndim
-                Zkin = Zkin + sum(Op_T(1,nf)%O(:, j)*Grc(:, j, nf))
-             ENddo
+          Do n  = 1,Size(Op_T,1)
+             Do nf = 1,N_FL
+                Do I = 1,Size(Op_T(n,nf)%O,1)
+                   Do J = 1,Size(Op_T(n,nf)%O,2)
+                      Zkin = Zkin +  Op_T(n,nf)%O(i, j)*Grc( Op_T(n,nf)%P(I), Op_T(n,nf)%P(J), nf )
+                   ENddo
+                Enddo
+             Enddo
           Enddo
           Zkin = Zkin * dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS

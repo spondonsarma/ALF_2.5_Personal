@@ -65,15 +65,15 @@
          Integer             :: L1, L2, I, N_auto, N_SUN
          Character (len=64)  :: Model, Lattice_type
          Type (Lattice)      :: Latt
-         Character (len=64) :: File_out
-         
+         Character (len=64)  :: File_out
+         Logical             :: Checkerboard	 
 
-         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN
+         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
 
 
 
-
+         Checkerboard = .false.
          N_SUN  = 1
          N_Back = 1
          N_auto = 0
