@@ -4,8 +4,8 @@
 
 &VAR_lattice 
 N_SUN = 2
-L1    = 8 
-L2    = 8 
+L1    = 4 
+L2    = 4 
 Lattice_type = "Square"   ! Square, Honeycomb,  Pi_Flux
 Model        = "t_V"      ! Hubbard_SU2, Hubbard_Mz, Hubbard_SU2_Ising, t_V
 /
@@ -22,18 +22,18 @@ dtau    = 0.1
 ham_T   =  1.0D0
 ham_chem=  0.0D0
 ham_tV  = -0.56250 
-Beta    = 6.0
-dtau    = 0.1
+Beta    = XX
+dtau    = 0.05
 /
 
 &VAR_QMC
 Nwrap   = 10
-NSweep  = 100
+NSweep  = 500
 NBin    = 2 
 Ltau    = 0
 LOBS_ST = 1
 LOBS_EN = 100
-CPU_MAX = 2.0
+CPU_MAX = 1.0
 /
 
 &VAR_Ising
