@@ -8,17 +8,37 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
         INTEGER                  , INTENT(IN)   , DIMENSION(N)   :: P
         
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: WORK, WORK2
-        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(4)
-        INTEGER :: I,L,IDX, NUMBLOCKS
+        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z_tmp, Z(8)
+        INTEGER :: I, L, K, IDX, NUMBLOCKS, op_id
         INTEGER, DIMENSION(:), ALLOCATABLE :: IDXLIST, DIMLIST
-        LOGICAL :: COMPACT, ALLOC
+        LOGICAL :: COMPACT, ALLOC, LEFT
+        
+        IF ( side == 'L' .or. side == 'l' ) THEN
+          LEFT=.true.
+        ELSEIF ( side == 'R' .or. side == 'r' ) THEN
+          LEFT=.false.
+        ELSE
+          write(*,*) 'Illegal argument for side=',side,': It is not one of [R,r,L,l] !'
+          stop 2
+        ENDIF
+        
+        IF ( op == 'N' .or. op == 'n' ) THEN
+          op_id=0
+        ELSEIF ( op == 'T' .or. op == 't' ) THEN
+          op_id=1
+        ELSEIF ( op == 'C' .or. op == 'c' ) THEN
+          op_id=2
+        ELSE
+          write(*,*) 'Illegal argument for op=',op,': It is not one of [N,n,T,t,C,c] !'
+          stop 2
+        ENDIF
         
         alpha = 1.D0
         beta = 0.D0
         
         !identify possible block structure
         !only used in default case for n>4
-        IF(N > 4) THEN
+        IF(N > 8) THEN
           COMPACT = .TRUE.
           L = 1
           IDX = 1
@@ -45,15 +65,15 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
           ENDIF
         ELSEIF(N>1) THEN
           ALLOCATE(WORK(N,N))
-          IF( op == 'N' .or. op == 'n') THEN
+          IF( op_id==0) THEN
             CALL ZLACPY('A', N, N, A(1,1), N, WORK(1,1), N)
-          ELSEIF( op == 'T' .or. op == 't' ) then
+          ELSEIF( op_id==1 ) then
             DO I=1,N
             DO L=1,N
               WORK(I,L)=A(L,I)
             ENDDO
             ENDDO
-          ELSEIF( op == 'C' .or. op == 'c' ) then
+          ELSE
             DO I=1,N
             DO L=1,N
               WORK(I,L)=conjg(A(L,I))
@@ -62,20 +82,38 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
           ENDIF
         ENDIF
         
-        IF ( side == 'L' .or. side == 'l' ) THEN
+        IF ( LEFT ) THEN
           ! multiply op(A) from the left  [ Mat = op(A)*Mat ]
           
           SELECT CASE(N)
           CASE (1)
             ! Here only one row is rescaled
-            IF(op == 'N' .or. op=='n' .or. op=='T' .or. op=='t') then
+            IF(op_id == 0 .or. op_id == 1) then
               CALL ZSCAL(M,A(1,1),Mat(P(1),1),M)
             else
               CALL ZSCAL(M,conjg(A(1,1)),Mat(P(1),1),M)
             endif
           CASE (2)
             ! perform inplace matmult
-            DO I=1,M
+            DO I=1,M,4
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(1),I+1)
+              Z(4)=Mat(P(2),I+1)
+              Z(5)=Mat(P(1),I+2)
+              Z(6)=Mat(P(2),I+2)
+              Z(7)=Mat(P(1),I+3)
+              Z(8)=Mat(P(2),I+3)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)
+              Mat(P(1),I+1)=WORK(1,1)*Z(3)+WORK(1,2)*Z(4)
+              Mat(P(2),I+1)=WORK(2,1)*Z(3)+WORK(2,2)*Z(4)
+              Mat(P(1),I+2)=WORK(1,1)*Z(5)+WORK(1,2)*Z(6)
+              Mat(P(2),I+2)=WORK(2,1)*Z(5)+WORK(2,2)*Z(6)
+              Mat(P(1),I+3)=WORK(1,1)*Z(7)+WORK(1,2)*Z(8)
+              Mat(P(2),I+3)=WORK(2,1)*Z(7)+WORK(2,2)*Z(8)
+            ENDDO
+            DO I=4*(M/4)+1,M
               Z(1)=Mat(P(1),I)
               Z(2)=Mat(P(2),I)
               Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)
@@ -84,7 +122,21 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
             DEALLOCATE(WORK)
           CASE (3)
             ! perform inplace matmult
-            DO I=1,M
+            DO I=1,M,2
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(1),I+1)
+              Z(5)=Mat(P(2),I+1)
+              Z(6)=Mat(P(3),I+1)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)
+              Mat(P(1),I+1)=WORK(1,1)*Z(4)+WORK(1,2)*Z(5)+WORK(1,3)*Z(6)
+              Mat(P(2),I+1)=WORK(2,1)*Z(4)+WORK(2,2)*Z(5)+WORK(2,3)*Z(6)
+              Mat(P(3),I+1)=WORK(3,1)*Z(4)+WORK(3,2)*Z(5)+WORK(3,3)*Z(6)
+            ENDDO
+            DO I=2*(M/2)+1,M
               Z(1)=Mat(P(1),I)
               Z(2)=Mat(P(2),I)
               Z(3)=Mat(P(3),I)
@@ -104,6 +156,78 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)
               Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)
               Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (5)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (6)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (7)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Z(7)=Mat(P(7),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (8)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Z(7)=Mat(P(7),I)
+              Z(8)=Mat(P(8),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
+              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
@@ -132,13 +256,13 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
             DEALLOCATE(WORK,IDXLIST,DIMLIST)
           END SELECT
           
-        ELSEIF ( side == 'R' .or. side == 'r' ) THEN
+        ELSE
           ! multiply op(A) from the right [ Mat = Mat*op(A) ]
           
           SELECT CASE(N)
           CASE (1)
             ! Here only one column is rescaled
-            IF(op == 'N' .or. op=='n' .or. op=='T' .or. op=='t') then
+            IF(op_id == 0 .or. op_id == 1) then
               CALL ZSCAL(M,A(1,1),Mat(1,P(1)),1)
             ELSE
               CALL ZSCAL(M,conjg(A(1,1)),Mat(1,P(1)),1)
@@ -176,6 +300,78 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)
             ENDDO
             DEALLOCATE(WORK)
+          CASE (5)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (6)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (7)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Z(7)=Mat(I,P(7))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (8)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Z(7)=Mat(I,P(7))
+              Z(8)=Mat(I,P(8))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
+              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
+            ENDDO
+            DEALLOCATE(WORK)
           CASE DEFAULT
             ! allocate memory and copy blocks of Mat to work
             ALLOCATE(WORK(M,N))
@@ -202,9 +398,6 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
             DEALLOCATE(WORK,IDXLIST,DIMLIST)
           END SELECT
           
-        ELSE
-          write(*,*) 'Illegal argument for side: It is not one of [R,r,L,l] !'
-          call EXIT(1)
         ENDIF
 
 end subroutine ZSLGEMM
@@ -219,7 +412,7 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
         INTEGER                  , INTENT(IN)   , DIMENSION(N)   :: P
         
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: WORK, WORK2
-        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(4)
+        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(8)
         INTEGER :: I,L,IDX, NUMBLOCKS
         INTEGER, DIMENSION(:), ALLOCATABLE :: IDXLIST, DIMLIST
         LOGICAL :: COMPACT, ALLOC
@@ -229,7 +422,7 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
         
         !identify possible block structure
         !only used in default case for n>4
-        IF(N > 4) THEN
+        IF(N > 8) THEN
           COMPACT = .TRUE.
           L = 1
           IDX = 1
@@ -283,7 +476,25 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
             CALL ZSCAL(M,A(1,1),Mat(P(1),1),M)
           CASE (2)
             ! perform inplace matmult
-            DO I=1,M
+            DO I=1,M,4
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(1),I+1)
+              Z(4)=Mat(P(2),I+1)
+              Z(5)=Mat(P(1),I+2)
+              Z(6)=Mat(P(2),I+2)
+              Z(7)=Mat(P(1),I+3)
+              Z(8)=Mat(P(2),I+3)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)
+              Mat(P(1),I+1)=WORK(1,1)*Z(3)+WORK(1,2)*Z(4)
+              Mat(P(2),I+1)=WORK(2,1)*Z(3)+WORK(2,2)*Z(4)
+              Mat(P(1),I+2)=WORK(1,1)*Z(5)+WORK(1,2)*Z(6)
+              Mat(P(2),I+2)=WORK(2,1)*Z(5)+WORK(2,2)*Z(6)
+              Mat(P(1),I+3)=WORK(1,1)*Z(7)+WORK(1,2)*Z(8)
+              Mat(P(2),I+3)=WORK(2,1)*Z(7)+WORK(2,2)*Z(8)
+            ENDDO
+            DO I=4*(M/4)+1,M
               Z(1)=Mat(P(1),I)
               Z(2)=Mat(P(2),I)
               Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)
@@ -292,7 +503,21 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
             DEALLOCATE(WORK)
           CASE (3)
             ! perform inplace matmult
-            DO I=1,M
+            DO I=1,M,2
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(1),I+1)
+              Z(5)=Mat(P(2),I+1)
+              Z(6)=Mat(P(3),I+1)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)
+              Mat(P(1),I+1)=WORK(1,1)*Z(4)+WORK(1,2)*Z(5)+WORK(1,3)*Z(6)
+              Mat(P(2),I+1)=WORK(2,1)*Z(4)+WORK(2,2)*Z(5)+WORK(2,3)*Z(6)
+              Mat(P(3),I+1)=WORK(3,1)*Z(4)+WORK(3,2)*Z(5)+WORK(3,3)*Z(6)
+            ENDDO
+            DO I=2*(M/2)+1,M
               Z(1)=Mat(P(1),I)
               Z(2)=Mat(P(2),I)
               Z(3)=Mat(P(3),I)
@@ -312,6 +537,78 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)
               Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)
               Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (5)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (6)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (7)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Z(7)=Mat(P(7),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (8)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(P(1),I)
+              Z(2)=Mat(P(2),I)
+              Z(3)=Mat(P(3),I)
+              Z(4)=Mat(P(4),I)
+              Z(5)=Mat(P(5),I)
+              Z(6)=Mat(P(6),I)
+              Z(7)=Mat(P(7),I)
+              Z(8)=Mat(P(8),I)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
+              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
@@ -381,6 +678,78 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)
             ENDDO
             DEALLOCATE(WORK)
+          CASE (5)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (6)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (7)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Z(7)=Mat(I,P(7))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
+            ENDDO
+            DEALLOCATE(WORK)
+          CASE (8)
+            ! perform inplace matmult
+            DO I=1,M
+              Z(1)=Mat(I,P(1))
+              Z(2)=Mat(I,P(2))
+              Z(3)=Mat(I,P(3))
+              Z(4)=Mat(I,P(4))
+              Z(5)=Mat(I,P(5))
+              Z(6)=Mat(I,P(6))
+              Z(7)=Mat(I,P(7))
+              Z(8)=Mat(I,P(8))
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
+              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
+            ENDDO
+            DEALLOCATE(WORK)
           CASE DEFAULT
             ! allocate memory and copy blocks of Mat to work
             ALLOCATE(WORK(M,N))
@@ -413,283 +782,3 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
         ENDIF
 
 end subroutine ZSLHEMM
-
-PROGRAM Main
-
-        IMPLICIT NONE
-        INTEGER                   :: N, M, I, J, K, O
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: A
-        COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: Mat, MatL, MatR
-        INTEGER                  , DIMENSION(:)  , ALLOCATABLE :: P
-        COMPLEX (KIND=KIND(0.D0)) :: Z
-        
-        M=400
-        
-        ALLOCATE(Mat(M,M),MatL(M,M),MatR(M,M))
-        
-        Do N=1,6
-        
-        ALLOCATE(A(N,N),P(N))
-        
-!         Do O=7,M
-        P(1)=1
-        if (N>1) P(2)=2
-        if (N>2) P(3)=5
-        if (N>3) P(4)=6
-        if (N>4) P(5)=M-1
-        if (N>5) P(6)=M
-        
-        DO I=1,N
-        DO J=1,N
-          A(I,J) = CMPLX(DBLE(i+j),DBLE(i-j),kind(0.d0))
-        ENDDO
-        ENDDO
-        
-        !test left-mult using upper
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatL(:,:)=Mat(:,:)
-        DO I=1,N
-        DO J=1,M
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + A(I,K)*Mat(P(K),J) 
-        ENDDO
-        MatL(P(I),J) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLHEMM('L','u', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatL))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLHEMM left upper"
-          write(*,*) abs(sum(Mat-MatL))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test left-mult using lower
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatL(:,:)=Mat(:,:)
-        DO I=1,N
-        DO J=1,M
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + A(I,K)*Mat(P(K),J) 
-        ENDDO
-        MatL(P(I),J) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLHEMM('L','l', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatL))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLHEMM left lower"
-          write(*,*) abs(sum(Mat-MatL))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test right-mult using upper
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatR(:,:)=Mat(:,:)
-        DO I=1,M
-        DO J=1,N
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + Mat(I,P(K)) * A(k,j)
-        ENDDO
-        MatR(I,P(J)) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLHEMM('R','u', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatR))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLHEMM right upper"
-          write(*,*) abs(sum(Mat-MatR))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test right-mult using lower
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatR(:,:)=Mat(:,:)
-        DO I=1,M
-        DO J=1,N
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + Mat(I,P(K)) * A(k,j)
-        ENDDO
-        MatR(I,P(J)) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLHEMM('R','l', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatR))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLHEMM right lower"
-          write(*,*) abs(sum(Mat-MatR))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test left-mult op='n'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatL(:,:)=Mat(:,:)
-        DO I=1,N
-        DO J=1,M
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + A(i,k)*Mat(P(K),J) 
-        ENDDO
-        MatL(P(I),J) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('L','n', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatL))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM left no-transpose"
-          write(*,*) abs(sum(Mat-MatL))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test left-mult op='t'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatL(:,:)=Mat(:,:)
-        DO I=1,N
-        DO J=1,M
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + A(k,i)*Mat(P(K),J) 
-        ENDDO
-        MatL(P(I),J) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('L','t', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatL))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM left transpose"
-          write(*,*) abs(sum(Mat-MatL))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test left-mult op='c'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatL(:,:)=Mat(:,:)
-        DO I=1,N
-        DO J=1,M
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + conjg(A(k,i))*Mat(P(K),J) 
-        ENDDO
-        MatL(P(I),J) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('L','c', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatL))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM left conjg-transpose"
-          write(*,*) abs(sum(Mat-MatL))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test right-mult op='n'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatR(:,:)=Mat(:,:)
-        DO I=1,M
-        DO J=1,N
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + Mat(I,P(K)) * A(k,j)
-        ENDDO
-        MatR(I,P(J)) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('R','n', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatR))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM right no-transpose"
-          write(*,*) abs(sum(Mat-MatR))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test right-mult op='t'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatR(:,:)=Mat(:,:)
-        DO I=1,M
-        DO J=1,N
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + Mat(I,P(K)) * A(j,k)
-        ENDDO
-        MatR(I,P(J)) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('R','T', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatR))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM right transpose"
-          write(*,*) abs(sum(Mat-MatR))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-        !test right-mult op='c'
-        DO I=1,M
-        DO J=1,M
-          Mat(I,J) = CMPLX(DBLE(i-j),DBLE(i+2*j),kind(0.d0))
-        ENDDO
-        ENDDO
-        MatR(:,:)=Mat(:,:)
-        DO I=1,M
-        DO J=1,N
-        Z = CMPLX(0.d0,0.d0,kind(0.d0))
-        DO K=1,N
-          Z = Z + Mat(I,P(K)) * conjg(A(j,k))
-        ENDDO
-        MatR(I,P(J)) = Z
-        ENDDO
-        ENDDO
-        
-        CALL ZSLGEMM('R','c', N, M, A, P, Mat)
-        IF(abs(sum(Mat-MatR))/M/M>1E-14) then
-          write(*,*) "ERROR in ZSLGEMM right conjg-transpose"
-          write(*,*) abs(sum(Mat-MatR))/M/M, " is larger then 1E-14!"
-          stop
-        endif
-        
-!         enddo !O loop
-        
-        Deallocate(A,P)
-        enddo ! N loop
-        Deallocate(Mat,MatL,MatR)
-        write(*,*) "SUCCESS"
-        
-END PROGRAM Main
