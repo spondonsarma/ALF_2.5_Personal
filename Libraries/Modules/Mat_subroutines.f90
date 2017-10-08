@@ -182,12 +182,18 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(4)=Mat(P(4),I)
               Z(5)=Mat(P(5),I)
               Z(6)=Mat(P(6),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)&
+                &+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)&
+                &+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)&
+              &+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)&
+                &+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)&
+                &+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
             ENDDO
             DEALLOCATE(WORK)
           CASE (7)
@@ -200,13 +206,20 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(5)=Mat(P(5),I)
               Z(6)=Mat(P(6),I)
               Z(7)=Mat(P(7),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
-              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)&
+                &+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)&
+                &+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)&
+                &+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)&
+                &+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)&
+                &+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
             ENDDO
             DEALLOCATE(WORK)
           CASE (8)
@@ -220,14 +233,22 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(6)=Mat(P(6),I)
               Z(7)=Mat(P(7),I)
               Z(8)=Mat(P(8),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
-              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
-              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)&
+                &+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)&
+                &+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)&
+                &+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)&
+                &+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)&
+                &+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)&
+                &+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)&
+                &+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
+              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)&
+                &+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
@@ -324,12 +345,18 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(4)=Mat(I,P(4))
               Z(5)=Mat(I,P(5))
               Z(6)=Mat(I,P(6))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)&
+                &+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)&
+                &+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)&
+                &+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)&
+                &+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
             ENDDO
             DEALLOCATE(WORK)
           CASE (7)
@@ -342,13 +369,20 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(5)=Mat(I,P(5))
               Z(6)=Mat(I,P(6))
               Z(7)=Mat(I,P(7))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
-              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)&
+                &+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)&
+                &+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)&
+                &+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)&
+                &+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)&
+                &+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
             ENDDO
             DEALLOCATE(WORK)
           CASE (8)
@@ -362,14 +396,22 @@ subroutine ZSLGEMM(side, op, N, M, A, P, Mat)
               Z(6)=Mat(I,P(6))
               Z(7)=Mat(I,P(7))
               Z(8)=Mat(I,P(8))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
-              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
-              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)&
+                &+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)&
+                &+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)&
+                &+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)&
+                &+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)&
+                &+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)&
+                &+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)&
+                &+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
+              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)&
+                &+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
@@ -563,12 +605,18 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(4)=Mat(P(4),I)
               Z(5)=Mat(P(5),I)
               Z(6)=Mat(P(6),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)&
+                &+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)&
+                &+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)&
+                &+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)&
+                &+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)
             ENDDO
             DEALLOCATE(WORK)
           CASE (7)
@@ -581,13 +629,20 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(5)=Mat(P(5),I)
               Z(6)=Mat(P(6),I)
               Z(7)=Mat(P(7),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
-              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)&
+                &+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)&
+                &+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)&
+                &+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)&
+                &+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)&
+                &+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)
             ENDDO
             DEALLOCATE(WORK)
           CASE (8)
@@ -601,14 +656,22 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(6)=Mat(P(6),I)
               Z(7)=Mat(P(7),I)
               Z(8)=Mat(P(8),I)
-              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
-              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
-              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
-              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
-              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
-              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
-              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
-              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
+              Mat(P(1),I)=WORK(1,1)*Z(1)+WORK(1,2)*Z(2)+WORK(1,3)*Z(3)+WORK(1,4)*Z(4)&
+                &+WORK(1,5)*Z(5)+WORK(1,6)*Z(6)+WORK(1,7)*Z(7)+WORK(1,8)*Z(8)
+              Mat(P(2),I)=WORK(2,1)*Z(1)+WORK(2,2)*Z(2)+WORK(2,3)*Z(3)+WORK(2,4)*Z(4)&
+                &+WORK(2,5)*Z(5)+WORK(2,6)*Z(6)+WORK(2,7)*Z(7)+WORK(2,8)*Z(8)
+              Mat(P(3),I)=WORK(3,1)*Z(1)+WORK(3,2)*Z(2)+WORK(3,3)*Z(3)+WORK(3,4)*Z(4)&
+                &+WORK(3,5)*Z(5)+WORK(3,6)*Z(6)+WORK(3,7)*Z(7)+WORK(3,8)*Z(8)
+              Mat(P(4),I)=WORK(4,1)*Z(1)+WORK(4,2)*Z(2)+WORK(4,3)*Z(3)+WORK(4,4)*Z(4)&
+                &+WORK(4,5)*Z(5)+WORK(4,6)*Z(6)+WORK(4,7)*Z(7)+WORK(4,8)*Z(8)
+              Mat(P(5),I)=WORK(5,1)*Z(1)+WORK(5,2)*Z(2)+WORK(5,3)*Z(3)+WORK(5,4)*Z(4)&
+                &+WORK(5,5)*Z(5)+WORK(5,6)*Z(6)+WORK(5,7)*Z(7)+WORK(5,8)*Z(8)
+              Mat(P(6),I)=WORK(6,1)*Z(1)+WORK(6,2)*Z(2)+WORK(6,3)*Z(3)+WORK(6,4)*Z(4)&
+                &+WORK(6,5)*Z(5)+WORK(6,6)*Z(6)+WORK(6,7)*Z(7)+WORK(6,8)*Z(8)
+              Mat(P(7),I)=WORK(7,1)*Z(1)+WORK(7,2)*Z(2)+WORK(7,3)*Z(3)+WORK(7,4)*Z(4)&
+                &+WORK(7,5)*Z(5)+WORK(7,6)*Z(6)+WORK(7,7)*Z(7)+WORK(7,8)*Z(8)
+              Mat(P(8),I)=WORK(8,1)*Z(1)+WORK(8,2)*Z(2)+WORK(8,3)*Z(3)+WORK(8,4)*Z(4)&
+                &+WORK(8,5)*Z(5)+WORK(8,6)*Z(6)+WORK(8,7)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
@@ -702,12 +765,18 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(4)=Mat(I,P(4))
               Z(5)=Mat(I,P(5))
               Z(6)=Mat(I,P(6))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)&
+                &+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)&
+                &+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)&
+                &+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)&
+                &+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)
             ENDDO
             DEALLOCATE(WORK)
           CASE (7)
@@ -720,13 +789,20 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(5)=Mat(I,P(5))
               Z(6)=Mat(I,P(6))
               Z(7)=Mat(I,P(7))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
-              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)&
+                &+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)&
+                &+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)&
+                &+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)&
+                &+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)&
+                &+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)&
+                &+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)&
+                &+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)
             ENDDO
             DEALLOCATE(WORK)
           CASE (8)
@@ -740,14 +816,22 @@ subroutine ZSLHEMM(side, uplo, N, M, A, P, Mat)
               Z(6)=Mat(I,P(6))
               Z(7)=Mat(I,P(7))
               Z(8)=Mat(I,P(8))
-              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
-              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
-              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
-              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
-              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
-              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
-              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
-              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
+              Mat(I,P(1))=WORK(1,1)*Z(1)+WORK(2,1)*Z(2)+WORK(3,1)*Z(3)+WORK(4,1)*Z(4)&
+                &+WORK(5,1)*Z(5)+WORK(6,1)*Z(6)+WORK(7,1)*Z(7)+WORK(8,1)*Z(8)
+              Mat(I,P(2))=WORK(1,2)*Z(1)+WORK(2,2)*Z(2)+WORK(3,2)*Z(3)+WORK(4,2)*Z(4)&
+                &+WORK(5,2)*Z(5)+WORK(6,2)*Z(6)+WORK(7,2)*Z(7)+WORK(8,2)*Z(8)
+              Mat(I,P(3))=WORK(1,3)*Z(1)+WORK(2,3)*Z(2)+WORK(3,3)*Z(3)+WORK(4,3)*Z(4)&
+                &+WORK(5,3)*Z(5)+WORK(6,3)*Z(6)+WORK(7,3)*Z(7)+WORK(8,3)*Z(8)
+              Mat(I,P(4))=WORK(1,4)*Z(1)+WORK(2,4)*Z(2)+WORK(3,4)*Z(3)+WORK(4,4)*Z(4)&
+                &+WORK(5,4)*Z(5)+WORK(6,4)*Z(6)+WORK(7,4)*Z(7)+WORK(8,4)*Z(8)
+              Mat(I,P(5))=WORK(1,5)*Z(1)+WORK(2,5)*Z(2)+WORK(3,5)*Z(3)+WORK(4,5)*Z(4)&
+                &+WORK(5,5)*Z(5)+WORK(6,5)*Z(6)+WORK(7,5)*Z(7)+WORK(8,5)*Z(8)
+              Mat(I,P(6))=WORK(1,6)*Z(1)+WORK(2,6)*Z(2)+WORK(3,6)*Z(3)+WORK(4,6)*Z(4)&
+                &+WORK(5,6)*Z(5)+WORK(6,6)*Z(6)+WORK(7,6)*Z(7)+WORK(8,6)*Z(8)
+              Mat(I,P(7))=WORK(1,7)*Z(1)+WORK(2,7)*Z(2)+WORK(3,7)*Z(3)+WORK(4,7)*Z(4)&
+                &+WORK(5,7)*Z(5)+WORK(6,7)*Z(6)+WORK(7,7)*Z(7)+WORK(8,7)*Z(8)
+              Mat(I,P(8))=WORK(1,8)*Z(1)+WORK(2,8)*Z(2)+WORK(3,8)*Z(3)+WORK(4,8)*Z(4)&
+                &+WORK(5,8)*Z(5)+WORK(6,8)*Z(6)+WORK(7,8)*Z(7)+WORK(8,8)*Z(8)
             ENDDO
             DEALLOCATE(WORK)
           CASE DEFAULT
