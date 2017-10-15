@@ -146,6 +146,7 @@
              Endif
 #endif
 #ifdef MPI
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -171,11 +172,12 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,MPI_COMM_WORLD,ierr)
 #endif
           Case ("Hubbard_SU2_Ising")
              N_FL = 1
@@ -203,6 +205,7 @@
                 Stop
              Endif
 #ifdef MPI
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -231,6 +234,7 @@
              Endif
 #endif
 #ifdef MPI
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
              CALL MPI_BCAST(ham_tV   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -330,10 +334,9 @@
              Write(6,*) "Lattice not yet implemented!"
              Stop
           end select
-          Call Print_latt(Latt)
-             
-          
+          !Call Print_latt(Latt)
           ! This is for the orbital structure.
+
           Ndim = Latt%N*Norb
           Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
           nc = 0
@@ -464,9 +467,9 @@
                 endif
                 Op_T(nc,n)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
                 Call Op_set(Op_T(nc,n))
-                Do I = 1,Size(Op_T(nc,n)%E,1)
-                   Write(6,*) Op_T(nc,n)%E(I)
-                Enddo
+                !Do I = 1,Size(Op_T(nc,n)%E,1)
+                !   Write(6,*) Op_T(nc,n)%E(I)
+                !Enddo
              Enddo
           else
              select case (Lattice_type)
@@ -637,7 +640,7 @@
              enddo
              select case (Lattice_type)
              case ("Square")
-                Write(6,*) "N_coord, Latt%N", N_coord, Latt%N, Dtau, ham_tV
+                !Write(6,*) "N_coord, Latt%N", N_coord, Latt%N, Dtau, ham_tV
                 nc = 0
                 do I = 1,Latt%N
                    I1 = I
