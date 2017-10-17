@@ -35,8 +35,11 @@ MODULE UDV_State_mod
     PUBLIC :: UDV_State
     TYPE UDV_State
         COMPLEX (Kind=Kind(0.d0)), allocatable :: U(:, :), V(:, :)
+#if !defined(LOG)
         COMPLEX (Kind=Kind(0.d0)), allocatable :: D(:)
+#else
         REAL    (Kind=Kind(0.d0)), allocatable :: L(:)
+#endif
         INTEGER :: ndim
 
         CONTAINS
@@ -71,7 +74,12 @@ SUBROUTINE alloc_UDV_state(this, t)
     INTEGER, INTENT(IN) :: t
 
     this%ndim = t
-    ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim), this%D(this%ndim), this%L(this%ndim))
+    ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim))
+#if !defined(LOG)
+    ALLOCATE(this%D(this%ndim))
+#else
+    ALLOCATE(this%L(this%ndim))
+#endif
 END SUBROUTINE alloc_UDV_state
 
 !--------------------------------------------------------------------
@@ -107,7 +115,12 @@ SUBROUTINE dealloc_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
 
-    DEALLOCATE(this%U, this%V, this%D, this%L)
+    DEALLOCATE(this%U, this%V)
+#if !defined(LOG)
+    DEALLOCATE(this%D)
+#else
+    DEALLOCATE(this%L)
+#endif
 END SUBROUTINE dealloc_UDV_state
 
 !--------------------------------------------------------------------
@@ -129,8 +142,11 @@ SUBROUTINE reset_UDV_state(this)
     beta = 1.D0
     CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
     CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V(1, 1), this%ndim)
+#if !defined(LOG)
     this%D = beta
+#else
     this%L = 0.d0
+#endif
 END SUBROUTINE reset_UDV_state
 
 !--------------------------------------------------------------------
@@ -156,8 +172,11 @@ SUBROUTINE print_UDV_state(this)
         WRITE(*,*) this%V(i, :)
     ENDDO
     WRITE(*,*) "======================"
+#if !defined(LOG)
     WRITE(*,*) this%D(:)
+#else
     WRITE(*,*) this%L(:)
+#endif
 END SUBROUTINE print_UDV_state
 
 !--------------------------------------------------------------------
@@ -183,8 +202,11 @@ SUBROUTINE assign_UDV_state(this, src)
         CALL ZLACPY('A', ndim, ndim, src%U(1, 1), ndim, this%U(1, 1), ndim)
         CALL ZLACPY('A', ndim, ndim, src%V(1, 1), ndim, this%V(1, 1), ndim)
     END ASSOCIATE
+#if !defined(LOG)
     this%D = src%D
+#else
     this%L = src%L
+#endif
 END SUBROUTINE assign_UDV_state
 
 !--------------------------------------------------------------------
@@ -364,10 +386,13 @@ END SUBROUTINE matmultleft_UDV_state
                  &                source, recvtag, MPI_COMM_WORLD, STATUS, IERR)
         CALL MPI_Sendrecv_replace(this%V, n, MPI_COMPLEX16, dest, sendtag, &
                  &                source, recvtag, MPI_COMM_WORLD, STATUS, IERR)
+#if !defined(LOG)
         CALL MPI_Sendrecv_replace(this%D, this%ndim, MPI_COMPLEX16, dest, sendtag, &
                  &                source, recvtag, MPI_COMM_WORLD, STATUS, IERR)
+#else
         CALL MPI_Sendrecv_replace(this%L, this%ndim, MPI_REAL8, dest, sendtag, &
                  &                source, recvtag, MPI_COMM_WORLD, STATUS, IERR)
+#endif
 END SUBROUTINE MPI_Sendrecv_UDV_state
 #endif
 
