@@ -230,8 +230,8 @@ END SUBROUTINE assign_UDV_state
         CLASS(UDV_State), intent(inout) :: UDVL
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
-        REAL (Kind=Kind(0.d0)) :: DZNRM2, tmpL
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        REAL (Kind=Kind(0.d0)) :: tmpL
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD
         INTEGER, allocatable, Dimension(:) :: IPVT
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT, IDAMAX
         LOGICAL :: FORWRD
@@ -241,43 +241,55 @@ END SUBROUTINE assign_UDV_state
         Ndim = UDVL%ndim
         ! TMP1 = TMP^dagger * U^dagger
         CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVL%U, Ndim, beta, TMP1(1, 1), Ndim)
+        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+#if !defined(LOG)
+        ! TMP1 = TMP1 * D
+        DO i = 1,NDim
+            UDVL%U(:, i) = TMP1(:, i) * UDVL%D(i)
+        ENDDO
+        IPVT = 0
+        call QDRP_decompose(Ndim, UDVL%U, UDVL%D, IPVT, TAU, WORK, LWORK)
+        ! Permute V, since we multiply with V from the left we have to permute its columns
+        FORWRD = .true.
+        CALL ZLAPMT(FORWRD, Ndim, Ndim, UDVL%V, Ndim, IPVT)
+#else
         ALLOCATE(tmpnorm(Ndim),D(Ndim))
         Do i=1,Ndim
-            tmpnorm(i) = DZNRM2( Ndim, TMP1( 1, I ), 1 )*exp(UDVL%L(I))
+            tmpnorm(i) = log(DZNRM2( Ndim, TMP1( 1, I ), 1 ))+UDVL%L(I)
         enddo
         do i=1,Ndim
-            PVT = ( I-1 ) + IDAMAX( Ndim-I+1, tmpnorm( I ), 1 )
+            PVT = I
+            do j=I+1,Ndim
+              if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
+            enddo
             IF( PVT.NE.I ) THEN
                 CALL ZCOPY( ndim, TMP1( 1, PVT ), 1, UDVL%U( 1, I ), 1 )
                 CALL ZCOPY( ndim, TMP1( 1, I   ), 1, TMP1( 1, PVT ), 1 )
                 CALL ZSWAP( ndim, UDVL%V( 1, PVT ), 1, UDVL%V( 1, I ), 1 )
-                D( I ) = UDVL%D( PVT )
                 tmpL=UDVL%L(I)
                 UDVL%L(I)=UDVL%L(PVT)
                 UDVL%L(PVT)=tmpL
-                UDVL%D( PVT ) = UDVL%D( I )
                 tmpnorm( PVT ) = tmpnorm( I )
             ELSE
                 CALL ZCOPY( ndim, TMP1( 1, I ), 1, UDVL%U( 1, I ), 1 )
-                D( I ) = UDVL%D( I )
             END IF
         enddo
-        ALLOCATE(TAU(Ndim), IPVT(Ndim))
         IPVT = 1
-        call QDRP_decompose(Ndim, UDVL%U, UDVL%D, IPVT, TAU, WORK, LWORK)
+        call QDRP_decompose(Ndim, UDVL%U, D, IPVT, TAU, WORK, LWORK)
         do i=1,Ndim
           do j=i+1,Ndim
             UDVL%U(i,j)=UDVL%U(i,j)*cmplx(exp(UDVL%L(j)-UDVL%L(I)),0.d0,kind(0.d0))
           enddo
           !D contains absolute values, hence imag. part is zero
-          UDVL%L(I)=log(DBLE(UDVL%D(I))) + UDVL%L(I)
-          UDVL%D(I)=UDVL%D(I)*D(I)
+          UDVL%L(I)=log(DBLE(D(I))) + UDVL%L(I)
         enddo
+        DEALLOCATE(D, tmpnorm)
+#endif
         ! V = V * R^dagger
         CALL ZTRMM('R', 'U', 'C', 'N', Ndim, Ndim, Z_ONE, UDVL%U, Ndim, UDVL%V, Ndim)
         ! create explicitly U in the storage already present for it
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
-        DEALLOCATE(TAU, WORK, IPVT, D, tmpnorm)
+        DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE matmultright_UDV_state
 
 !--------------------------------------------------------------------
@@ -303,8 +315,8 @@ END SUBROUTINE matmultright_UDV_state
         CLASS(UDV_State), intent(inout) :: UDVR
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
-        REAL (Kind=Kind(0.d0)) :: DZNRM2,tmpL
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        REAL (Kind=Kind(0.d0)) :: tmpL
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT, IDAMAX
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
@@ -314,45 +326,58 @@ END SUBROUTINE matmultright_UDV_state
         beta = 0.D0
         Ndim = UDVR%ndim
         CALL ZGEMM('N', 'N', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVR%U, Ndim, beta, TMP1(1, 1), Ndim)
+        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+#if !defined(LOG)
+        ! TMP1 = TMP1 * D
+        DO i = 1,NDim
+            UDVR%U(:, i) = TMP1(:, i)*UDVR%D(i)
+        ENDDO
+        !use lapack internal pivoting
+        IPVT = 0
+        call QDRP_decompose(Ndim, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
+        ! Permute V. Since we multiply with V from the right we have to permute the rows.
+        ! A V = A P P^-1 V = Q R P^-1 V
+        FORWRD = .true.
+        CALL ZLAPMR(FORWRD, Ndim, Ndim, UDVR%V, Ndim, IPVT(1)) ! lapack 3.3
+#else
+        !manually perform pivoting (using the logscale if LOG is defined)
         ALLOCATE(tmpnorm(Ndim),D(Ndim))
         Do i=1,Ndim
-            tmpnorm(i) = DZNRM2( Ndim, TMP1( 1, I ), 1 )*exp(UDVR%L(I))
+            tmpnorm(i) = log(DZNRM2( Ndim, TMP1( 1, I ), 1 ))+UDVR%L(I)
         enddo
         do i=1,Ndim
-            PVT = ( I-1 ) + IDAMAX( Ndim-I+1, tmpnorm( I ), 1 )
+            PVT = I
+            do j=I+1,Ndim
+              if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
+            enddo
             IF( PVT.NE.I ) THEN
                 CALL ZCOPY( ndim, TMP1( 1, PVT ), 1, UDVR%U( 1, I ), 1 )
                 CALL ZCOPY( ndim, TMP1( 1, I   ), 1, TMP1( 1, PVT ), 1 )
                 CALL ZSWAP( ndim, UDVR%V( PVT, 1 ), Ndim, UDVR%V( I, 1 ), Ndim )
-                D( I ) = UDVR%D( PVT )
                 tmpL=UDVR%L(I)
                 UDVR%L(I)=UDVR%L(PVT)
                 UDVR%L(PVT)=tmpL
-                UDVR%D( PVT ) = UDVR%D( I )
                 tmpnorm( PVT ) = tmpnorm( I )
             ELSE
                 CALL ZCOPY( ndim, TMP1( 1, I ), 1, UDVR%U( 1, I ), 1 )
-                D( I ) = UDVR%D( I )
             END IF
         enddo
-        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+        !disable lapack internal pivoting
         IPVT = 1
-        call QDRP_decompose(Ndim, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
+        call QDRP_decompose(Ndim, UDVR%U, D, IPVT, TAU, WORK, LWORK)
         do i=1,Ndim
           do j=i+1,Ndim
             UDVR%U(i,j)=UDVR%U(i,j)*cmplx(exp(UDVR%L(j)-UDVR%L(I)),0.d0,kind(0.d0))
           enddo
-!         enddo
-!         
-!         do i=1,Ndim
-          UDVR%L(I)=log(dble(UDVR%D(I))) + UDVR%L(I)
-          UDVR%D(I)=UDVR%D(I)*D(I)
+          UDVR%L(I)=log(dble(D(I))) + UDVR%L(I)
         enddo
+        DEALLOCATE(D, tmpnorm)
+#endif
         ! V = R * V
         CALL ZTRMM('L', 'U', 'N', 'N', Ndim, Ndim, Z_ONE, UDVR%U, Ndim, UDVR%V, Ndim)
         ! Generate explicitly U in the previously abused storage of U
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
-        DEALLOCATE(TAU, WORK, IPVT, D, tmpnorm)
+        DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE matmultleft_UDV_state
 
 !--------------------------------------------------------------------
