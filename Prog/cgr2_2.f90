@@ -342,7 +342,7 @@
             call zscal(LQ,cmplx(exp(-udv2%L(J)),0.d0,kind(0.d0)),MYU2(J,1),LQ)
           endif
         ENDDO
-#endif
+#else
         DO J=1,LQ
           !keep scales smaller than 1.0 in D1*U1 and D2*V2
           !bring scales larger that 1.0 with V1^-1 and U2^-1
@@ -359,11 +359,16 @@
             call zscal(LQ,1.d0/udv2%D(J),MYU2(J,1),LQ)
           endif
         ENDDO
+#endif
 #else
         D1m=udv1%D
         D2m=udv2%D
 #endif
-        If (udv1%L(1) >  udv2%L(1) ) Then 
+#if defined(LOG)
+        If (udv1%L(1) >  udv2%L(1) ) Then
+#else 
+        If (dble(udv1%D(1)) >  dble(udv2%D(1)) ) Then
+#endif
            !Write(6,*) "D1(1) >  D2(1)", dble(D1(1)), dble(D2(1))
            call zlacpy('A',LQ,LQ,V1INV(1,1) ,LQ,HLPB2(1   ,1   ),LQ2)
            call zlacpy('A',LQ,LQ,MYU2(1,1)  ,LQ,HLPB2(1+LQ,1+LQ),LQ2)

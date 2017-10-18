@@ -51,6 +51,8 @@ MODULE UDV_State_mod
             PROCEDURE :: matmultleft => matmultleft_UDV_state
             PROCEDURE :: matmultright => matmultright_UDV_state
             PROCEDURE :: print => print_UDV_state
+            PROCEDURE :: setscale => setscale_UDV_state
+            PROCEDURE :: getscale => getscale_UDV_state
 #if defined(MPI)
             PROCEDURE :: MPI_Sendrecv => MPI_Sendrecv_UDV_state
 #endif
@@ -101,6 +103,52 @@ SUBROUTINE init_UDV_state(this, t)
     CALL this%alloc(t)
     CALL this%reset
 END SUBROUTINE init_UDV_state
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function initializes the scales of an object.
+!>
+!> @param [inout] this The object to be modified.
+!> @param [in] t the size of the involved matrices.
+!-------------------------------------------------------------------
+SUBROUTINE setscale_UDV_state(this, scale_val, scale_idx)
+    IMPLICIT NONE
+    CLASS(UDV_State), INTENT(INOUT) :: this
+    COMPLEX (Kind=Kind(0.d0)), INTENT(IN) :: scale_val
+    INTEGER, INTENT(IN) :: scale_idx
+
+#if !defined(LOG)
+    this%D(scale_idx)=scale_val
+#else
+    this%L(scale_idx)=log(dble(scale_val))
+#endif
+END SUBROUTINE setscale_UDV_state
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> This function returns the scales of an object.
+!>
+!> @param [inout] this The object to be modified.
+!> @param [in] t the size of the involved matrices.
+!-------------------------------------------------------------------
+SUBROUTINE getscale_UDV_state(this, scale_val, scale_idx)
+    IMPLICIT NONE
+    CLASS(UDV_State), INTENT(INOUT) :: this
+    COMPLEX (Kind=Kind(0.d0)), INTENT(out) :: scale_val
+    INTEGER, INTENT(IN) :: scale_idx
+
+#if !defined(LOG)
+    scale_val=this%D(scale_idx)
+#else
+    scale_val=cmplx(exp(this%L(scale_idx)),0.d0,kind(0.d0))
+#endif
+END SUBROUTINE getscale_UDV_state
 
 !--------------------------------------------------------------------
 !> @author 
@@ -230,10 +278,10 @@ END SUBROUTINE assign_UDV_state
         CLASS(UDV_State), intent(inout) :: UDVL
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
-        REAL (Kind=Kind(0.d0)) :: tmpL
+        REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD
         INTEGER, allocatable, Dimension(:) :: IPVT
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT, IDAMAX
+        INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         LOGICAL :: FORWRD
 
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
@@ -315,9 +363,9 @@ END SUBROUTINE matmultright_UDV_state
         CLASS(UDV_State), intent(inout) :: UDVR
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
-        REAL (Kind=Kind(0.d0)) :: tmpL
+        REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT, IDAMAX
+        INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
         
