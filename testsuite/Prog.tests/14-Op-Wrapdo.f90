@@ -68,14 +68,14 @@ Program OPWRAPDO
                   Zim = aimag (matnew(i, j)-matold(i, j))
                   if(Abs(Zre)+Abs(Zim) > 1.D-14) THEN
                   If (Abs(Zre) > Max(Abs(DBLE(matnew(i, j))), &
-                 & Abs(real(matold(i, j))))*1D-12) Then
+                 & Abs(real(matold(i, j))))*1D-12 .and. abs(Zre) > 1D-15) Then
                      Write (*,*) "opn: ", opn, "N_type", N_Type
                      Write (*,*) "ERROR in real part", DBLE(matnew(i, &
                     & j)), DBLE (matold(i, j))
                      Stop 2
                   End If
                   If (Abs(Zim) > Max(Abs(aimag(matnew(i, j))), &
-                 & Abs(aimag(matold(i, j))))*1D-12) Then
+                 & Abs(aimag(matold(i, j))))*1D-12 .and. abs(Zim) > 1D-15) Then
                      Write (*,*) "ERROR in imag part", aimag (matnew(i, &
                     & j)), aimag (matold(i, j))
                      Stop 3
