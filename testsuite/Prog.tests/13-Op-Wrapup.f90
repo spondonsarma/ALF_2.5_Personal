@@ -84,7 +84,7 @@ Program Wrapup
             call Op_clear(Op, opn)
          End Do
       End Do
-
+      write (*,*) "success"
 End Program Wrapup
 !
 Subroutine Op_WrapupFFA (Mat, Op, spin, Ndim, N_Type)
