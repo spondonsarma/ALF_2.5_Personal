@@ -35,7 +35,7 @@ Program Wrapup
             Do i = 1, Op%n
                Op%P (i) = i
                Do n = 1, Op%n
-                  Op%O (i, n) = CMPLX (n+i, n-i, kind(0.D0))
+                 Op%O (i, n) = CMPLX (n+i, 0.d0, kind(0.D0))
                End Do
             End Do
 !
