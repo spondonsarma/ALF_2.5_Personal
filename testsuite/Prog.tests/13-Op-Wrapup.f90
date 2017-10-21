@@ -35,7 +35,7 @@ Program Wrapup
             Do i = 1, Op%n
                Op%P (i) = i
                Do n = 1, Op%n
-                  Op%O (i, n) = CMPLX (n+i, 0.D0, kind(0.D0))
+                  Op%O (i, n) = CMPLX (n+i, n-i, kind(0.D0))
                End Do
             End Do
 !
@@ -65,14 +65,14 @@ Program Wrapup
                   Zre = real (matnew(i, j)-matold(i, j))
                   Zim = aimag (matnew(i, j)-matold(i, j))
                   If (Abs(Zre) > Max(Abs(real(matnew(i, j))), &
-                 & Abs(real(matold(i, j))))*1D-14) Then
+                 & Abs(real(matold(i, j))))*5D-14) Then
                      Write (*,*) "opn: ", opn, "N_type", N_Type
                      Write (*,*) "ERROR in real part", real (matnew(i, &
                     & j)), real (matold(i, j))
                      Stop 2
                   End If
                   If (Abs(Zim) > Max(Abs(aimag(matnew(i, j))), &
-                 & Abs(aimag(matold(i, j))))*1D-14) Then
+                 & Abs(aimag(matold(i, j))))*5D-14) Then
                      Write (*,*) "ERROR in imag part", aimag (matnew(i, &
                     & j)), aimag (matold(i, j))
                      Stop 3
