@@ -160,6 +160,7 @@ Contains
     Op%g     = cmplx(0.d0,0.d0, kind(0.D0))
     Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
     Op%diag  = .false.
+    Op%type=0
   end subroutine Op_make
 
 !--------------------------------------------------------------------
