@@ -71,8 +71,8 @@
               Call Hop_mod_mmthr(TMP,TMP1,nf)
               TMP = TMP1
               Do n = 1,Size(Op_V,1)
-                 X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(Tmp,Op_V(n,nf),X,Ndim)
+!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim)
               ENDDO
            ENDDO
            CALL MMULT(TMP1,TMP, udvr(nf)%U)
@@ -110,8 +110,8 @@
               Call Hop_mod_mmthr(TMP,TMP1,nf)
               TMP = TMP1
               Do n = 1,Size(Op_V,1)
-                 X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(TMP,Op_V(n,nf),X,Ndim)
+!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultR(TMP,Op_V(n,nf),nsigma(n,nt),Ndim)
               ENDDO
            ENDDO
 

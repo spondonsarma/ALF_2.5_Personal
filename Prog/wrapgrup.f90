@@ -65,9 +65,9 @@
         INTEGER, INTENT(IN) :: NTAU
         
         !Local 
-        Integer :: nf, N_Type, NTAU1,n, m
+        Integer :: nf, N_Type, NTAU1,n, m, X
         Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim)
-        Real    (Kind=Kind(0.d0)) :: X
+!         Real    (Kind=Kind(0.d0)) :: X
         Character (Len=1)  :: Direction
 
         ! Wrap up, upgrade ntau1.  with B^{1}(tau1) 
@@ -81,7 +81,7 @@
         Do n = Nt_sequential_start,Nt_sequential_end
            ! Write(6,*) 'Hi'
            Do nf = 1, N_FL
-              X = Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
+              X = nsigma(n,ntau1)!Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
               N_type = 1
               Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
            enddo

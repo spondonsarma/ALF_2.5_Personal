@@ -172,8 +172,8 @@
            Do nf = 1,N_FL
               Call Hop_mod_mmthr(Ain(:,:,nf),HLP4,nf)
               Do n = 1,Size(Op_V,1)
-                 X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(HLP4,Op_V(n,nf),X,Ndim)
+!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultR(HLP4,Op_V(n,nf),nsigma(n,nt),Ndim)
               ENDDO
               Call ZLACPY('A', Ndim, Ndim, HLP4, Ndim, Ain(1,1, nf), Ndim)
            Enddo
@@ -206,8 +206,8 @@
               !Call MMULT(HLP4,Ain(:,:,nf),Exp_T_M1(:,:,nf) )
               Call Hop_mod_mmthl_m1(Ain(:,:,nf),HLP4,nf)
               Do n =1,Size(Op_V,1)
-                 X = -Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultL(HLP4,Op_V(n,nf),X,Ndim)
+!                  X = -Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultL(HLP4,Op_V(n,nf),-nsigma(n,nt),Ndim)
               Enddo
               Call ZLACPY('A', Ndim, Ndim, HLP4, Ndim, Ain(1,1, nf), Ndim)
            enddo

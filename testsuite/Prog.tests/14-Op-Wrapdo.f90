@@ -24,7 +24,7 @@ Program OPWRAPDO
      & matnew, matold
       Complex (Kind=Kind(0.D0)), Dimension (:), Allocatable :: Expop, &
      & ExpMop
-      Integer :: i, n, j, Ndim, N_Type, opn
+      Integer :: i, n, j, Ndim, N_Type, opn, nspin
       Type (Operator) :: Op
 !
 ! setup some test data
@@ -44,11 +44,13 @@ Program OPWRAPDO
                End Do
             End Do
 !
+            Op%type=1
             Op%g = 2.D0
             Op%alpha = 0.D0
             Call Op_set (Op)
 !
-            spin = - 1.0
+            nspin = -1
+            spin = Phi(nspin,Op%type)
 !
             Do i = 1, Ndim
                Do n = 1, Ndim
@@ -57,7 +59,7 @@ Program OPWRAPDO
                End Do
             End Do
 !
-            Call Op_Wrapdo (matnew, Op, spin, Ndim, N_Type)
+            Call Op_Wrapdo (matnew, Op, nspin, Ndim, N_Type)
 !
 ! check against old version from Operator_FFA.f90
             Call Op_WrapdoFFA (matold, Op, spin, Ndim, N_Type)
