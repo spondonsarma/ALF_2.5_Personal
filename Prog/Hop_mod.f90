@@ -115,57 +115,42 @@
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthr(In, Out,nf)
+        Subroutine Hop_mod_mmthr(In,nf)
           
 
-          ! In:   IN
-          ! Out:  OUT = e^{ -dtau T }.IN
+          ! InOut:  In = e^{ -dtau T }.IN
           Implicit none
           
-          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(Ndim,Ndim)
           Integer, intent(IN) :: nf
           
           !Local 
-          Complex (Kind=Kind(0.D0)) :: alpha, beta
-          Complex(Kind = Kind(0.D0)), allocatable, dimension(:,:) :: tmp
-          Integer :: nc, n
+          Integer :: nc
           
-          Out = In
-          alpha = 1.D0
-          beta = 0.D0
-          Allocate(tmp(Ndim_hop, Ndim_hop))
           do nc =  Ncheck,1,-1
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('L','U',Ndim_hop,Ndim,Ndim,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,Out)
+                call ZSLHEMM('L','U',Ndim_hop,Ndim,Ndim,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
              Endif
           Enddo
-          deallocate(tmp)
         end Subroutine Hop_mod_mmthr
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthr_m1(In, Out,nf)
+        Subroutine Hop_mod_mmthr_m1(In,nf)
           
 
-          ! In:   IN
-          ! Out:  OUT = e^{  dtau T }.IN
+          ! InOut:  In = e^{  dtau T }.IN
           Implicit none
           
-          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(Ndim,Ndim)
           Integer :: nf
           
           !Local 
-          Integer :: nc, I, n 
-          Complex (Kind=Kind(0.D0)) :: a, b
-          a = 1.D0
-          b = 0.D0
+          Integer :: nc 
           
-          Out = In
           do nc =  1,Ncheck
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('L','U',Ndim_hop,Ndim,Ndim,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,Out)
+                call ZSLHEMM('L','U',Ndim_hop,Ndim,Ndim,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
              Endif
           Enddo
           
@@ -173,27 +158,21 @@
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthl (In, Out,nf)
+        Subroutine Hop_mod_mmthl (In,nf)
           
 
-          ! In:   IN
-          ! Out:  OUT = IN * e^{ -dtau T }
+          ! InOut:  In = IN * e^{ -dtau T }
           Implicit none
           
-          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(Ndim,Ndim)
           Integer :: nf
           
           !Local 
-          Integer :: nc, n
-          Complex (Kind=Kind(0.D0)) :: alpha, beta
+          Integer :: nc
           
-          alpha = 1.D0
-          beta = 0.D0
-          Out = In
           do nc =  1, Ncheck
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('R','U',Ndim_hop,Ndim,Ndim,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,Out)
+                call ZSLHEMM('R','U',Ndim_hop,Ndim,Ndim,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
              Endif
           Enddo
           
@@ -201,27 +180,21 @@
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthl_m1 (In, Out, nf)
+        Subroutine Hop_mod_mmthl_m1 (In, nf)
           
 
-          ! In:   IN
-          ! Out:  OUT = IN * e^{ dtau T }
+          ! InOut:  In = IN * e^{ dtau T }
           Implicit none
           
-          Complex (Kind=Kind(0.d0)), intent(IN)  :: IN(Ndim,Ndim)
-          Complex (Kind=Kind(0.d0)), intent(INOUT) :: OUT(Ndim,Ndim)
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(Ndim,Ndim)
           Integer :: nf
           
           !Local 
-          Integer :: nc, n
-          Complex (Kind=Kind(0.D0)) :: a, b
-          a = 1.D0
-          b = 0.D0
+          Integer :: nc
           
-          Out = In
           do nc =  Ncheck,1,-1
              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('R','U',Ndim_hop,Ndim,Ndim,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,Out)
+                call ZSLHEMM('R','U',Ndim_hop,Ndim,Ndim,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
              Endif
           Enddo
           

@@ -37,7 +37,7 @@ implicit none
         enddo
         enddo
         
-        Call Op_mmultL(matnew, Op, nspin, Ndim)
+        Call Op_mmultL(matnew, Op, nspin, Ndim, 'n')
 
 ! check against old version from Operator_FFA.f90
 
@@ -108,7 +108,7 @@ VH = 0.D0
         enddo
         enddo
         
-        Call Op_mmultL(matnew, Op, nspin, Ndim)
+        Call Op_mmultL(matnew, Op, nspin, Ndim, 'n')
 
 ! check against old version from Operator_FFA.f90
 

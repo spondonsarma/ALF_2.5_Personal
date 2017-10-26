@@ -73,8 +73,8 @@
         ! Wrap up, upgrade ntau1.  with B^{1}(tau1) 
         NTAU1 = NTAU + 1
         Do nf = 1,N_FL
-           CALL HOP_MOD_mmthr( GR(:,:,nf),  MAT_TMP,nf)
-           CALL HOP_MOD_mmthl_m1(MAT_TMP,GR(:,:,nf), nf )
+           CALL HOP_MOD_mmthr   (GR(:,:,nf), nf )
+           CALL HOP_MOD_mmthl_m1(GR(:,:,nf), nf )
            !CALL MMULT ( MAT_TMP,    Exp_T(:,:,nf), GR(:,:,nf)        )
            !CALL MMULT ( GR(:,:,nf), MAT_TMP      , Exp_T_M1(:,:,nf)  )
         Enddo

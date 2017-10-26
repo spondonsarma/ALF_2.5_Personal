@@ -115,7 +115,7 @@ Contains
 
     !Local 
     Integer :: nf, N_Type, NTAU1,X,n, m, Flip_value(1)
-    Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim),  Prev_Ratiotot
+    Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
     Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
@@ -123,10 +123,8 @@ Contains
     ! Wrap up, upgrade ntau1.  with B^{1}(tau1) 
     NTAU1 = NTAU + 1
     Do nf = 1,N_FL
-       CALL HOP_MOD_mmthr( GR(:,:,nf),  MAT_TMP,nf)
-       CALL HOP_MOD_mmthl_m1(MAT_TMP,GR(:,:,nf), nf )
-       !CALL MMULT ( MAT_TMP,    Exp_T(:,:,nf), GR(:,:,nf)        )
-       !CALL MMULT ( GR(:,:,nf), MAT_TMP      , Exp_T_M1(:,:,nf)  )
+       CALL HOP_MOD_mmthr   (GR(:,:,nf), nf )
+       CALL HOP_MOD_mmthl_m1(GR(:,:,nf), nf )
     Enddo
     Do n = Nt_sequential_start,Nt_sequential_end
        Do nf = 1, N_FL
@@ -216,7 +214,7 @@ Contains
     
     ! Local
     Integer :: nf, N_Type, n, spin, m, Flip_value(1)
-    Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim),  Prev_Ratiotot
+    Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
     Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
@@ -269,10 +267,8 @@ Contains
        enddo
     enddo
     DO nf = 1,N_FL
-       Call Hop_mod_mmthl   (GR(:,:,nf), MAT_TMP, nf)
-       Call Hop_mod_mmthr_m1(MAT_TMP, GR(:,:,nf), nf)
-       !CALL MMULT(MAT_TMP   , GR(:,:,nf)      , Exp_T(:,:,nf) )
-       !CALL MMULT(GR(:,:,nf), Exp_T_M1(:,:,nf), MAT_TMP       )
+       Call Hop_mod_mmthl   (GR(:,:,nf), nf)
+       Call Hop_mod_mmthr_m1(GR(:,:,nf), nf)
     enddo
     
   end SUBROUTINE WRAPGRDO

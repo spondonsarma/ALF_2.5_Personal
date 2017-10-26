@@ -65,7 +65,6 @@
         Integer :: NTAU
 
         ! Local
-        Complex (Kind=Kind(0.d0)) :: Mat_TMP(Ndim,Ndim)
         Integer :: nf, N_Type, n,spin
 !         real (Kind=Kind(0.d0)) :: spin
 
@@ -87,8 +86,8 @@
            enddo
         enddo
         DO nf = 1,N_FL
-           Call Hop_mod_mmthl   (GR(:,:,nf), MAT_TMP, nf)
-           Call Hop_mod_mmthr_m1(MAT_TMP, GR(:,:,nf), nf)
+           Call Hop_mod_mmthl   (GR(:,:,nf), nf)
+           Call Hop_mod_mmthr_m1(GR(:,:,nf), nf)
            !CALL MMULT(MAT_TMP   , GR(:,:,nf)      , Exp_T(:,:,nf) )
            !CALL MMULT(GR(:,:,nf), Exp_T_M1(:,:,nf), MAT_TMP       )
         enddo
