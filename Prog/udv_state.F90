@@ -235,7 +235,7 @@ END SUBROUTINE assign_UDV_state
         CALL ZTRMM('R', 'U', 'C', 'N', Ndim, Ndim, Z_ONE, UDVL%U, Ndim, UDVL%V, Ndim)
         ! create explicitly U in the storage already present for it
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
-        call ZSCAL(size(UDVL%D,1),phase,UDVL%U(1,1),1)
+        call ZSCAL(size(UDVL%U,1),phase,UDVL%U(1,1),1)
         UDVL%U = CONJG(TRANSPOSE(UDVL%U ))
         DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE right_decompose_UDV_state
@@ -295,7 +295,7 @@ END SUBROUTINE right_decompose_UDV_state
         ! Generate explicitly U in the previously abused storage of U
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
         ! scale first column of U to correct the scaling in V such that UDV is not changed
-        call ZSCAL(size(UDVR%D,1),phase,UDVR%U(1,1),1)
+        call ZSCAL(size(UDVR%U,1),phase,UDVR%U(1,1),1)
         DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE left_decompose_UDV_state
 
