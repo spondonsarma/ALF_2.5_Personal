@@ -203,7 +203,7 @@ END SUBROUTINE assign_UDV_state
 !         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, Dimension(:, :) :: TMP1
         CLASS(UDV_State), intent(inout) :: UDVL
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, Phase
         INTEGER, allocatable, Dimension(:) :: IPVT
         INTEGER :: INFO, i, j, LWORK, Ndim
         LOGICAL :: FORWRD
@@ -220,6 +220,14 @@ END SUBROUTINE assign_UDV_state
         ALLOCATE(TAU(Ndim), IPVT(Ndim))
         IPVT = 0
         call QDRP_decompose(Ndim, UDVL%U, UDVL%D, IPVT, TAU, WORK, LWORK)
+        Phase=cmplx(1.d0,0.d0,kind(0.d0))
+        do i=1,size(UDVL%D,1)
+          Phase=Phase*UDVL%U(i,i)
+        enddo
+        Call Pivot_Phase(phase,IPVT,size(UDVL%D,1))
+        beta=1/Phase
+        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+        call ZSCAL(size(UDVL%D,1),beta,UDVL%U(1,1),size(UDVL%U,1))
         ! Permute V, since we multiply with V from the left we have to permute its columns
         FORWRD = .true.
         CALL ZLAPMT(FORWRD, Ndim, Ndim, UDVL%V, Ndim, IPVT)
@@ -227,6 +235,7 @@ END SUBROUTINE assign_UDV_state
         CALL ZTRMM('R', 'U', 'C', 'N', Ndim, Ndim, Z_ONE, UDVL%U, Ndim, UDVL%V, Ndim)
         ! create explicitly U in the storage already present for it
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
+        call ZSCAL(size(UDVL%D,1),phase,UDVL%U(1,1),1)
         UDVL%U = CONJG(TRANSPOSE(UDVL%U ))
         DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE right_decompose_UDV_state
@@ -253,7 +262,7 @@ END SUBROUTINE right_decompose_UDV_state
 !         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:, :) :: TMP1
         CLASS(UDV_State), intent(inout) :: UDVR
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, Phase
         INTEGER :: INFO, i, j, LWORK, Ndim
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
@@ -262,7 +271,6 @@ END SUBROUTINE right_decompose_UDV_state
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         beta = 0.D0
         Ndim = UDVR%ndim
-!         CALL ZGEMM('N', 'N', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVR%U, Ndim, beta, TMP1(1, 1), Ndim)
         ! TMP1 = TMP1 * D
         DO i = 1,NDim
             UDVR%U(:, i) = UDVR%U(:, i)*UDVR%D(i)
@@ -270,6 +278,14 @@ END SUBROUTINE right_decompose_UDV_state
         ALLOCATE(TAU(Ndim), IPVT(Ndim))
         IPVT = 0
         call QDRP_decompose(Ndim, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
+        Phase=cmplx(1.d0,0.d0,kind(0.d0))
+        do i=1,size(UDVR%D,1)
+          Phase=Phase*UDVR%U(i,i)
+        enddo
+        Call Pivot_Phase(phase,IPVT,size(UDVR%D,1))
+        beta=1/Phase
+        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+        call ZSCAL(size(UDVR%D,1),beta,UDVR%U(1,1),size(UDVR%U,1))
         ! Permute V. Since we multiply with V from the right we have to permute the rows.
         ! A V = A P P^-1 V = Q R P^-1 V
         FORWRD = .true.
@@ -278,6 +294,8 @@ END SUBROUTINE right_decompose_UDV_state
         CALL ZTRMM('L', 'U', 'N', 'N', Ndim, Ndim, Z_ONE, UDVR%U, Ndim, UDVR%V, Ndim)
         ! Generate explicitly U in the previously abused storage of U
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
+        ! scale first column of U to correct the scaling in V such that UDV is not changed
+        call ZSCAL(size(UDVR%D,1),phase,UDVR%U(1,1),1)
         DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE left_decompose_UDV_state
 
