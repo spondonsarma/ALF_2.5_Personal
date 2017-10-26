@@ -68,16 +68,13 @@
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         beta = 0.D0
         Do nf = 1, N_FL
-!            CALL INITD(TMP,Z_ONE)
-           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
+                 Call Op_mmultl(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               enddo
-              !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
-              Call  Hop_mod_mmthr (udvl(nf)%U,nf)
+              Call  Hop_mod_mmthl (udvl(nf)%U,nf)
            ENDDO
+           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            
            !Carry out U,D,V decomposition.
 !            CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
@@ -103,24 +100,21 @@
 
         ! Working space.
 !         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
+!         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
         Integer :: NT, NCON, n, nf
         Real    (Kind=Kind(0.d0)) ::  X
  
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
 !         Allocate (TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
-        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+!         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         Do nf = 1, N_FL
-!            CALL INITD(TMP,Z_ONE)
-           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
+                 Call Op_mmultL(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               enddo
-              !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
-              Call  Hop_mod_mmthr (udvl(nf)%U,nf)
+              Call  Hop_mod_mmthl (udvl(nf)%U,nf)
            ENDDO
+           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            
            !Carry out U,D,V decomposition.
            CALL UDVL(nf)%right_decompose !(udvl(nf)%U, TMP1, NCON)

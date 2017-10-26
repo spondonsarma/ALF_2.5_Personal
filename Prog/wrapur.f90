@@ -65,16 +65,12 @@
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         
         Do nf = 1,N_FL
-!            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU + 1, NTAU1
-              !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
               Call Hop_mod_mmthr(UDVR(nf)%U,nf)
               Do n = 1,Size(Op_V,1)
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
                  Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               ENDDO
            ENDDO
-!            CALL MMULT(TMP1,TMP, udvr(nf)%U)
            DO J = 1,NDim
               DO I = 1,NDim
                  TMP1(I,J) = UDVR(nf)%U(I,J)*udvr(nf)%D(J)
@@ -94,21 +90,17 @@
 
 
         ! Working space.
-        Complex (Kind=Kind(0.d0)) :: Z_ONE
+!         Complex (Kind=Kind(0.d0)) :: Z_ONE
 !         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
         Integer :: NT, NCON, n, nf
         Real (Kind=Kind(0.d0)) :: X
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
-!         Allocate (TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
-        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+!         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         Do nf = 1,N_FL
-!            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU + 1, NTAU1
-              !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
-              Call Hop_mod_mmthr(UDVR(nf)%U,nf)
+              Call Hop_mod_mmthR(UDVR(nf)%U,nf)
               Do n = 1,Size(Op_V,1)
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
                  Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               ENDDO
            ENDDO
