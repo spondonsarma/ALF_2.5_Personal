@@ -306,12 +306,15 @@ Contains
     Implicit none 
     Integer :: Ndim
     Type (Operator) , INTENT(IN)   :: Op
-    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (:,:)
     Integer, INTENT(IN)   :: spin
     Character, Intent(IN) :: cop
 
     ! Local 
-    Integer :: I
+    Integer :: I, N1, N2
+    
+    N1=size(Mat,1)
+    N2=size(Mat,2)
 
     ! In  Mat
     ! Out Mat = Mat*exp(spin*Op)
@@ -322,13 +325,13 @@ Contains
     if ( Op%diag ) then
       do I=1,Op%N
         if ( cop == 'c' .or. cop =='C' ) then
-          call ZSCAL(Ndim,conjg(Op%E_exp(I,spin)),Mat(1,Op%P(I)),1)
+          call ZSCAL(N1,conjg(Op%E_exp(I,spin)),Mat(1,Op%P(I)),1)
         else
-          call ZSCAL(Ndim,Op%E_exp(I,spin),Mat(1,Op%P(I)),1)
+          call ZSCAL(N1,Op%E_exp(I,spin),Mat(1,Op%P(I)),1)
         endif
       enddo
     else
-      call ZSLGEMM('r',cop,Op%N,Ndim,Ndim,Op%M_exp(:,:,spin),Op%P,Mat)
+      call ZSLGEMM('r',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultL
 
@@ -348,12 +351,15 @@ Contains
     Implicit none
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
-    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (:,:)
     Integer, INTENT(IN )   :: spin
     Character, Intent(IN) :: cop
 
     ! Local 
-    Integer :: I
+    Integer :: I, N1, N2
+    
+    N1=size(Mat,1)
+    N2=size(Mat,2)
     
     ! In  Mat
     ! Out Mat = exp(spin*Op)*Mat
@@ -364,13 +370,13 @@ Contains
     if ( Op%diag ) then
       do I=1,Op%N
         if ( cop == 'c' .or. cop =='C' ) then
-          call ZSCAL(Ndim,conjg(Op%E_exp(I,spin)),Mat(Op%P(I),1),Ndim)
+          call ZSCAL(N2,conjg(Op%E_exp(I,spin)),Mat(Op%P(I),1),N1)
         else
-          call ZSCAL(Ndim,Op%E_exp(I,spin),Mat(Op%P(I),1),Ndim)
+          call ZSCAL(N2,Op%E_exp(I,spin),Mat(Op%P(I),1),N1)
         endif
       enddo
     else
-      call ZSLGEMM('L',cop,Op%N,Ndim,Ndim,Op%M_exp(:,:,spin),Op%P,Mat)
+      call ZSLGEMM('L',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultR
 
