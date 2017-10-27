@@ -156,6 +156,10 @@
          nbins  = Nbins - n_skip
          Write(6,*) "Effective # of bins: ", Nbins
          N_auto=min(N_auto,Nbins/3)
+         if(Nbins <= 1) then
+           write (*,*) "Effective # of bins smaller then 2. Analysis impossible!"
+           stop 1
+         endif
 
          ! Allocate  space
          Allocate ( bins(Nunit,Nbins), bins_r(Nunit,Nbins), Phase(Nbins),  V_help(Nbins), V_help_R(Nbins), Bins0(Nbins,Norb))
