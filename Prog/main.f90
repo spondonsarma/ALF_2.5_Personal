@@ -220,6 +220,7 @@ Program Main
 #endif
         
  
+        Call Op_SetHS
         Call Ham_set
         If ( .not. Global_tau_moves )  then
            ! This  corresponds to the default updating scheme
@@ -239,7 +240,6 @@ Program Main
  
         Call control_init
         Call Alloc_obs(Ltau)
-        Call Op_SetHS
 
         If ( mod(Ltrot,nwrap) == 0  ) then 
            Nstm = Ltrot/nwrap
