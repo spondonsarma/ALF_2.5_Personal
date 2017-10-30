@@ -65,15 +65,20 @@
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         
         Do nf = 1,N_FL
+           CALL INITD(TMP,Z_ONE)
            DO NT = NTAU + 1, NTAU1
-              Call Hop_mod_mmthr(UDVR(nf)%U,nf)
+              !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
+              Call Hop_mod_mmthr(TMP,nf)
+!               TMP = TMP1
               Do n = 1,Size(Op_V,1)
-                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               ENDDO
            ENDDO
+           CALL MMULT(TMP1,TMP, udvr(nf)%U)
            DO J = 1,NDim
               DO I = 1,NDim
-                 TMP1(I,J) = UDVR(nf)%U(I,J)*udvr(nf)%D(J)
+                 TMP1(I,J) = TMP1(I,J)*udvr(nf)%D(J)
                  TMP(I,J)  = udvr(nf)%V(I,J)
               ENDDO
            ENDDO

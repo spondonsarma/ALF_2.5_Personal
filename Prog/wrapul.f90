@@ -68,18 +68,21 @@
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         beta = 0.D0
         Do nf = 1, N_FL
+           CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultl(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
+                 Call Op_mmultL(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               enddo
-              Call  Hop_mod_mmthl (udvl(nf)%U,nf)
+              !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
+              Call  Hop_mod_mmthl (Tmp,nf)
+!               Tmp = Tmp1
            ENDDO
-           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            
            !Carry out U,D,V decomposition.
-!            CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
+           CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
            DO n = 1,NDim
-              TMP1(:, n) = udvl(nf)%U(:, n) * udvl(nf)%D(n)
+              TMP1(:, n) = TMP1(:, n) * udvl(nf)%D(n)
            ENDDO
            CALL UDV_WRAP_Pivot(TMP1,U1,D1,V1,NCON,Ndim,Ndim)
            !CALL UDV(TMP,U1,D1,V1,NCON)
