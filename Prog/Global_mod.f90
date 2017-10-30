@@ -233,7 +233,7 @@ Module Global_mod
     if (Tempering_calc_det) then
            !>  Compute ratio on weights one each rank
            DO nf = 1,N_FL
-              CALL udvl(nf)%reset
+              CALL udvl(nf)%reset('l')
            ENDDO
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
@@ -317,7 +317,7 @@ Module Global_mod
         !> If move has been accepted, no use to recomute storage
         If (.not.TOGGLE) then
            DO nf = 1,N_FL
-              CALL udvl(nf)%reset
+              CALL udvl(nf)%reset('l')
            ENDDO
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
@@ -467,7 +467,7 @@ Module Global_mod
         If (L_test) then 
            ! Testing    
            Do nf = 1,N_FL
-              CALL udvr(nf)%reset
+              CALL udvr(nf)%reset('r')
            Enddo
            NVAR = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
@@ -502,7 +502,7 @@ Module Global_mod
               NC = NC + 1
               !> Compute the new Green function
               DO nf = 1,N_FL
-                 CALL udvl(nf)%reset
+                 CALL udvl(nf)%reset('l')
               ENDDO
               DO NST = NSTM-1,1,-1
                  NT1 = Stab_nt(NST+1)
@@ -553,7 +553,7 @@ Module Global_mod
         If (NC > 0 ) then
            If (.not.TOGGLE) then
               DO nf = 1,N_FL
-                 CALL udvl(nf)%reset
+                 CALL udvl(nf)%reset('l')
               ENDDO
               DO NST = NSTM-1,1,-1
                  NT1 = Stab_nt(NST+1)
@@ -693,13 +693,17 @@ Module Global_mod
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP!, U, V
         COMPLEX (Kind=Kind(0.d0)), Dimension(:), Allocatable :: D
         
+        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        
         !    N_size = SIZE(DL,1)
         N_size = udvl%ndim
         NCON  = 0
         alpha = cmplx(1.d0,0.d0,kind(0.d0))
         beta  = cmplx(0.d0,0.d0,kind(0.d0))
         Allocate (TP(N_Size,N_Size),D(N_size))
-        TP = CT(udvl%U)
+        TP = udvl%U !udvl stores U^dag instead of U !CT(udvl%U)
 #if !defined(LOG)
 #if !defined(STAB3)
         DO J = 1,N_size
@@ -726,7 +730,8 @@ Module Global_mod
         CALL udvlocal%alloc(N_size)
         Call  UDV_WRAP_Pivot(TP,udvlocal%U, D, udvlocal%V, NCON,N_size,N_Size)
         Z  = DET_C(udvlocal%V, N_size) ! Det destroys its argument
-        Call MMULT(TP, udvl%U, udvlocal%U)
+!         Call MMULT(TP, udvl%U, udvlocal%U)
+        CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
         Z1 = Det_C(TP, N_size) 
         Deallocate (TP)
         Phase   = Z*Z1/ABS(Z*Z1)

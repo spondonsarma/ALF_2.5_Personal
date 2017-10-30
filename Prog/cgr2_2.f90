@@ -235,6 +235,13 @@
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2, HLPB1, HLPB2, U3B, V3B
         Integer :: LQ2, I,J, NCON
         
+        if(udv1%side .ne. "L" .and. udv1%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        if(udv2%side .ne. "R" .and. udv2%side .ne. "r" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        
         LQ2 = LQ*2
         NCON = 0
         alpha = 1.D0
@@ -248,7 +255,7 @@
            call zlacpy('A',LQ,LQ,MYU2(1,1)  ,LQ,HLPB2(1+LQ,1+LQ),LQ2)
            DO J = 1,LQ
               DO I = 1,LQ
-                 HLPB2(I   , J+LQ ) =  udv1%D(I)*udv1%U(I,J)
+                 HLPB2(I   , J+LQ ) =  udv1%D(I)*conjg(udv1%U(J,I))!udv1%U(I,J)
                  HLPB2(I+LQ, J    ) = -udv2%D(I)*udv2%V(I,J)
               ENDDO
            ENDDO
@@ -287,7 +294,7 @@
            DO J = 1,LQ
               DO I = 1,LQ
                  HLPB2(I   , J+LQ ) = -udv2%D(I)*udv2%V(I,J)
-                 HLPB2(I+LQ, J    ) =  udv1%D(I)*udv1%U(I,J)
+                 HLPB2(I+LQ, J    ) =  udv1%D(I)*conjg(udv1%U(J,I))!udv1%U(I,J)
               ENDDO
            ENDDO
            HLPB1 = CT(HLPB2)
@@ -316,6 +323,13 @@
         
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
         INTEGER, Dimension(:), Allocatable :: IPVT
+        
+        if(udv1%side .ne. "L" .and. udv1%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        if(udv2%side .ne. "R" .and. udv2%side .ne. "r" ) then
+          write(*,*) "calling wrong decompose"
+        endif
         
         LQ2 = LQ*2
         NCON = 0
@@ -374,7 +388,7 @@
            call zlacpy('A',LQ,LQ,MYU2(1,1)  ,LQ,HLPB2(1+LQ,1+LQ),LQ2)
            DO J = 1,LQ
               DO I = 1,LQ
-                 HLPB2(I   , J+LQ ) =  D1m(I)*udv1%U(I,J)
+                 HLPB2(I   , J+LQ ) =  D1m(I)*conjg(udv1%U(J,I))!udv1%U(I,J)
                  HLPB2(I+LQ, J    ) = -D2m(I)*udv2%V(I,J)
               ENDDO
            ENDDO
@@ -389,7 +403,7 @@
            DO J = 1,LQ
               DO I = 1,LQ
                  HLPB2(I   , J+LQ ) = -D2m(I)*udv2%V(I,J)
-                 HLPB2(I+LQ, J    ) =  D1m(I)*udv1%U(I,J)
+                 HLPB2(I+LQ, J    ) =  D1m(I)*conjg(udv1%U(J,I))!udv1%U(I,J)
               ENDDO
            ENDDO
            HLPB1 = CT(HLPB2)

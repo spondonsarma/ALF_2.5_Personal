@@ -108,7 +108,7 @@
            ALLOCATE(udvr(N_FL))
            Z = cmplx(1.d0,0.d0,kind(0.d0))
            Do nf = 1, N_FL
-              CALL udvr(nf)%init(ndim)
+              CALL udvr(nf)%init(ndim,'r')
            enddo
               
            NST = 1

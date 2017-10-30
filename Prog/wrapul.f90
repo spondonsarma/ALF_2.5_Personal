@@ -80,13 +80,13 @@
            ENDDO
            
            !Carry out U,D,V decomposition.
-           CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
+           CALL ZGEMM('C', 'N', Ndim, Ndim, Ndim, Z_ONE, TMP, Ndim, udvl(nf)%U(1, 1), Ndim, beta, TMP1, Ndim)
            DO n = 1,NDim
               TMP1(:, n) = TMP1(:, n) * udvl(nf)%D(n)
            ENDDO
            CALL UDV_WRAP_Pivot(TMP1,U1,D1,V1,NCON,Ndim,Ndim)
            !CALL UDV(TMP,U1,D1,V1,NCON)
-           udvl(nf)%U = CONJG(TRANSPOSE(U1))
+           udvl(nf)%U = U1!CONJG(TRANSPOSE(U1))
            CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, udvl(nf)%V(1,1), Ndim, V1, Ndim, beta, TMP1, Ndim)
            udvl(nf)%V = TMP1
            udvl(nf)%D = D1
@@ -113,11 +113,11 @@
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultL(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
               enddo
-              Call  Hop_mod_mmthl (udvl(nf)%U,nf)
+              Call  Hop_mod_mmthr (udvl(nf)%U,nf)
            ENDDO
-           udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
+!            udvl(nf)%U = CONJG(TRANSPOSE(udvl(nf)%U))
            
            !Carry out U,D,V decomposition.
            CALL UDVL(nf)%right_decompose !(udvl(nf)%U, TMP1, NCON)

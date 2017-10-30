@@ -40,7 +40,8 @@ MODULE UDV_State_mod
 #else
         REAL    (Kind=Kind(0.d0)), allocatable :: L(:)
 #endif
-        INTEGER :: ndim
+        INTEGER :: ndim, n_part
+        CHARACTER :: side
 
         CONTAINS
             PROCEDURE :: alloc => alloc_UDV_state
@@ -70,17 +71,24 @@ CONTAINS
 !> @param [inout] this The object to be modified.
 !> @param [in] t the size of the involved matrices.
 !-------------------------------------------------------------------
-SUBROUTINE alloc_UDV_state(this, t)
+SUBROUTINE alloc_UDV_state(this, t, t_part)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
     INTEGER, INTENT(IN) :: t
+    INTEGER, INTENT(IN), OPTIONAL :: t_part
 
     this%ndim = t
-    ALLOCATE(this%U(this%ndim, this%ndim), this%V(this%ndim, this%ndim))
+    if( present(t_part) ) then
+      this%N_part=t_part
+      ALLOCATE(this%U(this%ndim, this%N_part))
+    else
+      this%N_part=t
+      ALLOCATE(this%U(this%ndim, this%N_part), this%V(this%N_part, this%N_part))
+    endif
 #if !defined(LOG)
-    ALLOCATE(this%D(this%ndim))
+    ALLOCATE(this%D(this%N_part))
 #else
-    ALLOCATE(this%L(this%ndim))
+    ALLOCATE(this%L(this%N_part))
 #endif
 END SUBROUTINE alloc_UDV_state
 
@@ -95,13 +103,29 @@ END SUBROUTINE alloc_UDV_state
 !> @param [inout] this The object to be modified.
 !> @param [in] t the size of the involved matrices.
 !-------------------------------------------------------------------
-SUBROUTINE init_UDV_state(this, t)
+SUBROUTINE init_UDV_state(this, t, side, P)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-    INTEGER :: t
-
-    CALL this%alloc(t)
-    CALL this%reset
+    INTEGER, INTENT(IN) :: t
+    CHARACTER, INTENT(IN) :: side
+    COMPLEX(kind=kind(0.d0)), INTENT(IN), OPTIONAL :: P(:,:)
+    
+    this%side=side
+    if( present(P)) then
+      if ( t .ne. size(P,1) ) then
+        write(*,*) "Mismatching Ndim between explicitly provided argument and implicitly provided size(P,1)"
+        stop 1
+      endif
+      if ( t < size(P,2) .or. size(P,2) < 0 ) then
+        write(*,*) "Illegal number of particles provided as size(P,2) (0 <= N_part <= Ndim)"
+        stop 1
+      endif
+      CALL this%alloc(t,size(P,2))
+      CALL this%reset(side,P)
+    else
+      CALL this%alloc(t)
+      CALL this%reset(side)
+    endif
 END SUBROUTINE init_UDV_state
 
 !--------------------------------------------------------------------
@@ -162,8 +186,10 @@ END SUBROUTINE getscale_UDV_state
 SUBROUTINE dealloc_UDV_state(this)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-
-    DEALLOCATE(this%U, this%V)
+    
+    !V is only allocated in finite temperature version
+    IF(ALLOCATED(this%V)) DEALLOCATE(this%V)
+    DEALLOCATE(this%U)
 #if !defined(LOG)
     DEALLOCATE(this%D)
 #else
@@ -181,15 +207,27 @@ END SUBROUTINE dealloc_UDV_state
 !>
 !> @param [inout] this The object to be reset.
 !-------------------------------------------------------------------
-SUBROUTINE reset_UDV_state(this)
+SUBROUTINE reset_UDV_state(this, side, P)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
+    CHARACTER, INTENT(IN) ::side
+    COMPLEX (Kind=Kind(0.d0)), OPTIONAL :: P(:,:)
     COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
 
     alpha = 0.D0
     beta = 1.D0
-    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
-    CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V(1, 1), this%ndim)
+    this%side=side
+    if( present(P) ) then
+      if(size(P,1) .ne. this%ndim .or. size(P,2) .ne. this%N_part) then
+        CALL this%dealloc
+        CALL this%init(this%ndim,side,P)
+      else
+        CALL ZLACPY('A', this%ndim, this%N_part, P(1, 1), size(P,1), this%U(1, 1), this%n_part)
+      endif
+    else
+      CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
+      CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V(1, 1), this%ndim)
+    endif
 #if !defined(LOG)
     this%D = beta
 #else
@@ -211,14 +249,20 @@ SUBROUTINE print_UDV_state(this)
     CLASS(UDV_State), INTENT(IN) :: this
     INTEGER :: i
 
+    WRITE(*,*) "Side = ", this%side
     WRITE(*,*) "NDim = ", this%ndim
+    WRITE(*,*) "N_part = ", this%N_part
     DO i = 1, this%ndim
         WRITE(*,*) this%U(i, :)
     ENDDO
     WRITE(*,*) "======================"
-    DO i = 1, this%ndim
-        WRITE(*,*) this%V(i, :)
-    ENDDO
+    if( ALLOCATED(this%V)) then
+      DO i = 1, this%n_part
+          WRITE(*,*) this%V(i, :)
+      ENDDO
+    else
+      WRITE(*,*) "V is only stored in finite temperature version"
+    endif
     WRITE(*,*) "======================"
 #if !defined(LOG)
     WRITE(*,*) this%D(:)
@@ -243,12 +287,16 @@ SUBROUTINE assign_UDV_state(this, src)
     CLASS(UDV_State), INTENT(INOUT) :: this
     CLASS(UDV_State), INTENT(IN) :: src
     
+    IF(this%ndim .ne. src%ndim .or. this%n_part .ne. src%n_part) call this%dealloc
     this%ndim = src%ndim
-    IF(.not. ALLOCATED(this%U)) ALLOCATE(this%U(this%ndim, this%ndim))
-    IF(.not. ALLOCATED(this%V)) ALLOCATE(this%V(this%ndim, this%ndim))
+    this%n_part = src%n_part
+    this%side = src%side
+    
+    IF(.not. ALLOCATED(this%U)) ALLOCATE(this%U(this%ndim, this%n_part))
+    IF(.not. ALLOCATED(this%V) .and. ALLOCATED(src%V)) ALLOCATE(this%V(this%n_part, this%n_part))
     ASSOCIATE(ndim => src%ndim)
         CALL ZLACPY('A', ndim, ndim, src%U(1, 1), ndim, this%U(1, 1), ndim)
-        CALL ZLACPY('A', ndim, ndim, src%V(1, 1), ndim, this%V(1, 1), ndim)
+        if (ALLOCATED(src%V)) CALL ZLACPY('A', ndim, ndim, src%V(1, 1), ndim, this%V(1, 1), ndim)
     END ASSOCIATE
 #if !defined(LOG)
     this%D = src%D
@@ -283,6 +331,10 @@ END SUBROUTINE assign_UDV_state
         INTEGER, allocatable, Dimension(:) :: IPVT
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         LOGICAL :: FORWRD
+        
+        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
 
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         beta = 0.D0
@@ -354,7 +406,7 @@ END SUBROUTINE assign_UDV_state
         ! create explicitly U in the storage already present for it
         CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
         call ZSCAL(size(UDVL%U,1),phase,UDVL%U(1,1),1)
-        UDVL%U = CONJG(TRANSPOSE(UDVL%U ))
+!         UDVL%U = CONJG(TRANSPOSE(UDVL%U ))
         DEALLOCATE(TAU, WORK, IPVT)
 END SUBROUTINE right_decompose_UDV_state
 
@@ -386,6 +438,10 @@ END SUBROUTINE right_decompose_UDV_state
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
+        
+        if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
+          write(*,*) "calling wrong decompose"
+        endif
         
         ! QR(TMP * U * D) * V
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))

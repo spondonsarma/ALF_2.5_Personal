@@ -326,12 +326,12 @@ Program Main
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL ) )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
         do nf = 1, N_FL
-           CALL udvl(nf)%init(ndim)
-           CALL udvr(nf)%init(ndim)
+           CALL udvl(nf)%init(ndim,'l')
+           CALL udvr(nf)%init(ndim,'r')
            do n = 1, NSTM
               CALL udvst(n,nf)%alloc(ndim)
            ENDDO
-           CALL udvst(NSTM, nf)%reset
+           CALL udvst(NSTM, nf)%reset('l')
         enddo
         
         DO NST = NSTM-1,1,-1
@@ -391,7 +391,7 @@ Program Main
               ! Set the right storage to 1
               
               do nf = 1,N_FL
-                 CALL udvr(nf)%reset
+                 CALL udvr(nf)%reset('r')
               Enddo
               
               NST = 1
@@ -431,7 +431,7 @@ Program Main
               ENDDO
               
               Do nf = 1,N_FL
-                 CALL udvl(nf)%reset
+                 CALL udvl(nf)%reset('l')
               ENDDO
               
               NST = NSTM-1
@@ -474,7 +474,7 @@ Program Main
               CALL WRAPUL(NT, NT1, udvl)
         
               do nf = 1,N_FL
-                 CALL udvr(nf)%reset
+                 CALL udvr(nf)%reset('r')
               ENDDO
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               do nf = 1,N_FL
@@ -489,7 +489,7 @@ Program Main
               Phase = Z
               NST =  NSTM
               Do nf = 1,N_FL
-                 CALL udvst(NST, nf)%reset
+                 CALL udvst(NST, nf)%reset('l')
               enddo
               IF ( LTAU == 1 ) then
                  ! Call for imaginary time displaced  correlation fuctions. 

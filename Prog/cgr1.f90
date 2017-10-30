@@ -71,6 +71,13 @@
         Integer :: I,J, N_size, NCON, info
         Real (Kind=Kind(0.D0)) :: X, Xmax, sv
         
+        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        
         N_size = udvl%Ndim
         NCON = 0
         alpha = 1.D0
@@ -82,7 +89,7 @@
         DO J = 1,N_size
             TPUP(:,J) = udvr%D(:)*udvlocal%V(:,J)*udvl%D(J)
         ENDDO
-        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, udvr%U(1,1), N_size, udvl%U(1,1), N_size, alpha, TPUP, N_size)
+        CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvr%U(1,1), N_size, udvl%U(1,1), N_size, alpha, TPUP, N_size)
         !>  Syntax 
         !>  ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
         !>  C := alpha*op( A )*op( B ) + beta*C
@@ -91,7 +98,8 @@
            !WRITE(6,*) 'UDV of U + DR * V * DL'
            CALL UDV_WRAP_Pivot(TPUP,udvlocal%U,udvlocal%D,udvlocal%V,NCON,N_size,N_Size)
            !CALL UDV(TPUP,UUP,DUP,VUP,NCON)
-           CALL MMULT(TPUP,udvlocal%V, udvl%U)
+!            CALL MMULT(TPUP,udvlocal%V, udvl%U)
+           CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, udvlocal%V(1,1), N_size, udvl%U(1,1), N_size, beta, TPUP, N_size)
            !Do I = 1,N_size
            !   Write(6,*) DLUP(I)
            !enddo
@@ -112,7 +120,7 @@
            TPUP1 = CT(TPUP)
            CALL UDV_WRAP_Pivot(TPUP1, udvlocal%U, udvlocal%D, udvlocal%V, NCON,N_size,N_size)
            !CALL UDV(TPUP1,UUP,DUP,VUP,NCON)
-           CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl%U(1,1), N_size, udvlocal%U, N_size, beta, TPUPM1, N_size)
+           CALL ZGEMM('N', 'N', N_size, N_size, N_size, alpha, udvl%U(1,1), N_size, udvlocal%U, N_size, beta, TPUPM1, N_size)
            CALL ZGEMM('N', 'C', N_size, N_size, N_size, alpha, udvr%U(1,1), N_size, udvlocal%V, N_size, beta, TPUP1, N_size)
            CALL ZGETRF(N_size, N_size, TPUP1, N_size, IPVT, info)
            !>  TPUP1 = P * L * U   LU-decomposition
@@ -170,6 +178,13 @@
         
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
         LOGICAL :: FORWRD
+        
+        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
+          write(*,*) "calling wrong decompose"
+        endif
+        if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
+          write(*,*) "calling wrong decompose"
+        endif
             
         N_size = udvl%ndim
         NCON = 0
@@ -179,7 +194,7 @@
         !Write(6,*) 'In CGR', N_size
         ! can be inserted again once we are sure that we may assume that UR and UL stem from householder reflectors
 !        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, URUP, N_size, ULUP, N_size, alpha, TPUP, N_size)
-        CALL ZGEMM('C', 'C', N_size, N_size, N_size, alpha, udvr%U, N_size, udvl%U, N_size, beta, RHS(1, 1), N_size)
+        CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvr%U, N_size, udvl%U, N_size, beta, RHS(1, 1), N_size)
         
         CALL MMULT(TPUP, udvr%V, udvl%V)
 #if !(defined(STAB3) || defined(LOG))
@@ -343,12 +358,12 @@
             enddo
 #endif
             ! perform multiplication with ULUP and store in GRUP
-            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl%U(1, 1), N_size, RHS(1,1), N_size, beta, GRUP(1,1), N_size)
+            CALL ZGEMM('N', 'N', N_size, N_size, N_size, alpha, udvl%U(1, 1), N_size, RHS(1,1), N_size, beta, GRUP(1,1), N_size)
         ELSE
             ! This solves the system G * URUP * P * R^dagger * D * U^dagger * ULUP = 1
             
             ! RHS = ULUP * UUP
-            RHS = CT(udvl%U)
+            RHS = udvl%U !CT(udvl%U)
 #if (defined(STAB3) || defined(LOG))
             !scale RHS=RHS*L_+^-1
             do J=1,N_size
