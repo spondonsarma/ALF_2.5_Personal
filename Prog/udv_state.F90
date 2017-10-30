@@ -319,6 +319,7 @@ END SUBROUTINE assign_UDV_state
 !-------------------------------------------------------------------
  SUBROUTINE right_decompose_UDV_state(UDVL)!, TMP, TMP1, NCON)
         Use QDRP_mod
+        Use MyMats
         Implicit None
 !         INTEGER, intent(in) :: NCON
 !         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, Dimension(: ,:) :: TMP
@@ -327,7 +328,7 @@ END SUBROUTINE assign_UDV_state
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvl%ndim,udvl%ndim)
         INTEGER, allocatable, Dimension(:) :: IPVT
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         LOGICAL :: FORWRD
@@ -365,29 +366,35 @@ END SUBROUTINE assign_UDV_state
         Do i=1,Ndim
             tmpnorm(i) = log(DZNRM2( Ndim, UDVL%U( 1, I ), 1 ))+UDVL%L(I)
         enddo
+!         TmpMat=UDVL%V
+!         phase=det_c(tmpmat,ndim)
+!         write(*,*) "Phase in:",phase
+        Phase=cmplx(1.d0,0.d0,kind(0.d0))
         do i=1,Ndim
             PVT = I
             do j=I+1,Ndim
               if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
             enddo
+            IPVT(I)=PVT
             IF( PVT.NE.I ) THEN
                 CALL ZSWAP( ndim, UDVL%U( 1, PVT ), 1, UDVL%U( 1, I ), 1 )
-!                 CALL ZCOPY( ndim, UDVL%U( 1, I   ), 1, UDVL%U( 1, PVT ), 1 )
                 CALL ZSWAP( ndim, UDVL%V( 1, PVT ), 1, UDVL%V( 1, I ), 1 )
                 tmpL=UDVL%L(I)
                 UDVL%L(I)=UDVL%L(PVT)
                 UDVL%L(PVT)=tmpL
                 tmpnorm( PVT ) = tmpnorm( I )
-!             ELSE
-!                 CALL ZCOPY( ndim, UDVL%U( 1, I ), 1, UDVL%U( 1, I ), 1 )
+                phase=-phase
             END IF
         enddo
+!         TmpMat=UDVL%V
+!         write(*,*) "Phase after pivot:",det_c(tmpmat,ndim)
+!         write(*,*) "Phase pivot:",phase
         IPVT = 1
         call QDRP_decompose(Ndim, UDVL%U, D, IPVT, TAU, WORK, LWORK)
-        Phase=cmplx(1.d0,0.d0,kind(0.d0))
         do i=1,size(D,1)
           Phase=Phase*UDVL%U(i,i)
         enddo
+        Phase=CONJG(Phase)
         beta=1/Phase
         !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
         call ZSCAL(size(D,1),beta,UDVL%U(1,1),size(UDVL%U,1))
@@ -426,6 +433,7 @@ END SUBROUTINE right_decompose_UDV_state
 !-------------------------------------------------------------------
  SUBROUTINE left_decompose_UDV_state(UDVR)!, TMP, TMP1, NCON)
         Use QDRP_mod
+        Use MyMats
         Implicit None
 !         INTEGER, intent(in) :: NCON
 !         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, dimension(:, :) :: TMP
@@ -434,7 +442,7 @@ END SUBROUTINE right_decompose_UDV_state
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvr%ndim,udvr%ndim)
         INTEGER :: INFO, i, j, LWORK, Ndim, PVT
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
@@ -474,27 +482,32 @@ END SUBROUTINE right_decompose_UDV_state
         Do i=1,Ndim
             tmpnorm(i) = log(DZNRM2( Ndim, UDVR%U( 1, I ), 1 ))+UDVR%L(I)
         enddo
+!         TmpMat=UDVr%V
+!         phase=det_c(tmpmat,ndim)
+!         write(*,*) "Phase in:",phase
+        Phase=cmplx(1.d0,0.d0,kind(0.d0))
         do i=1,Ndim
             PVT = I
             do j=I+1,Ndim
               if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
             enddo
+            IPVT(I)=PVT
             IF( PVT.NE.I ) THEN
                 CALL ZSWAP( ndim, UDVR%U( 1, PVT ), 1, UDVR%U( 1, I ), 1 )
-!                 CALL ZCOPY( ndim, UDVR%U( 1, I   ), 1, UDVR%U( 1, PVT ), 1 )
                 CALL ZSWAP( ndim, UDVR%V( PVT, 1 ), Ndim, UDVR%V( I, 1 ), Ndim )
                 tmpL=UDVR%L(I)
                 UDVR%L(I)=UDVR%L(PVT)
                 UDVR%L(PVT)=tmpL
                 tmpnorm( PVT ) = tmpnorm( I )
-!             ELSE
-!                 CALL ZCOPY( ndim, UDVR%U( 1, I ), 1, UDVR%U( 1, I ), 1 )
+                phase=-phase
             END IF
         enddo
+!         TmpMat=UDVr%V
+!         write(*,*) "Phase after pivot:",det_c(tmpmat,ndim)
+!         write(*,*) "Phase pivot:",phase
         !disable lapack internal pivoting
         IPVT = 1
         call QDRP_decompose(Ndim, UDVR%U, D, IPVT, TAU, WORK, LWORK)
-        Phase=cmplx(1.d0,0.d0,kind(0.d0))
         do i=1,size(D,1)
           Phase=Phase*UDVR%U(i,i)
         enddo

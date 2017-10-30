@@ -89,6 +89,8 @@
            udvl(nf)%U = U1!CONJG(TRANSPOSE(U1))
            CALL ZGEMM('N', 'C', Ndim, Ndim, Ndim, Z_ONE, udvl(nf)%V(1,1), Ndim, V1, Ndim, beta, TMP1, Ndim)
            udvl(nf)%V = TMP1
+!            X=abs(det_c(TMP1,ndim)-1.d0)
+!            if(X>1D-12) write(*,*) "WRAPUL: Error ", x, "to large"
            udvl(nf)%D = D1
         ENDDO
 
@@ -102,13 +104,13 @@
 
 
         ! Working space.
-!         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
+        COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
 !         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
         Integer :: NT, NCON, n, nf
         Real    (Kind=Kind(0.d0)) ::  X
  
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
-!         Allocate (TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
+        Allocate (TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
 !         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
@@ -121,8 +123,11 @@
            
            !Carry out U,D,V decomposition.
            CALL UDVL(nf)%right_decompose !(udvl(nf)%U, TMP1, NCON)
+!            TMP=UDVL(nf)%V
+!            X=abs(det_c(TMP,ndim)-1.d0)
+!            if(X>1D-12) write(*,*) "WRAPUL: Error ", x, "to large"
         ENDDO
-!         deallocate(TMP, TMP1)
+        deallocate(TMP, TMP1)
 #endif
       END SUBROUTINE WRAPUL
       

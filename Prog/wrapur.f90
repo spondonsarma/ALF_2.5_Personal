@@ -84,6 +84,9 @@
            ENDDO
            CALL UDV_WRAP_Pivot(TMP1, udvr(nf)%U, udvr(nf)%D, V1,NCON,Ndim,Ndim)
            CALL MMULT(udvr(nf)%V, V1, TMP)
+!            TMP=UDVr(nf)%V
+!            X=abs(det_c(TMP,ndim)-1.d0)
+!            if(X>1D-12) write(*,*) "WRAPUR: Error ", x, "to large"
         ENDDO
 #else
         Use Operator_mod, only : Phi
@@ -96,12 +99,13 @@
 
         ! Working space.
 !         Complex (Kind=Kind(0.d0)) :: Z_ONE
-!         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
+        COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
         Integer :: NT, NCON, n, nf
         Real (Kind=Kind(0.d0)) :: X
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
 !         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+        ALLOCATE(TMP(Ndim,Ndim), TMP1(Ndim,Ndim))
         Do nf = 1,N_FL
            DO NT = NTAU + 1, NTAU1
               Call Hop_mod_mmthR(UDVR(nf)%U,nf)
@@ -111,8 +115,11 @@
            ENDDO
 
            CALL UDVR(nf)%left_decompose !(UDVR(nf)%U, TMP1, NCON)
+!            TMP=UDVr(nf)%V
+!            X=abs(det_c(TMP,ndim)-1.d0)
+!            if(X>1D-12) write(*,*) "WRAPUR: Error ", x, "to large"
         ENDDO
-!         deallocate(TMP, TMP1)
+        deallocate(TMP, TMP1)
 
 #endif
       END SUBROUTINE WRAPUR
