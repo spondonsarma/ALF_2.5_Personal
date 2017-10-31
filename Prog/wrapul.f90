@@ -115,7 +115,7 @@
               Do n = Size(Op_V,1),1,-1
                  Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
               enddo
-              Call  Hop_mod_mmthr (udvl(nf)%U,nf)
+              Call  Hop_mod_mmthlc (udvl(nf)%U,nf)
            ENDDO
            
            !Carry out U,D,V decomposition.
