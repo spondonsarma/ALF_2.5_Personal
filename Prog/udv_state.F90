@@ -49,8 +49,8 @@ MODULE UDV_State_mod
             PROCEDURE :: dealloc => dealloc_UDV_state
             PROCEDURE :: reset => reset_UDV_state
             PROCEDURE :: assign => assign_UDV_state
-            PROCEDURE :: left_decompose => left_decompose_UDV_state
-            PROCEDURE :: right_decompose => right_decompose_UDV_state
+!             PROCEDURE :: left_decompose => left_decompose_UDV_state
+            PROCEDURE :: decompose => decompose_UDV_state
             PROCEDURE :: print => print_UDV_state
             PROCEDURE :: setscale => setscale_UDV_state
             PROCEDURE :: getscale => getscale_UDV_state
@@ -222,7 +222,7 @@ SUBROUTINE reset_UDV_state(this, side, P)
         CALL this%dealloc
         CALL this%init(this%ndim,side,P)
       else
-        CALL ZLACPY('A', this%ndim, this%N_part, P(1, 1), size(P,1), this%U(1, 1), this%n_part)
+        CALL ZLACPY('A', this%ndim, this%N_part, P(1, 1), this%ndim, this%U(1, 1), this%ndim)
       endif
     else
       CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
@@ -295,127 +295,129 @@ SUBROUTINE assign_UDV_state(this, src)
     IF(.not. ALLOCATED(this%U)) ALLOCATE(this%U(this%ndim, this%n_part))
     IF(.not. ALLOCATED(this%V) .and. ALLOCATED(src%V)) ALLOCATE(this%V(this%n_part, this%n_part))
     ASSOCIATE(ndim => src%ndim)
-        CALL ZLACPY('A', ndim, ndim, src%U(1, 1), ndim, this%U(1, 1), ndim)
-        if (ALLOCATED(src%V)) CALL ZLACPY('A', ndim, ndim, src%V(1, 1), ndim, this%V(1, 1), ndim)
+        CALL ZLACPY('A', ndim, this%n_part, src%U(1, 1), ndim, this%U(1, 1), ndim)
+        if (ALLOCATED(src%V)) CALL ZLACPY('A', this%n_part, this%n_part, src%V(1, 1), &
+            & this%n_part, this%V(1, 1), this%n_part)
     END ASSOCIATE
 #if !defined(LOG)
+    IF(.not. ALLOCATED(this%D)) ALLOCATE(this%D(this%n_part))
     this%D = src%D
 #else
+    IF(.not. ALLOCATED(this%L)) ALLOCATE(this%L(this%n_part))
     this%L = src%L
 #endif
 END SUBROUTINE assign_UDV_state
 
-!--------------------------------------------------------------------
-!> @author 
-!> ALF-project
-!
-!> @brief 
-!> This function updates the UDV matrices with the new matrix stored in TMP:
-!
-!> @param [inout] UDVL The UDV object which we update
-!> @param [in] TMP A full matrix
-!> @param [in] TMP1 temporary storage
-!> @param [in] NCON wether we check.
-!-------------------------------------------------------------------
- SUBROUTINE right_decompose_UDV_state(UDVL)!, TMP, TMP1, NCON)
-        Use QDRP_mod
-        Use MyMats
-        Implicit None
-!         INTEGER, intent(in) :: NCON
-!         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, Dimension(: ,:) :: TMP
-!         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, Dimension(:, :) :: TMP1
-        CLASS(UDV_State), intent(inout) :: UDVL
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
-        REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
-        REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvl%ndim,udvl%ndim)
-        INTEGER, allocatable, Dimension(:) :: IPVT
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT
-        LOGICAL :: FORWRD
-        
-        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
-          write(*,*) "calling wrong decompose"
-        endif
-
-        Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
-        beta = 0.D0
-        Ndim = UDVL%ndim
-        ! TMP1 = TMP^dagger * U^dagger
-!         CALL ZGEMM('C', 'C', Ndim, Ndim, Ndim, Z_ONE, TMP(1, 1), Ndim, UDVL%U, Ndim, beta, TMP1(1, 1), Ndim)
-        ALLOCATE(TAU(Ndim), IPVT(Ndim))
-#if !defined(LOG)
-        ! TMP1 = TMP1 * D
-        DO i = 1,NDim
-            UDVL%U(:, i) = UDVL%U(:, i) * UDVL%D(i)
-        ENDDO
-        IPVT = 0
-        call QDRP_decompose(Ndim, UDVL%U, UDVL%D, IPVT, TAU, WORK, LWORK)
-        Phase=cmplx(1.d0,0.d0,kind(0.d0))
-        do i=1,size(UDVL%D,1)
-          Phase=Phase*UDVL%U(i,i)
-        enddo
-        Call Pivot_Phase(phase,IPVT,size(UDVL%D,1))
-        beta=1/Phase
-        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
-        call ZSCAL(size(UDVL%D,1),beta,UDVL%U(1,1),size(UDVL%U,1))
-        ! Permute V, since we multiply with V from the left we have to permute its columns
-        FORWRD = .true.
-        CALL ZLAPMT(FORWRD, Ndim, Ndim, UDVL%V, Ndim, IPVT)
-#else
-        ALLOCATE(tmpnorm(Ndim),D(Ndim))
-        Do i=1,Ndim
-            tmpnorm(i) = log(DZNRM2( Ndim, UDVL%U( 1, I ), 1 ))+UDVL%L(I)
-        enddo
-!         TmpMat=UDVL%V
-!         phase=det_c(tmpmat,ndim)
-!         write(*,*) "Phase in:",phase
-        Phase=cmplx(1.d0,0.d0,kind(0.d0))
-        do i=1,Ndim
-            PVT = I
-            do j=I+1,Ndim
-              if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
-            enddo
-            IPVT(I)=PVT
-            IF( PVT.NE.I ) THEN
-                CALL ZSWAP( ndim, UDVL%U( 1, PVT ), 1, UDVL%U( 1, I ), 1 )
-                CALL ZSWAP( ndim, UDVL%V( 1, PVT ), 1, UDVL%V( 1, I ), 1 )
-                tmpL=UDVL%L(I)
-                UDVL%L(I)=UDVL%L(PVT)
-                UDVL%L(PVT)=tmpL
-                tmpnorm( PVT ) = tmpnorm( I )
-                phase=-phase
-            END IF
-        enddo
-!         TmpMat=UDVL%V
-!         write(*,*) "Phase after pivot:",det_c(tmpmat,ndim)
-!         write(*,*) "Phase pivot:",phase
-        IPVT = 1
-        call QDRP_decompose(Ndim, UDVL%U, D, IPVT, TAU, WORK, LWORK)
-        do i=1,size(D,1)
-          Phase=Phase*UDVL%U(i,i)
-        enddo
-        Phase=CONJG(Phase)
-        beta=1/Phase
-        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
-        call ZSCAL(size(D,1),beta,UDVL%U(1,1),size(UDVL%U,1))
-        ! Permute V, since we multiply with V from the left we have to permute its columns
-        do i=1,Ndim
-          do j=i+1,Ndim
-            UDVL%U(i,j)=UDVL%U(i,j)*cmplx(exp(UDVL%L(j)-UDVL%L(I)),0.d0,kind(0.d0))
-          enddo
-          !D contains absolute values, hence imag. part is zero
-          UDVL%L(I)=log(DBLE(D(I))) + UDVL%L(I)
-        enddo
-        DEALLOCATE(D, tmpnorm)
-#endif
-        ! V = V * R^dagger
-        CALL ZTRMM('R', 'U', 'C', 'N', Ndim, Ndim, Z_ONE, UDVL%U, Ndim, UDVL%V, Ndim)
-        ! create explicitly U in the storage already present for it
-        CALL ZUNGQR(Ndim, Ndim, Ndim, UDVL%U, Ndim, TAU, WORK, LWORK, INFO)
-        call ZSCAL(size(UDVL%U,1),phase,UDVL%U(1,1),1)
-!         UDVL%U = CONJG(TRANSPOSE(UDVL%U ))
-        DEALLOCATE(TAU, WORK, IPVT)
-END SUBROUTINE right_decompose_UDV_state
+! !--------------------------------------------------------------------
+! !> @author 
+! !> ALF-project
+! !
+! !> @brief 
+! !> This function updates the UDV matrices with the new matrix stored in TMP:
+! !
+! !> @param [inout] UDV The UDV object which we update
+! !> @param [in] TMP A full matrix
+! !> @param [in] TMP1 temporary storage
+! !> @param [in] NCON wether we check.
+! !-------------------------------------------------------------------
+!  SUBROUTINE right_decompose_UDV_state(UDV)!, TMP, TMP1, NCON)
+!         Use QDRP_mod
+!         Use MyMats
+!         Implicit None
+! !         INTEGER, intent(in) :: NCON
+! !         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, Dimension(: ,:) :: TMP
+! !         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, Dimension(:, :) :: TMP1
+!         CLASS(UDV_State), intent(inout) :: UDV
+!         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
+!         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
+!         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
+!         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udv%ndim,udv%ndim)
+!         INTEGER, allocatable, Dimension(:) :: IPVT
+!         INTEGER :: INFO, i, j, LWORK, Ndim, PVT,n_part
+!         LOGICAL :: FORWRD
+!         
+!         if(udv%side .ne. "L" .and. udv%side .ne. "l" ) then
+!           write(*,*) "calling wrong decompose"
+!         endif
+! 
+!         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
+!         beta = 0.D0
+!         Ndim = UDV%ndim
+!         N_part = UDV%n_part
+!         ALLOCATE(TAU(N_part), IPVT(N_part))
+! #if !defined(LOG)
+!         ! TMP1 = TMP1 * D
+!         DO i = 1,NDim
+!             UDV%U(:, i) = UDV%U(:, i) * UDV%D(i)
+!         ENDDO
+!         IPVT = 0
+!         call QDRP_decompose(Ndim, N_part, UDV%U, UDV%D, IPVT, TAU, WORK, LWORK)
+!         Phase=cmplx(1.d0,0.d0,kind(0.d0))
+!         do i=1,N_part
+!           Phase=Phase*UDV%U(i,i)
+!         enddo
+!         Call Pivot_Phase(phase,IPVT,N_part)
+!         beta=1/Phase
+!         !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+!         call ZSCAL(N_part,beta,UDV%U(1,1),size(UDV%U,1))
+!         ! Permute V, since we multiply with V from the left we have to permute its columns
+!         FORWRD = .true.
+!         CALL ZLAPMT(FORWRD, N_part, N_part, UDV%V, N_part, IPVT)
+! #else
+!         ALLOCATE(tmpnorm(Ndim),D(Ndim))
+!         Do i=1,Ndim
+!             tmpnorm(i) = log(DZNRM2( Ndim, UDV%U( 1, I ), 1 ))+UDV%L(I)
+!         enddo
+! !         TmpMat=UDV%V
+! !         phase=det_c(tmpmat,ndim)
+! !         write(*,*) "Phase in:",phase
+!         Phase=cmplx(1.d0,0.d0,kind(0.d0))
+!         do i=1,Ndim
+!             PVT = I
+!             do j=I+1,Ndim
+!               if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
+!             enddo
+!             IPVT(I)=PVT
+!             IF( PVT.NE.I ) THEN
+!                 CALL ZSWAP( ndim, UDV%U( 1, PVT ), 1, UDV%U( 1, I ), 1 )
+!                 CALL ZSWAP( ndim, UDV%V( 1, PVT ), 1, UDV%V( 1, I ), 1 )
+!                 tmpL=UDV%L(I)
+!                 UDV%L(I)=UDV%L(PVT)
+!                 UDV%L(PVT)=tmpL
+!                 tmpnorm( PVT ) = tmpnorm( I )
+!                 phase=-phase
+!             END IF
+!         enddo
+! !         TmpMat=UDV%V
+! !         write(*,*) "Phase after pivot:",det_c(tmpmat,ndim)
+! !         write(*,*) "Phase pivot:",phase
+!         IPVT = 1
+!         call QDRP_decompose(Ndim, N_part, UDV%U, D, IPVT, TAU, WORK, LWORK)
+!         do i=1,N_part
+!           Phase=Phase*UDV%U(i,i)
+!         enddo
+!         Phase=CONJG(Phase)
+!         beta=1/Phase
+!         !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+!         call ZSCAL(N_part,beta,UDV%U(1,1),size(UDV%U,1))
+!         ! Permute V, since we multiply with V from the left we have to permute its columns
+!         do i=1,Ndim
+!           do j=i+1,Ndim
+!             UDV%U(i,j)=UDV%U(i,j)*cmplx(exp(UDV%L(j)-UDV%L(I)),0.d0,kind(0.d0))
+!           enddo
+!           !D contains absolute values, hence imag. part is zero
+!           UDV%L(I)=log(DBLE(D(I))) + UDV%L(I)
+!         enddo
+!         DEALLOCATE(D, tmpnorm)
+! #endif
+!         ! V = V * R^dagger
+!         CALL ZTRMM('R', 'U', 'C', 'N', N_part, N_part, Z_ONE, UDV%U, Ndim, UDV%V, N_part)
+!         ! create explicitly U in the storage already present for it
+!         CALL ZUNGQR(Ndim, N_part, N_part, UDV%U, Ndim, TAU, WORK, LWORK, INFO)
+!         call ZSCAL(size(UDV%U,1),phase,UDV%U(1,1),1)
+! !         UDV%U = CONJG(TRANSPOSE(UDV%U ))
+!         DEALLOCATE(TAU, WORK, IPVT)
+! END SUBROUTINE right_decompose_UDV_state
 
 !--------------------------------------------------------------------
 !> @author 
@@ -431,7 +433,7 @@ END SUBROUTINE right_decompose_UDV_state
 !> @param [in] TMP1 temporary storage
 !> @param [in] NCON wether we check.(TODO: currently not used)
 !-------------------------------------------------------------------
- SUBROUTINE left_decompose_UDV_state(UDVR)!, TMP, TMP1, NCON)
+ SUBROUTINE decompose_UDV_state(UDVR)!, TMP, TMP1, NCON)
         Use QDRP_mod
         Use MyMats
         Implicit None
@@ -443,58 +445,82 @@ END SUBROUTINE right_decompose_UDV_state
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvr%ndim,udvr%ndim)
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT
+        INTEGER :: INFO, i, j, LWORK, Ndim, PVT, N_part
         INTEGER, allocatable, Dimension(:) :: IPVT
         LOGICAL :: FORWRD
         
-        if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
-          write(*,*) "calling wrong decompose"
-        endif
+!         if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
+!           write(*,*) "calling wrong decompose"
+!         endif
         
         ! QR(TMP * U * D) * V
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         beta = 0.D0
         Ndim = UDVR%ndim
-        ALLOCATE(TAU(Ndim), IPVT(Ndim))
+        N_part = UDVR%n_part
+        ALLOCATE(TAU(N_part), IPVT(N_part))
 #if !defined(LOG)
         ! TMP1 = TMP1 * D
-        DO i = 1,NDim
-            UDVR%U(:, i) = UDVR%U(:, i)*UDVR%D(i)
-        ENDDO
+        If( ALLOCATED(UDVR%V) ) then
+          DO i = 1,N_part
+              UDVR%U(:, i) = UDVR%U(:, i)*UDVR%D(i)
+          ENDDO
+        endif
         !use lapack internal pivoting
         IPVT = 0
-        call QDRP_decompose(Ndim, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
+        call QDRP_decompose(Ndim, N_part, UDVR%U, UDVR%D, IPVT, TAU, WORK, LWORK)
         Phase=cmplx(1.d0,0.d0,kind(0.d0))
-        do i=1,size(UDVR%D,1)
+        do i=1,N_part
           Phase=Phase*UDVR%U(i,i)
         enddo
-        Call Pivot_Phase(phase,IPVT,size(UDVR%D,1))
+        Call Pivot_Phase(phase,IPVT,N_part)
+        if(udvr%side == "L" .or. udvr%side == "l" ) then
+          Phase=CONJG(Phase)
+        endif
         beta=1/Phase
-        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
-        call ZSCAL(size(UDVR%D,1),beta,UDVR%U(1,1),size(UDVR%U,1))
-        ! Permute V. Since we multiply with V from the right we have to permute the rows.
-        ! A V = A P P^-1 V = Q R P^-1 V
-        FORWRD = .true.
-        CALL ZLAPMR(FORWRD, Ndim, Ndim, UDVR%V, Ndim, IPVT(1)) ! lapack 3.3
+        If( ALLOCATED(UDVR%V) ) then
+          !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+          call ZSCAL(N_part,beta,UDVR%U(1,1),Ndim)
+          ! Permute V. Since we multiply with V from the right we have to permute the rows.
+          ! A V = A P P^-1 V = Q R P^-1 V
+          FORWRD = .true.
+          if(udvr%side == "R" .or. udvr%side == "r" ) then
+            CALL ZLAPMR(FORWRD, N_part, N_part, UDVR%V, N_part, IPVT(1)) ! lapack 3.3
+          else
+            CALL ZLAPMT(FORWRD, N_part, N_part, UDVR%V, N_part, IPVT(1))
+          endif
+        endif
 #else
         !manually perform pivoting (using the logscale if LOG is defined)
-        ALLOCATE(tmpnorm(Ndim),D(Ndim))
-        Do i=1,Ndim
-            tmpnorm(i) = log(DZNRM2( Ndim, UDVR%U( 1, I ), 1 ))+UDVR%L(I)
-        enddo
+        ALLOCATE(tmpnorm(N_part),D(N_part))
+        if ( ALLOCATED(UDVR%V) ) then
+          Do i=1,N_part
+              tmpnorm(i) = log(DZNRM2( Ndim, UDVR%U( 1, I ), 1 ))+UDVR%L(I)
+          enddo
+        else
+          Do i=1,N_part
+              tmpnorm(i) = log(DZNRM2( Ndim, UDVR%U( 1, I ), 1 ))
+          enddo
+        endif
 !         TmpMat=UDVr%V
 !         phase=det_c(tmpmat,ndim)
 !         write(*,*) "Phase in:",phase
         Phase=cmplx(1.d0,0.d0,kind(0.d0))
-        do i=1,Ndim
+        do i=1,N_part
             PVT = I
-            do j=I+1,Ndim
+            do j=I+1,N_part
               if( tmpnorm(J)>tmpnorm(PVT) ) PVT=J
             enddo
             IPVT(I)=PVT
             IF( PVT.NE.I ) THEN
                 CALL ZSWAP( ndim, UDVR%U( 1, PVT ), 1, UDVR%U( 1, I ), 1 )
-                CALL ZSWAP( ndim, UDVR%V( PVT, 1 ), Ndim, UDVR%V( I, 1 ), Ndim )
+                If( ALLOCATED(UDVR%V) ) then
+                  if(udvr%side == "R" .or. udvr%side == "r" ) then
+                    CALL ZSWAP( N_part, UDVR%V( PVT, 1 ), N_part, UDVR%V( I, 1 ), N_part )
+                  else
+                    CALL ZSWAP( N_part, UDVR%V( 1, PVT ), 1, UDVR%V( 1, I ), 1 )
+                  endif
+                endif
                 tmpL=UDVR%L(I)
                 UDVR%L(I)=UDVR%L(PVT)
                 UDVR%L(PVT)=tmpL
@@ -502,34 +528,47 @@ END SUBROUTINE right_decompose_UDV_state
                 phase=-phase
             END IF
         enddo
-!         TmpMat=UDVr%V
-!         write(*,*) "Phase after pivot:",det_c(tmpmat,ndim)
-!         write(*,*) "Phase pivot:",phase
         !disable lapack internal pivoting
         IPVT = 1
-        call QDRP_decompose(Ndim, UDVR%U, D, IPVT, TAU, WORK, LWORK)
-        do i=1,size(D,1)
+        call QDRP_decompose(Ndim, N_part, UDVR%U, D, IPVT, TAU, WORK, LWORK)
+        do i=1,N_part
           Phase=Phase*UDVR%U(i,i)
         enddo
+        if(udvr%side == "L" .or. udvr%side == "l" ) then
+          Phase=CONJG(Phase)
+        endif
         beta=1/Phase
-        !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
-        call ZSCAL(size(D,1),beta,UDVR%U(1,1),size(UDVR%U,1))
-        do i=1,Ndim
-          do j=i+1,Ndim
-            UDVR%U(i,j)=UDVR%U(i,j)*cmplx(exp(UDVR%L(j)-UDVR%L(I)),0.d0,kind(0.d0))
+        If( ALLOCATED(UDVR%V) ) then
+          !scale first row of R with 1/phase to set Det(R)=1 [=Det(V)]
+          call ZSCAL(N_part,beta,UDVR%U(1,1),Ndim)
+          do i=1,N_part
+            do j=i+1,N_part
+              UDVR%U(i,j)=UDVR%U(i,j)*cmplx(exp(UDVR%L(j)-UDVR%L(I)),0.d0,kind(0.d0))
+            enddo
+            UDVR%L(I)=log(dble(D(I))) + UDVR%L(I)
           enddo
-          UDVR%L(I)=log(dble(D(I))) + UDVR%L(I)
-        enddo
+        else
+          do i=1,N_part
+            UDVR%L(I)=log(dble(D(I)))
+          enddo
+        endif
         DEALLOCATE(D, tmpnorm)
 #endif
-        ! V = R * V
-        CALL ZTRMM('L', 'U', 'N', 'N', Ndim, Ndim, Z_ONE, UDVR%U, Ndim, UDVR%V, Ndim)
+        If( ALLOCATED(UDVR%V) ) then
+          if(UDVR%side == "R" .or. UDVR%side == "r" ) then
+            ! V = R * V
+            CALL ZTRMM('L', 'U', 'N', 'N', N_part, N_part, Z_ONE, UDVR%U, Ndim, UDVR%V, N_part)
+          else
+            ! V = V * R^dagger
+            CALL ZTRMM('R', 'U', 'C', 'N', N_part, N_part, Z_ONE, UDVR%U, Ndim, UDVR%V, N_part)
+          endif
+        endif
         ! Generate explicitly U in the previously abused storage of U
-        CALL ZUNGQR(Ndim, Ndim, Ndim, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
+        CALL ZUNGQR(Ndim, N_part, N_part, UDVR%U, Ndim, TAU, WORK, LWORK, INFO)
         ! scale first column of U to correct the scaling in V such that UDV is not changed
-        call ZSCAL(size(UDVR%U,1),phase,UDVR%U(1,1),1)
+        call ZSCAL(Ndim,phase,UDVR%U(1,1),1)
         DEALLOCATE(TAU, WORK, IPVT)
-END SUBROUTINE left_decompose_UDV_state
+END SUBROUTINE decompose_UDV_state
 
 !--------------------------------------------------------------------
 !> @author 

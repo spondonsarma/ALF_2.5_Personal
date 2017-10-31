@@ -274,7 +274,7 @@
         IF (NVAR .NE. 1) THEN
             TPUP = CONJG(TRANSPOSE(TPUP))
         ENDIF
-        call QDRP_decompose(N_size, TPUP, DUP, IPVT, TAU, WORK, LWORK)
+        call QDRP_decompose(N_size, udvl%N_part, TPUP, DUP, IPVT, TAU, WORK, LWORK)
         ALLOCATE(VISITED(N_size))
         ! Calculate the sign of the permutation from the pivoting. Somehow the format used by the QR decomposition of lapack
         ! is different from that of the LU decomposition of lapack

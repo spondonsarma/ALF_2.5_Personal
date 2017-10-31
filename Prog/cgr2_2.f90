@@ -393,7 +393,7 @@
               ENDDO
            ENDDO
            HLPB1 = CT(HLPB2)
-           call QDRP_decompose(LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
+           call QDRP_decompose(LQ2, LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
            call solve_extended_System(HLPB2, V1INV, MYU2, HLPB1, D3, TAU, IPVT, LQ, WORK, LWORK)
            call get_blocks(GR00, GR0T, GRT0, GRTT, HLPB2, LQ)
         Else
@@ -407,7 +407,7 @@
               ENDDO
            ENDDO
            HLPB1 = CT(HLPB2)
-           call QDRP_decompose(LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
+           call QDRP_decompose(LQ2, LQ2, HLPB1, D3, IPVT, TAU, WORK, LWORK)
            call solve_extended_System(HLPB2, MYU2, V1INV, HLPB1, D3, TAU, IPVT, LQ, WORK, LWORK)
            call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB2, LQ)
         Endif
