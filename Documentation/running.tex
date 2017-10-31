@@ -25,6 +25,11 @@ The environment variables and the directives to compile the code are set in the 
 # -DSTAB1  Alternative stabilization, using the  singular value decomposition.
 # -DSTAB2  Alternative stabilization, using QR  with pivoting. 
            Packed form of QR factorization  is not used.
+# -DSTAB3  Alternative stabilization, using QR  with pivoting. 
+           Internally, scales larger and smaller one are distinguished.
+# -DLOG    Alternative stabilization, using QR  with pivoting. 
+           Internally, scales are stored on log axsis to allow larger beta and
+           larger and smaller have to be distinguished.
 PROGRAMCONFIGURATION = -DMPI 
 PROGRAMCONFIGURATION = -DQRREF
 f90 = gfortran
