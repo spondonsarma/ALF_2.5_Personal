@@ -84,7 +84,7 @@
               ENDDO
               TMP = udvr(nf)%V
            endif
-           CALL UDV_WRAP_Pivot(TMP1(:,1:UDVL(nf)%N_part), udvr(nf)%U, udvr(nf)%D, V1,NCON,Ndim,UDVL(nf)%N_part)
+           CALL UDV_WRAP_Pivot(TMP1(:,1:UDVR(nf)%N_part), udvr(nf)%U, udvr(nf)%D, V1,NCON,Ndim,UDVR(nf)%N_part)
            if(allocated(udvr(nf)%V)) CALL MMULT(udvr(nf)%V, V1, TMP)
         ENDDO
 #else
