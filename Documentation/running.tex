@@ -1,37 +1,44 @@
-% Copyright (c) 2016 The ALF project.
+% Copyright (c) 2016 2017 The ALF project.
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
 
 % !TEX root = Doc.tex
+%
 %-------------------------------------------------------------------------------------
 \subsection{Running the code}\label{sec:running}
 %-------------------------------------------------------------------------------------
-
+%
 In this section we describe the steps how to compile and run the code, as well as how to perform the error analysis of the data.
-
+%
 %-------------------------------------------------------------------------------------
 \subsubsection{Compilation}
 %-------------------------------------------------------------------------------------
-
+%
 The environment variables and the directives to compile the code are set in the following makefile \texttt{Makefile}:
 \lstset{style=bash}
 \begin{lstlisting}
 
 # -DMPI selects MPI.
-# -DQRREF  Default  stabilization, using QR with pivoting.
-           Packed form of QR factorization  is used. 
-# -DSTAB1  Alternative stabilization, using the  singular value decomposition.
-# -DSTAB2  Alternative stabilization, using QR  with pivoting. 
-           Packed form of QR factorization  is not used.
-# -DSTAB3  Alternative stabilization, using QR  with pivoting. 
-           Internally, scales larger and smaller one are distinguished.
-# -DLOG    Alternative stabilization, using QR  with pivoting. 
-           Internally, scales are stored on log axsis to allow larger beta and
-           larger and smaller have to be distinguished.
+# -DTEMPERING selects tempering mode.  MPI has to be switched on.
+# -DSTAB1   Alternative stabilization, using the singular value decomposition.
+# -DSTAB2   Alternative stabilization, lapack QR with  manual pivoting.
+#           Packed form of QR factorization is not used.
+# -DSTAB3   Alternative stabilization, using QR  with pivoting.
+#           Internally, scales larger and smaller one are distinguished.
+# -DLOG     Alternative stabilization, using QR  with pivoting.
+#           Internally, scales are stored on log axsis to allow larger beta and
+#           larger and smaller have to be distinguished.
+# (no flag) Default  stabilization, using lapack QR with pivoting. 
+#           Packed form of QR factorization  is used. 
+# -DQRREF   Enables reference lapack implementation of QR decomposition.
+# Recommendation: just use the -DMPI flag if you want to run in parallel or 
+#                 leave it empty for serial jobs.  
+#                 The default stabilization, no flag, is generically the best. 
+#                 Consider using -DLOG if you run into overflows
 PROGRAMCONFIGURATION = -DMPI 
-PROGRAMCONFIGURATION = -DQRREF
+PROGRAMCONFIGURATION = 
 f90 = gfortran
 export f90
 F90OPTFLAGS = -O3 -Wconversion  -fcheck=all
@@ -49,13 +56,16 @@ export Libs
 LIB_BLAS_LAPACK = -llapack -lblas
 export LIB_BLAS_LAPACK
 
-all: lib ana prog
-prog:
-	cd Prog && $(MAKE)
+all: lib ana program
+
 lib:
 	cd Libraries && $(MAKE)
 ana:
 	cd Analysis && $(MAKE)
+program:
+	cd Prog && $(MAKE)
+
+
 clean: cleanall
 cleanall: cleanprog cleanlib cleanana
 cleanprog:
@@ -66,7 +76,8 @@ cleanana:
 	cd Analysis && $(MAKE) clean
 help:
 	@echo "The following are some of the valid targets of this Makefile"
-	@echo "all, prog, lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
+	@echo "all, program, lib, ana, clean, cleanall, cleanprog, cleanlib,
+	       cleanana"
 
 \end{lstlisting}
 In the above, the GNU Fortan compiler \texttt{gfortran} is set.\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
@@ -84,11 +95,11 @@ make
 \end{verbatim}
 To clean up all directories and remove the object files and executables, execute the command \texttt{make clean}. As can be seen in the above makefile, there exist also rules to compile/clean up the library, the analysis routines and the QMC program separately.  
 
-
+%
 %-------------------------------------------------------------------------------------
 \subsubsection{Starting a simulation}
 %-------------------------------------------------------------------------------------
-
+%
 To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
 To run a single-thread simulation, for example by using the parameters of one of the  Hubbard models described in Sec.~\ref{sec:ex}, issue the command
 \begin{verbatim}
@@ -96,15 +107,16 @@ To run a single-thread simulation, for example by using the parameters of one of
 \end{verbatim}
 To restart the code using an existing simulation as a starting point, first run the script \texttt{out\_to\_in.sh} to set 
 the input configuration files.
-
+%
 %-------------------------------------------------------------------------------------
 \subsubsection{Error analysis}
 %-------------------------------------------------------------------------------------
-
-To perform an error analysis (based on the jackknife scheme) of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
-(see Sec.~\ref{sec:analysis}).
-
- 
-
-
+%
+Note that the error analysis script requires the presence of the environment variable \path{DIR} which defines the path to the error analysis programs.
+So before starting the error analysis, one has to make this variable available which is done by the script \path{setenv.sh}. The command is
+\begin{verbatim}
+source ./setenv.sh
+\end{verbatim}
+To perform an error analysis based on the Jackknife resampling method (Sec.~\ref{sec:jack})  of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
+(see Sec.~\ref{sec:analysis}). In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
 
