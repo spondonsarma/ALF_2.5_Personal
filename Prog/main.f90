@@ -302,6 +302,12 @@ Program Main
 #if defined(STAB2) 
            Write(50,*) 'STAB2 is defined '
 #endif
+#if defined(STAB3) 
+           Write(50,*) 'STAB3 is defined '
+#endif
+#if defined(LOG) 
+           Write(50,*) 'LOG is defined '
+#endif
 #if defined(QRREF) 
            Write(50,*) 'QRREF is defined '
 #endif
@@ -418,6 +424,8 @@ Program Main
                  IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
                     !Call  Global_tau_mod_Test(Gr,ntau1)
                     !Stop
+!                     write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
+!                     write(*,*) "Phase before obser : ",phase
                     CALL Obser( GR, PHASE, Ntau1 )
                  ENDIF
               ENDDO
@@ -431,6 +439,8 @@ Program Main
                  NTAU1 = NTAU - 1
                  CALL WRAPGRDO(GR,NTAU, PHASE,Propose_S0,Nt_sequential_start, Nt_sequential_end, N_Global_tau)
                  IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
+!                     write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
+!                     write(*,*) "Phase before obser : ",phase
                     CALL Obser( GR, PHASE, Ntau1 )
                  ENDIF
                  IF ( Stab_nt(NST) == NTAU1 .AND. NTAU1.NE.0 ) THEN
