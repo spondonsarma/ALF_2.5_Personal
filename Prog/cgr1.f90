@@ -62,6 +62,15 @@
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)) :: PHASE
         INTEGER         :: NVAR
+        
+        interface
+          subroutine cgrp(PHASE, GRUP, udvr, udvl)
+            Use UDV_State_mod
+            CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
+            COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+          end subroutine cgrp
+        end interface
  
         !Local
         TYPE(UDV_State) :: udvlocal
@@ -70,6 +79,12 @@
         COMPLEX (Kind=Kind(0.d0)) ::  ZDUP1, ZDDO1, ZDUP2, ZDDO2, Z1, ZUP, ZDO, alpha, beta
         Integer :: I,J, N_size, NCON, info
         Real (Kind=Kind(0.D0)) :: X, Xmax, sv
+            
+        if( .not. allocated(UDVL%V) ) then
+          !call projector cgr
+          call cgrp(phase, grup, udvr, udvl)
+          return
+        endif
         
         if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
           write(*,*) "calling wrong decompose"
@@ -159,6 +174,7 @@
 
         USE MyMats
         USE QDRP_mod
+        
         Implicit None
 	!Arguments.
 !         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
@@ -167,6 +183,15 @@
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
         INTEGER         :: NVAR
+        
+        interface
+          subroutine cgrp(PHASE, GRUP, udvr, udvl)
+            Use UDV_State_mod
+            CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
+            COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+          end subroutine cgrp
+        end interface
  
         !Local
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TPUP, RHS
@@ -184,6 +209,12 @@
         endif
         if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
           write(*,*) "calling wrong decompose"
+        endif
+            
+        if( .not. allocated(UDVL%V) ) then
+          !call projector cgr
+          call cgrp(phase, grup,udvr, udvl)
+          return
         endif
             
         N_size = udvl%ndim
@@ -412,3 +443,50 @@
 #endif
         
       END SUBROUTINE CGR
+      
+      
+      SUBROUTINE CGRP(PHASE, GRUP, udvr, udvl)
+        Use UDV_State_mod
+        use MyMats
+        CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
+        COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+        
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, sMatInv, rMat
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: work 
+        INTEGER, allocatable :: ipiv(:)
+        COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
+        INTEGER :: Ndim, N_part, info, n
+        
+        Ndim = udvl%ndim
+        N_part = udvl%n_part
+        Allocate(sMat(N_part,N_part),rMat(Ndim,N_part), ipiv(N_part), work(N_part))
+        
+        ! Gr = Ur (Ul Ur)^-1 Ul
+        ! Phase = 1 + Ur (Ul Ur)^-1 Ul
+        ! Ul = udvl%U ^dag
+        alpha=1.d0
+        beta=0.d0
+        call ZGEMM('C','N',N_part,N_part,Ndim,alpha,udvl%U(1,1),Ndim,udvr%U(1,1),Ndim,beta,sMat(1,1),N_part)
+
+        ! ZGETRF computes an LU factorization of a general M-by-N matrix A
+        ! using partial pivoting with row interchanges.
+        call ZGETRF(N_part, N_part, sMat, N_part, ipiv, info)
+        ! ZGETRI computes the inverse of a matrix using the LU factorization
+        ! computed by DGETRF.do 10,i=1,n
+        phase=1.d0
+        Do n=1,N_part
+          if (ipiv(n).ne.n) then
+            phase = -phase * sMat(n,n)/abs(sMat(n,n))
+          else
+            phase =  phase * sMat(n,n)/abs(sMat(n,n))
+          endif
+        enddo
+        call ZGETRI(N_part, sMat, N_part, ipiv, work, N_part, info)
+        
+        call ZGEMM('N','N',Ndim,N_part,N_part,alpha,udvr%U(1,1),Ndim,sMat(1,1),N_part,beta,rMat(1,1),Ndim)
+        call initd(Grup,alpha)
+        beta=-1.d0
+        call ZGEMM('N','C',Ndim,Ndim,N_part,alpha,rMat(1,1),Ndim,udvl%U(1,1),Ndim,beta,GRUP(1,1),Ndim)
+      
+      END SUBROUTINE CGRP
