@@ -160,7 +160,7 @@ Module Global_mod
               Do nf = 1,N_FL
                 N_part=udvl(nf)%N_part
                 do n=1,N_part
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
                 enddo
               ENDDO
            endif
@@ -268,7 +268,7 @@ Module Global_mod
                  if (Projector) then
                     N_part=udvl(nf)%N_part
                     do n=1,N_part
-                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
                     enddo
                  endif
               ENDDO
@@ -279,7 +279,7 @@ Module Global_mod
               Do nf = 1,N_FL
                 N_part=udvl(nf)%N_part
                 do n=1,N_part
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
                 enddo
               ENDDO
            endif
