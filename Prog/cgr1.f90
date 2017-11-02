@@ -472,8 +472,6 @@
         ! ZGETRF computes an LU factorization of a general M-by-N matrix A
         ! using partial pivoting with row interchanges.
         call ZGETRF(N_part, N_part, sMat, N_part, ipiv, info)
-        ! ZGETRI computes the inverse of a matrix using the LU factorization
-        ! computed by DGETRF.do 10,i=1,n
         phase=1.d0
         Do n=1,N_part
           if (ipiv(n).ne.n) then
@@ -482,6 +480,8 @@
             phase =  phase * sMat(n,n)/abs(sMat(n,n))
           endif
         enddo
+        ! ZGETRI computes the inverse of a matrix using the LU factorization
+        ! computed by DGETRF.do 10,i=1,n
         call ZGETRI(N_part, sMat, N_part, ipiv, work, N_part, info)
         
         call ZGEMM('N','N',Ndim,N_part,N_part,alpha,udvr%U(1,1),Ndim,sMat(1,1),N_part,beta,rMat(1,1),Ndim)
@@ -491,5 +491,6 @@
         do n=1,Ndim
           Grup(n,n)=Grup(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
         enddo
+        Deallocate(sMat,rMat, ipiv, work)
       
       END SUBROUTINE CGRP

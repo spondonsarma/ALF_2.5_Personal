@@ -48,7 +48,7 @@ Module WaveFunction_mod
 
   
   Type WaveFunction
-     complex (Kind=Kind(0.d0)), pointer :: P(:,:)
+     complex (Kind=Kind(0.d0)), allocatable :: P(:,:)
      ! P is an N X Ndim matrix containing the trial wave function as a slater determinant
      ! P is an Ndim x N_part matrix representing N_part particles in a Ndim dimensional space
      ! The columns have to be linearly independent

@@ -102,7 +102,7 @@ Module Global_mod
         
         
         !>  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count, N_part
         Integer, Dimension(:,:),  allocatable :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
@@ -147,9 +147,26 @@ Module Global_mod
         L_test = .false.
         if (Tempering_calc_det) then
            ! Set old weight. 
+           Det_Vec_old=0.d0
+           if (Projector) then
+              do nf=1,N_FL
+                N_part=udvst(1,nf)%N_part
+                do i=1,NSTM-1
+                  do n=1,N_part
+                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
+                  enddo
+                enddo
+              enddo
+              Do nf = 1,N_FL
+                N_part=udvl(nf)%N_part
+                do n=1,N_part
+                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                enddo
+              ENDDO
+           endif
            Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
            do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
+              Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf), nf)
               Phase_det_old(nf) = Z
               Phase_old = Phase_old*Z
            Enddo
@@ -239,6 +256,8 @@ Module Global_mod
                 CALL udvl(nf)%reset('l')
               endif
            ENDDO
+              !! Compute detvec for projector
+           Det_Vec_new=0.d0
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
               NT  = Stab_nt(NST  )
@@ -246,13 +265,27 @@ Module Global_mod
               CALL WRAPUL(NT1,NT, udvl)
               Do nf = 1,N_FL
                  udvst(NST, nf) = udvl(nf)
+                 if (Projector) then
+                    N_part=udvl(nf)%N_part
+                    do n=1,N_part
+                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                    enddo
+                 endif
               ENDDO
            ENDDO
            NT1 = stab_nt(1)
            CALL WRAPUL(NT1,0, udvl)
+           if (Projector) then
+              Do nf = 1,N_FL
+                N_part=udvl(nf)%N_part
+                do n=1,N_part
+                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udl(nf)%D(n)))
+                enddo
+              ENDDO
+           endif
            Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
            do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf))
+              Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf), nf)
               Phase_det_new(nf) = Z
               Phase_new = Phase_new*Z
            Enddo
@@ -435,7 +468,7 @@ Module Global_mod
         
         
         !>  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, N_part,j
         Integer, Dimension(:,:),  allocatable :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
@@ -459,9 +492,23 @@ Module Global_mod
         L_test = .false.
         ! Write(6,*)
         ! Set old weight. 
+        Det_Vec_old=0.d0
+        if (Projector) then
+          do nf=1,N_FL
+            N_part=udvst(1,nf)%N_part
+            do i=1,NSTM-1
+              do n=1,N_part
+                Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
+              enddo
+            enddo
+            do n=1,N_part
+              Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvl(nf)%D(n)))
+            enddo
+          enddo
+        endif
         Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
         do nf = 1,N_Fl
-           Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf))
+           Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf), nf)
            Phase_det_old(nf) = Z
            Phase_old = Phase_old*Z
         Enddo
@@ -519,6 +566,8 @@ Module Global_mod
                   CALL udvl(nf)%reset('l')
                 endif
               ENDDO
+              !! Compute detvec for projector
+              Det_vec_new=0.d0
               DO NST = NSTM-1,1,-1
                  NT1 = Stab_nt(NST+1)
                  NT  = Stab_nt(NST  )
@@ -526,14 +575,24 @@ Module Global_mod
                  CALL WRAPUL(NT1,NT,udvl)
                  Do nf = 1,N_FL
                     udvst(NST, nf) = udvl(nf)
+                    N_part=udvl(nf)%N_part
+                    do j=1,N_part
+                        Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+log(dble(udvl(nf)%D(j)))
+                    enddo
                  ENDDO
               ENDDO
               NT1 = stab_nt(1)
               CALL WRAPUL(NT1,0, udvl)
+              Do nf = 1,N_FL
+                N_part=udvl(nf)%N_part
+                do j=1,N_part
+                    Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+log(dble(udvl(nf)%D(j)))
+                enddo
+              ENDDO
               !You could now compute the det directly here.
               Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
               do nf = 1,N_Fl
-                 Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf))
+                 Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf), nf)
                  Phase_det_new(nf) = Z
                  Phase_new = Phase_new*Z
               Enddo
@@ -685,7 +744,7 @@ Module Global_mod
       
 
 !--------------------------------------------------------------------
-      subroutine Compute_Fermion_Det(Phase,Det_Vec, udvl)
+      subroutine Compute_Fermion_Det(Phase,Det_Vec, udvl, nf)
 !--------------------------------------------------------------------
 !> @author 
 !> Fakher Assaad 
@@ -704,9 +763,11 @@ Module Global_mod
         CLASS(UDV_State), INTENT(INOUT) :: udvl
         REAL (Kind=Kind(0.d0)), Dimension(:), Intent(OUT)  ::  Det_Vec
         Complex (Kind=Kind(0.d0)) :: Phase
+        Integer, INTENT(in) :: nf
         
         !> Local variables
-        Integer ::  N_size, NCON, J
+        Integer ::  N_size, NCON, J, N_part, info
+        Integer, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha,beta, Z, Z1
         TYPE(UDV_State) :: udvlocal
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP!, U, V
@@ -714,6 +775,27 @@ Module Global_mod
         
         if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
           write(*,*) "calling wrong decompose"
+        endif
+        
+        if(Projector) then
+          N_part=udvl%N_part
+          N_size=udvl%ndim
+          Allocate (TP(N_part,N_part), ipiv(N_part))
+          CALL ZGEMM('C','N',N_part,N_part,N_size,udvl%U(1,1),N_size,WF_R(nf)%P(1,1),N_size,TP(1,1),N_part)
+          ! ZGETRF computes an LU factorization of a general M-by-N matrix A
+          ! using partial pivoting with row interchanges.
+          call ZGETRF(N_part, N_part, TP(1,1), N_part, ipiv, info)
+          Z=1.d0
+          Do J=1,N_part
+            if (ipiv(J).ne.J) then
+              Z = -Z
+            endif
+            Z =  Z * TP(J,J)
+          enddo
+          phase = Z/abs(Z)
+          Det_vec(1)=Det_vec(1)+log(abs(Z))
+          Deallocate(TP,ipiv)
+          return
         endif
         
         !    N_size = SIZE(DL,1)

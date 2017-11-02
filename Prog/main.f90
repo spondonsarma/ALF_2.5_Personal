@@ -222,10 +222,21 @@ Program Main
  
         Call Op_SetHS
         Call Ham_set
+        log=.false.
+        if(Projector) then
+          if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) log=.true.
+          do nf=1,N_fl
+            if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) log=.true.
+          enddo
+        endif
+        ! ATTENTION TEMPORARY DISABLE TAU_RES OBS FOR PORJECTOR
+        if(Projector) then
+          Ltau=0
+        endif
         ! by default the whole beta intervall (up to Theta at the beginning and end for Projector)
         ! is used to calculate observables
-        if ( LOBS_ST < 0 ) then 
-          LOBS_ST=Thtrot
+        if ( LOBS_ST < 1 ) then 
+          LOBS_ST=Thtrot+1
         else
           LOBS_ST=LOBS_ST+Thtrot
         endif
@@ -275,6 +286,7 @@ Program Main
         if ( Irank_g == 0 ) then
 #endif
            Open (Unit = 50,file=file1,status="unknown",position="append")
+           if(log) Write(50,*) "Projector is selected by there are no trial wave functions!"
            Write(50,*) 'Sweeps                              : ', Nsweep
            If ( abs(CPU_MAX) < ZERO ) then
               Write(50,*) 'Bins                                : ', NBin
@@ -332,7 +344,7 @@ Program Main
 #if defined(MPI) 
         endif
 #endif
-
+        if (log) stop
 
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL ) )
