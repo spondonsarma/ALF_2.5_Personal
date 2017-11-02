@@ -222,6 +222,18 @@ Program Main
  
         Call Op_SetHS
         Call Ham_set
+        ! by default the whole beta intervall (up to Theta at the beginning and end for Projector)
+        ! is used to calculate observables
+        if ( LOBS_ST < 0 ) then 
+          LOBS_ST=Thtrot
+        else
+          LOBS_ST=LOBS_ST+Thtrot
+        endif
+        if ( LOBS_EN > Ltrot-2*Thtrot .or. LOBS_EN == 0) then 
+          LOBS_EN=Ltrot-Thtrot
+        else
+          LOBS_EN=LOBS_EN+Thtrot
+        endif
         If ( .not. Global_tau_moves )  then
            ! This  corresponds to the default updating scheme
            Nt_sequential_start = 1 
@@ -326,12 +338,18 @@ Program Main
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL ) )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
         do nf = 1, N_FL
-           CALL udvl(nf)%init(ndim,'l')
-           CALL udvr(nf)%init(ndim,'r')
            do n = 1, NSTM
               CALL udvst(n,nf)%alloc(ndim)
            ENDDO
-           CALL udvst(NSTM, nf)%reset('l')
+           if (Projector) then
+              CALL udvl(nf)%init(ndim,'l',WF_L(nf)%P)
+              CALL udvr(nf)%init(ndim,'r',WF_R(nf)%P)
+              CALL udvst(NSTM, nf)%reset('l',WF_L(nf)%P)
+           else
+              CALL udvl(nf)%init(ndim,'l')
+              CALL udvr(nf)%init(ndim,'r')
+              CALL udvst(NSTM, nf)%reset('l')
+           endif
         enddo
         
         DO NST = NSTM-1,1,-1
@@ -391,7 +409,11 @@ Program Main
               ! Set the right storage to 1
               
               do nf = 1,N_FL
-                 CALL udvr(nf)%reset('r')
+                if (Projector) then
+                    CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                else
+                    CALL udvr(nf)%reset('r')
+                endif
               Enddo
               
               NST = 1
@@ -431,7 +453,11 @@ Program Main
               ENDDO
               
               Do nf = 1,N_FL
-                 CALL udvl(nf)%reset('l')
+                if (Projector) then
+                    CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                else
+                    CALL udvl(nf)%reset('l')
+                endif
               ENDDO
               
               NST = NSTM-1
@@ -474,7 +500,11 @@ Program Main
               CALL WRAPUL(NT, NT1, udvl)
         
               do nf = 1,N_FL
-                 CALL udvr(nf)%reset('r')
+                if (Projector) then
+                    CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                else
+                    CALL udvr(nf)%reset('r')
+                endif
               ENDDO
               Z = cmplx(1.d0, 0.d0, kind(0.D0))
               do nf = 1,N_FL
@@ -489,7 +519,11 @@ Program Main
               Phase = Z
               NST =  NSTM
               Do nf = 1,N_FL
-                 CALL udvst(NST, nf)%reset('l')
+                if (Projector) then
+                    CALL udvst(NST, nf)%reset('l',WF_L(nf)%P)
+                else
+                    CALL udvst(NST, nf)%reset('l')
+                endif
               enddo
               IF ( LTAU == 1 ) then
                  ! Call for imaginary time displaced  correlation fuctions. 
@@ -522,9 +556,14 @@ Program Main
            do n = 1, NSTM
               CALL udvst(n,nf)%dealloc
            ENDDO
+           if (Projector) then 
+              CALL WF_clear(WF_R(nf))
+              CALL WF_clear(WF_L(nf))
+           endif
         ENDDO
         DEALLOCATE(udvl, udvr, udvst)
         DEALLOCATE(GR, TEST, Stab_nt)
+        if (Projector) DEALLOCATE(WF_R, WF_L)
         If (N_Global_tau > 0) then
            Call Wrapgr_dealloc
         endif

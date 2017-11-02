@@ -233,7 +233,11 @@ Module Global_mod
     if (Tempering_calc_det) then
            !>  Compute ratio on weights one each rank
            DO nf = 1,N_FL
-              CALL udvl(nf)%reset('l')
+              if (Projector) then
+                CALL udvl(nf)%reset('l',WF_L(nf)%P)
+              else
+                CALL udvl(nf)%reset('l')
+              endif
            ENDDO
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
@@ -317,7 +321,11 @@ Module Global_mod
         !> If move has been accepted, no use to recomute storage
         If (.not.TOGGLE) then
            DO nf = 1,N_FL
-              CALL udvl(nf)%reset('l')
+              if (Projector) then
+                CALL udvl(nf)%reset('l',WF_L(nf)%P)
+              else
+                CALL udvl(nf)%reset('l')
+              endif
            ENDDO
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
@@ -448,7 +456,6 @@ Module Global_mod
         Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL), Det_vec_test(NDIM,N_FL) ) 
         Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
         
-        
         L_test = .false.
         ! Write(6,*)
         ! Set old weight. 
@@ -467,7 +474,11 @@ Module Global_mod
         If (L_test) then 
            ! Testing    
            Do nf = 1,N_FL
-              CALL udvr(nf)%reset('r')
+              if (Projector) then
+                CALL udvr(nf)%reset('r',WF_R(nf)%P)
+              else
+                CALL udvr(nf)%reset('r')
+              endif
            Enddo
            NVAR = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
@@ -502,7 +513,11 @@ Module Global_mod
               NC = NC + 1
               !> Compute the new Green function
               DO nf = 1,N_FL
-                 CALL udvl(nf)%reset('l')
+                if (Projector) then
+                  CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                else
+                  CALL udvl(nf)%reset('l')
+                endif
               ENDDO
               DO NST = NSTM-1,1,-1
                  NT1 = Stab_nt(NST+1)
@@ -553,7 +568,11 @@ Module Global_mod
         If (NC > 0 ) then
            If (.not.TOGGLE) then
               DO nf = 1,N_FL
-                 CALL udvl(nf)%reset('l')
+                if (Projector) then
+                  CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                else
+                  CALL udvl(nf)%reset('l')
+                endif
               ENDDO
               DO NST = NSTM-1,1,-1
                  NT1 = Stab_nt(NST+1)
