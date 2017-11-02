@@ -485,8 +485,11 @@
         call ZGETRI(N_part, sMat, N_part, ipiv, work, N_part, info)
         
         call ZGEMM('N','N',Ndim,N_part,N_part,alpha,udvr%U(1,1),Ndim,sMat(1,1),N_part,beta,rMat(1,1),Ndim)
-        call initd(Grup,alpha)
-        beta=-1.d0
+!         call initd(Grup,alpha)
+        alpha=-1.d0
         call ZGEMM('N','C',Ndim,Ndim,N_part,alpha,rMat(1,1),Ndim,udvl%U(1,1),Ndim,beta,GRUP(1,1),Ndim)
+        do n=1,Ndim
+          Grup(n,n)=Grup(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
+        enddo
       
       END SUBROUTINE CGRP
