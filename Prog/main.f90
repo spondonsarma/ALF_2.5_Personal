@@ -503,7 +503,9 @@ Program Main
                     call Op_phase(Z,OP_V,Nsigma,N_SUN) 
                     Call Control_PrecisionP(Z,Phase)
                     Phase = Z
-                    IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) Call tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+                    IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
+                      Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+                    endif
                     NST = NST -1
                  ENDIF
 !                  IF( LTAU == 1 .and. Projector .and. Ntau1==THTROT+1) Call tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
