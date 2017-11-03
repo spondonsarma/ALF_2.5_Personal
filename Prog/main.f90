@@ -48,6 +48,7 @@ Program Main
         Use Hamiltonian
         Use Control
         Use Tau_m_mod
+        Use Tau_p_mod
         Use Hop_mod
         Use Global_mod
         Use UDV_State_mod
@@ -229,10 +230,10 @@ Program Main
             if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) log=.true.
           enddo
         endif
-        ! ATTENTION TEMPORARY DISABLE TAU_RES OBS FOR PORJECTOR
-        if(Projector) then
-          Ltau=0
-        endif
+!         ! ATTENTION TEMPORARY DISABLE TAU_RES OBS FOR PORJECTOR
+!         if(Projector) then
+!           Ltau=0
+!         endif
         ! by default the whole beta intervall (up to Theta at the beginning and end for Projector)
         ! is used to calculate observables
         if ( LOBS_ST < 1 ) then 
@@ -502,8 +503,10 @@ Program Main
                     call Op_phase(Z,OP_V,Nsigma,N_SUN) 
                     Call Control_PrecisionP(Z,Phase)
                     Phase = Z
+                    IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) Call tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
                     NST = NST -1
                  ENDIF
+!                  IF( LTAU == 1 .and. Projector .and. Ntau1==THTROT+1) Call tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
               ENDDO
               
               !Calculate and compare green functions on time slice 0.
@@ -537,7 +540,7 @@ Program Main
                     CALL udvst(NST, nf)%reset('l')
                 endif
               enddo
-              IF ( LTAU == 1 ) then
+              IF ( LTAU == 1 .and. .not. Projector ) then
                  ! Call for imaginary time displaced  correlation fuctions. 
                  Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT ) 
               endif

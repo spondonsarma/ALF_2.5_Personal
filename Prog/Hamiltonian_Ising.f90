@@ -369,7 +369,7 @@
           Allocate ( Green_eq(Latt%N,1,1), Spin_eq(Latt%N,1,1), Den_eq(Latt%N,1,1)  )
           Allocate ( Ising_cor0(Norb), Green_eq0(1), Spin_eq0(1), Den_eq0(1) )
           If (Ltau == 1) then 
-             Allocate ( Green_tau(Latt%N,Ltrot+1,1,1), Den_tau(Latt%N,Ltrot+1,1,1) )
+             Allocate ( Green_tau(Latt%N,Ltrot+1-2*Thtrot,1,1), Den_tau(Latt%N,Ltrot+1-2*Thtrot,1,1) )
           endif
 
 

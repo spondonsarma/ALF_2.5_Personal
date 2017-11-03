@@ -445,9 +445,9 @@
        endif
           
           If (Ltau == 1) then 
-             Allocate ( Green_tau(Latt%N,Ltrot+1,Norb,Norb), Den_tau(Latt%N,Ltrot+1,1,1) )
-             Allocate ( U1_tau(Latt%N,Ltrot+1,1,1), U1xy_tau(Latt%N,Ltrot+1,1,1), U1xyG_tau(Latt%N,Ltrot+1,1,1) )
-             Allocate ( Spinz_tau(Latt%N,Ltrot+1,1,1), Spinxy_tau(Latt%N,Ltrot+1,1,1) )
+             Allocate ( Green_tau(Latt%N,Ltrot+1-2*Thtrot,Norb,Norb), Den_tau(Latt%N,Ltrot+1-2*Thtrot,1,1) )
+             Allocate ( U1_tau(Latt%N,Ltrot+1-2*Thtrot,1,1), U1xy_tau(Latt%N,Ltrot+1-2*Thtrot,1,1), U1xyG_tau(Latt%N,Ltrot+1-2*Thtrot,1,1) )
+             Allocate ( Spinz_tau(Latt%N,Ltrot+1-2*Thtrot,1,1), Spinxy_tau(Latt%N,Ltrot+1-2*Thtrot,1,1) )
           Allocate ( Den_sus(Latt%N,1,1), Den_sus0(1) ) 
           Allocate ( U1_sus(Latt%N,1,1), U1_sus0(1) )
           Allocate ( U1xy_sus(Latt%N,1,1), U1xy_sus0(1) )

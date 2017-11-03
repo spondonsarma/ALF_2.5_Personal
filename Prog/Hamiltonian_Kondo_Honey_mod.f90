@@ -409,7 +409,7 @@
 !---------------------------------------------------------------------------------
 
           If (Ltau == 1) then 
-             Allocate ( Green_tau(Latt%N,Ltrot+1,Norb,Norb), Den_tau(Latt%N,Ltrot+1,Norb,Norb) )
+             Allocate ( Green_tau(Latt%N,Ltrot+1-2*Thtrot,Norb,Norb), Den_tau(Latt%N,Ltrot+1-2*Thtrot,Norb,Norb) )
           endif
           
         end Subroutine Alloc_obs
