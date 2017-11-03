@@ -220,10 +220,9 @@ SUBROUTINE reset_UDV_state(this, side, P)
     if( present(P) ) then
       if(size(P,1) .ne. this%ndim .or. size(P,2) .ne. this%N_part) then
         CALL this%dealloc
-        CALL this%init(this%ndim,side,P)
-      else
-        CALL ZLACPY('A', this%ndim, this%N_part, P(1, 1), this%ndim, this%U(1, 1), this%ndim)
+        CALL this%alloc(size(P,1),size(P,2))
       endif
+      CALL ZLACPY('A', this%ndim, this%N_part, P(1, 1), this%ndim, this%U(1, 1), this%ndim)
     else
       CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%U(1, 1), this%ndim)
       CALL ZLASET('A', this%ndim, this%ndim, alpha, beta, this%V(1, 1), this%ndim)
