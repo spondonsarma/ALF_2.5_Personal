@@ -458,6 +458,15 @@
         COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
         INTEGER :: Ndim, N_part, info, n
         
+        if((udvl%side .ne. "L") .and. (udvl%side .ne. "l") ) then
+          write(*,*) "cgrp: udvl is not of type left"
+          write(*,*) "cgrp: actual side is ",udvl%side
+        endif
+        if((udvr%side .ne. "R") .and. (udvr%side .ne. "r") ) then
+          write(*,*) "cgrp: udvr is not of type right"
+          write(*,*) "cgrp: actual side is ",udvr%side
+        endif
+        
         Ndim = udvl%ndim
         N_part = udvl%n_part
         Allocate(sMat(N_part,N_part),rMat(Ndim,N_part), ipiv(N_part), work(N_part))
