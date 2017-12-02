@@ -784,7 +784,7 @@
 
           If (Ltau == 1) then 
              ! Equal time correlators
-             Allocate ( Obs_tau(5) )
+             Allocate ( Obs_tau(4) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
@@ -795,8 +795,6 @@
                    Ns = Latt%N; No = Norb;  Filename ="SpinXY"
                 case (4)
                    Ns = Latt%N; No = Norb;  Filename ="Den"
-                case (5)
-                   Ns = Latt%N; No = Norb;  Filename ="Flux"
                 case default
                    Write(6,*) ' Error in Alloc_obs '  
                 end select
@@ -957,7 +955,7 @@
                   &   cmplx(real(iFlux(I1,Ntau),kind(0.d0)),0.d0,kind(0.d0)) * ZP * ZS
           ENDDO
           
-          Deallocate ( Isigma )
+          Deallocate ( Isigma, Isigma1 )
 
         end Subroutine Obser
 !=====================================================
@@ -969,11 +967,17 @@
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
           
           !Locals
-          Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
+          Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS, Z1
           Integer :: IMJ, I, J, I1, J1, no_I, no_J, NT1
+          Integer,  allocatable  :: Isigma(:), Isigma1(:)
 
+
+          Allocate ( Isigma(Latt%N), Isigma1(Latt%N) )
           NT1 = NT
           If (NT == 0 ) NT1 = LTROT
+          Call Hamiltonian_set_Z2_matter(Isigma ,Ltrot )
+          Call Hamiltonian_set_Z2_matter(Isigma1,NT1)
+          
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           If (NT == 0 ) then 
@@ -982,7 +986,7 @@
                 Obs_tau(I)%Ave_sign = Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
              ENDDO
           endif
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising"  ) then 
+          If ( Model == "Z2_Slave"  ) then 
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I1 = 1,Ndim
                 I    = List(I1,1)
@@ -992,8 +996,10 @@
                    no_J = List(J1,2)
                    imj = latt%imj(I,J)
                    ! Green
+                   !  GT0 =  < T c_I1(nt) c^dag_J1(0) >
+                   Z1 = cmplx(real( Isigma1(I1)*Isigma(J1), kind(0.d0) ), 0.d0,kind(0.d0))
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        & +  Z * GT0(I1,J1,1) * ZP* ZS
+                        & +  Z * GT0(I1,J1,1) * Z1* ZP* ZS
                    
                    ! SpinZ
                    Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
@@ -1008,50 +1014,14 @@
                         & + ( Z*Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1))*       &
                         &         (cmplx(1.d0,0.d0,kind(0.d0)) - G00(J1,J1,1))  -     &
                         &     Z * GT0(I1,J1,1)*G0T(J1,I1,1)                                ) * ZP * ZS
-                   Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) + &
-                        &         cmplx(real(iFlux(I1,Nt1)*iFlux(J1,Ltrot),kind(0.d0)),0.d0,kind(0.d0))*ZP*ZS
                 Enddo
                 Obs_tau(4)%Obs_Latt0(no_I) = Obs_tau(4)%Obs_Latt0(no_I) + &
                      &         Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1)) * ZP * ZS
-                Obs_tau(5)%Obs_Latt0(no_I) = Obs_tau(5)%Obs_Latt0(no_I) + &
-                        &         cmplx(real(iFlux(I1,Nt1),kind(0.d0)),0.d0,kind(0.d0))*ZP*ZS
-             Enddo
-          Elseif ( Model == "Hubbard_Mz"  ) then 
-             Do I1 = 1,Ndim
-                I    = List(I1,1)
-                no_I = List(I1,2)
-                Do J1 = 1,Ndim
-                   J    = List(J1,1)
-                   no_J = List(J1,2)
-                   imj = latt%imj(I,J)
-                   !Green
-                   Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        &   +   ( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS
-
-                   !SpinZ
-                   Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                       & +  ( &
-                       &    (GTT(I1,I1,1) -  GTT(I1,I1,2) ) * ( G00(J1,J1,1)  -  G00(J1,J1,2) )   &
-                       &  - (G0T(J1,I1,1) * GT0(I1,J1,1)  +  G0T(J1,I1,2) * GT0(I1,J1,2) )    )*ZP*ZS
-
-                   !SpinXY
-                   Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        &  - &
-                        &   (G0T(J1,I1,1) * GT0(I1,J1,2)  +  G0T(J1,I1,2) * GT0(I1,J1,1))*ZP*ZS
-                   !Den
-                   Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        & +  (                                        &  
-                        &    (cmplx(2.D0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2) ) * &
-                        &    (cmplx(2.D0,0.d0,kind(0.d0)) - G00(J1,J1,1) - G00(J1,J1,2) )   &
-                        & -  ( G0T(J1,I1,1) * GT0(I1,J1,1) + G0T(J1,I1,2) * GT0(I1,J1,2) )  )*ZP*ZS     
-
-                enddo
-             
-                Obs_tau(4)%Obs_Latt0(no_I) =  Obs_tau(4)%Obs_Latt0(no_I) + &
-                     &       (cmplx(2.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2)) * ZP * ZS
              Enddo
           Endif
           
+          Deallocate ( Isigma, Isigma1 )
+
         end Subroutine OBSERT
 
 !==========================================================        
