@@ -784,7 +784,7 @@
 
           If (Ltau == 1) then 
              ! Equal time correlators
-             Allocate ( Obs_tau(4) )
+             Allocate ( Obs_tau(5) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
@@ -795,6 +795,8 @@
                    Ns = Latt%N; No = Norb;  Filename ="SpinXY"
                 case (4)
                    Ns = Latt%N; No = Norb;  Filename ="Den"
+                case (5)
+                   Ns = Latt%N; No = Norb;  Filename ="TauZ"
                 case default
                    Write(6,*) ' Error in Alloc_obs '  
                 end select
@@ -1014,6 +1016,9 @@
                         & + ( Z*Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1))*       &
                         &         (cmplx(1.d0,0.d0,kind(0.d0)) - G00(J1,J1,1))  -     &
                         &     Z * GT0(I1,J1,1)*G0T(J1,I1,1)                                ) * ZP * ZS
+                   ! Iz Iz correlations
+                   Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) = Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) + &
+                        &  cmplx( real( Isigma1(I1)*Isigma(J1), kind(0.d0) ) , 0.d0,kind(0.d0)) * ZP * ZS
                 Enddo
                 Obs_tau(4)%Obs_Latt0(no_I) = Obs_tau(4)%Obs_Latt0(no_I) + &
                      &         Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1)) * ZP * ZS
