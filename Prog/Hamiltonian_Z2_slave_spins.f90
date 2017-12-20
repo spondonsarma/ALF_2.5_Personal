@@ -783,8 +783,8 @@
           enddo
 
           If (Ltau == 1) then 
-             ! Equal time correlators
-             Allocate ( Obs_tau(5) )
+             ! Time displaced  correlators
+             Allocate ( Obs_tau(6) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
@@ -797,6 +797,8 @@
                    Ns = Latt%N; No = Norb;  Filename ="Den"
                 case (5)
                    Ns = Latt%N; No = Norb;  Filename ="TauZ"
+                case (6)
+                   Ns = Latt%N; No = 2   ;  Filename ="JJ" ! No = 2 for Jxx, Jyy, Jxy, Jyx
                 case default
                    Write(6,*) ' Error in Alloc_obs '  
                 end select
@@ -970,15 +972,15 @@
           
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS, Z1
-          Integer :: IMJ, I, J, I1, J1, no_I, no_J, NT1
-          Integer,  allocatable  :: Isigma(:), Isigma1(:)
+          Integer :: IMJ, I, J, I1, J1, no_I, no_J, NT1, no
+          Integer,  allocatable  :: Isigma(:), IsigmaT(:)
+          Complex (Kind=Kind(0.d0)), allocatable ::  J_tmp0(:,:), J_tmpT(:,:)
 
-
-          Allocate ( Isigma(Latt%N), Isigma1(Latt%N) )
+          Allocate ( Isigma(Latt%N), IsigmaT(Latt%N), J_tmp0(Latt%N,2), J_tmpT(Latt%N,2) )
           NT1 = NT
           If (NT == 0 ) NT1 = LTROT
           Call Hamiltonian_set_Z2_matter(Isigma ,Ltrot )
-          Call Hamiltonian_set_Z2_matter(Isigma1,NT1)
+          Call Hamiltonian_set_Z2_matter(IsigmaT,NT1)
           
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
@@ -999,7 +1001,7 @@
                    imj = latt%imj(I,J)
                    ! Green
                    !  GT0 =  < T c_I1(nt) c^dag_J1(0) >
-                   Z1 = cmplx(real( Isigma1(I1)*Isigma(J1), kind(0.d0) ), 0.d0,kind(0.d0))
+                   Z1 = cmplx(real( IsigmaT(I1)*Isigma(J1), kind(0.d0) ), 0.d0,kind(0.d0))
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
                         & +  Z * GT0(I1,J1,1) * Z1* ZP* ZS
                    
@@ -1018,14 +1020,43 @@
                         &     Z * GT0(I1,J1,1)*G0T(J1,I1,1)                                ) * ZP * ZS
                    ! Iz Iz correlations
                    Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) = Obs_tau(5)%Obs_Latt(imj,nt+1,no_I,no_J) + &
-                        &  cmplx( real( Isigma1(I1)*Isigma(J1), kind(0.d0) ) , 0.d0,kind(0.d0)) * ZP * ZS
+                        &  cmplx( real( IsigmaT(I1)*Isigma(J1), kind(0.d0) ) , 0.d0,kind(0.d0)) * ZP * ZS
                 Enddo
                 Obs_tau(4)%Obs_Latt0(no_I) = Obs_tau(4)%Obs_Latt0(no_I) + &
                      &         Z*(cmplx(1.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1)) * ZP * ZS
              Enddo
+             ! Current-Current correlations
+             Do I = 1,Latt%N
+                do no = 1,2
+                   if (no == 1)  I1 = Latt%nnlist(I,1,0)
+                   if (no == 2)  I1 = Latt%nnlist(I,0,1)
+                   J_tmp0(I,no)  = cmplx(0.d0,-1.d0,Kind(0.d0)) * Z * ( G00(I1,I,1) - G00(I,I1,1) )
+                   J_tmpT(I,no)  = cmplx(0.d0,-1.d0,Kind(0.d0)) * Z * ( GTT(I1,I,1) - GTT(I,I1,1) ) 
+                enddo
+             Enddo
+             do no_I = 1,2
+                Do no_J = 1,2
+                   DO I = 1,Latt%N
+                      if (no_I == 1 ) I1 = Latt%nnlist(I,1,0)
+                      if (no_I == 2 ) I1 = Latt%nnlist(I,0,1)
+                      Do J = 1,Latt%N
+                         if (no_J == 1 ) J1 = Latt%nnlist(J,1,0)
+                         if (no_J == 2 ) J1 = Latt%nnlist(J,0,1)
+                         imj = latt%imj(I,J)
+                         Z1 = cmplx(real( IsigmaT(I)*IsigmaT(I1) * Isigma(J)*Isigma(J1), kind(0.d0) ), 0.d0,kind(0.d0))
+                         Obs_tau(6)%Obs_Latt(imj,nt+1,no_I,no_J) = Obs_tau(6)%Obs_Latt(imj,nt+1,no_I,no_J)  +                     &
+                              &                              (                                                                    &
+                              &                                    J_tmpT(I,no_I)* J_tmp0(J,no_J)           +                     &
+                              &                                 Z*( + G0T(J1,I,1) * GT0(I1,J ,1)  + G0T(J ,I1,1) * GT0(I,J1,1)    &
+                              &                                     - G0T(J ,I,1) * GT0(I1,J1,1)  - G0T(J1,I1,1) * GT0(I,J, 1) )  &
+                              &                              ) * Z1 * ZP * ZS
+                      Enddo
+                   Enddo
+                Enddo
+             Enddo
           Endif
           
-          Deallocate ( Isigma, Isigma1 )
+          Deallocate ( Isigma, IsigmaT, J_tmp0, J_tmpT )
 
         end Subroutine OBSERT
 
