@@ -19,7 +19,7 @@
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
       Integer, allocatable :: nsigma(:,:)
-      Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
+      Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot ! Effective projection.  In units of Delta-tau.  
       Logical              :: Projector
 !>    Defines MPI communicator 
       Integer              :: Group_Comm
@@ -29,7 +29,6 @@
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi, XB_X, Phi_X, Ham_tV
-
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional, Checkerboard
@@ -59,7 +58,6 @@
           Implicit none
 
           integer :: ierr
-
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X
 
@@ -719,12 +717,12 @@
             Call Diag(H0,U,En)
             
             do I2=1,N_part
-            do I1=1,Ndim
-              WF_L(n)%P(I1,I2)=U(I1,I2)
-              WF_R(n)%P(I1,I2)=U(I1,I2)
+               do I1=1,Ndim
+                  WF_L(n)%P(I1,I2)=U(I1,I2)
+                  WF_R(n)%P(I1,I2)=U(I1,I2)
+               enddo
             enddo
-            enddo
-          Enddo
+         enddo
           
         end Subroutine Ham_TrialWaveFunction
 
