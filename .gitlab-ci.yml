@@ -223,6 +223,10 @@ GQMCT_Ubuntu-trusty_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
   <<: *test_definition
 
+GQMCT_Ubuntu-bionic_tests:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
+  <<: *test_definition
+
 GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
