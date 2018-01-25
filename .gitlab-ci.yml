@@ -9,8 +9,8 @@ stages:
   script:
     - . setenv.sh
     - export f90="gfortran"
-    - cd Libraries
     - gfortran -v
+    - cd Libraries
     - make
     - cd ..
     - cd Prog
@@ -118,7 +118,11 @@ GQMCT_Ubuntu_Trusty:
 GQMCT_Ubuntu_Xenial:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
   <<: *build_definition
-  
+
+GQMCT_Ubuntu_Bionic:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
+  <<: *build_definition
+
 GQMCT_Jessie_MPI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack-fftw-scipy
   stage: build
