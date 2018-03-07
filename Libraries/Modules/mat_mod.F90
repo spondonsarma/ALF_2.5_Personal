@@ -1227,7 +1227,7 @@
         REAL (KIND=KIND(0.D0)), INTENT(INOUT), DIMENSION(:) :: W
 
 
-        INTEGER ND1,ND2,IERR
+        INTEGER ND1, ND2, IERR, DN
         REAL (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: WORK
 
          ND1 = SIZE(A,1)
@@ -1242,8 +1242,9 @@
          U=A
          W=0
          ! let's just give lapack enough memory
-         ALLOCATE(WORK(3*ND1))
-         CALL DSYEV('V', 'U', ND1, U, ND1, W, WORK, 3*ND1, IERR)
+         DN = 3*ND1
+         ALLOCATE(WORK(DN))
+         CALL DSYEV('V', 'U', ND1, U, ND1, W, WORK, DN, IERR)
          DEALLOCATE(WORK)
 
       END SUBROUTINE DIAG_R
