@@ -492,8 +492,9 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_test(:,:), Phase_Det_new(:), Phase_Det_old(:)
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
-        Logical :: TOGGLE, L_Test
-        Real    (Kind=Kind(0.d0)) :: size_clust, ratio_2_test
+        Logical :: TOGGLE, L_Tes
+        Real    (Kind=Kind(0.d0)) :: size_clust !> FIXME: currently not initialized. Is this used?
+        Real    (Kind=Kind(0.d0)) :: ratio_2_test
         
         
         
