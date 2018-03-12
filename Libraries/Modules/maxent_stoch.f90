@@ -631,6 +631,7 @@ Module MaxEnt_stoch_mod
            Real (Kind=Kind(0.d0)), Dimension(:,:) :: Xn
            Real (Kind=Kind(0.d0)), Dimension(:) :: Xn_m
            Real (Kind=Kind(0.d0)) :: X
+           Integer :: nd, ng
            do ng = 1,Ngamma
               X = Xn(ng,1)
               nd = Nint(dble(NDis)*X + 0.5 )
