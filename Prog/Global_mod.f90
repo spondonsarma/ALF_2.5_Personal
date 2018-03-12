@@ -1,4 +1,4 @@
-!  Copyright (C) 2016, 2017 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -114,7 +114,8 @@ Module Global_mod
 
         !> Additional variables for running without Fermion weight
         Logical :: Tempering_calc_det
-        Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp ! Keeps track of where the configuration originally comes from
+        ! Keep track of where the configuration originally came from
+        Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp
         Integer        :: n_GR
 
         !Integer, Dimension(:,:),  allocatable :: nsigma_orig, nsigma_test
