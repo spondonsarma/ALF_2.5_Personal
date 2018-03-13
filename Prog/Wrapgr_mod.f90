@@ -383,7 +383,7 @@ Contains
          Complex (Kind=Kind(0.d0)) :: Phase
          Integer                   :: ns_new
          Real    (Kind=Kind(0.d0)) :: S0_ratio, T0_Proposal_ratio
-         Logical, INTENT(INOUT)    :: Acc
+         Logical                   :: Acc
          Character (Len=64)        :: Mode
        end Subroutine Upgrade2
     end Interface
@@ -396,7 +396,7 @@ Contains
     
 
 
-    ! Space for local varaibles
+    ! Space for local variables
     Integer                   :: n, Flip_length, nf, N_Type, ng_c, Flip_count, X
     Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, T0_proposal,S0_ratio
     COMPLEX (Kind=Kind(0.d0)) :: Prev_Ratiotot 

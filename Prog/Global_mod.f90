@@ -399,7 +399,8 @@ Module Global_mod
         call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
     else
         !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
-        !  First step: Each node sends to IRANK=0 its value nsigma_irank, which is the node where its new Phase, GR, udvr, udvl, udvst is stored
+        !  First step: Each node sends to IRANK=0 its value nsigma_irank,
+        !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
         !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
         !              Finally, the variables get submitted
         If (Irank == 0) then
@@ -492,7 +493,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_test(:,:), Phase_Det_new(:), Phase_Det_old(:)
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
-        Logical :: TOGGLE, L_Tes
+        Logical :: TOGGLE, L_Test
         Real    (Kind=Kind(0.d0)) :: size_clust !> FIXME: currently not initialized. Is this used?
         Real    (Kind=Kind(0.d0)) :: ratio_2_test
         
