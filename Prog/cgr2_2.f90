@@ -106,8 +106,8 @@
            TMPVEC = conjg(1.D0/D3)
            ! set HLPB1 equal to zero
            call zlaset('A', LQ2, LQ2, zero, zero, HLPB1, LQ2)
-           DO I = 1, LQ
-              DO J = 1, LQ
+           DO J = 1, LQ
+              DO I = 1, LQ
                  HLPB1(I   , J    ) =  UCT(I, J)
                  HLPB1(I+LQ, J+LQ ) =  VINV(I,J)
               ENDDO
