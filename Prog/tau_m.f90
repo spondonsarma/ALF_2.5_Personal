@@ -185,19 +185,16 @@
 
            !Ain = B^{-1}(NT-1, NT1) 
            !Aout= B^{-1}(NT  , NT1)
-           
-           
+
            Implicit none
-           
+
            !Arguments 
            Complex (Kind=Kind(0.D0)), intent(Inout) ::  AIN(Ndim, Ndim, N_FL) 
            Integer :: NT
-           
+
            ! Locals 
-           Integer :: J,I,nf,n 
-           Real    (Kind=Kind(0.D0)) :: X
-           
-           
+           Integer :: nf, n 
+
            do nf = 1,N_FL
               !Call MMULT(HLP4,Ain(:,:,nf),Exp_T_M1(:,:,nf) )
               Call Hop_mod_mmthl_m1(Ain(:,:,nf),nf)
@@ -206,7 +203,7 @@
                  Call Op_mmultL(Ain(:,:,nf),Op_V(n,nf),-nsigma(n,nt),Ndim,'n')
               Enddo
            enddo
-           
+
          END SUBROUTINE PROPRM1
 
        end Module Tau_m_mod
