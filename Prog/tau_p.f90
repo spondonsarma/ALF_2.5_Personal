@@ -165,10 +165,10 @@
         GRUP=GR
         do nt=stab_nt(nst)+1,THTROT+1
            !Write(6,*) "CALL PROPRM1(GTTUP,NT1)"
-           CALL PROPRM1(GRUP,THTROT+1)
+           CALL PROPRM1(GRUP,nt)
            !Write(6,*) "Ret"
            !Write(6,*) "CALL PROPR  (GTTUP,NT1)"
-           CALL PROPR  (GRUP,THTROT+1)
+           CALL PROPR  (GRUP,nt)
            !Write(6,*) "Ret"
         enddo
               
