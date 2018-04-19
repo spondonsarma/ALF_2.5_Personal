@@ -59,7 +59,7 @@
           CALL MPI_COMM_SIZE(Group_Comm,ISIZE,IERR)
           CALL MPI_COMM_RANK(Group_Comm,IRANK,IERR)
           CALL MPI_COMM_SPLIT(Group_Comm, IRANK / 2, IRANK, ENTCOMM, IERR)
-          ENT_RANK = IRANK / 2
+          CALL MPI_COMM_RANK(ENTCOMM,ENT_RANK,IERR)
 #endif
           
         end Subroutine Init_Entaglement_replicas
@@ -206,6 +206,7 @@
             ! and a fixed spin sector.
             CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
             
+            DET = cmplx(1.D0,0.D0,KIND(0.D0))
             if(ENT_RANK==0) then
 
               ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
@@ -224,7 +225,6 @@
               CASE DEFAULT
                 Allocate(PIVOT(Nsites))
                 CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
-                DET = cmplx(1.D0,0.D0,KIND(0.D0))
                 DO I = 1, Nsites
                     IF (PIVOT(I).NE.I) THEN
                       DET = -DET * IDA(I,I)
@@ -234,9 +234,14 @@
                 ENDDO
                 Deallocate(PIVOT)
               END SELECT
-              
-              Renyi = Renyi * DET
             endif
+              
+            ! Compute the product of determinants for up and down spin sectors.
+            CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
+            ! Now each thread contains in PRODDET the full determinant, as obtained by
+            ! a pair of replicas.
+            
+            Renyi = Renyi * PRODDET
           
           endif
           
