@@ -94,16 +94,16 @@
              List_cf(I+Nsites_c) = List_f(I)
           END DO
           
-          Call Calc_Renyi(GRC,Phase,Ntau,List_c,Nsites_c,Renyi_c)
-          Call Calc_Renyi(GRC,Phase,Ntau,List_f,Nsites_f,Renyi_f)
-          Call Calc_Renyi(GRC,Phase,Ntau,List_cf,Nsites_cf,Renyi_cf)
+          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_c,Nsites_c,Renyi_c)
+          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_f,Nsites_f,Renyi_f)
+          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_cf,Nsites_cf,Renyi_cf)
           
           deallocate(List_cf)
           
         End Subroutine Calc_Mutual_Inf
         
         
-        Subroutine Calc_Renyi(GRC,Phase,Ntau,List,Nsites,Renyi)
+        Subroutine Calc_Renyi_Ent(GRC,Phase,Ntau,List,Nsites,Renyi)
 #ifdef MPI
           Use mpi
 #endif
@@ -243,6 +243,6 @@
           Deallocate(GreenA,GreenA_tmp,IDA)
 #endif
             
-        End Subroutine Calc_Renyi
+        End Subroutine Calc_Renyi_Ent
         
       end Module entanglement
