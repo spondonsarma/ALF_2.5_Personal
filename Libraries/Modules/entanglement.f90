@@ -41,7 +41,7 @@
 !--------------------------------------------------------------------
 
       ! Used for MPI
-      INTEGER :: ENTCOMM, ENT_RANK
+      INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
 
       Contains
 !========================================================================
@@ -60,6 +60,10 @@
           CALL MPI_COMM_RANK(Group_Comm,IRANK,IERR)
           CALL MPI_COMM_SPLIT(Group_Comm, IRANK / 2, IRANK, ENTCOMM, IERR)
           CALL MPI_COMM_RANK(ENTCOMM,ENT_RANK,IERR)
+          CALL MPI_COMM_SIZE(ENTCOMM,ENT_SIZE,IERR)
+          Norm=ISIZE/2 ! number of pairs
+          norm=2*norm ! but each task of pair contributes
+          group=Group_Comm
 #endif
           
         end Subroutine Init_Entaglement_replicas
@@ -131,83 +135,30 @@
           Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
           
 #ifdef MPI
-        
+          ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
+          if(ENT_SIZE==2) then
           
-          Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
+            Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
 
-          DO nf=1,N_FL_half
-            ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
-            ! and GreenA_f_tmp (f electrons)
-            ! The first Nsites columns contains the spin up sector,
-            ! the last Nsites column the spin down sector
-            DO J = 1, Nsites
-              DO I = 1, Nsites
-                  GreenA_tmp(I,J) = GRC(List(I), List(J), 2*nf-1)
+            DO nf=1,N_FL_half
+              ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
+              ! and GreenA_f_tmp (f electrons)
+              ! The first Nsites columns contains the spin up sector,
+              ! the last Nsites column the spin down sector
+              DO J = 1, Nsites
+                DO I = 1, Nsites
+                    GreenA_tmp(I,J) = GRC(List(I), List(J), 2*nf-1)
+                END DO
               END DO
-            END DO
-            DO J = 1, Nsites
-              DO I = 1, Nsites
-                  GreenA_tmp(I,J+Nsites) = GRC(List(I), List(J), 2*nf)
+              DO J = 1, Nsites
+                DO I = 1, Nsites
+                    GreenA_tmp(I,J+Nsites) = GRC(List(I), List(J), 2*nf)
+                END DO
               END DO
-            END DO
-            ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
-            ! such that GreenA contains the reduced Green's function for two replicas
-            ! and a fixed spin sector.
-            CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
-
-            ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
-            IDA = - GreenA(1:Nsites, 1:Nsites) - GreenA(1:Nsites, Nsites+1:2*Nsites)
-            DO I = 1, Nsites
-                IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
-            END DO
-            CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, CMPLX(2.D0,0.D0,KIND(0.D0)), GreenA(1:Nsites, 1:Nsites), &
-                & Nsites, GreenA(1:Nsites, Nsites+1:2*Nsites), Nsites, CMPLX(1.D0,0.D0,KIND(0.D0)), IDA, Nsites)
-            ! Compute determinant
-            SELECT CASE(Nsites)
-            CASE (1)
-              DET = IDA(1,1)
-            CASE (2)
-              DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
-            CASE DEFAULT
-              Allocate(PIVOT(Nsites))
-              CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
-              DET = cmplx(1.D0,0.D0,KIND(0.D0))
-              DO I = 1, Nsites
-                  IF (PIVOT(I).NE.I) THEN
-                    DET = -DET * IDA(I,I)
-                  ELSE
-                    DET = DET * IDA(I,I)
-                  END IF
-              ENDDO
-              Deallocate(PIVOT)
-            END SELECT
-            ! Compute the product of determinants for up and down spin sectors.
-            CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
-            ! Now each thread contains in PRODDET the full determinant, as obtained by
-            ! a pair of replicas.
-            Renyi = Renyi * PRODDET
-            
-          Enddo
-            
-          if (N_FL/=2*N_FL_half) then
-          
-            ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
-            ! and GreenA_f_tmp (f electrons)
-            ! The first Nsites columns contains the last flavour sector,
-            ! the last Nsites column are old (Nf>2) or random, but they won't be used
-            DO J = 1, Nsites
-              DO I = 1, Nsites
-                  GreenA_tmp(I,J) = GRC(List(I), List(J), N_FL)
-              END DO
-            END DO
-            
-            ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
-            ! such that GreenA contains the reduced Green's function for two replicas
-            ! and a fixed spin sector.
-            CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
-            
-            DET = cmplx(1.D0,0.D0,KIND(0.D0))
-            if(ENT_RANK==0) then
+              ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
+              ! such that GreenA contains the reduced Green's function for two replicas
+              ! and a fixed spin sector.
+              CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
 
               ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
               IDA = - GreenA(1:Nsites, 1:Nsites) - GreenA(1:Nsites, Nsites+1:2*Nsites)
@@ -225,6 +176,7 @@
               CASE DEFAULT
                 Allocate(PIVOT(Nsites))
                 CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
+                DET = cmplx(1.D0,0.D0,KIND(0.D0))
                 DO I = 1, Nsites
                     IF (PIVOT(I).NE.I) THEN
                       DET = -DET * IDA(I,I)
@@ -234,18 +186,82 @@
                 ENDDO
                 Deallocate(PIVOT)
               END SELECT
-            endif
+              ! Compute the product of determinants for up and down spin sectors.
+              CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
+              ! Now each thread contains in PRODDET the full determinant, as obtained by
+              ! a pair of replicas.
+              Renyi = Renyi * PRODDET
               
-            ! Compute the product of determinants for up and down spin sectors.
-            CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
-            ! Now each thread contains in PRODDET the full determinant, as obtained by
-            ! a pair of replicas.
+            Enddo
+              
+            if (N_FL/=2*N_FL_half) then
             
-            Renyi = Renyi * PRODDET
-          
+              ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
+              ! and GreenA_f_tmp (f electrons)
+              ! The first Nsites columns contains the last flavour sector,
+              ! the last Nsites column are old (Nf>2) or random, but they won't be used
+              DO J = 1, Nsites
+                DO I = 1, Nsites
+                    GreenA_tmp(I,J) = GRC(List(I), List(J), N_FL)
+                END DO
+              END DO
+              
+              ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
+              ! such that GreenA contains the reduced Green's function for two replicas
+              ! and a fixed spin sector.
+              CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
+              
+              DET = cmplx(1.D0,0.D0,KIND(0.D0))
+              if(ENT_RANK==0) then
+
+                ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
+                IDA = - GreenA(1:Nsites, 1:Nsites) - GreenA(1:Nsites, Nsites+1:2*Nsites)
+                DO I = 1, Nsites
+                    IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
+                END DO
+                CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, CMPLX(2.D0,0.D0,KIND(0.D0)), GreenA(1:Nsites, 1:Nsites), &
+                    & Nsites, GreenA(1:Nsites, Nsites+1:2*Nsites), Nsites, CMPLX(1.D0,0.D0,KIND(0.D0)), IDA, Nsites)
+                ! Compute determinant
+                SELECT CASE(Nsites)
+                CASE (1)
+                  DET = IDA(1,1)
+                CASE (2)
+                  DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
+                CASE DEFAULT
+                  Allocate(PIVOT(Nsites))
+                  CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
+                  DO I = 1, Nsites
+                      IF (PIVOT(I).NE.I) THEN
+                        DET = -DET * IDA(I,I)
+                      ELSE
+                        DET = DET * IDA(I,I)
+                      END IF
+                  ENDDO
+                  Deallocate(PIVOT)
+                END SELECT
+              endif
+                
+              ! Compute the product of determinants for up and down spin sectors.
+              CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
+              ! Now each thread contains in PRODDET the full determinant, as obtained by
+              ! a pair of replicas.
+              
+              Renyi = Renyi * PRODDET
+            
+            endif
+            
+            Deallocate(GreenA,GreenA_tmp,IDA)
+            
+          else
+            ! if there had been an odd number of task in tempering group / world, set renyi to 0
+            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
           endif
           
-          Deallocate(GreenA,GreenA_tmp,IDA)
+          ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
+          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
+          Renyi=PRODDET/dble(norm)
+          ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
+          ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
             
         End Subroutine Calc_Renyi_Ent
