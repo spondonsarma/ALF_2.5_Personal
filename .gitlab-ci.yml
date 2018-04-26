@@ -20,6 +20,7 @@ stages:
   stage: build
   script:
     - . configureHPC.sh Matrix23
+    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
     #- #export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
     #- #export FL="-O3"
     #- #export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
@@ -177,6 +178,7 @@ GQMCT_Wheezy-PGI_conv:
     #- #export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
     #- #export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
     - . configureHPC.sh Matrix23
+    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
