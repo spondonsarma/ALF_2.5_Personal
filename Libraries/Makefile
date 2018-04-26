@@ -1,14 +1,13 @@
-FC=$(f90)
-FLAGS=$(FL)
+.PHONY : all cleanmodules cleanqrref clean
 
 all:
-	(cd Modules;make -f Makefile FC=$(FC) FLAGS="$(FLAGS)")
-	(cd libqrref; make FC=$(FC) FLAGS="$(FLAGS)")
+	(cd Modules;  make )
+	(cd libqrref; make )
 
 cleanmodules:
-	(cd Modules; make -f Makefile clean; cd ..)
+	cd Modules; make Makefile clean
 
 cleanqrref:
-	(cd libqrref; make clean)
+	cd libqrref; make clean
 
 clean: cleanmodules cleanqrref

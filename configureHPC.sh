@@ -59,7 +59,6 @@ while [ "$#" -gt "0" ]; do
   esac
 done 
 
-export DIR=`pwd`
 
 echo ""
 
@@ -154,11 +153,11 @@ FakhersMAC)
 F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
-export f90="gfortran"
+f90="gfortran"
 else
-export f90=$mpif90
+f90=$mpif90
 fi
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 F90USEFULFLAGS="-cpp"
 ;;
 
@@ -168,8 +167,8 @@ Devel|Development)
 F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
-export f90=$GNUCOMPILER
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+f90=$GNUCOMPILER
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
 #LRZ enviroment
@@ -180,8 +179,8 @@ module switch mkl mkl/2017
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=mpif90
-export LIB_BLAS_LAPACK=$MKL_LIB
+f90=mpif90
+LIB_BLAS_LAPACK=$MKL_LIB
 ;;
 
 #JURECA enviroment
@@ -192,30 +191,30 @@ module load imkl
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=mpiifort
-export LIB_BLAS_LAPACK="-mkl"
+f90=mpiifort
+LIB_BLAS_LAPACK="-mkl"
 ;;
 
 #Intel (as Hybrid code)
 Intel)
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=$INTELCOMPILER
-export LIB_BLAS_LAPACK="-mkl"
+f90=$INTELCOMPILER
+LIB_BLAS_LAPACK="-mkl"
 ;;
 
 #GNU (as Hybrid code)
 GNU)
 F90OPTFLAGS=$GNUOPTFLAGS
 F90USEFULFLAGS=$GNUUSEFULFLAGS
-export f90=$GNUCOMPILER
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+f90=$GNUCOMPILER
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
 #Matrix23 PGI
 Matrix23)
-export f90=pgfortran
-export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/17.4/lib -llapack -lblas"
+f90=pgfortran
+LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/17.4/lib -llapack -lblas"
 F90OPTFLAGS="-O3 -mp"
 F90USEFULFLAGS="-Mpreprocess -Minform=inform"
 ;;
@@ -247,24 +246,26 @@ PROGRAMMCONFIGURATION=""
 F90OPTFLAGS="-O3 -ffree-line-length-none -ffast-math"
 F90USEFULFLAGS="-cpp"
 
-export f90=gfortran
-export LIB_BLAS_LAPACK="-llapack -lblas"
+f90=gfortran
+LIB_BLAS_LAPACK="-llapack -lblas"
 ;;
 
 esac
 
-PROGRAMMCONFIGURATION=$STABCONFIGURATION" "$PROGRAMMCONFIGURATION
+PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
-export F90USEFULFLAGS
-export F90OPTFLAGS
+Libs="$(pwd)/Libraries"
+ALF_INC="-I${Libs}/Modules"
+export ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
 
-FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
-export FL
+export ALF_DIR="$(pwd)"
+export ALF_FC=$f90
 
-export Libs=${DIR}"/Libraries/"
+export ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC}"
+export ALF_FLAGS_QRREF="-c ${F90OPTFLAGS}"
+export ALF_FLAGS_ANA="-c -cpp ${F90OPTFLAGS} ${ALF_INC}"
+export ALF_FLAGS_MODULES="-c -cpp ${F90OPTFLAGS}"
 
 echo
 echo "To compile your program use:    'make TARGET'"
 echo
-
-

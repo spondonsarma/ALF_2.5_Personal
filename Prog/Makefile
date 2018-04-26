@@ -1,52 +1,41 @@
-FC= $(f90)
-FLAGS= $(FL)
-LF = $(Lflags)
-LIBS= $(Libs)/Modules/modules_90.a \
-      $(LIB_BLAS_LAPACK) \
-      $(Libs)/libqrref/libqrref.a
+.PHONY : all Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac clean
+all: Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac
 
 Examples:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Examples  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+	./Git_config.sh
+	make -f Compile_Examples
 
 Z2_Slave:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Z2_Slave  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+	./Git_config.sh
+	make -f Compile_Z2_Slave
 
 Hub_Ising:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Hub_Ising  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+	./Git_config.sh
+	make -f Compile_Hub_Ising
 
 Hub_Can:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Hub_Can  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
-
-Nematic_Dirac:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_NematicDirac  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+	./Git_config.sh
+	make -f Compile_Hub_Can
 
 SPT:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_SPT  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
-
+	./Git_config.sh
+	make -f Compile_SPT
 
 Kondo_Honey:
-	./Git_config.sh; \
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_Kondo_Honey  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" LF="$(LF)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+	./Git_config.sh
+	make -f Compile_Kondo_Honey
+
+NematicDirac:
+	./Git_config.sh
+	make -f Compile_NematicDirac
+
 
 clean: 	
-	(make -f Compile_Examples   clean );\
-	(make -f Compile_Hub_Can   clean );\
-	(make -f Compile_Hub_Ising   clean );\
-	(make -f Compile_SPT   clean );\
-	(make -f Compile_Kondo_Honey clean );\
-	(make -f Compile_Z2_Slave clean );\
-	(make -f Compile_NematicDirac clean );\
+	(make -f Compile_Examples   clean )
+	(make -f Compile_Hub_Can   clean )
+	(make -f Compile_Hub_Ising   clean )
+	(make -f Compile_SPT   clean )
+	(make -f Compile_Kondo_Honey clean )
+	(make -f Compile_Z2_Slave clean )
+	(make -f Compile_NematicDirac clean )
 	rm -f *.mod *~ \#* 

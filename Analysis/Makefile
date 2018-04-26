@@ -1,24 +1,10 @@
-FC= $(mpif90)
-FC= $(f90)
-FLAGS= $(FL) 
-LIBS= $(Libs)/Modules/modules_90.a \
-      $(Libs)/libqrref/libqrref.a  \
-      $(LIB_BLAS_LAPACK)
+.PHONY : all
+all: jackv5.out cov_tau.out cov_scal.out Max_SAC.out \
+     Max_SAC_ph.out cov_eq.out 
 
-all:
-	cp $(Libs)/Modules/*.mod . ;\
-	(make -f Compile_en  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
-	(make -f Compile_cov  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) ;\
-	(make -f Compile_scal FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) ;\
-	(make -f Compile_Max  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) ;\
-	(make -f Compile_Max_ph  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) ;\
-	(make -f Compile_eq  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" ) 
+%.out: %.f90
+	$(ALF_FC) -o $*.o $(ALF_FLAGS_ANA) $<
+	$(ALF_FC) -o $@ $*.o $(ALF_LIB)
 
-clean: 	
-	(make -f Compile_en  clean );\
-	(make -f Compile_cov  clean );\
-	(make -f Compile_scal clean );\
-	(make -f Compile_Max  clean );\
-	(make -f Compile_Max_ph  clean );\
-	(make -f Compile_eq  clean );\
-	rm -f *.mod *~ \#* *.out
+clean:
+	rm -f *.mod *~ \#* *.out *.o
