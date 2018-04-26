@@ -242,6 +242,7 @@ GQMCT_Jessie-PGI_tests:
     #- #export F90USEFULFLAGS="-Mpreprocess"
     #- #cd Libraries
     - . configureHPC.sh Matrix23
+    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
     - cd ..
