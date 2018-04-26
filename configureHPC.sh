@@ -7,16 +7,16 @@ GNUCOMPILER="mpifort"
 MPICOMP=1
 
 # default optimization flags for Intel compiler
-INTELOPTFLAGS="-O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
+INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS=${INTELOPTFLAGS}" -parallel -qopenmp"
-INTELUSEFULFLAGS="-cpp -std03"
+INTELUSEFULFLAGS="-std03"
 
 # default optimization flags for GNU compiler
-GNUOPTFLAGS="-O3 -ffree-line-length-none -ffast-math"
+GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 # uncomment the next line if you want to use additional openmp parallelization
 GNUOPTFLAGS=${GNUOPTFLAGS}" -fopenmp"
-GNUUSEFULFLAGS="-cpp -std=f2003"
+GNUUSEFULFLAGS="-std=f2003"
 
 MACHINE=""
 Machinev=0
@@ -150,7 +150,7 @@ case $MACHINE in
 #Fakhers MacBook
 FakhersMAC)
 
-F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -fbacktrace"
+F90OPTFLAGS=$GNUOPTFLAGS"-Wconversion -fcheck=all -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
 f90="gfortran"
@@ -158,13 +158,13 @@ else
 f90=$mpif90
 fi
 LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-F90USEFULFLAGS="-cpp"
+F90USEFULFLAGS=""
 ;;
 
 #Development
 Devel|Development)
 
-F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+F90OPTFLAGS=$GNUOPTFLAGS"-Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
 f90=$GNUCOMPILER
@@ -215,8 +215,8 @@ LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 Matrix23)
 f90=pgfortran
 LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/17.4/lib -llapack -lblas"
-F90OPTFLAGS="-O3 -mp"
-F90USEFULFLAGS="-Mpreprocess -Minform=inform"
+F90OPTFLAGS="-Mpreprocess -O3 -mp"
+F90USEFULFLAGS="-Minform=inform"
 ;;
 
 #Default (unknown machine)
@@ -243,8 +243,8 @@ echo "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (
 echo "    and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)"
 
 PROGRAMMCONFIGURATION=""
-F90OPTFLAGS="-O3 -ffree-line-length-none -ffast-math"
-F90USEFULFLAGS="-cpp"
+F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
+F90USEFULFLAGS=""
 
 f90=gfortran
 LIB_BLAS_LAPACK="-llapack -lblas"
@@ -267,8 +267,8 @@ export ALF_FC=$f90
 
 export ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
 export ALF_FLAGS_QRREF="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
-export ALF_FLAGS_ANA="-c -cpp ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
-export ALF_FLAGS_MODULES="-c -cpp ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_ANA="-c ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_MODULES="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 
 echo
 echo "To compile your program use:    'make TARGET'"
