@@ -9,13 +9,13 @@ MPICOMP=1
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # uncomment the next line if you want to use additional openmp parallelization
-INTELOPTFLAGS=${INTELOPTFLAGS}" -parallel -qopenmp"
+INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
 INTELUSEFULFLAGS="-std03"
 
 # default optimization flags for GNU compiler
 GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 # uncomment the next line if you want to use additional openmp parallelization
-GNUOPTFLAGS=${GNUOPTFLAGS}" -fopenmp"
+GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
 GNUUSEFULFLAGS="-std=f2003"
 
 MACHINE=""
@@ -113,22 +113,22 @@ echo ""
 case $STAB in
 
 STAB1)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB1"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB1"
 echo "Using older stabilization with UDV decompositions"
 ;;
 
 STAB2)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB2"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB2"
 echo "Using older stabilization with UDV decompositions and additional normalizations"
 ;;
 
 STAB3)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB3"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB3"
 echo "Using newest stabilization which seperates large and small scales"
 ;;
 
 LOG)
-STABCONFIGURATION=${STABCONFIGURATION}" -DLOG"
+STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
 echo "Using log storage for internal scales"
 ;;
 
@@ -150,7 +150,7 @@ case $MACHINE in
 #Fakhers MacBook
 FakhersMAC)
 
-F90OPTFLAGS=$GNUOPTFLAGS"-Wconversion -fcheck=all -fbacktrace"
+F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
 f90="gfortran"
@@ -164,7 +164,7 @@ F90USEFULFLAGS=""
 #Development
 Devel|Development)
 
-F90OPTFLAGS=$GNUOPTFLAGS"-Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
 f90=$GNUCOMPILER
