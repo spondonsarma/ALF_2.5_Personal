@@ -256,15 +256,19 @@ PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
 Libs="$(pwd)/Libraries"
 ALF_INC="-I${Libs}/Modules"
+
+if [ ! -z ${ALF_FLAGS_EXT+x} ]; then 
+  echo; echo "Appending additional compiler flag '${ALF_FLAGS_EXT}'"
+fi
 export ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
 
 export ALF_DIR="$(pwd)"
 export ALF_FC=$f90
 
-export ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC}"
-export ALF_FLAGS_QRREF="-c ${F90OPTFLAGS}"
-export ALF_FLAGS_ANA="-c -cpp ${F90OPTFLAGS} ${ALF_INC}"
-export ALF_FLAGS_MODULES="-c -cpp ${F90OPTFLAGS}"
+export ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_QRREF="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_ANA="-c -cpp ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_MODULES="-c -cpp ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 
 echo
 echo "To compile your program use:    'make TARGET'"

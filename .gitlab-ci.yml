@@ -7,8 +7,7 @@ stages:
 .build_template: &build_definition
   stage: build
   script:
-    - . setenv.sh
-    - export f90="gfortran"
+    - . configureHPC.sh GNU serial
     - gfortran -v
     - cd Libraries
     - make
@@ -20,11 +19,11 @@ stages:
 .build_template_pgi: &build_definition_pgi
   stage: build
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
+    - . configureHPC.sh Matrix23
+    - #export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - #export FL="-O3"
+    - #export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - #export F90USEFULFLAGS="-Mpreprocess"
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
@@ -36,9 +35,9 @@ stages:
 .warnconv_template: &warnconv_definition
   stage: warnconv
   script:
-    - . setenv.sh
-    - export f90="gfortran"
-    - export FL="$FL -Wconversion -Werror"
+    - . configureHPC.sh Devel serial
+    - #export f90="gfortran"
+    - #export FL="$FL -Wconversion -Werror"
     - cd Libraries
     - gfortran -v
     - make
@@ -50,8 +49,9 @@ stages:
 .test_template: &test_definition
   stage: test
   script:
-    - . setenv.sh
-    - export f90="gfortran"
+    - . configureHPC.sh Devel serial
+    - #. setenv.sh
+    - #export f90="gfortran"
     - cd Libraries
     - gfortran -v
     - make
@@ -128,7 +128,8 @@ GQMCT_Jessie_MPI:
   stage: build
   script:
     - gfortran -v
-    - make f90='mpif90' PROGRAMCONFIGURATION='-DMPI -DTEMPERING' Hub_Ising
+    - #make f90='mpif90' PROGRAMCONFIGURATION='-DMPI -DTEMPERING' Hub_Ising
+    - . configureHPC.sh Devel Tempering
 
 GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
@@ -170,11 +171,12 @@ GQMCT_Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   stage: warnconv
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3 -Minform=inform"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
+    - #. setenv.sh
+    - #export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - #export FL="-O3 -Minform=inform"
+    - #export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - #export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
+    - . configureHPC.sh Matrix23
     - cd Libraries
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
@@ -231,12 +233,13 @@ GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
-    - cd Libraries
+    - #. setenv.sh
+    - #export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
+    - #export FL="-O3"
+    - #export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
+    - #export F90USEFULFLAGS="-Mpreprocess"
+    - #cd Libraries
+    - . configureHPC.sh Matrix23
     - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
     - make
     - cd ..
@@ -255,9 +258,11 @@ GQMCT_jessie_valgrind:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-blas-lapack-valgrind
   stage: memleaks
   script:
-      - . setenv.sh
-      - export f90="gfortran"
-      - export FL="${FL} -g"
+      - #. setenv.sh
+      - #export f90="gfortran"
+      - #export FL="${FL} -g"
+      - export ALF_FLAGS_EXT="-g"
+      - . configureHPC.sh Devel serial
       - cd Libraries
       - gfortran -v
       - make
