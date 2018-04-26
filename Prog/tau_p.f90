@@ -184,8 +184,8 @@
         GT0UP = GRUP 
         G0TUP = GRUPB
         NT1 = 0
-        CALL OBSERT (NT1,GT0UP,G0TUP,GTTUP,G00UP,PHASE)
-
+        CALL OBSERT (NT1,GT0UP,G0TUP,G00UP,GTTUP,PHASE)
+        
         ! WRITE(6,*) 'Starting Dyn'
         DO NT = THTROT+1, Ltrot-THTROT
            ! UR is on time slice NT
@@ -247,8 +247,8 @@
               
            NTAU1 = NTAU + 1
            !         WRITE(6,*) 'Dyn: calling obsetT: ', NTAU1
-           CALL OBSERT (NTAU1,GT0UP,G0TUP, GTTUP,G00UP, PHASE)
-
+           CALL OBSERT (NTAU1,GT0UP,G0TUP, G00UP,GTTUP, PHASE)
+           
 !            Do nf = 1,N_FL
 !               Call Hop_mod_mmthR(UDVR_local(nf)%U,nf)
 !               Do n = 1,Size(Op_V,1)
