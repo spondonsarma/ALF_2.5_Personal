@@ -102,6 +102,7 @@ GQMCT_Jessie_MPI:
   script:
     - gfortran -v
     - . configureHPC.sh Devel Tempering
+    - export ALF_FC="mpif90"
     - make all
 
 GQMCT_Wheezy_conv:
