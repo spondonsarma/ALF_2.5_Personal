@@ -67,8 +67,8 @@
           subroutine cgrp(PHASE, GRUP, udvr, udvl)
             Use UDV_State_mod
             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-            COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+            COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
           end subroutine cgrp
         end interface
  
