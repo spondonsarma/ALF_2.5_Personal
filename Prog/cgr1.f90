@@ -43,7 +43,7 @@
 !> Implementation note: we calculate the Phase as:
 !> NVAR = 1 : Phase = det(URUP * ULUP)/ |det(URUP * ULUP)| * det(P) * det(R) *det(Q)/ |det(R) det(Q)| 
 !> NVAR = 2 : Phase = det(URUP * ULUP)/ |det(URUP * ULUP)| * det(P) * det^*(R) *det^*(Q)/ |det(R) det(Q)| 
-!> If STAB3 is selected the following tweek is applied
+!> If STAB3 is selected the following tweak is applied
 !> We seperate D as D^+ * D^- where D^+ (D^-) contains the scales larger (smaller) then 1.0
 !> Also, we use (DR^+^-1 UR^* UL^* DL^+^-1 + DR^- VR VL DL^- )^-1 = UL^* DL^+^-1 GRUP Dr^+^-1 UR^* .
 !
@@ -444,20 +444,30 @@
         
       END SUBROUTINE CGR
       
-      
-      SUBROUTINE CGRP(PHASE, GRUP, udvr, udvl)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Computes the Green's function in the projective implementation.
+!
+!> @param[out] PHASE
+!> @param[out] GRUP
+!> @param[in] udvr
+!> @param[in] udvl
+!
+!--------------------------------------------------------------------
+      SUBROUTINE CGRP(phase, GRUP, udvr, udvl)
         Use UDV_State_mod
-        use MyMats
         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-        COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
-        
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, sMatInv, rMat
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: work 
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+        COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: phase
+
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, rMat, rMat2
         INTEGER, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
         INTEGER :: Ndim, N_part, info, n
-        
+
         if((udvl%side .ne. "L") .and. (udvl%side .ne. "l") ) then
           write(*,*) "cgrp: udvl is not of type left"
           write(*,*) "cgrp: actual side is ",udvl%side
@@ -466,10 +476,10 @@
           write(*,*) "cgrp: udvr is not of type right"
           write(*,*) "cgrp: actual side is ",udvr%side
         endif
-        
+
         Ndim = udvl%ndim
         N_part = udvl%n_part
-        Allocate(sMat(N_part,N_part),rMat(Ndim,N_part), ipiv(N_part), work(N_part))
+        Allocate(sMat(N_part,N_part), ipiv(N_part), rMat(N_part, Ndim))
         
         ! Gr = Ur (Ul Ur)^-1 Ul
         ! Phase = 1 + Ur (Ul Ur)^-1 Ul
@@ -489,17 +499,13 @@
             phase =  phase * sMat(n,n)/abs(sMat(n,n))
           endif
         enddo
-        ! ZGETRI computes the inverse of a matrix using the LU factorization
-        ! computed by DGETRF.do 10,i=1,n
-        call ZGETRI(N_part, sMat, N_part, ipiv, work, N_part, info)
-        
-        call ZGEMM('N','N',Ndim,N_part,N_part,alpha,udvr%U(1,1),Ndim,sMat(1,1),N_part,beta,rMat(1,1),Ndim)
-!         call initd(Grup,alpha)
+        rMat = conjg(transpose(udvl%U))
+        call zgetrs('N', N_part, Ndim, sMat(1,1), N_part, ipiv, rMat(1,1), N_part, info)
         alpha=-1.d0
-        call ZGEMM('N','C',Ndim,Ndim,N_part,alpha,rMat(1,1),Ndim,udvl%U(1,1),Ndim,beta,GRUP(1,1),Ndim)
+        call ZGEMM('N','N',Ndim,Ndim,N_part,alpha,udvr%U(1,1),Ndim,rMat(1,1),N_part,beta,GRUP(1,1),Ndim)
         do n=1,Ndim
-          Grup(n,n)=Grup(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
+          GRUP(n,n)=GRUP(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
         enddo
-        Deallocate(sMat,rMat, ipiv, work)
+        Deallocate(sMat, rMat, ipiv)
       
       END SUBROUTINE CGRP
