@@ -70,6 +70,7 @@ CONTAINS
 !>
 !> @param [inout] this The object to be modified.
 !> @param [in] t the size of the involved matrices.
+!> @param [in] t_part the size of the particle sector
 !-------------------------------------------------------------------
 SUBROUTINE alloc_UDV_state(this, t, t_part)
     IMPLICIT NONE
