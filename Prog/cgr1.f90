@@ -463,7 +463,7 @@
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
         COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: phase
 
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, rMat, rMat2
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, rMat
         INTEGER, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
         INTEGER :: Ndim, N_part, info, n
