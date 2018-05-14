@@ -161,7 +161,7 @@ FUNCTION {emphasize}
 FUNCTION {embolden}
 { duplicate$ empty$
     { pop$ "" }
-    { "\textbf{ " swap$ * "}" * }
+    { "{\bf " swap$ * "}" * }
   if$
 }
 
@@ -203,7 +203,7 @@ FUNCTION {format.names}
               if$
               t "others" =
               etal or
-                { " \textit{ et~al.}" * }
+                { " {\it et~al.}" * }
                 { " and " * t * }
               if$
             }
