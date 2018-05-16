@@ -101,14 +101,18 @@ This type \path{Operator} bundles several components that are needed to define a
     \hl{\texttt{Op\_X\%type}}    & Integer   &  Param	 set the type of 
                                              HS transformation\\
                              &   &  (1 = Ising, 2 = discrete HS for perfect-square term)  \\ 
+    \texttt{Op\_X\%diag}  & Logical & True if   $\mathbf{O}$  is  diagonal  \\
     \texttt{Op\_X\%U}            & Complex &  Matrix containing the eigenvectors of $\mathbf{O}$  \\
     \texttt{Op\_X\%E}            & Real &  Eigenvalues of $\mathbf{O}$ \\
-    \texttt{Op\_X\%N\_non\_zero} & Integer &  Number of non-vanishing eigenvalues of $\mathbf{O}$ \\\bottomrule
+    \texttt{Op\_X\%N\_non\_zero} & Integer &  Number of non-vanishing eigenvalues of $\mathbf{O}$  \\
+    \texttt{Op\_X\%M\_exp}    & Complex &  Stores $ \texttt{M\_exp}(:,:,s) = e^{g  \phi(s,\texttt{type}) \mathbf{O}(:,:)} $  \\
+    \texttt{Op\_X\%E\_exp}    & Complex &  Stores $ \texttt{E\_exp}(:,s) = e^{g  \phi(s,\texttt{type}) \mathbf{E}(:)} $ 
+     \\\bottomrule
    \end{tabular}
    \caption{Member variables of the \texttt{Operator}  type. 
    In the left column, the letter \texttt{X} is a placeholder for the letters \texttt{T} and \texttt{V}, 
    indicating hopping and interaction operators, respectively.
-   The \hl{highlighted} variables have to be specified by the user.
+   The \hl{highlighted} variables have to be specified by the user.   \texttt{M\_exp} and \texttt{E\_exp}  are allocated only if  $\texttt{type}=1,2$. 
   %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
     \label{table:operator}}
 \end{table}
