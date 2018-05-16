@@ -71,7 +71,7 @@ Module Operator_mod
      !              and M_exp   has dimensions  M_exp(N,N,-1:1)
      ! If Type =2   then the Ising field  takes the values  s = +/- 1,  +/- 2
      !              and M_exp   has dimensions  M_exp(N,N,-2:2)
-     ! M_exp(:,:,s) =  e^{g * Phi(s,type) *  A(:,:) }
+     ! M_exp(:,:,s) =  e^{g * Phi(s,type) *  O(:,:) }
      !
      ! 
      ! E_exp(:,s) = e^{g * Phi(s,type) *E(:) } and has dimensions E_exp(N,-1:1)  for Type = 1
@@ -185,7 +185,8 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
-    Deallocate (Op%O, Op%U, Op%E, Op%P, OP%M_exp, OP%E_exp)
+    Deallocate (Op%O, Op%U, Op%E, Op%P )
+    If ( Op%type == 1 .or. Op%type == 2 ) deallocate (  OP%M_exp, OP%E_exp)
   end subroutine Op_clear 
 
 !--------------------------------------------------------------------
@@ -303,6 +304,7 @@ Contains
         do J = 1, iters
             Z1 = Z*conjg(Op%U(J,n))
             do I = 1, iters
+               ! This performs Kahan summation so as to improve precision.
                y = Z1 * Op%U(I, n) - c(I, J)
                t = Mat(I, J) + y
                c(I, J) = (t - Mat(I,J)) - y

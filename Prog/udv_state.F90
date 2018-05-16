@@ -40,7 +40,7 @@ MODULE UDV_State_mod
 #else
         REAL    (Kind=Kind(0.d0)), allocatable :: L(:)
 #endif
-        INTEGER :: ndim, n_part
+        INTEGER   :: ndim, n_part
         CHARACTER :: side
 
         CONTAINS
@@ -107,7 +107,7 @@ END SUBROUTINE alloc_UDV_state
 SUBROUTINE init_UDV_state(this, t, side, P)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-    INTEGER, INTENT(IN) :: t
+    INTEGER,   INTENT(IN) :: t
     CHARACTER, INTENT(IN) :: side
     COMPLEX(kind=kind(0.d0)), INTENT(IN), OPTIONAL :: P(:,:)
     
