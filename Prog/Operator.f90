@@ -216,16 +216,16 @@ Contains
               endif
           enddo
           Op%N_non_zero = np
-          !Write(6,*) "Op_set", np,N
+          ! Write(6,*) "Op_set", np,N
           TMP = Op%U ! that way we have the changes to the determinant due to the permutation
           Z = Det_C(TMP, N)
-          ! Scale Op%U to be in SU(N)
+          ! Scale Op%U to be in SU(N) 
           DO I = 1, N
              Op%U(I,1) = Op%U(I, 1)/Z 
           ENDDO
           deallocate (U, E, TMP)
           ! Op%U,Op%E)
-          !Write(6,*) 'Calling diag 1'
+          ! Write(6,*) 'Calling diag 1'
        endif
     else
        Op%E(1)   = REAL(Op%O(1,1), kind(0.D0))
@@ -233,10 +233,10 @@ Contains
        Op%N_non_zero = 1
        Op%diag = .true.
     endif
-    Do I=1,Op%type
-      call FillExpOps(Op%E_exp(:,I),Op%E_exp(:,-I),Op,Phi(I,Op%type))
-      call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
-      call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
+    Do I=1,Op%type  
+       call FillExpOps(Op%E_exp(:,I),Op%E_exp(:,-I),Op,Phi(I,Op%type))
+       call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
+       call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
     enddo
   end subroutine Op_set
 
@@ -247,8 +247,8 @@ Contains
 !> @brief This calculates the exponentiated operator and returns a full matrix
 !<        representation: Mat = U exp(E) U^\dagger
 !
-!> @param[in] g 
-!> @param[in] Op 
+!> @param[in]  g 
+!> @param[in]  Op 
 !> @param[out] Mat The full matrix of the exponentiated operator.
 !--------------------------------------------------------------------
 
@@ -276,15 +276,14 @@ Contains
         do J = 1, iters
             Z1 = Z*conjg(Op%U(J,n))
             do I = 1, iters
-              y = Z1 * Op%U(I, n) - c(I, J)
-              t = Mat(I, J) + y
-              c(I, J) = (t - Mat(I,J)) - y
-              Mat(I, J) = t
-  !            Mat(I, J) = Mat(I, J) + Z1 * Op%U(I, n)
+               y = Z1 * Op%U(I, n) - c(I, J)
+               t = Mat(I, J) + y
+               c(I, J) = (t - Mat(I,J)) - y
+               Mat(I, J) = t
+               !  Mat(I, J) = Mat(I, J) + Z1 * Op%U(I, n)
             enddo
-            
-  !          Mat(1:iters, J) = Mat(1:iters, J) + Z1 * Op%U(1:iters, n)
-        enddo
+            ! Mat(1:iters, J) = Mat(1:iters, J) + Z1 * Op%U(1:iters, n)
+         enddo
       enddo
       Deallocate(c)
     endif
