@@ -54,10 +54,10 @@ end interface
         enddo
 call CGRP(PHASEnew, GRUPnew, udvr, udvl)
 ! run old code
-write (*,*) GRUPnew
+! write (*,*) GRUPnew
 
 call CGRPold(PHASEold, GRUPold, udvr, udvl)
-write (*,*) GRUPold
+! write (*,*) GRUPold
 
 ! compare GRUP results
 ! write (*,*) GRUPOLD
