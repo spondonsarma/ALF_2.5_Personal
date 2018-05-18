@@ -1,4 +1,4 @@
-!  Copyright (C) 2016, 2017 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -114,7 +114,8 @@ Module Global_mod
 
         !> Additional variables for running without Fermion weight
         Logical :: Tempering_calc_det
-        Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp ! Keeps track of where the configuration originally comes from
+        ! Keep track of where the configuration originally came from
+        Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp
         Integer        :: n_GR
 
         !Integer, Dimension(:,:),  allocatable :: nsigma_orig, nsigma_test
@@ -398,7 +399,8 @@ Module Global_mod
         call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
     else
         !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
-        !  First step: Each node sends to IRANK=0 its value nsigma_irank, which is the node where its new Phase, GR, udvr, udvl, udvst is stored
+        !  First step: Each node sends to IRANK=0 its value nsigma_irank,
+        !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
         !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
         !              Finally, the variables get submitted
         If (Irank == 0) then
@@ -492,7 +494,8 @@ Module Global_mod
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
         Logical :: TOGGLE, L_Test
-        Real    (Kind=Kind(0.d0)) :: size_clust, ratio_2_test
+        Real    (Kind=Kind(0.d0)) :: size_clust !> FIXME: currently not initialized. Is this used?
+        Real    (Kind=Kind(0.d0)) :: ratio_2_test
         
         
         

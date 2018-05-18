@@ -115,7 +115,7 @@
       Subroutine Control_upgrade_Glob(toggle,size_clust) 
         Implicit none
         Logical :: toggle
-        Real (Kind=Kind(0.d0)) :: size_clust
+        Real (Kind=Kind(0.d0)), intent(in) :: size_clust
         NC_Glob_up = NC_Glob_up + 1
         size_clust_Glob_up = size_clust_Glob_up + size_clust
         if (toggle) then 

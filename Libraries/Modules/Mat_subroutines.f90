@@ -8,10 +8,10 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
         INTEGER                  , INTENT(IN)   , DIMENSION(N)   :: P
         
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: WORK, WORK2
-        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z_tmp, Z(8)
-        INTEGER :: I, L, K, IDX, NUMBLOCKS, op_id
+        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(8)
+        INTEGER :: I, L, IDX, NUMBLOCKS, op_id
         INTEGER, DIMENSION(:), ALLOCATABLE :: IDXLIST, DIMLIST
-        LOGICAL :: COMPACT, ALLOC, LEFT
+        LOGICAL :: COMPACT, LEFT
         
         IF ( side == 'L' .or. side == 'l' ) THEN
           LEFT=.true.
@@ -43,7 +43,6 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           L = 1
           IDX = 1
           ALLOCATE(IDXLIST(N),DIMLIST(N))
-          ALLOC = .TRUE.
           NUMBLOCKS=0
           DO I=1,N-1
             IF ( P(I)+1 .ne. P(I+1) ) THEN
