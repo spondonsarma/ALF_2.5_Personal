@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ Module Random_Wrap
        
        res = seed ! convert type
        res = 62089911*res + 4349
-       norm = 2147483648_8 !specify 8 byte integer
+       norm = 2147483648_INT64 !specify 8 byte integer
        lcg = DBLE(MODULO(res, norm))/DBLE(norm)
        seed = Int(res,kind(0)) ! convert back
      end function lcg
