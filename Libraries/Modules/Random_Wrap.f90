@@ -117,9 +117,10 @@ Module Random_Wrap
 !-------------------------------------------------------------------- 
 
      real (Kind=Kind(0.D0)) function lcg(seed)
+       use, intrinsic :: iso_fortran_env
        implicit none
        integer :: seed
-       integer(8) :: res, norm
+       integer(INT64) :: res, norm
        
        res = seed ! convert type
        res = 62089911*res + 4349
