@@ -441,13 +441,18 @@ END SUBROUTINE assign_UDV_state
 !         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, dimension(:, :) :: TMP
 !         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:, :) :: TMP1
         CLASS(UDV_State), intent(inout) :: UDVR
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, phase
+        INTEGER :: INFO, i, LWORK, Ndim, N_part
+        INTEGER, allocatable, Dimension(:) :: IPVT
+#ifdef LOG
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvr%ndim,udvr%ndim)
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT, N_part
-        INTEGER, allocatable, Dimension(:) :: IPVT
+        INTEGER :: J, PVT
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: D
+#else
         LOGICAL :: FORWRD
+#endif
         
 !         if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
 !           write(*,*) "calling wrong decompose"
