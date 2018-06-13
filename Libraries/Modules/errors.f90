@@ -651,7 +651,7 @@
            REAL (Kind=Kind(0.d0)), DIMENSION(:  ), ALLOCATABLE  ::  HLP
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE  ::  HLP1
            REAL (Kind=Kind(0.d0))                 ::  X, XM, XERR, Y, Xhelp, Yhelp
-           INTEGER :: NT, NT1, NB, NB1, NTDM, NDATA
+           INTEGER :: NT, NT1, NB, NTDM, NDATA
            
            NTDM  = SIZE(GR,1)
            NDATA = SIZE(GR,2)
@@ -714,7 +714,7 @@
            REAL (Kind=Kind(0.d0)), DIMENSION(:  ), ALLOCATABLE  ::  HLP, XMEAN_R
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE  ::  HLP1
            REAL (Kind=Kind(0.d0))                 ::  X, XM, XERR, Y, Xhelp, Yhelp
-           INTEGER :: NT, NT1, NB, NB1, NTDM, NDATA, Nth
+           INTEGER :: NT, NT1, NB, NTDM, NDATA, Nth
            COMPLEX (Kind=Kind(0.d0)) :: Z
 
            NTDM  = SIZE(GR,1)
@@ -791,8 +791,6 @@
            REAL    (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE ::  SIGN1
            
            INTEGER :: NTDM, NDATA, NDATA1, N, NB, NC, NT
-           REAL    (Kind=Kind(0.d0)) :: X
-           COMPLEX (Kind=Kind(0.d0)) :: Z
            
            NTDM  = SIZE(GR,1)
            NDATA = SIZE(GR,2)
