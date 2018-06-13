@@ -1049,7 +1049,7 @@
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:), ALLOCATABLE :: TAU, WORK
         COMPLEX (KIND=KIND(0.D0)) :: Z
         REAL (KIND=KIND(0.D0)) :: DETV, XMDIFF, X
-        INTEGER :: NE, LQ, INFO, I, J, NR, LDV, LDU, DU2, DV2, LWORK
+        INTEGER :: NE, LQ, INFO, I, J, LDV, LDU, DU2, DV2, LWORK
 
         LQ = SIZE(A,1)
         NE = SIZE(A,2)
@@ -1310,10 +1310,13 @@
         ! date: skalare, normale Zeichenvariable von wenigstens 8 Zeichen. 
         ! Die linken 8 Zeichen bekommen einen Wert der Form JJJJMMTT . JJJJ Jahr, MM Monat, TT Tag im Monat.
         ! time: skalare, normale Zeichenvariable von wenigstens 10 Zeichen. 
-        ! Die linken 10 Zeichen bekommen einen Wert der Form hhmmss.sss , wobei hh die Stunde des Tages ist, mm die Minute innerhalb der Stunde, und ss.sss die Sekunde mit Bruchteilen.
-        ! zone: skalare, normale Zeichenvariable von wenigstens 5 Zeichen. Die linken 5 Zeichen bekommen einen Wert der Form hhmm . hh Stunden, mm Minuten Zeitdifferenz gegenueber der UTC-Weltzeit.
-        !values: Eindimensionales Integer-Feld. Laenge wenigstens 8. 
-        !1 : Jahr, z.B. 1993. 2: Monat. 3: Monatstag. 4: Zeitdifferenz zur Weltzeit in Minuten. 5: Stunde des Tages. 6: Minute innerhalb der Stunde. 7: Sekunden 8. Millisekunden.
+        ! Die linken 10 Zeichen bekommen einen Wert der Form hhmmss.sss , wobei hh die Stunde des Tages ist,
+        ! mm die Minute innerhalb der Stunde, und ss.sss die Sekunde mit Bruchteilen.
+        ! zone: skalare, normale Zeichenvariable von wenigstens 5 Zeichen. Die linken 5 Zeichen bekommen 
+        ! einen Wert der Form hhmm . hh Stunden, mm Minuten Zeitdifferenz gegenueber der UTC-Weltzeit.
+        ! values: Eindimensionales Integer-Feld. Laenge wenigstens 8. 
+        ! 1 : Jahr, z.B. 1993. 2: Monat. 3: Monatstag. 4: Zeitdifferenz zur Weltzeit in Minuten.
+        ! 5: Stunde des Tages. 6: Minute innerhalb der Stunde. 7: Sekunden 8. Millisekunden.
 
         !character(len=10) :: d,t
         integer,dimension(8) :: V
