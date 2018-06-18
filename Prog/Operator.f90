@@ -180,7 +180,7 @@ Contains
 
     Complex (Kind=Kind(0.d0)), allocatable :: U(:,:), TMP(:, :)
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
-    Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
+    Real    (Kind=Kind(0.d0)) :: Zero = 1.D-9
     Integer :: N, I, J, np,nz
     Complex (Kind=Kind(0.d0)) :: Z
 

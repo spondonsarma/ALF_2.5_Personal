@@ -164,7 +164,7 @@ END SUBROUTINE setscale_UDV_state
 !-------------------------------------------------------------------
 SUBROUTINE getscale_UDV_state(this, scale_val, scale_idx)
     IMPLICIT NONE
-    CLASS(UDV_State), INTENT(INOUT) :: this
+    CLASS(UDV_State), INTENT(IN) :: this
     COMPLEX (Kind=Kind(0.d0)), INTENT(out) :: scale_val
     INTEGER, INTENT(IN) :: scale_idx
 
@@ -460,7 +460,6 @@ END SUBROUTINE assign_UDV_state
         
         ! QR(TMP * U * D) * V
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
-        beta = 0.D0
         Ndim = UDVR%ndim
         N_part = UDVR%n_part
         ALLOCATE(TAU(N_part), IPVT(N_part))
