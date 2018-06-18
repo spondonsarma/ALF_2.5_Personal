@@ -74,12 +74,10 @@
           MODULE PROCEDURE  BootstrapC_fluc
        END INTERFACE
 
-       
-
        CONTAINS 
 !***********
          SUBROUTINE ERRCALC(EN,XM,XERR)
-!	  Calculates error on the input vector EN.  Just the standard deviation.
+!          Calculates error on the input vector EN.  Just the standard deviation.
 
            IMPLICIT NONE
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
@@ -108,9 +106,8 @@
            RETURN
          END SUBROUTINE ERRCALC
 
-
          SUBROUTINE ERRCALC_C(EN,ZM,ZERR)
-!	  Calculates error on the input vector EN.  Just the standard deviation.
+!          Calculates error on the input vector EN.  Just the standard deviation.
 
            IMPLICIT NONE
            Complex (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
@@ -142,7 +139,7 @@
          END SUBROUTINE ERRCALC_C
 
          SUBROUTINE ERRCALC_J(EN,XM,XERR)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -173,9 +170,8 @@
            RETURN
          END SUBROUTINE ERRCALC_J
 
-
          SUBROUTINE ERRCALC_J_C(EN,ZM,ZERR)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -208,7 +204,7 @@
 
 !************
          SUBROUTINE ERRCALC_J_C_REBIN(EN,ZM,ZERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -240,7 +236,7 @@
 
 !******************
          SUBROUTINE ERRCALC_J_REBIN(EN,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
 
            IMPLICIT NONE
@@ -273,9 +269,8 @@
 
 !**********
          SUBROUTINE ERRCALC_JS(EN,SI,XM,XERR)
-!	   Calculates error on the input vector EN.  Just the variance.
+!          Calculates error on the input vector EN.  Just the variance.
 !          The input are the bins
-
            IMPLICIT NONE
 
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -314,9 +309,8 @@
 
 !**********
          SUBROUTINE ERRCALC_JS_C(EN,SI,XM,XERR)
-!	   Calculates error on the input vector EN.  Just the variance.
+!          Calculates error on the input vector EN.  Just the variance.
 !          The input are the bins
-
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -357,7 +351,7 @@
 
 !********
          SUBROUTINE ERRCALC_JS_REBIN(EN,SI,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -395,9 +389,8 @@
 
 !******************
          SUBROUTINE ERRCALC_JS_C_REBIN(EN,SI,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
-           
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -551,7 +544,6 @@
                  V1(I,M) = V(M,I)
               ENDDO
            ENDDO
-           X = 0.D0
            CALL INV(V1,VINV,X)
 
            DO M1 = 1,NBASIS
@@ -583,7 +575,7 @@
            DEALLOCATE (B)
            
          END SUBROUTINE FIT
-	
+
          SUBROUTINE COVJ(GR, XCOV, XMEAN) 
            
            IMPLICIT NONE
@@ -619,8 +611,8 @@
               CALL ERRCALC(HLP,XM ,XERR)
               XMEAN(NT) = XM
            ENDDO
-	
-           
+
+
            DO NT = 1,NTDM
               DO NT1= 1,NTDM
                  X = 0.0
@@ -678,8 +670,8 @@
               CALL ERRCALC(HLP,XM ,XERR)
               XMEAN(NT) = XM
            ENDDO
-	
-           
+
+
            DO NT = 1,NTDM
               DO NT1= 1,NTDM
                  X = 0.0
