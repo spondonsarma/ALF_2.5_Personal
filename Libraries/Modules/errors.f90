@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -936,7 +936,7 @@
               Z2  = cmplx(0.d0,0.d0,Kind=Kind(0.d0))
               Z12 = cmplx(0.d0,0.d0,Kind=Kind(0.d0))
               DO I = 1,NP
-                 J = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
+                 J = NINT( DBLE(NP)* RANF_WRAP() + 0.d5 )
                  IF (J == 0) J = 1
                  IF (J > NP) J = NP
                  Z1 = Z1  + A(J)
@@ -985,7 +985,7 @@
            DO NB = 1,NBOOT
               X = 0.D0
               DO NT = 1, NP
-                 I = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
+                 I = NINT( DBLE(NP)* RANF_WRAP() + 0.d5 )
                  IF (I.EQ.0 .OR. I.GT.NP ) THEN
                     WRITE(6,*) 'ERROR IN BOOTSTRAP'
                     STOP
