@@ -8,8 +8,7 @@ Module MaxEnt_mod
            Module Procedure MaxEnt_T, MaxEnt_T0
         end Interface
 
-        REAL (Kind=Kind(0.d0)), Private   ::   ZERO, ALPHA,  PI, XMOM1
-        REAL (Kind=Kind(0.d0)), Dimension(:),                Private :: XPARAM(20)
+        REAL (Kind=Kind(0.d0)), Private   ::   ZERO, ALPHA, XMOM1
         REAL (Kind=Kind(0.d0)), Dimension(:),   Allocatable, Private :: XLAM,  DEF, SIG1
         REAL (Kind=Kind(0.d0)), DIMENSION(:,:), Allocatable, Private :: COVM1, UC
         Integer,   Private :: NTAU, NOM
@@ -29,11 +28,10 @@ Module MaxEnt_mod
             Real (Kind=Kind(0.d0)) :: X, XENT, XQ, PR_ALP, XTRACE, DIFF1, DIFF , Tol_chi_def
 
 
-            Tol_chi_def = 1000000000000.0
+            Tol_chi_def = 1000000000000.0D0
             NTAU = SIZE(XQMC,1)
             NOM  = SIZE(A, 1)
             !WRITE(6,*) 'NTAU, Nom: ', NTAU,NOM
-            PI   = ACOS(-1.d0)
             Xmom1 = Xqmc(1)
                
             ZERO =  1.0D-8
@@ -177,7 +175,7 @@ Module MaxEnt_mod
             REAL (Kind=Kind(0.d0)), DIMENSION(:,:),ALLOCATABLE ::  AH, AHINV 
         
             Real (Kind=Kind(0.d0)) :: X, XNORM, DET1(2), XMAX
-            Integer :: NITER, NT, NT1, NW
+            Integer :: NITER, NT, NT1
   
 
             ALLOCATE (XLAM1(NTAU), F(NTAU)) 
@@ -254,14 +252,14 @@ Module MaxEnt_mod
 
 
             !Working space
-            REAL (Kind=Kind(0.d0)), DIMENSION(:),  ALLOCATABLE ::  XLAM1,  F, GBAR
+            REAL (Kind=Kind(0.d0)), DIMENSION(:),  ALLOCATABLE ::  XLAM1, GBAR
         
-            Real (Kind=Kind(0.d0)) :: X, XNORM, DET1(2), XMAX
+            Real (Kind=Kind(0.d0)) :: XNORM
             Integer :: NITER, NT, NT1, NW
   
 
-            ALLOCATE (XLAM1(NTAU), F(NTAU), GBAR(NTAU) ) 
-            XLAM1 = 0.D0; F = 0.D0
+            ALLOCATE (XLAM1(NTAU), GBAR(NTAU) ) 
+            XLAM1 = 0.D0
 
 
             NITER = 0
@@ -301,7 +299,7 @@ Module MaxEnt_mod
                WRITE(50,*) 'Convergence problem:'
             ENDIF
 
-            Deallocate (XLAM1, F, GBAR ) 
+            Deallocate (XLAM1, GBAR)
 
           END Subroutine Maximize_Self
           
@@ -391,7 +389,7 @@ Module MaxEnt_mod
             Implicit None
 
             !Arguments
-            REAL (Kind=Kind(0.d0)), intent(in)     :: XQ, XENT, CHISQ
+            REAL (Kind=Kind(0.d0)), intent(out)     :: XQ, XENT, CHISQ
             Real (Kind=Kind(0.d0)), Dimension(:)   :: A, XQMC
             Real (Kind=Kind(0.d0)), Dimension(:,:) :: XKER
 
@@ -642,7 +640,7 @@ Module MaxEnt_mod
             Implicit None
             Real (Kind=Kind(0.d0)), Dimension(:)   :: XQMC, A
             Real (Kind=Kind(0.d0)), Dimension(:,:) :: COV, XKER
-            Real (Kind=Kind(0.d0)) :: ALPHA_ST, ALPHA_N, ALPHA_EN
+            Real (Kind=Kind(0.d0)) :: ALPHA_ST, ALPHA_N, ALPHA_EN ! , PI
             Real (Kind=Kind(0.D0)), Intent(Out) :: CHISQ
 
             Integer       :: NT, NT1, NT2, NW, NCOUNT, NTH
@@ -657,7 +655,7 @@ Module MaxEnt_mod
             NOM  = SIZE(A, 1)
             ALLOCATE(A_ME(NOM))
             !WRITE(6,*) 'NTAU, Nom: ', NTAU,NOM
-            PI   = ACOS(-1.d0)
+!            PI   = ACOS(-1.d0)
             XMOM1= 1.0D0 !PI
             ZERO =  1.0D-8
             ALLOCATE ( XLAM(NTAU), SIG1(NTAU), COVM1(NTAU,NTAU), UC(NTAU,NTAU), DEF(NOM) )
