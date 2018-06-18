@@ -133,8 +133,6 @@
         Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG = NCG + 1
-        XMEAN = 0.d0
-        XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAXG) XMAXG = XMAX
         XMEANG = XMEANG + XMEAN
@@ -148,8 +146,6 @@
         Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG_tau = NCG_tau + 1
-        XMEAN = 0.d0
-        XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAX_tau) XMAX_tau = XMAX
         XMEAN_tau = XMEAN_tau + XMEAN
