@@ -678,8 +678,8 @@
 
        SUBROUTINE COMPARE_C(A,B,XMAX,XMEAN)
          IMPLICIT NONE
-         COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:) :: A,B
-         REAL (Kind=Kind(0.d0)) :: XMAX, XMEAN
+         COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:), INTENT(in) :: A,B
+         REAL (Kind=Kind(0.d0)), INTENT(out) :: XMAX, XMEAN
          INTEGER I,J, N, M
 
          REAL (Kind=Kind(0.d0)) :: DIFF
@@ -702,7 +702,7 @@
        SUBROUTINE COMPARE_R(A,B,XMAX,XMEAN)
          IMPLICIT NONE
          REAL (Kind=Kind(0.d0)) , INTENT(IN), DIMENSION(:,:) :: A,B
-         REAL (Kind=Kind(0.d0)) , INTENT(INOUT) :: XMAX, XMEAN
+         REAL (Kind=Kind(0.d0)) , INTENT(OUT) :: XMAX, XMEAN
          INTEGER I,J, N, M
 
          REAL (Kind=Kind(0.d0)) :: DIFF
@@ -881,7 +881,6 @@
                   TEST(I,J) = Z
                ENDDO
             ENDDO
-            XMAX = 0.0; XMEAN = 0.0
             CALL COMPARE(TEST,A,XMAX,XMEAN)
             WRITE(6,*) 'Accuracy: ',XMAX
             DEALLOCATE (TEST)
@@ -897,7 +896,6 @@
             ENDDO
             CALL MMULT(TEST1,TEST,U)
             CALL INITD(TEST2,1.D0)
-            XMAX = 0.0; XMEAN = 0.0
             CALL COMPARE(TEST1,TEST2,XMAX,XMEAN)
             WRITE(6,*) 'UDV1 orth U: ',XMAX
             DEALLOCATE (TEST )
@@ -1256,7 +1254,7 @@
         COMPLEX (Kind=Kind(0.d0)), INTENT(IN)   , DIMENSION(:,:) :: A
         COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:,:) :: U
         REAL    (Kind=Kind(0.d0)), INTENT(INOUT), DIMENSION(:)   :: W
-        
+
         CHARACTER (len=1) :: UPLO, JOBZ
         INTEGER :: N, LWORK, INFO
         COMPLEX (Kind=Kind(0.d0)), allocatable :: WORK (:)
@@ -1273,13 +1271,13 @@
         LWORK = 2*N -1
         Allocate ( WORK(LWORK) )
         Allocate (  RWORK(3*N-2))
-	
-	!Write(6,*) 'In Diag'
+
+        !Write(6,*) 'In Diag'
 
         Call ZHEEV (JOBZ, UPLO, N, U, N, W, WORK, LWORK, RWORK, INFO)
 
         Deallocate (WORK, RWORK)
-        
+
         Test = .false.
         If (Test) then
            XMAX = 0.d0
@@ -1301,7 +1299,7 @@
 
       SUBROUTINE SECONDS(X)
         IMPLICIT NONE
-        REAL (Kind=Kind(0.d0)), INTENT(INOUT) :: X
+        REAL (Kind=Kind(0.d0)), INTENT(OUT) :: X
 
         !DATE_AND_TIME(date, time, zone, values)
         !date_and_time([date][,time][,zone][,values])
