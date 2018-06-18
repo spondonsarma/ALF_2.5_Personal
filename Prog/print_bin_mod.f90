@@ -186,18 +186,17 @@
            Integer,                          Intent(In)    :: Nobs
 
            ! Local
-           Integer :: Norb,I
+           Integer :: I
 #ifdef MPI
            Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
-           Integer        :: Ierr, Isize, Irank
+           Integer        :: Ierr, Isize, Irank, Norb
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
-
-           Norb = size(Obs,1)
            Obs = Obs/dble(Nobs)
 #ifdef MPI
+           Norb = size(Obs,1)
            Allocate ( Tmp(Norb) )
            Tmp = 0.d0
            CALL MPI_REDUCE(Obs,Tmp,Norb,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
