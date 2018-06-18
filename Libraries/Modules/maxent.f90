@@ -167,7 +167,7 @@ Module MaxEnt_mod
 
             Implicit None
             !Arguments
-            REAL (Kind=Kind(0.d0))                 :: XQ,XENT,CHISQ
+            REAL (Kind=Kind(0.d0)), intent(out)    :: XQ,XENT,CHISQ
             REAL (Kind=Kind(0.d0)), Dimension(:)   :: XQMC, A
             REAL (Kind=Kind(0.d0)), Dimension(:,:) :: COV, XKER
 
@@ -391,7 +391,7 @@ Module MaxEnt_mod
             Implicit None
 
             !Arguments
-            REAL (Kind=Kind(0.d0))   :: XQ, XENT, CHISQ
+            REAL (Kind=Kind(0.d0)), intent(in)     :: XQ, XENT, CHISQ
             Real (Kind=Kind(0.d0)), Dimension(:)   :: A, XQMC
             Real (Kind=Kind(0.d0)), Dimension(:,:) :: XKER
 
@@ -585,7 +585,7 @@ Module MaxEnt_mod
                enddo
                call fit(xdata_fit,fdata_fit,error_fit,ares,chisq_fit,f_fit)
                write(6,*) 'The slope is : ', Ares(2)
-               shft = -Ares(2)  - 0.2
+               shft = -Ares(2)  - 0.2D0
                Deallocate (xdata_fit, fdata_fit,  error_fit )
                do nt = 1,Ntau_eff
                   xqmc_1(nt) = xqmc_1(nt)*exp(xtau(nt)*shft)
@@ -642,21 +642,23 @@ Module MaxEnt_mod
             Implicit None
             Real (Kind=Kind(0.d0)), Dimension(:)   :: XQMC, A
             Real (Kind=Kind(0.d0)), Dimension(:,:) :: COV, XKER
-            Real (Kind=Kind(0.d0)) :: ALPHA_ST, CHISQ, ALPHA_N, ALPHA_EN
+            Real (Kind=Kind(0.d0)) :: ALPHA_ST, ALPHA_N, ALPHA_EN
+            Real (Kind=Kind(0.D0)), Intent(Out) :: CHISQ
 
-            Integer       :: NT, NT1, NT2, NW, NFLAG, NCOUNT, NTH
+            Integer       :: NT, NT1, NT2, NW, NCOUNT, NTH
+!           Integer       :: NFLAG
             Real (Kind=Kind(0.d0)) :: X, XENT, XQ, PR_ALP, XTRACE, DIFF1, DIFF , Tol_chi_def, XNORM, &
                  &           D_ALPHA, ALPHA_OLD, XNORM_TOT
 
             Real (Kind=Kind(0.d0)), Dimension(:), allocatable   :: A_ME
 
-            Tol_chi_def = 100000000000000.0
+            Tol_chi_def = 100000000000000.0D0
             NTAU = SIZE(XQMC,1)
             NOM  = SIZE(A, 1)
             ALLOCATE(A_ME(NOM))
             !WRITE(6,*) 'NTAU, Nom: ', NTAU,NOM
             PI   = ACOS(-1.d0)
-            XMOM1= 1.0 !PI
+            XMOM1= 1.0D0 !PI
             ZERO =  1.0D-8
             ALLOCATE ( XLAM(NTAU), SIG1(NTAU), COVM1(NTAU,NTAU), UC(NTAU,NTAU), DEF(NOM) )
             XLAM=0.D0;  SIG1=0.D0; UC = 0.D0
@@ -689,11 +691,9 @@ Module MaxEnt_mod
             ALPHA     = Alpha_st
             DEF       = XMOM1/dble(NOM) 
             XLAM      = 0.d0
-            XQ = 0.d0; XENT= 0.d0; CHISQ = 0.d0
             Call Maximize_Newton( XQMC,  COV, A, XKER, XQ,XENT,CHISQ)
             IF (CHISQ .GT. Tol_chi_def*NTAU )  THEN
                DO 
-                  XQ = 0.d0; XENT= 0.d0; CHISQ = 0.d0
                   Call Maximize_Newton( XQMC,  COV, A, XKER, XQ,XENT,CHISQ)
                   Write(50,*) 'Default: ', Alpha, Chisq
                   Write(6,*) 'Default: ', Alpha, Chisq
@@ -723,8 +723,8 @@ Module MaxEnt_mod
             Write(6,*) 'Setting the default to a flat default'
             
 
-            ! Calssic MaxEnt.
-            NFLAG  = 0
+            ! Classic MaxEnt.
+!            NFLAG  = 0
             NCOUNT = 0
             !ALPHA  = ALPHA_ST
             ALPHA_N = ALPHA_EN
@@ -736,7 +736,6 @@ Module MaxEnt_mod
             DO
                !WRITE(6,*)  'Starting classic  ', ALPHA
                WRITE(50,*)  '========= Alpha:    ', ALPHA
-               XQ = 0.d0; XENT= 0.d0; CHISQ = 0.d0
                !write(6,*) 'Calling maximize'
                CALL MAXIMIZE_Newton( XQMC,  COV, A, XKER, XQ,XENT,CHISQ) 
                !write(6,*) 'Return: Calling maximize'
@@ -758,11 +757,11 @@ Module MaxEnt_mod
                IF ( ABS(DIFF) .GT.  0.05*ALPHA ) THEN
                   D_alpha =  0.05 * ALPHA
                   ALPHA  = ALPHA +  0.05 * ALPHA * DIFF/ABS(DIFF)
-                  NFLAG = 1
+!                  NFLAG = 1
                ELSE
                   D_alpha =  ABS(ALPHA_N - ALPHA)
                   ALPHA =  ALPHA_N
-                  NFLAG = 0
+!                  NFLAG = 0
                ENDIF
                NCOUNT = NCOUNT + 1
                IF (NCOUNT .EQ. 100) THEN
