@@ -127,13 +127,14 @@
 
            ! Local
            Integer :: Ns,Nt, Norb, no, no1, I , Ntau
-           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:), Tmp1(:)
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2) 
            Complex (Kind=Kind(0.d0))              :: Sign_bin
            Character (len=64)            :: File_pr,  File_suff
 #ifdef MPI
-           Complex (Kind=Kind(0.d0)):: Z
-           Real    (Kind=Kind(0.d0)):: X
+           Complex (Kind=Kind(0.D0)), allocatable :: Tmp1(:)
+           Complex (Kind=Kind(0.d0)) :: Z
+           Real    (Kind=Kind(0.d0)) :: X
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: irank_g, isize_g, igroup
 
@@ -157,7 +158,7 @@
               File_suff  ="_tau"
            endif
            File_pr  = file_add(Obs%File_Latt,File_suff )
-           Allocate (Tmp(Ns,Ntau,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Ns,Ntau,Norb,Norb))
            Obs%Obs_Latt  =   Obs%Obs_Latt /dble(Obs%N   )
            Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns*Ntau)
            Obs%Ave_sign  =   Obs%Ave_Sign /dble(Obs%N   )
@@ -174,9 +175,11 @@
            Obs%Ave_sign = X/DBLE(ISIZE_g)
 
            I = Norb
+           Allocate(Tmp1(Norb))
            Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Obs%Obs_Latt0,Tmp1,I,MPI_COMPLEX16,MPI_SUM, 0,Group_Comm,IERR)
            Obs%Obs_Latt0 = Tmp1/DBLE(ISIZE_g)
+           Deallocate(Tmp1)
 
            If (Irank_g == 0 ) then
 #endif
@@ -216,7 +219,7 @@
            Endif
 #endif
 
-           deallocate (Tmp, tmp1 )
+           deallocate (Tmp)
 
          End Subroutine Print_bin_Latt
 
@@ -232,10 +235,10 @@
            Integer, INTENT(IN)  :: Group_Comm
 
            ! Local
-           Integer :: No,I
+           Integer :: I
            Character (len=64)             :: File_pr, File_suff
 #ifdef MPI
-           Integer        :: Ierr, Isize, Irank
+           Integer        :: Ierr, Isize, Irank, No
            INTEGER        :: irank_g, isize_g, igroup
            Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
            Real     (Kind=Kind(0.d0)) :: X
@@ -246,13 +249,13 @@
            call MPI_Comm_size(Group_Comm, isize_g, ierr)
            igroup           = irank/isize_g
 #endif
-           No = size(Obs%Obs_vec,1)
            Obs%Obs_vec  = Obs%Obs_vec /dble(Obs%N)
            Obs%Ave_sign = Obs%Ave_sign/dble(Obs%N)
            File_suff ="_scal"
            File_pr = file_add(Obs%File_Vec,File_suff)
 
-#if defined(MPI) 
+#if defined(MPI)
+           No = size(Obs%Obs_vec, 1) 
            Allocate (Tmp(No) )
            Tmp = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Obs%Obs_vec,Tmp,No,MPI_COMPLEX16,MPI_SUM, 0,Group_Comm,IERR)
