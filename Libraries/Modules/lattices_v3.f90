@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@
            allocate (Latt%L2_p(ndim), Latt%L1_p(ndim), Latt%a1_p(ndim) , Latt%a2_p(ndim), &
                 &    Latt%b1_p(ndim), Latt%b2_p(ndim), Latt%BZ1_p(ndim), Latt%BZ2_p(ndim) )
            allocate (Latt%b1_perp_p(ndim), Latt%b2_perp_p(ndim) )
-           Zero = 1.E-5
+           Zero = 1.D-5
            Latt%L1_p = L1_p
            Latt%L2_p = L2_p
            Latt%a1_p = a1_p
@@ -310,7 +310,8 @@
 
            Implicit none
 
-           integer, dimension(:) ::  nr_p, n_p, L1_p, L2_p
+           integer, dimension(:) ::  n_p, L1_p, L2_p
+           integer, dimension(:), intent(out) :: nr_p
 
            integer, dimension(:), allocatable :: x_p
            Real (Kind=Kind(0.d0)) :: Zero, X
@@ -318,7 +319,7 @@
 
            Zero = 1.D-8
            nr_p = n_p 
-           ndim = size(nr_p)
+           ndim = size(n_p)
 
            allocate (x_p(ndim))
 
@@ -341,17 +342,18 @@
          subroutine npbc_R(nr_p, n_p, L1_p, L2_p) 
 
            Implicit none
-           Real (Kind=Kind(0.d0)), dimension(:) ::  nr_p, n_p, L1_p, L2_p
+           Real (Kind=Kind(0.d0)), dimension(:) :: n_p, L1_p, L2_p
+           Real (Kind=Kind(0.d0)), dimension(:), intent(out) :: nr_p
 
            Real (Kind=Kind(0.d0)), dimension(:), allocatable :: x_p
 
            Real (Kind=Kind(0.d0)) :: Zero, X
            Integer :: ndim, i
-           ndim = size(nr_p)
 
-           allocate (x_p(ndim))
            Zero = 1.D-8
-           nr_p = n_p 
+           nr_p = n_p
+           ndim = size(n_p)
+           allocate(x_p(ndim))
            do i = 1,4
               if (i.eq.1) x_p = L2_p
               if (i.eq.2) x_p = L1_p
@@ -581,7 +583,7 @@
            Type (Lattice), intent(in)                    :: Latt
            Type (Mat_C )   , Dimension(:,:)              :: Xin_K, Xout_R 
            Complex (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: X_MAT
-           Real    (Kind=Kind(0.d0))                              :: XK_p(2), IR_p(2)
+           Real    (Kind=Kind(0.d0))                              :: XK_p(2), IR_p(2), ang
 
            Integer :: nb, norb, LQ, nt, nr, nk
 
@@ -602,7 +604,8 @@
                  X_MAT = cmplx(0.d0, 0.d0, kind(0.D0))
                  do nk = 1,LQ
                     XK_p =  dble(Latt%listk(nk,1))*Latt%b1_p + dble(Latt%listk(nk,2))*Latt%b2_p
-                    X_MAT = X_MAT + exp( cmplx(0.d0,(Iscalar(XK_p,IR_p)), kind(0.D0)) ) *Xin_K(nk,nt)%el
+                    ang = Iscalar(XK_p, IR_p)
+                    X_MAT = X_MAT + cmplx(cos(ang), sin(ang), kind(0.D0)) * Xin_K(nk,nt)%el
                  enddo
                  Xout_R(nr,nt)%el = X_MAT/dble(LQ)
               enddo
