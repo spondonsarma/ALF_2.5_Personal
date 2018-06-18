@@ -34,7 +34,7 @@
       Type (Lattice),       private :: Latt
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
-      real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
+      real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
       Integer,              private :: N_coord 
@@ -134,7 +134,6 @@
 
           Ltrot = nint(beta/dtau)
           Projector = .false.
-          Theta = 0.d0
           Thtrot = 0
 #ifdef MPI
           If (Irank == 0) then
