@@ -37,7 +37,7 @@
 !
 !> @brief 
 !> Reads in the field configuration and seeds if present so as to 
-!> pursue a run. If  the configuration is not  present  the 
+!> pursue a run. If  the configuration is not present  the 
 !> routine will generate one based on the seeds read in from the file
 !> seeds
 !
@@ -49,14 +49,13 @@
          IMPLICIT NONE
 
          ! LOCAL
-         INTEGER        :: I, IERR, ISIZE, IRANK, SEED_IN, K, ISEED, NT
+         INTEGER        :: I, IERR, SEED_IN, K, NT
          INTEGER, DIMENSION(:), ALLOCATABLE :: SEED_VEC
-         REAL (Kind=Kind(0.d0))  :: X
          LOGICAL ::   LCONF 
          CHARACTER (LEN=64) :: FILE_SR, FILE_TG, FILE_seeds, FILE_info, File1
 
 #ifdef MPI
-         INTEGER        :: STATUS(MPI_STATUS_SIZE), irank_g, isize_g, igroup
+         INTEGER        :: STATUS(MPI_STATUS_SIZE), irank_g, isize_g, igroup, ISIZE, IRANK
          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
@@ -124,13 +123,6 @@
                   WRITE(50,*) 'No initial configuration, Seed_in', SEED_IN
                   Close(50)
                endif
-!!$            DO NT = 1,LTROT
-!!$               DO I = 1,SIZE(OP_V,1)
-!!$                  X = RANF_WRAP()
-!!$                  NSIGMA(I,NT) = 1
-!!$                  IF (X.GT.0.5) NSIGMA(I,NT) = -1
-!!$               ENDDO
-!!$            ENDDO
          ENDIF
             
 #else   
