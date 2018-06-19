@@ -52,7 +52,7 @@
         Implicit none
 
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+        CLASS(UDV_State), intent(inout), allocatable :: UDVL(N_FL)
         Integer :: NTAU1, NTAU
 
 
@@ -98,7 +98,7 @@
         Implicit none
 
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
         Integer, intent(in) :: NTAU1, NTAU
 
 

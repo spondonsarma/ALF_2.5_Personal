@@ -461,7 +461,7 @@ Module Global_mod
              Use Hamiltonian
              Use UDV_State_mod
              Implicit none
-             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)

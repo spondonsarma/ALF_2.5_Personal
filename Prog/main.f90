@@ -65,7 +65,7 @@ Program Main
              Use Hamiltonian
              Use UDV_State_mod
              Implicit none
-             CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
@@ -82,7 +82,7 @@ Program Main
              Use UDV_Wrap_mod
              Use UDV_State_mod
              Implicit None
-             CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
 

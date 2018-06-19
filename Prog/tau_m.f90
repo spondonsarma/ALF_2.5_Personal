@@ -57,7 +57,7 @@
                 Use Hamiltonian
                 Use UDV_State_mod
                 Implicit none
-                CLASS(UDV_State), intent(inout) :: UDVr(N_FL)
+                CLASS(UDV_State), intent(inout), ALLOCATABLE, dimension(:) :: UDVr
                 Integer :: NTAU1, NTAU
               END SUBROUTINE WRAPUR
               SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, udv2, udv1, LQ)
