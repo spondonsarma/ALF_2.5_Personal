@@ -229,8 +229,10 @@
 !> @brief 
 !> This routine updates the field associated to the operator N_op on time 
 !> slice NT to the value ns_new
-!> if mode = final  the move is  accepted according to T0_proposal_ratio*S0_ratio*Prev_Ratiotot*ratio  and the Green function is updated
-!> if mode = intermediate the move is carried our deterministically  and the Green function updated.  Also Prev_Ratio = Prev_Ration*ratio
+!> if mode = final  the move is  accepted according to T0_proposal_ratio*S0_ratio*Prev_Ratiotot*ratio 
+!> and the Green function is updated.
+!> if mode = intermediate the move is carried our deterministically  and the Green function updated.
+!> Also Prev_Ratio = Prev_Ration*ratio
 !> The ratio is computed in the routine.
 !--------------------------------------------------------------------
        
@@ -253,10 +255,10 @@
         
         Complex (Kind=Kind(0.d0)) :: Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL)
         Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1 
-        Integer :: ns_old, n,m,nf, i,j
-        Complex (Kind=Kind(0.d0)) :: ZK, Z, D_Mat, Z2, myexp, s1, s2
+        Integer :: ns_old, n,m,nf, i
+        Complex (Kind=Kind(0.d0)) :: Z, D_Mat, myexp, s1, s2
         
-        Real    (Kind=Kind(0.d0)) :: Weight, reZ, imZ
+        Real    (Kind=Kind(0.d0)) :: Weight
         Complex (Kind=Kind(0.d0)) :: u(Ndim,Op_dim), v(Ndim,Op_dim) ,alpha, beta
         Complex (Kind=Kind(0.d0)) :: y_v(Ndim,Op_dim), xp_v(Ndim,Op_dim)
         Complex (Kind=Kind(0.d0)) :: x_v(Ndim,Op_dim)

@@ -49,12 +49,12 @@
          IMPLICIT NONE
 
          ! LOCAL
-         INTEGER        :: I, IERR, ISIZE, IRANK, K, NT
+         INTEGER        :: I, K, NT
          INTEGER, DIMENSION(:), ALLOCATABLE :: SEED_VEC
          CHARACTER (LEN=64) :: FILE_TG
 
 #if defined(MPI)
-         INTEGER        :: irank_g, isize_g, igroup
+         INTEGER        :: irank_g, isize_g, igroup, ISIZE, IRANK, IERR
          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
          call MPI_Comm_rank(Group_Comm, irank_g, ierr)

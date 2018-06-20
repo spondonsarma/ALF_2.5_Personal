@@ -42,7 +42,6 @@
 !--------------------------------------------------------------------
 
         !NOTE:    NTAU1 > NTAU.
-        Use Operator_mod, only : Phi
         Use UDV_State_mod
 #if defined(STAB2) ||  defined(STAB1) 
         Use Hamiltonian
@@ -71,7 +70,6 @@
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
                  Call Op_mmultL(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               enddo
               !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
@@ -106,10 +104,9 @@
 !         TYPE(UDV_State) :: udvlocal
 !         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
 !         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
-        Integer :: NT, NCON, n, nf
+        Integer :: NT, n, nf
 !         Real    (Kind=Kind(0.d0)) ::  X, XMAX, XMEAN
  
-        NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1

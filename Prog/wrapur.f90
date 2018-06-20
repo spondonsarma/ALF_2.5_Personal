@@ -88,7 +88,6 @@
            if(allocated(udvr(nf)%V)) CALL MMULT(udvr(nf)%V, V1, TMP)
         ENDDO
 #else
-        Use Operator_mod, only : Phi
         Implicit None
 
         ! Arguments
@@ -97,9 +96,8 @@
 
 
         ! Working space.
-        Integer :: NT, NCON, n, nf
+        Integer :: NT, n, nf
 
-        NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
         Do nf = 1,N_FL
            DO NT = NTAU + 1, NTAU1
               Call Hop_mod_mmthR(UDVR(nf)%U,nf)

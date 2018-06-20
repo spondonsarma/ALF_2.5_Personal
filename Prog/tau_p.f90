@@ -1,4 +1,4 @@
-!  Copyright (C) 2016, 2017 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -97,14 +97,13 @@
 
 !       Local.
         CLASS(UDV_State), Dimension(:), ALLOCATABLE :: udvr_local
-        Complex (Kind=Kind(0.d0)) :: DETZ, ZK, DET1(2)
+        Complex (Kind=Kind(0.d0)) :: DETZ
         Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  ::  GRUPB, GRUP, G00UP, G0TUP, &
              &                            GT0UP,  GTTUP !,  ULR, ULRINV
         Complex (Kind=Kind(0.d0)), allocatable  :: TEMP(:,:), TMPUP(:,:)!, V(:,:), D(:)
         Real    (Kind=kind(0.d0))  :: XMEAN_DYN, XMAX_DYN
 
-        Integer :: NTAUIN,  NTDM,  LFAM,     NFAM,    N_Part,  LQ , I, J, NCON, NF, NFLAG, NL, &
-             &     NT1, NT_ST, NT, NTAU, NTAU1,n
+        Integer :: NTAUIN,  NTDM,  LFAM, NFAM, N_Part,  LQ , I, NCON, NF, NFLAG, NL, NT1, NT_ST, NT, NTAU, NTAU1,n
 
         Real (Kind=Kind(0.d0)):: XMEAN, XMAX
 
