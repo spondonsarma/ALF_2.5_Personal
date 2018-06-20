@@ -388,7 +388,8 @@
            !Test
            Zero  = 1.D-10
            XK1_P = Latt%listk(nk,1)*latt%b1_p + Latt%listk(nk,2)*latt%b2_p
-           if (Xnorm(XK1_P - XK2_P)  < Zero ) then
+           XK1_P = XK1_P - XK2_P
+           if (Xnorm(XK1_P)  < Zero ) then
               Inv_K = nk
            else
               write(6,*) 'Error in Inv_K Lattice_new'
