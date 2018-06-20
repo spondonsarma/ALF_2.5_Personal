@@ -149,7 +149,7 @@
 *     .. Local Scalars ..
       LOGICAL            LQUERY
       INTEGER            I, IB, IINFO, IWS, J, KI, KK, L, LDWORK,
-     $                   LWKOPT, NB, NBMIN, NX
+     $                   LWKOPT, NB, NBMIN, NX, O
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           XERBLA, ZLARFB_REF, ZLARFT_REF, ZUNG2R_REF
@@ -238,13 +238,13 @@
       ELSE
          KK = 0
       END IF
+      O=KK+1
 *
 *     Use unblocked code for the last or only block.
 *
-      IF( KK.LT.N )
-     $   CALL ZUNG2R_REF( M-KK, N-KK, K-KK, A( KK+1, KK+1 ), LDA,
-     $                TAU( KK+1 ), WORK, IINFO )
-*
+      IF( KK.LT.N ) THEN
+      CALL ZUNG2R_REF(M-KK,N-KK,K-KK,A(O,O),LDA,TAU(KK+1),WORK,IINFO)
+      ENDIF
       IF( KK.GT.0 ) THEN
 *
 *        Use blocked code
@@ -269,8 +269,7 @@
 *
 *           Apply H to rows i:m of current block
 *
-            CALL ZUNG2R_REF( M-I+1, IB, IB, A( I, I ), LDA, TAU( I ), WORK,
-     $                   IINFO )
+            CALL ZUNG2R_REF(M-I+1,IB,IB,A(I,I),LDA,TAU(I),WORK,IINFO)
 *
 *           Set rows 1:i-1 of current block to zero
 *
