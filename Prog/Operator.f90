@@ -234,9 +234,16 @@ Contains
        Op%diag = .true.
     endif
     Do I=1,Op%type
-      call FillExpOps(Op%E_exp(:,I),Op%E_exp(:,-I),Op,Phi(I,Op%type))
-      call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
-      call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
+        do n = 1, Op%N
+            Op%E_exp(n,I) = cmplx(1.d0, 0.d0, kind(0.D0))
+            Op%E_exp(n,-I) = cmplx(1.d0, 0.d0, kind(0.D0))
+            if ( n <= Op%N_non_Zero) then
+                Op%E_exp(n,I) = exp(Op%g*(Op%E(n)*Phi(I,Op%type)))
+                Op%E_exp(n,-I) = 1.D0/Op%E_exp(n,I)
+            endif
+        enddo
+        call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
+        call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
     enddo
   end subroutine Op_set
 
@@ -379,36 +386,6 @@ Contains
       call ZSLGEMM('L',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultR
-
-!--------------------------------------------------------------------
-!> @author
-!> Florian Goth
-!
-!> @brief 
-!> This function fills the arrays ExpOp nd ExpMop according to the data in Op
-!
-!> @param[inout] ExpOp
-!> @param[inout] ExpMop
-!> @param[in] Op The Operator whose eigenvalues we exponentiate
-!> @param[in] spin The spin direction that we consider
-!--------------------------------------------------------------------
-  Pure subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
-    Implicit none
-    Type (Operator) , INTENT(IN) :: Op
-    Complex(kind = kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
-    Real(kind = kind(0.D0)), Intent(in) :: spin
-    Integer :: n
-    
-    do n = 1, Op%N
-       ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-       ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-       if ( n <= OP%N_non_Zero) then
-          ExpOp(n) = exp(Op%g*(Op%E(n)*spin))
-          ExpMop(n) = 1.D0/ExpOp(n)
-       endif
-    enddo
-    
-  end subroutine FillExpOps
 
 !--------------------------------------------------------------------
 
