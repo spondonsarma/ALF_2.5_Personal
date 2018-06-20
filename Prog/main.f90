@@ -126,7 +126,6 @@ Program Main
 
         ! For tests
         Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
-        Integer :: nr,nth, nth1
         Logical :: Log
 
         ! For the truncation of the program:
