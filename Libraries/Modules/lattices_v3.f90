@@ -474,7 +474,7 @@
  !********
          Real (Kind=Kind(0.d0)) function Xnorm_I(i_p)
            Implicit none
-           integer, dimension(:) :: i_p
+           integer, dimension(:), intent(in) :: i_p
            integer :: i
 
            Xnorm_I = 0.d0
@@ -487,7 +487,7 @@
  !********
          Real (Kind=Kind(0.d0)) function Xnorm_R(x_p)
            Implicit none
-           Real (Kind=Kind(0.d0)), dimension(:) :: x_p
+           Real (Kind=Kind(0.d0)), dimension(:), intent(in) :: x_p
            integer :: i
 
            Xnorm_R = 0.d0
