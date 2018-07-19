@@ -294,6 +294,7 @@
              Write(6,*) "Model not yet implemented!"
              Stop
           end Select
+          
           Call Ham_hop
           
           if (Projector) Call Ham_TrialWaveFunction
