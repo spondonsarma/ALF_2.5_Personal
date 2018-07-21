@@ -295,7 +295,7 @@
         !Local
         Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
         Complex (Kind=Kind(0.d0)) :: ZX, ZY
-        Real    (Kind=Kind(0.d0)) :: del_p(2), X
+        Real    (Kind=Kind(0.d0)) :: del_p(2), X, g
         
         If ( .not. Checkerboard) then
            allocate(Op_T(1,N_FL))
@@ -419,31 +419,36 @@
         else
            select case (Lattice_type)
            case ("Square")
-              Allocate(Op_T(N_coord*Latt%N,N_FL))
+              Allocate(Op_T(2*N_coord*Latt%N,N_FL))
               do n = 1,N_FL
-                 do i  =  1, N_coord*Latt%N
+                 do i  =  1, 2*N_coord*Latt%N
                     call Op_make(Op_T(i,n),2)
                  enddo
                  nc = 0
-                 do I = 1,Latt%N
-                    I1 = I
-                    do nc1 = 1,N_coord
-                       nc = nc + 1
-                       if (nc1 == 1 ) I2 = latt%nnlist(I,1,0) 
-                       if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
-                       Op_T(nc,n)%P(1) = I1
-                       Op_T(nc,n)%P(2) = I2
-                       Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                       Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
-                       Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                       Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
-                       if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
-                          Op_T(nc,n)%g = 0.d0
-                       else
-                          Op_T(nc,n)%g = -Dtau
+                 do nc1 = 1,2*N_coord
+                    do I = 1,Latt%N
+                       if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                          I1 = I
+                          nc = nc + 1
+                          if (nc1 == 1 ) I2 = latt%nnlist(I1, 1, 0) 
+                          if (nc1 == 2 ) I2 = latt%nnlist(I1, 0, 1)
+                          if (nc1 == 3 ) I2 = latt%nnlist(I1,-1, 0)
+                          if (nc1 == 4 ) I2 = latt%nnlist(I1, 0,-1)
+                          Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
+                          Op_T(nc,n)%P(1) = I1
+                          Op_T(nc,n)%P(2) = I2
+                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/2.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/2.d0 ,0.d0, kind(0.D0))
+                          if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                             Op_T(nc,n)%g = 0.d0
+                          else
+                             Op_T(nc,n)%g = -Dtau
+                          endif
+                          Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                          Call Op_set( Op_T(nc,n) )
                        endif
-                       Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
-                       Call Op_set( Op_T(nc,n) )
                     Enddo
                  Enddo
               Enddo
@@ -455,9 +460,9 @@
                     call Op_make(Op_T(i,n),2)
                  enddo
                  nc = 0
-                 do I = 1,Latt%N
-                    I1 = Invlist(I,1)
-                    do nc1 = 1,N_coord
+                 do nc1 = 1,N_coord
+                    do I = 1,Latt%N
+                       I1 = Invlist(I,1)
                        nc = nc + 1
                        If (nc1 == 1 )  I2 = invlist(I,2)
                        If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
@@ -484,8 +489,84 @@
                     Enddo
                  Enddo
               Enddo
-           case default
-              Write(6,*) "Checkeboard is not implemented for this lattice"
+           case ("Honeycomb")
+              If (Symm) then
+                 Allocate(Op_T((2*N_coord-1)*Latt%N,N_FL))
+                 do n = 1,N_FL
+                    do i  =  1, (2*N_coord-1)*Latt%N
+                       call Op_make(Op_T(i,n),2)
+                    enddo
+                    nc = 0
+                    do nc1 = 1,(2*N_coord -1) 
+                       do I = 1,Latt%N
+                          I1 = invlist(I,1)
+                          nc = nc + 1
+                          select case (nc1)
+                          case(1)
+                             I2 = invlist(I,2)
+                             g = -Dtau/2.d0
+                          case(2)
+                             I2 = invlist(latt%nnlist(I,1,-1),2)
+                             g = -Dtau/2.d0
+                          case(3)
+                             I2 = invlist(latt%nnlist(I,0,-1),2)
+                             g = -Dtau
+                          case(4)
+                             I2 = invlist(latt%nnlist(I,1,-1),2)
+                             g = -Dtau/2.d0
+                          case(5)
+                             I2 = invlist(I,2)
+                             g = -Dtau/2.d0
+                          end select
+                          Op_T(nc,n)%P(1) = I1
+                          Op_T(nc,n)%P(2) = I2
+                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                          if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                             Op_T(nc,n)%g = 0.d0
+                          else
+                             Op_T(nc,n)%g = g
+                          endif
+                          Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                          Call Op_set( Op_T(nc,n) )
+                       Enddo
+                    Enddo
+                 Enddo
+              Else
+                 Allocate(Op_T(N_coord*Latt%N,N_FL))
+                 do n = 1,N_FL
+                    do i  =  1, N_coord*Latt%N
+                       call Op_make(Op_T(i,n),2)
+                    enddo
+                    nc = 0
+                    do nc1 = 1,N_coord
+                       do I = 1,Latt%N
+                          I1 = invlist(I,1)
+                          nc = nc + 1
+                          if (nc1 == 1 ) I2 = invlist(I,2)
+                          if (nc1 == 2 ) I2 = invlist(latt%nnlist(I,1,-1),2)
+                          if (nc1 == 3 ) I2 = invlist(latt%nnlist(I,0,-1),2)
+                          Op_T(nc,n)%P(1) = I1
+                          Op_T(nc,n)%P(2) = I2
+                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                          if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                             Op_T(nc,n)%g = 0.d0
+                          else
+                             Op_T(nc,n)%g = -Dtau
+                          endif
+                          Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                          Call Op_set( Op_T(nc,n) )
+                       Enddo
+                    Enddo
+                 Enddo
+              Endif
+              case default
+                 Write(6,*) "Checkeboard is not implemented for this lattice"
               Stop
            End select
         endif

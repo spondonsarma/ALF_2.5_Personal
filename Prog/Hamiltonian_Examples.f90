@@ -169,8 +169,8 @@
           If (Irank == 0 ) then
 #endif
              N_SUN        = 1
-             Checkerboard = .false.
-             Symm         = .true.
+             Checkerboard = .true.
+             Symm         = .false.
              Phi_X        = 0.d0
              XB_X         = 1.d0
              Phi_Y        = 0.d0
@@ -210,6 +210,7 @@
                 Write(50,*) 'Flux_X        : ', Phi_X
              Endif
              Write(50,*) 'Checkerboard  : ', Checkerboard
+             Write(50,*) 'Symm. decomp  : ', Symm
              Close(50)
 #ifdef MPI
           Endif
