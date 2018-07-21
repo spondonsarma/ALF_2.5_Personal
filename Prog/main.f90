@@ -89,7 +89,7 @@ Program Main
         end Interface
 
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
-        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR, GR_Tilde
         CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
   
         
@@ -348,7 +348,7 @@ Program Main
         if (log) stop
 
         !Call Test_Hamiltonian
-        Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL ) )
+        Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
         do nf = 1, N_FL
            do n = 1, NSTM
@@ -459,9 +459,14 @@ Program Main
                  IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
                     !Call  Global_tau_mod_Test(Gr,ntau1)
                     !Stop
-!                     write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
-!                     write(*,*) "Phase before obser : ",phase
-                    CALL Obser( GR, PHASE, Ntau1 )
+                    !write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
+                    !write(*,*) "Phase before obser : ",phase
+                    If (Symm) then
+                       Call Hop_mod_Symm(GR_Tilde,GR)
+                       CALL Obser( GR_Tilde, PHASE, Ntau1 )
+                    else
+                       CALL Obser( GR, PHASE, Ntau1 )
+                    endif
                  ENDIF
               ENDDO
               
@@ -478,9 +483,14 @@ Program Main
                  NTAU1 = NTAU - 1
                  CALL WRAPGRDO(GR,NTAU, PHASE,Propose_S0,Nt_sequential_start, Nt_sequential_end, N_Global_tau)
                  IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
-!                     write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
-!                     write(*,*) "Phase before obser : ",phase
-                    CALL Obser( GR, PHASE, Ntau1 )
+                    !write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
+                    !write(*,*) "Phase before obser : ",phase
+                    If (Symm) then
+                       Call Hop_mod_Symm(GR_Tilde,GR)
+                       CALL Obser( GR_Tilde, PHASE, Ntau1 )
+                    else
+                       CALL Obser( GR, PHASE, Ntau1 )
+                    endif
                  ENDIF
                  IF ( Stab_nt(NST) == NTAU1 .AND. NTAU1.NE.0 ) THEN
                     NT1 = Stab_nt(NST+1)
@@ -504,7 +514,7 @@ Program Main
                     Call Control_PrecisionP(Z,Phase)
                     Phase = Z
                     IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
-                      Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+                       Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
                     endif
                     NST = NST -1
                  ENDIF

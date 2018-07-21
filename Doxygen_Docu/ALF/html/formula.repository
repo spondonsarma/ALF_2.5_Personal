@@ -1,0 +1,16 @@
+\form#0:\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
+\form#1:\[ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } \]
+\form#2:\[ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } \]
+\form#3:\[ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } \]
+\form#4:\[ e^{-\Delta \tau T }{-1} \]
+\form#5:\[ \tilde{G} = e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \]
+\form#6:\[ \tilde{G} \]
+\form#7:$ \tilde{G} $
+\form#8:$ \tilde{G} = e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $
+\form#9:\[ \prod_{\tau} \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} \]
+\form#10:\[ \prod_{\tau} \; \; \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} \]
+\form#11:\[ E^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
+\form#12:$ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } $
+\form#13:$ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } $
+\form#14:$ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } $
+\form#15:$ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } $

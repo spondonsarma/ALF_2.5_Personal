@@ -34,7 +34,7 @@
 Module WaveFunction_mod
 
 !--------------------------------------------------------------------
-!> @author 
+!> @Author 
 !> ALF-project
 !
 !> @brief 

@@ -31,18 +31,18 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-  module Control
 
 !--------------------------------------------------------------------
-!
 !> @author 
 !> ALF-project
-!
+!>
 !> @brief 
-!> This module handles the  calculation of the acceptance ratio. It also  
-!> monitors the precision of the code, as well as the timing.
+!> This module handles the  calculation of the acceptance ratio.
+!> It also monitors the precision of the code, as well as the timing.
 !
 !--------------------------------------------------------------------
+
+module Control
 
     Use MyMats
     Implicit none
