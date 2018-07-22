@@ -170,7 +170,7 @@
 #endif
              N_SUN        = 1
              Checkerboard = .true.
-             Symm         = .false.
+             Symm         = .true.
              Phi_X        = 0.d0
              XB_X         = 1.d0
              Phi_Y        = 0.d0
@@ -771,6 +771,7 @@
           Delta_S0_global = 0.d0
 
         end Function Delta_S0_global
+        
 !========================================================================
         
         Subroutine Obser(GR,Phase,Ntau)
@@ -808,16 +809,25 @@
              
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
-          Do n  = 1,Size(Op_T,1)
-             Do nf = 1,N_FL
-                Do I = 1,Size(Op_T(n,nf)%O,1)
-                   Do J = 1,Size(Op_T(n,nf)%O,2)
-                      Zkin = Zkin +  Op_T(n,nf)%O(i, j)*Grc( Op_T(n,nf)%P(I), Op_T(n,nf)%P(J), nf )
-                   ENddo
+          Do nf = 1,N_FL
+             Do I = 1,Latt%N
+                Do n = 1,N_coord
+                   Select Case (Lattice_type)
+                   Case ("Square")
+                      I1 = I
+                      If (n == 1)  J1 = Latt%nnlist(I,1,0)
+                      If (n == 2)  J1 = Latt%nnlist(I,0,1)
+                   Case ("Honneycomb")
+                      I1 = invlist(I,1) 
+                      If (n == 1)  J1 = invlist(I,2)
+                      If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
+                      If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
+                   end Select
+                   Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
                 Enddo
              Enddo
           Enddo
-          Zkin = Zkin * dble(N_SUN)
+          Zkin = -Ham_T*Zkin * dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 

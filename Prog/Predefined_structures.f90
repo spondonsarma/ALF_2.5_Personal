@@ -293,7 +293,7 @@
 
 
         !Local
-        Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
+        Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no, N_Fam, L_FAM
         Complex (Kind=Kind(0.d0)) :: ZX, ZY
         Real    (Kind=Kind(0.d0)) :: del_p(2), X, g
         
@@ -419,28 +419,129 @@
         else
            select case (Lattice_type)
            case ("Square")
-              Allocate(Op_T(2*N_coord*Latt%N,N_FL))
-              do n = 1,N_FL
-                 do i  =  1, 2*N_coord*Latt%N
-                    call Op_make(Op_T(i,n),2)
-                 enddo
-                 nc = 0
-                 do nc1 = 1,2*N_coord
-                    do I = 1,Latt%N
-                       if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
-                          I1 = I
+              If (Symm) then
+                 N_Fam = 2*(2*N_coord) -1  !  Number of Families = 4
+                 L_Fam = Latt%N/2          !  Length of Families = LQ/4
+                 Allocate(Op_T(N_FAM*L_FAM,N_FL))
+                 do n = 1,N_FL
+                    do I  =  1, N_FAM*L_FAM
+                       call Op_make(Op_T(I,n),2)
+                    enddo
+                    nc = 0
+                    do nc1 = 1,N_Fam
+                       do I = 1,Latt%N
+                          if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                             I1 = I
+                             nc = nc + 1
+                             select case (nc1)
+                             case(1)
+                                I2 = latt%nnlist(I1, 1, 0) 
+                                g = -Dtau/2.d0
+                             case(2)
+                                I2 = latt%nnlist(I1, 0, 1)
+                                g = -Dtau/2.d0
+                             case(3)
+                                I2 = latt%nnlist(I1,-1, 0)
+                                g = -Dtau/2.d0
+                             case(4)
+                                I2 = latt%nnlist(I1, 0,-1)
+                                g = -Dtau
+                             case(5)
+                                I2 = latt%nnlist(I1,-1, 0)
+                                g = -Dtau/2.d0
+                             case(6)
+                                I2 = latt%nnlist(I1, 0, 1)
+                                g = -Dtau/2.d0
+                             case(7)
+                                I2 = latt%nnlist(I1, 1, 0) 
+                                g = -Dtau/2.d0
+                             end select
+                             !Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
+                             Op_T(nc,n)%P(1) = I1
+                             Op_T(nc,n)%P(2) = I2
+                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                             Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                             if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                                Op_T(nc,n)%g = 0.d0
+                             else
+                                Op_T(nc,n)%g = g
+                             endif
+                             Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                             Call Op_set( Op_T(nc,n) )
+                          endif
+                       Enddo
+                    Enddo
+                 Enddo
+              Else
+                 N_Fam = 2*N_coord !  Number of Families = 4
+                 L_Fam = Latt%N/2  !  Length of Families = LQ/4
+                 Allocate(Op_T(N_FAM*L_FAM,N_FL))
+                 do n = 1,N_FL
+                    do I  =  1, N_FAM*L_FAM
+                       call Op_make(Op_T(I,n),2)
+                    enddo
+                    nc = 0
+                    do nc1 = 1,N_Fam
+                       do I = 1,Latt%N
+                          if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                             I1 = I
+                             nc = nc + 1
+                             if (nc1 == 1 ) I2 = latt%nnlist(I1, 1, 0) 
+                             if (nc1 == 2 ) I2 = latt%nnlist(I1, 0, 1)
+                             if (nc1 == 3 ) I2 = latt%nnlist(I1,-1, 0)
+                             if (nc1 == 4 ) I2 = latt%nnlist(I1, 0,-1)
+                             !Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
+                             Op_T(nc,n)%P(1) = I1
+                             Op_T(nc,n)%P(2) = I2
+                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
+                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                             Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                             if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
+                                Op_T(nc,n)%g = 0.d0
+                             else
+                                Op_T(nc,n)%g = -Dtau
+                             endif
+                             Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+                             Call Op_set( Op_T(nc,n) )
+                          endif
+                       Enddo
+                    Enddo
+                 Enddo
+              Endif
+           case ("Pi_Flux")
+              If (Symm) Then
+                 Write(6,*) 'Pi-Flux Symm is not yet implemented'
+                 Stop
+              else
+                 Allocate(Op_T(N_coord*Latt%N,N_FL))
+                 do n = 1,N_FL
+                    !Write(6,*) 'N_coord, Latt%N ',  N_coord, Latt%N
+                    do i  =  1, N_coord*Latt%N
+                       call Op_make(Op_T(i,n),2)
+                    enddo
+                    nc = 0
+                    do nc1 = 1,N_coord
+                       do I = 1,Latt%N
+                          I1 = Invlist(I,1)
                           nc = nc + 1
-                          if (nc1 == 1 ) I2 = latt%nnlist(I1, 1, 0) 
-                          if (nc1 == 2 ) I2 = latt%nnlist(I1, 0, 1)
-                          if (nc1 == 3 ) I2 = latt%nnlist(I1,-1, 0)
-                          if (nc1 == 4 ) I2 = latt%nnlist(I1, 0,-1)
-                          Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
+                          If (nc1 == 1 )  I2 = invlist(I,2)
+                          If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
+                          If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
+                          If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2) 
                           Op_T(nc,n)%P(1) = I1
                           Op_T(nc,n)%P(2) = I2
-                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
-                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/2.d0 ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/2.d0 ,0.d0, kind(0.D0))
+                          if (nc1 == 1 ) then
+                             Op_T(nc,n)%O(1,2) = cmplx( Ham_T,    0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(2,1) = cmplx( Ham_T,    0.d0, kind(0.D0))
+                          Else
+                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                          endif
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
                           if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
                              Op_T(nc,n)%g = 0.d0
                           else
@@ -448,47 +549,10 @@
                           endif
                           Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
                           Call Op_set( Op_T(nc,n) )
-                       endif
+                       Enddo
                     Enddo
                  Enddo
-              Enddo
-           case ("Pi_Flux")
-              Allocate(Op_T(N_coord*Latt%N,N_FL))
-              do n = 1,N_FL
-                 !Write(6,*) 'N_coord, Latt%N ',  N_coord, Latt%N
-                 do i  =  1, N_coord*Latt%N
-                    call Op_make(Op_T(i,n),2)
-                 enddo
-                 nc = 0
-                 do nc1 = 1,N_coord
-                    do I = 1,Latt%N
-                       I1 = Invlist(I,1)
-                       nc = nc + 1
-                       If (nc1 == 1 )  I2 = invlist(I,2)
-                       If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
-                       If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
-                       If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2) 
-                       Op_T(nc,n)%P(1) = I1
-                       Op_T(nc,n)%P(2) = I2
-                       if (nc1 == 1 ) then
-                          Op_T(nc,n)%O(1,2) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                          Op_T(nc,n)%O(2,1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                       Else
-                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                       endif
-                       Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                       Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
-                       if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
-                          Op_T(nc,n)%g = 0.d0
-                       else
-                          Op_T(nc,n)%g = -Dtau
-                       endif
-                       Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
-                       Call Op_set( Op_T(nc,n) )
-                    Enddo
-                 Enddo
-              Enddo
+              Endif
            case ("Honeycomb")
               If (Symm) then
                  Allocate(Op_T((2*N_coord-1)*Latt%N,N_FL))
@@ -581,7 +645,7 @@
       !>    Sets the trial wave function corresponding to the solution of the non-interacting
       !>    tight binding Hamiltonian on the given lattice. Twisted boundary conditions (Phi_X=0.01)
       !>    are implemented so as to generate a non-degenerate trial wave functions. 
-      !> @param [in]  Latttice_type
+      !> @param [in]  Lattice_type
       !>    Character(64)
       !> \verbatim
       !>    Square, One_dimensional, Honeycomb, Pi_Flux
