@@ -10,6 +10,11 @@ where
 ![The Hamiltonian1](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/raw/master/Images/Hamiltonian1.png)
 
 Here Z denotes an Ising spin variable with predefined dynamics. If your model can be written in this form then it will be amenable to the ALF. 
+
+## Doxygen ##
+
+You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen_Docu/ALF/html/index.html)  formated documentation. (Work in progress)  
+
 ## PREREQUISITES ##
 
 Libraries: Lapack and Blas
