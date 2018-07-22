@@ -506,20 +506,15 @@ Program Main
                        NVAR = 1
                        IF (NTAU1 .GT. LTROT/2) NVAR = 2
                        TEST(:,:) = GR(:,:,nf)
-                       CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
+                       CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nfx))
                        Z = Z*Z1
                        Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
                     ENDDO
                     call Op_phase(Z,OP_V,Nsigma,N_SUN) 
                     Call Control_PrecisionP(Z,Phase)
                     Phase = Z
-<<<<<<< HEAD
-                    IF(LTAU==1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
-                      Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
-=======
                     IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
                        Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
->>>>>>> Merging-documentation-with-code
                     endif
                     NST = NST -1
                  ENDIF
