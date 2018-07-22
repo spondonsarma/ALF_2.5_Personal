@@ -29,6 +29,17 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Handles UDV decompositions
+!>
+!-------------------------------------------------------------------
+
+
 MODULE UDV_State_mod
     IMPLICIT NONE
     PRIVATE
