@@ -35,45 +35,79 @@
 !> ALF-project
 !>
 !> @brief 
-!> This module defines the  Hamiltonian and observables.  Here, we have included a  set of predefined Hamiltonians. They include the Hubbard and SU(N) tV models
+!> This module defines the  Hamiltonian and observables.  Here, we have included a
+!> set of predefined Hamiltonians. They include the Hubbard and SU(N) tV models
 !> on honeycomb, pi-flux and square lattices.
 
 !> @details
 !> The public variables of this module are the following
+!>
 !> 
-!> * Type (Operator),     dimension(:,:), allocatable  :: Op_V 
-!> \verbatim  List of operators of type=1,2 and 3 describing the sequence of interactions on a time slice. The first index runs over this sequence. The second corresponds to the flavor index. \endverbatim
-!> * Type (Operator),     dimension(:,:), allocatable  :: Op_T
-!> \verbatim  Sequence of  operators  accounting for the  hopping on a  time slice. This can include  various checkerboard decompositions. The first index runs over this sequence. The second corresponds to the flavor index. \endverbatim
-!> The progagation reads:
-!> \f[    \prod_{\tau} \; \;  \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n}  \f]
-!> * Type (WaveFunction), dimension(:),   allocatable  :: WF_L
-!> \verbatim  Left trial wave function.  \endverbatim
-!> * Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-!> \verbatim  Right trial wave function.   For both wave functions the index runs over the flavor index.  \endverbatim
-!> * Integer, allocatable :: nsigma(:,:)
-!> \verbatim  Array containing all auxiliary fields. The first index runs through the operator sequence. The second through the time slies.   \endverbatim
-!> * Integer              :: Ndim
-!> \verbatim   Total number of orbitals. e.g. # unit cells * # orbitals per unit cell.  \endverbatim
-!> * Integer              :: N_FL
-!> \verbatim   # of flavors.  Propagation is block diagonal in flavors.  \endverbatim
-!> * Integer              :: N_SUN
-!> \verbatim   # of colors.  Propagation is color independent.  \endverbatim
-!> * Integer              :: Ltrot
-!> \verbatim  Available measurment interval in units of Delta Tau.  \endverbatim
-!> * Integer              :: Thtrot 
-!>  \verbatim  Effective projection parameter in units of Delta Tau.  (Only relevant if projective option is turned on) \endverbatim
-!> * Logical              :: Projector
-!>  \verbatim  Flag for projector. If true then the total number of time slices will correspond to Ltrot + 2*Thtrot \endverbatim
-!> * \verbatim  Integer              :: Group_Comm \endverbatim
-  !>    Defines MPI communicator  
-!> * \verbatim Logical              :: Symm \endverbatim
-  !> If set to true then the green functions will be symmetrized
-  !> before being  sent to the Obser, ObserT subroutines. 
-  !> In particular, the transformation,  \f$ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \f$
-  !> will be carried out  and \f$ \tilde{G} \f$  will be sent to the Obser and ObserT subroutines.  Note that
-  !> if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
-  !> symmetrically.
+!> @param [public] OP_V
+!> \verbatim
+!> Type (Operator), dimension(:,:), allocatable 
+!> List of operators of type=1,2 and 3 describing the sequence of interactions on a time slice.
+!> The first index runs over this sequence. The second corresponds to the flavor index.  \endverbatim
+!> 
+!> @param [public] OP_T
+!> \verbatim
+!> Type (Operator), dimension(:,:), allocatable  
+!> Sequence of  operators  accounting for the  hopping on a  time slice. This can include  various
+!> checkerboard decompositions. The first index runs over this sequence. The second corresponds to
+!> the flavor index. \endverbatim
+!> *  The progagation reads:
+!> \f$ \prod_{\tau} \; \;  \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n}  \f$.  That is
+!> first the hopping and then the potential energy. 
+!>
+!> @param [public] WF_L   
+!> \verbatim Type (WaveFunction), dimension(:),   allocatable
+!> Left trial wave function.  \endverbatim
+!>
+!> @param [public] WF_R
+!> \verbatim Type (WaveFunction), dimension(:),   allocatable
+!> Right trial wave function.   For both wave functions the index runs over the flavor index. \endverbatim
+!>
+!> @param [public]  nsigma(:,:) 
+!> \verbatim Integer, allocatable
+!> Array containing all auxiliary fields. The first index runs through the operator sequence. The second
+!> through the time slies.   \endverbatim
+!
+!> @param [public]  Ndim
+!> \verbatim Integer
+!> Total number of orbitals. e.g. # unit cells * # orbitals per unit cell.  \endverbatim
+!
+!> @param [public]  N_FL
+!> \verbatim Integer
+!> # of flavors.  Propagation is block diagonal in flavors.  \endverbatim
+!
+!> @param [public]  N_SUN
+!> \verbatim Integer
+!> # of colors.  Propagation is color independent.  \endverbatim
+!> 
+!> @param [public] Ltrot
+!> \verbatim Integer
+!> Available measurment interval in units of Delta Tau. \endverbatim
+!>
+!> @param [public] Thtrot  
+!>  \verbatim Integer
+!> Effective projection parameter in units of Delta Tau.  (Only relevant if projective option is turned on) \endverbatim
+!>
+!> @param [public] Projector
+!> \verbatim Logical
+!> Flag for projector. If true then the total number of time slices will correspond to Ltrot + 2*Thtrot \endverbatim
+!> 
+!> @param [public] Group_Comm 
+!> \verbatim Integer
+!> Defines MPI communicator  \endverbatim
+!
+!> @param [public] Symm
+!> \verbatim Logical  \endverbatim
+!> If set to true then the green functions will be symmetrized
+!> before being  sent to the Obser, ObserT subroutines. 
+!> In particular, the transformation,  \f$ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \f$
+!> will be carried out  and \f$ \tilde{G} \f$  will be sent to the Obser and ObserT subroutines.  Note that
+!> if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
+!> symmetrically.
 !>  
 !> You still have to add some docu for the other private variables in this module.      
 !>
