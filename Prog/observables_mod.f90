@@ -29,9 +29,6 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-     Module Observables
-
-       Use Files_mod
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -41,6 +38,9 @@
 !> routine to initialize them and to print out the bins
 !
 !--------------------------------------------------------------------
+     Module Observables
+
+       Use Files_mod
     
        Type Obser_Vec
 !>  Data structure for 

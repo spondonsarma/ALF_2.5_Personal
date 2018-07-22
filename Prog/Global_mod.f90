@@ -33,17 +33,17 @@
 
 
 
-Module Global_mod
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
 !> @brief 
-!> Handles global updates.
-!> Handles parrallel tempering
+!> Handles global updates and parallel tempering
 !
 !--------------------------------------------------------------------
+Module Global_mod
+
+
 
       Use Hamiltonian
       Use MyMats 
