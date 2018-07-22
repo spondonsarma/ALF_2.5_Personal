@@ -152,7 +152,7 @@
           
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
           
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X
+          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
           ! From Checkerboad onwards the variables actually belong to the model namespace. Even if is redundant, this is the way to go. 
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
@@ -192,6 +192,7 @@
           CALL MPI_BCAST(XB_X        ,1  ,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
+          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
 #endif
           
