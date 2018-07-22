@@ -196,11 +196,6 @@
 
           NAMELIST /VAR_t_V/      ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
 
-#ifdef MPI
-          Integer        :: Isize, Irank
-          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-
 
           ! "Default" values.
           N_SUN        = 1
@@ -211,6 +206,10 @@
           Phi_Y        = 0.d0
           XB_Y         = 1.d0
 
+#ifdef MPI
+          Integer        :: Isize, Irank
+          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
           If (Irank == 0 ) then
 #endif
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
