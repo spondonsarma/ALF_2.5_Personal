@@ -30,7 +30,8 @@ stages:
     - make
     - cd ..
     - cd Prog
-    - make
+    - make Examples
+    - make clean
     - make Kondo_Honey
 
 .warnconv_template: &warnconv_definition
