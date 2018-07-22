@@ -40,9 +40,9 @@ MODULE UDV_State_mod
 #else
         REAL    (Kind=Kind(0.d0)), allocatable :: L(:)
 #endif
-        INTEGER :: ndim, n_part
-        CHARACTER :: side
-
+        INTEGER   :: ndim, n_part  ! ndim: number of orbitals per flavor. n_part: number of particles per flavor 
+        CHARACTER :: side          ! side = R  for right propagation :   B       * P_R = U d v 
+                                   ! side = L  for lesft propagation :   P^{dag}_L * B = v d U. Stored as U^{dag} d v^{dag} = B^{dag} P_L      
         CONTAINS
             PROCEDURE :: alloc => alloc_UDV_state
             PROCEDURE :: init => init_UDV_state
@@ -107,7 +107,7 @@ END SUBROUTINE alloc_UDV_state
 SUBROUTINE init_UDV_state(this, t, side, P)
     IMPLICIT NONE
     CLASS(UDV_State), INTENT(INOUT) :: this
-    INTEGER, INTENT(IN) :: t
+    INTEGER,   INTENT(IN) :: t
     CHARACTER, INTENT(IN) :: side
     COMPLEX(kind=kind(0.d0)), INTENT(IN), OPTIONAL :: P(:,:)
     

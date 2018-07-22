@@ -64,7 +64,21 @@ Module Operator_mod
      ! P has only one non-zero entry per column which is specified by P
      ! All in all.   g * Phi(s,type) * ( c^{dagger} A c  + alpha )
      ! The variable Type allows you to define the type of HS. 
-     ! The first N_non_zero elemets of  diagonal matrix E are non-zero. The rest vanish.
+     ! The first N_non_zero elemets of diagonal matrix E are non-zero. The rest vanish
+
+     ! !!!!! M_exp and E_exp  are for storage   !!!!!
+     ! If Type =1   then the Ising field  takes the values  s = +/- 1 
+     !              and M_exp   has dimensions  M_exp(N,N,-1:1)
+     ! If Type =2   then the Ising field  takes the values  s = +/- 1,  +/- 2
+     !              and M_exp   has dimensions  M_exp(N,N,-2:2)
+     ! M_exp(:,:,s) =  e^{g * Phi(s,type) *  O(:,:) }
+     !
+     ! 
+     ! E_exp(:,s) = e^{g * Phi(s,type) *E(:) } and has dimensions E_exp(N,-1:1)  for Type = 1
+     !              and dimensions E_exp(N,-2:2)   for Type = 2
+     !
+     ! !!! If Type .neq. 1,2  then  E_exp  and  M_exp  are  not allocated !!!
+     
   end type Operator
 
   
@@ -150,7 +164,9 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
-    Allocate (Op%O(N,N), Op%U(N,N), Op%E(N), Op%P(N), Op%M_exp(N,N,-2:2), Op%E_exp(N,-2:2))
+    Allocate (Op%O(N,N), Op%U(N,N), Op%E(N), Op%P(N) )
+    ! F.F.A  Op%M_exp and Op%E_exp are allocated  in Op_set once the type is avalable.
+    
     Op%O = cmplx(0.d0, 0.d0, kind(0.D0))
     Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
     Op%E = 0.d0
@@ -169,7 +185,8 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
-    Deallocate (Op%O, Op%U, Op%E, Op%P, OP%M_exp, OP%E_exp)
+    Deallocate (Op%O, Op%U, Op%E, Op%P )
+    If ( Op%type == 1 .or. Op%type == 2 ) deallocate (  OP%M_exp, OP%E_exp)
   end subroutine Op_clear 
 
 !--------------------------------------------------------------------
@@ -181,7 +198,7 @@ Contains
     Complex (Kind=Kind(0.d0)), allocatable :: U(:,:), TMP(:, :)
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
     Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
-    Integer :: N, I, J, np,nz
+    Integer :: N, I, J, np,nz, spin
     Complex (Kind=Kind(0.d0)) :: Z
 
     If (Op%N > 1) then
@@ -198,7 +215,8 @@ Contains
              Op%E(I)=DBLE(Op%O(I,I))
              Op%U(I,I)=cmplx(1.d0,0.d0, kind(0.D0))
           enddo
-          Op%N_non_zero = n
+          Op%N_non_zero = N
+          ! F.F.A Why do we assume that Op%N_non_zero = N for a diagonal operator? 
        else
           Allocate (U(N,N), E(N), TMP(N, N))
           Call Diag(Op%O,U, E)  
@@ -216,16 +234,16 @@ Contains
               endif
           enddo
           Op%N_non_zero = np
-          !Write(6,*) "Op_set", np,N
+          ! Write(6,*) "Op_set", np,N
           TMP = Op%U ! that way we have the changes to the determinant due to the permutation
           Z = Det_C(TMP, N)
-          ! Scale Op%U to be in SU(N)
+          ! Scale Op%U to be in SU(N) 
           DO I = 1, N
              Op%U(I,1) = Op%U(I, 1)/Z 
           ENDDO
           deallocate (U, E, TMP)
           ! Op%U,Op%E)
-          !Write(6,*) 'Calling diag 1'
+          ! Write(6,*) 'Calling diag 1'
        endif
     else
        Op%E(1)   = REAL(Op%O(1,1), kind(0.D0))
@@ -233,11 +251,21 @@ Contains
        Op%N_non_zero = 1
        Op%diag = .true.
     endif
-    Do I=1,Op%type
-      call FillExpOps(Op%E_exp(:,I),Op%E_exp(:,-I),Op,Phi(I,Op%type))
-      call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
-      call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
-    enddo
+    if ( Op%type == 1 ) then 
+       Allocate (Op%M_exp(Op%N,Op%N,-1:1), Op%E_exp(Op%N,-1:1) )
+       spin = 1
+       call FillExpOps(Op%E_exp(:,spin),Op%E_exp(:,-spin),Op,Phi(spin,Op%type))
+       call Op_exp(Op%g*Phi( spin,Op%type),Op,Op%M_exp(:,:, spin))
+       call Op_exp(Op%g*Phi(-spin,Op%type),Op,Op%M_exp(:,:,-spin))
+    elseif ( Op%type == 2 ) then
+       Allocate (Op%M_exp(Op%N,Op%N,-2:2), Op%E_exp(Op%N,-2:2) )
+       do spin = 1,2
+          call FillExpOps(Op%E_exp(:,spin),Op%E_exp(:,-spin),Op,Phi(spin,Op%type))
+          call Op_exp(Op%g*Phi( spin,Op%type),Op,Op%M_exp(:,:, spin))
+          call Op_exp(Op%g*Phi(-spin,Op%type),Op,Op%M_exp(:,:,-spin))
+       enddo
+    endif
+    
   end subroutine Op_set
 
 !--------------------------------------------------------------------
@@ -247,8 +275,8 @@ Contains
 !> @brief This calculates the exponentiated operator and returns a full matrix
 !<        representation: Mat = U exp(E) U^\dagger
 !
-!> @param[in] g 
-!> @param[in] Op 
+!> @param[in]  g 
+!> @param[in]  Op 
 !> @param[out] Mat The full matrix of the exponentiated operator.
 !--------------------------------------------------------------------
 
@@ -276,15 +304,15 @@ Contains
         do J = 1, iters
             Z1 = Z*conjg(Op%U(J,n))
             do I = 1, iters
-              y = Z1 * Op%U(I, n) - c(I, J)
-              t = Mat(I, J) + y
-              c(I, J) = (t - Mat(I,J)) - y
-              Mat(I, J) = t
-  !            Mat(I, J) = Mat(I, J) + Z1 * Op%U(I, n)
+               ! This performs Kahan summation so as to improve precision.
+               y = Z1 * Op%U(I, n) - c(I, J)
+               t = Mat(I, J) + y
+               c(I, J) = (t - Mat(I,J)) - y
+               Mat(I, J) = t
+               !  Mat(I, J) = Mat(I, J) + Z1 * Op%U(I, n)
             enddo
-            
-  !          Mat(1:iters, J) = Mat(1:iters, J) + Z1 * Op%U(1:iters, n)
-        enddo
+            ! Mat(1:iters, J) = Mat(1:iters, J) + Z1 * Op%U(1:iters, n)
+         enddo
       enddo
       Deallocate(c)
     endif

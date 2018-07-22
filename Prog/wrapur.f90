@@ -69,7 +69,7 @@
            DO NT = NTAU + 1, NTAU1
               !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
               Call Hop_mod_mmthr(TMP,nf)
-!               TMP = TMP1
+!             TMP = TMP1
               Do n = 1,Size(Op_V,1)
 !                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
                  Call Op_mmultR(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
@@ -112,4 +112,5 @@
         ENDDO
 
 #endif
+        
       END SUBROUTINE WRAPUR

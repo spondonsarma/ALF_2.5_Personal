@@ -29,24 +29,29 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-
-    Module Hop_mod
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
-!
+!>
 !> @brief 
-!> This module computes and store the exponential of the hopping matrix. 
-!> It also provide routines to carry out multiplication  with e^{ -dtau T }       
+!> This module computes and stores the exponential of the hopping matrix.  It also provide routines to carry out multiplications  with
+!> \f$  e^{ - \Delta \tau  H_t  }   = \prod_{n=1}^{N} e^{ - \Delta \tau_n  H_t(n) }   \f$, 
+!> \f$  e^{   \Delta \tau  H_t  }   = \prod_{n=N}^{1} e^{   \Delta \tau_n  H_t(n) }   \f$,
+!> \f$  e^{ - \Delta \tau  H_t/2  }   = \prod_{n=1}^{N} e^{ - \Delta \tau_n  H_t(n)/2 }   \f$, and 
+!> \f$  e^{   \Delta \tau  H_t/2  }   = \prod_{n=N}^{1} e^{   \Delta \tau_n  H_t(n)/2 }   \f$.
+!> The last equality are important for the symmetric Trotter option. (See variable: Symm in the Hamiltonian module)
 !
+!>  
 !--------------------------------------------------------------------
+
+    Module Hop_mod
 
       Use Hamiltonian
       Use Random_wrap
       
       ! Private variables
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
+      Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T_1D2(:,:,:,:), Exp_T_M1_1D2(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
       Integer, private, save ::  Ncheck, Ndim_hop
       Real (Kind=Kind(0.d0)), private, save  :: Zero
@@ -84,8 +89,11 @@
              enddo
           enddo
 
-          Allocate ( Exp_T   (Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
-          Allocate ( Exp_T_M1(Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
+          Allocate ( Exp_T       (Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
+          Allocate ( Exp_T_M1    (Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
+          Allocate ( Exp_T_1D2   (Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
+          Allocate ( Exp_T_M1_1D2(Ndim_hop,Ndim_hop,Ncheck,N_FL) ) 
+
           Allocate ( V_Hlp(Ndim_hop,Ndim) )
           Allocate ( V_Hlp1(Ndim_hop,Ndim) )
           Allocate ( U_Hlp (Ndim, Ndim_hop) )
@@ -99,12 +107,16 @@
                 Call  Op_exp(g,Op_T(nc,nf),Exp_T(:,:,nc,nf))
                 g = -Op_T(nc,nf)%g
                 Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1(:,:,nc,nf))
+                g = Op_T(nc,nf)%g/2.d0
+                Call  Op_exp(g,Op_T(nc,nf),Exp_T_1D2(:,:,nc,nf))
+                g = -Op_T(nc,nf)%g/2.d0
+                Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1_1D2(:,:,nc,nf))
                 ! symmetrize the upper part of Exp_T and Exp_T_M1
                 DO i = 1, Ndim_hop
-                    DO j = i, Ndim_hop
-                    Exp_T(i, j, nc, nf) = (Exp_T(i, j, nc, nf) + Conjg(Exp_T(j, i, nc, nf)))/2.D0
-                    Exp_T_M1(i, j, nc, nf) = (Exp_T_M1(i, j, nc, nf) + Conjg(Exp_T_M1(j, i, nc, nf)))/2.D0
-                    ENDDO
+                   DO j = i, Ndim_hop
+                      Exp_T(i, j, nc, nf) = (Exp_T(i, j, nc, nf) + Conjg(Exp_T(j, i, nc, nf)))/2.D0
+                      Exp_T_M1(i, j, nc, nf) = (Exp_T_M1(i, j, nc, nf) + Conjg(Exp_T_M1(j, i, nc, nf)))/2.D0
+                   ENDDO
                 ENDDO
              enddo
           enddo
@@ -138,7 +150,30 @@
         end Subroutine Hop_mod_mmthr
 
 !--------------------------------------------------------------------
+        Subroutine Hop_mod_mmthr_1D2(In,nf)
+          
 
+          ! InOut:  In = e^{ -dtau T /2 }.IN
+          Implicit none
+          
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
+          Integer, intent(IN) :: nf
+          
+          !Local 
+          Integer :: nc, N1, N2
+          
+          N1=size(In,1)
+          N2=size(In,2)
+          
+          do nc =  Ncheck,1,-1
+             If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
+                call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
+             Endif
+          Enddo
+        end Subroutine Hop_mod_mmthr_1D2
+
+!--------------------------------------------------------------------
+        
         Subroutine Hop_mod_mmthr_m1(In,nf)
           
 
@@ -236,7 +271,33 @@
           Enddo
           
         end Subroutine Hop_mod_mmthl_m1
+
+
+!--------------------------------------------------------------------
         
+        Subroutine Hop_mod_mmthl_m1_1D2(In, nf)
+          
+
+          ! InOut:  In = IN * e^{ dtau T/2 }
+          Implicit none
+          
+          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
+          Integer :: nf
+          
+          !Local 
+          Integer :: nc, N1, N2
+          
+          N1=size(In,1)
+          N2=size(In,2)
+          
+          do nc =  Ncheck,1,-1
+             If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
+                call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
+             Endif
+          Enddo
+          
+        end Subroutine Hop_mod_mmthl_m1_1D2
+
 
 !!$        Subroutine  Hop_mod_test
 !!$          
@@ -255,5 +316,29 @@
 !!$          
 !!$          !Write(6,*) IN
 !!$        end Subroutine Hop_mod_test
-       
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Out = exp(-Delta tau /2 T) In exp( Delta tau /2 T)
+!> 
+!
+!--------------------------------------------------------------------
+        Subroutine Hop_mod_Symm(Out,In)
+
+          Implicit none
+          COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(Out):: Out
+          COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(IN):: In
+
+          Integer :: nf
+
+          Out = In
+          Do nf = 1, size(In,3)
+             Call Hop_mod_mmthr_1D2   (Out(:,:,nf), nf )
+             Call Hop_mod_mmthl_m1_1D2(Out(:,:,nf), nf )
+          enddo
+          
+        End Subroutine Hop_mod_Symm
       end Module Hop_mod
