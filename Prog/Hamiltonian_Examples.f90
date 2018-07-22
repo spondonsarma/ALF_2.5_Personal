@@ -154,14 +154,6 @@
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
 
-          ! "Default" values.
-          N_SUN        = 1
-          Checkerboard = .false.
-          Symm         = .false.
-          Phi_X        = 0.d0
-          XB_X         = 1.d0
-          Phi_Y        = 0.d0
-          XB_Y         = 1.d0
 
           
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
@@ -174,6 +166,16 @@
           Integer        :: Isize, Irank
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+
+
+          ! "Default" values.
+          N_SUN        = 1
+          Checkerboard = .false.
+          Symm         = .false.
+          Phi_X        = 0.d0
+          XB_X         = 1.d0
+          Phi_Y        = 0.d0
+          XB_Y         = 1.d0
 
           If (Irank == 0 ) then
 #endif
