@@ -153,8 +153,17 @@
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
-          ! From Checkerboad onwards the variables actually belong to the model namespace. Even if is redundant, this is the way to go. 
 
+          ! "Default" values.
+          N_SUN        = 1
+          Checkerboard = .false.
+          Symm         = .false.
+          Phi_X        = 0.d0
+          XB_X         = 1.d0
+          Phi_Y        = 0.d0
+          XB_Y         = 1.d0
+
+          
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
 
           NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi, Dtau, Beta, Theta, Projector
@@ -168,13 +177,6 @@
 
           If (Irank == 0 ) then
 #endif
-             N_SUN        = 1
-             Checkerboard = .true.
-             Symm         = .true.
-             Phi_X        = 0.d0
-             XB_X         = 1.d0
-             Phi_Y        = 0.d0
-             XB_Y         = 1.d0
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
