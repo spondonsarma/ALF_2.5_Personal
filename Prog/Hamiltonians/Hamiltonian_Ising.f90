@@ -20,6 +20,7 @@
 !>    Variables for updating scheme
       Logical              :: Propose_S0, Global_moves
       Integer              :: N_Global
+      Logical              :: Symm =.false.
 
 
       

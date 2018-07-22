@@ -19,7 +19,7 @@
       Logical              :: Projector
 !>    Defines MPI communicator 
       Integer              :: Group_Comm
-      
+      Logical              :: Symm =.false.
       
       ! What is below is  private 
       

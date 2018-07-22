@@ -21,7 +21,8 @@
       Logical              :: Projector
 !>    Defines MPI communicator 
       Integer              :: Group_Comm
-
+      Logical              :: Symm =.false.
+      
 
 !>    Privat variables 
       Type (Lattice),        private :: Latt 
