@@ -506,7 +506,7 @@ Program Main
                        NVAR = 1
                        IF (NTAU1 .GT. LTROT/2) NVAR = 2
                        TEST(:,:) = GR(:,:,nf)
-                       CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nfx))
+                       CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
                        Z = Z*Z1
                        Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
                     ENDDO
