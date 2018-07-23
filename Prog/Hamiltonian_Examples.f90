@@ -196,8 +196,10 @@
 
           NAMELIST /VAR_t_V/      ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
 
-
-          ! "Default" values.
+#ifdef MPI
+          Integer        :: Isize, Irank
+#endif
+          ! Global "Default" values.
           N_SUN        = 1
           Checkerboard = .false.
           Symm         = .false.
@@ -207,7 +209,6 @@
           XB_Y         = 1.d0
 
 #ifdef MPI
-          Integer        :: Isize, Irank
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
           If (Irank == 0 ) then
@@ -855,11 +856,13 @@
                       I1 = I
                       If (n == 1)  J1 = Latt%nnlist(I,1,0)
                       If (n == 2)  J1 = Latt%nnlist(I,0,1)
-                   Case ("Honneycomb")
+                   Case ("Honeycomb")
                       I1 = invlist(I,1) 
                       If (n == 1)  J1 = invlist(I,2)
                       If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
                       If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
+                   Case Default
+                      stop
                    end Select
                    Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
                 Enddo
