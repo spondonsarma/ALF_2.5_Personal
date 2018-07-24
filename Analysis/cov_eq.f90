@@ -66,9 +66,9 @@
          Character (len=64)  :: Model, Lattice_type
          Type (Lattice)      :: Latt
          Character (len=64)  :: File_out
-         Logical             :: Checkerboard	 
+         Logical             :: Checkerboard	 , Symm
 
-         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard
+         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard, Symm
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
 
 

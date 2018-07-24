@@ -29,17 +29,18 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-     Module Tau_m_mod
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> This routine  handles calculation of imagimary time displaced Green functions and  
-!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute the user
-!> defined  correlations. 
+!> @brief
+!> This module  handles calculation of imagimary time displaced Green functions and  
+!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute the 
+!> defined  time dispalced correlations functions. This modules is for the finite temperature code.
+!> 
 !
 !--------------------------------------------------------------------
+     Module Tau_m_mod
        Use Hamiltonian 
        Use Operator_mod
        Use Control
@@ -82,11 +83,16 @@
            ! Local 
            ! This could be placed as  private for the module 
            Complex (Kind=Kind(0.d0))  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
+           Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  :: GT0_T,  G00_T, GTT_T, G0T_T
            CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvr
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z
            Integer  ::  I, J, nf, NT, NT1, NTST, NST
+           
+           If (Symm) Then
+              Allocate ( G00_T(Ndim,Ndim,N_FL), G0T_T(Ndim,Ndim,N_FL), GT0_T(Ndim,Ndim,N_FL),  GTT_T(Ndim,Ndim,N_FL) )
+           endif
            
            !Tau = 0
            Do nf = 1, N_FL
@@ -103,7 +109,15 @@
            Enddo
            NT = 0
            ! In Module Hamiltonian
-           CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+           If (Symm) then
+              Call Hop_mod_Symm(G00_T,G00)
+              Call Hop_mod_Symm(GTT_T,GTT)
+              Call Hop_mod_Symm(G0T_T,G0T)
+              Call Hop_mod_Symm(GT0_T,GT0)
+              CALL OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE)
+           Else
+              CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+           Endif
            
            ALLOCATE(udvr(N_FL))
            Z = cmplx(1.d0,0.d0,kind(0.d0))
@@ -124,7 +138,15 @@
               CALL PROPRM1 (GTT,NT1)
               CALL PROPR   (GTT,NT1)
               ! In Module Hamiltonian
-              CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
+              If (Symm) then
+                 Call Hop_mod_Symm(G00_T,G00)
+                 Call Hop_mod_Symm(GTT_T,GTT)
+                 Call Hop_mod_Symm(G0T_T,G0T)
+                 Call Hop_mod_Symm(GT0_T,GT0)
+                 CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE)
+              Else
+                 CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
+              Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN
                  !NTST = NT1 - NWRAP
@@ -151,6 +173,10 @@
               CALL udvr(nf)%dealloc
            ENDDO
            DEALLOCATE(udvr)
+           If (Symm) Then
+              Deallocate ( G00_T, G0T_T, GT0_T,  GTT_T )
+           endif
+
          END SUBROUTINE TAU_M
 
 !--------------------------------------------------------------------

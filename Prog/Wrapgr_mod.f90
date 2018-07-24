@@ -31,8 +31,6 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-Module Wrapgr_mod
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -41,6 +39,9 @@ Module Wrapgr_mod
 !> Handles global updates on a single time slice
 !
 !--------------------------------------------------------------------
+
+Module Wrapgr_mod
+
 
   Use Hamiltonian
   Use MyMats 

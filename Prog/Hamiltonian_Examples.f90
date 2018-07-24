@@ -1,4 +1,119 @@
-      Module Hamiltonian
+!  Copyright (C) 2016 - 2018 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+!
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+!
+!     You should have received a copy of the GNU General Public License
+!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de 
+!
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+!
+!     - If you make substantial changes to the program we require you to either consider contributing   
+!       to the ALF project or to mark your material in a reasonable way as different from the original version 
+
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
+!> This module defines the  Hamiltonian and observables.  Here, we have included a
+!> set of predefined Hamiltonians. They include the Hubbard and SU(N) tV models
+!> on honeycomb, pi-flux and square lattices.
+
+!> @details
+!> The public variables of this module are the following
+!>
+!> 
+!> @param [public] OP_V
+!> \verbatim
+!> Type (Operator), dimension(:,:), allocatable 
+!> List of operators of type=1,2 and 3 describing the sequence of interactions on a time slice.
+!> The first index runs over this sequence. The second corresponds to the flavor index.  \endverbatim
+!> 
+!> @param [public] OP_T
+!> \verbatim
+!> Type (Operator), dimension(:,:), allocatable  
+!> Sequence of  operators  accounting for the  hopping on a  time slice. This can include  various
+!> checkerboard decompositions. The first index runs over this sequence. The second corresponds to
+!> the flavor index. \endverbatim
+!> *  The progagation reads:
+!> \f$ \prod_{\tau} \; \;  \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n}  \f$.  That is
+!> first the hopping and then the potential energy. 
+!>
+!> @param [public] WF_L   
+!> \verbatim Type (WaveFunction), dimension(:),   allocatable
+!> Left trial wave function.  \endverbatim
+!>
+!> @param [public] WF_R
+!> \verbatim Type (WaveFunction), dimension(:),   allocatable
+!> Right trial wave function.   For both wave functions the index runs over the flavor index. \endverbatim
+!>
+!> @param [public]  nsigma(:,:) 
+!> \verbatim Integer, allocatable
+!> Array containing all auxiliary fields. The first index runs through the operator sequence. The second
+!> through the time slies.   \endverbatim
+!
+!> @param [public]  Ndim
+!> \verbatim Integer
+!> Total number of orbitals. e.g. # unit cells * # orbitals per unit cell.  \endverbatim
+!
+!> @param [public]  N_FL
+!> \verbatim Integer
+!> # of flavors.  Propagation is block diagonal in flavors.  \endverbatim
+!
+!> @param [public]  N_SUN
+!> \verbatim Integer
+!> # of colors.  Propagation is color independent.  \endverbatim
+!> 
+!> @param [public] Ltrot
+!> \verbatim Integer
+!> Available measurment interval in units of Delta Tau. \endverbatim
+!>
+!> @param [public] Thtrot  
+!>  \verbatim Integer
+!> Effective projection parameter in units of Delta Tau.  (Only relevant if projective option is turned on) \endverbatim
+!>
+!> @param [public] Projector
+!> \verbatim Logical
+!> Flag for projector. If true then the total number of time slices will correspond to Ltrot + 2*Thtrot \endverbatim
+!> 
+!> @param [public] Group_Comm 
+!> \verbatim Integer
+!> Defines MPI communicator  \endverbatim
+!
+!> @param [public] Symm
+!> \verbatim Logical  \endverbatim
+!> If set to true then the green functions will be symmetrized
+!> before being  sent to the Obser, ObserT subroutines. 
+!> In particular, the transformation,  \f$ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \f$
+!> will be carried out  and \f$ \tilde{G} \f$  will be sent to the Obser and ObserT subroutines.  Note that
+!> if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
+!> symmetrically.
+!>  
+!> You still have to add some docu for the other private variables in this module.      
+!>
+!--------------------------------------------------------------------
+
+    Module Hamiltonian
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -8,27 +123,32 @@
       Use Files_mod
       Use Matrix
       Use Observables
+      Use Predefined_structures
 
       
       Implicit none
 
-
-!>    Public variables. Have to be set by user 
-      Type (Operator),     dimension(:,:), allocatable  :: Op_V
+     
+      Type (Operator),     dimension(:,:), allocatable  :: Op_V 
       Type (Operator),     dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
       Integer, allocatable :: nsigma(:,:)
-      Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot ! Effective projection.  In units of Delta-tau.  
+      Integer              :: Ndim
+      Integer              :: N_FL
+      Integer              :: N_SUN
+      Integer              :: Ltrot
+      Integer              :: Thtrot 
       Logical              :: Projector
-!>    Defines MPI communicator 
       Integer              :: Group_Comm
+      Logical              :: Symm
 
 
-!>    Privat variables 
+
       Type (Lattice),       private :: Latt 
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi, XB_X, Phi_X, Ham_tV
+      real (Kind=Kind(0.d0)),        private :: XB_Y, Phi_Y
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional, Checkerboard
@@ -44,8 +164,8 @@
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
       
 !>    Storage for the Ising action
-      Real (Kind=Kind(0.d0)),        private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
-      Integer, allocatable, private :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
+      Real (Kind=Kind(0.d0)),  private :: DW_Ising_tau(-1:1), DW_Ising_Space(-1:1)
+      Integer,  allocatable ,  private :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
 
       
     contains 
@@ -57,10 +177,19 @@
 #endif
           Implicit none
 
-          integer :: ierr
+          integer                :: ierr, N_part
+          Real (Kind=Kind(0.d0)) :: Degen
           
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X
+          ! L1, L2, Lattice_type, List(:,:), Invlist(:,:) -->  Lattice information
+          ! Ham_T, Chem, Phi_X, XB_B, Checkerboard, Symm   -->  Hopping
+          ! Interaction                              -->  Model
+          
+          ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
+          
+          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
 
+
+          
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
 
           NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi, Dtau, Beta, Theta, Projector
@@ -69,15 +198,21 @@
 
 #ifdef MPI
           Integer        :: Isize, Irank
+#endif
+          ! Global "Default" values.
+          N_SUN        = 1
+          Checkerboard = .false.
+          Symm         = .false.
+          Phi_X        = 0.d0
+          XB_X         = 1.d0
+          Phi_Y        = 0.d0
+          XB_Y         = 1.d0
+
+#ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-
           If (Irank == 0 ) then
 #endif
-             N_SUN        = 1
-             Checkerboard = .false.
-             Phi_X        = 0.d0
-             XB_X         = 1.d0
              OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
@@ -95,9 +230,11 @@
           CALL MPI_BCAST(XB_X        ,1  ,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
+          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
 #endif
-          Call Ham_latt
+          
+          Call Predefined_Latt(Lattice_type, L1,L2,Norb,N_coord,Ndim, List,Invlist,Latt)
 
 #ifdef MPI
           If (Irank == 0) then
@@ -112,6 +249,7 @@
                 Write(50,*) 'Flux_X        : ', Phi_X
              Endif
              Write(50,*) 'Checkerboard  : ', Checkerboard
+             Write(50,*) 'Symm. decomp  : ', Symm
              Close(50)
 #ifdef MPI
           Endif
@@ -180,12 +318,12 @@
                 if (Projector) Thtrot = nint(theta/dtau)
                 Ltrot = Ltrot+2*Thtrot
                 if (Projector) then
-                  Write(50,*) 'Projective version'
-                  Write(50,*) 'Theta         : ', Theta
-                  Write(50,*) 'Tau_max       : ', beta
+                   Write(50,*) 'Projective version'
+                   Write(50,*) 'Theta         : ', Theta
+                   Write(50,*) 'Tau_max       : ', beta
                 else
-                  Write(50,*) 'Finite temperture version'
-                  Write(50,*) 'Beta          : ', Beta
+                   Write(50,*) 'Finite temperture version'
+                   Write(50,*) 'Beta          : ', Beta
                 endif
                 Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 Write(50,*) 'N_SUN         : ', N_SUN
@@ -294,10 +432,28 @@
              Write(6,*) "Model not yet implemented!"
              Stop
           end Select
-          Call Ham_hop
-          
-          if (Projector) Call Ham_TrialWaveFunction
 
+          Call Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
+           &                      Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
+           &                      N_FL,  Checkerboard, Symm, OP_T )
+
+          
+          
+          if (Projector) then
+             N_part = Ndim/2
+             Call Predefined_TrialWaveFunction(Lattice_type, Norb,N_coord,Ndim,  List,Invlist,Latt, &
+                  &                                  N_part, N_FL,  Degen, WF_L, WF_R)
+
+#ifdef MPI
+             If (Irank == 0 ) then
+#endif
+                Write(50,*) 'Degen of trial wave function: ', Degen
+#ifdef MPI
+             Endif
+#endif             
+                
+          endif
+             
 
 ! #ifdef MPI
 !           If (Irank == 0 )  then
@@ -319,412 +475,8 @@
 
 
         end Subroutine Ham_Set
-!=============================================================================
-        Subroutine Ham_Latt
-          Implicit none
-          !Set the lattice
-          
-          Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
-          Integer :: I, nc, no
-          
-          select case (Lattice_type)
-          case("Square")
-             If (L1==1 .or. L2==1 ) then
-                Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-                stop
-             endif
-             Norb      = 1
-             N_coord   = 2
-             a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-             a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-             L1_p    =  dble(L1)*a1_p
-             L2_p    =  dble(L2)*a2_p
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case("One_dimensional")
-             If (L1 == 1 ) then 
-                Write(6,*) ' For one dimensional systems set  L2 = 1 ' 
-                Stop
-             endif
-             Norb      = 1
-             N_coord   = 1
-             N_coord   = 1
-             a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-             a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-             L1_p    =  dble(L1)*a1_p
-             L2_p    =  dble(L2)*a2_p
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case("Honeycomb")
-             If (L1==1 .or. L2==1 ) then
-                Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-                stop
-             endif
-             Norb    = 2
-             N_coord = 3
-             a1_p(1) =  1.D0   ; a1_p(2) =  0.d0
-             a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
-
-             !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-             L1_p    =  dble(L1) * a1_p
-             L2_p    =  dble(L2) * a2_p
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case("Pi_Flux")
-             If (L1==1 .or. L2==1 ) then
-                Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-                stop
-             endif
-             Norb    = 2
-             N_coord = 4
-             a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
-             a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
-
-             !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-             L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
-             L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case default 
-             Write(6,*) "Lattice not yet implemented!"
-             Stop
-          end select
-          !Call Print_latt(Latt)
-          ! This is for the orbital structure.
-
-          Ndim = Latt%N*Norb
-          Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
-          nc = 0
-          Do I = 1,Latt%N
-             Do no = 1,Norb
-                ! For the Honeycomb and pi-flux lattices no = 1,2 corresponds to the A,and B sublattice.
-                nc = nc + 1
-                List(nc,1) = I
-                List(nc,2) = no
-                Invlist(I,no) = nc 
-             Enddo
-          Enddo
-
-        end Subroutine Ham_Latt
 
 !===================================================================================           
-        Subroutine Ham_hop
-          Implicit none
-
-          !Setup the hopping
-          !Per flavor, the  hopping is given by: 
-          !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
-
-          Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
-          Complex (Kind=Kind(0.d0)) :: Z
-
-          If ( .not. Checkerboard) then
-             allocate(Op_T(1,N_FL))
-             do n = 1,N_FL
-                Call Op_make(Op_T(1,n),Ndim)
-                nc = 1
-                Select case (Lattice_type)
-                Case ("Square")
-                   Z  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/dble(L1), kind=kind(0.d0) ) )
-                   DO I = 1, Latt%N
-                      I1 = Latt%nnlist(I,1,0)
-                      I2 = Latt%nnlist(I,0,1)
-                      If ( Latt%list(I,1) == 0 ) then
-                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*Z
-                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(Z)
-                      else
-                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*Z
-                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                      endif
-                      Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                   Enddo
-                Case ("One_dimensional")
-                   Z  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/dble(L1), kind=kind(0.d0) ) )
-                   DO I = 1, Latt%N
-                      I1 = Latt%nnlist(I,1,0)
-                      If ( Latt%list(I,1) == 0 ) then
-                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*Z
-                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(Z)
-                      else
-                         Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*Z
-                         Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                      endif
-                      Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                   Enddo
-                Case ("Honeycomb")
-                   DO I = 1, Latt%N
-                      do no = 1,Norb
-                         I1 = Invlist(I,no)
-                         Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                      enddo
-                      I1 = Invlist(I,1)
-                      J1 = I1
-                      Do nc1 = 1,N_coord
-                         select case (nc1)
-                         case (1)
-                            J1 = invlist(I,2) 
-                         case (2)
-                            J1 = invlist(Latt%nnlist(I,1,-1),2) 
-                         case (3)
-                            J1 = invlist(Latt%nnlist(I,0,-1),2) 
-                         case default
-                            Write(6,*) ' Error in  Ham_Hop '  
-                            Stop
-                         end select
-                         Op_T(nc,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      Enddo
-                   Enddo
-                case("Pi_Flux")
-                   DO I = 1, Latt%N
-                      do no = 1,Norb
-                         I1 = Invlist(I,no)
-                         Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                      enddo
-                      I1 = Invlist(I,1)
-                      J1 = I1
-                      Do nc1 = 1,N_coord
-                         select case (nc1)
-                         case (1)
-                            J1 = invlist(I,2) 
-                         case (2)
-                            J1 = invlist(Latt%nnlist(I,0, 1),2) 
-                         case (3)
-                            J1 = invlist(Latt%nnlist(I,-1,1),2) 
-                         case (4)
-                            J1 = invlist(Latt%nnlist(I,-1,0),2) 
-                         case default
-                            Write(6,*) ' Error in  Ham_Hop '  
-                            Stop
-                         end select
-                         if (nc1 == 1 ) then
-                            Op_T(nc,n)%O(I1,J1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(J1,I1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                         Else
-                            Op_T(nc,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                         endif
-                      Enddo
-                   Enddo
-                case default 
-                   Write(6,*) "Lattice not yet implemented!"
-                   Stop
-                end select
-                Do I = 1,Ndim
-                   Op_T(nc,n)%P(i) = i 
-                Enddo
-                if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
-                   Op_T(nc,n)%g = 0.d0
-                else
-                   Op_T(nc,n)%g = -Dtau
-                endif
-                Op_T(nc,n)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
-                Call Op_set(Op_T(nc,n))
-                !Do I = 1,Size(Op_T(nc,n)%E,1)
-                !   Write(6,*) Op_T(nc,n)%E(I)
-                !Enddo
-             Enddo
-          else
-             select case (Lattice_type)
-             case ("Square")
-                Allocate(Op_T(N_coord*Latt%N,N_FL))
-                do n = 1,N_FL
-                   do i  =  1, N_coord*Latt%N
-                      call Op_make(Op_T(i,n),2)
-                   enddo
-                   nc = 0
-                   do I = 1,Latt%N
-                      I1 = I
-                      do nc1 = 1,N_coord
-                         nc = nc + 1
-                         if (nc1 == 1 ) I2 = latt%nnlist(I,1,0) 
-                         if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
-                         Op_T(nc,n)%P(1) = I1
-                         Op_T(nc,n)%P(2) = I2
-                         Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                         Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                         Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
-                         if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
-                            Op_T(nc,n)%g = 0.d0
-                         else
-                            Op_T(nc,n)%g = -Dtau
-                         endif
-                         Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
-                         Call Op_set( Op_T(nc,n) )
-                      Enddo
-                   Enddo
-                Enddo
-             case ("Pi_Flux")
-                Allocate(Op_T(N_coord*Latt%N,N_FL))
-                do n = 1,N_FL
-                   !Write(6,*) 'N_coord, Latt%N ',  N_coord, Latt%N
-                   do i  =  1, N_coord*Latt%N
-                      call Op_make(Op_T(i,n),2)
-                   enddo
-                   nc = 0
-                   do I = 1,Latt%N
-                      I1 = Invlist(I,1)
-                      do nc1 = 1,N_coord
-                         nc = nc + 1
-                         If (nc1 == 1 )  I2 = invlist(I,2)
-                         If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
-                         If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
-                         If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2) 
-                         Op_T(nc,n)%P(1) = I1
-                         Op_T(nc,n)%P(2) = I2
-                         if (nc1 == 1 ) then
-                            Op_T(nc,n)%O(1,2) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(2,1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                         Else
-                            Op_T(nc,n)%O(1,2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                            Op_T(nc,n)%O(2,1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                         endif
-                         Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                         Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
-                         if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
-                            Op_T(nc,n)%g = 0.d0
-                         else
-                            Op_T(nc,n)%g = -Dtau
-                         endif
-                         Op_T(nc,n)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
-                         Call Op_set( Op_T(nc,n) )
-                      Enddo
-                   Enddo
-                Enddo
-             case default
-                Write(6,*) "Checkeboard is not implemented for this lattice"
-                Stop
-             End select
-          endif
-          
-        end Subroutine Ham_hop
-
-!===================================================================================           
-        Subroutine Ham_TrialWaveFunction
-        
-          Implicit none
-          COMPLEX(Kind=Kind(0.d0)), allocatable :: H0(:,:), U(:,:)
-          Real(Kind=Kind(0.d0)), allocatable :: En(:)
-          
-          COMPLEX(Kind=Kind(0.d0)) :: Z
-          Integer :: n, n_part, i, I1, I2, J1, no, nc1
-          
-          N_part=Ndim/2
-          
-          Allocate(WF_L(N_FL),WF_R(N_FL))
-          do n=1,N_FL
-            Call WF_alloc(WF_L(n),Ndim,N_part)
-            Call WF_alloc(WF_R(n),Ndim,N_part)
-          enddo
-          
-          Allocate(H0(Ndim,Ndim),U(Ndim,Ndim),En(Ndim))
-          do n = 1,N_FL
-            H0=0.d0
-            Select case (Lattice_type)
-            Case ("Square")
-                Z  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/dble(L1), kind=kind(0.d0) ) )
-                DO I = 1, Latt%N
-                  I1 = Latt%nnlist(I,1,0)
-                  I2 = Latt%nnlist(I,0,1)
-                  If ( Latt%list(I,1) == 0 ) then
-                      H0(I,I1) = cmplx( Ham_T, 0.d0, kind(0.D0))*Z
-                      H0(I1,I) = cmplx( Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                  else
-                      H0(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*Z
-                      H0(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                  endif
-                  H0(I,I2) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                  H0(I2,I) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                  H0(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                Enddo
-            Case ("One_dimensional")
-                Z  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/dble(L1), kind=kind(0.d0) ) )
-                DO I = 1, Latt%N
-                  I1 = Latt%nnlist(I,1,0)
-                  If ( Latt%list(I,1) == 0 ) then
-                      H0(I,I1) = cmplx( Ham_T, 0.d0, kind(0.D0))*Z
-                      H0(I1,I) = cmplx( Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                  else
-                      H0(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*Z
-                      H0(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(Z)
-                  endif
-                  H0(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                Enddo
-            Case ("Honeycomb")
-                DO I = 1, Latt%N
-                  do no = 1,Norb
-                      I1 = Invlist(I,no)
-                      H0(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                  enddo
-                  I1 = Invlist(I,1)
-                  J1 = I1
-                  Do nc1 = 1,N_coord
-                      select case (nc1)
-                      case (1)
-                        J1 = invlist(I,2) 
-                      case (2)
-                        J1 = invlist(Latt%nnlist(I,1,-1),2) 
-                      case (3)
-                        J1 = invlist(Latt%nnlist(I,0,-1),2) 
-                      case default
-                        Write(6,*) ' Error in  Ham_Hop '  
-                        Stop
-                      end select
-                      If ( Latt%list(J1,1) == 0 .and. nc1==2 ) then
-                        H0(I1,J1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                        H0(J1,I1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-                      else
-                        H0(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                        H0(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                      endif
-                  Enddo
-                Enddo
-!             case("Pi_Flux")
-!                 DO I = 1, Latt%N
-!                   do no = 1,Norb
-!                       I1 = Invlist(I,no)
-!                       H0(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-!                   enddo
-!                   I1 = Invlist(I,1)
-!                   J1 = I1
-!                   Do nc1 = 1,N_coord
-!                       select case (nc1)
-!                       case (1)
-!                         J1 = invlist(I,2) 
-!                       case (2)
-!                         J1 = invlist(Latt%nnlist(I,0, 1),2) 
-!                       case (3)
-!                         J1 = invlist(Latt%nnlist(I,-1,1),2) 
-!                       case (4)
-!                         J1 = invlist(Latt%nnlist(I,-1,0),2) 
-!                       case default
-!                         Write(6,*) ' Error in  Ham_Hop '  
-!                         Stop
-!                       end select
-!                       if (nc1 == 1 ) then
-!                         H0(I1,J1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-!                         H0(J1,I1) = cmplx( Ham_T,    0.d0, kind(0.D0))
-!                       Else
-!                         H0(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-!                         H0(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-!                       endif
-!                   Enddo
-!                 Enddo
-            case default 
-                Write(6,*) "Projector not yet implemented!"
-                Stop
-            end select
-          
-            Call Diag(H0,U,En)
-            
-            do I2=1,N_part
-               do I1=1,Ndim
-                  WF_L(n)%P(I1,I2)=U(I1,I2)
-                  WF_R(n)%P(I1,I2)=U(I1,I2)
-               enddo
-            enddo
-         enddo
-          
-        end Subroutine Ham_TrialWaveFunction
 
 !===================================================================================           
         Subroutine Ham_V
@@ -1058,7 +810,9 @@
           Delta_S0_global = 0.d0
 
         end Function Delta_S0_global
+        
 !========================================================================
+        
         Subroutine Obser(GR,Phase,Ntau)
           
           Implicit none
@@ -1075,7 +829,7 @@
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           
-
+          
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
@@ -1094,16 +848,27 @@
              
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
-          Do n  = 1,Size(Op_T,1)
-             Do nf = 1,N_FL
-                Do I = 1,Size(Op_T(n,nf)%O,1)
-                   Do J = 1,Size(Op_T(n,nf)%O,2)
-                      Zkin = Zkin +  Op_T(n,nf)%O(i, j)*Grc( Op_T(n,nf)%P(I), Op_T(n,nf)%P(J), nf )
-                   ENddo
+          Do nf = 1,N_FL
+             Do I = 1,Latt%N
+                Do n = 1,N_coord
+                   Select Case (Lattice_type)
+                   Case ("Square")
+                      I1 = I
+                      If (n == 1)  J1 = Latt%nnlist(I,1,0)
+                      If (n == 2)  J1 = Latt%nnlist(I,0,1)
+                   Case ("Honeycomb")
+                      I1 = invlist(I,1) 
+                      If (n == 1)  J1 = invlist(I,2)
+                      If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
+                      If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
+                   Case Default
+                      stop
+                   end Select
+                   Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
                 Enddo
              Enddo
           Enddo
-          Zkin = Zkin * dble(N_SUN)
+          Zkin = -Ham_T*Zkin * dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 

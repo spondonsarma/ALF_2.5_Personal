@@ -5,10 +5,13 @@ LIBS= $(Libs)/Modules/modules_90.a \
       $(LIB_BLAS_LAPACK) \
       $(Libs)/libqrref/libqrref.a
 
+
 Examples:
 	./Git_config.sh; \
 	cp $(Libs)/Modules/*.mod . ;\
 	(make -f Compile_Examples  FC="$(FC)" FLAGS="$(FLAGS)"  LIBS="$(LIBS)" F90USEFULFLAGS="$(F90USEFULFLAGS)")
+
+all: Examples Z2_Slave Hub_Ising Hub_Can Nematic_Dirac SPT Kondo_Honey
 
 Z2_Slave:
 	./Git_config.sh; \
