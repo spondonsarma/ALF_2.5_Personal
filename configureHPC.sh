@@ -174,7 +174,7 @@ export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 
 #LRZ enviroment
 SuperMUC)
-module switch mpi.intel/2018
+module switch mpi.ibm  mpi.intel/2018
 module switch intel intel/18.0
 module switch mkl mkl/2018
 
