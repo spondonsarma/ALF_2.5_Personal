@@ -174,9 +174,9 @@ export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 
 #LRZ enviroment
 SuperMUC)
-module switch mpi.ibm mpi.intel
-module switch intel intel/17.0
-module switch mkl mkl/2017
+module switch mpi.intel/2018
+module switch intel intel/18.0
+module switch mkl mkl/2018
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
