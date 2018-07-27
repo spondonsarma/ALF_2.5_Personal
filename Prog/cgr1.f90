@@ -56,9 +56,8 @@
 
         Implicit None
 
-
-	!Arguments.
-	CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+        !Arguments.
+        CLASS(UDV_State), INTENT(IN) :: udvl, udvr
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)) :: PHASE
         INTEGER         :: NVAR
@@ -176,7 +175,7 @@
         USE QDRP_mod
         
         Implicit None
-	!Arguments.
+        !Arguments.
 !         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
 !         COMPLEX(Kind=Kind(0.d0)), Dimension(:),   Intent(IN)   ::  DLUP, DRUP
         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
@@ -198,7 +197,7 @@
         COMPLEX (Kind=Kind(0.d0)), Dimension(:) , Allocatable ::  DUP
         INTEGER, Dimension(:), Allocatable :: IPVT, VISITED
         COMPLEX (Kind=Kind(0.d0)) ::  alpha, beta, Z, DLJ
-        Integer :: I, J, N_size, NCON, info, LWORK, next, L
+        Integer :: I, J, N_size, info, LWORK, next, L
         Real (Kind=Kind(0.D0)) :: X, Xmax, sv
         
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
@@ -218,7 +217,6 @@
         endif
             
         N_size = udvl%ndim
-        NCON = 0
         alpha = 1.D0
         beta = 0.D0
         Allocate(TPUP(N_size,N_size), RHS(N_size, N_size), IPVT(N_size), TAU(N_size), DUP(N_size))
@@ -236,7 +234,7 @@
 #else
 #if ! defined(LOG)
         !missuse DUP(I) as DR(I) for temporary storage
-        !scales in D are assumed to be real an positive
+        !scales in D are assumed to be real and positive
         DO I = 1,N_size
           If( dble(udvr%D(I))<=1.d0 ) then
             DUP(I)=udvr%D(I)

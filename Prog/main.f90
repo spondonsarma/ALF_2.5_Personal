@@ -65,7 +65,7 @@ Program Main
              Use Hamiltonian
              Use UDV_State_mod
              Implicit none
-             CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
@@ -82,7 +82,7 @@ Program Main
              Use UDV_Wrap_mod
              Use UDV_State_mod
              Implicit None
-             CLASS(UDV_State), intent(inout) :: UDVR(N_FL)
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
 
@@ -126,7 +126,6 @@ Program Main
 
         ! For tests
         Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
-        Integer :: nr,nth, nth1
         Logical :: Log
 
         ! For the truncation of the program:
@@ -179,7 +178,7 @@ Program Main
 #ifdef MPI
         If (  Irank == 0 ) then
 #endif
-           write (*,*) "ALF Copyright (C) 2016, 2017 The ALF project contributors"
+           write (*,*) "ALF Copyright (C) 2016 - 2018 The ALF project contributors"
            write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
            write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
 #ifdef MPI

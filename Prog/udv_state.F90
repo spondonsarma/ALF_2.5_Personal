@@ -175,7 +175,7 @@ END SUBROUTINE setscale_UDV_state
 !-------------------------------------------------------------------
 SUBROUTINE getscale_UDV_state(this, scale_val, scale_idx)
     IMPLICIT NONE
-    CLASS(UDV_State), INTENT(INOUT) :: this
+    CLASS(UDV_State), INTENT(IN) :: this
     COMPLEX (Kind=Kind(0.d0)), INTENT(out) :: scale_val
     INTEGER, INTENT(IN) :: scale_idx
 
@@ -452,13 +452,18 @@ END SUBROUTINE assign_UDV_state
 !         COMPLEX (Kind=Kind(0.d0)), intent(in), allocatable, dimension(:, :) :: TMP
 !         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:, :) :: TMP1
         CLASS(UDV_State), intent(inout) :: UDVR
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK, D
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
+        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, phase
+        INTEGER :: INFO, i, LWORK, Ndim, N_part
+        INTEGER, allocatable, Dimension(:) :: IPVT
+#ifdef LOG
         REAL (Kind=Kind(0.d0)), allocatable, Dimension(:) :: tmpnorm
         REAL (Kind=Kind(0.d0)) :: tmpL, DZNRM2
-        COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE, beta, tmpD, phase, TmpMat(udvr%ndim,udvr%ndim)
-        INTEGER :: INFO, i, j, LWORK, Ndim, PVT, N_part
-        INTEGER, allocatable, Dimension(:) :: IPVT
+        INTEGER :: J, PVT
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: D
+#else
         LOGICAL :: FORWRD
+#endif
         
 !         if(udvr%side .ne. "R" .and. udvr%side .ne. "r" ) then
 !           write(*,*) "calling wrong decompose"
@@ -466,7 +471,6 @@ END SUBROUTINE assign_UDV_state
         
         ! QR(TMP * U * D) * V
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
-        beta = 0.D0
         Ndim = UDVR%ndim
         N_part = UDVR%n_part
         ALLOCATE(TAU(N_part), IPVT(N_part))

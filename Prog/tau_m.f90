@@ -58,7 +58,7 @@
                 Use Hamiltonian
                 Use UDV_State_mod
                 Implicit none
-                CLASS(UDV_State), intent(inout) :: UDVr(N_FL)
+                CLASS(UDV_State), intent(inout), ALLOCATABLE, dimension(:) :: UDVr
                 Integer :: NTAU1, NTAU
               END SUBROUTINE WRAPUR
               SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, udv2, udv1, LQ)
@@ -88,7 +88,7 @@
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z
-           Integer  ::  I, J, nf, NT, NT1, NTST, NST, NVAR
+           Integer  ::  I, J, nf, NT, NT1, NTST, NST
            
            If (Symm) Then
               Allocate ( G00_T(Ndim,Ndim,N_FL), G0T_T(Ndim,Ndim,N_FL), GT0_T(Ndim,Ndim,N_FL),  GTT_T(Ndim,Ndim,N_FL) )
@@ -158,8 +158,6 @@
                     HLP4(:,:) = GTT(:,:,nf)
                     HLP5(:,:) = GT0(:,:,nf)
                     HLP6(:,:) = G0T(:,:,nf)
-                    NVAR = 1
-                    IF (NT1  >  LTROT/2) NVAR = 2
                     Call CGR2_2(GT0(:,:,nf), G00(:,:,nf), GTT(:,:,nf), G0T(:,:,nf), &
                          & udvr(nf), udvst(NST, nf), NDIM)
                     Call Control_Precision_tau(GR(:,:,nf), G00(:,:,nf), Ndim)

@@ -135,7 +135,7 @@ Module UDV_Wrap_mod
        ! Locals
        REAL (Kind=Kind(0.d0)) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
        INTEGER :: IVPT(N2), IVPTM1(N2), I, J, K, IMAX
-       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), U1(N2,N2), Z, phase, beta
+       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), Z, phase, beta
 
        DO I = 1,N2
           XNORM(I) = 0.D0

@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -117,13 +117,14 @@ Module Random_Wrap
 !-------------------------------------------------------------------- 
 
      real (Kind=Kind(0.D0)) function lcg(seed)
+       use, intrinsic :: iso_fortran_env
        implicit none
        integer :: seed
-       integer(8) :: res, norm
+       integer(INT64) :: res, norm
        
        res = seed ! convert type
        res = 62089911*res + 4349
-       norm = 2147483648_8 !specify 8 byte integer
+       norm = 2147483648_INT64 !specify 8 byte integer
        lcg = DBLE(MODULO(res, norm))/DBLE(norm)
        seed = Int(res,kind(0)) ! convert back
      end function lcg
@@ -158,7 +159,7 @@ Module Random_Wrap
        implicit none
        integer :: N
        
-       nranf  = nint(ranf_wrap()*dble(N) + 0.5)
+       nranf  = nint(ranf_wrap()*dble(N) + 0.5D0)
        
        if (nranf .lt. 1 ) nranf = 1
        if (nranf .gt. N ) nranf = N 

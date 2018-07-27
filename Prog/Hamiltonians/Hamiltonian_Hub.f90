@@ -34,7 +34,7 @@
       Type (Lattice),       private :: Latt
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
-      real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
+      real (Kind=Kind(0.d0)),        private :: Dtau, Beta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional
       Integer,              private :: N_coord 
@@ -134,7 +134,6 @@
 
           Ltrot = nint(beta/dtau)
           Projector = .false.
-          Theta = 0.d0
           Thtrot = 0
 #ifdef MPI
           If (Irank == 0) then
@@ -161,8 +160,8 @@
           !Set the lattice
           Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
           If ( Lattice_type =="Square" ) then
-             a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-             a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+             a1_p(1) =  1.d0  ; a1_p(2) =  0.d0
+             a2_p(1) =  0.d0  ; a2_p(2) =  1.d0
              L1_p    =  dble(L1)*a1_p
              L2_p    =  dble(L2)*a2_p
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
@@ -221,7 +220,7 @@
                 Do I = 1,Latt%N
                    Op_T(nc,n)%P(i) = i 
                 Enddo
-                if ( abs(Ham_T) < 1.E-6 .and.  abs(Ham_chem) < 1.E-6 ) then 
+                if ( abs(Ham_T) < 1.D-6 .and.  abs(Ham_chem) < 1.D-6 ) then 
                    Op_T(nc,n)%g = 0.d0
                 else
                    Op_T(nc,n)%g = -Dtau

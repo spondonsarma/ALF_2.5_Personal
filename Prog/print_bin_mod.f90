@@ -62,11 +62,12 @@
            Integer,                            Intent(In)   :: Nobs
 
            ! Local
-           Integer :: Norb, I, no,no1
-           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Integer :: Norb, I, no, no1
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2) 
            Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp1(:)
            Complex (Kind=Kind(0.d0)):: Z
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: STATUS(MPI_STATUS_SIZE)
@@ -79,7 +80,7 @@
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
-           Allocate (Tmp(Latt%N,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Latt%N,Norb,Norb))
            Dat_eq = Dat_eq/dble(Nobs)
            Dat_eq0 = Dat_eq0/dble(Nobs*Latt%N)
 
@@ -94,10 +95,11 @@
            Phase_bin= Z/DBLE(ISIZE)
 
            I = Norb
+           Allocate (Tmp1(Norb))
            Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
-
+           deallocate(Tmp1)
            If (Irank == 0 ) then
 #endif
               do no = 1,Norb
@@ -124,7 +126,7 @@
            Endif
 #endif
 
-           deallocate (Tmp, tmp1 )
+           deallocate (Tmp)
 
          End Subroutine Print_bin_C
 
@@ -146,12 +148,13 @@
            
            ! Local
            Integer :: Norb, I, no,no1
-           Real    (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Real    (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2) 
            Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            Complex (Kind=Kind(0.d0))              :: Z
+           Real    (Kind=Kind(0.d0)), allocatable :: Tmp1(:)
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -163,7 +166,7 @@
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
-           Allocate (Tmp(Latt%N,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Latt%N,Norb,Norb))
            Dat_eq  = Dat_eq/dble(Nobs)
            Dat_eq0 = Dat_eq0/(dble(Nobs)*dble(Latt%N))
 #ifdef MPI
@@ -177,11 +180,12 @@
            Phase_bin= Z/DBLE(ISIZE)
            If (Irank == 0 ) then
 
-           I = Norb 
+           I = Norb
+           Allocate (Tmp1(Norb) )
            Tmp1 = 0.D0
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_REAL8,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
-
+           deallocate( Tmp1)
 #endif
               do no = 1,Norb
                  do no1 = 1,Norb
@@ -221,19 +225,18 @@
            Integer,                          Intent(In)    :: Nobs
 
            ! Local
-           Integer :: Norb,I
-           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
+           Integer :: I
 #ifdef MPI
-           Integer        :: Ierr, Isize, Irank
+           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
+           Integer        :: Ierr, Isize, Irank, Norb
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
-
-           Norb = size(Obs,1)
-           Allocate ( Tmp(Norb) )
            Obs = Obs/dble(Nobs)
 #ifdef MPI
+           Norb = size(Obs,1)
+           Allocate ( Tmp(Norb) )
            Tmp = 0.d0
            CALL MPI_REDUCE(Obs,Tmp,Norb,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Obs = Tmp/DBLE(ISIZE)
@@ -244,8 +247,8 @@
               close(10)
 #ifdef MPI
            endif
-#endif
            deallocate (Tmp )
+#endif
            
          End Subroutine Print_scal
 

@@ -1,4 +1,4 @@
-!  Copyright (C) 2016, 2017 The ALF project
+!  Copyright (C) 2016 - 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -48,13 +48,13 @@
        Use Hop_mod
        Use UDV_State_mod
        Use tau_m_mod !, only propr, proprm1
-       
+
      Contains
-       
+
        SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST ) 
-         
+
          Implicit none
-         
+
          Interface
             SUBROUTINE CGRP(PHASE, GRUP, udvr, udvl)
               Use UDV_State_mod
@@ -72,9 +72,9 @@
               Integer :: NTAU1, NTAU
             END SUBROUTINE WRAPUR
          End Interface
-        
+
         ! Storage is full with U^{<} (left)  propagations.
-      
+
 
         Integer, Intent(In) :: NSTM, NST
         CLASS(UDV_State), Dimension(:), ALLOCATABLE, INTENT(IN) :: udvl, udvr
@@ -90,10 +90,10 @@
         Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  ::  G00UP_T, G0TUP_T, GT0UP_T,  GTTUP_T 
 
         Complex (Kind=Kind(0.d0)), allocatable  :: TEMP(:,:), TMPUP(:,:) 
+
         Real    (Kind=kind(0.d0))  :: XMEAN_DYN, XMAX_DYN
 
-        Integer :: NTAUIN,  NTDM,  LFAM,     NFAM,    N_Part,  LQ , I, J, NCON, NF, NFLAG, NL, &
-             &     NT1, NT_ST, NT, NTAU, NTAU1,n
+        Integer :: NTAUIN,  NTDM,  LFAM, NFAM, N_Part,  LQ , I, NCON, NF, NFLAG, NL, NT1, NT_ST, NT, NTAU, NTAU1,n
 
         Real (Kind=Kind(0.d0)):: XMEAN, XMAX
 

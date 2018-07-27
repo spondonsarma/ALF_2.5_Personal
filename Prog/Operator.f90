@@ -63,7 +63,7 @@ Module Operator_mod
      ! P has only one non-zero entry per column which is specified by P
      ! All in all.   g * Phi(s,type) * ( c^{dagger} A c  + alpha )
      ! The variable Type allows you to define the type of HS. 
-     ! The first N_non_zero elemets of diagonal matrix E are non-zero. The rest vanish
+     ! The first N_non_zero elemets of diagonal matrix E are non-zero. The rest vanish.
 
      ! !!!!! M_exp and E_exp  are for storage   !!!!!
      ! If Type =1   then the Ising field  takes the values  s = +/- 1 
@@ -158,13 +158,21 @@ Contains
   end Subroutine Op_phase
   
 !--------------------------------------------------------------------
+!> @author
+!> 
+!> @brief 
+!> Set up _some_ data of the operator.
+!
+!> @param[inout] Op
+!> @param[in] N 
+!--------------------------------------------------------------------
 
   Pure subroutine Op_make(Op,N)
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
     Allocate (Op%O(N,N), Op%U(N,N), Op%E(N), Op%P(N) )
-    ! F.F.A  Op%M_exp and Op%E_exp are allocated  in Op_set once the type is avalable.
+    ! F.F.A  Op%M_exp and Op%E_exp are allocated  in Op_set once the type is available.
     
     Op%O = cmplx(0.d0, 0.d0, kind(0.D0))
     Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
@@ -175,7 +183,7 @@ Contains
     Op%g     = cmplx(0.d0,0.d0, kind(0.D0))
     Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
     Op%diag  = .false.
-    Op%type=0
+    Op%type = 0
   end subroutine Op_make
 
 !--------------------------------------------------------------------
@@ -196,8 +204,8 @@ Contains
 
     Complex (Kind=Kind(0.d0)), allocatable :: U(:,:), TMP(:, :)
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
-    Real    (Kind=Kind(0.d0)) :: Zero = 1.E-9
-    Integer :: N, I, J, np,nz, spin
+    Real    (Kind=Kind(0.d0)) :: Zero = 1.D-9
+    Integer :: N, I, J, np,nz
     Complex (Kind=Kind(0.d0)) :: Z
 
     If (Op%N > 1) then
@@ -250,21 +258,19 @@ Contains
        Op%N_non_zero = 1
        Op%diag = .true.
     endif
-    if ( Op%type == 1 ) then 
-       Allocate (Op%M_exp(Op%N,Op%N,-1:1), Op%E_exp(Op%N,-1:1) )
-       spin = 1
-       call FillExpOps(Op%E_exp(:,spin),Op%E_exp(:,-spin),Op,Phi(spin,Op%type))
-       call Op_exp(Op%g*Phi( spin,Op%type),Op,Op%M_exp(:,:, spin))
-       call Op_exp(Op%g*Phi(-spin,Op%type),Op,Op%M_exp(:,:,-spin))
-    elseif ( Op%type == 2 ) then
-       Allocate (Op%M_exp(Op%N,Op%N,-2:2), Op%E_exp(Op%N,-2:2) )
-       do spin = 1,2
-          call FillExpOps(Op%E_exp(:,spin),Op%E_exp(:,-spin),Op,Phi(spin,Op%type))
-          call Op_exp(Op%g*Phi( spin,Op%type),Op,Op%M_exp(:,:, spin))
-          call Op_exp(Op%g*Phi(-spin,Op%type),Op,Op%M_exp(:,:,-spin))
-       enddo
-    endif
-    
+    Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, -Op%type : Op%type))
+    Do I=1,Op%type
+        do n = 1, Op%N
+            Op%E_exp(n,I) = cmplx(1.d0, 0.d0, kind(0.D0))
+            Op%E_exp(n,-I) = cmplx(1.d0, 0.d0, kind(0.D0))
+            if ( n <= Op%N_non_Zero) then
+                Op%E_exp(n,I) = exp(Op%g*(Op%E(n)*Phi(I,Op%type)))
+                Op%E_exp(n,-I) = 1.D0/Op%E_exp(n,I)
+            endif
+        enddo
+        call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
+        call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
+    enddo
   end subroutine Op_set
 
 !--------------------------------------------------------------------
@@ -406,36 +412,6 @@ Contains
       call ZSLGEMM('L',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultR
-
-!--------------------------------------------------------------------
-!> @author
-!> Florian Goth
-!
-!> @brief 
-!> This function fills the arrays ExpOp nd ExpMop according to the data in Op
-!
-!> @param[inout] ExpOp
-!> @param[inout] ExpMop
-!> @param[in] Op The Operator whose eigenvalues we exponentiate
-!> @param[in] spin The spin direction that we consider
-!--------------------------------------------------------------------
-  Pure subroutine FillExpOps(ExpOp, ExpMop, Op, spin)
-    Implicit none
-    Type (Operator) , INTENT(IN) :: Op
-    Complex(kind = kind(0.D0)), INTENT(INOUT) :: ExpOp(Op%N), ExpMop(Op%N)
-    Real(kind = kind(0.D0)), Intent(in) :: spin
-    Integer :: n
-    
-    do n = 1, Op%N
-       ExpOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-       ExpMOp(n) = cmplx(1.d0, 0.d0, kind(0.D0))
-       if ( n <= OP%N_non_Zero) then
-          ExpOp(n) = exp(Op%g*(Op%E(n)*spin))
-          ExpMop(n) = 1.D0/ExpOp(n)
-       endif
-    enddo
-    
-  end subroutine FillExpOps
 
 !--------------------------------------------------------------------
 
