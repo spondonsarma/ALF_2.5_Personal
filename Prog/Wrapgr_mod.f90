@@ -129,7 +129,7 @@ Contains
     Enddo
     Do n = Nt_sequential_start,Nt_sequential_end
        Do nf = 1, N_FL
-          X = nsigma(n,ntau1)!Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
+          X = nsigma%i(n,ntau1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
           N_type = 1
           Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
        enddo
@@ -144,8 +144,8 @@ Contains
           endif
        Endif
        If ( T0_proposal > ranf_wrap() ) Then
-          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  = -nsigma(n,ntau1)
-          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  NFLIPL(nsigma(n,ntau1),nranf(3))
+          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  =  nint(nsigma%flip(n,ntau1))
+          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  nint(nsigma%flip(n,ntau1))
           mode = "Final"
           !Write(6,*) 'Hi', n, Op_V(n,nf)%type, T0_Proposal_ratio, S0_ratio  
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
@@ -232,7 +232,7 @@ Contains
     Do n =  Nt_sequential_end, Nt_sequential_start, -1
        N_type = 2
        nf = 1
-       spin = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+       spin = nsigma%i(n,ntau) !Phi(nsigma(n,ntau),Op_V(n,nf)%type)
        do nf = 1,N_FL
           Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), spin, Ndim, N_Type)
        enddo
@@ -248,8 +248,8 @@ Contains
           endif
        Endif
        If ( T0_proposal > ranf_wrap() ) Then
-          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  = -nsigma(n,ntau)
-          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  NFLIPL(nsigma(n,ntau),nranf(3))
+          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  =  nint( nsigma%flip(n,ntau) )
+          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  nint( nsigma%flip(n,ntau) )
           mode = "Final"
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
           Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(1), Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
@@ -261,7 +261,7 @@ Contains
        !Call Upgrade(GR,n,ntau,PHASE,Op_V(n,1)%N_non_zero) 
        ! The spin has changed after the upgrade!
        nf = 1
-       spin = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+       spin = nsigma%i(n,ntau)  ! Phi(nsigma(n,ntau),Op_V(n,nf)%type)
        N_type = 1
        do nf = 1,N_FL
           Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), spin, Ndim, N_Type )
@@ -309,7 +309,7 @@ Contains
        !Write(6,*) "Wrapup from ",  m + 1, "to",  m1, " on tau=",  ntau
        Do n = m+1,m1
           Do nf = 1, N_FL
-             X = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+             X = nsigma%i(n,ntau) !Phi(nsigma(n,ntau),Op_V(n,nf)%type)
              N_type = 1
              Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
           enddo
@@ -323,13 +323,13 @@ Contains
        Do n =  m, m1+1 ,-1 
           N_type = 2
           nf = 1
-          X = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+          X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
           do nf = 1,N_FL
              Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), X, Ndim, N_Type)
           enddo
           !Write(6,*) 'Upgrade : ', ntau,n 
           nf = 1
-          X = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+          X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
           N_type = 1
           do nf = 1,N_FL
              Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), X, Ndim, N_Type )
@@ -417,7 +417,7 @@ Contains
           Call wrapgr_sort(Flip_length,Flip_list,Flip_value)
           If ( Flip_length > 1 ) then
              Do Flip_count = 1, Flip_length-1 
-                Flip_value_st(Flip_count)  = nsigma( Flip_list(Flip_count), ntau  )
+                Flip_value_st(Flip_count)  = nsigma%i( Flip_list(Flip_count), ntau  )
              Enddo
           endif
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
@@ -429,7 +429,7 @@ Contains
              !Write(6,*)  "Back from PlaceGR",  m, n-1,ntau
              If ( Flip_count == 1 .and. Flip_length > 1 ) GR_st = Gr
              Do nf = 1, N_FL
-                X = nsigma(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+                X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
                 N_type = 1
                 Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
              enddo
@@ -460,7 +460,7 @@ Contains
              Gr = Gr_st
              m = Flip_list(1) - 1
              Do Flip_count = 1, Flip_length-1 
-                nsigma( Flip_list(Flip_count), ntau  ) = Flip_value_st(Flip_count)  
+                nsigma%f( Flip_list(Flip_count), ntau  ) = Real(Flip_value_st(Flip_count), kind(0.d0))
              Enddo
           Endif
           !If (Acc) Call Hamiltonian_Print(Ntau)

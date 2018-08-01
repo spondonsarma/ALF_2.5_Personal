@@ -151,12 +151,12 @@ case $MACHINE in
 #Fakhers MacBook
 FakhersMAC)
 
-F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -fbacktrace"
+F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -g -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
 export f90="gfortran"
 else
-export f90=$mpif90
+export f90="$mpif90"
 fi
 export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 F90USEFULFLAGS="-cpp"

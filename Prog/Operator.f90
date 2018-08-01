@@ -43,11 +43,10 @@ Module Operator_mod
 
 
   Use MyMats
+  Use Fields_mod
 
   Implicit none
 
-  Real (Kind=Kind(0.d0)) :: Phi(-2:2,2),  Gaml(-2:2,2)
-  Integer ::  NFLIPL(-2:2,3)
   
 
   Type Operator
@@ -83,44 +82,51 @@ Module Operator_mod
   
 Contains
 
-  Subroutine Op_SetHS
+!!$  Real (Kind=Kind(0.d0)) :: Phi(-2:2,2),  Gaml(-2:2,2)
+!!$  Integer ::  NFLIPL(-2:2,3)
+!!$      Subroutine Op_setHS
+!!$
+!!$        Implicit none
+!!$        !Local
+!!$        Integer :: n
+!!$        
+!!$
+!!$        Phi = 0.d0
+!!$        do n = -2,2
+!!$           Phi(n,1) = real(n,Kind=Kind(0.d0))
+!!$        enddo
+!!$        Phi(-2,2) = - SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
+!!$        Phi(-1,2) = - SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+!!$        Phi( 1,2) =   SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+!!$        Phi( 2,2) =   SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
+!!$        
+!!$        Do n = -2,2
+!!$           gaml(n,1) = 1.d0
+!!$        Enddo
+!!$        GAML(-2,2) = 1.D0 - SQRT(6.D0)/3.D0
+!!$        GAML( 2,2) = 1.D0 - SQRT(6.D0)/3.D0
+!!$        GAML(-1,2) = 1.D0 + SQRT(6.D0)/3.D0
+!!$        GAML( 1,2) = 1.D0 + SQRT(6.D0)/3.D0
+!!$        
+!!$        NFLIPL(-2,1) = -1
+!!$        NFLIPL(-2,2) =  1
+!!$        NFLIPL(-2,3) =  2
+!!$        
+!!$        NFLIPL(-1,1) =  1
+!!$        NFLIPL(-1,2) =  2
+!!$        NFLIPL(-1,3) = -2
+!!$        
+!!$        NFLIPL( 1,1) =  2
+!!$        NFLIPL( 1,2) = -2
+!!$        NFLIPL( 1,3) = -1
+!!$        
+!!$        NFLIPL( 2,1) = -2
+!!$        NFLIPL( 2,2) = -1
+!!$        NFLIPL( 2,3) =  1 
+!!$
+!!$      end Subroutine Op_setHS
 
-    Implicit none
-    Integer ::  n 
-    Phi = 0.d0
-    do n = -2,2
-       Phi(n,1) = real(n,Kind=Kind(0.d0))
-    enddo
-    Phi(-2,2) = - SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
-    Phi(-1,2) = - SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
-    Phi( 1,2) =   SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
-    Phi( 2,2) =   SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
-    
-    Do n = -2,2
-       gaml(n,1) = 1.d0
-    Enddo
-    GAML(-2,2) = 1.D0 - SQRT(6.D0)/3.D0
-    GAML( 2,2) = 1.D0 - SQRT(6.D0)/3.D0
-    GAML(-1,2) = 1.D0 + SQRT(6.D0)/3.D0
-    GAML( 1,2) = 1.D0 + SQRT(6.D0)/3.D0
-    
-    NFLIPL(-2,1) = -1
-    NFLIPL(-2,2) =  1
-    NFLIPL(-2,3) =  2
-    
-    NFLIPL(-1,1) =  1
-    NFLIPL(-1,2) =  2
-    NFLIPL(-1,3) = -2
-    
-    NFLIPL( 1,1) =  2
-    NFLIPL( 1,2) = -2
-    NFLIPL( 1,3) = -1
-    
-    NFLIPL( 2,1) = -2
-    NFLIPL( 2,2) = -1
-    NFLIPL( 2,3) =  1 
-    
-  end Subroutine Op_SetHS
+  
 
 !--------------------------------------------------------------------
 !> @author
@@ -134,21 +140,21 @@ Contains
 !> @param[in] Nsigma
 !> @param[in] N_SUN 
 !--------------------------------------------------------------------
-  Pure Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) 
+  Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) 
     Implicit none
 
     Complex  (Kind=Kind(0.d0)), Intent(Inout) :: Phase
     Integer,           Intent(IN)    :: N_SUN
-    Integer,           dimension(:,:), Intent(In) :: Nsigma
+    Class (Fields),    Intent(In)    :: Nsigma
     Type (Operator),   dimension(:,:), Intent(In) :: Op_V
-    Real  (Kind=Kind(0.d0))                   :: angle
+    Real  (Kind=Kind(0.d0))                       :: angle
     
     Integer :: n, nf, nt
     
     do nf = 1,Size(Op_V,2)
        do n = 1,size(Op_V,1)
-          do nt = 1,size(nsigma,2)
-             angle = Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * Phi(nsigma(n,nt),Op_V(n,nf)%type)
+          do nt = 1,size(nsigma%f,2)
+             angle = Aimag( Op_V(n,nf)%g * Op_V(n,nf)%alpha ) * nsigma%Phi(n,nt) 
              Phase = Phase*CMPLX(cos(angle),sin(angle), Kind(0.D0))
           enddo
        enddo
@@ -204,16 +210,28 @@ Contains
 
     Complex (Kind=Kind(0.d0)), allocatable :: U(:,:), TMP(:, :)
     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
-    Real    (Kind=Kind(0.d0)) :: Zero = 1.D-9
+    Real    (Kind=Kind(0.d0)) :: Zero = 1.D-9 !, Phi(-2:2)
     Integer :: N, I, J, np,nz
     Complex (Kind=Kind(0.d0)) :: Z
+    Class (Fields), allocatable :: nsigma_single
+    
+    
+    Allocate (nsigma_single)
 
+    Call nsigma_single%make(1,1)
+
+    !Phi = 0.d0
+    !Phi(-2) = - SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
+    !Phi(-1) = - SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+    !Phi( 1) =   SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+    !Phi( 2) =   SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
+    
     If (Op%N > 1) then
        N = Op%N
        Op%diag = .true.
        do I=1,N
           do J=i+1,N
-             !Binary comparison is OK here as Op%O was initialized to zero during Op_make.
+             ! Binary comparison is OK here as Op%O was initialized to zero during Op_make.
              if (Op%O(i,j) .ne. cmplx(0.d0,0.d0, kind(0.D0)) .or. Op%O(j,i) .ne. cmplx(0.d0,0.d0, kind(0.D0))) Op%diag=.false.
           enddo
        enddo
@@ -223,7 +241,7 @@ Contains
              Op%U(I,I)=cmplx(1.d0,0.d0, kind(0.D0))
           enddo
           Op%N_non_zero = N
-          ! F.F.A Why do we assume that Op%N_non_zero = N for a diagonal operator? 
+          ! FFA Why do we assume that Op%N_non_zero = N for a diagonal operator? 
        else
           Allocate (U(N,N), E(N), TMP(N, N))
           Call Diag(Op%O,U, E)  
@@ -258,19 +276,52 @@ Contains
        Op%N_non_zero = 1
        Op%diag = .true.
     endif
-    Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, -Op%type : Op%type))
-    Do I=1,Op%type
-        do n = 1, Op%N
-            Op%E_exp(n,I) = cmplx(1.d0, 0.d0, kind(0.D0))
-            Op%E_exp(n,-I) = cmplx(1.d0, 0.d0, kind(0.D0))
-            if ( n <= Op%N_non_Zero) then
-                Op%E_exp(n,I) = exp(Op%g*(Op%E(n)*Phi(I,Op%type)))
+    select case(OP%type)
+    case(1)
+       Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, -Op%type : Op%type))
+       nsigma_single%t(1) = 1
+       Do I=1,Op%type
+          nsigma_single%f(1,1) = real(I,kind=kind(0.d0))
+          do n = 1, Op%N
+             Op%E_exp(n,I) = cmplx(1.d0, 0.d0, kind(0.D0))
+             Op%E_exp(n,-I) = cmplx(1.d0, 0.d0, kind(0.D0))
+             if ( n <= Op%N_non_Zero) then
+                !Op%E_exp(n,I) = exp(Op%g*Op%E(n)*Phi_st(I,1))
+                Op%E_exp(n,I) = exp(Op%g*Op%E(n)*nsigma_single%Phi(1,1))
                 Op%E_exp(n,-I) = 1.D0/Op%E_exp(n,I)
-            endif
-        enddo
-        call Op_exp(Op%g*Phi(I,Op%type),Op,Op%M_exp(:,:,I))
-        call Op_exp(Op%g*Phi(-I,Op%type),Op,Op%M_exp(:,:,-I))
-    enddo
+             endif
+          enddo
+          !call Op_exp(Op%g*Phi_st( I,1),Op,Op%M_exp(:,:,I))
+          !call Op_exp(Op%g*Phi_st(-I,1),Op,Op%M_exp(:,:,-I))
+          call Op_exp( Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,I))
+          call Op_exp(-Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,-I))
+       enddo
+    case(2)
+       Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, -Op%type : Op%type))
+       nsigma_single%t(1) = 2
+       Do I=1,Op%type
+          nsigma_single%f(1,1) = real(I,kind=kind(0.d0))
+          do n = 1, Op%N
+             Op%E_exp(n,I) = cmplx(1.d0, 0.d0, kind(0.D0))
+             Op%E_exp(n,-I) = cmplx(1.d0, 0.d0, kind(0.D0))
+             if ( n <= Op%N_non_Zero) then
+                !Op%E_exp(n,I)  = exp(Op%g*Op%E(n)*Phi_st(I,2))
+                Op%E_exp(n,I) = exp(Op%g*Op%E(n)*nsigma_single%Phi(1,1))
+                Op%E_exp(n,-I) = 1.D0/Op%E_exp(n,I)
+             endif
+          enddo
+          call Op_exp( Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,I))
+          call Op_exp(-Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,-I))
+          !call Op_exp(Op%g*Phi_st( I,2),Op,Op%M_exp(:,:,I))
+          !call Op_exp(Op%g*Phi_st(-I,2),Op,Op%M_exp(:,:,-I))
+       enddo
+    case default
+    end select
+
+    Call nsigma_single%clear() 
+
+    Deallocate (nsigma_single)
+
   end subroutine Op_set
 
 !--------------------------------------------------------------------
@@ -423,7 +474,7 @@ Contains
     Type (Operator) , INTENT(IN )   :: Op
     Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
     Integer, INTENT(IN )   :: spin
-    Integer, INTENT(IN) :: N_Type
+    Integer, INTENT(IN)    :: N_Type
 
     ! Local 
     Complex (Kind=Kind(0.d0)) :: VH1(Op%N,Op%N)

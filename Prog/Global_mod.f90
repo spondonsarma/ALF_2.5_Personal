@@ -513,25 +513,25 @@ Module Global_mod
         ! Set old weight. 
         Det_Vec_old=0.d0
         if (Projector) then
-          do nf=1,N_FL
-            N_part=udvst(1,nf)%N_part
-            do i=1,NSTM-1
+           do nf=1,N_FL
+              N_part=udvst(1,nf)%N_part
+              do i=1,NSTM-1
+                 do n=1,N_part
+#if !defined(LOG)
+                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
+#else
+                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvst(i,nf)%L(n)
+#endif
+                 enddo
+              enddo
               do n=1,N_part
 #if !defined(LOG)
-                Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
+                 Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvl(nf)%D(n)))
 #else
-                Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvst(i,nf)%L(n)
+                 Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvl(nf)%L(n)
 #endif
               enddo
-            enddo
-            do n=1,N_part
-#if !defined(LOG)
-              Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-              Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvl(nf)%L(n)
-#endif
-            enddo
-          enddo
+           enddo
         endif
         Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
         do nf = 1,N_Fl

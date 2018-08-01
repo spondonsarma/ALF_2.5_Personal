@@ -38,7 +38,7 @@
 !> This module defines the  Hamiltonian and observables.  Here, we have included a
 !> set of predefined Hamiltonians. They include the Hubbard and SU(N) tV models
 !> on honeycomb, pi-flux and square lattices.
-
+!> 
 !> @details
 !> The public variables of this module are the following
 !>
@@ -49,7 +49,7 @@
 !> List of operators of type=1,2 and 3 describing the sequence of interactions on a time slice.
 !> The first index runs over this sequence. The second corresponds to the flavor index.  \endverbatim
 !> 
-!> @param [public] OP_T
+!> @Param [public] OP_T
 !> \verbatim
 !> Type (Operator), dimension(:,:), allocatable  
 !> Sequence of  operators  accounting for the  hopping on a  time slice. This can include  various
@@ -124,16 +124,17 @@
       Use Matrix
       Use Observables
       Use Predefined_structures
-
+      Use Fields_mod
+      
       
       Implicit none
 
      
-      Type (Operator),     dimension(:,:), allocatable  :: Op_V 
-      Type (Operator),     dimension(:,:), allocatable  :: Op_T
-      Type (WaveFunction), dimension(:),   allocatable  :: WF_L
-      Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Type  (Operator),     dimension(:,:), allocatable  :: Op_V 
+      Type  (Operator),     dimension(:,:), allocatable  :: Op_T
+      Type  (WaveFunction), dimension(:),   allocatable  :: WF_L
+      Type  (WaveFunction), dimension(:),   allocatable  :: WF_R
+      Class (Fields), allocatable :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
@@ -472,7 +473,7 @@
 ! #endif
 
           call Ham_V
-
+ 
 
         end Subroutine Ham_Set
 
@@ -486,6 +487,7 @@
           Integer :: nf, I, I1, I2,  nc, nc1,  J
           Real (Kind=Kind(0.d0)) :: X
 
+          Call Fields_init()
           
           Select case (Model)
           Case ("Hubbard_SU2")  
@@ -628,14 +630,14 @@
           S0 = 1.d0
           If ( Op_V(n,1)%type == 1 ) then 
              do i = 1,4
-                S0 = S0*DW_Ising_space(nsigma(n,nt)*nsigma(Ising_nnlist(n,i),nt))
+                S0 = S0*DW_Ising_space(nsigma%i(n,nt)*nsigma%i(Ising_nnlist(n,i),nt))
              enddo
              nt1 = nt +1 
              if (nt1 > Ltrot) nt1 = 1
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              nt1 = nt - 1 
              if (nt1 < 1  ) nt1 = Ltrot
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              If (S0 < 0.d0) Write(6,*) 'S0 : ', S0
           endif
           
@@ -785,19 +787,19 @@
         
 !========================================================================
         ! Functions for Global moves.  These move are not implemented in this example.
-        Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
+        !Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
           
           !>  The input is the field nsigma declared in this module. This routine generates a 
           !>  global update with  and returns the propability  
           !>  T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)  
           !>   
-          Implicit none
-          Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+        !  Implicit none
+        !  Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
+        !  Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
 
-          T0_Proposal_ratio  = 0.d0
+        !  T0_Proposal_ratio  = 0.d0
 
-        End Subroutine Global_move
+        !End Subroutine Global_move
 !========================================================================
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
 
@@ -1102,23 +1104,18 @@
 
         end Subroutine Init_obs
 !---------------------------------------------------------------------
-        Subroutine  Hamiltonian_set_random_nsigma
+        Subroutine  Hamiltonian_set_initial_configuration(nsigma_st)
           
           ! The user can set the initial configuration
           
           Implicit none
-          
-          Integer :: I, nt
-          
-          Do nt = 1,Ltrot
-             Do I = 1,Size(OP_V,1)
-                nsigma(I,nt)  = 1
-                if ( ranf_wrap()  > 0.5D0 ) nsigma(I,nt)  = -1
-             enddo
-          enddo
-          
-        end Subroutine Hamiltonian_set_random_nsigma
 
+          Real (Kind=Kind(0.d0)), allocatable, dimension(:,:) :: nsigma_st
+          
+          ! Allocate and set nsigma_st if you want to specify an intitial configuration.
+
+          
+        end Subroutine Hamiltonian_set_initial_configuration
 !---------------------------------------------------------------------
         Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
@@ -1158,19 +1155,19 @@
           do n = 1,flip_length 
              n_op = nranf(size(OP_V,1))
              Flip_list(n)  = n_op
-             ns            = nsigma(n_op,ntau)
+             ns            = nsigma%i(n_op,ntau)
              If ( OP_V(n_op,1)%type == 1 ) then 
-                ns = nsigma(n_op,ntau)
+                ns = nsigma%i(n_op,ntau)
                 T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
                 If ( T0_Proposal > Ranf_wrap() ) then
                    T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
                 else
                    T0_Proposal_ratio = 0.d0
                 endif
-                S0_ratio          =  S0(n_op,ntau)
-                Flip_value(n)     = - ns
+                S0_ratio          =   S0(n_op,ntau)
+                Flip_value(n)     =   nint( nsigma%flip(n_op,ntau) ) 
              else
-                Flip_value(n)     = NFLIPL(nsigma(n_op,ntau),nranf(3))
+                Flip_value(n)     =   nint( nsigma%flip(n_op,ntau) )
                 T0_Proposal_ratio = 1.d0
                 S0_ratio          = 1.d0
              endif

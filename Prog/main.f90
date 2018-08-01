@@ -13,7 +13,7 @@
 !     You should have received a copy of the GNU General Public License
 !     along with ALF.  If not, see http://www.gnu.org/licenses/.
 !     
-!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms: 
 !     
 !     - It is our hope that this program makes a contribution to the scientific community. Being
 !       part of that community we feel that it is reasonable to require you to give an attribution
@@ -50,9 +50,10 @@ Program Main
         Use Tau_m_mod
         Use Tau_p_mod
         Use Hop_mod
-        Use Global_mod
+        !Use Global_mod
         Use UDV_State_mod
         Use Wrapgr_mod
+        Use Fields_mod
 #ifdef MPI
         Use mpi
 #endif
@@ -116,7 +117,7 @@ Program Main
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau
 
 
-        Integer :: Ierr, I,nf, nst, n
+        Integer :: Ierr, I,nf, nst, n, N_op
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
         Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8
         Integer, dimension(:), allocatable :: Stab_nt
@@ -158,7 +159,7 @@ Program Main
            Write (6,*) "mpi_per_parameter_set is not a multiple of total mpi processes"
            stop
         endif
-        Call Global_Tempering_setup
+        !Call Global_Tempering_setup
 #elif !defined(TEMPERING)  && defined(MPI)
         mpi_per_parameter_set = Isize
 #elif defined(TEMPERING)  && !defined(MPI)
@@ -220,7 +221,6 @@ Program Main
 #endif
         
  
-        Call Op_SetHS
         Call Ham_set
         log=.false.
         if(Projector) then
@@ -252,8 +252,13 @@ Program Main
            N_Global_tau        = 0
         endif
 
-        
-        Call confin 
+        N_op = Size(OP_V,1)
+        allocate(nsigma)
+        call nsigma%make(N_op, Ltrot)
+        Do n = 1,N_op
+           nsigma%t(n)  = OP_V(n,1)%type
+        Enddo
+        Call nsigma%in(Group_Comm)
         Call Hop_mod_init
 
         IF (ABS(CPU_MAX) > Zero ) NBIN = 10000000
@@ -346,6 +351,8 @@ Program Main
 #endif
         if (log) stop
 
+
+        
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
@@ -388,7 +395,7 @@ Program Main
 #ifdef MPI 
         !WRITE(6,*) 'Phase is: ', Irank, PHASE, GR(1,1,1)
 #else
-        !WRITE(6,*) 'Phase is: ',  PHASE
+        !WRITE(6,*) 'Phase is: ',  PHASE  
 #endif
 
 
@@ -415,7 +422,7 @@ Program Main
               endif
 #endif
               ! Global updates
-              If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
+              !If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
               
               ! Propagation from 1 to Ltrot
               ! Set the right storage to 1
@@ -563,7 +570,7 @@ Program Main
            Call Global_Tempering_Pr
 #endif           
 
-           Call confout
+           Call nsigma%out(Group_Comm)
            
            call system_clock(count_bin_end)
            prog_truncation = .false.

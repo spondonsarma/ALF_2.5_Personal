@@ -110,7 +110,7 @@
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
+                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma%i(n,nt),Ndim,'c')
               enddo
               Call  Hop_mod_mmthlc (udvl(nf)%U,nf)
            ENDDO

@@ -102,7 +102,7 @@
            DO NT = NTAU + 1, NTAU1
               Call Hop_mod_mmthR(UDVR(nf)%U,nf)
               Do n = 1,Size(Op_V,1)
-                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma%i(n,nt),Ndim,'n')
               ENDDO
            ENDDO
 

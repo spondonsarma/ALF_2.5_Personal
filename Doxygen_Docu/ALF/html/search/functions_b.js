@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['phi',['phi',['../structfields__mod_1_1fields.html#a65d65a23d641a9df7ae68fc176fe019c',1,'fields_mod::fields']]],
   ['pivot_5fphase',['pivot_phase',['../namespaceqdrp__mod.html#a1efc8a4f88c2b579031e355fac3967da',1,'qdrp_mod']]],
   ['pr_5fobs',['pr_obs',['../namespacehamiltonian.html#a6e41e35f2eb6cbc0ecb4333731a265a0',1,'hamiltonian']]],
   ['predefined_5fhopping',['predefined_hopping',['../namespacepredefined__structures.html#aefecfbf90c65027137ba05e1ff2027e6',1,'predefined_structures']]],
