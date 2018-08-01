@@ -36,12 +36,64 @@
 !
 !> @brief 
 !> This routine updates the field associated to the operator N_op on time 
-!> slice NT to the value ns_new
-!> if mode = final  the move is  accepted according to T0_proposal_ratio*S0_ratio*Prev_Ratiotot*ratio 
-!> and the Green function is updated.
-!> if mode = intermediate the move is carried our deterministically  and the Green function updated.
-!> Also Prev_Ratio = Prev_Ration*ratio
-!> The ratio is computed in the routine.
+!> slice NT to the value ns_new.
+!> @details
+!> @param [inout] Gr(Ndim,Ndim,N_FL)
+!> Complex    
+!> \verbatim
+!>  Green function.  In the move is accepted, then the Green function will be updated
+!> \endverbatim
+!> @param [in] N_op
+!> Integer
+!> \verbatim
+!>  Operator number
+!> \endverbatim
+!> @param [in] Nt
+!> Integer
+!> \verbatim
+!>  Time slice
+!> \endverbatim
+!> @param [in] Op_dim
+!> Integer
+!> \verbatim
+!>  Number of non-zero eigenvalues of the Operator OP_V(N_op,Nt)  
+!> \endverbatim
+!> @param [in] nsigma_new
+!> Class(Fields)
+!> \verbatim
+!>  nsigma_new contains the new field. Note nsigma_new%f is a array of dimension  nsigma_new%f(1,1)
+!> \endverbatim
+!> @param [in] Mode
+!>  Character (Len=64) 
+!> \verbatim
+!>  If  Mode=Intermediate  then the routine cumulates the fermion weight ratio in the variable
+!>                         Prev_Ratiotot and updates the green function. 
+!>  If  Mode=Final         then the routine carries out the move and updates the Green function if accepted
+!> \endverbatim
+!> @param [inout] Prev_Ratiotot
+!>  Complex
+!> \verbatim
+!>  Prev_Ratiotot = Prev_Ratiotot*Ratiotot.  Ratiotot corresponds to the ratio of the fermion weights.
+!> \endverbatim
+!> @param [in] S0_ratio,  T0_proposal_ratio
+!>  Real 
+!> \verbatim
+!>  If the mode is set to final then Weight = S0_Ratio*T0_proposal_ratio*Abs(Real(Ratiotot))
+!> \endverbatim
+!>  *  S0_ratio corresponds to ratio of the bosonic part of the action \f$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} \f$
+!>  *  T0_proposal_ratio corresponds to the proposal probability ratio 
+!>   \f$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} \f$
+!> @param [inout] toggle
+!>  Logical 
+!> \verbatim
+!>  Returns true if the move is accepted 
+!> \endverbatim
+!> @param [inout] Phase
+!>  Complex
+!> \verbatim
+!>  If mode=final and the move is accepted then phase is updated.
+!> \endverbatim
+!>  *  The phase is defeined as  \f$ e^{i \phi'}  = \frac{W(C')}{| W(C')|} \f$  where \f$ W(C') \f$ is the full fermion weight.
 !> 
 !--------------------------------------------------------------------
 
@@ -54,14 +106,14 @@
         Use Fields_mod
         Implicit none 
         
-        Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
-        Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-        Integer, INTENT(IN)       :: N_op, Nt, Op_dim
-        Complex (Kind=Kind(0.d0)) :: Phase
-        Integer                   :: ns_new
-        Real    (Kind=Kind(0.d0)) :: S0_ratio, T0_proposal_ratio
-        Character (Len=64)        :: Mode
-        Logical                   :: toggle
+        Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
+        Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
+        Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
+        Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
+        Integer                  , INTENT(IN)    :: ns_new
+        Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
+        Character (Len=64)       , INTENT(IN)    :: Mode
+        Logical                  , INTENT(INOUT) :: toggle
         
         
         

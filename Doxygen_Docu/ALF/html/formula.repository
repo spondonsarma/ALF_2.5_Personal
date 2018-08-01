@@ -29,3 +29,7 @@
 \form#28:$ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) }, \phi_{n,\tau}(\pm 2) = \pm \sqrt{2 ( 3 + \sqrt{6} ) } $
 \form#29:$ For type=3 the fields, f are real and $
 \form#30:\[ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) }, \phi_{n,\tau}(\pm 2) = \pm \sqrt{2 ( 3 + \sqrt{6} ) } \]
+\form#31:$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $
+\form#32:$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $
+\form#33:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
+\form#34:$ W(C') $

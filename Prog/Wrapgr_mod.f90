@@ -48,6 +48,7 @@ Module Wrapgr_mod
   Use Operator_mod
   Use Control
   Use Random_Wrap
+  Use Fields_mod
 
   Implicit none
 
