@@ -487,7 +487,6 @@
           Integer :: nf, I, I1, I2,  nc, nc1,  J
           Real (Kind=Kind(0.d0)) :: X
 
-          Call Fields_init()
           
           Select case (Model)
           Case ("Hubbard_SU2")  

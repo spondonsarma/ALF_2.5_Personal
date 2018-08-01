@@ -57,9 +57,9 @@
        
        Public Fields
        Public Fields_init
-       Real (Kind=Kind(0.d0)), Public   :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
        
        Private
+       Real (Kind=Kind(0.d0))  :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
        Real (Kind=Kind(0.d0))  :: Del, FLIP_st(-2:2,3)
        
        Type Fields
@@ -73,7 +73,7 @@
           procedure  :: in    => Fields_in
           procedure  :: i     => Fields_get_i
           procedure  :: Phi   => Fields_Phi
-          procedure  :: Gaml  => Fields_Gama
+          procedure  :: Gama  => Fields_Gama
           procedure  :: Flip  => Fields_Flip
        END TYPE Fields
     

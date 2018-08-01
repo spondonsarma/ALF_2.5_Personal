@@ -220,7 +220,7 @@ Program Main
         CALL MPI_BCAST(N_Global_tau       ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
 #endif
         
- 
+        Call Fields_init()
         Call Ham_set
         log=.false.
         if(Projector) then
