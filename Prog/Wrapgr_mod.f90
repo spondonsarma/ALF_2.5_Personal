@@ -116,9 +116,9 @@ Contains
     INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
 
     !Local 
-    Integer :: nf, N_Type, NTAU1,X,n, m, Flip_value(1)
+    Integer :: nf, N_Type, NTAU1,n, m, Flip_value(1)
     Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio
+    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
     
@@ -130,9 +130,9 @@ Contains
     Enddo
     Do n = Nt_sequential_start,Nt_sequential_end
        Do nf = 1, N_FL
-          X = nsigma%i(n,ntau1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
+          spin = nsigma%i(n,ntau1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
           N_type = 1
-          Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+          Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
        enddo
        nf = 1
        T0_proposal       = 1.5D0
@@ -157,7 +157,7 @@ Contains
        Endif
        do nf = 1,N_FL
           N_type =  2
-          Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+          Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
        enddo
     Enddo
 
@@ -215,9 +215,9 @@ Contains
     INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
     
     ! Local
-    Integer :: nf, N_Type, n, spin, m, Flip_value(1)
+    Integer :: nf, N_Type, n, m, Flip_value(1)
     Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio
+    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
 
@@ -233,7 +233,7 @@ Contains
     Do n =  Nt_sequential_end, Nt_sequential_start, -1
        N_type = 2
        nf = 1
-       spin = nsigma%i(n,ntau) !Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+       spin = nsigma%i(n,ntau) 
        do nf = 1,N_FL
           Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), spin, Ndim, N_Type)
        enddo
@@ -301,8 +301,8 @@ Contains
     Integer, INTENT(IN) :: m,m1, ntau
 
     !Local 
-    Integer :: n, nf, N_Type,  X
-!     Real (Kind=Kind(0.d0)) ::
+    Integer :: n, nf, N_Type 
+    Real (Kind=Kind(0.d0)) :: spin
 
     If (m == m1)  then 
        return
@@ -310,13 +310,13 @@ Contains
        !Write(6,*) "Wrapup from ",  m + 1, "to",  m1, " on tau=",  ntau
        Do n = m+1,m1
           Do nf = 1, N_FL
-             X = nsigma%i(n,ntau) !Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+             spin = nsigma%f(n,ntau) 
              N_type = 1
-             Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+             Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
           enddo
           do nf = 1,N_FL
              N_type =  2
-             Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+             Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
           enddo
        Enddo
     elseif  (m1 < m ) then
@@ -324,16 +324,16 @@ Contains
        Do n =  m, m1+1 ,-1 
           N_type = 2
           nf = 1
-          X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+          spin = nsigma%f(n,ntau) 
           do nf = 1,N_FL
-             Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), X, Ndim, N_Type)
+             Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), spin, Ndim, N_Type)
           enddo
           !Write(6,*) 'Upgrade : ', ntau,n 
           nf = 1
-          X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+          spin = nsigma%f(n,ntau) 
           N_type = 1
           do nf = 1,N_FL
-             Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), X, Ndim, N_Type )
+             Call Op_Wrapdo( Gr(:,:,nf), Op_V(n,nf), spin, Ndim, N_Type )
           enddo
        enddo
     endif
@@ -399,8 +399,8 @@ Contains
 
 
     ! Space for local variables
-    Integer                   :: n, Flip_length, nf, N_Type, ng_c, Flip_count, X
-    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, T0_proposal,S0_ratio
+    Integer                   :: n, Flip_length, nf, N_Type, ng_c, Flip_count
+    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, T0_proposal,S0_ratio, X
     COMPLEX (Kind=Kind(0.d0)) :: Prev_Ratiotot 
     Logical                   :: Acc
     Character (Len=64)        :: Mode
@@ -430,14 +430,14 @@ Contains
              !Write(6,*)  "Back from PlaceGR",  m, n-1,ntau
              If ( Flip_count == 1 .and. Flip_length > 1 ) GR_st = Gr
              Do nf = 1, N_FL
-                X = nsigma%i(n,ntau)!Phi(nsigma(n,ntau),Op_V(n,nf)%type)
+                X = nsigma%f(n,ntau) 
                 N_type = 1
                 Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
              enddo
              nf = 1
              If (Flip_count <  Flip_length)  then 
                 mode = "Intermediate"
-                Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
+                Call Upgrade2(GR,n,ntau,PHASE, Op_V(n,nf)%N_non_Zero, Flip_value(Flip_count), &
                      &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
                 do nf = 1,N_FL
                    N_type =  2
