@@ -172,13 +172,15 @@
 
 
       Subroutine Ham_Set
-#ifdef MPI
+#if defined (MPI) || defined(TEMPERING)
           Use mpi
 #endif
           Implicit none
 
           integer                :: ierr, N_part
           Real (Kind=Kind(0.d0)) :: Degen
+          Character (len=64) :: file_info, file_para
+          
           
           ! L1, L2, Lattice_type, List(:,:), Invlist(:,:) -->  Lattice information
           ! Ham_T, Chem, Phi_X, XB_B, Checkerboard, Symm   -->  Hopping
@@ -197,7 +199,8 @@
           NAMELIST /VAR_t_V/      ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
 
 #ifdef MPI
-          Integer        :: Isize, Irank
+          Integer        :: Isize, Irank, irank_g, isize_g, igroup
+          Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
           ! Global "Default" values.
           N_SUN        = 1
@@ -211,35 +214,56 @@
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-          If (Irank == 0 ) then
+          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
+          call MPI_Comm_size(Group_Comm, isize_g, ierr)
+          igroup           = irank/isize_g
+          !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
-             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+          ! Open files
+#if defined(MPI) 
+          If (Irank_g == 0 ) then
+#endif
+             File_para = "parameters"
+             File_info = "info"
+#if defined(TEMPERING) 
+             write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
+             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
+#endif
+
+             OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
+             OPEN(Unit = 50,file=file_info,status="unknown",position="append")
+#ifdef MPI
+          Endif
+#endif
+
+
+#ifdef MPI
+          If (Irank_g == 0 ) then
+#endif
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
                 STOP
              END IF
              READ(5,NML=VAR_lattice)
-             CLOSE(5)
  
 #ifdef MPI
           Endif
-          CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(XB_X        ,1  ,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
-          CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
-          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,MPI_COMM_WORLD,IERR)
-          CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
+          CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(XB_X        ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
 #endif
           
           Call Predefined_Latt(Lattice_type, L1,L2,Norb,N_coord,Ndim, List,Invlist,Latt)
 
 #ifdef MPI
-          If (Irank == 0) then
+          If (Irank_g == 0) then
 #endif
-             Open (Unit = 50,file="info",status="unknown",position="append")
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
@@ -250,21 +274,11 @@
              Endif
              Write(50,*) 'Checkerboard  : ', Checkerboard
              Write(50,*) 'Symm. decomp  : ', Symm
-             Close(50)
 #ifdef MPI
           Endif
 #endif
 
 
-          
-#ifdef MPI
-          If (Irank == 0 ) then
-#endif
-             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-             OPEN(Unit = 50,file="info",status="unknown",position="append")
-#ifdef MPI
-          Endif
-#endif
 
           Projector = .false.
           Theta = 0.d0
@@ -274,7 +288,7 @@
              N_FL  = 2
              N_SUN = 1
 #ifdef MPI
-             If (Irank == 0 ) then
+             If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_Hubbard)
                 Ltrot = nint(beta/dtau)
@@ -298,20 +312,20 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
 #endif
           Case ("Hubbard_SU2")
              N_FL = 1
              N_SUN = 2
 #ifdef MPI
-             If (Irank == 0 ) then
+             If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_Hubbard)
                 Ltrot = nint(beta/dtau)
@@ -348,7 +362,7 @@
              N_FL = 1
              N_SUN = 2
 #ifdef MPI
-             If (Irank == 0 ) then
+             If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_Ising)
                 Ltrot = nint(beta/dtau)
@@ -379,23 +393,23 @@
                 Stop
              Endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,Group_Comm,ierr)
 #endif
              Call Setup_Ising_action
           Case ("t_V")
              N_FL  = 1
 #ifdef MPI
-             If (Irank == 0 ) then
+             If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_t_V )
                 Ltrot = nint(beta/dtau)
@@ -419,14 +433,14 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(ham_tV   ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_tV   ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
 #endif
           Case default 
              Write(6,*) "Model not yet implemented!"
@@ -445,15 +459,24 @@
                   &                                  N_part, N_FL,  Degen, WF_L, WF_R)
 
 #ifdef MPI
-             If (Irank == 0 ) then
+             If (Irank_g == 0 ) then
 #endif
                 Write(50,*) 'Degen of trial wave function: ', Degen
 #ifdef MPI
              Endif
 #endif             
-                
-          endif
              
+          endif
+
+#ifdef MPI
+          If (Irank_g == 0 )  then
+#endif
+             close(50)
+             Close(5)
+#ifdef MPI
+          endif
+#endif
+
 
 ! #ifdef MPI
 !           If (Irank == 0 )  then
@@ -807,7 +830,68 @@
           !> Arguments
           Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
 
-          Delta_S0_global = 0.d0
+          !> Local
+          Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
+         
+
+          Delta_S0_global = 1.d0
+          If ( Model == "Hubbard_SU2_Ising" ) then
+             nc_F = 0
+             nc_J = 0
+             nc_h_p = 0
+             nc_h_m = 0
+             Do I = 1,Latt%N
+                n1  = L_bond(I,1)
+                n2  = L_bond(Latt%nnlist(I,1,0),2)
+                n3  = L_bond(Latt%nnlist(I,0,1),1)
+                n4  = L_bond(I,2)
+                do nt = 1,Ltrot
+                   nt1 = nt +1 
+                   if (nt == Ltrot) nt1 = 1
+                   if (nsigma(n1,nt) == nsigma(n1,nt1) ) then 
+                      nc_h_p = nc_h_p + 1
+                   else
+                      nc_h_m = nc_h_m + 1
+                   endif
+                   if (nsigma_old(n1,nt) == nsigma_old(n1,nt1) ) then 
+                      nc_h_p = nc_h_p - 1
+                   else
+                      nc_h_m = nc_h_m - 1
+                   endif
+
+                   if (nsigma(n4,nt) == nsigma(n4,nt1) ) then 
+                      nc_h_p = nc_h_p + 1
+                   else
+                      nc_h_m = nc_h_m + 1
+                   endif
+                   if (nsigma_old(n4,nt) == nsigma_old(n4,nt1) ) then 
+                      nc_h_p = nc_h_p - 1
+                   else
+                      nc_h_m = nc_h_m - 1
+                   endif
+                   
+                   nc_F = nc_F + nsigma    (n1,nt)*nsigma    (n2,nt)*nsigma    (n3,nt)*nsigma    (n4,nt)  &
+                        &      - nsigma_old(n1,nt)*nsigma_old(n2,nt)*nsigma_old(n3,nt)*nsigma_old(n4,nt) 
+                   
+                   nc_J = nc_J + nsigma(n1,nt)*nsigma(n2,nt) + &
+                        &        nsigma(n2,nt)*nsigma(n3,nt) + &
+                        &        nsigma(n3,nt)*nsigma(n4,nt) + &
+                        &        nsigma(n4,nt)*nsigma(n1,nt) - &
+                        &        nsigma_old(n1,nt)*nsigma_old(n2,nt) - &
+                        &        nsigma_old(n2,nt)*nsigma_old(n3,nt) - &
+                        &        nsigma_old(n3,nt)*nsigma_old(n4,nt) - &
+                        &        nsigma_old(n4,nt)*nsigma_old(n1,nt) 
+                   
+                enddo
+             enddo
+             !             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
+             !                  &            exp( -Dtau*(Ham_F*real(nc_F,kind(0.d0)) -  Ham_J*real(nc_J,kind(0.d0))))
+             ! No flux in example code. May want to include it.
+             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
+                  &            exp( Dtau* Ham_J*real(nc_J,kind(0.d0)))
+             !Write(6,*) Delta_S0_global
+          endif
+
 
         end Function Delta_S0_global
         
