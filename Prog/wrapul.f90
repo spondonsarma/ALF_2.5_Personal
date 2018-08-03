@@ -70,11 +70,11 @@
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultL(Tmp,Op_V(n,nf),nsigma%f(n,nt),'n')
+                 Call Op_mmultL(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
               enddo
               !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
               Call  Hop_mod_mmthl (Tmp,nf)
-              ! Tmp = Tmp1
+!               Tmp = Tmp1
            ENDDO
            
            !Carry out U,D,V decomposition.
@@ -110,7 +110,7 @@
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma%f(n,nt),'c')
+                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma%i(n,nt),Ndim,'c')
               enddo
               Call  Hop_mod_mmthlc (udvl(nf)%U,nf)
            ENDDO

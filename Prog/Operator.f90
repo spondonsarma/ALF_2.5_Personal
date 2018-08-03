@@ -135,24 +135,17 @@ Contains
 !> @brief 
 !> calculate the phase of a given set of operators and HS fields.
 !
-!> @param[inout] Phase  Complex
-!> * On entry: phase of \f$ \det M(C) \f$
-!> * On exit:  phase of  \f$ W(C)  =   \left[ \left( \prod_{n,\tau}  \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) \f$ 
-!> @param[in] Op_V    Type(Operator)
-!> * List of interaction operators.
-!> @param[in] Nsigma 
-!> Class(Fields)
-!> * Fields
-!> @param[in] N_SUN
-!> Integer
-!> * Number of colors
+!> @param[inout] Phase
+!> @param[in] Op_V An array of Operators
+!> @param[in] Nsigma
+!> @param[in] N_SUN 
 !--------------------------------------------------------------------
   Subroutine  Op_phase(Phase,OP_V,Nsigma,N_SUN) 
     Implicit none
 
     Complex  (Kind=Kind(0.d0)), Intent(Inout) :: Phase
     Integer,           Intent(IN)    :: N_SUN
-    Class (Fields),    Intent(IN)    :: Nsigma
+    Class (Fields),    Intent(In)    :: Nsigma
     Type (Operator),   dimension(:,:), Intent(In) :: Op_V
     Real  (Kind=Kind(0.d0))                       :: angle
     
@@ -174,7 +167,7 @@ Contains
 !> @author
 !> 
 !> @brief 
-!> Set up _core_ data of the operator required for type=0 operators
+!> Set up _some_ data of the operator.
 !
 !> @param[inout] Op
 !> @param[in] N 
@@ -184,10 +177,12 @@ Contains
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
-    Allocate (Op%O(N,N), Op%P(N) )
+    Allocate (Op%O(N,N), Op%U(N,N), Op%E(N), Op%P(N) )
     ! F.F.A  Op%M_exp and Op%E_exp are allocated  in Op_set once the type is available.
     
     Op%O = cmplx(0.d0, 0.d0, kind(0.D0))
+    Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
+    Op%E = 0.d0
     Op%P = 0
     Op%N = N
     Op%N_non_zero = N
@@ -198,34 +193,17 @@ Contains
   end subroutine Op_make
 
 !--------------------------------------------------------------------
-!> @author
-!> 
-!> @brief 
-!> Deallocate the operator
-!
-!> @param[inout] Op
-!> @param[in] N 
-!--------------------------------------------------------------------
 
   Pure subroutine Op_clear(Op,N)
     Implicit none
     Type (Operator), intent(INOUT) :: Op
     Integer, Intent(IN) :: N
-    Deallocate (Op%O, Op%P )
-
-    If ( Op%Type >= 1)   deallocate(OP%M_exp,OP%E_exp,  OP%U, OP%E)
-
-  end subroutine Op_clear
+    Deallocate (Op%O, Op%U, Op%E, Op%P )
+    If ( Op%type == 1 .or. Op%type == 2 ) deallocate (  OP%M_exp, OP%E_exp)
+  end subroutine Op_clear 
 
 !--------------------------------------------------------------------
-!> @author
-!> 
-!> @brief 
-!> Setup storage for type=1,2 and 3 vertices.  Setup the exponential of the operator for
-!> type 1 and 2
-!
-!> @param[inout] Op  Type (Operator)
-!--------------------------------------------------------------------
+
   subroutine Op_set(Op)
     Implicit none
     Type (Operator), intent(INOUT) :: Op
@@ -242,11 +220,11 @@ Contains
 
     Call nsigma_single%make(1,1)
 
-
-    N = OP%N
-    Allocate ( Op%U(N,N), Op%E(N) )
-    Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
-    Op%E = 0.d0
+    !Phi = 0.d0
+    !Phi(-2) = - SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
+    !Phi(-1) = - SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+    !Phi( 1) =   SQRT(2.D0 * ( 3.D0 - SQRT(6.D0) ) )
+    !Phi( 2) =   SQRT(2.D0 * ( 3.D0 + SQRT(6.D0) ) )
     
     If (Op%N > 1) then
        N = Op%N
@@ -350,23 +328,16 @@ Contains
 !> @author
 !> The ALF Project contributors
 !
-!> @brief
-!> Calculate the exponentiated operator and returns the full matrix.
-!>
-!> @details
-!> It is assumed that  the U and E arrays of the
-!> operator are present.
-!> @param[in]  g  Complex
-!> @param[in]  Op Type(Operator)
-!> @param[out]
-!> Mat   Complex, Dimension(:,:)
-!> * On output  \f$ M = e^{g O} \f$
+!> @brief This calculates the exponentiated operator and returns a full matrix
+!<        representation: Mat = U exp(E) U^\dagger
 !
+!> @param[in]  g 
+!> @param[in]  Op 
+!> @param[out] Mat The full matrix of the exponentiated operator.
 !--------------------------------------------------------------------
-  Subroutine Op_exp(g,Op,Mat)
 
+  Pure subroutine Op_exp(g,Op,Mat)
     Implicit none 
-
     Type (Operator), Intent(IN)  :: Op
     Complex (Kind=Kind(0.d0)), Dimension(:,:), INTENT(OUT) :: Mat
     Complex (Kind=Kind(0.d0)), INTENT(IN) :: g
@@ -405,35 +376,26 @@ Contains
 
 !--------------------------------------------------------------------
 !> @author
-!> The ALF Project contributors
+!> 
 !
 !> @brief 
-!> Out Mat = Mat* Op ( exp(spin*g* P^T O T) )
+!> Out Mat = Mat*exp(spin*Op)
 !
-!> @param[inout] Mat Complex Dimension(:,:)
-!> * On exit Mat = Mat*Op ( exp(spin*g* P^T O T) )
-!> @param[in] Op Type(Operator)
-!> * The Operator containing g and the sparse matrix P^T O P 
-!> @param[in] spin Real
-!> * The field
-!> @param[in] cop  Character
-!> * cop = N,  Op = None
-!> * cop = T,  Op = Transposed
-!> * cop = C,  Op = Transposed + Complex conjugation
-!> 
-  
+!> @param[inout] Mat
+!> @param[in] Op The Operator that we exponentiate
+!> @param[in] spin The spin direction that we consider
+!> @param[in] Ndim The dimension of the matrix Mat
 !--------------------------------------------------------------------
-  subroutine Op_mmultL(Mat,Op,spin,cop)
+  subroutine Op_mmultL(Mat,Op,spin,Ndim,cop)
     Implicit none 
     Integer :: Ndim
-    Type (Operator)          , INTENT(IN)    :: Op
+    Type (Operator) , INTENT(IN)   :: Op
     Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (:,:)
-    Real    (Kind=Kind(0.d0)), INTENT(IN)    :: spin
-    Character                , Intent(IN)    :: cop
+    Integer, INTENT(IN)   :: spin
+    Character, Intent(IN) :: cop
 
     ! Local 
-    Integer :: I, N1, N2, sp
-    Complex (Kind=Kind(0.d0)) :: ExpMat (Op%n,Op%n)
+    Integer :: I, N1, N2
     
     N1=size(Mat,1)
     N2=size(Mat,2)
@@ -443,67 +405,43 @@ Contains
     
     ! quick return if possible
     if ( abs(OP%g) < 1.D-12 ) return
-
-    if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
-       sp = nint(spin)
-       if ( Op%diag ) then
-          do I=1,Op%N
-             if ( cop == 'c' .or. cop =='C' ) then
-                call ZSCAL(N1,conjg(Op%E_exp(I,sp)),Mat(1,Op%P(I)),1)
-             else
-                call ZSCAL(N1,Op%E_exp(I,sp),Mat(1,Op%P(I)),1)
-             endif
-          enddo
-       else
-          call ZSLGEMM('r',cop,Op%N,N1,N2,Op%M_exp(:,:,sp),Op%P,Mat)
-       endif
+        
+    if ( Op%diag ) then
+      do I=1,Op%N
+        if ( cop == 'c' .or. cop =='C' ) then
+          call ZSCAL(N1,conjg(Op%E_exp(I,spin)),Mat(1,Op%P(I)),1)
+        else
+          call ZSCAL(N1,Op%E_exp(I,spin),Mat(1,Op%P(I)),1)
+        endif
+      enddo
     else
-       if ( Op%diag ) then
-          do I=1,Op%N
-             if ( cop == 'c' .or. cop =='C' ) then
-                call ZSCAL(N1,conjg(exp(spin*Op%g*Op%E(I))),Mat(1,Op%P(I)),1)
-             else
-                call ZSCAL(N1,exp(spin*Op%g*Op%E(I)),Mat(1,Op%P(I)),1)
-             endif
-          enddo
-       else
-          call Op_exp(Op%g*spin,Op,expmat)
-          call ZSLGEMM('r',cop,Op%N,N1,N2,expmat,Op%P,Mat)
-       endif
+      call ZSLGEMM('r',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultL
 
 !--------------------------------------------------------------------
 !> @author
-!> The ALF Project contributors
 !>
-!> @brief 
-!> Out Mat =  Op ( exp(spin*g* P^T O T) ) * Mat
 !
-!> @param[inout] Mat Complex Dimension(:,:)
-!> * On exit Mat = Op ( exp(spin*g* P^T O T) )* Mat
-!> @param[in] Op Type(Operator)
-!> * The Operator containing g and the sparse matrix P^T O P 
-!> @param[in] spin Real
-!> * The field
-!> @param[in] cop  Character
-!> * cop = N,  Op = None
-!> * cop = T,  Op = Transposed
-!> * cop = C,  Op = Transposed + Complex conjugation
-!> 
+!> @brief 
+!> Out Mat = exp(spin*Op)*Mat
+!
+!> @param[inout] Mat
+!> @param[in] Op The Operator that we exponentiate
+!> @param[in] spin The spin direction that we consider
+!> @param[in] Ndim The dimension of the matrix Mat
 !--------------------------------------------------------------------
-  subroutine Op_mmultR(Mat,Op,spin,cop)
+  subroutine Op_mmultR(Mat,Op,spin,Ndim,cop)
     Implicit none
-    Type (Operator)          , INTENT(IN )   :: Op
+    Integer :: Ndim
+    Type (Operator) , INTENT(IN )   :: Op
     Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (:,:)
-    Real    (Kind=Kind(0.d0)), INTENT(IN )   :: spin
-    Character                , Intent(IN)    :: cop
+    Integer, INTENT(IN )   :: spin
+    Character, Intent(IN) :: cop
 
     ! Local 
-    Integer :: I, N1, N2, sp
-    Complex (Kind=Kind(0.d0)) :: ExpMat (Op%n,Op%n)
-
+    Integer :: I, N1, N2
+    
     N1=size(Mat,1)
     N2=size(Mat,2)
     
@@ -512,149 +450,67 @@ Contains
     
     ! quick return if possible
     if ( abs(OP%g) < 1.D-12 ) return
-
-    if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
-       sp = nint(spin)
-       if ( Op%diag ) then
-          do I=1,Op%N
-             if ( cop == 'c' .or. cop =='C' ) then
-                call ZSCAL(N2,conjg(Op%E_exp(I,sp)),Mat(Op%P(I),1),N1)
-             else
-                call ZSCAL(N2,Op%E_exp(I,sp),Mat(Op%P(I),1),N1)
-             endif
-          enddo
-       else
-          call ZSLGEMM('L',cop,Op%N,N1,N2,Op%M_exp(:,:,sp),Op%P,Mat)
-       endif
+        
+    if ( Op%diag ) then
+      do I=1,Op%N
+        if ( cop == 'c' .or. cop =='C' ) then
+          call ZSCAL(N2,conjg(Op%E_exp(I,spin)),Mat(Op%P(I),1),N1)
+        else
+          call ZSCAL(N2,Op%E_exp(I,spin),Mat(Op%P(I),1),N1)
+        endif
+      enddo
     else
-       if ( Op%diag ) then
-          do I=1,Op%N
-             if ( cop == 'c' .or. cop =='C' ) then
-                call ZSCAL(N2,conjg(exp(spin*Op%g*Op%E(I))),Mat(Op%P(I),1),N1)
-             else
-                call ZSCAL(N2,exp(spin*Op%g*Op%E(I)),Mat(Op%P(I),1),N1)
-             endif
-          enddo
-       else
-          call Op_exp(Op%g*spin,Op,expmat)
-          call ZSLGEMM('L',cop,Op%N,N1,N2,expmat,Op%P,Mat)
-       endif
+      call ZSLGEMM('L',cop,Op%N,N1,N2,Op%M_exp(:,:,spin),Op%P,Mat)
     endif
   end subroutine Op_mmultR
 
 !--------------------------------------------------------------------
-!> @author
-!> The ALF Project contributors
-!>
-!> @brief 
-!> Wrapup the Green function
-!>
-!> @param[inout] Mat(Ndim,Ndim)  Complex
-!> \verbatim
-!>  N_type = 1, Mat = exp(Op%g*spin*Op%E)*(Op%U^{dagger}) * Mat * Op%U*exp(-Op%g*spin*Op%E)
-!>  N_type = 2, Mat = Op%U * Mat * (Op%U^{dagger})
-!> \endverbatim
-!>  **Do not** mix up  \p N_type  and    \p OP\%type 
-!> @param[in] Op Type(Operator)
-!> \verbatim
-!>  The operator containing g, U, P
-!> \endverbatim
-!> @param[in] spin Real
-!> \verbatim
-!>  The field
-!> \endverbatim
-!> @param[in] Ndim Integer
-!> 
-!--------------------------------------------------------------------
+
   Subroutine Op_Wrapup(Mat,Op,spin,Ndim,N_Type)
 
     Implicit none 
 
     Integer :: Ndim
-    Type (Operator)           , INTENT(IN )   :: Op
-    Complex (Kind=Kind(0.d0)) , INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real    (Kind=Kind(0.d0)) , INTENT(IN )   :: spin
-    Integer                   , INTENT(IN)    :: N_Type
+    Type (Operator) , INTENT(IN )   :: Op
+    Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
+    Integer, INTENT(IN )   :: spin
+    Integer, INTENT(IN)    :: N_Type
 
     ! Local 
     Complex (Kind=Kind(0.d0)) :: VH1(Op%N,Op%N)
-    Integer :: I,sp
-
-    if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
-       sp = nint(spin)
-       If (N_type == 1) then
-          if(Op%diag) then
-             do I=1,Op%N
-                call ZSCAL(Ndim,Op%E_Exp(I,sp),Mat(Op%P(I),1),Ndim)
-             enddo
-             do I=1,Op%N
-                call ZSCAL(Ndim,Op%E_Exp(I,-sp),Mat(1,Op%P(I)),1)
-             enddo
-          else
-             Do i = 1,Op%N
-                VH1(:,i)=Op%U(:,i)*Op%E_Exp(I,-sp)
-             Enddo
-             call ZSLGEMM('r','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-             Do i = 1,Op%N
-                VH1(:,i)=Op%E_Exp(I, sp)*conjg(Op%U(:,i))
-             Enddo
-             call ZSLGEMM('l','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-          endif
-       elseif (N_Type == 2 .and. .not. Op%diag) then
-          call ZSLGEMM('l','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-          call ZSLGEMM('r','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-       endif
-    else
-       If (N_type == 1) then
-          if(Op%diag) then
-             do I=1,Op%N
-                call ZSCAL(Ndim,exp( spin*Op%g*Op%E(I)),Mat(Op%P(I),1),Ndim)
-             enddo
-             do I=1,Op%N
-                call ZSCAL(Ndim,exp(-spin*Op%g*Op%E(I)),Mat(1,Op%P(I)),1)
-             enddo
-          else
-             Do i = 1,Op%N
-                VH1(:,i)=Op%U(:,i)*exp(-spin*Op%g*Op%E(I)) 
-             Enddo
-             call ZSLGEMM('r','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-             Do i = 1,Op%N
-                VH1(:,i)=exp(spin*Op%g*Op%E(I))*conjg(Op%U(:,i))
-             Enddo
-             call ZSLGEMM('l','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-          endif
-       elseif (N_Type == 2 .and. .not. Op%diag) then
-          call ZSLGEMM('l','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-          call ZSLGEMM('r','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-       endif
+    Integer :: I
+    
+    !!!!! N_Type ==1
+    !    exp(Op%g*spin*Op%E)*(Op%U^{dagger})*Mat*Op%U*exp(-Op%g*spin*Op%E)
+    !    
+    !!!!!
+    !!!!! N_Type == 2
+    !    Op%U * Mat * (Op%U^{dagger})
+    !!!!!
+    If (N_type == 1) then
+      if(Op%diag) then
+        do I=1,Op%N
+          call ZSCAL(Ndim,Op%E_Exp(I,spin),Mat(Op%P(I),1),Ndim)
+        enddo
+        do I=1,Op%N
+          call ZSCAL(Ndim,Op%E_Exp(I,-spin),Mat(1,Op%P(I)),1)
+        enddo
+      else
+        Do i = 1,Op%N
+          VH1(:,i)=Op%U(:,i)*Op%E_Exp(I,-spin)
+        Enddo
+        call ZSLGEMM('r','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
+        Do i = 1,Op%N
+          VH1(:,i)=Op%E_Exp(I, spin)*conjg(Op%U(:,i))
+        Enddo
+        call ZSLGEMM('l','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
+      endif
+    elseif (N_Type == 2 .and. .not. Op%diag) then
+        call ZSLGEMM('l','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
+        call ZSLGEMM('r','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
     endif
   end Subroutine Op_Wrapup
 
-!--------------------------------------------------------------------
-!> @author
-!> The ALF Project contributors
-!>
-!> @brief 
-!> Wrapup the Green function
-!>
-!> @param[inout] Mat(Ndim,Ndim)  Complex
-!> \verbatim
-!>  N_type = 1, Mat = Op%U*exp(-Op%g*spin*Op%E)*Mat*exp(Op%g*spin*Op%E)*(Op%U^{dagger})
-!>  N_type = 2, Mat = (Op%U^{dagger}) * Mat * Op%U
-!> \endverbatim
-!>  **Do not** mix up  \p N_type  and    \p OP\%type 
-!> @param[in] Op Type(Operator)
-!> \verbatim
-!>  The operator containing g, U, P
-!> \endverbatim
-!> @param[in] spin Real
-!> \verbatim
-!>  The field
-!> \endverbatim
-!> @param[in] Ndim Integer
-!> 
 !--------------------------------------------------------------------
 
   Subroutine Op_Wrapdo(Mat,Op,spin,Ndim,N_Type)
@@ -663,61 +519,42 @@ Contains
     Integer :: Ndim
     Type (Operator) , INTENT(IN )   :: Op
     Complex (Kind = Kind(0.D0)), INTENT(INOUT) :: Mat (Ndim,Ndim)
-    Real (Kind=Kind(0.d0)), INTENT(IN )   :: spin
+    Integer, INTENT(IN )   :: spin
     Integer, INTENT(IN) :: N_Type
 
     ! Local 
-    Integer :: n, i, sp
+    Integer :: n, i
     Complex (Kind = Kind(0.D0)) :: VH1(Op%N,OP%N)
 
-    if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
-       sp = nint(spin)
-       If (N_type == 1) then
-          if(Op%diag) then
-             do I=1,Op%N
-                call ZSCAL(Ndim,Op%E_Exp(I,-sp),Mat(Op%P(I),1),Ndim)
-             enddo
-             do I=1,Op%N
-                call ZSCAL(Ndim,Op%E_Exp(I, sp),Mat(1,Op%P(I)),1)
-             enddo
-          else
-             Do n = 1,Op%N
-                VH1(:,n)=Op%U(:,n)*Op%E_Exp(n,-sp)
-             Enddo
-             call ZSLGEMM('l','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-             Do n = 1,Op%N
-                VH1(:,n)=Op%E_Exp(n, sp)*conjg(Op%U(:,n))
-             Enddo
-             call ZSLGEMM('r','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-          endif
-       elseif (N_Type == 2 .and. .not. Op%diag) then
-          call ZSLGEMM('r','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-          call ZSLGEMM('l','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-       endif
-    else
-       If (N_type == 1) then
-          if(Op%diag) then
-             do I=1,Op%N
-                call ZSCAL(Ndim,exp(-spin*Op%g*Op%E(I)),Mat(Op%P(I),1),Ndim)
-             enddo
-             do I=1,Op%N
-                call ZSCAL(Ndim,exp( spin*Op%g*Op%E(I)),Mat(1,Op%P(I)),1)
-             enddo
-          else
-             Do n = 1,Op%N
-                VH1(:,n)=Op%U(:,n)*exp(-spin*Op%g*Op%E(n)) 
-             Enddo
-             call ZSLGEMM('l','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-             Do n = 1,Op%N
-                VH1(:,n)=exp(spin*Op%g*Op%E(n))*conjg(Op%U(:,n))
-             Enddo
-             call ZSLGEMM('r','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
-          endif
-       elseif (N_Type == 2 .and. .not. Op%diag) then
-          call ZSLGEMM('r','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-          call ZSLGEMM('l','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
-       endif
+    !!!!! N_Type == 1
+    !    Op%U*exp(-Op%g*spin*Op%E)*Mat*exp(Op%g*spin*Op%E)*(Op%U^{dagger})
+    !    
+    !!!!!
+    !!!!! N_Type == 2
+    !    (Op%U^{dagger}) * Mat * Op%U
+    !!!!!
+
+    If (N_type == 1) then
+      if(Op%diag) then
+        do I=1,Op%N
+          call ZSCAL(Ndim,Op%E_Exp(I,-spin),Mat(Op%P(I),1),Ndim)
+        enddo
+        do I=1,Op%N
+          call ZSCAL(Ndim,Op%E_Exp(I, spin),Mat(1,Op%P(I)),1)
+        enddo
+      else
+        Do n = 1,Op%N
+          VH1(:,n)=Op%U(:,n)*Op%E_Exp(n,-spin)
+        Enddo
+        call ZSLGEMM('l','n',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
+        Do n = 1,Op%N
+          VH1(:,n)=Op%E_Exp(n, spin)*conjg(Op%U(:,n))
+        Enddo
+        call ZSLGEMM('r','T',Op%n,Ndim,Ndim,VH1,Op%P,Mat)
+      endif
+    elseif (N_Type == 2 .and. .not. Op%diag) then
+      call ZSLGEMM('r','n',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
+      call ZSLGEMM('l','c',Op%n,Ndim,Ndim,Op%U,Op%P,Mat)
     endif
   end Subroutine Op_Wrapdo
 
