@@ -213,7 +213,7 @@ Module Global_mod
                  enddo
               enddo
            endif
-
+           
            CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
            
            If (L_test) then
@@ -244,9 +244,9 @@ Module Global_mod
            !>  Exchange configurations
            n = size(nsigma_old,1)*size(nsigma_old,2)
            CALL MPI_Sendrecv(nsigma_old      , n, MPI_INTEGER, List_partner(IRANK), 0, &
-                    &        nsigma          , n, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+                &        nsigma          , n, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            CALL MPI_Sendrecv(nsigma_old_irank, 1, MPI_INTEGER, List_partner(IRANK), 0, &
-                    &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+                &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            
            !>  Each node now has a new configuration nsigma
            
@@ -256,69 +256,69 @@ Module Global_mod
            
            
            
-    if (Tempering_calc_det) then
-           !>  Compute ratio on weights one each rank
-           DO nf = 1,N_FL
-              if (Projector) then
-                CALL udvl(nf)%reset('l',WF_L(nf)%P)
-              else
-                CALL udvl(nf)%reset('l')
-              endif
-           ENDDO
-              !! Compute detvec for projector
-           Det_Vec_new=0.d0
-           DO NST = NSTM-1,1,-1
-              NT1 = Stab_nt(NST+1)
-              NT  = Stab_nt(NST  )
-              !Write(6,*) NT1,NT, NST
-              CALL WRAPUL(NT1,NT, udvl)
-              Do nf = 1,N_FL
-                 udvst(NST, nf) = udvl(nf)
+           if (Tempering_calc_det) then
+              !>  Compute ratio on weights one each rank
+              DO nf = 1,N_FL
                  if (Projector) then
+                    CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                 else
+                    CALL udvl(nf)%reset('l')
+                 endif
+              ENDDO
+              !! Compute detvec for projector
+              Det_Vec_new=0.d0
+              DO NST = NSTM-1,1,-1
+                 NT1 = Stab_nt(NST+1)
+                 NT  = Stab_nt(NST  )
+                 !Write(6,*) NT1,NT, NST
+                 CALL WRAPUL(NT1,NT, udvl)
+                 Do nf = 1,N_FL
+                    udvst(NST, nf) = udvl(nf)
+                    if (Projector) then
+                       N_part=udvl(nf)%N_part
+                       do n=1,N_part
+#if !defined(LOG)
+                          Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
+#else
+                          Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
+#endif
+                       enddo
+                    endif
+                 ENDDO
+              ENDDO
+              NT1 = stab_nt(1)
+              CALL WRAPUL(NT1,0, udvl)
+              if (Projector) then
+                 Do nf = 1,N_FL
                     N_part=udvl(nf)%N_part
                     do n=1,N_part
 #if !defined(LOG)
-                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
+                       Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
 #else
-                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
+                       Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
 #endif
                     enddo
-                 endif
-              ENDDO
-           ENDDO
-           NT1 = stab_nt(1)
-           CALL WRAPUL(NT1,0, udvl)
-           if (Projector) then
-              Do nf = 1,N_FL
-                N_part=udvl(nf)%N_part
-                do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                enddo
-              ENDDO
+                 ENDDO
+              endif
+              Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
+              do nf = 1,N_Fl
+                 Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf), nf)
+                 Phase_det_new(nf) = Z
+                 Phase_new = Phase_new*Z
+              Enddo
+              call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
+              
+              T0_Proposal_ratio = 1.d0
+              Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
+                   &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
+              
+              If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
+           else
+              Ratiotot = Delta_S0_global(Nsigma_old)
+              Ratio(1) = Ratiotot
+              Ratio(2) = 0
            endif
-           Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf), nf)
-              Phase_det_new(nf) = Z
-              Phase_new = Phase_new*Z
-           Enddo
-           call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
            
-           T0_Proposal_ratio = 1.d0
-           Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-                &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
-           
-           If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
-        else
-           Ratiotot = Delta_S0_global(Nsigma_old)
-           Ratio(1) = Ratiotot
-           Ratio(2) = 0
-        endif
-    
            !>  Acceptace/rejection decision taken on master node after receiving information from slave
            Do nc = 1,Isize/2 ! Loop over masters
               I = List_masters(nc)
@@ -353,11 +353,11 @@ Module Global_mod
            Call Control_upgrade_Temp  (Toggle) 
            If (toggle)  then
               !>     Move has been accepted
-    if (Tempering_calc_det) then
-              Phase_old     = Phase_new
-              Phase_det_old = Phase_det_new
-              Det_vec_old   = Det_vec_new
-    endif
+              if (Tempering_calc_det) then
+                 Phase_old     = Phase_new
+                 Phase_det_old = Phase_det_new
+                 Det_vec_old   = Det_vec_new
+              endif
               nsigma_old       = nsigma
               nsigma_old_irank = nsigma_irank
            else
@@ -367,86 +367,86 @@ Module Global_mod
         enddo
         
         !> Finalize
-    if (Tempering_calc_det) then
-        !> If move has been accepted, no use to recomute storage
-        If (.not.TOGGLE) then
-           DO nf = 1,N_FL
-              if (Projector) then
-                CALL udvl(nf)%reset('l',WF_L(nf)%P)
-              else
-                CALL udvl(nf)%reset('l')
-              endif
-           ENDDO
-           DO NST = NSTM-1,1,-1
-              NT1 = Stab_nt(NST+1)
-              NT  = Stab_nt(NST  )
-              !Write(6,*) NT1,NT, NST
-              CALL WRAPUL(NT1,NT, udvl)
-              Do nf = 1,N_FL
-                 udvst(NST, nf) = udvl(nf)
+        if (Tempering_calc_det) then
+           !> If move has been accepted, no use to recomute storage
+           If (.not.TOGGLE) then
+              DO nf = 1,N_FL
+                 if (Projector) then
+                    CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                 else
+                    CALL udvl(nf)%reset('l')
+                 endif
               ENDDO
-           ENDDO
-           NT1 = stab_nt(1)
-           CALL WRAPUL(NT1,0, udvl)
-        Endif
-        !> Compute the Green functions so as to provide correct starting point for the sequential updates.
-        NVAR  = 1
-        Phase = cmplx(1.d0,0.d0,kind(0.d0))
-        do nf = 1,N_Fl
-           CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
-           Phase = Phase*Z
-        Enddo
-        call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
-    else
-        !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
-        !  First step: Each node sends to IRANK=0 its value nsigma_irank,
-        !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
-        !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
-        !              Finally, the variables get submitted
-        If (Irank == 0) then
-           Do I = 1,Isize-1
-              CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
-              If ( nsigma_irank_temp == 0) then
-                 nsigma_old_irank = I
-              else
-                 CALL MPI_SEND(I , 1, MPI_INTEGER, nsigma_irank_temp, 0, MPI_COMM_WORLD,IERR)
-              endif
-           enddo
-           If ( nsigma_irank /= 0 ) then
-              CALL MPI_SEND(0 , 1, MPI_INTEGER, nsigma_irank, 0, MPI_COMM_WORLD,IERR)
-           endif
+              DO NST = NSTM-1,1,-1
+                 NT1 = Stab_nt(NST+1)
+                 NT  = Stab_nt(NST  )
+                 !Write(6,*) NT1,NT, NST
+                 CALL WRAPUL(NT1,NT, udvl)
+                 Do nf = 1,N_FL
+                    udvst(NST, nf) = udvl(nf)
+                 ENDDO
+              ENDDO
+              NT1 = stab_nt(1)
+              CALL WRAPUL(NT1,0, udvl)
+           Endif
+           !> Compute the Green functions so as to provide correct starting point for the sequential updates.
+           NVAR  = 1
+           Phase = cmplx(1.d0,0.d0,kind(0.d0))
+           do nf = 1,N_Fl
+              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
+              Phase = Phase*Z
+           Enddo
+           call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
         else
-           CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
-           CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
-        endif
-
-        if ( nsigma_irank /= irank ) then
-           CALL MPI_Sendrecv_Replace(Phase, 1, MPI_COMPLEX16, nsigma_old_irank, 0, &
-                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
-
-           n_GR = size(GR,1)*size(GR,2)*size(GR,3)
-           CALL MPI_Sendrecv_Replace(GR, n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
-                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
-
-           do nf = 1,N_Fl
-              CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-           enddo
-           do nf = 1,N_Fl
-              CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-           enddo
-           do NST = 1, NSTM
-              do nf = 1,N_Fl
-                 CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+           !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
+           !  First step: Each node sends to IRANK=0 its value nsigma_irank,
+           !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
+           !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
+           !              Finally, the variables get submitted
+           If (Irank == 0) then
+              Do I = 1,Isize-1
+                 CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
+                 If ( nsigma_irank_temp == 0) then
+                    nsigma_old_irank = I
+                 else
+                    CALL MPI_SEND(I , 1, MPI_INTEGER, nsigma_irank_temp, 0, MPI_COMM_WORLD,IERR)
+                 endif
               enddo
-           enddo
-        endif   
-    endif
+              If ( nsigma_irank /= 0 ) then
+                 CALL MPI_SEND(0 , 1, MPI_INTEGER, nsigma_irank, 0, MPI_COMM_WORLD,IERR)
+              endif
+           else
+              CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
+              CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
+           endif
+           
+           if ( nsigma_irank /= irank ) then
+              CALL MPI_Sendrecv_Replace(Phase, 1, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                   &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
+              
+              n_GR = size(GR,1)*size(GR,2)*size(GR,3)
+              CALL MPI_Sendrecv_Replace(GR, n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                   &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
+              
+              do nf = 1,N_Fl
+                 CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+              do nf = 1,N_Fl
+                 CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+              do NST = 1, NSTM
+                 do nf = 1,N_Fl
+                    CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+                 enddo
+              enddo
+           endif
+        endif
         
         Deallocate ( nsigma_old )
-    if (Tempering_calc_det) then
-        Deallocate ( Det_vec_old, Det_vec_new ) 
-        Deallocate ( Phase_Det_new, Phase_Det_old )
-    endif
+        if (Tempering_calc_det) then
+           Deallocate ( Det_vec_old, Det_vec_new ) 
+           Deallocate ( Phase_Det_new, Phase_Det_old )
+        endif
         Deallocate ( List_partner, List_masters )
         
       end Subroutine Exchange_Step
