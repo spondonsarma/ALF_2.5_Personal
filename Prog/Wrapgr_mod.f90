@@ -92,20 +92,23 @@ Contains
     Implicit none
     
     Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,ns_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, Acc,mode) 
+       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
+       
          Use Hamiltonian
          Use Random_wrap
          Use Control
-         Implicit none  
-         Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-         Integer, INTENT(IN)       :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)) :: Phase
-         Integer                   :: ns_new
-         Real    (Kind=Kind(0.d0)) :: S0_ratio, T0_Proposal_ratio
-         Character (Len=64)        :: Mode
-         Logical                   :: Acc
-       end Subroutine Upgrade2
+         Use Fields_mod
+         Implicit none 
+         
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
+         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
+         Character (Len=64)       , INTENT(IN)    :: Mode
+         Logical                  , INTENT(INOUT) :: toggle
+       End Subroutine Upgrade2
     end Interface
     
     ! Arguments
@@ -116,9 +119,9 @@ Contains
     INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
 
     !Local 
-    Integer :: nf, N_Type, NTAU1,n, m, Flip_value(1)
+    Integer :: nf, N_Type, NTAU1,n, m
     Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin
+    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin, HS_new
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
     
@@ -145,12 +148,11 @@ Contains
           endif
        Endif
        If ( T0_proposal > ranf_wrap() ) Then
-          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  =  nint(nsigma%flip(n,ntau1))
-          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  nint(nsigma%flip(n,ntau1))
-          mode = "Final"
           !Write(6,*) 'Hi', n, Op_V(n,nf)%type, T0_Proposal_ratio, S0_ratio  
+          mode = "Final"
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
-          Call Upgrade2(GR,n,ntau1,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(1), Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
+          HS_new = nsigma%flip(n,ntau1) 
+          Call Upgrade2(GR,n,ntau1,PHASE,Op_V(n,nf)%N_non_Zero,HS_new, Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
        else
           toggle1 = .false.
           Call Control_upgrade_eff(toggle1)
@@ -189,20 +191,23 @@ Contains
     Implicit None
     
     Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,ns_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, Acc, mode) 
+       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
+       
          Use Hamiltonian
          Use Random_wrap
          Use Control
-         Implicit none  
-         Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-         Integer, INTENT(IN)       :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)) :: Phase
-         Integer                   :: ns_new
-         Real    (Kind=Kind(0.d0)) :: S0_ratio, T0_Proposal_ratio
-         Character (Len=64)        :: Mode
-         Logical                   :: Acc
-       end Subroutine Upgrade2
+         Use Fields_mod
+         Implicit none 
+         
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
+         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
+         Character (Len=64)       , INTENT(IN)    :: Mode
+         Logical                  , INTENT(INOUT) :: toggle
+       End Subroutine Upgrade2
     End Interface
     
     ! Given GREEN at time NTAU => GREEN at time NTAU - 1,
@@ -215,9 +220,9 @@ Contains
     INTEGER, INTENT(IN) :: Nt_sequential_start, Nt_sequential_end, N_Global_tau
     
     ! Local
-    Integer :: nf, N_Type, n, m, Flip_value(1)
+    Integer :: nf, N_Type, n, m
     Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin
+    Real    (Kind=Kind(0.d0)) :: T0_proposal,  T0_Proposal_ratio,  S0_ratio, spin, HS_new
     Character (Len=64)        :: Mode
     Logical                   :: Acc, toggle1
 
@@ -249,11 +254,10 @@ Contains
           endif
        Endif
        If ( T0_proposal > ranf_wrap() ) Then
-          if  (Op_V(n,nf)%type == 1 ) Flip_value(1)  =  nint( nsigma%flip(n,ntau) )
-          if  (Op_V(n,nf)%type == 2 ) Flip_value(1)  =  nint( nsigma%flip(n,ntau) )
           mode = "Final"
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
-          Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(1), Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
+          HS_new =  nsigma%flip(n,ntau) 
+          Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,HS_new, Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
        else
           toggle1 = .false.
           Call Control_upgrade_eff(toggle1)
@@ -373,21 +377,25 @@ Contains
         
     Implicit none
     
-    Interface 
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,ns_new, Prev_Ratiotot,S0_ratio, T0_Proposal_ratio, Acc, Mode)
+    Interface
+       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
+       
          Use Hamiltonian
          Use Random_wrap
          Use Control
-         Implicit none  
-         Complex (Kind=Kind(0.d0)) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)) :: Prev_Ratiotot
-         Integer, INTENT(IN)       :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)) :: Phase
-         Integer                   :: ns_new
-         Real    (Kind=Kind(0.d0)) :: S0_ratio, T0_Proposal_ratio
-         Logical                   :: Acc
-         Character (Len=64)        :: Mode
-       end Subroutine Upgrade2
+         Use Fields_mod
+         Implicit none 
+         
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
+         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
+         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
+         Character (Len=64)       , INTENT(IN)    :: Mode
+         Logical                  , INTENT(INOUT) :: toggle
+       End Subroutine Upgrade2
+
     end Interface
 
     ! Arguments 
@@ -400,11 +408,12 @@ Contains
 
     ! Space for local variables
     Integer                   :: n, Flip_length, nf, N_Type, ng_c, Flip_count
-    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, T0_proposal,S0_ratio, X
+    Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, T0_proposal,S0_ratio, HS_new, spin
     COMPLEX (Kind=Kind(0.d0)) :: Prev_Ratiotot 
     Logical                   :: Acc
     Character (Len=64)        :: Mode
-    Integer,      allocatable :: Flip_list(:), Flip_value(:), Flip_value_st(:)
+    Integer,      allocatable :: Flip_list(:)
+    Real    (Kind=Kind(0.d0)), allocatable :: Flip_value(:), Flip_value_st(:)
     Real    (Kind=Kind(0.d0)) :: Zero = 10D-8
 
     Allocate ( Flip_list(Size(Op_V,1)), Flip_value(Size(Op_V,1)), Flip_value_st(Size(Op_V,1)) )
@@ -418,7 +427,7 @@ Contains
           Call wrapgr_sort(Flip_length,Flip_list,Flip_value)
           If ( Flip_length > 1 ) then
              Do Flip_count = 1, Flip_length-1 
-                Flip_value_st(Flip_count)  = nsigma%i( Flip_list(Flip_count), ntau  )
+                Flip_value_st(Flip_count)  = nsigma%f( Flip_list(Flip_count), ntau  )
              Enddo
           endif
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
@@ -430,29 +439,31 @@ Contains
              !Write(6,*)  "Back from PlaceGR",  m, n-1,ntau
              If ( Flip_count == 1 .and. Flip_length > 1 ) GR_st = Gr
              Do nf = 1, N_FL
-                X = nsigma%f(n,ntau) 
+                spin = nsigma%f(n,ntau) 
                 N_type = 1
-                Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+                Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
              enddo
              nf = 1
              If (Flip_count <  Flip_length)  then 
                 mode = "Intermediate"
-                Call Upgrade2(GR,n,ntau,PHASE, Op_V(n,nf)%N_non_Zero, Flip_value(Flip_count), &
+                HS_new = Flip_value(Flip_count)
+                Call Upgrade2(GR,n,ntau,PHASE, Op_V(n,nf)%N_non_Zero, HS_new , &
                      &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
                 do nf = 1,N_FL
                    N_type =  2
-                   Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+                   Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
                 enddo
              else
                 !Write(6,*)  "Call Up mode final", n,ntau
                 mode = "Final"
-                Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,Flip_value(Flip_count), &
+                HS_new = Flip_value(Flip_count)
+                Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,HS_new, &
                      &        Prev_Ratiotot, S0_ratio, T0_Proposal_ratio, Acc, mode ) 
                 !Write(6,*)  "Back from up mode final", n,ntau
                 !Write(6,*)  "Acceptance", Acc
                 do nf = 1,N_FL
                    N_type =  2
-                   Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),X,Ndim,N_Type)
+                   Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),Spin,Ndim,N_Type)
                 enddo
              endif
              m = n
@@ -461,7 +472,7 @@ Contains
              Gr = Gr_st
              m = Flip_list(1) - 1
              Do Flip_count = 1, Flip_length-1 
-                nsigma%f( Flip_list(Flip_count), ntau  ) = Real(Flip_value_st(Flip_count), kind(0.d0))
+                nsigma%f( Flip_list(Flip_count), ntau  ) = Flip_value_st(Flip_count)
              Enddo
           Endif
           !If (Acc) Call Hamiltonian_Print(Ntau)
@@ -478,7 +489,8 @@ Contains
 
     ! Arguments
     Integer, INTENT(IN) :: Flip_length
-    Integer, INTENT(INOUT), allocatable :: Flip_list(:), Flip_value(:)
+    Integer, INTENT(INOUT), allocatable :: Flip_list(:)
+    Real   (Kind=Kind(0.d0)), INTENT(INOUT), allocatable :: Flip_value(:)
     
     ! Local
     integer :: swaps            ! number of swaps made in one pass

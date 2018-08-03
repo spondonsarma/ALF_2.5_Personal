@@ -1140,8 +1140,9 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
+          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
+          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:)
+          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
@@ -1164,9 +1165,9 @@
                    T0_Proposal_ratio = 0.d0
                 endif
                 S0_ratio          =   S0(n_op,ntau)
-                Flip_value(n)     =   nint( nsigma%flip(n_op,ntau) ) 
+                Flip_value(n)     =   nsigma%flip(n_op,ntau)
              else
-                Flip_value(n)     =   nint( nsigma%flip(n_op,ntau) )
+                Flip_value(n)     =   nsigma%flip(n_op,ntau)
                 T0_Proposal_ratio = 1.d0
                 S0_ratio          = 1.d0
              endif

@@ -58,10 +58,10 @@
 !> \verbatim
 !>  Number of non-zero eigenvalues of the Operator OP_V(N_op,Nt)  
 !> \endverbatim
-!> @param [in] nsigma_new
-!> Class(Fields)
+!> @param [in] HS_new
+!> Real
 !> \verbatim
-!>  nsigma_new contains the new field. Note nsigma_new%f is a array of dimension  nsigma_new%f(1,1)
+!>  HS_new contains the new field for nsigma%f(n_op,nt) 
 !> \endverbatim
 !> @param [in] Mode
 !>  Character (Len=64) 
@@ -97,7 +97,7 @@
 !>  *  The weight reads \f$ W(C)  =   \left[ \left( \prod_{n,\tau}  \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) \f$ 
 !--------------------------------------------------------------------
 
-      Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,ns_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
+      Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
 !--------------------------------------------------------------------
        
         Use Hamiltonian
@@ -110,7 +110,7 @@
         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-        Integer                  , INTENT(IN)    :: ns_new
+        Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
         Character (Len=64)       , INTENT(IN)    :: Mode
         Logical                  , INTENT(INOUT) :: toggle
@@ -139,7 +139,7 @@
         
         ! Compute the ratio
         nf = 1
-        nsigma_new%f(1,1)  = real(ns_new,kind=kind(0.d0)) 
+        nsigma_new%f(1,1)  = Hs_new !real(ns_new,kind=kind(0.d0)) 
         nsigma_new%t(1)    = Op_V(n_op,nf)%Type
         Do nf = 1,N_FL
            !Z1 = Op_V(n_op,nf)%g * ( Phi_st(ns_new,Op_V(n_op,nf)%type) -  Phi_st(ns_old,Op_V(n_op,nf)%type))
