@@ -496,6 +496,7 @@ Contains
     integer :: swaps            ! number of swaps made in one pass
     integer :: nc               ! loop variable
     integer :: temp             ! temporary holder for making swap
+    Real (Kind=Kind(0.d0))      :: X
     if ( Flip_length == 1 ) return 
     
     !Write(6,*) 'Before sort'
@@ -510,9 +511,9 @@ Contains
              temp              = Flip_list(nc  ) 
              Flip_list(nc)     = Flip_list(nc+1) 
              Flip_list(nc+1)   = temp
-             temp              = Flip_value(nc  ) 
+             X                 = Flip_value(nc  ) 
              Flip_value(nc)    = Flip_value(nc+1) 
-             Flip_value(nc+1)  = temp
+             Flip_value(nc+1)  = X
              swaps             = swaps + 1
           end if
        end do
