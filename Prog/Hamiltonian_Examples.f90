@@ -124,6 +124,7 @@
       Use Matrix
       Use Observables
       Use Predefined_structures
+      Use Fields_mod
 
       
       Implicit none
@@ -133,7 +134,7 @@
       Type (Operator),     dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Class (Fields), allocatable :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
@@ -651,14 +652,14 @@
           S0 = 1.d0
           If ( Op_V(n,1)%type == 1 ) then 
              do i = 1,4
-                S0 = S0*DW_Ising_space(nsigma(n,nt)*nsigma(Ising_nnlist(n,i),nt))
+                S0 = S0*DW_Ising_space(nsigma%i(n,nt)*nsigma%i(Ising_nnlist(n,i),nt))
              enddo
              nt1 = nt +1 
              if (nt1 > Ltrot) nt1 = 1
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              nt1 = nt - 1 
              if (nt1 < 1  ) nt1 = Ltrot
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              If (S0 < 0.d0) Write(6,*) 'S0 : ', S0
           endif
           
@@ -848,7 +849,7 @@
                 do nt = 1,Ltrot
                    nt1 = nt +1 
                    if (nt == Ltrot) nt1 = 1
-                   if (nsigma(n1,nt) == nsigma(n1,nt1) ) then 
+                   if (nsigma%i(n1,nt) == nsigma%i(n1,nt1) ) then 
                       nc_h_p = nc_h_p + 1
                    else
                       nc_h_m = nc_h_m + 1
@@ -859,7 +860,7 @@
                       nc_h_m = nc_h_m - 1
                    endif
 
-                   if (nsigma(n4,nt) == nsigma(n4,nt1) ) then 
+                   if (nsigma%i(n4,nt) == nsigma%i(n4,nt1) ) then 
                       nc_h_p = nc_h_p + 1
                    else
                       nc_h_m = nc_h_m + 1
@@ -870,13 +871,13 @@
                       nc_h_m = nc_h_m - 1
                    endif
                    
-                   nc_F = nc_F + nsigma    (n1,nt)*nsigma    (n2,nt)*nsigma    (n3,nt)*nsigma    (n4,nt)  &
+                   nc_F = nc_F + nsigma%i  (n1,nt)*nsigma%i  (n2,nt)*nsigma%i   (n3,nt)*nsigma%i   (n4,nt)  &
                         &      - nsigma_old(n1,nt)*nsigma_old(n2,nt)*nsigma_old(n3,nt)*nsigma_old(n4,nt) 
                    
-                   nc_J = nc_J + nsigma(n1,nt)*nsigma(n2,nt) + &
-                        &        nsigma(n2,nt)*nsigma(n3,nt) + &
-                        &        nsigma(n3,nt)*nsigma(n4,nt) + &
-                        &        nsigma(n4,nt)*nsigma(n1,nt) - &
+                   nc_J = nc_J + nsigma%i(n1,nt)*nsigma%i(n2,nt) + &
+                        &        nsigma%i(n2,nt)*nsigma%i(n3,nt) + &
+                        &        nsigma%i(n3,nt)*nsigma%i(n4,nt) + &
+                        &        nsigma%i(n4,nt)*nsigma%i(n1,nt) - &
                         &        nsigma_old(n1,nt)*nsigma_old(n2,nt) - &
                         &        nsigma_old(n2,nt)*nsigma_old(n3,nt) - &
                         &        nsigma_old(n3,nt)*nsigma_old(n4,nt) - &
@@ -1185,25 +1186,7 @@
           Endif
 
         end Subroutine Init_obs
-!---------------------------------------------------------------------
-        Subroutine  Hamiltonian_set_random_nsigma
-          
-          ! The user can set the initial configuration
-          
-          Implicit none
-          
-          Integer :: I, nt
-          
-          Do nt = 1,Ltrot
-             Do I = 1,Size(OP_V,1)
-                nsigma(I,nt)  = 1
-                if ( ranf_wrap()  > 0.5D0 ) nsigma(I,nt)  = -1
-             enddo
-          enddo
-          
-        end Subroutine Hamiltonian_set_random_nsigma
 
-!---------------------------------------------------------------------
         Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
 
@@ -1228,8 +1211,9 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
+          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
+          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:)
+          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
@@ -1242,25 +1226,27 @@
           do n = 1,flip_length 
              n_op = nranf(size(OP_V,1))
              Flip_list(n)  = n_op
-             ns            = nsigma(n_op,ntau)
+             ns            = nsigma%i(n_op,ntau)
              If ( OP_V(n_op,1)%type == 1 ) then 
-                ns = nsigma(n_op,ntau)
+                ns = nsigma%i(n_op,ntau)
                 T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
                 If ( T0_Proposal > Ranf_wrap() ) then
                    T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
                 else
                    T0_Proposal_ratio = 0.d0
                 endif
-                S0_ratio          =  S0(n_op,ntau)
-                Flip_value(n)     = - ns
+                S0_ratio          =   S0(n_op,ntau)
+                Flip_value(n)     =   nsigma%flip(n_op,ntau)
              else
-                Flip_value(n)     = NFLIPL(nsigma(n_op,ntau),nranf(3))
+                Flip_value(n)     =   nsigma%flip(n_op,ntau)
                 T0_Proposal_ratio = 1.d0
                 S0_ratio          = 1.d0
              endif
           Enddo
 
-
         end Subroutine Global_move_tau
+
+
+        
 
       end Module Hamiltonian
