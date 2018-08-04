@@ -92,8 +92,10 @@
            Fields_Phi = Phi_st(Nint(this%f(n_op,n_tau)),1)
         case(2)
            Fields_Phi = Phi_st(Nint(this%f(n_op,n_tau)),2)
+        case(3)
+           Fields_Phi = this%f(n_op,n_tau)
         case default
-           Fields_Phi = 1.d0
+           Fields_Phi = this%f(n_op,n_tau)
         end select
       end function Fields_Phi
 
@@ -106,6 +108,8 @@
         select case (this%t(n_op))
         case(2)
            Fields_GAMA = GAMA_st(Nint(this%f(n_op,n_tau)),2)
+        case(3)
+           Fields_GAMA = 1.d0
         case default
            Fields_GAMA = 1.d0
         end select
@@ -124,7 +128,7 @@
         case (2)
            Fields_flip =   Flip_st( nint(this%f(n_op,n_tau)),nranf(3))
         case (3)
-           Fields_flip =   this%f(n_op,n_tau) + (ranf_wrap() - 0.5D0)*Del
+           Fields_flip =  - this%f(n_op,n_tau)
         case default
            Write(6,*) 'Error in Fields. '
            Stop
@@ -504,7 +508,7 @@
          !Write(6,*) "Fields_set", size(this%f,1), size(this%f,2)
          Do nt = 1,size(this%f,2)
             Do I = 1,size(this%f,1)
-               if (this%t(i) == 1 .or. this%t(i) == 2 ) then
+               if (this%t(i)  < 4 ) then
                   this%f(I,nt)  = 1.d0
                   if ( ranf_wrap() > 0.5D0 ) this%f(I,nt) = -1.d0
                else

@@ -93,34 +93,34 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a076ef59c0f66dc0f7672ded61210dc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">calculate the phase of a given set of operators and HS fields.  <a href="namespaceoperator__mod.html#a076ef59c0f66dc0f7672ded61210dc1a">More...</a><br /></td></tr>
 <tr class="separator:a076ef59c0f66dc0f7672ded61210dc1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86c52c0ae0f16f1b9a91a5de2ae441e7"><td class="memItemLeft" align="right" valign="top">pure subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a86c52c0ae0f16f1b9a91a5de2ae441e7">operator_mod::op_make</a> (Op, N)</td></tr>
-<tr class="memdesc:a86c52c0ae0f16f1b9a91a5de2ae441e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up <em>some</em> data of the operator.  <a href="namespaceoperator__mod.html#a86c52c0ae0f16f1b9a91a5de2ae441e7">More...</a><br /></td></tr>
+<tr class="memdesc:a86c52c0ae0f16f1b9a91a5de2ae441e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up <em>core</em> data of the operator required for type=0 operators.  <a href="namespaceoperator__mod.html#a86c52c0ae0f16f1b9a91a5de2ae441e7">More...</a><br /></td></tr>
 <tr class="separator:a86c52c0ae0f16f1b9a91a5de2ae441e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a834ab67aa2a4ba4666f5517b11b1ece2"><td class="memItemLeft" align="right" valign="top">pure subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a834ab67aa2a4ba4666f5517b11b1ece2">operator_mod::op_clear</a> (Op, N)</td></tr>
+<tr class="memdesc:a834ab67aa2a4ba4666f5517b11b1ece2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate the operator.  <a href="namespaceoperator__mod.html#a834ab67aa2a4ba4666f5517b11b1ece2">More...</a><br /></td></tr>
 <tr class="separator:a834ab67aa2a4ba4666f5517b11b1ece2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a374a4b507419c097365a65a7dc34f1ef"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a374a4b507419c097365a65a7dc34f1ef">operator_mod::op_set</a> (Op)</td></tr>
+<tr class="memdesc:a374a4b507419c097365a65a7dc34f1ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup storage for type=1,2 and 3 vertices. Setup the exponential of the operator for type 1 and 2.  <a href="namespaceoperator__mod.html#a374a4b507419c097365a65a7dc34f1ef">More...</a><br /></td></tr>
 <tr class="separator:a374a4b507419c097365a65a7dc34f1ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9405493c7f27d64c8cc7b6ff0def5b25"><td class="memItemLeft" align="right" valign="top">pure subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a9405493c7f27d64c8cc7b6ff0def5b25">operator_mod::op_exp</a> (g, Op, Mat)</td></tr>
-<tr class="memdesc:a9405493c7f27d64c8cc7b6ff0def5b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">This calculates the exponentiated operator and returns a full matrix.  <a href="namespaceoperator__mod.html#a9405493c7f27d64c8cc7b6ff0def5b25">More...</a><br /></td></tr>
-<tr class="separator:a9405493c7f27d64c8cc7b6ff0def5b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1dfb259275ad82bd769ceb048dbaffb0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a1dfb259275ad82bd769ceb048dbaffb0">operator_mod::op_mmultl</a> (Mat, Op, spin, Ndim, cop)</td></tr>
-<tr class="memdesc:a1dfb259275ad82bd769ceb048dbaffb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out Mat = Mat*exp(spin*Op)  <a href="namespaceoperator__mod.html#a1dfb259275ad82bd769ceb048dbaffb0">More...</a><br /></td></tr>
-<tr class="separator:a1dfb259275ad82bd769ceb048dbaffb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7812c68359072bb03d43eecac89f9d6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#ae7812c68359072bb03d43eecac89f9d6">operator_mod::op_mmultr</a> (Mat, Op, spin, Ndim, cop)</td></tr>
-<tr class="memdesc:ae7812c68359072bb03d43eecac89f9d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out Mat = exp(spin*Op)*Mat.  <a href="namespaceoperator__mod.html#ae7812c68359072bb03d43eecac89f9d6">More...</a><br /></td></tr>
-<tr class="separator:ae7812c68359072bb03d43eecac89f9d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a457d7449857ab5b8b5fe6257be128561"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a457d7449857ab5b8b5fe6257be128561">operator_mod::op_exp</a> (g, Op, Mat)</td></tr>
+<tr class="memdesc:a457d7449857ab5b8b5fe6257be128561"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the exponentiated operator and returns the full matrix.  <a href="namespaceoperator__mod.html#a457d7449857ab5b8b5fe6257be128561">More...</a><br /></td></tr>
+<tr class="separator:a457d7449857ab5b8b5fe6257be128561"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a733de15bd7f1f44dbdd1a981d149a091"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a733de15bd7f1f44dbdd1a981d149a091">operator_mod::op_mmultl</a> (Mat, Op, spin, cop)</td></tr>
+<tr class="memdesc:a733de15bd7f1f44dbdd1a981d149a091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out Mat = Mat* Op ( exp(spin*g* P^T O T) )  <a href="namespaceoperator__mod.html#a733de15bd7f1f44dbdd1a981d149a091">More...</a><br /></td></tr>
+<tr class="separator:a733de15bd7f1f44dbdd1a981d149a091"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52fc6406560ee226b0792ebf5863596b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a52fc6406560ee226b0792ebf5863596b">operator_mod::op_mmultr</a> (Mat, Op, spin, cop)</td></tr>
+<tr class="memdesc:a52fc6406560ee226b0792ebf5863596b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out Mat = Op ( exp(spin*g* P^T O T) ) * Mat.  <a href="namespaceoperator__mod.html#a52fc6406560ee226b0792ebf5863596b">More...</a><br /></td></tr>
+<tr class="separator:a52fc6406560ee226b0792ebf5863596b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2988e947d51e7ae6a66cc21633e59ce0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a2988e947d51e7ae6a66cc21633e59ce0">operator_mod::op_wrapup</a> (Mat, Op, spin, Ndim, N_Type)</td></tr>
+<tr class="memdesc:a2988e947d51e7ae6a66cc21633e59ce0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapup the Green function.  <a href="namespaceoperator__mod.html#a2988e947d51e7ae6a66cc21633e59ce0">More...</a><br /></td></tr>
 <tr class="separator:a2988e947d51e7ae6a66cc21633e59ce0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70c151c82a680b81fb0deddca5d86316"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceoperator__mod.html#a70c151c82a680b81fb0deddca5d86316">operator_mod::op_wrapdo</a> (Mat, Op, spin, Ndim, N_Type)</td></tr>
+<tr class="memdesc:a70c151c82a680b81fb0deddca5d86316"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapup the Green function.  <a href="namespaceoperator__mod.html#a70c151c82a680b81fb0deddca5d86316">More...</a><br /></td></tr>
 <tr class="separator:a70c151c82a680b81fb0deddca5d86316"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-<<<<<<< HEAD
-Generated on Fri Aug 3 2018 09:22:05 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
-=======
-Generated on Wed Aug 1 2018 13:51:46 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
->>>>>>> parent of 60e09321... Finshed working on Operator.f90
+Generated on Sat Aug 4 2018 09:46:13 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

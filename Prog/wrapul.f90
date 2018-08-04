@@ -117,7 +117,7 @@
            
            !Carry out U,D,V decomposition.
            CALL UDVL(nf)%decompose
-        ENDDO
+        Enddo
 #endif
       END SUBROUTINE WRAPUL
       

@@ -7,6 +7,7 @@ var searchData=
   ['getscale_5fudv_5fstate',['getscale_udv_state',['../namespaceudv__state__mod.html#a6651a741a9cf871fb736004cdea4b1da',1,'udv_state_mod']]],
   ['global_5fmod',['global_mod',['../namespaceglobal__mod.html',1,'']]],
   ['global_5fmod_2ef90',['Global_mod.f90',['../Global__mod_8f90.html',1,'']]],
+  ['global_5fmove',['global_move',['../namespacehamiltonian.html#a0648841005a77912a7f2d1afd0ae26fe',1,'hamiltonian']]],
   ['global_5fmove_5ftau',['global_move_tau',['../namespacehamiltonian.html#aac2d55c98f1f54354cb2319aab73d03f',1,'hamiltonian']]],
   ['global_5ftempering_5finit_5fobs',['global_tempering_init_obs',['../namespaceglobal__mod.html#ae7afd49ef8db9c25c56cb64e18987b64',1,'global_mod']]],
   ['global_5ftempering_5fobser',['global_tempering_obser',['../namespaceglobal__mod.html#a65a05c74b02004eb46aa33f9c8464601',1,'global_mod']]],

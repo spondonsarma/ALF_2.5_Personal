@@ -445,7 +445,6 @@ Contains
     if ( abs(OP%g) < 1.D-12 ) return
 
     if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
        sp = nint(spin)
        if ( Op%diag ) then
           do I=1,Op%N
@@ -514,7 +513,6 @@ Contains
     if ( abs(OP%g) < 1.D-12 ) return
 
     if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
        sp = nint(spin)
        if ( Op%diag ) then
           do I=1,Op%N
@@ -671,7 +669,6 @@ Contains
     Complex (Kind = Kind(0.D0)) :: VH1(Op%N,OP%N)
 
     if ( op%type < 3 ) then
-    !if ( op%type == 2 ) then
        sp = nint(spin)
        If (N_type == 1) then
           if(Op%diag) then

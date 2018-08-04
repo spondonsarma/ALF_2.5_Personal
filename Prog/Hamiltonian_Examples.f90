@@ -68,7 +68,7 @@
 !> Right trial wave function.   For both wave functions the index runs over the flavor index. \endverbatim
 !>
 !> @param [public]  nsigma(:,:) 
-!> \verbatim Integer, allocatable
+!> \verbatim Class(Fields), allocatable
 !> Array containing all auxiliary fields. The first index runs through the operator sequence. The second
 !> through the time slies.   \endverbatim
 !
@@ -526,9 +526,13 @@
                    nc = nc + 1
                    Op_V(nc,nf)%P(1) = I
                    Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
                    Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
+                   !! Three fields
+                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
                    Op_V(nc,nf)%type   = 2
+                   !!  Hirsch Decomp  *** This is just for testing  type = 3 **
+                   Op_V(nc,nf)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
+                   Op_V(nc,nf)%type   = 3
                    Call Op_set( Op_V(nc,nf) )
                 Enddo
              Enddo
@@ -817,9 +821,13 @@
           !>   
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+          Class (Fields), allocatable :: nsigma_old
+          !Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
 
-          T0_Proposal_ratio  = 0.d0
+          T0_Proposal_ratio  = 1.d0
+
+          nsigma%f = nsigma_old%f
+          nsigma%t = nsigma_old%t
 
         End Subroutine Global_move
 !========================================================================
@@ -829,7 +837,7 @@
           Implicit none 
           
           !> Arguments
-          Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
+          Class (Fields), allocatable :: nsigma_old
 
           !> Local
           Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
@@ -854,7 +862,7 @@
                    else
                       nc_h_m = nc_h_m + 1
                    endif
-                   if (nsigma_old(n1,nt) == nsigma_old(n1,nt1) ) then 
+                   if (nsigma_old%i(n1,nt) == nsigma_old%i(n1,nt1) ) then 
                       nc_h_p = nc_h_p - 1
                    else
                       nc_h_m = nc_h_m - 1
@@ -865,23 +873,23 @@
                    else
                       nc_h_m = nc_h_m + 1
                    endif
-                   if (nsigma_old(n4,nt) == nsigma_old(n4,nt1) ) then 
+                   if (nsigma_old%i(n4,nt) == nsigma_old%i(n4,nt1) ) then 
                       nc_h_p = nc_h_p - 1
                    else
                       nc_h_m = nc_h_m - 1
                    endif
                    
-                   nc_F = nc_F + nsigma%i  (n1,nt)*nsigma%i  (n2,nt)*nsigma%i   (n3,nt)*nsigma%i   (n4,nt)  &
-                        &      - nsigma_old(n1,nt)*nsigma_old(n2,nt)*nsigma_old(n3,nt)*nsigma_old(n4,nt) 
+                   nc_F = nc_F + nsigma%i    (n1,nt)*nsigma%i    (n2,nt)*nsigma%i    (n3,nt)*nsigma%i  (n4,nt)  &
+                        &      - nsigma_old%i(n1,nt)*nsigma_old%i(n2,nt)*nsigma_old%i(n3,nt)*nsigma_old%i(n4,nt) 
                    
                    nc_J = nc_J + nsigma%i(n1,nt)*nsigma%i(n2,nt) + &
                         &        nsigma%i(n2,nt)*nsigma%i(n3,nt) + &
                         &        nsigma%i(n3,nt)*nsigma%i(n4,nt) + &
                         &        nsigma%i(n4,nt)*nsigma%i(n1,nt) - &
-                        &        nsigma_old(n1,nt)*nsigma_old(n2,nt) - &
-                        &        nsigma_old(n2,nt)*nsigma_old(n3,nt) - &
-                        &        nsigma_old(n3,nt)*nsigma_old(n4,nt) - &
-                        &        nsigma_old(n4,nt)*nsigma_old(n1,nt) 
+                        &        nsigma_old%i(n1,nt)*nsigma_old%i(n2,nt) - &
+                        &        nsigma_old%i(n2,nt)*nsigma_old%i(n3,nt) - &
+                        &        nsigma_old%i(n3,nt)*nsigma_old%i(n4,nt) - &
+                        &        nsigma_old%i(n4,nt)*nsigma_old%i(n1,nt) 
                    
                 enddo
              enddo
@@ -1221,14 +1229,12 @@
           ! Local
           Integer :: n_op, n, ns
           Real (Kind=Kind(0.d0)) :: T0_proposal
-          Flip_length = nranf(1)
+          Flip_length = nranf(4)
           
           do n = 1,flip_length 
              n_op = nranf(size(OP_V,1))
              Flip_list(n)  = n_op
-             ns            = nsigma%i(n_op,ntau)
              If ( OP_V(n_op,1)%type == 1 ) then 
-                ns = nsigma%i(n_op,ntau)
                 T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
                 If ( T0_Proposal > Ranf_wrap() ) then
                    T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)

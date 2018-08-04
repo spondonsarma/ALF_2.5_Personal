@@ -50,7 +50,7 @@ Program Main
         Use Tau_m_mod
         Use Tau_p_mod
         Use Hop_mod
-        !Use Global_mod
+        Use Global_mod
         Use UDV_State_mod
         Use Wrapgr_mod
         Use Fields_mod
@@ -159,7 +159,7 @@ Program Main
            Write (6,*) "mpi_per_parameter_set is not a multiple of total mpi processes"
            stop
         endif
-        !Call Global_Tempering_setup
+        Call Global_Tempering_setup
 #elif !defined(TEMPERING)  && defined(MPI)
         mpi_per_parameter_set = Isize
 #elif defined(TEMPERING)  && !defined(MPI)
@@ -422,7 +422,7 @@ Program Main
               endif
 #endif
               ! Global updates
-              !If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
+              If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
               
               ! Propagation from 1 to Ltrot
               ! Set the right storage to 1
