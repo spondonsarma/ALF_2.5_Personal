@@ -36,11 +36,15 @@
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> Given    B(NTAU,  1 ) =  UR, DR, VR
-!> Returns  B(NTAU1, 1 ) =  UR, DR, VR
-!> NOTE:    NTAU1 > NTAU.
-!
+!> @brief
+!> Imaginary time propagation and udv decompostion from Ntau to Ntau1, Ntau1 > Ntau
+!>
+!> @details
+!> On input   B(NTAU ,1)  =  UR*DR*VR \n
+!> On output  B(NTAU1,1)  =  UR*DR*VR
+!> @param[in] Ntau, Ntau1  Integer
+!> @param[inout] UDVR Class(UDV_state)
+
 !-------------------------------------------------------------------
 
         Use Hop_mod
@@ -51,8 +55,8 @@
         Implicit None
 
         ! Arguments
-        CLASS(UDV_State), intent(inout), allocatable :: udvr(N_FL)
-        Integer :: NTAU1, NTAU
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.
@@ -92,7 +96,7 @@
 
         ! Arguments
         CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
-        Integer :: NTAU1, NTAU
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.

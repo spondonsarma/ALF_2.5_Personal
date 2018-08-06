@@ -95,7 +95,8 @@
         case(3)
            Fields_Phi = this%f(n_op,n_tau)
         case default
-           Fields_Phi = this%f(n_op,n_tau)
+           Write(6,*) 'Error in Fields_Phi'
+           stop
         end select
       end function Fields_Phi
 
@@ -106,12 +107,15 @@
         Integer, INTENT(IN) ::  n_op, n_tau
 
         select case (this%t(n_op))
+        case(1)
+           Fields_GAMA = 1.d0
         case(2)
            Fields_GAMA = GAMA_st(Nint(this%f(n_op,n_tau)),2)
         case(3)
            Fields_GAMA = 1.d0
         case default
-           Fields_GAMA = 1.d0
+           Write(6,*) 'Error in Fields_GAMA'
+           stop
         end select
         
       end function Fields_Gama

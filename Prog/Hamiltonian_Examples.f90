@@ -590,6 +590,9 @@
                 Op_V(nc1,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
                 Op_V(nc1,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
                 Op_V(nc1,1)%type   = 2
+                !!  Hirsch Decomp  *** This is just for testing  type = 3 **
+                Op_V(nc1,1)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
+                Op_V(nc1,1)%type   = 3
                 Call Op_set( Op_V(nc1,1) )
              Enddo
           case ("t_V")
@@ -821,14 +824,24 @@
           !>   
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Class (Fields), allocatable :: nsigma_old
-          !Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
+
+          ! Local
+          Integer :: N_op, N_tau, n1,n2, n
 
           T0_Proposal_ratio  = 1.d0
+          size_clust         = 5.d0
 
           nsigma%f = nsigma_old%f
           nsigma%t = nsigma_old%t
-
+          N_op  = size(nsigma_old%f,1)
+          N_tau = size(nsigma_old%f,2)
+          Do n  = 1, Nint(size_clust)
+             n1 = nranf(N_op)
+             n2 = nranf(N_tau)
+             nsigma%f(n1,n2) = nsigma_old%flip(n1,n2)
+          enddo
+          
         End Subroutine Global_move
 !========================================================================
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
@@ -1252,7 +1265,5 @@
 
         end Subroutine Global_move_tau
 
-
-        
 
       end Module Hamiltonian
