@@ -533,7 +533,7 @@ Module Global_mod
 
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
         Logical :: TOGGLE, L_Test
-        Real    (Kind=Kind(0.d0)) :: size_clust !> FIXME: currently not initialized. Is this used?
+        Real    (Kind=Kind(0.d0)) :: size_clust 
         Real    (Kind=Kind(0.d0)) :: ratio_2_test
         Character (Len=64)  :: storage 
         
@@ -853,10 +853,8 @@ Module Global_mod
            DO NST = NSTM-1,1,-1
               NT1 = Stab_nt(NST+1)
               NT  = Stab_nt(NST  )
-              !Write(6,*) NT1,NT, NST
-              Write(6,*) 'Call wrapul', NT1,NT, udvl(1)%d(1), udvl(1)%N_part, udvl(1)%Ndim
+              !Write(6,*) 'Call wrapul', NT1,NT, udvl(1)%d(1), udvl(1)%N_part, udvl(1)%Ndim
               CALL WRAPUL(NT1,NT, udvl)
-              Write(6,*) 'End Call wrapul'
               Do nf = 1,N_FL
                  udvst(NST, nf) = udvl(nf)
               ENDDO
@@ -868,6 +866,7 @@ Module Global_mod
         if (Projector) then
            N_part=udvst(1,1)%N_part
            N_size=udvl(1)%ndim
+           Det_vec = 0.d0
            Allocate (TP(N_part,N_part), ipiv(N_part))
            do nf=1,N_FL
               N_part=udvst(1,nf)%N_part
