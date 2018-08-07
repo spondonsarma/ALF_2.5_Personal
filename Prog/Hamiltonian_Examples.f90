@@ -830,7 +830,7 @@
           Integer :: N_op, N_tau, n1,n2, n
 
           T0_Proposal_ratio  = 1.d0
-          size_clust         = 1.d0
+          size_clust         = 3.d0
 
           nsigma%f = nsigma_old%f
           nsigma%t = nsigma_old%t

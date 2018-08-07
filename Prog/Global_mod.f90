@@ -962,8 +962,9 @@ Module Global_mod
            enddo
 #endif
 #else
+           Det_vec(:,nf) = log(real(D(:)))
            Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
-           if (udvl(nf)%L(1) > 0.d0) Det_vec(1)=Det_Vec(1)+udvl(nf)%L(1)
+           if (udvl(nf)%L(1) > 0.d0) Det_vec(1,nf)=Det_Vec(1,nf)+udvl(nf)%L(1)
            Do J=2,Ndim
               if (udvl(nf)%L(J)<=0.d0) then
                  Det_vec(J,nf) = log(real(D(J)))
