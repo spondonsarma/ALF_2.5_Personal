@@ -36,3 +36,5 @@
 \form#35:$ \det M(C) $
 \form#36:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
 \form#37:$ M = e^{g O} $
+\form#38:$ \prod_{f} \det M_f(C) $
+\form#39:$ W(C) = \left[ \left( \prod_{n,\tau,f} \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $

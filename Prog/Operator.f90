@@ -136,10 +136,10 @@ Contains
 !> calculate the phase of a given set of operators and HS fields.
 !
 !> @param[inout] Phase  Complex
-!> * On entry: phase of \f$ \det M(C) \f$
-!> * On exit:  phase of  \f$ W(C)  =   \left[ \left( \prod_{n,\tau}  \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) \f$ 
-!> @param[in] Op_V    Type(Operator)
-!> * List of interaction operators.
+!> * On entry: phase of \f$ \prod_{f} \det M_f(C) \f$, f is the flavor index.
+!> * On exit:  phase of  \f$ W(C)  =   \left[ \left( \prod_{n,\tau,f}  \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) \f$ 
+!> @param[in] Op_V  Dimension(:,:)  Type(Operator)
+!> * List of interaction operators. OP_V(n,f) has no tau index.  
 !> @param[in] Nsigma 
 !> Class(Fields)
 !> * Fields
