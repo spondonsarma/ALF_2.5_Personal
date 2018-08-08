@@ -62,9 +62,43 @@ Module Global_mod
 !> ALF-project
 !
 !> @brief 
-!> Handles parrallel tempering
-!> This subroutine is called only if the tempering flag is switched on. In this 
-!> case the MPI flag is also switched on. 
+!> Handles parrallel tempering \n
+!> This subroutine is called only if the tempering flag is switched on \n
+!> Requires MPI
+!>
+!> @details
+!> On entry and on exit the left storage is full, the Green function is on time slice 0 and the phase is set.
+!> The same holds on exit but with updated quantities.
+!>
+!> @param[inout] Phase  Complex
+!> \verbatim
+!>  Is updated upon acceptance
+!> \endverbatim
+!> @param[inout] udvl, udvr Class(UDV_State)
+!> \verbatim
+!>  On entry udvl contains the last udv decomposition such that G=(1 + VL*DL*UL^{dag})^{-1}
+!>  udvr  is used as working space
+!> \endverbatim
+!> @param[inout] GR Complex
+!> \verbatim
+!>  Green function. Is updated upon acceptance.
+!> \endverbatim
+!> @param[inout] udvst Class(UDV_State)
+!> \verbatim
+!>  Storage. Is updated with left propagation upon acceptance
+!> \endverbatim
+!> @param[in] Stab_nt Integer
+!> \verbatim
+!>  List of time slices for stabilization.
+!> \endverbatim
+!> @param[in] N_exchange_steps Integer
+!> \verbatim
+!> Number of exchange steps
+!> \endverbatim
+!> @param[in] Tempering_calc_det Logical
+!> \verbatim
+!>  If true then the fermion determinant is computed in the calulcation of the exchange weight.
+!> \endverbatim
 !> 
 !--------------------------------------------------------------------
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
@@ -91,18 +125,19 @@ Module Global_mod
            END SUBROUTINE CGR
         end Interface
         
-        !>  Arguments
-        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-        CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
+        !  Arguments
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                                :: Phase
+        CLASS(UDV_State), intent(inout), allocatable, Dimension(:)              :: udvl, udvr
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
         CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvst
-        INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
-        !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+        INTEGER, dimension(:),     INTENT   (IN), allocatable         :: Stab_nt
+        INTEGER, INTENT(IN) :: N_exchange_steps
+        Logical, INTENT(IN) :: Tempering_calc_det
         
         
         !>  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count, N_part
-        Integer, Dimension(:,:),  allocatable :: nsigma_old
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step,  N_count, N_part
+        Class (Fields), allocatable :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
@@ -111,8 +146,6 @@ Module Global_mod
         Logical :: TOGGLE, L_Test
         Integer, allocatable :: List_partner(:), List_masters(:)
 
-        !> Additional variables for running without Fermion weight
-        Logical :: Tempering_calc_det
         ! Keep track of where the configuration originally came from
         Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp
         Integer        :: n_GR
@@ -123,17 +156,21 @@ Module Global_mod
         Integer        :: Isize, Irank, Ierr, irank_g, isize_g, igroup
         Integer        :: STATUS(MPI_STATUS_SIZE)
 
+        Character (Len=64)  :: storage 
+
+
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
         call MPI_Comm_rank(Group_Comm, irank_g, ierr)
         call MPI_Comm_size(Group_Comm, isize_g, ierr)
         igroup           = irank/isize_g
-        nsigma_irank = irank
+        nsigma_irank     = irank
 
-        n1 = size(nsigma,1)
-        n2 = size(nsigma,2)
+        n1 = size(nsigma%f,1)
+        n2 = size(nsigma%f,2)
         NSTM = Size(udvst, 1)
-        Allocate ( nsigma_old(n1,n2) )
+        allocate(nsigma_old)
+        call nsigma_old%make(n1, n2)
         if (Tempering_calc_det) then
            Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
            Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
@@ -143,45 +180,21 @@ Module Global_mod
         !         Allocate ( nsigma_orig(n1,n2) )
         !         nsigma_orig = nsigma
         
-        !>  Compute for each core the old weights.     
+        !  Compute for each core the old weights.     
         L_test = .false.
         if (Tempering_calc_det) then
            ! Set old weight. 
-           Det_Vec_old=0.d0
-           if (Projector) then
-              do nf=1,N_FL
-                N_part=udvst(1,nf)%N_part
-                do i=1,NSTM-1
-                  do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
-#else
-                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvst(i,nf)%L(n)
-#endif
-                  enddo
-                enddo
-              enddo
-              Do nf = 1,N_FL
-                N_part=udvl(nf)%N_part
-                do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                enddo
-              ENDDO
-           endif
-           Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf), nf)
-              Phase_det_old(nf) = Z
-              Phase_old = Phase_old*Z
+           storage = "Full"
+           Call Compute_Fermion_Det(Phase_det_old,Det_Vec_old, udvl, udvst, Stab_nt, storage)
+           Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
+           Do nf = 1,N_Fl
+              Phase_old = Phase_old*Phase_det_old(nf)
            Enddo
-           call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+           Call Op_phase(Phase_old,OP_V,Nsigma,N_SUN)
         endif
         !> Store old configuration
-        nsigma_old = nsigma
+        nsigma_old%f = nsigma%f
+        nsigma_old%t = nsigma%t
         nsigma_old_irank = nsigma_irank
         ! Setup the list of masters
         nc = 0
@@ -200,8 +213,7 @@ Module Global_mod
            endif
         endif
         DO N_count = 1,N_exchange_steps
-           
-           !>  Set the partner rank on each core
+           !  Set the partner rank on each core
            If (Irank == 0 ) then
               n_step = isize_g
               if (  ranf_wrap() > 0.5d0 ) n_step = -isize_g
@@ -219,113 +231,55 @@ Module Global_mod
               if (Irank == 0 ) then
                  Write(6,*) 'Testing global : '
                  do  I = 0,Isize -1 
-                    Write(6,*)  I, List_partner(I) !, Phase_old, Phase
+                    Write(6,*)   I, List_partner(I) !, Phase_old, Phase
                     Write(11,*)  I, List_partner(I) !, Phase_old, Phase
                  enddo
                  Write(11,*)
               endif
            Endif
-           !call MPI_Barrier(MPI_COMM_WORLD)
-           !Write(6,*) '---------'
-!!$    select case (IRANK)
-!!$    case(0)
-!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = 1
-!!$    case(1)
-!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = 1
-!!$    case(2)
-!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = -1
-!!$    case(3)
-!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = -1
-!!$    case default
-!!$    end select
     
 
-           !>  Exchange configurations
-           n = size(nsigma_old,1)*size(nsigma_old,2)
-           CALL MPI_Sendrecv(nsigma_old      , n, MPI_INTEGER, List_partner(IRANK), 0, &
-                    &        nsigma          , n, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+           !  Exchange configurations
+           !  The types do not change --> no need to exchange them 
+           n = size(nsigma_old%f,1)*size(nsigma_old%f,2)
+           CALL MPI_Sendrecv(nsigma_old%f    , n, MPI_REAL8, List_partner(IRANK), 0, &
+                    &        nsigma%f        , n, MPI_REAL8, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            CALL MPI_Sendrecv(nsigma_old_irank, 1, MPI_INTEGER, List_partner(IRANK), 0, &
                     &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            
-           !>  Each node now has a new configuration nsigma
-           
-!!$    If (L_test) then
-!!$       Write(6,*) 'Testing global : ', Irank,List_partner(IRANK), nsigma_old(1,1),  nsigma_old(2,1), nsigma(1,1),  nsigma(2,1) 
-!!$    Endif
+           !  Each node now has a new configuration nsigma
            
            
+           if (Tempering_calc_det) then
+              !  HERE 
+              !  Compute ratio on weights one each rank
+              storage = "Empty"
+              Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
+
+              Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
+              Do nf = 1,N_Fl
+                 Phase_new = Phase_new*Phase_det_new(nf)
+              Enddo
+              Call Op_phase(Phase_new,OP_V,Nsigma,N_SUN)
+              
+              T0_Proposal_ratio = 1.d0
+              Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
+                   &            Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
            
-    if (Tempering_calc_det) then
-           !>  Compute ratio on weights one each rank
-           DO nf = 1,N_FL
-              if (Projector) then
-                CALL udvl(nf)%reset('l',WF_L(nf)%P)
-              else
-                CALL udvl(nf)%reset('l')
-              endif
-           ENDDO
-              !! Compute detvec for projector
-           Det_Vec_new=0.d0
-           DO NST = NSTM-1,1,-1
-              NT1 = Stab_nt(NST+1)
-              NT  = Stab_nt(NST  )
-              !Write(6,*) NT1,NT, NST
-              CALL WRAPUL(NT1,NT, udvl)
-              Do nf = 1,N_FL
-                 udvst(NST, nf) = udvl(nf)
-                 if (Projector) then
-                    N_part=udvl(nf)%N_part
-                    do n=1,N_part
-#if !defined(LOG)
-                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                        Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                    enddo
-                 endif
-              ENDDO
-           ENDDO
-           NT1 = stab_nt(1)
-           CALL WRAPUL(NT1,0, udvl)
-           if (Projector) then
-              Do nf = 1,N_FL
-                N_part=udvl(nf)%N_part
-                do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                enddo
-              ENDDO
+              If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), &
+                   &                  Ratiotot, Ratio(1)*exp(Ratio(2))
+           else
+              Ratiotot = Delta_S0_global(Nsigma_old)
+              Ratio(1) = Ratiotot
+              Ratio(2) = 0
            endif
-           Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf), nf)
-              Phase_det_new(nf) = Z
-              Phase_new = Phase_new*Z
-           Enddo
-           call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
            
-           T0_Proposal_ratio = 1.d0
-           Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-                &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
-           
-           If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
-        else
-           Ratiotot = Delta_S0_global(Nsigma_old)
-           Ratio(1) = Ratiotot
-           Ratio(2) = 0
-        endif
-    
-           !>  Acceptace/rejection decision taken on master node after receiving information from slave
+           !  Acceptace/rejection decision taken on master node after receiving information from slave
            Do nc = 1,Isize/2 ! Loop over masters
               I = List_masters(nc)
               If (Irank == I ) Then
-                 !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
                  CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
               else if (IRANK == List_Partner(I) ) Then
-                 !CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 , MPI_COMM_WORLD,STATUS,IERR)
                  CALL MPI_RECV(Ratio_p    , 2, MPI_COMPLEX16,  I, I+1024, MPI_COMM_WORLD,STATUS,IERR)
                  !Weight = abs(Ratiotot_p*Ratiotot)
                  Weight= abs(Ratio(1) * Ratio_p(1) * exp( Ratio_p(2) + Ratio(2)  ) )
@@ -340,9 +294,9 @@ Module Global_mod
               I = List_masters(nc)
               If (Irank == List_Partner(I) ) Then
                  ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
-                 CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
+                 CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+1024, MPI_COMM_WORLD,IERR)
               else if (IRANK == I ) Then
-                 CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+                 CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+1024 ,MPI_COMM_WORLD,STATUS,IERR)
                  If (L_Test) Write(6,*) 'Slave : ', Irank,  Toggle
               endif
            enddo
@@ -351,23 +305,25 @@ Module Global_mod
            Call Global_Tempering_obser(Toggle)
            Call Control_upgrade_Temp  (Toggle) 
            If (toggle)  then
-              !>     Move has been accepted
+              !     Move has been accepted
               if (Tempering_calc_det) then
                  Phase_old     = Phase_new
                  Phase_det_old = Phase_det_new
                  Det_vec_old   = Det_vec_new
               endif
-              nsigma_old       = nsigma
+              nsigma_old%f       = nsigma%f
+              nsigma_old%t       = nsigma%t
               nsigma_old_irank = nsigma_irank
            else
-              nsigma       = nsigma_old
+              nsigma%f       = nsigma_old%f
+              nsigma%t       = nsigma_old%t
               nsigma_irank = nsigma_old_irank
            endif
         enddo
         
-        !> Finalize
+        ! Finalize
         if (Tempering_calc_det) then
-           !> If move has been accepted, no use to recomute storage
+           ! If move has been accepted, no use to recomute storage
            If (.not.TOGGLE) then
               DO nf = 1,N_FL
                  if (Projector) then
@@ -388,7 +344,7 @@ Module Global_mod
               NT1 = stab_nt(1)
               CALL WRAPUL(NT1,0, udvl)
            Endif
-           !> Compute the Green functions so as to provide correct starting point for the sequential updates.
+           ! Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
            do nf = 1,N_Fl
@@ -397,11 +353,11 @@ Module Global_mod
            Enddo
            call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
         else
-           !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
+           !  Send >> Phase, GR, udvr, udvl, udvst << to new node 
            !  First step: Each node sends to IRANK=0 its value nsigma_irank,
            !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
-           !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
-           !              Finally, the variables get submitted
+           !  This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
+           !  Finally, the variables get submitted
            If (Irank == 0) then
               Do I = 1,Isize-1
                  CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
@@ -417,35 +373,37 @@ Module Global_mod
            else
               CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
               CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
+           endif
+
+           if ( nsigma_irank /= irank ) then
+              CALL MPI_Sendrecv_Replace(Phase, 1, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                   &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
+              
+              n_GR = size(GR,1)*size(GR,2)*size(GR,3)
+              CALL MPI_Sendrecv_Replace(GR, n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
+                   &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
+              
+              do nf = 1,N_Fl
+                 CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+              do nf = 1,N_Fl
+                 CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              enddo
+              do NST = 1, NSTM
+                 do nf = 1,N_Fl
+                    CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+                 enddo
+              enddo
+           endif
         endif
 
-        if ( nsigma_irank /= irank ) then
-           CALL MPI_Sendrecv_Replace(Phase, 1, MPI_COMPLEX16, nsigma_old_irank, 0, &
-                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
 
-           n_GR = size(GR,1)*size(GR,2)*size(GR,3)
-           CALL MPI_Sendrecv_Replace(GR, n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
-                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
-
-           do nf = 1,N_Fl
-              CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-           enddo
-           do nf = 1,N_Fl
-              CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-           enddo
-           do NST = 1, NSTM
-              do nf = 1,N_Fl
-                 CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
-              enddo
-           enddo
-        endif   
-    endif
-        
+        call nsigma_old%clear
         Deallocate ( nsigma_old )
-    if (Tempering_calc_det) then
-        Deallocate ( Det_vec_old, Det_vec_new ) 
-        Deallocate ( Phase_Det_new, Phase_Det_old )
-    endif
+        if (Tempering_calc_det) then
+           Deallocate ( Det_vec_old, Det_vec_new ) 
+           Deallocate ( Phase_Det_new, Phase_Det_old )
+        endif
         Deallocate ( List_partner, List_masters )
         
       end Subroutine Exchange_Step
@@ -981,15 +939,13 @@ Module Global_mod
       
       
 !--------------------------------------------------------------------
-      Integer function  npbc_tempering(n,Isize)
-!--------------------------------------------------------------------
 !> @author 
-!> Fakher Assaad 
+!> The ALF Project contributors
 !>
 !> @brief 
-!> Periodic boundary conditions required to defined master and slave for the  
-!> tempering
+!> Periodic boundary conditions required to defined master and slave for the tempering
 !--------------------------------------------------------------------
+      Integer function  npbc_tempering(n,Isize)
         implicit none
         Integer,  INTENT(IN)   :: Isize,n
         
@@ -998,15 +954,14 @@ Module Global_mod
         if (  npbc_tempering > Isize -1) npbc_tempering = npbc_tempering -  Isize
         
       end function npbc_tempering
-
-
+      
+      
 !--------------------------------------------------------------------
 !> @author 
-!> Fakher Assaad 
+!> The ALF Project contributors
 !>
 !> @brief 
-!> The following routine monitors the acceptance of tempering moves
-!> 
+!> Allocates the Tempering_acceptance (Type Obser_vec) variable  that monitors the exchange acceptance
 !--------------------------------------------------------------------
       Subroutine Global_Tempering_setup
         Integer    ::   N
@@ -1017,11 +972,23 @@ Module Global_mod
       End Subroutine Global_Tempering_setup
 
 !--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Initializes  Tempering_acceptance
+!--------------------------------------------------------------------
 
       Subroutine Global_Tempering_init_obs
         Call Obser_vec_Init( Tempering_acceptance )
       end Subroutine Global_Tempering_init_obs
 
+!--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Measures Tempering_acceptance
 !--------------------------------------------------------------------
 
       Subroutine Global_Tempering_obser(toggle)
@@ -1033,6 +1000,12 @@ Module Global_mod
         if (toggle) Tempering_acceptance%Obs_vec(1) = Tempering_acceptance%Obs_vec(1) +  cmplx(1.d0,0.d0,kind(0.d0))
         
       end Subroutine Global_Tempering_obser
+!--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Prints Tempering_acceptance
 !--------------------------------------------------------------------
       Subroutine Global_Tempering_Pr
         Implicit none

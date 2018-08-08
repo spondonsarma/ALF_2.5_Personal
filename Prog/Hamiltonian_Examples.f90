@@ -811,11 +811,11 @@
                 Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
              enddo
           endif
-        end Subroutine Alloc_obs
+        End Subroutine Alloc_obs
 
         
 !========================================================================
-        ! Functions for Global moves.  These move are not implemented in this example.
+! Functions for Global moves.  These move are not implemented in this example.
         Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
           
           !>  The input is the field nsigma declared in this module. This routine generates a 

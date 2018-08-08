@@ -85,7 +85,9 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a090aa1cf2445e51b1315808df6eb028c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#a090aa1cf2445e51b1315808df6eb028c">global_mod::exchange_step</a> (Phase, GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)</td></tr>
-<tr class="memdesc:a090aa1cf2445e51b1315808df6eb028c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles parrallel tempering This subroutine is called only if the tempering flag is switched on.  <a href="namespaceglobal__mod.html#a090aa1cf2445e51b1315808df6eb028c">More...</a><br /></td></tr>
+<tr class="memdesc:a090aa1cf2445e51b1315808df6eb028c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles parrallel tempering <br />
+ This subroutine is called only if the tempering flag is switched on <br />
+ Requires MPI.  <a href="namespaceglobal__mod.html#a090aa1cf2445e51b1315808df6eb028c">More...</a><br /></td></tr>
 <tr class="separator:a090aa1cf2445e51b1315808df6eb028c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a02e45603e49769d5d2757c82508331"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#a4a02e45603e49769d5d2757c82508331">global_mod::global_updates</a> (Phase, GR, udvr, udvl, Stab_nt, udvst, N_Global)</td></tr>
 <tr class="memdesc:a4a02e45603e49769d5d2757c82508331"><td class="mdescLeft">&#160;</td><td class="mdescRight">Carries out N_global global updates as defeined in the Global_move routine of the Hamiltonian module.  <a href="namespaceglobal__mod.html#a4a02e45603e49769d5d2757c82508331">More...</a><br /></td></tr>
@@ -97,18 +99,19 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a4007b571e683c0ec913901b519352aad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the fermion determinant from scratch or from the storage.  <a href="namespaceglobal__mod.html#a4007b571e683c0ec913901b519352aad">More...</a><br /></td></tr>
 <tr class="separator:a4007b571e683c0ec913901b519352aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc8784f6dafc9c0259291e16b16ed6d4"><td class="memItemLeft" align="right" valign="top">integer function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#acc8784f6dafc9c0259291e16b16ed6d4">global_mod::npbc_tempering</a> (n, Isize)</td></tr>
-<tr class="memdesc:acc8784f6dafc9c0259291e16b16ed6d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Periodic boundary conditions required to defined master and slave for the <br />
-<br />
- tempering.  <a href="namespaceglobal__mod.html#acc8784f6dafc9c0259291e16b16ed6d4">More...</a><br /></td></tr>
+<tr class="memdesc:acc8784f6dafc9c0259291e16b16ed6d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Periodic boundary conditions required to defined master and slave for the tempering.  <a href="namespaceglobal__mod.html#acc8784f6dafc9c0259291e16b16ed6d4">More...</a><br /></td></tr>
 <tr class="separator:acc8784f6dafc9c0259291e16b16ed6d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a349bf6537abbd7eac41cade766f37574"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#a349bf6537abbd7eac41cade766f37574">global_mod::global_tempering_setup</a></td></tr>
-<tr class="memdesc:a349bf6537abbd7eac41cade766f37574"><td class="mdescLeft">&#160;</td><td class="mdescRight">The following routine monitors the acceptance of tempering moves.  <a href="namespaceglobal__mod.html#a349bf6537abbd7eac41cade766f37574">More...</a><br /></td></tr>
+<tr class="memdesc:a349bf6537abbd7eac41cade766f37574"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates the Tempering_acceptance (Type Obser_vec) variable that monitors the exchange acceptance.  <a href="namespaceglobal__mod.html#a349bf6537abbd7eac41cade766f37574">More...</a><br /></td></tr>
 <tr class="separator:a349bf6537abbd7eac41cade766f37574"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7afd49ef8db9c25c56cb64e18987b64"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#ae7afd49ef8db9c25c56cb64e18987b64">global_mod::global_tempering_init_obs</a></td></tr>
+<tr class="memdesc:ae7afd49ef8db9c25c56cb64e18987b64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes Tempering_acceptance.  <a href="namespaceglobal__mod.html#ae7afd49ef8db9c25c56cb64e18987b64">More...</a><br /></td></tr>
 <tr class="separator:ae7afd49ef8db9c25c56cb64e18987b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65a05c74b02004eb46aa33f9c8464601"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#a65a05c74b02004eb46aa33f9c8464601">global_mod::global_tempering_obser</a> (toggle)</td></tr>
+<tr class="memdesc:a65a05c74b02004eb46aa33f9c8464601"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures Tempering_acceptance.  <a href="namespaceglobal__mod.html#a65a05c74b02004eb46aa33f9c8464601">More...</a><br /></td></tr>
 <tr class="separator:a65a05c74b02004eb46aa33f9c8464601"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc55ba04905320858e15ecc7e9d20de4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceglobal__mod.html#abc55ba04905320858e15ecc7e9d20de4">global_mod::global_tempering_pr</a></td></tr>
+<tr class="memdesc:abc55ba04905320858e15ecc7e9d20de4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints Tempering_acceptance.  <a href="namespaceglobal__mod.html#abc55ba04905320858e15ecc7e9d20de4">More...</a><br /></td></tr>
 <tr class="separator:abc55ba04905320858e15ecc7e9d20de4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -119,7 +122,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Aug 7 2018 05:09:09 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 8 2018 05:04:13 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

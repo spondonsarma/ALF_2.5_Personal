@@ -79,7 +79,17 @@
     
     Contains
 
-
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Assign this=src
+!>
+!> @param [inout] this  Class(UDV_state) 
+!> @param [in] src Class(UDV_state) 
+!-------------------------------------------------------------------      
+      
       Real (Kind=Kind(0.d0)) function  Fields_Phi(this,n_op,n_tau)
 
         Implicit none
