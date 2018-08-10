@@ -818,7 +818,24 @@
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
           Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
 
-          T0_Proposal_ratio  = 0.d0
+          Integer ::  N_op, N_tau, n, n1,n2
+          
+          T0_Proposal_ratio  = 1.d0
+          size_clust         = 5.d0
+
+          nsigma = nsigma_old
+          N_op  = size(nsigma_old,1)
+          N_tau = size(nsigma_old,2)
+          Do n  = 1, Nint(size_clust)
+             n1 = nranf(N_op)
+             n2 = nranf(N_tau)
+             If (OP_V(n1,1)%Type == 2 ) then 
+                nsigma(n1,n2) = NFLIPL(nsigma_old(n1,n2),nranf(3))
+             Else
+                nsigma(n1,n2) = - nsigma_old(n1,n2)
+             Endif
+          enddo
+
 
         End Subroutine Global_move
 !========================================================================

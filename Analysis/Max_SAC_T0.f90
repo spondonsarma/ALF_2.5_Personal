@@ -2,9 +2,8 @@
 
        Use MaxEnt_stoch_mod
        use Files_mod
-
-       Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
-       Implicit Integer (H-N)
+       
+       Implicit none
        
        Real (Kind=Kind(0.d0)), Dimension(:), allocatable :: XQMC, XTAU, Alpha_tot, xom, A, &
             &    ERROR, ARES, XQMC_ST
@@ -14,7 +13,11 @@
        Character (len=1)  :: Fermion_type
        Complex (Kind=Kind(0.d0)) :: Z
        Character (Len=64) :: command
-       
+       Logical            :: skip
+
+       Integer ::  N_alpha, nc, nw, Ndis, nwp, nbins, NSweeps, NWarm, Ntau, Ngamma, nt, N_alpha_1, io_error
+       Real (Kind=Kind(0.d0)) :: alpha_st, R, Xmom1, X,  X1, X2, om, omp, pi, Om_st, Om_en, err
+       Real (Kind=Kind(0.d0)) :: Dom, delta, beta, dtau
 
 
        
@@ -31,28 +34,39 @@
        close(30)
        
 
-       open (unit=10,File="g_dat", status="unknown") 
-       read(10,*) ntau 
+       open (unit=10,File="g_dat", status="unknown")
+       Read(10,*) X, xmom1, X1
+       if (X1 < 10.D-8) then
+          Skip =.true.
+          nc = 0
+       else
+          nc = 1
+       endif
+       do
+          read(10,*,End=10)  X,X1,X2
+          if ( abs(X1) - abs(X2)  < 0.d0 .or. X1 < 0.d0 ) exit
+          nc = nc + 1
+       enddo
+10     continue
+       Rewind(10)
+       Write(6,*) Nc, Skip, X1, X2
+       Ntau = NC
        Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU), XQMC_ST(NTAU), XTAU(NTAU) )
        xcov = 0.d0
+       if (Skip) read(10,*) X,X1,X2
        do nt = 1,ntau
           read(10,*) Xtau(nt), Xqmc(nt), err
-          if (nt == 1 .or. nt == ntau) then  
-             if (err < 10.0D-3) err = 10.0D-3      
-          endif
           xcov(nt,nt) = err*err
        enddo
        close(10)
        xqmc_st = xqmc
        dtau = Xtau(2) - Xtau(1)
-       Beta = Xtau(Ntau)
           
-       xmom1 = xqmc(1) + xqmc(Ntau)
        Allocate (Alpha_tot(N_alpha) )
        do nt = 1,N_alpha
           alpha_tot(nt) = alpha_st*(R**(nt-1))
        enddo
-       write(50,*) 'First Moment, Beta  ', Xmom1, Beta
+       write(50,*) 'First Moment  ', Xmom1
        close(50)
           
           
@@ -85,7 +99,7 @@
              Z = Z + A(nwp)/cmplx( om -  omp, delta, kind(0.d0))
           enddo
           Z = Z * dom
-          write(43,"(F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
+          write(43,"('X'2x,F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
        enddo
        close(43)
        
@@ -118,8 +132,7 @@
        real (Kind=Kind(0.d0)) :: tau, om, pi, beta
 
        !pi = 3.1415927
-       XKER = exp(-tau*om) / ( 1.d0 + exp(-Beta*om) ) ! /pi
-       !XKER = exp(-tau*om)  ! / ( 1.d0 + exp(-Beta*om) ) ! /pi
+       XKER = exp(-tau*om) !/ ( 1.d0 + exp(-Beta*om) ) ! /pi
 
      end function XKER
 
