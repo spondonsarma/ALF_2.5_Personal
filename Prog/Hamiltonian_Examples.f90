@@ -57,9 +57,9 @@
 !> the flavor index. \endverbatim
 !> *  The progagation reads:
 !> \f$ \prod_{\tau} \; \;  \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n}  \f$.  That is
-!> first the hopping and then the potential energy. 
+!> first the hopping and then the potential energy.
 !>
-!> @param [public] WF_L   
+!>@param [public] WF_L   
 !> \verbatim Type (WaveFunction), dimension(:),   allocatable
 !> Left trial wave function.  \endverbatim
 !>
@@ -107,7 +107,9 @@
 !> In particular, the transformation,  \f$ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \f$
 !> will be carried out  and \f$ \tilde{G} \f$  will be sent to the Obser and ObserT subroutines.  Note that
 !> if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
-!> symmetrically.
+!> symmetrically. If Symm is true, the propagation reads:
+!> \f$ \prod_{\tau} \; \;  \prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n/2}  \f$
+!>
 !>  
 !> You still have to add some docu for the other private variables in this module.      
 !>
@@ -171,7 +173,13 @@
       
     contains 
 
-
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets the Hamiltonian
+!--------------------------------------------------------------------
       Subroutine Ham_Set
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -499,10 +507,13 @@
 
 
         end Subroutine Ham_Set
-
-!===================================================================================           
-
-!===================================================================================           
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets the interaction
+!--------------------------------------------------------------------
         Subroutine Ham_V
           
           Implicit none 
@@ -651,10 +662,23 @@
           
         end Subroutine Ham_V
 
-!===================================================================================           
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Single spin flip S0 ratio
+!> @details
+!> S0=exp(-S0(new))/exp(-S0(old)) where the new configuration correpsonds to the old one up to
+!> a spin flip of Operator n on time slice nt
+!> @details
+!--------------------------------------------------------------------
         Real (Kind=Kind(0.d0)) function S0(n,nt)  
           Implicit none
-          Integer, Intent(IN) :: n,nt
+          !> Operator index
+          Integer, Intent(IN) :: n
+          !> Time slice
+          Integer, Intent(IN) :: nt
           Integer :: nt1,I
           S0 = 1.d0
           If ( Op_V(n,1)%type == 1 ) then 
@@ -671,8 +695,17 @@
           endif
           
         end function S0
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Setup  bonds and median lattice. 
+!> @details
+!> Note that the median lattice on which the Ising bond fields are defined could be defined generally in
+!> the predefined lattice subroutine.
+!--------------------------------------------------------------------
 
-!===================================================================================           
         Subroutine Setup_Ising_action
           
           ! This subroutine sets up lists and arrays so as to enable an 
@@ -743,10 +776,18 @@
           DW_Ising_Space(-1) = exp( 2.d0*Dtau*Ham_J) 
           
         End Subroutine Setup_Ising_action
-!===================================================================================           
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Specifiy the equal time and time displaced observables
+!> @details
+!--------------------------------------------------------------------
         Subroutine  Alloc_obs(Ltau) 
 
           Implicit none
+          !>  Ltau=1 if time displaced correlations are considered.
           Integer, Intent(In) :: Ltau
           Integer    ::  i, N, Ns,Nt,No
           Character (len=64) ::  Filename
@@ -812,16 +853,32 @@
              enddo
           endif
         End Subroutine Alloc_obs
-
-        
-!========================================================================
-! Functions for Global moves.  These move are not implemented in this example.
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Global moves
+!> 
+!> @details
+!>  This routine generates a 
+!>  global update  and returns the propability T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)
+!> @param [IN] nsigma_old,  Type(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma.
+!> \endverbatim
+!> @param [OUT]  T0_Proposal_ratio Real
+!> \verbatim
+!>  T0_Proposal_ratio  =  T0( sigma_new -> sigma_old ) /  T0( sigma_old -> sigma_new)  
+!> \endverbatim
+!> @param [OUT]  Size_clust Real
+!> \verbatim
+!>  Size of cluster that will be flipped.
+!> \endverbatim
+!-------------------------------------------------------------------
+        ! Functions for Global moves.  These move are not implemented in this example.
         Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
           
-          !>  The input is the field nsigma declared in this module. This routine generates a 
-          !>  global update with  and returns the propability  
-          !>  T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)  
-          !>   
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
           Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
@@ -843,16 +900,29 @@
           enddo
           
         End Subroutine Global_move
-!========================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Computes the ratio exp(S0(new))/exp(S0(old))
+!> 
+!> @details
+!> This function computes the ratio \verbatim  e^{-S0(nsigma)}/e^{-S0(nsigma_old)} \endverbatim
+!> @param [IN] nsigma_old,  Type(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma.
+!> \endverbatim
+!-------------------------------------------------------------------
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
 
-          !>  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
+          !  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
           Implicit none 
           
-          !> Arguments
-          Class (Fields), allocatable :: nsigma_old
+          ! Arguments
+          Class (Fields), allocatable, INTENT(IN) :: nsigma_old
 
-          !> Local
+          ! Local
           Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
          
 
@@ -916,10 +986,28 @@
 
 
         end Function Delta_S0_global
-        
-!========================================================================
-        
-        Subroutine Obser(GR,Phase,Ntau)
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Computes equal time observables
+!> @details
+!> @param [IN] Gr   Complex(:,:,:)  
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!> @param [IN] Phase   Complex
+!> \verbatim
+!>  Phase  
+!> \endverbatim
+!> @param [IN] Ntau Integer
+!> \verbatim
+!>  Time slice 
+!> \endverbatim
+!-------------------------------------------------------------------
+        subroutine Obser(GR,Phase,Ntau)
           
           Implicit none
           
@@ -1071,7 +1159,30 @@
                 
 
         end Subroutine Obser
-!=====================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Computes time displaced  observables
+!> @details
+!> @param [IN] NT, Integer
+!> \verbatim
+!>  Imaginary time
+!> \endverbatim
+!> @param [IN] GT0, GTT, G00, GTT,  Complex(:,:,:)  
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )> 
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)> 
+!>  G00(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(0  )> 
+!>  GTT(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(tau)> 
+!> \endverbatim
+!> @param [IN] Phase   Complex
+!> \verbatim
+!>  Phase  
+!> \endverbatim
+!-------------------------------------------------------------------
         Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE)
           Implicit none
           
@@ -1158,8 +1269,13 @@
           Endif
           
         end Subroutine OBSERT
-
-!==========================================================        
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Prints out the bins.  No need to change this routine.
+!-------------------------------------------------------------------
         Subroutine  Pr_obs(LTAU)
 
           Implicit none
@@ -1183,7 +1299,15 @@
           endif
 
         end Subroutine Pr_obs
-!===================================================================================           
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Initializes observables to zero before each bins.  No need to change
+!> this routine.
+!-------------------------------------------------------------------
         Subroutine  Init_obs(Ltau) 
 
           Implicit none
@@ -1208,34 +1332,49 @@
 
         end Subroutine Init_obs
 
-        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
-             &                     Flip_list, Flip_length,Flip_value,ntau)
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF Collaboration
 !>
-!> @brief 
-!> On input: 
-!> GR(tau,m) as defined in  Global_tau_mod_PlaceGR and the direction of updating scheme
-!> direction=u --> You are visiting the time slices from tau = 1  to tau =Ltrot
-!> direction=d --> You are visiting the time slices from tau = Ltrot to tau = 1
-!> 
-!> On input the field configuration is in the array nsigma.
-!> On output: 
-!> Flip_list   ::  A list of spins that are to be fliped. Refers to the entires  in OP_V
-!> Flip_values ::  The values of the fliped spins
-!> Flip_length ::  The number of flips. The first Flip_length entries of Flip_list and Flip_values are relevant
-!> S0_ratio          = e^( S_0(sigma_new) ) / e^( S_0(sigma) )
-!> T0_Proposal_ratio = T0( sigma_new -> sigma ) /  T0( sigma -> sigma_new)  
-!> T0_proposal       = T0 ( sigma -> sigma_new )
+!> @brief
+!> Specify a global move on a given time slice tau.
+!>
+!> @details
+!> @param[in] ntau Integer
+!> \verbatim
+!>  Time slice
+!> \endverbatim
+!> @param[out] T0_Proposal_ratio, Real
+!> \verbatim
+!>  T0_Proposal_ratio = T0( sigma_new -> sigma ) /  T0( sigma -> sigma_new)
+!> \endverbatim
+!> @param[out] S0_ratio, Real
+!> \verbatim
+!>  S0_ratio = e^( S_0(sigma_new) ) / e^( S_0(sigma) )
+!> \endverbatim
+!> @param[out] Flip_length  Integer
+!> \verbatim
+!>  Number of flips stored in the first  Flip_length entries of the array Flip_values.
+!>  Has to be smaller than NDIM
+!> \endverbatim
+!> @param[out] Flip_list  Integer(:)
+!> \verbatim
+!>  List of spins to be flipped: nsigma%f(Flip_list(1),ntau) ... nsigma%f(Flip_list(Flip_Length),ntau)
+!> \endverbatim
+!> @param[out] Flip_value  Real(:)
+!> \verbatim
+!>  Flip_value(:)= nsigma%flip(Flip_list(:),ntau)
+!> \endverbatim
 !--------------------------------------------------------------------
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
+             &                     Flip_list, Flip_length,Flip_value,ntau)
+
           
           Implicit none 
-          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:)
-          Real (Kind = Kind(0.d0)),INTENT(INOUT) :: Flip_value(:)
-          Integer, INTENT(INOUT) :: Flip_length
+          Real (Kind = Kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio,  S0_ratio
+          Integer,    allocatable, INTENT(OUT) :: Flip_list(:)
+          Real (Kind = Kind(0.d0)),INTENT(OUT) :: Flip_value(:)
+          Integer, INTENT(OUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
 
@@ -1265,5 +1404,28 @@
 
         end Subroutine Global_move_tau
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine  Hamiltonian_set_nsigma(Initial_field) 
+        Implicit none
 
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+
+        
+      end Subroutine Hamiltonian_set_nsigma
+!--------------------------------------------------------------------
+
+        
       end Module Hamiltonian

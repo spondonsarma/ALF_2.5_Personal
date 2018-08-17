@@ -55,7 +55,7 @@
 !> ALF-project
 !
 !> @brief
-      !> Definition of  a set of lattices: Square, One_dimensional, Honeycomb, Pi_Flux
+!> Definition of  a set of lattices: Square, One_dimensional, Honeycomb, Pi_Flux
 !>
 !> @param [in]  Latttice_type  
 !>\verbatim 
@@ -194,9 +194,9 @@
 !>    Hopping, with ot without checkerboard  
 !>    Per flavor, the  hopping is given by
 !>    \f[  e^{ - \Delta \tau  H_t  }   = \prod_{n=1}^{N} e^{ - \Delta \tau_n  H_t(n) }   \f]
-      !>    If  _Symm_ is set to true and if  _Checkeborad_ is on, then  one will carry out a
-      !>    symmetric decomposition so as to preserve  the hermitian properties of the hopping.
-      !>    Thereby   OP_T has dimension OP_T(N,N_FL)
+!>    If  _Symm_ is set to true and if  _Checkeborad_ is on, then  one will carry out a
+!>    symmetric decomposition so as to preserve  the hermitian properties of the hopping.
+!>    Thereby   OP_T has dimension OP_T(N,N_FL)
 !> @param [in]  Latttice_type
 !>    Character(64)
 !>\verbatim 
@@ -274,26 +274,34 @@
 !> \verbatim
 !>      Hopping
 !> \endverbatim
+!> @param [in]  Dimer 
+!>    Real, Optional.  Modulation of hopping that breaks lattice symmetries so as to generate a unique
+!>    ground state for the half-filled case.  This option is  effective only  if the checkerboard
+!>    decomposition is not used. It is presently implemented for the square and one-dimensional lattices.
+!> \verbatim
+!>      Hopping
+!> \endverbatim
 !>       
 !------------------------------------------------------------------
       Subroutine Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
            &                        Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
-           &                        N_FL,  Checkerboard, Symm,  OP_T )
+           &                        N_FL,  Checkerboard, Symm, OP_T, Dimer )
 
         Implicit none
 
-        Character (len=64), Intent(IN)           :: Lattice_type
-        Integer, Intent(IN)                      :: Norb,N_coord, Ndim, N_FL
-        Integer, Intent(IN), Dimension(:,:)      :: List, Invlist
-        Type(Lattice), Intent(in)                :: Latt
-        Real (Kind=Kind(0.d0)), Intent(In)       :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y
-        Logical                                  :: Checkerboard, Symm
+        Character (len=64), Intent(IN)               :: Lattice_type
+        Integer, Intent(IN)                          :: Norb,N_coord, Ndim, N_FL
+        Integer, Intent(IN), Dimension(:,:)          :: List, Invlist
+        Type(Lattice), Intent(in)                    :: Latt
+        Real (Kind=Kind(0.d0)), Intent(In)           :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y
+        Logical                                      :: Checkerboard, Symm
+        Real(Kind=Kind(0.d0)), Intent(IN), Optional  :: Dimer
         
         Type(Operator), Intent(Out),  dimension(:,:), allocatable  :: Op_T 
 
 
         !Local
-        Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no, N_Fam, L_FAM
+        Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no, N_Fam, L_FAM, Ix, Iy, n1
         Complex (Kind=Kind(0.d0)) :: ZX, ZY
         Real    (Kind=Kind(0.d0)) :: del_p(2), X, g
         
@@ -325,6 +333,17 @@
                     endif
                     Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                  Enddo
+                 if (Present(Dimer)) then
+                    Do I = 1, Latt%N
+                       Ix = Latt%list(I,1); Iy = Latt%list(I,2)
+                       If ( mod(Ix + Iy,2)  == 0 ) then
+                          I1 = I
+                          I2 = Latt%nnlist(I,1,0)
+                          Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
+                          Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                       endif
+                    enddo
+                 endif
               Case ("One_dimensional")
                  ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
                  DO I = 1, Latt%N
@@ -338,6 +357,17 @@
                     endif
                     Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                  Enddo
+                 if (Present(Dimer)) then
+                    Do I = 1, Latt%N
+                       Ix = Latt%list(I,1); Iy = Latt%list(I,2)
+                       If ( mod(Ix + Iy,2)  == 0 ) then
+                          I1 = I
+                          I2 = Latt%nnlist(I,1,0)
+                          Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
+                          Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                       endif
+                    enddo
+                 endif
               Case ("Honeycomb")
                  X = 2.d0 * acos(-1.d0)*Phi_X / ( Xnorm(Latt%L1_p) * (Xnorm(Latt%a1_p)**2)  )
                  DO I = 1, Latt%N
@@ -586,8 +616,8 @@
                           Op_T(nc,n)%P(2) = I2
                           Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
                           Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
-                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0))
                           if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
                              Op_T(nc,n)%g = 0.d0
                           else
@@ -616,8 +646,8 @@
                           Op_T(nc,n)%P(2) = I2
                           Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
                           Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
-                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0)) 
+                          Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0))
                           if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
                              Op_T(nc,n)%g = 0.d0
                           else
@@ -714,11 +744,12 @@
 
         
         Type(Operator),  dimension(:,:), allocatable  :: OP_tmp
-        Real (Kind=Kind(0.d0))                        :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y
+        Real (Kind=Kind(0.d0))                        :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, Dimer
         Logical                                       :: Checkerboard, Symm
 
         Integer :: N, nf, I1, I2
-
+        
+        
         Allocate(WF_L(N_FL),WF_R(N_FL))
         do n=1,N_FL
            Call WF_alloc(WF_L(n),Ndim,N_part)
@@ -727,16 +758,24 @@
         
         Dtau     = 1.d0
         Ham_T    = 1.d0
-        Ham_Chem = 1.d0
+        Ham_Chem = 0.d0
         XB_X     = 1.d0
         XB_Y     = 1.d0
-        Phi_X    = 0.01
+        Phi_X    = 0.00
         Phi_Y    = 0.d0
+        Dimer    = 0.d0
         Checkerboard  = .false.
-        Symm          = .false. 
+        Symm          = .false.
+        !If (Lattice_type == "Square" .or.  Lattice_type == "One_dimensional" ) then 
+        !   Dimer    = 0.001d0
+        !else
+           Phi_X    = 0.01
+        !endif
+        
         Call Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
            &                    Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
-           &                    N_FL,  Checkerboard, Symm,  OP_tmp )
+           &                    N_FL,  Checkerboard, Symm,  OP_tmp, Dimer )
+
 
         Do nf = 1,N_FL
             Call Diag(Op_tmp(1,nf)%O,Op_tmp(1,nf)%U,Op_tmp(1,nf)%E)

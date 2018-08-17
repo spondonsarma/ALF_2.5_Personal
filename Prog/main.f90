@@ -98,7 +98,8 @@ Program Main
         Integer :: NTAU, NTAU1
         Real(Kind=Kind(0.d0)) :: CPU_MAX 
         Character (len=64) :: file1
-  
+        Real (Kind=Kind(0.d0)) , allocatable, dimension(:,:) :: Initial_field
+        
         ! Space for choosing sampling scheme
         Logical :: Propose_S0, Tempering_calc_det
         Logical :: Global_moves, Global_tau_moves
@@ -258,7 +259,13 @@ Program Main
         Do n = 1,N_op
            nsigma%t(n)  = OP_V(n,1)%type
         Enddo
-        Call nsigma%in(Group_Comm)
+        Call Hamiltonian_set_nsigma(Initial_field)
+        if (allocated(Initial_field)) then
+           Call nsigma%in(Group_Comm,Initial_field)
+           deallocate(Initial_field)
+        else
+           Call nsigma%in(Group_Comm)
+        endif
         Call Hop_mod_init
 
         IF (ABS(CPU_MAX) > Zero ) NBIN = 10000000

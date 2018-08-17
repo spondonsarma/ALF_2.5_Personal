@@ -1,40 +1,22 @@
-\form#0:\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
-\form#1:\[ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } \]
-\form#2:\[ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } \]
-\form#3:\[ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } \]
-\form#4:\[ e^{-\Delta \tau T }{-1} \]
-\form#5:\[ \tilde{G} = e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } \]
-\form#6:\[ \tilde{G} \]
+\form#0:$ \gamma_{n,\tau} e^{ \phi_{n,\tau} g \hat{O}_{n,\tau} } $
+\form#1:$\pm 1 $
+\form#2:$ \gamma_{n,\tau}(f) = 1, \phi_{n,\tau}(f) = f $
+\form#3:$\pm 1, \pm 2 $
+\form#4:\[ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) }, \phi_{n,\tau}(\pm 2) = \pm \sqrt{2 ( 3 + \sqrt{6} ) } \]
+\form#5:$ \prod_{\tau} \; \; \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} $
+\form#6:$ \tilde{G} = e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $
 \form#7:$ \tilde{G} $
-\form#8:$ \tilde{G} = e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $
-\form#9:\[ \prod_{\tau} \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} \]
-\form#10:\[ \prod_{\tau} \; \; \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} \]
-\form#11:\[ E^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
-\form#12:$ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } $
-\form#13:$ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } $
-\form#14:$ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } $
-\form#15:$ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } $
-\form#16:$ \prod_{\tau} \; \; \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n} $
-\form#17:$ \gamma_{n,\tau} e^{ \phi_{n,\tau} g \hat{O} } $
-\form#18:$ \gamma_{n,\tau} = 1 $
-\form#19:$ \gamma_{n,\tau} e^{ \phi_{n,\tau} g \hat{O}_{n,\tau} } $
-\form#20:$\pm 1 $
-\form#21:$ \gamma_{n,\tau}(f) = 1 $
-\form#22:$\pm 1, \pm 2 $
-\form#23:$ \gamma_{n,\tau}(f) = $
-\form#24:$ \gamma_{n,\tau}(f) = 1, \phi_{n,\tau}(f) = f $
-\form#25:$ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 + \sqrt{6}/3 $
-\form#26:$ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3 $
-\form#27:$ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) } $
-\form#28:$ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) }, \phi_{n,\tau}(\pm 2) = \pm \sqrt{2 ( 3 + \sqrt{6} ) } $
-\form#29:$ For type=3 the fields, f are real and $
-\form#30:\[ \gamma_{n,\tau}(\pm 1) = 1 + \sqrt{6}/3, \gamma_{n,\tau}(\pm 2) = 1 - \sqrt{6}/3, \phi_{n,\tau}(\pm 1) = \pm \sqrt{2 ( 3 - \sqrt{6} ) }, \phi_{n,\tau}(\pm 2) = \pm \sqrt{2 ( 3 + \sqrt{6} ) } \]
-\form#31:$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $
-\form#32:$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $
-\form#33:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
-\form#34:$ W(C') $
-\form#35:$ \det M(C) $
-\form#36:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
-\form#37:$ M = e^{g O} $
-\form#38:$ \prod_{f} \det M_f(C) $
-\form#39:$ W(C) = \left[ \left( \prod_{n,\tau,f} \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
+\form#8:$ \prod_{\tau} \; \; \prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)} \prod_{n=1}^{N_T}e^{T_n/2} $
+\form#9:$ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } $
+\form#10:$ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } $
+\form#11:$ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } $
+\form#12:$ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } $
+\form#13:$ \prod_{f} \det M_f(C) $
+\form#14:$ W(C) = \left[ \left( \prod_{n,\tau,f} \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
+\form#15:$ M = e^{g O} $
+\form#16:\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
+\form#17:$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $
+\form#18:$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $
+\form#19:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
+\form#20:$ W(C') $
+\form#21:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $

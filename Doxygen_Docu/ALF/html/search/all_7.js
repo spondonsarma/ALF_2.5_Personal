@@ -11,6 +11,7 @@ var searchData=
   ['ham_5fxi',['ham_xi',['../namespacehamiltonian.html#a04b8d5403685aa76c409005a817aa003',1,'hamiltonian']]],
   ['hamiltonian',['hamiltonian',['../namespacehamiltonian.html',1,'']]],
   ['hamiltonian_5fexamples_2ef90',['Hamiltonian_Examples.f90',['../Hamiltonian__Examples_8f90.html',1,'']]],
+  ['hamiltonian_5fset_5fnsigma',['hamiltonian_set_nsigma',['../namespacehamiltonian.html#aea2e345f43022b9c6bf72b2d297eaa1c',1,'hamiltonian']]],
   ['hop_5fmod',['hop_mod',['../namespacehop__mod.html',1,'']]],
   ['hop_5fmod_2ef90',['Hop_mod.f90',['../Hop__mod_8f90.html',1,'']]],
   ['hop_5fmod_5finit',['hop_mod_init',['../namespacehop__mod.html#a0d7cc919581d5ec2bf1f4c01ef62fdeb',1,'hop_mod']]],

@@ -2,6 +2,7 @@ var searchData=
 [
   ['ham_5fset',['ham_set',['../namespacehamiltonian.html#adb3e5219cf91a65242c9718ba6d9f45d',1,'hamiltonian']]],
   ['ham_5fv',['ham_v',['../namespacehamiltonian.html#aadd308aa7d53991575550174f86753a8',1,'hamiltonian']]],
+  ['hamiltonian_5fset_5fnsigma',['hamiltonian_set_nsigma',['../namespacehamiltonian.html#aea2e345f43022b9c6bf72b2d297eaa1c',1,'hamiltonian']]],
   ['hop_5fmod_5finit',['hop_mod_init',['../namespacehop__mod.html#a0d7cc919581d5ec2bf1f4c01ef62fdeb',1,'hop_mod']]],
   ['hop_5fmod_5fmmthl',['hop_mod_mmthl',['../namespacehop__mod.html#a30b8a72b14206b79dd57fc5c891008f0',1,'hop_mod']]],
   ['hop_5fmod_5fmmthl_5fm1',['hop_mod_mmthl_m1',['../namespacehop__mod.html#a74c3aba29d56d09d71bfe598a68f869c',1,'hop_mod']]],

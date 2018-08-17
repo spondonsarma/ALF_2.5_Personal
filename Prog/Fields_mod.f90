@@ -259,9 +259,9 @@
 !> Type Integer
 !> Communicator for MPI \endverbatim
 !>
-!> @param [Optional] 
+!> @param [Optional]  Initial_field
 !> \verbatim
-!> Type Fields
+!> Type Real
 !> Initial field \endverbatim
 !--------------------------------------------------------------------
       Subroutine Fields_in(this,Group_Comm,Initial_field)
@@ -272,9 +272,9 @@
 
         Implicit none
         
-        Class (Fields), INTENT(INOUT) :: this
-        Integer,        INTENT(IN   ) :: Group_Comm
-        Class (Fields), Optional      :: Initial_field
+        Class (Fields)        , INTENT(INOUT) :: this
+        Integer               , INTENT(IN   ) :: Group_Comm
+        Real (Kind=Kind(0.d0)), Dimension(:,:), Optional   :: Initial_field
         
         ! LOCAL
         Integer                 :: I, I1, IERR, SEED_IN, K, NT
@@ -346,7 +346,7 @@
                CALL RANSET(SEED_VEC)
                DEALLOCATE (SEED_VEC)
                If (Present(Initial_field)) then
-                  this%f = Initial_field%f
+                  this%f = Initial_field
                else
                   Call  this%set()
                endif
@@ -401,7 +401,7 @@
             CALL RANSET (SEED_VEC)
             DEALLOCATE  (SEED_VEC)
             If (Present(Initial_field)) then
-               this%f = Initial_field%f
+               this%f = Initial_field
             else
                Call  this%set()
             endif

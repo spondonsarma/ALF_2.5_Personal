@@ -7,7 +7,7 @@ var searchData=
   ['phi_5fy',['phi_y',['../namespacehamiltonian.html#a2fe26506e76f653d380605147a5dd0aa',1,'hamiltonian']]],
   ['pivot_5fphase',['pivot_phase',['../namespaceqdrp__mod.html#a1efc8a4f88c2b579031e355fac3967da',1,'qdrp_mod']]],
   ['pr_5fobs',['pr_obs',['../namespacehamiltonian.html#a6e41e35f2eb6cbc0ecb4333731a265a0',1,'hamiltonian']]],
-  ['predefined_5fhopping',['predefined_hopping',['../namespacepredefined__structures.html#aefecfbf90c65027137ba05e1ff2027e6',1,'predefined_structures']]],
+  ['predefined_5fhopping',['predefined_hopping',['../namespacepredefined__structures.html#ae2ee0a49ac9bcae3a0eac425cd797922',1,'predefined_structures']]],
   ['predefined_5flatt',['predefined_latt',['../namespacepredefined__structures.html#a2b5c5c4cd7cce22f4914091ec63aa6f8',1,'predefined_structures']]],
   ['predefined_5fstructures',['predefined_structures',['../namespacepredefined__structures.html',1,'']]],
   ['predefined_5fstructures_2ef90',['Predefined_structures.f90',['../Predefined__structures_8f90.html',1,'']]],
