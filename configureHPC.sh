@@ -152,6 +152,7 @@ case $MACHINE in
 FakhersMAC)
 
 F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -g -fbacktrace"
+F90OPTFLAGS=$GNUOPTFLAGS
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
 export f90="gfortran"

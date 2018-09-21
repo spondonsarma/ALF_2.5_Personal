@@ -61,6 +61,7 @@
        Private
        Real (Kind=Kind(0.d0))  :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
        Real (Kind=Kind(0.d0))  :: Del, FLIP_st(-2:2,3)
+       Real (Kind=Kind(0.d0))  :: Amplitude=2.d0
        
        Type Fields
           Real    (Kind=Kind(0.d0)), allocatable    :: f(:,:)
@@ -84,10 +85,8 @@
 !> ALF-project
 !
 !> @brief 
-!> Assign this=src
+!> Returns Phi of the field this(n_op,n_tau)
 !>
-!> @param [inout] this  Class(UDV_state) 
-!> @param [in] src Class(UDV_state) 
 !-------------------------------------------------------------------      
       
       Real (Kind=Kind(0.d0)) function  Fields_Phi(this,n_op,n_tau)
@@ -110,6 +109,14 @@
         end select
       end function Fields_Phi
 
+!-------------------------------------------------------------------      
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Returns Gamma of the field this(n_op,n_tau)
+!>
+!-------------------------------------------------------------------      
       Real (Kind=Kind(0.d0)) function Fields_Gama(this,n_op,n_tau)
 
         Implicit none
@@ -130,6 +137,15 @@
         
       end function Fields_Gama
 
+!-------------------------------------------------------------------      
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Flips the field this(n_op,n_tau)
+!>
+!-------------------------------------------------------------------      
+
       Real (Kind=Kind(0.d0)) function Fields_flip(this,n_op,n_tau)
 
         Implicit none
@@ -142,7 +158,7 @@
         case (2)
            Fields_flip =   Flip_st( nint(this%f(n_op,n_tau)),nranf(3))
         case (3)
-           Fields_flip =  - this%f(n_op,n_tau)
+           Fields_flip =   this%f(n_op,n_tau) + Amplitude*( ranf_wrap() - 0.5D0)
         case default
            Write(6,*) 'Error in Fields. '
            Stop

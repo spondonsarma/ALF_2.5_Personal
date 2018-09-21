@@ -140,7 +140,8 @@ Contains
        nf = 1
        T0_proposal       = 1.5D0
        T0_Proposal_ratio = 1.D0
-       S0_ratio          = S0(n,ntau1)
+       Hs_new            = nsigma%flip(n,ntau1) 
+       S0_ratio          = S0(n,ntau1, Hs_New)
        if ( Propose_S0 ) then
           If ( Op_V(n,nf)%type == 1)  then
              T0_proposal       = 1.d0 - 1.d0/(1.d0+S0_ratio)
@@ -151,7 +152,6 @@ Contains
           !Write(6,*) 'Hi', n, Op_V(n,nf)%type, T0_Proposal_ratio, S0_ratio  
           mode = "Final"
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
-          HS_new = nsigma%flip(n,ntau1) 
           Call Upgrade2(GR,n,ntau1,PHASE,Op_V(n,nf)%N_non_Zero,HS_new, Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
        else
           toggle1 = .false.
@@ -246,7 +246,8 @@ Contains
        nf = 1
        T0_proposal       = 1.5D0
        T0_Proposal_ratio = 1.D0
-       S0_ratio          = S0(n,ntau)
+       Hs_new            =  nsigma%flip(n,ntau) 
+       S0_ratio          = S0(n,ntau,Hs_new)
        if ( Propose_S0 ) then
           If ( Op_V(n,nf)%type == 1)  then
              T0_proposal       = 1.d0 - 1.d0/(1.d0+S0_ratio)
@@ -256,7 +257,6 @@ Contains
        If ( T0_proposal > ranf_wrap() ) Then
           mode = "Final"
           Prev_Ratiotot = cmplx(1.d0,0.d0,kind(0.d0))
-          HS_new =  nsigma%flip(n,ntau) 
           Call Upgrade2(GR,n,ntau,PHASE,Op_V(n,nf)%N_non_Zero,HS_new, Prev_Ratiotot, S0_ratio,T0_Proposal_ratio, Acc, mode ) 
        else
           toggle1 = .false.

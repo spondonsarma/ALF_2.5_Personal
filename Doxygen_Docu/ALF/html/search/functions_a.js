@@ -1,19 +1,5 @@
 var searchData=
 [
-  ['obser',['obser',['../namespacehamiltonian.html#a7512891175f70d6103bfcfea844933d6',1,'hamiltonian']]],
-  ['obser_5flatt_5finit',['obser_latt_init',['../namespaceobservables.html#ae131c417915db42bf8f51942f67323e9',1,'observables']]],
-  ['obser_5flatt_5fmake',['obser_latt_make',['../namespaceobservables.html#a831494883fefb3be06cefde8ba4dfe2e',1,'observables']]],
-  ['obser_5fvec_5finit',['obser_vec_init',['../namespaceobservables.html#a3f75950f0ae4c378fb9e11510e365178',1,'observables']]],
-  ['obser_5fvec_5fmake',['obser_vec_make',['../namespaceobservables.html#a58d89b0d48a84978dec03ae34d400255',1,'observables']]],
-  ['obsert',['obsert',['../namespacehamiltonian.html#a62fbb052f8da280932ee0a5332531f58',1,'hamiltonian']]],
-  ['op_5fclear',['op_clear',['../namespaceoperator__mod.html#a834ab67aa2a4ba4666f5517b11b1ece2',1,'operator_mod']]],
-  ['op_5fexp',['op_exp',['../namespaceoperator__mod.html#a457d7449857ab5b8b5fe6257be128561',1,'operator_mod']]],
-  ['op_5fmake',['op_make',['../namespaceoperator__mod.html#a86c52c0ae0f16f1b9a91a5de2ae441e7',1,'operator_mod']]],
-  ['op_5fmmultl',['op_mmultl',['../namespaceoperator__mod.html#a733de15bd7f1f44dbdd1a981d149a091',1,'operator_mod']]],
-  ['op_5fmmultr',['op_mmultr',['../namespaceoperator__mod.html#a52fc6406560ee226b0792ebf5863596b',1,'operator_mod']]],
-  ['op_5fphase',['op_phase',['../namespaceoperator__mod.html#a076ef59c0f66dc0f7672ded61210dc1a',1,'operator_mod']]],
-  ['op_5fset',['op_set',['../namespaceoperator__mod.html#a374a4b507419c097365a65a7dc34f1ef',1,'operator_mod']]],
-  ['op_5fwrapdo',['op_wrapdo',['../namespaceoperator__mod.html#a70c151c82a680b81fb0deddca5d86316',1,'operator_mod']]],
-  ['op_5fwrapup',['op_wrapup',['../namespaceoperator__mod.html#a2988e947d51e7ae6a66cc21633e59ce0',1,'operator_mod']]],
-  ['out',['out',['../structfields__mod_1_1fields.html#a12109eaa1e27521431b3a45b92c251ee',1,'fields_mod::fields']]]
+  ['npbc_5ftempering',['npbc_tempering',['../namespaceglobal__mod.html#acc8784f6dafc9c0259291e16b16ed6d4',1,'global_mod']]],
+  ['nranf',['nranf',['../nranf_8f90.html#a5eabf5c182ccccfd8bb7fe2cce6e7f45',1,'nranf.f90']]]
 ];

@@ -6,6 +6,7 @@ var searchData=
   ['decompose',['decompose',['../structudv__state__mod_1_1udv__state.html#a450b0ffef73f6f244a1e0dc22be1d73e',1,'udv_state_mod::udv_state']]],
   ['decompose_5fudv_5fstate',['decompose_udv_state',['../namespaceudv__state__mod.html#afcae51dc128592f086855b9965b425e7',1,'udv_state_mod']]],
   ['defined',['defined',['../structudv__state__mod_1_1udv__state.html#a48089c5e3e3ef83f24cd083fd11c6693',1,'udv_state_mod::udv_state']]],
+  ['degen',['degen',['../structwavefunction__mod_1_1wavefunction.html#a5a7e309d11be2e3f6ee1bc18ae5f73a7',1,'wavefunction_mod::wavefunction']]],
   ['del',['del',['../namespacefields__mod.html#a5e6c14dad8e4430ffe8ea759bf4a814e',1,'fields_mod']]],
   ['delta_5fs0_5fglobal',['delta_s0_global',['../namespacehamiltonian.html#af627770a99fbe09e6cf52af735e251ba',1,'hamiltonian']]],
   ['diag',['diag',['../structoperator__mod_1_1operator.html#a67f81e99463db427d04af66209915641',1,'operator_mod::operator']]],

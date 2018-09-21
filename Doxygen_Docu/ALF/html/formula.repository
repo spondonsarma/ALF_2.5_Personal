@@ -20,3 +20,5 @@
 \form#19:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
 \form#20:$ W(C') $
 \form#21:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
+\form#22:$ H_V = \frac{1}{4} \sum_{i,j} (n_i - 1) V_{i,j} (n_j -1) $
+\form#23:$ S = \sum_{i,j,\tau} \Delta \tau \phi_{i,\tau} V^{-1}_{i,j} \phi_{j,\tau} + \sum_{i} i \Delta \tau \Phi_i(n_i -1) $

@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['ham_5falpha',['ham_alpha',['../namespacehamiltonian.html#a1ff2d175685754a703b58a646b249ff1',1,'hamiltonian']]],
   ['ham_5fchem',['ham_chem',['../namespacehamiltonian.html#a5d9bca3236ec22ed3f6a789aa662e3b7',1,'hamiltonian']]],
   ['ham_5fh',['ham_h',['../namespacehamiltonian.html#a03c917b398d6e8df7361089384c7287b',1,'hamiltonian']]],
   ['ham_5fj',['ham_j',['../namespacehamiltonian.html#a5e41bd505d50b7cfcdcdacf78cbe8cd4',1,'hamiltonian']]],

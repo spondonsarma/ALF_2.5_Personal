@@ -36,10 +36,20 @@
 !> ALF-project
 !
 !> @brief 
-!> This module generates one and two dimensional Bravais lattices.
+!> This module generates one and two dimensional Bravais lattices and the unit cell
 !
 !--------------------------------------------------------------------
          Use Matrix
+
+         Type Unit_cell
+            !> Number of orbitals
+            Integer :: Norb
+            !> Coordination number
+            Integer :: N_coord
+            !> Positions of orbitals: Orb_pos(1..Norb,2) 
+            Real (Kind=Kind(0.d0)), pointer :: Orb_pos_p(:,:) 
+         end type Unit_cell
+         
          Type Lattice
             Integer          :: N, Ns
             Integer, pointer :: list(:,:), invlist(:,:), nnlist(:,:,:), listk(:,:), &

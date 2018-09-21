@@ -127,16 +127,17 @@
       Use Observables
       Use Predefined_structures
       Use Fields_mod
+      Use LRC_Mod
 
       
       Implicit none
 
      
-      Type (Operator),     dimension(:,:), allocatable  :: Op_V 
-      Type (Operator),     dimension(:,:), allocatable  :: Op_T
-      Type (WaveFunction), dimension(:),   allocatable  :: WF_L
-      Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Class (Fields), allocatable :: nsigma
+      Type (Operator),     dimension(:,:), allocatable :: Op_V 
+      Type (Operator),     dimension(:,:), allocatable :: Op_T
+      Type (WaveFunction), dimension(:),   allocatable :: WF_L
+      Type (WaveFunction), dimension(:),   allocatable :: WF_R
+      Class (Fields)                   ,   allocatable :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
@@ -147,18 +148,16 @@
       Logical              :: Symm
 
 
-
-      Type (Lattice),       private :: Latt 
+      Type (Lattice),       private :: Latt
+      Type (Unit_cell),     private :: Latt_unit
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi, XB_X, Phi_X, Ham_tV
+      real (Kind=Kind(0.d0)),        private :: ham_alpha, Percent_change
       real (Kind=Kind(0.d0)),        private :: XB_Y, Phi_Y
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: One_dimensional, Checkerboard
-      Integer,              private :: N_coord, Norb
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
-      
-
 
 
 !>    Privat Observables
@@ -186,8 +185,7 @@
 #endif
           Implicit none
 
-          integer                :: ierr, N_part
-          Real (Kind=Kind(0.d0)) :: Degen
+          integer                :: ierr, N_part, nf
           Character (len=64) :: file_info, file_para
           
           
@@ -199,9 +197,9 @@
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
 
-
-          
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
+          
+          NAMELIST /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change, Dtau, Beta, Theta, Projector
 
           NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi, Dtau, Beta, Theta, Projector
 
@@ -268,7 +266,7 @@
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
 #endif
           
-          Call Predefined_Latt(Lattice_type, L1,L2,Norb,N_coord,Ndim, List,Invlist,Latt)
+          Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -289,10 +287,53 @@
 
 
 
+          ! Default is finite temperature. 
           Projector = .false.
           Theta = 0.d0
           Thtrot = 0
           Select Case (Model)
+          Case ("LRC")
+             N_SUN = 2
+             N_FL  = 1
+#ifdef MPI
+             If (Irank_g == 0 ) then
+#endif
+                READ(5,NML=VAR_LRC)
+                Ltrot = nint(beta/dtau)
+                if (Projector) Thtrot = nint(theta/dtau)
+                Ltrot = Ltrot+2*Thtrot
+                if (Projector) then
+                  Write(50,*) 'Projective version'
+                  Write(50,*) 'Theta         : ', Theta
+                  Write(50,*) 'Tau_max       : ', beta
+                else
+                  Write(50,*) 'Finite temperture version'
+                  Write(50,*) 'Beta          : ', Beta
+                endif
+                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
+                Write(50,*) 'N_SUN         : ', N_SUN
+                Write(50,*) 'N_FL          : ', N_FL
+                Write(50,*) 't             : ', Ham_T
+                Write(50,*) 'Ham_U         : ', Ham_U
+                Write(50,*) 'Ham_alpha     : ', Ham_alpha
+                Write(50,*) 'Percent_change: ', Percent_change
+                Write(50,*) 'Ham_chem      : ', Ham_chem
+#ifdef MPI
+             Endif   
+#endif
+#ifdef MPI
+             CALL MPI_BCAST(Ltrot         ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Thtrot        ,1,MPI_INTEGER,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Projector     ,1,MPI_LOGICAL,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem      ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_alpha     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Percent_change,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Dtau          ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(Beta          ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+#endif
+             
           Case ("Hubbard_Mz")
              N_FL  = 2
              N_SUN = 1
@@ -456,7 +497,7 @@
              Stop
           end Select
 
-          Call Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
+          Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
            &                      Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
            &                      N_FL,  Checkerboard, Symm, OP_T )
 
@@ -464,13 +505,17 @@
           
           if (Projector) then
              N_part = Ndim/2
-             Call Predefined_TrialWaveFunction(Lattice_type, Norb,N_coord,Ndim,  List,Invlist,Latt, &
-                  &                                  N_part, N_FL,  Degen, WF_L, WF_R)
+             Call Predefined_TrialWaveFunction(Lattice_type ,Ndim,  List,Invlist,Latt, Latt_unit, &
+                  &                            N_part, N_FL,  WF_L, WF_R)
 
 #ifdef MPI
-             If (Irank_g == 0 ) then
+             If (Irank_g == 0) then
 #endif
-                Write(50,*) 'Degen of trial wave function: ', Degen
+                Do nf = 1,N_FL
+                   Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
+                   Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
+                enddo
+                   
 #ifdef MPI
              Endif
 #endif             
@@ -487,6 +532,7 @@
 #endif
 
 
+          
 ! #ifdef MPI
 !           If (Irank == 0 )  then
 ! #endif
@@ -503,7 +549,12 @@
 !           endif
 ! #endif
 
+          If (Model == "LRC" ) Then
+             Call LRC_Set_VIJ(Latt, Latt_unit, Ham_U, Ham_alpha, list, invlist)
+          Endif
+          
           call Ham_V
+          
 
 
         end Subroutine Ham_Set
@@ -523,6 +574,25 @@
 
           
           Select case (Model)
+          Case ("LRC")
+             Allocate(Op_V(Ndim,N_FL))
+             do nf = 1,N_FL
+                do i  = 1, Ndim
+                   Call Op_make(Op_V(i,nf),1)
+                enddo
+             enddo
+             Do nf = 1,N_FL
+                nc = 0
+                Do i = 1,Ndim
+                   nc = nc + 1
+                   Op_V(nc,nf)%P(1) = I
+                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%g      = cmplx(0.d0  ,Dtau, kind(0.D0)) 
+                   Op_V(nc,nf)%type   = 3
+                   Call Op_set( Op_V(nc,nf) )
+                Enddo
+             Enddo
           Case ("Hubbard_SU2")  
              !Write(50,*) 'Model is ', Model
              Allocate(Op_V(Ndim,N_FL))
@@ -541,9 +611,9 @@
                    !! Three fields
                    Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
                    Op_V(nc,nf)%type   = 2
-                   !!  Hirsch Decomp  *** This is just for testing  type = 3 **
-                   Op_V(nc,nf)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
-                   Op_V(nc,nf)%type   = 3
+                   !! Hirsch Decomp  *** This is just for testing  type = 3 **   This was just for testing
+                   !! Op_V(nc,nf)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
+                   !! Op_V(nc,nf)%type   = 3
                    Call Op_set( Op_V(nc,nf) )
                 Enddo
              Enddo
@@ -571,14 +641,14 @@
           Case ("Hubbard_SU2_Ising") 
              Allocate(Op_V(3*Ndim,N_FL))
              do nf = 1,N_FL
-                do i  =  1, N_coord*Ndim
+                do i  =  1, Latt_unit%N_coord*Ndim
                    call Op_make(Op_V(i,nf),2)
                 enddo
-                do i  = N_coord*Ndim +1 ,  N_coord*Ndim + Ndim ! For Hubbatd
+                do i  = Latt_unit%N_coord*Ndim +1 ,  Latt_unit%N_coord*Ndim + Ndim ! For Hubbatd
                    Call Op_make(Op_V(i,nf),1)
                 enddo
              enddo
-             Do nc = 1,Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
+             Do nc = 1,Ndim*Latt_unit%N_coord   ! Runs over bonds.  Coordination number = 2.
                 ! For the square lattice Ndim = Latt%N
                 I1 = L_bond_inv(nc,1)
                 I2 = I1
@@ -595,20 +665,20 @@
              Enddo
              
              Do i = 1,Ndim
-                nc1 = N_coord*Ndim + i
+                nc1 = Latt_unit%N_coord*Ndim + i
                 Op_V(nc1,1)%P(1)   = i
                 Op_V(nc1,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
                 Op_V(nc1,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
                 Op_V(nc1,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
                 Op_V(nc1,1)%type   = 2
                 !!  Hirsch Decomp  *** This is just for testing  type = 3 **
-                Op_V(nc1,1)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
-                Op_V(nc1,1)%type   = 3
+                !!Op_V(nc1,1)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
+                !!Op_V(nc1,1)%type   = 3
                 Call Op_set( Op_V(nc1,1) )
              Enddo
           case ("t_V")
-             Allocate(Op_V(N_coord*Latt%N,1))
-             do i  =  1, N_coord*Latt%N
+             Allocate(Op_V(Latt_unit%N_coord*Latt%N,1))
+             do i  =  1, Latt_unit%N_coord*Latt%N
                 call Op_make(Op_V(i,1),2)
              enddo
              select case (Lattice_type)
@@ -617,7 +687,7 @@
                 nc = 0
                 do I = 1,Latt%N
                    I1 = I
-                   do nc1 = 1,N_coord
+                   do nc1 = 1,Latt_unit%N_coord
                       nc = nc + 1
                       if (nc1 == 1 ) I2 = latt%nnlist(I,1,0) 
                       if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
@@ -635,7 +705,7 @@
                 nc = 0
                 do I = 1,Latt%N
                    I1 = Invlist(I,1)
-                   do nc1 = 1,N_coord
+                   do nc1 = 1,Latt_unit%N_coord
                       nc = nc + 1
                       If (nc1 == 1 )  I2 = invlist(I,2)
                       If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
@@ -673,13 +743,18 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-        Real (Kind=Kind(0.d0)) function S0(n,nt)  
+        Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)  
           Implicit none
           !> Operator index
           Integer, Intent(IN) :: n
           !> Time slice
           Integer, Intent(IN) :: nt
+          !> New local field on time slice nt and operator index n
+          Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+          
           Integer :: nt1,I
+          !Write(6,*) "Hi1"
+          
           S0 = 1.d0
           If ( Op_V(n,1)%type == 1 ) then 
              do i = 1,4
@@ -693,6 +768,11 @@
              S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              If (S0 < 0.d0) Write(6,*) 'S0 : ', S0
           endif
+
+          If (model == "LRC" ) then
+             !Write(6,*) "Hi2"
+             S0 = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
+          Endif
           
         end function S0
 !--------------------------------------------------------------------
@@ -715,10 +795,10 @@
           Real (Kind=Kind(0.d0)) :: X_p(2)
 
           ! Setup list of bonds for the square lattice.
-          Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*N_coord,2) )
+          Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*Latt_unit%N_coord,2) )
           
           nc = 0
-          do nth = 1,2*N_coord  
+          do nth = 1,2*Latt_unit%N_coord  
              Do n1= 1, L1/2
                 Do n2 = 1,L2
                    nc = nc + 1
@@ -789,9 +869,11 @@
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
           Integer, Intent(In) :: Ltau
-          Integer    ::  i, N, Ns,Nt,No
+          Integer    ::  i, N, Ns,Nt,No, Norb
           Character (len=64) ::  Filename
 
+
+          Norb = Latt_unit%Norb
           ! Scalar observables
           Allocate ( Obs_scal(4) )
           Do I = 1,Size(Obs_scal,1)
@@ -868,7 +950,7 @@
 !>  Old configuration. The new configuration is stored in nsigma.
 !> \endverbatim
 !> @param [OUT]  T0_Proposal_ratio Real
-!> \verbatim
+!> \verbatimam
 !>  T0_Proposal_ratio  =  T0( sigma_new -> sigma_old ) /  T0( sigma_old -> sigma_new)  
 !> \endverbatim
 !> @param [OUT]  Size_clust Real
@@ -1044,7 +1126,7 @@
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
           Do nf = 1,N_FL
              Do I = 1,Latt%N
-                Do n = 1,N_coord
+                Do n = 1,Latt_unit%N_coord
                    Select Case (Lattice_type)
                    Case ("Square")
                       I1 = I
@@ -1066,17 +1148,28 @@
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 
-          dec = 1
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
           If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" ) then
-            dec = 1
+             dec = 1
+             Do I = 1,Ndim
+                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
+             Enddo
+             Zpot = Zpot*ham_U
           elseif (Model == "Hubbard_MZ") then
-            dec = 2
-          endif
-          Do I = 1,Ndim
-             ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
-          Enddo
-          Zpot = Zpot*ham_U
+             dec = 2
+             Do I = 1,Ndim
+                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
+             Enddo
+             Zpot = Zpot*ham_U
+          elseif (Model == "LRC") then
+             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
+             Do I = 1,Ndim
+                ZPot = ZPot +    LRC_V_int(I,I)* Grc(i,i, 1)* Grc(i,i,1) 
+                Do J = I+1,Ndim
+                   ZPot = ZPot + Z*LRC_V_int(I,J)*(Z *  Grc(i,i, 1)* Grc(j,j,1)  + Grc(i,j,1)*Gr(i,j,1) )
+                Enddo
+             Enddo
+          Endif
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
@@ -1098,7 +1191,7 @@
              Obs_eq(I)%N        = Obs_eq(I)%N + 1
              Obs_eq(I)%Ave_sign = Obs_eq(I)%Ave_sign + real(ZS,kind(0.d0))
           ENDDO
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" .or. Model == "t_V"  ) then 
+          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" .or. Model == "t_V" .or. Model== "LRC"  ) then 
              Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
              Do I1 = 1,Ndim
                 I    = List(I1,1)
@@ -1357,13 +1450,15 @@
 !>  Number of flips stored in the first  Flip_length entries of the array Flip_values.
 !>  Has to be smaller than NDIM
 !> \endverbatim
-!> @param[out] Flip_list  Integer(:)
+!> @param[out] Flip_list  Integer(Ndim)
 !> \verbatim
 !>  List of spins to be flipped: nsigma%f(Flip_list(1),ntau) ... nsigma%f(Flip_list(Flip_Length),ntau)
+!>  Note that Ndim = size(Op_V,1)
 !> \endverbatim
-!> @param[out] Flip_value  Real(:)
+!> @param[out] Flip_value  Real(Ndim)
 !> \verbatim
 !>  Flip_value(:)= nsigma%flip(Flip_list(:),ntau)
+!>  Note that Ndim = size(Op_V,1)
 !> \endverbatim
 !--------------------------------------------------------------------
         Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
@@ -1372,7 +1467,7 @@
           
           Implicit none 
           Real (Kind = Kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(OUT) :: Flip_list(:)
+          Integer                , INTENT(OUT) :: Flip_list(:)
           Real (Kind = Kind(0.d0)),INTENT(OUT) :: Flip_value(:)
           Integer, INTENT(OUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
@@ -1381,27 +1476,39 @@
           ! Local
           Integer :: n_op, n, ns
           Real (Kind=Kind(0.d0)) :: T0_proposal
-          Flip_length = nranf(4)
-          
-          do n = 1,flip_length 
-             n_op = nranf(size(OP_V,1))
-             Flip_list(n)  = n_op
-             If ( OP_V(n_op,1)%type == 1 ) then 
-                T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
-                If ( T0_Proposal > Ranf_wrap() ) then
-                   T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
-                else
-                   T0_Proposal_ratio = 0.d0
-                endif
-                S0_ratio          =   S0(n_op,ntau)
-                Flip_value(n)     =   nsigma%flip(n_op,ntau)
-             else
-                Flip_value(n)     =   nsigma%flip(n_op,ntau)
-                T0_Proposal_ratio = 1.d0
-                S0_ratio          = 1.d0
-             endif
-          Enddo
 
+          If (Model == "LRC" ) then
+             Call LRC_draw_field(Percent_change, Dtau, nsigma%f(:,ntau), Flip_value,N_SUN)
+             Do n = 1,Ndim
+                Flip_list(n) = n
+                !Write(6,*) Flip_value(n), nsigma%f(n,ntau)
+             Enddo
+             !Write(6,*)
+             Flip_length    = Ndim
+             ! T0_Proposal_ration exactly cancels S0_ratio
+             T0_Proposal_ratio = 1.d0
+             S0_ratio          = 1.d0
+          else
+             Flip_length = nranf(4)
+             do n = 1,flip_length 
+                n_op = nranf(size(OP_V,1))
+                Flip_list(n)  = n_op
+                Flip_value(n) = nsigma%flip(n_op,ntau)
+                If ( OP_V(n_op,1)%type == 1 ) then 
+                   S0_ratio          =   S0(n_op,ntau,Flip_value(n))
+                   T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_ratio) ! No move prob
+                   If ( T0_Proposal > Ranf_wrap() ) then
+                      T0_Proposal_ratio =  1.d0 / S0_ratio
+                   else
+                      T0_Proposal_ratio = 0.d0
+                   endif
+                else
+                   T0_Proposal_ratio = 1.d0
+                   S0_ratio          = 1.d0
+                endif
+             Enddo
+          endif
+          
         end Subroutine Global_move_tau
 
 !--------------------------------------------------------------------

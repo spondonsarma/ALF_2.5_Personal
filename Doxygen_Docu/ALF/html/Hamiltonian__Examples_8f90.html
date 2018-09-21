@@ -90,9 +90,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aadd308aa7d53991575550174f86753a8"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#aadd308aa7d53991575550174f86753a8">hamiltonian::ham_v</a></td></tr>
 <tr class="memdesc:aadd308aa7d53991575550174f86753a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the interaction.  <a href="namespacehamiltonian.html#aadd308aa7d53991575550174f86753a8">More...</a><br /></td></tr>
 <tr class="separator:aadd308aa7d53991575550174f86753a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab644072ec1bf428ce4ae68b4a6fb04c9"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#ab644072ec1bf428ce4ae68b4a6fb04c9">hamiltonian::s0</a> (n, nt)</td></tr>
-<tr class="memdesc:ab644072ec1bf428ce4ae68b4a6fb04c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single spin flip S0 ratio.  <a href="namespacehamiltonian.html#ab644072ec1bf428ce4ae68b4a6fb04c9">More...</a><br /></td></tr>
-<tr class="separator:ab644072ec1bf428ce4ae68b4a6fb04c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6204b6ca97dda3a87a78d4cebbd7fb2f"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a6204b6ca97dda3a87a78d4cebbd7fb2f">hamiltonian::s0</a> (n, nt, Hs_new)</td></tr>
+<tr class="memdesc:a6204b6ca97dda3a87a78d4cebbd7fb2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single spin flip S0 ratio.  <a href="namespacehamiltonian.html#a6204b6ca97dda3a87a78d4cebbd7fb2f">More...</a><br /></td></tr>
+<tr class="separator:a6204b6ca97dda3a87a78d4cebbd7fb2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77462baf56d2efa9c1d45ef9639ed390"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a77462baf56d2efa9c1d45ef9639ed390">hamiltonian::setup_ising_action</a></td></tr>
 <tr class="memdesc:a77462baf56d2efa9c1d45ef9639ed390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup bonds and median lattice.  <a href="namespacehamiltonian.html#a77462baf56d2efa9c1d45ef9639ed390">More...</a><br /></td></tr>
 <tr class="separator:a77462baf56d2efa9c1d45ef9639ed390"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,6 +154,8 @@ Variables</h2></td></tr>
 <tr class="separator:a38fa1c4cce2a1f8143d5a16fbddea3cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad908b6d21bf99ba3ff9dae0fe4d1882d"><td class="memItemLeft" align="right" valign="top">type(lattice), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#ad908b6d21bf99ba3ff9dae0fe4d1882d">hamiltonian::latt</a></td></tr>
 <tr class="separator:ad908b6d21bf99ba3ff9dae0fe4d1882d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c133d909ccb9361a5c4389a168db634"><td class="memItemLeft" align="right" valign="top">type(unit_cell), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a6c133d909ccb9361a5c4389a168db634">hamiltonian::latt_unit</a></td></tr>
+<tr class="separator:a6c133d909ccb9361a5c4389a168db634"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a640dde0b8b9b036b73e855a3feaeb863"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a640dde0b8b9b036b73e855a3feaeb863">hamiltonian::l1</a></td></tr>
 <tr class="separator:a640dde0b8b9b036b73e855a3feaeb863"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc044f61c660f6e51f750b378dd88ff4"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#afc044f61c660f6e51f750b378dd88ff4">hamiltonian::l2</a></td></tr>
@@ -176,6 +178,10 @@ Variables</h2></td></tr>
 <tr class="separator:a884ce86017041b4ec130264300dfb201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e0301588aa05699e0fcfb0d16d4c738"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a1e0301588aa05699e0fcfb0d16d4c738">hamiltonian::ham_tv</a></td></tr>
 <tr class="separator:a1e0301588aa05699e0fcfb0d16d4c738"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ff2d175685754a703b58a646b249ff1"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a1ff2d175685754a703b58a646b249ff1">hamiltonian::ham_alpha</a></td></tr>
+<tr class="separator:a1ff2d175685754a703b58a646b249ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac1b1fa8c65688bd7fdbb7c2ce1c73be"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#aac1b1fa8c65688bd7fdbb7c2ce1c73be">hamiltonian::percent_change</a></td></tr>
+<tr class="separator:aac1b1fa8c65688bd7fdbb7c2ce1c73be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49efcdbb93b14e202caa847a20e12d3f"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a49efcdbb93b14e202caa847a20e12d3f">hamiltonian::xb_y</a></td></tr>
 <tr class="separator:a49efcdbb93b14e202caa847a20e12d3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2fe26506e76f653d380605147a5dd0aa"><td class="memItemLeft" align="right" valign="top">real(kind=kind(0.d0)), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a2fe26506e76f653d380605147a5dd0aa">hamiltonian::phi_y</a></td></tr>
@@ -194,10 +200,6 @@ Variables</h2></td></tr>
 <tr class="separator:a288379d3f41a573b4e2b2274425fbce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a194deafd4e8cee2679b632e61ea9e895"><td class="memItemLeft" align="right" valign="top">logical, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a194deafd4e8cee2679b632e61ea9e895">hamiltonian::checkerboard</a></td></tr>
 <tr class="separator:a194deafd4e8cee2679b632e61ea9e895"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54e24c8eb98cd0ddae7c3fbe4cf69d9b"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a54e24c8eb98cd0ddae7c3fbe4cf69d9b">hamiltonian::n_coord</a></td></tr>
-<tr class="separator:a54e24c8eb98cd0ddae7c3fbe4cf69d9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba28ad067b9cc1b847282f5459206370"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#aba28ad067b9cc1b847282f5459206370">hamiltonian::norb</a></td></tr>
-<tr class="separator:aba28ad067b9cc1b847282f5459206370"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a292641502e14286faa4fc4c5e2692ec4"><td class="memItemLeft" align="right" valign="top">integer, dimension(:,:), allocatable, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a292641502e14286faa4fc4c5e2692ec4">hamiltonian::list</a></td></tr>
 <tr class="separator:a292641502e14286faa4fc4c5e2692ec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a636c1b29569310a368b3377ce1382d8a"><td class="memItemLeft" align="right" valign="top">integer, dimension(:,:), allocatable, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacehamiltonian.html#a636c1b29569310a368b3377ce1382d8a">hamiltonian::invlist</a></td></tr>
@@ -224,7 +226,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Aug 14 2018 15:35:59 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Sep 21 2018 13:22:06 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

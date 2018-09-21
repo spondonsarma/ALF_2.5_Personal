@@ -1,7 +1,6 @@
 var searchData=
 [
   ['n',['n',['../structobservables_1_1obser__vec.html#a80bd6f27a1050887e7a8196810df9d3f',1,'observables::obser_vec::n()'],['../structobservables_1_1obser__latt.html#ae11c4fc56528f9cdd2b7bb1542c36dd9',1,'observables::obser_latt::n()'],['../structoperator__mod_1_1operator.html#a8c7ebe008f8d1895c133d59f5f7328f9',1,'operator_mod::operator::n()']]],
-  ['n_5fcoord',['n_coord',['../namespacehamiltonian.html#a54e24c8eb98cd0ddae7c3fbe4cf69d9b',1,'hamiltonian']]],
   ['n_5ffl',['n_fl',['../namespacehamiltonian.html#af508f251b4965d458d35546984d69fb2',1,'hamiltonian']]],
   ['n_5fnon_5fzero',['n_non_zero',['../structoperator__mod_1_1operator.html#a839a080f14a11d624819832e146d96dd',1,'operator_mod::operator']]],
   ['n_5fpart',['n_part',['../structudv__state__mod_1_1udv__state.html#a29e1273f36593de9558cbf23f647db47',1,'udv_state_mod::udv_state']]],
@@ -16,7 +15,6 @@ var searchData=
   ['ncheck',['ncheck',['../namespacehop__mod.html#a81ad5112520ce38fd0133b57f1c378bb',1,'hop_mod']]],
   ['ndim',['ndim',['../structudv__state__mod_1_1udv__state.html#af5111b0150af8e7c069a41a23b1e2336',1,'udv_state_mod::udv_state::ndim()'],['../namespacehamiltonian.html#a13c80692ce5836cdc65570c6c56b0801',1,'hamiltonian::ndim()']]],
   ['ndim_5fhop',['ndim_hop',['../namespacehop__mod.html#a6da88d9005189b32c71dfa33f626004f',1,'hop_mod']]],
-  ['norb',['norb',['../namespacehamiltonian.html#aba28ad067b9cc1b847282f5459206370',1,'hamiltonian']]],
   ['npbc_5ftempering',['npbc_tempering',['../namespaceglobal__mod.html#acc8784f6dafc9c0259291e16b16ed6d4',1,'global_mod']]],
   ['nranf',['nranf',['../nranf_8f90.html#a5eabf5c182ccccfd8bb7fe2cce6e7f45',1,'nranf.f90']]],
   ['nranf_2ef90',['nranf.f90',['../nranf_8f90.html',1,'']]],
