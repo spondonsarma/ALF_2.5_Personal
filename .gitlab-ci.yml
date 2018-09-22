@@ -16,7 +16,7 @@ stages:
     - cd Prog
     - make
     - make clean
-    - make Kondo_Honey
+    - make Examples
 
 .build_template_pgi: &build_definition_pgi
   stage: build
@@ -31,9 +31,8 @@ stages:
     - make
     - cd ..
     - cd Prog
-    - make Examples
     - make clean
-    - make Kondo_Honey
+    - make Examples
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
@@ -46,8 +45,8 @@ stages:
     - make
     - cd ..
     - cd Prog
-    - make
-    - make Kondo_Honey
+    - make clean
+    - make Examples
 
 .test_template: &test_definition
   stage: test

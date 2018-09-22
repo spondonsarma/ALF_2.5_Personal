@@ -266,6 +266,22 @@ and  \path{Fourier_K_to_R}  the  inverse Fourier transform
 \end{equation}
 In the above,   the unspecified dimensions of  the structure factor can refer  to imaginary-time  and orbital indices. 
 
+\subsubsection{The \texttt{Unit\_cell} type}\label{sec:unit}
+
+This type defines the unit cell.   
+\begin{table}[h]
+   \begin{tabular}{@{} l l l @{}}\toprule
+    Variable  & Type & Description \\\midrule
+     \hl{\texttt{Norb}}   & Integer    & Number of orbitals  \\
+      \hl{\texttt{N\_coord}} & Integer & Coordination number  \\
+       \hl{\texttt{Orb\_pos(1..Norb,2) }} & Real & Positions of the orbitals as measured from the lattice site.  \\\bottomrule
+   \end{tabular}
+     \caption{Components of an instance \texttt{Latt\_unit} of the \texttt{Unit\_cell} type.
+   The \hl{highlighted} variables have to be specified by the user. } 
+    \label{table:unit_cell}
+\end{table}
+
+Both the lattice and the unit cell are defined in the predefined  structures module.
 %--------------------------------------------------------------------------------------------
 \subsection{The observable types \texttt{Obser\_Vec} and \texttt{Obser\_Latt}}\label{sec:obs}
 %--------------------------------------------------------------------------------------------
