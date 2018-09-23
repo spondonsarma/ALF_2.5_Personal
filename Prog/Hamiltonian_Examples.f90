@@ -1295,7 +1295,7 @@
                 Obs_tau(I)%Ave_sign = Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
              ENDDO
           endif
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" .or. Model == "t_V"  ) then 
+          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" .or. Model == "t_V" .or. Model == "LRC"  ) then 
              Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
              Do I1 = 1,Ndim
                 I    = List(I1,1)

@@ -265,10 +265,10 @@ GQMCT_jessie_valgrind:
       - make
       - cd ..
       - cd Prog
-      - make SPT
-      - cp SPT.out ../Test_Runs/Test_SPT/Start/
-      - cd ../Test_Runs/Test_SPT/Start/
-      - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
+      - make Examples
+      - cp Examples.out ../Examples/LRC_Test/Start 
+      - cd ../Examples/LRC_Test/Start
+      - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 
