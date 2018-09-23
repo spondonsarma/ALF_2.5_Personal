@@ -69,7 +69,7 @@
 \contentsline {subsubsection}{\numberline {5.1.5}$Z_2$ gauge theory coupled to $Z_2$ matter.}{43}{subsubsection.5.1.5}
 \contentsline {subsubsection}{\numberline {5.1.6}Long range Coulomb}{43}{subsubsection.5.1.6}
 \contentsline {subsection}{\numberline {5.2}Performance, memory requirements and parallelization}{43}{subsection.5.2}
-\contentsline {section}{\numberline {6}Conclusions and Future Directions}{44}{section.6}
+\contentsline {section}{\numberline {6}Conclusions and Future Directions}{45}{section.6}
 \contentsline {section}{Acknowledgments}{45}{section.6}
 \contentsline {section}{References}{45}{section*.2}
 \contentsline {section}{License}{48}{section*.3}

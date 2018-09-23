@@ -11,14 +11,14 @@
 \form#10:$ e^{ \Delta \tau H_t } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n) } $
 \form#11:$ e^{ - \Delta \tau H_t/2 } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n)/2 } $
 \form#12:$ e^{ \Delta \tau H_t/2 } = \prod_{n=N}^{1} e^{ \Delta \tau_n H_t(n)/2 } $
-\form#13:$ \prod_{f} \det M_f(C) $
-\form#14:$ W(C) = \left[ \left( \prod_{n,\tau,f} \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
-\form#15:$ M = e^{g O} $
-\form#16:\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
-\form#17:$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $
-\form#18:$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $
-\form#19:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
-\form#20:$ W(C') $
-\form#21:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
-\form#22:$ H_V = \frac{1}{4} \sum_{i,j} (n_i - 1) V_{i,j} (n_j -1) $
-\form#23:$ S = \sum_{i,j,\tau} \Delta \tau \phi_{i,\tau} V^{-1}_{i,j} \phi_{j,\tau} + \sum_{i} i \Delta \tau \Phi_i(n_i -1) $
+\form#13:$ H_V = \frac{1}{4} \sum_{i,j} (n_i - 1) V_{i,j} (n_j -1) $
+\form#14:$ S = \sum_{i,j,\tau} \Delta \tau \phi_{i,\tau} V^{-1}_{i,j} \phi_{j,\tau} + \sum_{i} i \Delta \tau \Phi_i(n_i -1) $
+\form#15:$ \prod_{f} \det M_f(C) $
+\form#16:$ W(C) = \left[ \left( \prod_{n,\tau,f} \exp \left[ g_f(n) \alpha_f(n) \phi(\sigma(n,\tau)) \right] \right) \det(M_f(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $
+\form#17:$ M = e^{g O} $
+\form#18:\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]
+\form#19:$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $
+\form#20:$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $
+\form#21:$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $
+\form#22:$ W(C') $
+\form#23:$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $

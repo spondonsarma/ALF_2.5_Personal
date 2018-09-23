@@ -151,14 +151,14 @@ Functions/Subroutines</h2></td></tr>
   If  Mode=Final         then the routine carries out the move and updates the Green function if accepted</pre> </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">Prev_Ratiotot</td><td>Complex <pre class="fragment">  Prev_Ratiotot = Prev_Ratiotot*Ratiotot.  Ratiotot corresponds to the ratio of the fermion weights.</pre> </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">S0_ratio,T0_proposal_ratio</td><td>Real <pre class="fragment">  If the mode is set to final then Weight = S0_Ratio*T0_proposal_ratio*Abs(Real(Ratiotot))</pre><ul>
-<li>S0_ratio corresponds to ratio of the bosonic part of the action <img class="formulaInl" alt="$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $" src="form_17.png"/></li>
-<li>T0_proposal_ratio corresponds to the proposal probability ratio <img class="formulaInl" alt="$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $" src="form_18.png"/> </li>
+<li>S0_ratio corresponds to ratio of the bosonic part of the action <img class="formulaInl" alt="$ \frac{e^{-S_0(C')}}{e^{-S_0(C)}} $" src="form_19.png"/></li>
+<li>T0_proposal_ratio corresponds to the proposal probability ratio <img class="formulaInl" alt="$ \frac{T_0 ( C'\rightarrow C)}{T_0 (C\rightarrow C')} $" src="form_20.png"/> </li>
 </ul>
 </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">toggle</td><td>Logical <pre class="fragment">  Returns true if the move is accepted </pre> </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">Phase</td><td>Complex <pre class="fragment">  If mode=final and the move is accepted then phase is updated.</pre><ul>
-<li>The phase is defeined as <img class="formulaInl" alt="$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $" src="form_19.png"/> where <img class="formulaInl" alt="$ W(C') $" src="form_20.png"/> is the full fermion weight</li>
-<li>The weight reads <img class="formulaInl" alt="$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $" src="form_21.png"/> </li>
+<li>The phase is defeined as <img class="formulaInl" alt="$ e^{i \phi'} = \frac{W(C')}{| W(C')|} $" src="form_21.png"/> where <img class="formulaInl" alt="$ W(C') $" src="form_22.png"/> is the full fermion weight</li>
+<li>The weight reads <img class="formulaInl" alt="$ W(C) = \left[ \left( \prod_{n,\tau} \exp \left[ g(n,\tau) \alpha(n,\tau) \phi(\sigma(n,\tau)) \right] \right) \det(M(C))\right]^{N_{SUN}} \prod_{n,\tau }\gamma(\sigma(n,\tau)) $" src="form_23.png"/> </li>
 </ul>
 </td></tr>
   </table>
@@ -188,7 +188,7 @@ Functions/Subroutines</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 21 2018 13:22:06 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Sep 23 2018 13:52:42 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

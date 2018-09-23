@@ -26,4 +26,17 @@ Here $d_{min}$ is the minimal distance between two orbitals.     The code uses t
 e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) } 
 \end{equation}
 
-The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries. 
+The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    The definition of  the Coulomb repulsion is as follows. 
+A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
+\begin{lstlisting}
+X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:) 
+          +   Latt_unit%Orb_pos_p(no_j,:)
+\end{lstlisting}
+or in more compact notation $ \vec{i}  + \vec{\delta}_i $.   By definition \texttt{Latt\_unit\%Orb\_pos\_p(1,:)=0}.
+The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \vec{j}  + \vec{\delta}_j $   reads: 
+\begin{equation}
+	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
+\end{equation}
+Here  we use periodic boundary conditions such that  $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.
+
+
