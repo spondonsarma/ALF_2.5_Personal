@@ -23,7 +23,6 @@ Program TESTOPMAKE
       Do opn = 1, 16 ! overflow occurs for our particular O
             Allocate (matold(opn, opn), matnew(opn, opn))
            ! setup some test data
-            Call Op_seths ()
             Call Op_make (Op, opn)
 !
             Do i = 1, Op%n
@@ -65,7 +64,9 @@ Program TESTOPMAKE
          End Do
         Deallocate (matnew, matold)
         call Op_clear(Op, opn)
-      End Do
+     End Do
+     
+      write(*,*) "success"
 
 End Program TESTOPMAKE
 !
