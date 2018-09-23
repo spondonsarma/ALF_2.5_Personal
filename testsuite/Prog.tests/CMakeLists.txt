@@ -35,7 +35,7 @@ set(cgr1tests 15-cgr 20-qdrp 23-cgrp)
 set(udvstatetests 18-ul-update-matrices 19-ur-update-matrices 24-udv)
 set(progtests ${operatorparts} ${cgr1tests} ${cgr2_1tests} ${cgr2_2tests} ${udvstatetests})
 
-set_target_properties(${progtests} PROPERTIES COMPILE_FLAGS "-Wall -I  -fcheck=all -g -fbacktrace  ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/ -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/ -L ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/")
+set_target_properties(${progtests} PROPERTIES COMPILE_FLAGS "-Wall -I  ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/ -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/ -L ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/")
 
 foreach(iter ${operatorparts})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Operator.o ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Fields_mod.o)
