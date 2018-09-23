@@ -551,6 +551,14 @@
 
           If (Model == "LRC" ) Then
              Call LRC_Set_VIJ(Latt, Latt_unit, Ham_U, Ham_alpha, list, invlist)
+#ifdef MPI
+             If (Irank_g == 0 )  then
+#endif
+                Call LRC_Print(Latt, Latt_unit, list, invlist)
+#ifdef MPI
+             Endif
+#endif
+             
           Endif
           
           call Ham_V

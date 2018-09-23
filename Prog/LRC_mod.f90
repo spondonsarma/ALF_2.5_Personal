@@ -112,6 +112,72 @@
       end function LRC_V_int
 
 
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief
+!> Prints the Coulomb repulsion as well as eigenvectors in the file Coulomb_Rep 
+!>
+!> @details
+
+!> @param [in] Lattice
+!> \verbatim
+!>  Type (Lattice)
+!> \endverbatim
+!> @param [in] Latt_unit
+!> \verbatim
+!>  Type (Unit_cell)
+!> \endverbatim
+!> @param [in]  List, Invlist
+!> \verbatim
+!>  Type  Integer(:,:)
+!>  List(I=1.. Ndim,1)    =   Unit cell of site I    
+!>  List(I=1.. Ndim,2)    =   Orbital index  of site I    
+!>  Invlist(Unit_cell,Orbital) = site I    
+!> \endverbatim
+!-------------------------------------------------------------------
+      Subroutine LRC_Print(Latt, Latt_unit, list, invlist)
+        
+        Use Lattices_v3
+        Implicit none
+
+        !  Lattice
+        Type (Lattice)  , intent(in) :: Latt
+        !  Unit cell
+        Type (Unit_cell), intent(in) :: Latt_unit
+        !  List(I=1.. Ndim,1)    =   Unit cell of site I    
+        !  List(I=1.. Ndim,2)    =   Orbital index  of site I    
+        !  Invlist(Unit_cell,Orbital) = site I    
+        Integer, intent(in), Dimension(:,:) :: List, Invlist
+
+        ! Local
+        Real (Kind=Kind(0.d0)) :: X_p(2),  X0_p(2)
+        Integer :: I,J, no_J, Ju, no_I, Iu, I0, imj
+
+        Open (Unit = 25,file="Coulomb_Rep",status="unknown")
+
+
+        I0=1
+        Iu  = I0
+        no_I= 1
+        I = Invlist(Iu,no_I)
+        Do Ju = 1, Latt%N
+           do no_J = 1,Latt_unit%Norb
+              J    = invlist(Ju,no_J)
+              ImJ  = Latt%imj(Iu,Ju)
+              X_p(:) = dble(Latt%list(ImJ,1))*latt%a1_p(:)  +  dble(Latt%list(ImJ,2))*latt%a2_p(:) + &
+                   &   Latt_unit%Orb_pos_p(no_i,:)  -  Latt_unit%Orb_pos_p(no_j,:)
+              Write(25,"(F16.8,2x,F16.8)") sqrt(X_p(1)**2 + X_p(2)**2), V_int(I,J)
+           enddo
+        Enddo
+        Do J = 1,Latt%N * Latt_unit%Norb
+           Write(25,*) E_int(J)
+        Enddo
+        Close(25)
+           
+      end Subroutine LRC_Print
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -163,7 +229,7 @@
         Integer, intent(in), Dimension(:,:) :: List, Invlist
         
         !Local
-        Integer ::   I,J,no_i,no_j, n, m, no
+        Integer ::   I,J,no_i,no_j, n, m, no, imj
         Real (Kind=Kind(0.d0)) :: X_p(2), X0_p(2), X1_p(2), d1, X, X_min, Xmean,Xmax
         Real (Kind=Kind(0.d0)), allocatable :: M_Tmp(:,:), M_Tmp1(:,:)
         Logical :: L_test=.false.
@@ -194,17 +260,17 @@
 
         ! Set Potential
         Do i = 1, Latt%N
-           X0_p = dble(Latt%list(i,1))*latt%a1_p  +  dble(Latt%list(i,2))*latt%a2_p
            do j = 1, Latt%N
-              X1_p = dble(Latt%list(j,1))*latt%a1_p  +  dble(Latt%list(j,2))*latt%a2_p
               !Write(6,*) I,J
+              imj = Latt%imj(i,j)
+              X0_p = dble(Latt%list(imj,1))*Latt%a1_p + dble(Latt%list(imj,2))*Latt%a2_p  
               do no_i = 1,Latt_unit%Norb
                  do no_j = 1,Latt_unit%Norb
-                    X_p(:) = X1_p(:) +  Latt_unit%Orb_pos_p(no_j,:) -  X0_p(:) - Latt_unit%Orb_pos_p(no_i,:)
                     n = invlist(i,no_i)
                     m = invlist(j,no_j)
+                    X_p(:) = X0_p(:) +  Latt_unit%Orb_pos_p(no_i,:) - Latt_unit%Orb_pos_p(no_j,:)
                     V_int(n,m) = V_int(n,m) + LRC_V_func(X_p,Uhub,alpha,d1)
-                    Write(25,*) sqrt(X_p(1)**2 + X_p(2)**2), LRC_V_func(X_p,UHub,alpha,d1)
+                    !Write(25,*) sqrt(X_p(1)**2 + X_p(2)**2), LRC_V_func(X_p,UHub,alpha,d1)
                  enddo
               enddo
            enddo
@@ -212,7 +278,7 @@
         Call Diag(V_int,U_int,E_int)
 
         Do I = 1,size(E_int,1)
-           Write(25,*) E_int(I) 
+           !Write(25,*) E_int(I) 
            if ( E_int(i) < 1.D-10 ) then
               Write(6,*) 'V_int(i,j) is not positive definite '
               Stop
