@@ -25,6 +25,8 @@ Compiler: gfortran  or ifort
 ## CONFIGURATION FOR COMPILATION ##
 **setenv.sh**   sets the default set of envorinment variables.  Do not change  this since this default set of  environment variables is required for the tests to run adequaltely.
 
+**configureHPC.sh**  It is recommended to use this script to set the environment variables. Type ./configureHPC.sh to  browse through a list of options.
+
 The full compilation is done from the **Makefile**.  Your compilation options should be inserted here. 
 
 ## FILES AND DIRECTORIES ##
