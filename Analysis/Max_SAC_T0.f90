@@ -6,8 +6,11 @@
        Implicit none
        
        Real (Kind=Kind(0.d0)), Dimension(:), allocatable :: XQMC, XTAU, Alpha_tot, xom, A, &
-            &    ERROR, ARES, XQMC_ST
-       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, Cov_st
+            &    ERROR, ARES
+       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: Xcov
+       
+       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: Xcov_st
+       Real (Kind=Kind(0.d0)), Dimension(:), allocatable :: Xqmc_st, Xtau_st
        Real (Kind=Kind(0.d0)), External :: XKER, Back_trans_Aom, F_Fit
        Character (len=64) :: File1, File2
        Character (len=1)  :: Fermion_type
@@ -16,6 +19,7 @@
        Logical            :: skip
 
        Integer ::  N_alpha, nc, nw, Ndis, nwp, nbins, NSweeps, NWarm, Ntau, Ngamma, nt, N_alpha_1, io_error
+       Integer :: L_cov, Lt, nt_st, nt_en, nt1, nbins_qmc
        Real (Kind=Kind(0.d0)) :: alpha_st, R, Xmom1, X,  X1, X2, om, omp, pi, Om_st, Om_en, err
        Real (Kind=Kind(0.d0)) :: Dom, delta, beta, dtau
 
@@ -27,6 +31,7 @@
           write(50,*) 'Reading in from paramSAC'
           read(30,*)  Ngamma, OM_st, OM_en, Ndis,  NBins, NSweeps, Nwarm
           read(30,*)  N_alpha, alpha_st, R
+          read(30,*)  L_cov
        else
           write(6,*) 'No file paramSAC! ' 
           stop
@@ -34,32 +39,51 @@
        close(30)
        
 
+       ! Read the data
        open (unit=10,File="g_dat", status="unknown")
-       Read(10,*) X, xmom1, X1
-       if (X1 < 10.D-8) then
-          Skip =.true.
-          nc = 0
-       else
-          nc = 1
+       Read(10,*)  Lt, nbins_qmc
+       Allocate ( Xtau_st(LT), Xqmc_st(Lt), Xcov_st(Lt,Lt) )
+       Xcov_st = 0.d0
+       Do nt = 1,Lt
+          Read(10,*) Xtau_st(nt), Xqmc_st(nt), err
+          xcov_st(nt,nt) = err*err
+       Enddo
+       If (L_cov == 1 ) then
+          Do nt = 1,Lt
+             Do nt1 = 1,Lt
+                Read(10,*) xcov_st(nt1,nt) 
+             Enddo
+          Enddo
        endif
-       do
-          read(10,*,End=10)  X,X1,X2
-          if ( abs(X1) - abs(X2)  < 0.d0 .or. X1 < 0.d0 ) exit
-          nc = nc + 1
-       enddo
-10     continue
-       Rewind(10)
-       Write(6,*) Nc, Skip, X1, X2
-       Ntau = NC
-       Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU), XQMC_ST(NTAU), XTAU(NTAU) )
-       xcov = 0.d0
-       if (Skip) read(10,*) X,X1,X2
-       do nt = 1,ntau
-          read(10,*) Xtau(nt), Xqmc(nt), err
-          xcov(nt,nt) = err*err
-       enddo
        close(10)
-       xqmc_st = xqmc
+
+       !Set the range 
+       nt_st = 1
+       if (  sqrt(xcov_st(1,1)) < 10.D-8) nt_st=2
+       do nt = 1,lt
+          X1 = Xqmc_st(nt)
+          X2 = sqrt(xcov_st(nt,nt))
+          nt_en = nt -1 
+          if ( abs(X1) - abs(X2)  < 0.d0 .or. X1 < 0.d0 ) exit
+       enddo
+       
+
+       Xmom1 =  Xqmc_st(1)
+
+       Ntau = nt_en - (nt_st-1)
+       Allocate ( Xcov(ntau,ntau), Xqmc(ntau), Xtau(ntau) )
+       do nt = 1, Ntau
+          xqmc(nt)  =  Xqmc_st(nt + (nt_st-1) )
+          xtau(nt)  =  xtau_st(nt + (nt_st-1) )
+       enddo
+       do nt = 1,Ntau
+          do nt1 = 1,Ntau
+             xcov(nt1,nt)  =  xcov_st(nt1 + (nt_st-1), nt + (nt_st-1) )
+          enddo
+       enddo
+       deallocate ( Xtau_st, Xqmc_st, Xcov_st )
+       Allocate (Xqmc_st(ntau))
+       Xqmc_st = Xqmc
        dtau = Xtau(2) - Xtau(1)
           
        Allocate (Alpha_tot(N_alpha) )
@@ -68,11 +92,18 @@
        enddo
        write(50,*) 'First Moment  ', Xmom1
        close(50)
-          
-          
-       Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER, Back_Trans_Aom, Beta, &
-            &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm) 
+
+       if (nt_en >= nbins_qmc/3) nt_en =  nbins_qmc/3
+       Write(6,*) nt_st, nt_en
        
+          
+       If (L_cov == 1 ) then
+          Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER, Back_Trans_Aom, Beta, &
+               &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_cov) 
+       else
+          Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER, Back_Trans_Aom, Beta, &
+               &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
+       endif
        
        N_alpha_1 = N_alpha - 10  
        File1 ="Aom_ps"
