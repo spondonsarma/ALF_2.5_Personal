@@ -36,11 +36,15 @@
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> Given    B(NTAU,  1 ) =  UR, DR, VR
-!> Returns  B(NTAU1, 1 ) =  UR, DR, VR
-!> NOTE:    NTAU1 > NTAU.
-!
+!> @brief
+!> Imaginary time propagation and udv decompostion from Ntau to Ntau1, Ntau1 > Ntau
+!>
+!> @details
+!> On input   B(NTAU ,1)  =  UR*DR*VR \n
+!> On output  B(NTAU1,1)  =  UR*DR*VR
+!> @param[in] Ntau, Ntau1  Integer
+!> @param[inout] UDVR Class(UDV_state)
+
 !-------------------------------------------------------------------
 
         Use Hop_mod
@@ -51,8 +55,8 @@
         Implicit None
 
         ! Arguments
-        CLASS(UDV_State), intent(inout), allocatable :: udvr(N_FL)
-        Integer :: NTAU1, NTAU
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.
@@ -72,7 +76,7 @@
 !             TMP = TMP1
               Do n = 1,Size(Op_V,1)
 !                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
            CALL MMULT(TMP1,TMP, udvr(nf)%U)
@@ -92,7 +96,7 @@
 
         ! Arguments
         CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
-        Integer :: NTAU1, NTAU
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.
@@ -102,7 +106,7 @@
            DO NT = NTAU + 1, NTAU1
               Call Hop_mod_mmthR(UDVR(nf)%U,nf)
               Do n = 1,Size(Op_V,1)
-                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
 

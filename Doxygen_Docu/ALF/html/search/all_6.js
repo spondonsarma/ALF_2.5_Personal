@@ -1,7 +1,8 @@
 var searchData=
 [
   ['g',['g',['../structoperator__mod_1_1operator.html#a66299dc8b41e6c18ea89324354986359',1,'operator_mod::operator']]],
-  ['gaml',['gaml',['../namespaceoperator__mod.html#a6fceeb24b09925b6b2a3d727457df864',1,'operator_mod']]],
+  ['gama',['gama',['../structfields__mod_1_1fields.html#acea7c74ae3e17a3a7d8060d31554a855',1,'fields_mod::fields']]],
+  ['gama_5fst',['gama_st',['../namespacefields__mod.html#aa4f3ca734e8d81cc8e0c0ad28f31cb26',1,'fields_mod']]],
   ['getscale',['getscale',['../structudv__state__mod_1_1udv__state.html#ac0c38ea0903ed121bfb14022031d0fa6',1,'udv_state_mod::udv_state']]],
   ['getscale_5fudv_5fstate',['getscale_udv_state',['../namespaceudv__state__mod.html#a6651a741a9cf871fb736004cdea4b1da',1,'udv_state_mod']]],
   ['global_5fmod',['global_mod',['../namespaceglobal__mod.html',1,'']]],

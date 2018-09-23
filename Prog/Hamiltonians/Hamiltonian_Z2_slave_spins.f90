@@ -8,6 +8,8 @@
       Use Files_mod
       Use Matrix
       Use Observables
+      Use Fields_mod
+
       
       Implicit none
 
@@ -16,7 +18,7 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Class (Fields)                   ,   allocatable  :: nsigma
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
       Logical              :: Projector
 !>    Defines MPI communicator 
@@ -354,14 +356,14 @@
           S0 = 1.d0
           If ( Op_V(n,1)%type == 1 ) then 
              do i = 1,4
-                S0 = S0*DW_Ising_space(nsigma(n,nt)*nsigma(Ising_nnlist(n,i),nt))
+                S0 = S0*DW_Ising_space(nsigma%i(n,nt)*nsigma%i(Ising_nnlist(n,i),nt))
              enddo
              nt1 = nt +1 
              if (nt1 > Ltrot) nt1 = 1
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
              nt1 = nt - 1 
              if (nt1 < 1  ) nt1 = Ltrot
-             S0 = S0*DW_Ising_tau(nsigma(n,nt)*nsigma(n,nt1))
+             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
 
              ! Magnetic flux term
              I1 = L_bond_inv(n,1)
@@ -370,23 +372,23 @@
                 !     I1 I3
                 I2 = Latt%nnlist(I1,0,1 )
                 I3 = Latt%nnlist(I1,1,0 )
-                F1 = nsigma(n,nt)*nsigma(L_bond(I1,2),nt)* nsigma(L_bond(I2,1),nt)*nsigma(L_bond(I3,2),nt)
+                F1 = nsigma%i(n,nt)*nsigma%i(L_bond(I1,2),nt)* nsigma%i(L_bond(I2,1),nt)*nsigma%i(L_bond(I3,2),nt)
                 !     I1  
                 !     I2 I3 
                 I2 = Latt%nnlist(I1,0,-1)
                 I3 = Latt%nnlist(I1,1,-1)
-                F2 = nsigma(n,nt)*nsigma(L_bond(I2,1),nt)* nsigma(L_bond(I2,2),nt)*nsigma(L_bond(I3,2),nt)
+                F2 = nsigma%i(n,nt)*nsigma%i(L_bond(I2,1),nt)* nsigma%i(L_bond(I2,2),nt)*nsigma%i(L_bond(I3,2),nt)
              else
                 !    I3
                 !    I2  I1
                 I2 = Latt%nnlist(I1,-1,0 )
                 I3 = Latt%nnlist(I1,-1,1 )
-                F1 = nsigma(n,nt)*nsigma(L_bond(I2,1),nt)* nsigma(L_bond(I2,2),nt)*nsigma(L_bond(I3,1),nt)
+                F1 = nsigma%i(n,nt)*nsigma%i(L_bond(I2,1),nt)* nsigma%i(L_bond(I2,2),nt)*nsigma%i(L_bond(I3,1),nt)
                 !    I2
                 !    I1  I3
                 I2 = Latt%nnlist(I1,0,1)
                 I3 = Latt%nnlist(I1,1,0)
-                F2 = nsigma(n,nt)*nsigma(L_bond(I1,1),nt)* nsigma(L_bond(I2,1),nt)*nsigma(L_bond(I3,2),nt)
+                F2 = nsigma%i(n,nt)*nsigma%i(L_bond(I1,1),nt)* nsigma%i(L_bond(I2,1),nt)*nsigma%i(L_bond(I3,2),nt)
              endif
              S0 = S0*DW_Ising_Flux(F1,F2)
           endif
@@ -419,9 +421,10 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio, S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
-          Integer, INTENT(INOUT) :: Flip_length
+          Real (Kind= kind(0.d0)), INTENT(OUT) :: T0_Proposal_ratio, S0_ratio
+          Integer,    allocatable, INTENT(OUT) :: Flip_list(:)
+          Real (Kind= Kind(0.d0) ), allocatable, INTENT(out) :: Flip_value(:)
+          Integer, INTENT(OUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
 
@@ -453,17 +456,15 @@
                 Write(6,*) ' Error  '
                 stop
              end select
-             Flip_list(n)  = n_op
-             ns            = nsigma(n_op,ntau)
-             Flip_value(n) = - ns
+             Flip_list (n) = n_op
+             Flip_value(n) = nsigma%flip(n_op,ntau)
           enddo
           If ( I == Latt%N )   then 
              Flip_length   = 5
              n             = 5
              n_op          = N_coord*Ndim + 1 
              Flip_list(n)  = n_op
-             ns            = nsigma(n_op,ntau)
-             Flip_value(n) = - ns
+             Flip_value(n) = nsigma%flip(n_op,ntau)
           endif
           
           ntau_p1 = ntau + 1 
@@ -487,21 +488,6 @@
           S0_ratio          =  S0_Matter
 
           Deallocate (Isigma1,Isigma2, Isigma3)
-!!$          Flip_length    = 1
-!!$          n_op = nranf(size(OP_V,1))
-!!$          Flip_list(1)   = n_op
-!!$          If ( OP_V(n_op,1)%type == 1 ) then 
-!!$             ns = nsigma(n_op,ntau)
-!!$             T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0(n_op,ntau)) ! No move prob
-!!$             T0_Proposal_ratio =  1.d0 / S0(n_op,ntau)
-!!$             S0_ratio          =  S0(n_op,ntau)
-!!$             Flip_value(1)     = - ns
-!!$          else
-!!$             Flip_value(1)     = NFLIPL(nsigma(n_op,ntau),nranf(3))
-!!$             T0_Proposal       = 1.d0 
-!!$             T0_Proposal_ratio = 1.d0
-!!$             S0_ratio          = 1.d0
-!!$          endif
           
         end Subroutine Global_move_tau
 !===================================================================================           
@@ -513,7 +499,7 @@
           
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
           
           !> nsigma_old contains a copy of nsigma upon entry
           
@@ -522,49 +508,17 @@
           Real (Kind=Kind(0.d0)) :: Weight, Ratio
           
           If (Model == "Z2_Slave" ) then 
-             
-             
+
              I = nranf(Latt%N)
-!!$             If ( ranf_wrap() > -0.1 ) then 
-!!$                nt= nranf(Ltrot )
-!!$                dx = 0 ! nranf(L1/2)
-!!$                sx = 1; 
-!!$                if (nranf(2) == 2 ) sx = -1
-!!$                dy = 0 !nranf(L2/2)
-!!$                sy = 1
-!!$                if ( nranf(2) == 2) sy = -1
-!!$                dt = nranf(Ltrot/2)
-!!$                st = 1
-!!$                if ( nranf(2) == 2) st = -1 
-!!$                
-!!$                Do n = 1,dx
-!!$                   I1 = Latt%nnlist(I,sx,0)
-!!$                   nsigma(L_bond(I,2),nt) = - nsigma(L_bond(I,2),nt)
-!!$                   I = I1
-!!$                enddo
-!!$                Do n = 1,dy
-!!$                   I1 = Latt%nnlist(I,0,sy)
-!!$                   nsigma(L_bond(I,1),nt) = - nsigma(L_bond(I,1),nt)
-!!$                   I = I1
-!!$                enddo
-!!$                Do n = 1,dt
-!!$                   nt1  = nt + st
-!!$                   if (nt1 > Ltrot ) nt1 = nt1 - Ltrot
-!!$                   if (nt1 < 1     ) nt1 = nt1 + Ltrot
-!!$                   nsigma(L_bond(I,1),nt1) = - nsigma(L_bond(I,1),nt1)
-!!$                   nt = nt1
-!!$                enddo
-!!$             else
-                !Write(6,*)  ' Flux tube '
              n1  = L_bond(I,1)
              n2  = L_bond(I,2)
              n3  = L_bond(Latt%nnlist(I,-1,0),1)
              n4  = L_bond(Latt%nnlist(I,0,-1),2)
              do nt = 1,Ltrot
-                nsigma(n1,nt) = -nsigma(n1,nt)
-                nsigma(n2,nt) = -nsigma(n2,nt)
-                nsigma(n3,nt) = -nsigma(n3,nt)
-                nsigma(n4,nt) = -nsigma(n4,nt)
+                nsigma%f(n1,nt) = nsigma%flip(n1,nt)
+                nsigma%f(n2,nt) = nsigma%flip(n2,nt)
+                nsigma%f(n3,nt) = nsigma%flip(n3,nt)
+                nsigma%f(n4,nt) = nsigma%flip(n4,nt)
              enddo
           Endif
           
@@ -572,25 +526,12 @@
           Weight = 1.d0 - 1.d0/(1.d0+Ratio)
           If ( Weight < ranf_wrap() ) Then 
              T0_Proposal_ratio = 0.d0
-             nsigma            = nsigma_old
+             nsigma%f  = nsigma_old%f
+             nsigma%t  = nsigma_old%t
           else
              T0_Proposal_ratio = 1.d0/Ratio
           endif
           
-          !Write(6,*) i,nt,sx*dx, sy*dy, st*dt, Ratio, T0_Proposal_ratio
-          !Write(6,*)  Ratio, T0_Proposal_ratio
-
-          !endif
-
-          !nt = nranf(Ltrot)
-          !n  = nranf(size(Op_V,1)) ! 
-          !ns_old = nsigma(n,nt) 
-          !T0_Proposal_ratio = 1.d0
-          !if ( Op_V(n,1)%type == 1  ) then
-          !   nsigma(n,nt) = - Ns_old
-          !else
-          !   nsigma(n,nt) = NFLIPL(Ns_old,nranf(3))
-          !endif
 
         End Subroutine Global_move
 !===================================================================================           
@@ -600,64 +541,11 @@
           Implicit none 
 
           !> Arguments
-          Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
+          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
           !> Local 
-          Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
-         
 
           Delta_S0_global = 1.d0
-          If ( Model == "Hubbard_SU2_Ising" ) then
-             nc_F = 0
-             nc_J = 0
-             nc_h_p = 0
-             nc_h_m = 0
-             Do I = 1,Latt%N
-                n1  = L_bond(I,1)
-                n2  = L_bond(Latt%nnlist(I,1,0),2)
-                n3  = L_bond(Latt%nnlist(I,0,1),1)
-                n4  = L_bond(I,2)
-                do nt = 1,Ltrot
-                   nt1 = nt +1 
-                   if (nt == Ltrot) nt1 = 1
-                   if (nsigma(n1,nt) == nsigma(n1,nt1) ) then 
-                      nc_h_p = nc_h_p + 1
-                   else
-                      nc_h_m = nc_h_m + 1
-                   endif
-                   if (nsigma_old(n1,nt) == nsigma_old(n1,nt1) ) then 
-                      nc_h_p = nc_h_p - 1
-                   else
-                      nc_h_m = nc_h_m - 1
-                   endif
-
-                   if (nsigma(n4,nt) == nsigma(n4,nt1) ) then 
-                      nc_h_p = nc_h_p + 1
-                   else
-                      nc_h_m = nc_h_m + 1
-                   endif
-                   if (nsigma_old(n4,nt) == nsigma_old(n4,nt1) ) then 
-                      nc_h_p = nc_h_p - 1
-                   else
-                      nc_h_m = nc_h_m - 1
-                   endif
-                   
-                   nc_F = nc_F + nsigma    (n1,nt)*nsigma    (n2,nt)*nsigma    (n3,nt)*nsigma    (n4,nt)  &
-                        &      - nsigma_old(n1,nt)*nsigma_old(n2,nt)*nsigma_old(n3,nt)*nsigma_old(n4,nt) 
-                   
-                   nc_J = nc_J + nsigma(n1,nt)*nsigma(n2,nt) + &
-                        &        nsigma(n2,nt)*nsigma(n3,nt) + &
-                        &        nsigma(n3,nt)*nsigma(n4,nt) + &
-                        &        nsigma(n4,nt)*nsigma(n1,nt) - &
-                        &        nsigma_old(n1,nt)*nsigma_old(n2,nt) - &
-                        &        nsigma_old(n2,nt)*nsigma_old(n3,nt) - &
-                        &        nsigma_old(n3,nt)*nsigma_old(n4,nt) - &
-                        &        nsigma_old(n4,nt)*nsigma_old(n1,nt) 
-                   
-                enddo
-             enddo
-             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
-                  &            exp( -Dtau*(Ham_F*real(nc_F,kind(0.d0)) -  Ham_J*real(nc_J,kind(0.d0))))
-          endif
+          
         end Function Delta_S0_global
 !===================================================================================           
         Subroutine Setup_Ising_action
@@ -1134,16 +1022,32 @@
         n2  = L_bond(Latt%nnlist(I,1,0),2)
         n3  = L_bond(Latt%nnlist(I,0,1),1)
         n4  = L_bond(I,2)
-        iFlux =   nsigma(n1,nt)*nsigma(n2,nt)*nsigma(n3,nt)*nsigma(n4,nt)
+        iFlux =   nsigma%i(n1,nt)*nsigma%i(n2,nt)*nsigma%i(n3,nt)*nsigma%i(n4,nt)
         
       end Function iFlux
 
-!===================================================================================
-      Subroutine  Hamiltonian_set_random_nsigma
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine  Hamiltonian_set_random_nsigma(Initial_field)
 
         ! The user can set the initial configuration
         
         Implicit none
+
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+
         
         Integer :: I,nc, I1, nt
         Integer, allocatable::  Isigma(:), Isigma1(:)

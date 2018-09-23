@@ -34,7 +34,7 @@
 !> ALF-project
 !
 !> @brief 
-!> Handles printing of bins etc. This module is outdated and replaces by the Observables module
+!> Handles printing of bins etc. This module is outdated and replaced by the Observables module
 !
 !--------------------------------------------------------------------
     Module Print_bin_mod

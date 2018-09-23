@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wavefunction',['wavefunction',['../structwavefunction__mod_1_1wavefunction.html',1,'wavefunction_mod']]]
+  ['udv_5fstate',['udv_state',['../structudv__state__mod_1_1udv__state.html',1,'udv_state_mod']]]
 ];

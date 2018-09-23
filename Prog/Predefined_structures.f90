@@ -68,15 +68,10 @@
 !>    Integer  
 !>    Size of the lattice in units of the lattice constants
 !>\endverbatim 
-!> @param [out]  Norb
+!> @param [out]  Latt_unit
 !>\verbatim 
-!>    Integer  
-!>    Number of orbitals per unit cell 
-!>\endverbatim 
-!> @param [out]  N_coord
-!>\verbatim 
-!>    Integer  
-!>    Coordination number
+!>    Type (Unit_cell)
+!>    The unit cell. Contains Norb, N_coord and positions of orbitals.
 !>\endverbatim 
 !> @param [out]  Ndim
 !>\verbatim 
@@ -97,17 +92,17 @@
 !>\endverbatim 
 !>
 !-------------------------------------------------------------------
-      Subroutine Predefined_Latt(Lattice_type, L1,L2,Norb,N_coord,Ndim, List,Invlist,Latt)
+      Subroutine Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
 
         Implicit none
 
         !Set the lattice
         Character (len=64), Intent(IN)                     :: Lattice_type
         Integer, Intent(IN)                                :: L1,L2
-        Integer, Intent(OUT)                               :: Norb,N_coord, Ndim
+        Integer, Intent(OUT)                               :: Ndim
         Integer, Intent(OUT), Dimension(:,:), allocatable  :: List, Invlist
+        Type(Unit_cell), Intent(Out)                       :: Latt_Unit
         Type(Lattice), Intent(Out)                         :: Latt
-        
         Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
         Integer :: I, nc, no
         
@@ -117,8 +112,10 @@
               Write(6,*) 'For one-dimensional lattices set : L2 = 1'
               stop
            endif
-           Norb      = 1
-           N_coord   = 2
+           Latt_Unit%Norb      = 1
+           Latt_Unit%N_coord   = 2
+           Allocate (Latt_unit%Orb_pos_p(1,2))
+           Latt_Unit%Orb_pos_p(1,:) = 0.d0 
            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
            a2_p(1) =  0.0  ; a2_p(2) =  1.d0
            L1_p    =  dble(L1)*a1_p
@@ -129,63 +126,67 @@
               Write(6,*) ' For one dimensional systems set  L2 = 1 ' 
               Stop
            endif
-           Norb      = 1
-           N_coord   = 1
+           Latt_Unit%Norb      = 1
+           Latt_Unit%N_coord   = 1
+           Allocate (Latt_unit%Orb_pos_p(1,2))
+           Latt_Unit%Orb_pos_p(1,:) = 0.d0 
            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
            a2_p(1) =  0.0  ; a2_p(2) =  1.d0
            L1_p    =  dble(L1)*a1_p
            L2_p    =  dble(L2)*a2_p
            Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
         case("Honeycomb")
-             If (L1==1 .or. L2==1 ) then
-                Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-                stop
-             endif
-             Norb    = 2
-             N_coord = 3
-             a1_p(1) =  1.D0   ; a1_p(2) =  0.d0
-             a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
-
-             !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-             L1_p    =  dble(L1) * a1_p
-             L2_p    =  dble(L2) * a2_p
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case("Pi_Flux")
-             If (L1==1 .or. L2==1 ) then
-                Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-                stop
-             endif
-             Norb    = 2
-             N_coord = 4
-             a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
-             a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
-
-             !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-             L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
-             L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          case default 
-             Write(6,*) "Lattice not yet implemented!"
-             Stop
-          end select
-          ! Call Print_latt(Latt)
-          ! This is for the orbital structure.
-
-          Ndim = Latt%N*Norb
-          Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
-          nc = 0
-          Do I = 1,Latt%N
-             Do no = 1,Norb
-                ! For the Honeycomb and pi-flux lattices no = 1,2 corresponds to the A,and B sublattice.
-                nc = nc + 1
-                List(nc,1) = I
-                List(nc,2) = no
-                Invlist(I,no) = nc 
-             Enddo
-          Enddo
-
+           If (L1==1 .or. L2==1 ) then
+              Write(6,*) 'For one-dimensional lattices set : L2 = 1'
+              stop
+           endif
+           Latt_Unit%Norb    = 2
+           Latt_Unit%N_coord = 3
+           a1_p(1) =  1.D0   ; a1_p(2) =  0.d0
+           a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
+           Allocate (Latt_Unit%Orb_pos_p(2,2))
+           Latt_Unit%Orb_pos_p(1,:) = 0.d0 
+           Latt_Unit%Orb_pos_p(2,:) = (a2_p(:) - 0.5D0*a1_p(:) ) * 2.D0/3.D0
+           L1_p    =  dble(L1) * a1_p
+           L2_p    =  dble(L2) * a2_p
+           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+        case("Pi_Flux")
+           If (L1==1 .or. L2==1 ) then
+              Write(6,*) 'For one-dimensional lattices set : L2 = 1'
+              stop
+           endif
+           Latt_Unit%Norb    = 2
+           Latt_Unit%N_coord = 4
+           a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
+           a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
+           Allocate (Latt_Unit%Orb_pos_p(2,2))
+           Latt_Unit%Orb_pos_p(1,:) = 0.d0 
+           Latt_Unit%Orb_pos_p(2,:) = (a1_p(:) - a2_p(:))/2.d0 
+           L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
+           L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
+           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+        case default 
+           Write(6,*) "Lattice not yet implemented!"
+           Stop
+        end select
+        ! Call Print_latt(Latt)
+        ! This is for the orbital structure.
+        
+        Ndim = Latt%N*Latt_Unit%Norb
+        Allocate (List(Ndim,2), Invlist(Latt%N,Latt_Unit%Norb))
+        nc = 0
+        Do I = 1,Latt%N
+           Do no = 1,Latt_Unit%Norb
+              ! For the Honeycomb and pi-flux lattices no = 1,2 corresponds to the A,and B sublattice.
+              nc = nc + 1
+              List(nc,1) = I
+              List(nc,2) = no
+              Invlist(I,no) = nc 
+           Enddo
+        Enddo
+        
       end Subroutine Predefined_Latt
-
+      
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -202,15 +203,10 @@
 !>\verbatim 
 !>     Square, One_dimensional, Honeycomb, Pi_Flux 
 !>\endverbatim 
-!> @param [in]  Norb
-!>    Integer
+!> @param [in]  Latt_unit
+!>    Type(Unit_cell)
 !> \verbatim
-!>     Number of orbitals per unit cell
-!> \endverbatim
-!> @param [in]  N_coord
-!>    Integer
-!> \verbatim
-!>     Coordination number
+!>     Contains number of orbitals per unit cell and positions, as well as coordination number
 !> \endverbatim
 !> @param [in]  Ndim
 !>    Integer
@@ -283,16 +279,17 @@
 !> \endverbatim
 !>       
 !------------------------------------------------------------------
-      Subroutine Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
+      Subroutine Predefined_Hopping(Lattice_type, Ndim, List,Invlist,Latt,  Latt_unit,  &
            &                        Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
            &                        N_FL,  Checkerboard, Symm, OP_T, Dimer )
 
         Implicit none
 
         Character (len=64), Intent(IN)               :: Lattice_type
-        Integer, Intent(IN)                          :: Norb,N_coord, Ndim, N_FL
+        Integer, Intent(IN)                          :: Ndim, N_FL
         Integer, Intent(IN), Dimension(:,:)          :: List, Invlist
-        Type(Lattice), Intent(in)                    :: Latt
+        Type(Lattice),  Intent(in)                   :: Latt
+        Type(Unit_cell),Intent(in)                   :: Latt_unit
         Real (Kind=Kind(0.d0)), Intent(In)           :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y
         Logical                                      :: Checkerboard, Symm
         Real(Kind=Kind(0.d0)), Intent(IN), Optional  :: Dimer
@@ -371,23 +368,23 @@
               Case ("Honeycomb")
                  X = 2.d0 * acos(-1.d0)*Phi_X / ( Xnorm(Latt%L1_p) * (Xnorm(Latt%a1_p)**2)  )
                  DO I = 1, Latt%N
-                    do no = 1,Norb
+                    do no = 1,Latt_unit%Norb
                        I1 = Invlist(I,no)
                        Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                     enddo
                     I1 = Invlist(I,1)
                     J1 = I1
-                    Do nc1 = 1,N_coord
+                    Do nc1 = 1,Latt_unit%N_coord
                        select case (nc1)
                        case (1)
                           J1 = invlist(I,2)
-                          del_p   =  (Latt%a2_p - 0.5D0*Latt%a1_p) * 2.D0/3.D0
+                          del_p(:)  =  Latt_unit%Orb_pos_p(2,:) 
                        case (2)
                           J1 = invlist(Latt%nnlist(I,1,-1),2)
-                          del_p   =  Latt%a1_p - Latt%a2_p + (Latt%a2_p - 0.5D0*Latt%a1_p) * 2.D0/3.D0
+                          del_p(:)   =  Latt%a1_p(:) - Latt%a2_p(:)  + Latt_unit%Orb_pos_p(2,:)
                        case (3)
                           J1 = invlist(Latt%nnlist(I,0,-1),2) 
-                          del_p   =  - Latt%a2_p + (Latt%a2_p - 0.5D0*Latt%a1_p) * 2.D0/3.D0
+                          del_p(:)   =  - Latt%a2_p(:) +  Latt_unit%Orb_pos_p(2,:) 
                        case default
                           Write(6,*) ' Error in  Ham_Hop '  
                           Stop
@@ -399,13 +396,13 @@
                  Enddo
               case("Pi_Flux")
                  DO I = 1, Latt%N
-                    do no = 1,Norb
+                    do no = 1,Latt_unit%Norb
                        I1 = Invlist(I,no)
                        Op_T(nc,n)%O(I1 ,I1) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                     enddo
                     I1 = Invlist(I,1)
                     J1 = I1
-                    Do nc1 = 1,N_coord
+                    Do nc1 = 1,Latt_unit%N_coord
                        select case (nc1)
                        case (1)
                           J1 = invlist(I,2) 
@@ -450,7 +447,7 @@
            select case (Lattice_type)
            case ("Square")
               If (Symm) then
-                 N_Fam = 2*(2*N_coord) -1  !  Number of Families = 4
+                 N_Fam = 2*(2*Latt_Unit%N_coord) -1  !  Number of Families = 4
                  L_Fam = Latt%N/2          !  Length of Families = LQ/4
                  Allocate(Op_T(N_FAM*L_FAM,N_FL))
                  do n = 1,N_FL
@@ -505,7 +502,7 @@
                     Enddo
                  Enddo
               Else
-                 N_Fam = 2*N_coord !  Number of Families = 4
+                 N_Fam = 2*Latt_unit%N_coord !  Number of Families = 4
                  L_Fam = Latt%N/2  !  Length of Families = LQ/4
                  Allocate(Op_T(N_FAM*L_FAM,N_FL))
                  do n = 1,N_FL
@@ -546,14 +543,14 @@
                  Write(6,*) 'Pi-Flux Symm is not yet implemented'
                  Stop
               else
-                 Allocate(Op_T(N_coord*Latt%N,N_FL))
+                 Allocate(Op_T(Latt_unit%N_coord*Latt%N,N_FL))
                  do n = 1,N_FL
                     !Write(6,*) 'N_coord, Latt%N ',  N_coord, Latt%N
-                    do i  =  1, N_coord*Latt%N
+                    do i  =  1, Latt_unit%N_coord*Latt%N
                        call Op_make(Op_T(i,n),2)
                     enddo
                     nc = 0
-                    do nc1 = 1,N_coord
+                    do nc1 = 1,Latt_unit%N_coord
                        do I = 1,Latt%N
                           I1 = Invlist(I,1)
                           nc = nc + 1
@@ -585,13 +582,13 @@
               Endif
            case ("Honeycomb")
               If (Symm) then
-                 Allocate(Op_T((2*N_coord-1)*Latt%N,N_FL))
+                 Allocate(Op_T((2*Latt_unit%N_coord-1)*Latt%N,N_FL))
                  do n = 1,N_FL
-                    do i  =  1, (2*N_coord-1)*Latt%N
+                    do i  =  1, (2*Latt_unit%N_coord-1)*Latt%N
                        call Op_make(Op_T(i,n),2)
                     enddo
                     nc = 0
-                    do nc1 = 1,(2*N_coord -1) 
+                    do nc1 = 1,(2*Latt_unit%N_coord -1) 
                        do I = 1,Latt%N
                           I1 = invlist(I,1)
                           nc = nc + 1
@@ -629,13 +626,13 @@
                     Enddo
                  Enddo
               Else
-                 Allocate(Op_T(N_coord*Latt%N,N_FL))
+                 Allocate(Op_T(Latt_unit%N_coord*Latt%N,N_FL))
                  do n = 1,N_FL
-                    do i  =  1, N_coord*Latt%N
+                    do i  =  1, Latt_unit%N_coord*Latt%N
                        call Op_make(Op_T(i,n),2)
                     enddo
                     nc = 0
-                    do nc1 = 1,N_coord
+                    do nc1 = 1,Latt_unit%N_coord
                        do I = 1,Latt%N
                           I1 = invlist(I,1)
                           nc = nc + 1
@@ -680,15 +677,10 @@
       !> \verbatim
       !>    Square, One_dimensional, Honeycomb, Pi_Flux
       !> \endverbatim
-      !> @param [in]  Norb
-      !>    Integer
+      !> @param [in]  Latt_unit
+      !>    Type(Unit_cell)
       !> \verbatim
-      !>    Number of orbitals per unit cell
-      !> \endverbatim
-      !> @param [in]  N_coord
-      !>    Integer
-      !> \verbatim
-      !>    Coordination number
+      !>     Contains number of orbitals per unit cell and positions, as well as coordination number
       !> \endverbatim
       !> @param [in]  Ndim
       !>    Integer
@@ -717,29 +709,25 @@
       !> \verbatim
       !>    Flavor
       !> \endverbatim
-      !> @param [out]  Degen
-      !>    Real 
-      !> \verbatim
-      !>    Degeneracy:  E(N_part + 1) - E(N_part). Energy eigenvalues are ordered in ascending order.
-      !> \endverbatim
       !> @param [out]  WF_L, WF_R
       !>    Type(Wavefunction)(N_FL)
       !> \verbatim
       !>    Wavefunction
+      !>    Also sets the degeneracy:  E(N_part + 1) - E(N_part). Energy eigenvalues are ordered in ascending order.
       !> \endverbatim
       !>       
 !------------------------------------------------------------------       
-      Subroutine Predefined_TrialWaveFunction(Lattice_type, Norb,N_coord,Ndim,  List,Invlist,Latt, &
-           &                                  N_part, N_FL,  Degen, WF_L, WF_R) 
+      Subroutine Predefined_TrialWaveFunction(Lattice_type, Ndim,  List,Invlist,Latt, Latt_unit, &
+           &                                  N_part, N_FL,  WF_L, WF_R) 
 
 
 
         Implicit none
         Character (len=64), Intent(IN)                :: Lattice_type
-        Integer, Intent(IN)                           :: Norb,N_coord, Ndim, N_FL, N_part
+        Integer, Intent(IN)                           :: Ndim, N_FL, N_part
         Integer, Intent(IN), Dimension(:,:)           :: List, Invlist
-        Type(Lattice), Intent(in)                     :: Latt
-        Real (Kind=Kind(0.d0)), Intent(out)           :: Degen
+        Type(Lattice),   Intent(in)                   :: Latt
+        Type(Unit_cell), Intent(in)                   :: Latt_Unit
         Type(WaveFunction), Intent(out), Dimension(:), allocatable :: WF_L, WF_R
 
         
@@ -766,13 +754,13 @@
         Dimer    = 0.d0
         Checkerboard  = .false.
         Symm          = .false.
-        If (Lattice_type == "Square" .or.  Lattice_type == "One_dimensional" ) then 
-           Dimer    = 0.001d0
-        else
+        !If (Lattice_type == "Square" .or.  Lattice_type == "One_dimensional" ) then 
+        !   Dimer    = 0.001d0
+        !else
            Phi_X    = 0.01
-        endif
+        !endif
         
-        Call Predefined_Hopping(Lattice_type, Norb,N_coord,Ndim, List,Invlist,Latt, &
+        Call Predefined_Hopping(Lattice_type ,Ndim, List,Invlist,Latt, Latt_Unit, &
            &                    Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
            &                    N_FL,  Checkerboard, Symm,  OP_tmp, Dimer )
 
@@ -785,8 +773,10 @@
                   WF_R(nf)%P(I1,I2)=Op_tmp(1,nf)%U(I1,I2)
                enddo
             enddo
+            WF_L(nf)%Degen = Op_tmp(1,1)%E(N_part+1) - Op_tmp(1,1)%E(N_part)
+            WF_R(nf)%Degen = Op_tmp(1,1)%E(N_part+1) - Op_tmp(1,1)%E(N_part)
          enddo
-         Degen = Op_tmp(1,1)%E(N_part+1) - Op_tmp(1,1)%E(N_part)
+         
          Do nf = 1,N_FL
             Call Op_clear(OP_tmp(1,nf),Ndim)
          enddo

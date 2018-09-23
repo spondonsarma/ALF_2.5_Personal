@@ -13,7 +13,7 @@
 !     You should have received a copy of the GNU General Public License
 !     along with ALF.  If not, see http://www.gnu.org/licenses/.
 !     
-!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms: 
 !     
 !     - It is our hope that this program makes a contribution to the scientific community. Being
 !       part of that community we feel that it is reasonable to require you to give an attribution
@@ -30,17 +30,87 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 
-Program Main
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
 !> @brief 
-!> Main program. Reads in VAR_QMC  namelist.  Calls Ham_set. Carries 
-!> out the sweeps. 
-!
+!> Reads in the VAR_QMC namelist fro the file parameters, calls Ham_set and  carries out the sweeps. If the
+!> program is compiled with the Tempering flag on, then the VAR_TEMP namelist will also be read in.
+!> 
+!> @details
+!> \verbatim
+!>  The parameters in the VAR_QMC namelist read
+!> \endverbatim
+!> @param Nwrap Integer
+!> \verbatim
+!>  Number of time slices between stabilization (QR)
+!>  Has to be specified.
+!> \endverbatim
+!> @param Nsweep Integer
+!> \verbatim
+!>  Number of sweeps per bin 
+!>  Has to be specified.
+!> \endverbatim
+!> @param Nbin Integer
+!> \verbatim
+!>  Number of bins 
+!>  Has to be specified.
+!> \endverbatim
+!> @param Ltau Integer
+!> \verbatim
+!>  If Ltau=1 time displaced correlations will be measured.
+!>  Has to be specified.
+!> \endverbatim
+!> @param LOBS_ST LOBS_EN Integer
+!> \verbatim
+!>  Time slice interval for measurements
+!>  Default values:  LOBS_ST = Thtrot +1,  LOBS_ST = Ltrot - Thtrot
+!>  Note that Thtrot corresponds to the projection time in units of
+!>  the time step  and is equal to zero for the finite temperature code. 
+!> \endverbatim
+!> @param CPU_MAX Real
+!> \verbatim
+!>  Available Wallclock time. The program will carry as many bins as
+!>  possible during this time
+!>  If not specified the program will stop after NBIN bins are calculated
+!> \endverbatim
+!> @param Propose_S0 Logical
+!> \verbatim
+!>  If true, spin flips are proposed with probability exp(-S_0(C')). See documentation.
+!>  Default:  Propose_S0=.false.
+!> \endverbatim
+!> @param Global_moves Logical
+!> \verbatim
+!>  If true, global moves will be carried out.
+!>  Default: Global_moves=.false.
+!> \endverbatim
+!> @param N_Global Integer
+!> \verbatim
+!>  Number of global moves per  sequential sweep.
+!>  Default: N_Global=0
+!> \endverbatim
+!> @param Global_tau_moves Logical
+!> \verbatim 
+!>  If true, global moves on a given time slice will be carried out
+!>  Default: Global_tau_moves=.false.
+!> \endverbatim
+!> @param N_Global_tau Integer
+!> \verbatim 
+!>  Number of global_tau moves that will be carried out per time-slice.
+!>  Default: N_Global_tau=0
+!> \endverbatim
+!> @param Nt_sequential_start  Integer
+!> @param Nt_sequential_end  Integer
+!> \verbatim 
+!> Interval over which one will carry out sequential updating on a single time slice.
+!> Default: Nt_sequential_start = 1  Nt_sequential_end=size(OP_V,1)). This default is
+!> automatically if Global_tau_moves=.false.  
+!> \endverbatim
+
 !--------------------------------------------------------------------
+
+Program Main
 
         Use Operator_mod
         Use Lattices_v3 
@@ -53,6 +123,7 @@ Program Main
         Use Global_mod
         Use UDV_State_mod
         Use Wrapgr_mod
+        Use Fields_mod
 #ifdef MPI
         Use mpi
 #endif
@@ -97,7 +168,8 @@ Program Main
         Integer :: NTAU, NTAU1
         Real(Kind=Kind(0.d0)) :: CPU_MAX 
         Character (len=64) :: file1
-  
+        Real (Kind=Kind(0.d0)) , allocatable, dimension(:,:) :: Initial_field
+        
         ! Space for choosing sampling scheme
         Logical :: Propose_S0, Tempering_calc_det
         Logical :: Global_moves, Global_tau_moves
@@ -116,9 +188,9 @@ Program Main
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau
 
 
-        Integer :: Ierr, I,nf, nst, n
+        Integer :: Ierr, I,nf, nst, n, N_op
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
-        Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8
+        Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8, X, X1
         Integer, dimension(:), allocatable :: Stab_nt
 
         ! Space for storage.
@@ -219,8 +291,7 @@ Program Main
         CALL MPI_BCAST(N_Global_tau       ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
 #endif
         
- 
-        Call Op_SetHS
+        Call Fields_init()
         Call Ham_set
         log=.false.
         if(Projector) then
@@ -229,31 +300,32 @@ Program Main
             if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) log=.true.
           enddo
         endif
-!         ! ATTENTION TEMPORARY DISABLE TAU_RES OBS FOR PORJECTOR
-!         if(Projector) then
-!           Ltau=0
-!         endif
-        ! by default the whole beta intervall (up to Theta at the beginning and end for Projector)
-        ! is used to calculate observables
-        if ( LOBS_ST < 1 ) then 
-          LOBS_ST=Thtrot+1
-        else
-          LOBS_ST=LOBS_ST+Thtrot
+        if ( LOBS_ST == 0  ) then 
+          LOBS_ST = Thtrot+1
         endif
-        if ( LOBS_EN > Ltrot-2*Thtrot .or. LOBS_EN == 0) then 
-          LOBS_EN=Ltrot-Thtrot
-        else
-          LOBS_EN=LOBS_EN+Thtrot
-        endif
+        if ( LOBS_EN == 0) then 
+          LOBS_EN = Ltrot-Thtrot
+       endif
         If ( .not. Global_tau_moves )  then
            ! This  corresponds to the default updating scheme
            Nt_sequential_start = 1 
            Nt_sequential_end   = Size(OP_V,1) 
            N_Global_tau        = 0
         endif
-
         
-        Call confin 
+        N_op = Size(OP_V,1)
+        allocate(nsigma)
+        call nsigma%make(N_op, Ltrot)
+        Do n = 1,N_op
+           nsigma%t(n)  = OP_V(n,1)%type
+        Enddo
+        Call Hamiltonian_set_nsigma(Initial_field)
+        if (allocated(Initial_field)) then
+           Call nsigma%in(Group_Comm,Initial_field)
+           deallocate(Initial_field)
+        else
+           Call nsigma%in(Group_Comm)
+        endif
         Call Hop_mod_init
 
         IF (ABS(CPU_MAX) > Zero ) NBIN = 10000000
@@ -346,6 +418,8 @@ Program Main
 #endif
         if (log) stop
 
+
+        
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
@@ -388,7 +462,7 @@ Program Main
 #ifdef MPI 
         !WRITE(6,*) 'Phase is: ', Irank, PHASE, GR(1,1,1)
 #else
-        !WRITE(6,*) 'Phase is: ',  PHASE
+        !WRITE(6,*) 'Phase is: ',  PHASE  
 #endif
 
 
@@ -563,7 +637,7 @@ Program Main
            Call Global_Tempering_Pr
 #endif           
 
-           Call confout
+           Call nsigma%out(Group_Comm)
            
            call system_clock(count_bin_end)
            prog_truncation = .false.

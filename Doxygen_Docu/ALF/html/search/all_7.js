@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['ham_5falpha',['ham_alpha',['../namespacehamiltonian.html#a1ff2d175685754a703b58a646b249ff1',1,'hamiltonian']]],
   ['ham_5fchem',['ham_chem',['../namespacehamiltonian.html#a5d9bca3236ec22ed3f6a789aa662e3b7',1,'hamiltonian']]],
   ['ham_5fh',['ham_h',['../namespacehamiltonian.html#a03c917b398d6e8df7361089384c7287b',1,'hamiltonian']]],
   ['ham_5fj',['ham_j',['../namespacehamiltonian.html#a5e41bd505d50b7cfcdcdacf78cbe8cd4',1,'hamiltonian']]],
@@ -11,7 +12,7 @@ var searchData=
   ['ham_5fxi',['ham_xi',['../namespacehamiltonian.html#a04b8d5403685aa76c409005a817aa003',1,'hamiltonian']]],
   ['hamiltonian',['hamiltonian',['../namespacehamiltonian.html',1,'']]],
   ['hamiltonian_5fexamples_2ef90',['Hamiltonian_Examples.f90',['../Hamiltonian__Examples_8f90.html',1,'']]],
-  ['hamiltonian_5fset_5frandom_5fnsigma',['hamiltonian_set_random_nsigma',['../namespacehamiltonian.html#a59890b37daeff6d4994092fbafbd2343',1,'hamiltonian']]],
+  ['hamiltonian_5fset_5fnsigma',['hamiltonian_set_nsigma',['../namespacehamiltonian.html#aea2e345f43022b9c6bf72b2d297eaa1c',1,'hamiltonian']]],
   ['hop_5fmod',['hop_mod',['../namespacehop__mod.html',1,'']]],
   ['hop_5fmod_2ef90',['Hop_mod.f90',['../Hop__mod_8f90.html',1,'']]],
   ['hop_5fmod_5finit',['hop_mod_init',['../namespacehop__mod.html#a0d7cc919581d5ec2bf1f4c01ef62fdeb',1,'hop_mod']]],

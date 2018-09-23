@@ -73,6 +73,9 @@ $(function() {
 <div class="title">udv_state_mod::udv_state Type Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Handles UDV decompositions.  
+ <a href="structudv__state__mod_1_1udv__state.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -125,8 +128,25 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a85080be1b81c5810e3fa6846807a1b0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00047">47</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="textblock"><p>Handles UDV decompositions. </p>
+<dl class="section author"><dt>Author</dt><dd>ALF-project</dd></dl>
+<p>The UDV instance contains the following variables </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Ndim</td><td>Integer <pre class="fragment"> The total number of orbitals</pre> </td></tr>
+    <tr><td class="paramname">N_part</td><td>Integer <pre class="fragment"> For the finite temperature code N_part=Ndim. For the projective code, N_part corresponds to the number of particles per flavor.</pre> </td></tr>
+    <tr><td class="paramname">U(Ndim,N_part)</td><td>Complex </td></tr>
+    <tr><td class="paramname">D(N_part)</td><td>Complex </td></tr>
+    <tr><td class="paramname">V(N_part,N_part)</td><td>Complex </td></tr>
+    <tr><td class="paramname">side</td><td>Char <pre class="fragment">  side = R  for right propagation :   U(tau,0) * P_R = U_R d_r v_r
+  side = L  for left  propagation :   (P_L * U(Theta,tau) )^{dag} =  U_L d_l {v_l}^{dag}
+  For the finite temperature code, P_L and _P_R are unit matrices
+  For the projective code the matrices v_l and v_r are not allocated</pre> </td></tr>
+    <tr><td class="paramname">L(N_part)</td><td>Real <pre class="fragment">  Space for the logscale option D=e^{L}</pre> </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00082">82</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a16e73be673f29fdae60d7dc1bdd484b1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a16e73be673f29fdae60d7dc1bdd484b1">&#9670;&nbsp;</a></span>alloc()</h2>
@@ -151,7 +171,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00058">58</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00093">93</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -178,7 +198,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00062">62</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00097">97</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -205,7 +225,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00071">71</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00105">105</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -232,7 +252,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00060">60</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00095">95</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -259,7 +279,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00064">64</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00098">98</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -286,7 +306,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00068">68</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00102">102</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -313,7 +333,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00070">70</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00104">104</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -340,7 +360,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00067">67</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00101">101</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -367,7 +387,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00068">68</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00102">102</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -394,7 +414,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00059">59</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00094">94</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -421,7 +441,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00068">68</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00102">102</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -448,7 +468,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00069">69</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00103">103</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -475,7 +495,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00065">65</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00099">99</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -502,7 +522,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00061">61</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00096">96</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -529,7 +549,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00066">66</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00100">100</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -554,8 +574,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00050">50</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
-<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <span class="keywordtype">COMPLEX (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: D(:)</div></div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00085">85</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="fragment"><div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <span class="keywordtype">COMPLEX (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: D(:)</div></div><!-- fragment -->
 </div>
 </div>
 <a id="a46d3193418e33b4926844e6aa443c067"></a>
@@ -578,8 +598,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00052">52</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
-<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordtype">REAL    (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: L(:)</div></div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00087">87</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="fragment"><div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keywordtype">REAL    (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: L(:)</div></div><!-- fragment -->
 </div>
 </div>
 <a id="a29e1273f36593de9558cbf23f647db47"></a>
@@ -602,7 +622,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00054">54</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00089">89</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -626,8 +646,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00054">54</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
-<div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <span class="keywordtype">INTEGER</span>   :: ndim, n_part  <span class="comment">! ndim: number of orbitals per flavor. n_part: number of particles per flavor </span></div></div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00089">89</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="fragment"><div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordtype">INTEGER</span>   :: ndim, n_part  <span class="comment">! ndim: number of orbitals per flavor. n_part: number of particles per flavor </span></div></div><!-- fragment -->
 </div>
 </div>
 <a id="a85080be1b81c5810e3fa6846807a1b0a"></a>
@@ -650,8 +670,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00055">55</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
-<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordtype">CHARACTER</span> :: side          <span class="comment">! side = R  for right propagation :   B       * P_R = U d v </span></div></div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00090">90</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="fragment"><div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        <span class="keywordtype">CHARACTER</span> :: side          <span class="comment">! side = R  for right propagation :   B       * P_R = U d v </span></div></div><!-- fragment -->
 </div>
 </div>
 <a id="a6a50dc7ac5ebd338443c1eb134898f2d"></a>
@@ -674,8 +694,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00048">48</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
-<div class="fragment"><div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordtype">COMPLEX (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: U(:, :), V(:, :)</div></div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00083">83</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<div class="fragment"><div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordtype">COMPLEX (Kind=Kind(0.d0))</span>, <span class="keywordtype">allocatable</span> :: U(:, :), V(:, :)</div></div><!-- fragment -->
 </div>
 </div>
 <a id="aacc95b806864385818b97e1a95d1ceba"></a>
@@ -698,7 +718,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00048">48</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="udv__state_8F90_source.html#l00083">83</a> of file <a class="el" href="udv__state_8F90_source.html">udv_state.F90</a>.</p>
 
 </div>
 </div>
@@ -708,7 +728,7 @@ Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Jul 22 2018 14:44:03 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Sep 23 2018 13:52:42 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

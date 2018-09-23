@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['observables',['observables',['../namespaceobservables.html',1,'']]],
-  ['operator_5fmod',['operator_mod',['../namespaceoperator__mod.html',1,'']]]
+  ['hamiltonian',['hamiltonian',['../namespacehamiltonian.html',1,'']]],
+  ['hop_5fmod',['hop_mod',['../namespacehop__mod.html',1,'']]]
 ];

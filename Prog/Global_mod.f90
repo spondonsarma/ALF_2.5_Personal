@@ -43,13 +43,12 @@
 !--------------------------------------------------------------------
 Module Global_mod
 
-
-
       Use Hamiltonian
       Use MyMats 
       Use Operator_mod
       Use Control
       Use Observables
+      Use Fields_mod
       
       Implicit none
 
@@ -63,9 +62,43 @@ Module Global_mod
 !> ALF-project
 !
 !> @brief 
-!> Handles parrallel tempering
-!> This subroutine is called only if the tempering flag is switched on. In this 
-!> case the MPI flag is also switched on. 
+!> Handles parrallel tempering \n
+!> This subroutine is called only if the tempering flag is switched on \n
+!> Requires MPI
+!>
+!> @details
+!> On entry and on exit the left storage is full, the Green function is on time slice 0 and the phase is set.
+!> The same holds on exit but with updated quantities.
+!>
+!> @param[inout] Phase  Complex
+!> \verbatim
+!>  Is updated upon acceptance
+!> \endverbatim
+!> @param[inout] udvl, udvr Class(UDV_State)
+!> \verbatim
+!>  On entry udvl contains the last udv decomposition such that G=(1 + VL*DL*UL^{dag})^{-1}
+!>  udvr  is used as working space
+!> \endverbatim
+!> @param[inout] GR Complex
+!> \verbatim
+!>  Green function. Is updated upon acceptance.
+!> \endverbatim
+!> @param[inout] udvst Class(UDV_State)
+!> \verbatim
+!>  Storage. Is updated with left propagation upon acceptance
+!> \endverbatim
+!> @param[in] Stab_nt Integer
+!> \verbatim
+!>  List of time slices for stabilization.
+!> \endverbatim
+!> @param[in] N_exchange_steps Integer
+!> \verbatim
+!> Number of exchange steps
+!> \endverbatim
+!> @param[in] Tempering_calc_det Logical
+!> \verbatim
+!>  If true then the fermion determinant is computed in the calulcation of the exchange weight.
+!> \endverbatim
 !> 
 !--------------------------------------------------------------------
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
@@ -92,18 +125,19 @@ Module Global_mod
            END SUBROUTINE CGR
         end Interface
         
-        !>  Arguments
-        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-        CLASS(UDV_State), intent(inout), allocatable, Dimension(:) :: udvl, udvr
+        !  Arguments
+        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                                :: Phase
+        CLASS(UDV_State), intent(inout), allocatable, Dimension(:)              :: udvl, udvr
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
         CLASS(UDV_State), intent(inout), allocatable, Dimension(:, :) :: udvst
-        INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
-        !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+        INTEGER, dimension(:),     INTENT   (IN), allocatable         :: Stab_nt
+        INTEGER, INTENT(IN) :: N_exchange_steps
+        Logical, INTENT(IN) :: Tempering_calc_det
         
         
         !>  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step, N_exchange_steps, N_count, N_part
-        Integer, Dimension(:,:),  allocatable :: nsigma_old
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step,  N_count, N_part
+        Class (Fields), allocatable :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
@@ -112,8 +146,6 @@ Module Global_mod
         Logical :: TOGGLE, L_Test
         Integer, allocatable :: List_partner(:), List_masters(:)
 
-        !> Additional variables for running without Fermion weight
-        Logical :: Tempering_calc_det
         ! Keep track of where the configuration originally came from
         Integer        :: nsigma_irank, nsigma_old_irank, nsigma_irank_temp
         Integer        :: n_GR
@@ -124,17 +156,21 @@ Module Global_mod
         Integer        :: Isize, Irank, Ierr, irank_g, isize_g, igroup
         Integer        :: STATUS(MPI_STATUS_SIZE)
 
+        Character (Len=64)  :: storage 
+
+
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
         call MPI_Comm_rank(Group_Comm, irank_g, ierr)
         call MPI_Comm_size(Group_Comm, isize_g, ierr)
         igroup           = irank/isize_g
-        nsigma_irank = irank
+        nsigma_irank     = irank
 
-        n1 = size(nsigma,1)
-        n2 = size(nsigma,2)
+        n1 = size(nsigma%f,1)
+        n2 = size(nsigma%f,2)
         NSTM = Size(udvst, 1)
-        Allocate ( nsigma_old(n1,n2) )
+        allocate(nsigma_old)
+        call nsigma_old%make(n1, n2)
         if (Tempering_calc_det) then
            Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
            Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
@@ -144,45 +180,21 @@ Module Global_mod
         !         Allocate ( nsigma_orig(n1,n2) )
         !         nsigma_orig = nsigma
         
-        !>  Compute for each core the old weights.     
+        !  Compute for each core the old weights.     
         L_test = .false.
         if (Tempering_calc_det) then
            ! Set old weight. 
-           Det_Vec_old=0.d0
-           if (Projector) then
-              do nf=1,N_FL
-                N_part=udvst(1,nf)%N_part
-                do i=1,NSTM-1
-                  do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
-#else
-                    Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvst(i,nf)%L(n)
-#endif
-                  enddo
-                enddo
-              enddo
-              Do nf = 1,N_FL
-                N_part=udvl(nf)%N_part
-                do n=1,N_part
-#if !defined(LOG)
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                    Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                enddo
-              ENDDO
-           endif
-           Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf), nf)
-              Phase_det_old(nf) = Z
-              Phase_old = Phase_old*Z
+           storage = "Full"
+           Call Compute_Fermion_Det(Phase_det_old,Det_Vec_old, udvl, udvst, Stab_nt, storage)
+           Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
+           Do nf = 1,N_Fl
+              Phase_old = Phase_old*Phase_det_old(nf)
            Enddo
-           call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
+           Call Op_phase(Phase_old,OP_V,Nsigma,N_SUN)
         endif
         !> Store old configuration
-        nsigma_old = nsigma
+        nsigma_old%f = nsigma%f
+        nsigma_old%t = nsigma%t
         nsigma_old_irank = nsigma_irank
         ! Setup the list of masters
         nc = 0
@@ -201,8 +213,7 @@ Module Global_mod
            endif
         endif
         DO N_count = 1,N_exchange_steps
-           
-           !>  Set the partner rank on each core
+           !  Set the partner rank on each core
            If (Irank == 0 ) then
               n_step = isize_g
               if (  ranf_wrap() > 0.5d0 ) n_step = -isize_g
@@ -213,120 +224,62 @@ Module Global_mod
                  enddo
               enddo
            endif
-           
+
            CALL MPI_BCAST(List_partner, Isize  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
            
            If (L_test) then
               if (Irank == 0 ) then
                  Write(6,*) 'Testing global : '
                  do  I = 0,Isize -1 
-                    Write(6,*)  I, List_partner(I) !, Phase_old, Phase
+                    Write(6,*)   I, List_partner(I) !, Phase_old, Phase
                     Write(11,*)  I, List_partner(I) !, Phase_old, Phase
                  enddo
                  Write(11,*)
               endif
            Endif
-           !call MPI_Barrier(MPI_COMM_WORLD)
-           !Write(6,*) '---------'
-!!$    select case (IRANK)
-!!$    case(0)
-!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = 1
-!!$    case(1)
-!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = 1
-!!$    case(2)
-!!$       nsigma_old(1,1) =  1;  nsigma_old(2,1) = -1
-!!$    case(3)
-!!$       nsigma_old(1,1) = -1;  nsigma_old(2,1) = -1
-!!$    case default
-!!$    end select
     
 
-           !>  Exchange configurations
-           n = size(nsigma_old,1)*size(nsigma_old,2)
-           CALL MPI_Sendrecv(nsigma_old      , n, MPI_INTEGER, List_partner(IRANK), 0, &
-                &        nsigma          , n, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+           !  Exchange configurations
+           !  The types do not change --> no need to exchange them 
+           n = size(nsigma_old%f,1)*size(nsigma_old%f,2)
+           CALL MPI_Sendrecv(nsigma_old%f    , n, MPI_REAL8, List_partner(IRANK), 0, &
+                    &        nsigma%f        , n, MPI_REAL8, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            CALL MPI_Sendrecv(nsigma_old_irank, 1, MPI_INTEGER, List_partner(IRANK), 0, &
-                &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
+                    &        nsigma_irank    , 1, MPI_INTEGER, List_partner(IRANK), 0, MPI_COMM_WORLD,STATUS,IERR)
            
-           !>  Each node now has a new configuration nsigma
-           
-!!$    If (L_test) then
-!!$       Write(6,*) 'Testing global : ', Irank,List_partner(IRANK), nsigma_old(1,1),  nsigma_old(2,1), nsigma(1,1),  nsigma(2,1) 
-!!$    Endif
-           
+           !  Each node now has a new configuration nsigma
            
            
            if (Tempering_calc_det) then
-              !>  Compute ratio on weights one each rank
-              DO nf = 1,N_FL
-                 if (Projector) then
-                    CALL udvl(nf)%reset('l',WF_L(nf)%P)
-                 else
-                    CALL udvl(nf)%reset('l')
-                 endif
-              ENDDO
-              !! Compute detvec for projector
-              Det_Vec_new=0.d0
-              DO NST = NSTM-1,1,-1
-                 NT1 = Stab_nt(NST+1)
-                 NT  = Stab_nt(NST  )
-                 !Write(6,*) NT1,NT, NST
-                 CALL WRAPUL(NT1,NT, udvl)
-                 Do nf = 1,N_FL
-                    udvst(NST, nf) = udvl(nf)
-                    if (Projector) then
-                       N_part=udvl(nf)%N_part
-                       do n=1,N_part
-#if !defined(LOG)
-                          Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                          Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                       enddo
-                    endif
-                 ENDDO
-              ENDDO
-              NT1 = stab_nt(1)
-              CALL WRAPUL(NT1,0, udvl)
-              if (Projector) then
-                 Do nf = 1,N_FL
-                    N_part=udvl(nf)%N_part
-                    do n=1,N_part
-#if !defined(LOG)
-                       Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-                       Det_Vec_new(n,nf)=Det_Vec_new(n,nf)+udvl(nf)%L(n)
-#endif
-                    enddo
-                 ENDDO
-              endif
-              Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
-              do nf = 1,N_Fl
-                 Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf), udvl(nf), nf)
-                 Phase_det_new(nf) = Z
-                 Phase_new = Phase_new*Z
+              !  HERE 
+              !  Compute ratio on weights one each rank
+              storage = "Empty"
+              Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
+
+              Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
+              Do nf = 1,N_Fl
+                 Phase_new = Phase_new*Phase_det_new(nf)
               Enddo
-              call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
+              Call Op_phase(Phase_new,OP_V,Nsigma,N_SUN)
               
               T0_Proposal_ratio = 1.d0
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-                   &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
-              
-              If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), Ratiotot, Ratio(1)*exp(Ratio(2))
+                   &            Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio) 
+           
+              If (L_Test) Write(6,*) 'Ratio_global: Irank, Partner',Irank,List_partner(Irank), &
+                   &                  Ratiotot, Ratio(1)*exp(Ratio(2))
            else
               Ratiotot = Delta_S0_global(Nsigma_old)
               Ratio(1) = Ratiotot
               Ratio(2) = 0
            endif
            
-           !>  Acceptace/rejection decision taken on master node after receiving information from slave
+           !  Acceptace/rejection decision taken on master node after receiving information from slave
            Do nc = 1,Isize/2 ! Loop over masters
               I = List_masters(nc)
               If (Irank == I ) Then
-                 !CALL MPI_SEND(Ratiotot,1, MPI_COMPLEX16  , List_partner(I), I+512 , MPI_COMM_WORLD,IERR)
                  CALL MPI_SEND(Ratio   ,2, MPI_COMPLEX16  , List_partner(I), I+1024, MPI_COMM_WORLD,IERR)
               else if (IRANK == List_Partner(I) ) Then
-                 !CALL MPI_RECV(Ratiotot_p , 1, MPI_COMPLEX16,  I, I+512 , MPI_COMM_WORLD,STATUS,IERR)
                  CALL MPI_RECV(Ratio_p    , 2, MPI_COMPLEX16,  I, I+1024, MPI_COMM_WORLD,STATUS,IERR)
                  !Weight = abs(Ratiotot_p*Ratiotot)
                  Weight= abs(Ratio(1) * Ratio_p(1) * exp( Ratio_p(2) + Ratio(2)  ) )
@@ -341,9 +294,9 @@ Module Global_mod
               I = List_masters(nc)
               If (Irank == List_Partner(I) ) Then
                  ! Write(6,*) 'Send from ', List_Partner(I), 'to, ', I, I + 512
-                 CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+512, MPI_COMM_WORLD,IERR)
+                 CALL MPI_SEND(Toggle, 1, MPI_LOGICAL, I, I+1024, MPI_COMM_WORLD,IERR)
               else if (IRANK == I ) Then
-                 CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+512 ,MPI_COMM_WORLD,STATUS,IERR)
+                 CALL MPI_RECV(Toggle , 1, MPI_LOGICAL,   List_partner(I), I+1024 ,MPI_COMM_WORLD,STATUS,IERR)
                  If (L_Test) Write(6,*) 'Slave : ', Irank,  Toggle
               endif
            enddo
@@ -352,23 +305,25 @@ Module Global_mod
            Call Global_Tempering_obser(Toggle)
            Call Control_upgrade_Temp  (Toggle) 
            If (toggle)  then
-              !>     Move has been accepted
+              !     Move has been accepted
               if (Tempering_calc_det) then
                  Phase_old     = Phase_new
                  Phase_det_old = Phase_det_new
                  Det_vec_old   = Det_vec_new
               endif
-              nsigma_old       = nsigma
+              nsigma_old%f       = nsigma%f
+              nsigma_old%t       = nsigma%t
               nsigma_old_irank = nsigma_irank
            else
-              nsigma       = nsigma_old
+              nsigma%f       = nsigma_old%f
+              nsigma%t       = nsigma_old%t
               nsigma_irank = nsigma_old_irank
            endif
         enddo
         
-        !> Finalize
+        ! Finalize
         if (Tempering_calc_det) then
-           !> If move has been accepted, no use to recomute storage
+           ! If move has been accepted, no use to recomute storage
            If (.not.TOGGLE) then
               DO nf = 1,N_FL
                  if (Projector) then
@@ -389,7 +344,7 @@ Module Global_mod
               NT1 = stab_nt(1)
               CALL WRAPUL(NT1,0, udvl)
            Endif
-           !> Compute the Green functions so as to provide correct starting point for the sequential updates.
+           ! Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
            do nf = 1,N_Fl
@@ -398,11 +353,11 @@ Module Global_mod
            Enddo
            call Op_phase(Phase,OP_V,Nsigma,N_SUN)     
         else
-           !> Send >>Phase, GR, udvr, udvl, udvst<< to new node 
+           !  Send >> Phase, GR, udvr, udvl, udvst << to new node 
            !  First step: Each node sends to IRANK=0 its value nsigma_irank,
            !  which is the node where its new Phase, GR, udvr, udvl, udvst is stored
-           !              This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
-           !              Finally, the variables get submitted
+           !  This node then tells each node where to send its now old Phase, GR, udvr, udvl, udvst
+           !  Finally, the variables get submitted
            If (Irank == 0) then
               Do I = 1,Isize-1
                  CALL MPI_RECV(nsigma_irank_temp , 1, MPI_INTEGER, I, 0, MPI_COMM_WORLD,STATUS,IERR)
@@ -419,7 +374,7 @@ Module Global_mod
               CALL MPI_SEND(nsigma_irank     , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,IERR)
               CALL MPI_RECV(nsigma_old_irank , 1, MPI_INTEGER, 0, 0, MPI_COMM_WORLD,STATUS,IERR)
            endif
-           
+
            if ( nsigma_irank /= irank ) then
               CALL MPI_Sendrecv_Replace(Phase, 1, MPI_COMPLEX16, nsigma_old_irank, 0, &
                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
@@ -441,7 +396,9 @@ Module Global_mod
               enddo
            endif
         endif
-        
+
+
+        call nsigma_old%clear
         Deallocate ( nsigma_old )
         if (Tempering_calc_det) then
            Deallocate ( Det_vec_old, Det_vec_new ) 
@@ -451,8 +408,48 @@ Module Global_mod
         
       end Subroutine Exchange_Step
 #endif
-!---------------------------------------------------------------------
+
+
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!>
+!> @brief
+!> Carries out N_global global updates as defeined in the Global_move routine of the Hamiltonian module
+!>
+!> @details
+!> On entry and on exit the left storage is full, the Green function is on time slice 0 and the phase is set.
+!> The same holds on exit but with updated quantities.
+!>
+!> @param[inout] Phase  Complex
+!> \verbatim
+!>  Is updated upon acceptance
+!> \endverbatim
+!> @param[inout] udvl, udvr Class(UDV_State)
+!> \verbatim
+!>  On entry udvl contains the last udv decomposition such that G=(1 + VL*DL*UL^{dag})^{-1}
+!>  udvr  is used as working space
+!> \endverbatim
+!> @param[inout] GR Complex
+!> \verbatim
+!>  Green function. Is updated upon acceptance.
+!> \endverbatim
+!> @param[inout] udvst Class(UDV_State)
+!> \verbatim
+!>  Storage. Is updated with left propagation upon acceptance
+!> \endverbatim
+!> @param[in] Stab_nt Integer
+!> \verbatim
+!>  List of time slices for stabilization.
+!> \endverbatim
+!> @param[in] N_Global Integer
+!> \verbatim
+!>  Number of global moves that will be caried out
+!> \endverbatim
+!> 
+!--------------------------------------------------------------------
       Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
+        
         Use UDV_State_mod
         Implicit none
         
@@ -475,83 +472,57 @@ Module Global_mod
            END SUBROUTINE CGR
         end Interface
         
-        !>  Arguments
-        COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                   :: Phase
-        CLASS   (UDV_State), DIMENSION(:), ALLOCATABLE, INTENT(INOUT) :: udvl, udvr
-        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
-        CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(INOUT) :: udvst
-        INTEGER, dimension(:),     INTENT   (IN), allocatable      :: Stab_nt
-        Integer, INTENT(IN) :: N_Global
-        !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
+        !  Arguments
+        COMPLEX (Kind=Kind(0.d0)),                                INTENT(INOUT) :: Phase
+        CLASS   (UDV_State), DIMENSION(:), ALLOCATABLE,           INTENT(INOUT) :: udvl, udvr
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:),  allocatable,INTENT(INOUT) :: GR
+        CLASS(UDV_State), Dimension(:,:), ALLOCATABLE,            INTENT(INOUT) :: udvst
+        INTEGER, dimension(:),   allocatable,                     INTENT(IN)    :: Stab_nt
+        Integer,                                                  INTENT(IN)    :: N_Global
         
         
-        !>  Local variables.
+        !  Local variables.
         Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, N_part,j
-        Integer, Dimension(:,:),  allocatable :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_test(:,:), Phase_Det_new(:), Phase_Det_old(:)
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
+        Class (Fields), allocatable :: nsigma_old
+
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
         Logical :: TOGGLE, L_Test
-        Real    (Kind=Kind(0.d0)) :: size_clust !> FIXME: currently not initialized. Is this used?
+        Real    (Kind=Kind(0.d0)) :: size_clust 
         Real    (Kind=Kind(0.d0)) :: ratio_2_test
+        Character (Len=64)  :: storage 
         
         
         
-        !>  On entry and on exit the left storage is full, and the Green function is on time slice 0 and the phase is set.
-        
-        n1 = size(nsigma,1)
-        n2 = size(nsigma,2)
+        n1 = size(nsigma%f,1)
+        n2 = size(nsigma%f,2)
         NSTM = Size(udvst, 1)
-        Allocate ( nsigma_old(n1,n2) )
+        allocate(nsigma_old)
+        call nsigma_old%make(n1, n2)
+
         Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL), Det_vec_test(NDIM,N_FL) ) 
         Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
         
         L_test = .false.
-        ! Write(6,*)
         ! Set old weight. 
-        Det_Vec_old=0.d0
-        if (Projector) then
-          do nf=1,N_FL
-            N_part=udvst(1,nf)%N_part
-            do i=1,NSTM-1
-              do n=1,N_part
-#if !defined(LOG)
-                Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvst(i,nf)%D(n)))
-#else
-                Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvst(i,nf)%L(n)
-#endif
-              enddo
-            enddo
-            do n=1,N_part
-#if !defined(LOG)
-              Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+log(dble(udvl(nf)%D(n)))
-#else
-              Det_Vec_old(n,nf)=Det_Vec_old(n,nf)+udvl(nf)%L(n)
-#endif
-            enddo
-          enddo
-        endif
-        Phase_old =cmplx(1.d0,0.d0,kind(0.d0))
-        do nf = 1,N_Fl
-           Call Compute_Fermion_Det(Z,Det_Vec_old(:,nf), udvl(nf), nf)
-           Phase_det_old(nf) = Z
-           Phase_old = Phase_old*Z
+        storage = "Full"
+        Call Compute_Fermion_Det(Phase_det_old,Det_Vec_old, udvl, udvst, Stab_nt, storage)
+        Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
+        Do nf = 1,N_Fl
+           Phase_old = Phase_old*Phase_det_old(nf)
         Enddo
-        call Op_phase(Phase_old,OP_V,Nsigma,N_SUN) 
-        If (L_test) then
-           Write(6,*) 'Testing global : ',  Phase_old, Phase
-        Endif
-        
+        Call Op_phase(Phase_old,OP_V,Nsigma,N_SUN)
         
         If (L_test) then 
            ! Testing    
            Do nf = 1,N_FL
               if (Projector) then
-                CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                 CALL udvr(nf)%reset('r',WF_R(nf)%P)
               else
-                CALL udvr(nf)%reset('r')
+                 CALL udvr(nf)%reset('r')
               endif
            Enddo
            NVAR = 1
@@ -575,70 +546,33 @@ Module Global_mod
            Enddo
         Endif
         
-        !> Store old configuration
-        nsigma_old = nsigma 
-        !> Phase_old, Phase_det_old and Det_vec_old  are all set. 
+        ! Store old configuration
+        nsigma_old%f = nsigma%f
+        nsigma_old%t = nsigma%t
+        ! Phase_old, Phase_det_old and Det_vec_old  are all set. 
         NC = 0
         Do n = 1,N_Global
-           !> Draw a new spin configuration. This is provided by the user in the Hamiltonian module
-           !> Note that nsigma is a variable in the module Hamiltonian
+           ! Draw a new spin configuration. This is provided by the user in the Hamiltonian module
+           ! Note that nsigma is a variable in the module Hamiltonian
            Call Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
            If (T0_Proposal_ratio > 1.D-24) then
               NC = NC + 1
-              !> Compute the new Green function
-              DO nf = 1,N_FL
-                if (Projector) then
-                  CALL udvl(nf)%reset('l',WF_L(nf)%P)
-                else
-                  CALL udvl(nf)%reset('l')
-                endif
-              ENDDO
-              !! Compute detvec for projector
-              Det_vec_new=0.d0
-              DO NST = NSTM-1,1,-1
-                 NT1 = Stab_nt(NST+1)
-                 NT  = Stab_nt(NST  )
-                 !Write(6,*) NT1,NT, NST
-                 CALL WRAPUL(NT1,NT,udvl)
-                 Do nf = 1,N_FL
-                    udvst(NST, nf) = udvl(nf)
-                    N_part=udvl(nf)%N_part
-                    do j=1,N_part
-#if !defined(LOG)
-                        Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+log(dble(udvl(nf)%D(j)))
-#else
-                        Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+udvl(nf)%L(j)
-#endif
-                    enddo
-                 ENDDO
-              ENDDO
-              NT1 = stab_nt(1)
-              CALL WRAPUL(NT1,0, udvl)
-              Do nf = 1,N_FL
-                N_part=udvl(nf)%N_part
-                do j=1,N_part
-#if !defined(LOG)
-                    Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+log(dble(udvl(nf)%D(j)))
-#else
-                    Det_Vec_new(j,nf)=Det_Vec_new(j,nf)+udvl(nf)%L(j)
-#endif
-                enddo
-              ENDDO
-              !You could now compute the det directly here.
-              Phase_new = cmplx(1.d0,0.d0,kind(0.d0))
-              do nf = 1,N_Fl
-                 Call Compute_Fermion_Det(Z,Det_Vec_new(:,nf),udvl(nf), nf)
-                 Phase_det_new(nf) = Z
-                 Phase_new = Phase_new*Z
+              ! Compute the new Green function
+              storage = "Empty"
+              Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
+
+              Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
+              Do nf = 1,N_Fl
+                 Phase_new = Phase_new*Phase_det_new(nf)
               Enddo
-              call Op_phase(Phase_new,OP_V,Nsigma,N_SUN) 
+              Call Op_phase(Phase_new,OP_V,Nsigma,N_SUN)
               
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
-                   &                               Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio, Ratio) 
+                   &                          Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio, Ratio) 
               
               !Write(6,*) 'Ratio_global: ', Ratiotot
               
-              Weight = abs(  real(Phase_old * Ratiotot, kind=Kind(0.d0))/real(Phase_old,kind=Kind(0.d0)) )
+              Weight = abs(  real( Phase_old * Ratiotot, kind=Kind(0.d0))/real(Phase_old,kind=Kind(0.d0)) )
               
               Z = Phase_old * Ratiotot/ABS(Ratiotot)
               Call Control_PrecisionP_Glob(Z,Phase_new)
@@ -650,10 +584,12 @@ Module Global_mod
                  TOGGLE = .true.
                  Phase_old     = Phase_new
                  Phase_det_old = Phase_det_new
-                 nsigma_old    = nsigma
-                 Det_vec_old   = Det_vec_new
+                 nsigma_old%t    = nsigma%t
+                 nsigma_old%f    = nsigma%f
+                 Det_vec_old     = Det_vec_new
               else
-                 nsigma = nsigma_old
+                 nsigma%t = nsigma_old%t
+                 nsigma%f = nsigma_old%f
               endif
               Call Control_upgrade_Glob(TOGGLE,size_clust)
            endif
@@ -691,44 +627,57 @@ Module Global_mod
         endif
         
         
-        Deallocate ( nsigma_old)
+        call nsigma_old%clear
+        deallocate(nsigma_old)
         Deallocate ( Det_vec_old  , Det_vec_new, Det_vec_test  ) 
         Deallocate ( Phase_Det_new, Phase_Det_old )
         
         
       End Subroutine Global_Updates
       
-      
-      
+
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!>
+!> @brief
+!> This fucntion computes ratio of weights for global moves
+!>
+!> @details
+!> \verbatim
+!>  Ratio_Global = T0(nsigma--> nsigma_old) W(nsigma)/T0(nsigma_old--> nsigma) W(nsigma_old) = 
+!>                 T0_Proposal_ratio   W(nsigma)/  W(nsigma_old)
+!>  On entry the old and new fermion determinants read: Phase_det*e^{ \sum_{n=1}^{ndim} Det_vec(n) }
+!>  as obtained from the Compute_Fermion_det routine.
+!>  On exit Ratio_Global = Ratio(1)*exp(Ratio(2))
+!> \endverbatim
+!>
+!> @param[in]  Phase_det_new  Complex, Dimension(N_FL)
+!> @param[in]  Phase_det_old  Complex, Dimension(N_FL)
+!> @param[in]  Det_vec_new  Real, Dimension(:,N_FL)
+!> @param[in]  Det_vec_old  Real, Dimension(:,N_FL)
+!> @param[in]  T0_proposal_ratio   Real
+!> @param[in]  nsigma_old Class(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma. nsigma is a globale variable
+!>  contained in the Hamiltonian module.
+!> \endverbatim
 !--------------------------------------------------------------------
       Complex (Kind=Kind(0.d0)) Function Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
            &                    Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio,Ratio)
-!--------------------------------------------------------------------
-!> @author
-!> Fakher Assaad 
-!>
-!> @brief 
-!> This fucntion computes ratio of weights  T0(nsigma--> nsigma_old) W(nsigma)/ 
-!>                                          T0(nsigma_old--> nsigma) W(nsigma_old) =
-!>                                          T0_Proposal_ratio   W(nsigma)/  W(nsigma_old)
-!> 
-!> Note that the new configuration, nsigma, is contained in the Hamiltonian moddule
-!> The fermionic determinant stems from the routine Compute_Fermion_Det. 
-!> Since the ratio can be a very large number, it is encoded as Ratio(1)*exp(Ratio(2))
-!--------------------------------------------------------------------
 
     
         Implicit none
         
-        !> Arguments
+        ! Arguments
         Complex (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Phase_Det_old(:), Phase_Det_new(:)
-        REAL (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Det_vec_old(:,:), Det_vec_new(:,:)
-        Real    (Kind=Kind(0.d0)) :: T0_proposal_ratio 
-        Integer, allocatable      :: nsigma_old(:,:)
-        Complex (Kind=Kind(0.d0)), INTENT(out) :: Ratio(2)
+        REAL    (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Det_vec_old(:,:), Det_vec_new(:,:)
+        Real    (Kind=Kind(0.d0)),    INTENT(IN)  :: T0_proposal_ratio 
+        Class (Fields), allocatable,  INTENT(IN)  :: nsigma_old
+        Complex (Kind=Kind(0.d0)),    INTENT(out) :: Ratio(2)
         
-        !> Local 
-        Integer                                :: Nf, i, nt
+        ! Local 
+        Integer  :: Nf, i, nt
         Complex (Kind=Kind(0.d0)) :: Z, Z1
         Real    (Kind=Kind(0.d0)) :: X, Ratio_2
         
@@ -752,20 +701,16 @@ Module Global_mod
         Ratio_2 = real(N_SUN,kind(0.d0))*Ratio_2
         
         Do I = 1,Size(Op_V,1)
-           If (Op_V(i,1)%type == 2) then 
-              X = 0.d0
-              Do nt = 1,Ltrot
-                 if ( nsigma(i,nt) /= nsigma_old(i,nt) )  then 
-                    !Z = Z * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) ) 
-                    Ratio(1) = Ratio(1) * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) )
-                    X = X + Phi(nsigma(i,nt),2) - Phi(nsigma_old(i,nt),2)
-                 endif
-              Enddo
-              Do nf = 1,N_FL
-                 !Z = Z * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
-                 Ratio(1) = Ratio(1) * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
-              Enddo
-           endif
+           X = 0.d0
+           Do nt = 1,Ltrot
+              !Z = Z * cmplx( Gaml(nsigma(i,nt),2)/Gaml(nsigma_old(i,nt),2),0.d0,kind(0.d0) ) 
+              Ratio(1) = Ratio(1) * cmplx( nsigma%Gama(i,nt)/nsigma_old%Gama(i,nt),0.d0,kind(0.d0) )  !  You could put this in Ratio_2
+              X = X + nsigma%Phi(i,nt) - nsigma_old%Phi(i,nt)
+           Enddo
+           Do nf = 1,N_FL
+              !Z = Z * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
+              Ratio(1) = Ratio(1) * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
+           Enddo
         Enddo
         !Z =  Z * cmplx( Delta_S0_global(Nsigma_old),0.d0,kind(0.d0) )
         !Z =  Z * cmplx( T0_Proposal_ratio, 0.d0,kind(0.d0))
@@ -777,144 +722,230 @@ Module Global_mod
         
       end Function Compute_Ratio_Global
       
-
-!--------------------------------------------------------------------
-      subroutine Compute_Fermion_Det(Phase,Det_Vec, udvl, nf)
 !--------------------------------------------------------------------
 !> @author 
-!> Fakher Assaad 
-!>
+!> 
 !> @brief 
-!> Computes det( 1 +  VL*DL*UL)   = Phase * Det_vec(1)*..*Det_vec(Ndim)
-!> Note that Phase is a unit complex number and the Det_vec contains only 
-!> positive, implying real, numbers.
-!>  
+!> Computes the fermion determinant from scratch or from the storage.
+!>
+!> @details
+!> \verbatim
+!> Finite temperature: If the storage is full then computes  det( 1 +  VL*DL*UL^{dag} )= Phase_det*e^{ \sum_{n=1}^{ndim} Det_vec(n) }
+!>                     Note that  Udvl%U = UL, Udvl%D = DL and  Udvl%V = VL^{dag}
+!>                     If storage is empty one first computes  Udvl and in doing so fills up the storage.
+!> Zero temperature:   If storage is full then computes  det \Psi_L U(\theta_tot,0) \Psi_R  =  Phase_det*e^{ \sum_{n=1}^{N_part} Det_vec(n) }
+!>                     For the projective code the required scales which one can throw away for the Green function are in udvst.
+!>                     If the storage is not full, then things will be computed from scratch and intermediate results will be stored in udvst.
+!> \endverbatim
+!>
+!> @param[inout] udvl, udvr Class(UDV_State)
+!> \verbatim
+!>  If storage=Full  : On entry and exit udvl contains the last udv decomposition such that G=(1 + VL*DL*UL^{dag})^{-1}
+!>  If storage=Empty : On exit udv1 will contain the last udv decomposition such that G=(1 + VL*DL*UL^{dag})^{-1}
+!> \endverbatim
+!> @param[out] Phase_det  Complex, Dimension(N_FL)
+!> \verbatim
+!>  The phase, per flavor 
+!> \endverbatim
+!> @param[out] Det_vec  Real, Dimension(:,N_FL)
+!> @param[in] Stab_nt  Integer, Dimension(:)
+!> \verbatim
+!>  List of time slices for stabilization.
+!> \endverbatim
+!> @param[in] Storage Character
+!> \verbatim
+!>  storage = "Full".  Compute the fermion det  with the use of the storage.
+!>  storage = "Empty". Compute the fermion det from scratch and  in doing so, fill the storage.
+!> \endverbatim
+!> 
+!--------------------------------------------------------------------
+      Subroutine Compute_Fermion_Det(Phase_det,Det_Vec, udvl, udvst, Stab_nt, storage)
 !--------------------------------------------------------------------
 
         Use  UDV_Wrap_mod
         Use UDV_State_mod
-        Implicit none
         
-        CLASS(UDV_State), INTENT(INOUT) :: udvl
-        REAL (Kind=Kind(0.d0)), Dimension(:), Intent(OUT)  ::  Det_Vec
-        Complex (Kind=Kind(0.d0)) :: Phase
-        Integer, INTENT(in) :: nf
+        Implicit none
+
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+        end Interface
+        
+        REAL    (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT)  ::  Det_Vec
+        Complex (Kind=Kind(0.d0)), Dimension(:)  , Intent(OUT)  ::  Phase_det
+        CLASS(UDV_State), DIMENSION(:)  , ALLOCATABLE,  INTENT(INOUT) :: udvl
+        CLASS(UDV_State), Dimension(:,:), ALLOCATABLE,  INTENT(INOUT) :: udvst
+        INTEGER,          dimension(:),   allocatable,    INTENT(IN)  :: Stab_nt
+        Character (Len=64), Intent(IN) :: storage 
+
         
         !> Local variables
-        Integer ::  N_size, NCON, J, N_part, info
+        Integer ::  N_size, NCON, I,  J, N_part, info, NSTM, N, nf, nst, nt, nt1
         Integer, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha,beta, Z, Z1
         TYPE(UDV_State) :: udvlocal
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP!, U, V
         COMPLEX (Kind=Kind(0.d0)), Dimension(:), Allocatable :: D
+
         
-        if(udvl%side .ne. "L" .and. udvl%side .ne. "l" ) then
-          write(*,*) "calling wrong decompose"
+        if(udvl(1)%side .ne. "L" .and. udvl(1)%side .ne. "l" ) then
+           write(*,*) "calling wrong decompose"
+           Stop
         endif
+
+        NSTM = Size(udvst, 1)
+        If (storage == "Empty" ) then
+           DO nf = 1,N_FL
+              if (Projector) then
+                 CALL udvl(nf)%reset('l',WF_L(nf)%P)
+              else
+                 CALL udvl(nf)%reset('l')
+              endif
+           ENDDO
+           DO NST = NSTM-1,1,-1
+              NT1 = Stab_nt(NST+1)
+              NT  = Stab_nt(NST  )
+              !Write(6,*) 'Call wrapul', NT1,NT, udvl(1)%d(1), udvl(1)%N_part, udvl(1)%Ndim
+              CALL WRAPUL(NT1,NT, udvl)
+              Do nf = 1,N_FL
+                 udvst(NST, nf) = udvl(nf)
+              ENDDO
+           ENDDO
+           NT1 = stab_nt(1)
+           CALL WRAPUL(NT1,0, udvl)           
+        Endif
         
-        if(Projector) then
-          N_part=udvl%N_part
-          N_size=udvl%ndim
-          Allocate (TP(N_part,N_part), ipiv(N_part))
-          alpha=1.d0
-          beta=0.d0
-          CALL ZGEMM('C','N',N_part,N_part,N_size,alpha,udvl%U(1,1),N_size,WF_R(nf)%P(1,1),N_size,beta,TP(1,1),N_part)
-          ! ZGETRF computes an LU factorization of a general M-by-N matrix A
-          ! using partial pivoting with row interchanges.
-          call ZGETRF(N_part, N_part, TP(1,1), N_part, ipiv, info)
-          Z=1.d0
-          Do J=1,N_part
-            if (ipiv(J).ne.J) then
-              Z = -Z
-            endif
-            Z =  Z * TP(J,J)
-          enddo
-          phase = Z/abs(Z)
-          Det_vec(1)=Det_vec(1)+log(abs(Z))
-          Deallocate(TP,ipiv)
-          return
+        if (Projector) then
+           N_part=udvst(1,1)%N_part
+           N_size=udvl(1)%ndim
+           Det_vec = 0.d0
+           Allocate (TP(N_part,N_part), ipiv(N_part))
+           do nf=1,N_FL
+              N_part=udvst(1,nf)%N_part
+              do i=1,NSTM-1
+                 do n=1,N_part
+#if !defined(LOG)
+                    Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvst(i,nf)%D(n)))
+#else
+                    Det_Vec(n,nf)=Det_Vec(n,nf)+udvst(i,nf)%L(n)
+#endif
+                 enddo
+              enddo
+              do n=1,N_part
+#if !defined(LOG)
+                 Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvl(nf)%D(n)))
+#else
+                 Det_Vec(n,nf)=Det_Vec(n,nf)+udvl(nf)%L(n)
+#endif
+              enddo
+              alpha=1.d0
+              beta=0.d0
+              CALL ZGEMM('C','N',N_part,N_part,N_size,alpha,udvl(nf)%U(1,1),N_size,WF_R(nf)%P(1,1),N_size,beta,TP(1,1),N_part)
+              ! ZGETRF computes an LU factorization of a general M-by-N matrix A
+              ! using partial pivoting with row interchanges.
+              call ZGETRF(N_part, N_part, TP(1,1), N_part, ipiv, info)
+              Z=1.d0
+              Do J=1,N_part
+                 if (ipiv(J).ne.J) then
+                    Z = -Z
+                 endif
+                 Z =  Z * TP(J,J)
+              enddo
+              Phase_det(nf) = Z/abs(Z)
+              Det_vec(1,nf) = Det_vec(1,nf)+log(abs(Z))
+           enddo
+           Deallocate(TP,ipiv)
+           return
         endif
         
         !    N_size = SIZE(DL,1)
-        N_size = udvl%ndim
+        N_size = udvl(1)%ndim
         NCON  = 0
         alpha = cmplx(1.d0,0.d0,kind(0.d0))
         beta  = cmplx(0.d0,0.d0,kind(0.d0))
         Allocate (TP(N_Size,N_Size),D(N_size))
-        TP = udvl%U !udvl stores U^dag instead of U !CT(udvl%U)
+        CALL udvlocal%alloc(N_size)  
+        Do nf = 1,N_FL
+           TP = udvl(nf)%U !udvl stores U^dag instead of U !CT(udvl%U)
 #if !defined(LOG)
 #if !defined(STAB3)
-        DO J = 1,N_size
-           TP(:,J) = TP(:,J) +  udvl%V(:,J)*udvl%D(J)
-        ENDDO
+           DO J = 1,N_size
+              TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*udvl(nf)%D(J)
+           ENDDO
 #else
-        DO J = 1,N_size
-           if ( dble(udvl%D(J)) <= 1.d0 ) then
-              TP(:,J) = TP(:,J) +  udvl%V(:,J)*udvl%D(J)
-           else
-              TP(:,J) = TP(:,J)/udvl%D(J) +  udvl%V(:,J)
-           endif
-        ENDDO
+           DO J = 1,N_size
+              if ( dble(udvl(nf)%D(J)) <= 1.d0 ) then
+                 TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*udvl(nf)%D(J)
+              else
+                 TP(:,J) = TP(:,J)/udvl(nf)%D(J) +  udvl(nf)%V(:,J)
+              endif
+           ENDDO
 #endif
 #else
-        DO J = 1,N_size
-           if ( udvl%L(J) <= 0.d0 ) then
-              TP(:,J) = TP(:,J) +  udvl%V(:,J)*cmplx(exp(udvl%L(J)),0.d0,kind(0.d0))
-           else
-              TP(:,J) = TP(:,J)*cmplx(exp(-udvl%L(J)),0.d0,kind(0.d0)) +  udvl%V(:,J)
-           endif
-        ENDDO
+           DO J = 1,N_size
+              if ( udvl(nf)%L(J) <= 0.d0 ) then
+                 TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*cmplx(exp(udvl(nf)%L(J)),0.d0,kind(0.d0))
+              else
+                 TP(:,J) = TP(:,J)*cmplx(exp(-udvl(nf)%L(J)),0.d0,kind(0.d0)) +  udvl(nf)%V(:,J)
+              endif
+           ENDDO
 #endif
-        CALL udvlocal%alloc(N_size)
-        Call  UDV_WRAP_Pivot(TP,udvlocal%U, D, udvlocal%V, NCON,N_size,N_Size)
-        Z  = DET_C(udvlocal%V, N_size) ! Det destroys its argument
-!         Call MMULT(TP, udvl%U, udvlocal%U)
-        CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
-        Z1 = Det_C(TP, N_size) 
+
+           !Call  UDV_WRAP_Pivot(TP,udvlocal%U, D, udvlocal%V, NCON,N_size,N_Size)
+           Call  UDV_WRAP(TP,udvlocal%U, D, udvlocal%V, NCON )
+           Z  = DET_C(udvlocal%V, N_size) ! Det destroys its argument
+           !         Call MMULT(TP, udvl%U, udvlocal%U)
+           CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
+           Z1 = Det_C(TP, N_size) 
+           Phase_det(nf)   = Z*Z1/ABS(Z*Z1)
+#if !defined(LOG)
+#if !defined(STAB3)
+           Det_vec(:,nf) = log(real(D(:)))
+           Det_vec(1,nf) = log(real(D(1))) + log(ABS(Z*Z1))
+#else
+           Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
+           if (dble(udvl(nf)%D(1)) > 1.d0) Det_vec(1,nf)=Det_Vec(1,nf)+log(dble(udvl(nf)%D(1)))
+           Do J=2,Ndim
+              if (dble(udvl(nf)%D(J))<=1.d0) then
+                 Det_vec(J,nf) = log(real(D(J)))
+              else
+                 Det_vec(J,nf) = log(real(D(J)))+log(dble(udvl(nf)%D(J)))
+              endif
+           enddo
+#endif
+#else
+           Det_vec(:,nf) = log(real(D(:)))
+           Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
+           if (udvl(nf)%L(1) > 0.d0) Det_vec(1,nf)=Det_Vec(1,nf)+udvl(nf)%L(1)
+           Do J=2,Ndim
+              if (udvl(nf)%L(J)<=0.d0) then
+                 Det_vec(J,nf) = log(real(D(J)))
+              else
+                 Det_vec(J,nf) = log(real(D(J)))+udvl(nf)%L(J)
+              endif
+           enddo
+#endif
+        Enddo
         Deallocate (TP)
-        Phase   = Z*Z1/ABS(Z*Z1)
-#if !defined(LOG)
-#if !defined(STAB3)
-        Det_vec = log(real(D))
-        Det_vec(1) = log(real(D(1))*ABS(Z*Z1))
-#else
-        Det_vec(1) = log(real(D(1))*ABS(Z*Z1))
-        if (dble(udvl%D(1)) > 1.d0) Det_vec(1)=Det_Vec(1)+log(dble(udvl%D(1)))
-        Do J=2,Ndim
-           if (dble(udvl%D(J))<=1.d0) then
-              Det_vec(J) = log(real(D(J)))
-           else
-              Det_vec(J) = log(real(D(J)))+log(dble(udvl%D(J)))
-           endif
-        enddo
-#endif
-#else
-        Det_vec(1) = log(real(D(1))*ABS(Z*Z1))
-        if (udvl%L(1) > 0.d0) Det_vec(1)=Det_Vec(1)+udvl%L(1)
-        Do J=2,Ndim
-           if (udvl%L(J)<=0.d0) then
-              Det_vec(J) = log(real(D(J)))
-           else
-              Det_vec(J) = log(real(D(J)))+udvl%L(J)
-           endif
-        enddo
-#endif
-        
         CALL udvlocal%dealloc
         
       end subroutine Compute_Fermion_Det
-
+      
       
 !--------------------------------------------------------------------
-      Integer function  npbc_tempering(n,Isize)
-!--------------------------------------------------------------------
 !> @author 
-!> Fakher Assaad 
+!> The ALF Project contributors
 !>
 !> @brief 
-!> Periodic boundary conditions required to defined master and slave for the  
-!> tempering
+!> Periodic boundary conditions required to defined master and slave for the tempering
 !--------------------------------------------------------------------
+      Integer function  npbc_tempering(n,Isize)
         implicit none
         Integer,  INTENT(IN)   :: Isize,n
         
@@ -923,15 +954,14 @@ Module Global_mod
         if (  npbc_tempering > Isize -1) npbc_tempering = npbc_tempering -  Isize
         
       end function npbc_tempering
-
-
+      
+      
 !--------------------------------------------------------------------
 !> @author 
-!> Fakher Assaad 
+!> The ALF Project contributors
 !>
 !> @brief 
-!> The following routine monitors the acceptance of tempering moves
-!> 
+!> Allocates the Tempering_acceptance (Type Obser_vec) variable  that monitors the exchange acceptance
 !--------------------------------------------------------------------
       Subroutine Global_Tempering_setup
         Integer    ::   N
@@ -942,11 +972,23 @@ Module Global_mod
       End Subroutine Global_Tempering_setup
 
 !--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Initializes  Tempering_acceptance
+!--------------------------------------------------------------------
 
       Subroutine Global_Tempering_init_obs
         Call Obser_vec_Init( Tempering_acceptance )
       end Subroutine Global_Tempering_init_obs
 
+!--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Measures Tempering_acceptance
 !--------------------------------------------------------------------
 
       Subroutine Global_Tempering_obser(toggle)
@@ -958,6 +1000,12 @@ Module Global_mod
         if (toggle) Tempering_acceptance%Obs_vec(1) = Tempering_acceptance%Obs_vec(1) +  cmplx(1.d0,0.d0,kind(0.d0))
         
       end Subroutine Global_Tempering_obser
+!--------------------------------------------------------------------
+!> @author 
+!> The ALF Project contributors
+!>
+!> @brief 
+!> Prints Tempering_acceptance
 !--------------------------------------------------------------------
       Subroutine Global_Tempering_Pr
         Implicit none

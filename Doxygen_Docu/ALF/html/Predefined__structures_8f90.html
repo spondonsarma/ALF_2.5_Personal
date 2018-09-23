@@ -61,7 +61,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d522931ffa1371640980b621734a4381.html">Users</a></li><li class="navelem"><a class="el" href="dir_2fc344c4afab91ffd779fc3be661a91b.html">assaad_home</a></li><li class="navelem"><a class="el" href="dir_2d8b52344a345b812bb1204ebdbd5c86.html">QMC_code</a></li><li class="navelem"><a class="el" href="dir_c8792891ae1f8126c493f3d0737ef1f0.html">Merging-documentation-with-code</a></li><li class="navelem"><a class="el" href="dir_3059094bd7a71d0c655dcd853ea73d75.html">Prog</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d522931ffa1371640980b621734a4381.html">Users</a></li><li class="navelem"><a class="el" href="dir_0d173c9b77c4800183038705758e2aa9.html">fassaad</a></li><li class="navelem"><a class="el" href="dir_70afa6685db6da7b224ff61160edd997.html">Programs</a></li><li class="navelem"><a class="el" href="dir_74c2fb259f3487380c2f2f139ef52b2f.html">General_QMCT_code</a></li><li class="navelem"><a class="el" href="dir_4608f0682d2fc7b37d57d8ca9b71aaf8.html">Continuous-fields-and-LRC</a></li><li class="navelem"><a class="el" href="dir_833704bfe6a54e92d45974ae84252f84.html">Prog</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -83,24 +83,24 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a2b5c5c4cd7cce22f4914091ec63aa6f8"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#a2b5c5c4cd7cce22f4914091ec63aa6f8">predefined_structures::predefined_latt</a> (Lattice_type, L1, L2, Norb, N_coord, Ndim, List, Invlist, Latt)</td></tr>
-<tr class="memdesc:a2b5c5c4cd7cce22f4914091ec63aa6f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definition of a set of lattices: Square, One_dimensional, Honeycomb, Pi_Flux.  <a href="namespacepredefined__structures.html#a2b5c5c4cd7cce22f4914091ec63aa6f8">More...</a><br /></td></tr>
-<tr class="separator:a2b5c5c4cd7cce22f4914091ec63aa6f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefecfbf90c65027137ba05e1ff2027e6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#aefecfbf90c65027137ba05e1ff2027e6">predefined_structures::predefined_hopping</a> (Lattice_type, Norb, N_coord, Ndim, List, Invlist, Latt, Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, N_FL, Checkerboard, Symm, OP_T)</td></tr>
-<tr class="memdesc:aefecfbf90c65027137ba05e1ff2027e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hopping, with ot without checkerboard <br />
+<tr class="memitem:a2c7dc108263d422595b15e74adaa2398"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#a2c7dc108263d422595b15e74adaa2398">predefined_structures::predefined_latt</a> (Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)</td></tr>
+<tr class="memdesc:a2c7dc108263d422595b15e74adaa2398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definition of a set of lattices: Square, One_dimensional, Honeycomb, Pi_Flux.  <a href="namespacepredefined__structures.html#a2c7dc108263d422595b15e74adaa2398">More...</a><br /></td></tr>
+<tr class="separator:a2c7dc108263d422595b15e74adaa2398"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a293e7acc793f45616406908447cb0ecb"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#a293e7acc793f45616406908447cb0ecb">predefined_structures::predefined_hopping</a> (Lattice_type, Ndim, List, Invlist, Latt, Latt_unit, Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, N_FL, Checkerboard, Symm, OP_T, Dimer)</td></tr>
+<tr class="memdesc:a293e7acc793f45616406908447cb0ecb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hopping, with ot without checkerboard <br />
  Per flavor, the hopping is given by </p><p class="formulaDsp">
-<img class="formulaDsp" alt="\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]" src="form_0.png"/>
+<img class="formulaDsp" alt="\[ e^{ - \Delta \tau H_t } = \prod_{n=1}^{N} e^{ - \Delta \tau_n H_t(n) } \]" src="form_18.png"/>
 </p>
-<p> If <em>Symm</em> is set to true and if <em>Checkeborad</em> is on, then one will carry out a symmetric decomposition so as to preserve the hermitian properties of the hopping. Thereby OP_T has dimension OP_T(N,N_FL)  <a href="namespacepredefined__structures.html#aefecfbf90c65027137ba05e1ff2027e6">More...</a><br /></td></tr>
-<tr class="separator:aefecfbf90c65027137ba05e1ff2027e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa142b03331212a0729c4bd63d318eda"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#afa142b03331212a0729c4bd63d318eda">predefined_structures::predefined_trialwavefunction</a> (Lattice_type, Norb, N_coord, Ndim, List, Invlist, Latt, N_part, N_FL, Degen, WF_L, WF_R)</td></tr>
-<tr class="memdesc:afa142b03331212a0729c4bd63d318eda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the trial wave function corresponding to the solution of the non-interacting tight binding Hamiltonian on the given lattice. Twisted boundary conditions (Phi_X=0.01) are implemented so as to generate a non-degenerate trial wave functions.  <a href="namespacepredefined__structures.html#afa142b03331212a0729c4bd63d318eda">More...</a><br /></td></tr>
-<tr class="separator:afa142b03331212a0729c4bd63d318eda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<p> If <em>Symm</em> is set to true and if <em>Checkeborad</em> is on, then one will carry out a symmetric decomposition so as to preserve the hermitian properties of the hopping. Thereby OP_T has dimension OP_T(N,N_FL)  <a href="namespacepredefined__structures.html#a293e7acc793f45616406908447cb0ecb">More...</a><br /></td></tr>
+<tr class="separator:a293e7acc793f45616406908447cb0ecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d7468ae9919de65b0fe1d373592414f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepredefined__structures.html#a1d7468ae9919de65b0fe1d373592414f">predefined_structures::predefined_trialwavefunction</a> (Lattice_type, Ndim, List, Invlist, Latt, Latt_unit, N_part, N_FL, WF_L, WF_R)</td></tr>
+<tr class="memdesc:a1d7468ae9919de65b0fe1d373592414f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the trial wave function corresponding to the solution of the non-interacting tight binding Hamiltonian on the given lattice. Twisted boundary conditions (Phi_X=0.01) are implemented so as to generate a non-degenerate trial wave functions.  <a href="namespacepredefined__structures.html#a1d7468ae9919de65b0fe1d373592414f">More...</a><br /></td></tr>
+<tr class="separator:a1d7468ae9919de65b0fe1d373592414f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Jul 22 2018 14:44:03 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Sep 23 2018 13:52:42 for ALF by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>
