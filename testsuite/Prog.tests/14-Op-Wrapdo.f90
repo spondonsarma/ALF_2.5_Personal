@@ -27,10 +27,8 @@ Program OPWRAPDO
      & ExpMop
       Integer :: i, n, j, Ndim, N_Type, opn
       Type (Operator) :: Op
-      Class (Fields), allocatable :: nsigma_single
+      Type (Fields) :: nsigma_single
     
-    
-      Allocate (nsigma_single)
       Call nsigma_single%make(1,1)
       
 !
@@ -99,7 +97,6 @@ Program OPWRAPDO
       End Do
       
       Call nsigma_single%clear() 
-      Deallocate (nsigma_single)
 
       write (*,*) "success"
 End Program OPWRAPDO

@@ -137,7 +137,7 @@ Module Global_mod
         
         !>  Local variables.
         Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step,  N_count, N_part
-        Class (Fields), allocatable :: nsigma_old
+        Type    (Fields)           :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
@@ -169,7 +169,6 @@ Module Global_mod
         n1 = size(nsigma%f,1)
         n2 = size(nsigma%f,2)
         NSTM = Size(udvst, 1)
-        allocate(nsigma_old)
         call nsigma_old%make(n1, n2)
         if (Tempering_calc_det) then
            Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL) ) 
@@ -399,7 +398,7 @@ Module Global_mod
 
 
         call nsigma_old%clear
-        Deallocate ( nsigma_old )
+        
         if (Tempering_calc_det) then
            Deallocate ( Det_vec_old, Det_vec_new ) 
            Deallocate ( Phase_Det_new, Phase_Det_old )
@@ -487,7 +486,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_test(:,:), Phase_Det_new(:), Phase_Det_old(:)
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
-        Class (Fields), allocatable :: nsigma_old
+        Type   (Fields)   :: nsigma_old
 
         Complex (Kind=Kind(0.d0)) :: Ratio(2)
         Logical :: TOGGLE, L_Test
@@ -500,7 +499,6 @@ Module Global_mod
         n1 = size(nsigma%f,1)
         n2 = size(nsigma%f,2)
         NSTM = Size(udvst, 1)
-        allocate(nsigma_old)
         call nsigma_old%make(n1, n2)
 
         Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL), Det_vec_test(NDIM,N_FL) ) 
@@ -628,7 +626,6 @@ Module Global_mod
         
         
         call nsigma_old%clear
-        deallocate(nsigma_old)
         Deallocate ( Det_vec_old  , Det_vec_new, Det_vec_test  ) 
         Deallocate ( Phase_Det_new, Phase_Det_old )
         
@@ -657,7 +654,7 @@ Module Global_mod
 !> @param[in]  Det_vec_new  Real, Dimension(:,N_FL)
 !> @param[in]  Det_vec_old  Real, Dimension(:,N_FL)
 !> @param[in]  T0_proposal_ratio   Real
-!> @param[in]  nsigma_old Class(Fields)
+!> @param[in]  nsigma_old Type(Fields)
 !> \verbatim
 !>  Old configuration. The new configuration is stored in nsigma. nsigma is a globale variable
 !>  contained in the Hamiltonian module.
@@ -673,7 +670,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Phase_Det_old(:), Phase_Det_new(:)
         REAL    (Kind=Kind(0.d0)), allocatable, INTENT(IN) :: Det_vec_old(:,:), Det_vec_new(:,:)
         Real    (Kind=Kind(0.d0)),    INTENT(IN)  :: T0_proposal_ratio 
-        Class (Fields), allocatable,  INTENT(IN)  :: nsigma_old
+        Type    (Fields),             INTENT(IN)  :: nsigma_old
         Complex (Kind=Kind(0.d0)),    INTENT(out) :: Ratio(2)
         
         ! Local 

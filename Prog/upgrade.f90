@@ -118,7 +118,7 @@
         
         
         ! Local ::
-        Class (Fields), allocatable   ::  nsigma_new
+        Type   (Fields)   ::  nsigma_new
         Complex (Kind=Kind(0.d0)) :: Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL)
         Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1 
         Integer ::  n,m,nf, i
@@ -134,7 +134,6 @@
         toggle = .false.
         ! if ( abs(OP_V(n_op,1)%g) < 1.D-12 )   return
 
-        Allocate (nsigma_new)
         Call nsigma_new%make(1,1)
         
         ! Compute the ratio
@@ -262,6 +261,5 @@
         endif
 
         Call nsigma_new%clear() 
-        Deallocate (nsigma_new)
         
       End Subroutine Upgrade2

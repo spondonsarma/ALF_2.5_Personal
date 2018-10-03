@@ -24,13 +24,12 @@ Program Wrapup
      & matnew, matold
       Integer :: i, n, j, Ndim, N_Type, opn, nt
       Type (Operator) :: Op
-      Class (Fields), allocatable :: nsigma_single
+      Type  (Fields)  :: nsigma_single
           
 !
 ! setup some test data
       Ndim = 5
       !
-      Allocate (nsigma_single)
 
       Call nsigma_single%make(1,1)
       Do nt = 1,2
@@ -97,7 +96,6 @@ Program Wrapup
    Enddo
       Call nsigma_single%clear() 
       
-      Deallocate (nsigma_single)
       write (*,*) "SUCCESS"
 End Program Wrapup
 !

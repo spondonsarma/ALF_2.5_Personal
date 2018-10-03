@@ -11,11 +11,10 @@ Program OPMULTTEST
         Real (KIND = KIND(0.D0)) :: spin, nspin
         Integer :: i, n, m, j, ndim , nt
         Type(Operator) :: Op
-        Class (Fields), allocatable :: nsigma_single
+        Type (Fields) :: nsigma_single
     
 
         
-        Allocate (nsigma_single)
         Call nsigma_single%make(1,1)
         
 ! setup some test data
@@ -162,7 +161,6 @@ Program OPMULTTEST
            enddo
         enddo
         Call nsigma_single%clear() 
-        Deallocate (nsigma_single)
         
         write (*,*) "success"
       end Program OPMULTTEST

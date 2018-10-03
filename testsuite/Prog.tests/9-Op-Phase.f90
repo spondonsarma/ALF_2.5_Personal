@@ -10,10 +10,9 @@ Program TESTOP_PHASE
 
   Complex(Kind = Kind(0.D0)) :: Phasenew, Phaseold, diff
   Integer :: i,n, N_SUN,  nf,nt
-  Class (Fields), allocatable :: nsigma
+  Type (Fields)  :: nsigma
   Type(Operator) :: Op(3,3)
 
-  Allocate (nsigma)
 
   Call nsigma%make(3,3)
   do nf = 1, 3
@@ -59,7 +58,6 @@ Program TESTOP_PHASE
   endif
 
   Call nsigma%clear() 
-  Deallocate (nsigma)
   
   write (*,*) "success"
   

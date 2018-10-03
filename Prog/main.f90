@@ -314,7 +314,6 @@ Program Main
         endif
         
         N_op = Size(OP_V,1)
-        allocate(nsigma)
         call nsigma%make(N_op, Ltrot)
         Do n = 1,N_op
            nsigma%t(n)  = OP_V(n,1)%type

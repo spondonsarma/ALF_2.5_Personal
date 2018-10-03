@@ -61,7 +61,7 @@
        Private
        Real (Kind=Kind(0.d0))  :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
        Real (Kind=Kind(0.d0))  :: Del, FLIP_st(-2:2,3)
-       Real (Kind=Kind(0.d0))  :: Amplitude=2.d0
+       Real (Kind=Kind(0.d0))  :: Amplitude=5.d0
        
        Type Fields
           Real    (Kind=Kind(0.d0)), allocatable    :: f(:,:)

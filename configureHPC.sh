@@ -160,7 +160,6 @@ else
 export f90="$mpif90"
 fi
 export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-F90USEFULFLAGS="-cpp"
 ;;
 
 #Development

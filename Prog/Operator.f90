@@ -141,7 +141,7 @@ Contains
 !> @param[in] Op_V  Dimension(:,:)  Type(Operator)
 !> * List of interaction operators. OP_V(n,f) has no tau index.  
 !> @param[in] Nsigma 
-!> Class(Fields)
+!> Type(Fields)
 !> * Fields
 !> @param[in] N_SUN
 !> Integer
@@ -152,7 +152,7 @@ Contains
 
     Complex  (Kind=Kind(0.d0)), Intent(Inout) :: Phase
     Integer,           Intent(IN)    :: N_SUN
-    Class (Fields),    Intent(IN)    :: Nsigma
+    Type  (Fields),    Intent(IN)    :: Nsigma
     Type (Operator),   dimension(:,:), Intent(In) :: Op_V
     Real  (Kind=Kind(0.d0))                       :: angle
     
@@ -235,13 +235,10 @@ Contains
     Real    (Kind=Kind(0.d0)) :: Zero = 1.D-9 !, Phi(-2:2)
     Integer :: N, I, J, np,nz
     Complex (Kind=Kind(0.d0)) :: Z
-    Class (Fields), allocatable :: nsigma_single
+    Type  (Fields)   :: nsigma_single
     
     
-    Allocate (nsigma_single)
-
     Call nsigma_single%make(1,1)
-
 
     N = OP%N
     Allocate ( Op%U(N,N), Op%E(N) )
@@ -341,8 +338,6 @@ Contains
     end select
 
     Call nsigma_single%clear() 
-
-    Deallocate (nsigma_single)
 
   end subroutine Op_set
 

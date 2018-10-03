@@ -68,7 +68,7 @@
 !> Right trial wave function.   For both wave functions the index runs over the flavor index. \endverbatim
 !>
 !> @param [public]  nsigma(:,:) 
-!> \verbatim Class(Fields), allocatable
+!> \verbatim Type(Fields)
 !> Array containing all auxiliary fields. The first index runs through the operator sequence. The second
 !> through the time slies.   \endverbatim
 !
@@ -137,7 +137,7 @@
       Type (Operator),     dimension(:,:), allocatable :: Op_T
       Type (WaveFunction), dimension(:),   allocatable :: WF_L
       Type (WaveFunction), dimension(:),   allocatable :: WF_R
-      Class (Fields)                   ,   allocatable :: nsigma
+      Type  (Fields)       :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
@@ -971,7 +971,7 @@
           
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
+          Type (Fields),  Intent(IN)  :: nsigma_old
 
           ! Local
           Integer :: N_op, N_tau, n1,n2, n
@@ -1010,7 +1010,7 @@
           Implicit none 
           
           ! Arguments
-          Class (Fields), allocatable, INTENT(IN) :: nsigma_old
+          Type (Fields),  INTENT(IN) :: nsigma_old
 
           ! Local
           Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
