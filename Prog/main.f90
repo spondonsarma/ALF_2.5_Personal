@@ -662,7 +662,7 @@ Program Main
            endif
         ENDDO
         DEALLOCATE(udvl, udvr, udvst)
-        DEALLOCATE(GR, TEST, Stab_nt)
+        DEALLOCATE(GR, TEST, Stab_nt,GR_Tilde)
         if (Projector) DEALLOCATE(WF_R, WF_L)
         If (N_Global_tau > 0) then
            Call Wrapgr_dealloc
