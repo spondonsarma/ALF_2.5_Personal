@@ -9,7 +9,8 @@ MPICOMP=1
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # uncomment the next line if you want to use additional openmp parallelization
-INTELOPTFLAGS=${INTELOPTFLAGS}" -parallel -qopenmp"
+INTELOPTFLAGS=${INTELOPTFLAGS}" -qopenmp"
+#INTELOPTFLAGS=${INTELOPTFLAGS}" -parallel -qopenmp"
 INTELUSEFULFLAGS="-cpp -std03"
 
 # default optimization flags for GNU compiler
@@ -184,8 +185,8 @@ export f90=mpif90
 export LIB_BLAS_LAPACK=$MKL_LIB
 ;;
 
-#JURECA enviroment
-JURECA)
+#JUWELS enviroment
+JUWELS)
 module load Intel
 module load IntelMPI
 module load imkl
@@ -234,7 +235,7 @@ echo "usage 'source configureHPC.sh MACHINE MODE STAB'"
 echo 
 echo "Please choose one of the following machines:"
 echo " * SuperMUC"
-echo " * JURECA"
+echo " * JUWELS"
 echo " * Devel"
 echo " * Intel"
 echo " * GNU"
