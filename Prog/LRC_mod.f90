@@ -424,15 +424,16 @@
         Real (Kind=Kind(0.d0)), Intent(IN) , dimension(:) :: A_old
         Real (Kind=Kind(0.d0)), Intent(OUT), dimension(:) :: A_new
 
-        Integer :: n, n1,  i
-        Real (Kind=Kind(0.d0)) :: X
-        
-        do n = 1,Size(E_int,1)
+        Integer :: n, n1,  i, m
+        Real (Kind=Kind(0.d0)) :: X, Alpha, Beta
+
+        M    =  Size(E_int,1)
+        do n = 1,M
            if ( ranf_wrap() <= Percent_change )  then
               ! X = Dtau/E_int(n)
               ! X = rang(iseed)/sqrt(2.d0*gk)
               ! Distribution of X is P(X) = sqrt(gk/3.141)* exp(-gk*x**2)
-              A_tmp(n) =  rang_wrap()*2.d0*sqrt(E_int(n)/(2.d0*Dtau*real(N_SUN,kind(0.d0)) ))
+              A_tmp(n) = rang_wrap()*2.d0*sqrt(E_int(n)/(2.d0*Dtau*real(N_SUN,kind(0.d0)) ))
            else
               A_tmp(n) = 0.d0
               do n1 = 1,Size(E_int,1)
@@ -441,13 +442,32 @@
            endif
         enddo
 
+        Alpha = 1.d0
+        Beta  = 0.d0
         A_new = 0.d0
-        do n = 1,Size(E_int,1)
-           do i = 1, Size(E_int,1)
-              A_new(i) = A_new(i)  + U_int(i,n)*A_tmp(n)
-           enddo
-        enddo
-        
+        Call dgemv('N', M, M, alpha, U_int, M, A_tmp, 1, beta, A_new, 1)
+
+!!$        Real (Kind=Kind(0.d0)), allocatable :: A_test_new(:)
+!!$        Logical :: Test
+!!$        if (Test) then
+!!$           Allocate ( A_test_new(M))
+!!$           A_test_new = 0.d0
+!!$           do n = 1,m
+!!$              do i = 1, m
+!!$                 A_test_new(i) = A_test_new(i)  + U_int(i,n)*A_tmp(n)
+!!$              enddo
+!!$           enddo
+!!$           X = 0.d0
+!!$           do i = 1,m
+!!$              X = X +  ABS(A_test_new(i) -   A_new(i))
+!!$           enddo
+!!$           If (X >= 1.D-12 ) then 
+!!$              Write(6,*) X
+!!$              Stop
+!!$           Endif
+!!$           Deallocate( A_test_new)
+!!$        Endif
+
       end Subroutine LRC_Draw_Field
       
     end Module LRC_mod
