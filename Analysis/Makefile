@@ -1,4 +1,4 @@
-.PHONY : all hdf5
+.PHONY : all
 all: cov_eq.out cov_scal.out cov_tau.out jackv5.out \
      Max_SAC.out Max_SAC_ph.out Max_SAC_T0.out \
 

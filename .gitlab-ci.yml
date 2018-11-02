@@ -95,8 +95,24 @@ GQMCT_Wheezy:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
   <<: *build_definitionDeb
 
+GQMCT_Jessie:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Stretch:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  <<: *build_definitionDeb
+
 GQMCT_Wheezy_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Jessie_OpenBlas:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Stretch_OpenBlas:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
   <<: *build_definitionDeb
 
 GQMCT_CentOS:
@@ -121,6 +137,14 @@ GQMCT_Jessie-PGI:
 
 GQMCT_Ubuntu_Trusty:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Ubuntu_Xenial:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Ubuntu_Bionic:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *build_definitionDeb
 
 GQMCT_Jessie_MPI:
