@@ -6,6 +6,7 @@
 Program OPWRAPDO
 !
       Use Operator_mod
+      Use Fields_mod
       Implicit None
 !
       Interface
@@ -19,13 +20,17 @@ Program OPWRAPDO
       End Interface
 !
       Complex (Kind=Kind(0.D0)) :: Zre, Zim
-      Real (Kind=Kind(0.D0)) :: spin
+      Real (Kind=Kind(0.D0)) :: spin, nspin
       Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: VH, &
      & matnew, matold
       Complex (Kind=Kind(0.D0)), Dimension (:), Allocatable :: Expop, &
      & ExpMop
-      Integer :: i, n, j, Ndim, N_Type, opn, nspin
+      Integer :: i, n, j, Ndim, N_Type, opn
       Type (Operator) :: Op
+      Type (Fields) :: nsigma_single
+    
+      Call nsigma_single%make(1,1)
+      
 !
 ! setup some test data
       Ndim = 30
@@ -34,7 +39,6 @@ Program OPWRAPDO
          Do N_Type = 1, 2
             Allocate (VH(opn, Ndim), matold(Ndim, Ndim), matnew(Ndim, &
            & Ndim), Expop(opn), ExpMop(opn))
-            Call Op_seths ()
             Call Op_make (Op, opn)
 !
             Do i = 1, Op%n
@@ -49,8 +53,10 @@ Program OPWRAPDO
             Op%alpha = 0.D0
             Call Op_set (Op)
 !
-            nspin = -1
-            spin = Phi(nspin,Op%type)
+            nspin = -1.d0
+            nsigma_single%f(1,1) = nspin
+            nsigma_single%t(1) = Op%type 
+            spin = nsigma_single%Phi(1,1)
 !
             Do i = 1, Ndim
                Do n = 1, Ndim
@@ -89,6 +95,9 @@ Program OPWRAPDO
             Deallocate (VH, matnew, matold, Expop, ExpMop)
          End Do
       End Do
+      
+      Call nsigma_single%clear() 
+
       write (*,*) "success"
 End Program OPWRAPDO
 !

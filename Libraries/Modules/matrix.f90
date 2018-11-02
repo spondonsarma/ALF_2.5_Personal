@@ -1,5 +1,5 @@
 
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@
            type (Mat_C) :: Mat
            Integer :: N
            allocate (Mat%el(N,N))
-           Mat%el = cmplx(0.0,0.0)
+           Mat%el = cmplx(0.D0,0.D0, kind(0.D0))
            Mat%dim = N
          end subroutine constructor_C
 
@@ -71,7 +71,7 @@
            type (Mat_R) :: Mat
            Integer :: N
            allocate (Mat%el(N,N))
-           Mat%el = 0.0
+           Mat%el = 0.d0
            Mat%dim = N
          end subroutine constructor_R
 

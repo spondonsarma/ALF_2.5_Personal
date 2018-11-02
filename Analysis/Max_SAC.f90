@@ -32,7 +32,7 @@
        
 
        open (unit=10,File="g_dat", status="unknown") 
-       read(10,*) ntau
+       read(10,*) ntau 
        Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU), XQMC_ST(NTAU), XTAU(NTAU) )
        xcov = 0.d0
        do nt = 1,ntau
@@ -119,6 +119,7 @@
 
        !pi = 3.1415927
        XKER = exp(-tau*om) / ( 1.d0 + exp(-Beta*om) ) ! /pi
+       !XKER = exp(-tau*om)  ! / ( 1.d0 + exp(-Beta*om) ) ! /pi
 
      end function XKER
 

@@ -31,27 +31,27 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-Module WaveFunction_mod
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
 !> @brief 
-!> Defines the Operator type, and provides a number of operations on this
-!> type. 
+!> Defines the wavefunction type
+!> 
 !
 !--------------------------------------------------------------------
+
+Module WaveFunction_mod
 
   
   Implicit none
 
   
   Type WaveFunction
+     !> P is an Ndim x N_part matrix. N_part is the number of particles
      complex (Kind=Kind(0.d0)), allocatable :: P(:,:)
-     ! P is an N X Ndim matrix containing the trial wave function as a slater determinant
-     ! P is an Ndim x N_part matrix representing N_part particles in a Ndim dimensional space
-     ! The columns have to be linearly independent
+     !> Degeneracy of trial wave function 
+     Real (Kind=Kind(0.d0)) :: Degen
   end type WaveFunction
 
   

@@ -66,9 +66,9 @@
          Character (len=64)  :: Model, Lattice_type
          Type (Lattice)      :: Latt
          Character (len=64)  :: File_out
-         Logical             :: Checkerboard	 
+         Logical             :: Checkerboard	 , Symm
 
-         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard
+         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard, Symm
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
 
 
@@ -157,7 +157,7 @@
          Write(6,*) "Effective # of bins: ", Nbins
          N_auto=min(N_auto,Nbins/3)
          if(Nbins <= 1) then
-           write (*,*) "Effective # of bins smaller then 2. Analysis impossible!"
+           write (*,*) "Effective # of bins smaller than 2. Analysis impossible!"
            stop 1
          endif
 

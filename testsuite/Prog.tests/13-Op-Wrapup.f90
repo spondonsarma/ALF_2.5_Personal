@@ -4,6 +4,8 @@
 Program Wrapup
 !
       Use Operator_mod
+      Use Fields_mod
+        
       Implicit None
 !
       Interface
@@ -17,19 +19,23 @@ Program Wrapup
       End Interface
 !
       Complex (Kind=Kind(0.D0)) :: Zre, Zim
-      Real (Kind=Kind(0.D0)) :: spin
+      Real (Kind=Kind(0.D0)) :: spin, nspin
       Complex (Kind=Kind(0.D0)), Dimension (:, :), Allocatable :: VH, &
      & matnew, matold
-      Integer :: i, n, j, Ndim, N_Type, opn, nspin
+      Integer :: i, n, j, Ndim, N_Type, opn, nt
       Type (Operator) :: Op
+      Type  (Fields)  :: nsigma_single
+          
 !
 ! setup some test data
       Ndim = 5
-!
+      !
+
+      Call nsigma_single%make(1,1)
+      Do nt = 1,2
       Do opn = 1, 4
          Do N_Type = 1, 2
             Allocate (VH(opn, Ndim), matold(Ndim, Ndim), matnew(Ndim,  Ndim))
-            Call Op_seths ()
             Call Op_make (Op, opn)
 !
             Do i = 1, Op%n
@@ -39,13 +45,14 @@ Program Wrapup
                End Do
             End Do
 !
-            Op%type = 1
+            Op%type = nt
             Op%g = 2.D0
             Op%alpha = 0.D0
             Call Op_set (Op)
-!
-            nspin=-1
-            spin = Phi(nspin,Op%type)
+            !
+            spin=-1.d0
+            nsigma_single%f(1,1) = spin
+            nsigma_single%t(1)   = Op%type 
 !
             Do i = 1, Ndim
                Do n = 1, Ndim
@@ -59,7 +66,7 @@ Program Wrapup
 !
             Call Op_WrapupFFA (matold, Op, spin, Ndim, N_Type)
 !
-            Call Op_Wrapup (matnew, Op, nspin, Ndim, N_Type)
+            Call Op_Wrapup (matnew, Op, spin, Ndim, N_Type)
 !
 !
             Do i = 1, Ndim
@@ -86,6 +93,9 @@ Program Wrapup
             call Op_clear(Op, opn)
          End Do
       End Do
+   Enddo
+      Call nsigma_single%clear() 
+      
       write (*,*) "SUCCESS"
 End Program Wrapup
 !

@@ -16,10 +16,10 @@ implicit none
         COMPLEX (KIND=KIND(0.D0)) :: alpha, beta
         INTEGER, Dimension(:), Allocatable :: IPVT
         LOGICAL :: FORWRD
-        
+
         alpha = 1.D0
         beta = 0.D0
-        
+
 do LQ = 1, 3
 LQ2 = 2*LQ
 allocate(HLPo(LQ2, LQ2), HLPn(LQ2, LQ2), UCT(LQ, LQ), VINV(LQ, LQ), U3(LQ2, LQ2), V3(LQ2, LQ2), D3(LQ2), TAU(LQ2))
@@ -37,8 +37,9 @@ allocate(HLPB1(LQ2, LQ2), TMPVEC(LQ2), V3t(LQ2, LQ2), IPVT(LQ2), testn(LQ2, LQ2)
                 VINV(i, j) = (i+j)
                 UCT(i,j) = CMPLX(1,0, kind(0.D0))
             enddo
-        enddo        
+        enddo
 IPVT = 0
+V3 = 0
 call QDRP_decompose(LQ2, LQ2, input, D3, IPVT, TAU, WORK, LWORK)
 U3 = input
 CALL ZUNGQR(LQ2, LQ2, LQ2, U3, LQ2, TAU, WORK, LWORK, INFO)
@@ -82,7 +83,7 @@ HLPB1 = cmplx(0.d0,0.d0,kind(0.D0))
 !         write (*,*) testo
 !         write (*,*) "===================== new(LU)"
 !         write (*,*) testn
-!        STOP 1
+        STOP 1
         endif
         enddo
     enddo

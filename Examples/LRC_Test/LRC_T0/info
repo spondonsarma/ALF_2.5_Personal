@@ -1,0 +1,42 @@
+ =====================================
+ Model is      : LRC                                                             
+ Lattice is    : Honeycomb                                                       
+ # of orbitals :           18
+ Checkerboard  :  T
+ Symm. decomp  :  T
+ Projective version
+ Theta         :    10.000000000000000     
+ Tau_max       :    4.0000000000000000     
+ dtau,Ltrot_eff:   0.10000000000000001              240
+ N_SUN         :            2
+ N_FL          :            1
+ t             :    1.0000000000000000     
+ Ham_U         :    4.0000000000000000     
+ Ham_alpha     :   0.59999999999999998     
+ Percent_change:   0.80000000000000004     
+ Ham_chem      :    0.0000000000000000     
+ Degen of right trial wave function:    3.6165662195600190E-002
+ Degen of left  trial wave function:    3.6165662195600190E-002
+ No initial configuration, Seed_in      790789
+ Sweeps                              :           10
+ Bins                                :            2
+ No CPU-time limitation 
+ Measure Int.                        :            1         100
+ Stabilization,Wrap                  :           10
+ Nstm                                :           24
+ Ltau                                :            1
+ # of interacting Ops per time slice :           18
+ Nt_sequential_start:            1
+ Nt_sequential_end  :            0
+ N_Global_tau       :            2
+ This executable represents commit 1e494be2 of branch master.
+  Precision Green  Mean, Max :    1.0437518772006486E-014   9.3953253414063260E-012
+  Precision Phase, Max       :    2.4773553066811309E-012
+  Acceptance                 :   0.63187499999999996     
+  Effective Acceptance       :   0.63187499999999996     
+  Acceptance_Glob              :    0.0000000000000000     
+  Mean Phase diff Glob         :    0.0000000000000000     
+  Max  Phase diff Glob         :    0.0000000000000000     
+  Average cluster size         :    0.0000000000000000     
+  Average accepted cluster size:    0.0000000000000000     
+  CPU Time                   :    1.5592630000000001     

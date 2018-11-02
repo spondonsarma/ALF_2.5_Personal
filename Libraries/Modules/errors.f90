@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2018 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -74,12 +74,10 @@
           MODULE PROCEDURE  BootstrapC_fluc
        END INTERFACE
 
-       
-
        CONTAINS 
 !***********
          SUBROUTINE ERRCALC(EN,XM,XERR)
-!	  Calculates error on the input vector EN.  Just the standard deviation.
+!          Calculates error on the input vector EN.  Just the standard deviation.
 
            IMPLICIT NONE
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
@@ -108,9 +106,8 @@
            RETURN
          END SUBROUTINE ERRCALC
 
-
          SUBROUTINE ERRCALC_C(EN,ZM,ZERR)
-!	  Calculates error on the input vector EN.  Just the standard deviation.
+!          Calculates error on the input vector EN.  Just the standard deviation.
 
            IMPLICIT NONE
            Complex (Kind=Kind(0.d0)), DIMENSION(:) ::  EN
@@ -142,7 +139,7 @@
          END SUBROUTINE ERRCALC_C
 
          SUBROUTINE ERRCALC_J(EN,XM,XERR)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -173,9 +170,8 @@
            RETURN
          END SUBROUTINE ERRCALC_J
 
-
          SUBROUTINE ERRCALC_J_C(EN,ZM,ZERR)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -208,7 +204,7 @@
 
 !************
          SUBROUTINE ERRCALC_J_C_REBIN(EN,ZM,ZERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -240,7 +236,7 @@
 
 !******************
          SUBROUTINE ERRCALC_J_REBIN(EN,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
 
            IMPLICIT NONE
@@ -273,9 +269,8 @@
 
 !**********
          SUBROUTINE ERRCALC_JS(EN,SI,XM,XERR)
-!	   Calculates error on the input vector EN.  Just the variance.
+!          Calculates error on the input vector EN.  Just the variance.
 !          The input are the bins
-
            IMPLICIT NONE
 
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -314,9 +309,8 @@
 
 !**********
          SUBROUTINE ERRCALC_JS_C(EN,SI,XM,XERR)
-!	   Calculates error on the input vector EN.  Just the variance.
+!          Calculates error on the input vector EN.  Just the variance.
 !          The input are the bins
-
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -357,7 +351,7 @@
 
 !********
          SUBROUTINE ERRCALC_JS_REBIN(EN,SI,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
            
            IMPLICIT NONE
@@ -395,9 +389,8 @@
 
 !******************
          SUBROUTINE ERRCALC_JS_C_REBIN(EN,SI,XM,XERR,NREBIN)
-!	   Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
 !          The input are the bins.
-           
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -551,7 +544,6 @@
                  V1(I,M) = V(M,I)
               ENDDO
            ENDDO
-           X = 0.D0
            CALL INV(V1,VINV,X)
 
            DO M1 = 1,NBASIS
@@ -583,7 +575,7 @@
            DEALLOCATE (B)
            
          END SUBROUTINE FIT
-	
+
          SUBROUTINE COVJ(GR, XCOV, XMEAN) 
            
            IMPLICIT NONE
@@ -619,8 +611,8 @@
               CALL ERRCALC(HLP,XM ,XERR)
               XMEAN(NT) = XM
            ENDDO
-	
-           
+
+
            DO NT = 1,NTDM
               DO NT1= 1,NTDM
                  X = 0.0
@@ -651,7 +643,7 @@
            REAL (Kind=Kind(0.d0)), DIMENSION(:  ), ALLOCATABLE  ::  HLP
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE  ::  HLP1
            REAL (Kind=Kind(0.d0))                 ::  X, XM, XERR, Y, Xhelp, Yhelp
-           INTEGER :: NT, NT1, NB, NB1, NTDM, NDATA
+           INTEGER :: NT, NT1, NB, NTDM, NDATA
            
            NTDM  = SIZE(GR,1)
            NDATA = SIZE(GR,2)
@@ -678,8 +670,8 @@
               CALL ERRCALC(HLP,XM ,XERR)
               XMEAN(NT) = XM
            ENDDO
-	
-           
+
+
            DO NT = 1,NTDM
               DO NT1= 1,NTDM
                  X = 0.0
@@ -714,7 +706,7 @@
            REAL (Kind=Kind(0.d0)), DIMENSION(:  ), ALLOCATABLE  ::  HLP, XMEAN_R
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE  ::  HLP1
            REAL (Kind=Kind(0.d0))                 ::  X, XM, XERR, Y, Xhelp, Yhelp
-           INTEGER :: NT, NT1, NB, NB1, NTDM, NDATA, Nth
+           INTEGER :: NT, NT1, NB, NTDM, NDATA, Nth
            COMPLEX (Kind=Kind(0.d0)) :: Z
 
            NTDM  = SIZE(GR,1)
@@ -791,8 +783,6 @@
            REAL    (Kind=Kind(0.d0)), DIMENSION(:), ALLOCATABLE ::  SIGN1
            
            INTEGER :: NTDM, NDATA, NDATA1, N, NB, NC, NT
-           REAL    (Kind=Kind(0.d0)) :: X
-           COMPLEX (Kind=Kind(0.d0)) :: Z
            
            NTDM  = SIZE(GR,1)
            NDATA = SIZE(GR,2)
@@ -938,7 +928,7 @@
               Z2  = cmplx(0.d0,0.d0,Kind=Kind(0.d0))
               Z12 = cmplx(0.d0,0.d0,Kind=Kind(0.d0))
               DO I = 1,NP
-                 J = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
+                 J = NINT( DBLE(NP)* RANF_WRAP() + 0.5D0 )
                  IF (J == 0) J = 1
                  IF (J > NP) J = NP
                  Z1 = Z1  + A(J)
@@ -987,7 +977,7 @@
            DO NB = 1,NBOOT
               X = 0.D0
               DO NT = 1, NP
-                 I = NINT( DBLE(NP)* RANF_WRAP() + 0.5 )
+                 I = NINT( DBLE(NP)* RANF_WRAP() + 0.5D0 )
                  IF (I.EQ.0 .OR. I.GT.NP ) THEN
                     WRITE(6,*) 'ERROR IN BOOTSTRAP'
                     STOP

@@ -1,6 +1,7 @@
 .PHONY : all Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac clean
 all: Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac
 
+
 Examples:
 	./Git_config.sh
 	make -f Compile_Examples
@@ -38,4 +39,4 @@ clean:
 	(make -f Compile_Kondo_Honey clean )
 	(make -f Compile_Z2_Slave clean )
 	(make -f Compile_NematicDirac clean )
-	rm -f *.mod *~ \#* 
+	rm -f *.mod *.o *.out *~ \#* 

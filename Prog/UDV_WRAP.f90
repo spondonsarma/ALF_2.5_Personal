@@ -28,12 +28,6 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
-   Module UDV_Wrap_mod
-
-     Use MyMats
-     Use Files_mod
-
-   Contains
 
 !--------------------------------------------------------------------
 !> @author 
@@ -45,6 +39,14 @@
 !> gernerically works better. 
 !
 !--------------------------------------------------------------------
+
+Module UDV_Wrap_mod
+
+     Use MyMats
+     Use Files_mod
+
+   Contains
+
 
 !***************************************************************
 
@@ -133,7 +135,7 @@
        ! Locals
        REAL (Kind=Kind(0.d0)) :: VHELP(N2), XNORM(N2), XMAX, XMEAN
        INTEGER :: IVPT(N2), IVPTM1(N2), I, J, K, IMAX
-       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), U1(N2,N2), Z, phase, beta
+       COMPLEX (Kind=Kind(0.d0))  :: A1(N1,N2), A2(N1,N2), V1(N2,N2), Z, phase, beta
 
        DO I = 1,N2
           XNORM(I) = 0.D0

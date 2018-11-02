@@ -35,14 +35,20 @@
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> Given    B(LTROT,NTAU1,Nf  ) =  VL, DL, UL
-!> Returns  B(LTROT,NTAU, Nf  ) =  VL, DL, UL
-!
+!> @brief
+!> Imaginary time propagation and udv decompostion from Ntau1 to Ntau, Ntau1 > Ntau
+!>
+!> @details
+!> On input   ( B(Beta,NTAU1) )^{+}  =   UL * DL * VL \n
+!> On output  ( B(Beta,NTAU ) )^{+}  =   UL * DL * VL
+!>
+!> @param[in] Ntau, Ntau1  Integer
+!> @param[inout] UDVR Class(UDV_state)
+!> \verbatim
+!>  The UDV_state class carries the information of left or right propoagation. 
+!> \endverbatim
 !--------------------------------------------------------------------
 
-        !NOTE:    NTAU1 > NTAU.
-        Use Operator_mod, only : Phi
         Use UDV_State_mod
 #if defined(STAB2) ||  defined(STAB1) 
         Use Hamiltonian
@@ -52,7 +58,7 @@
         Implicit none
 
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
         Integer :: NTAU1, NTAU
 
 
@@ -71,12 +77,11 @@
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-!                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultL(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultL(Tmp,Op_V(n,nf),nsigma%f(n,nt),'n')
               enddo
               !CALL MMULT( TMP1,Tmp,Exp_T(:,:,nf) )
               Call  Hop_mod_mmthl (Tmp,nf)
-!               Tmp = Tmp1
+              ! Tmp = Tmp1
            ENDDO
            
            !Carry out U,D,V decomposition.
@@ -96,31 +101,24 @@
 #else
         Use Hop_mod
         Implicit none
-
+        
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: UDVL(N_FL)
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
         Integer, intent(in) :: NTAU1, NTAU
-
-
-        ! Working space.
-!         TYPE(UDV_State) :: udvlocal
-!         COMPLEX (Kind=Kind(0.d0)), allocatable, dimension(:, :) :: TMP, TMP1
-!         COMPLEX (Kind=Kind(0.d0)) ::  Z_ONE
-        Integer :: NT, NCON, n, nf
-!         Real    (Kind=Kind(0.d0)) ::  X, XMAX, XMEAN
- 
-        NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
+        
+        Integer :: NT, n, nf
+        
         Do nf = 1, N_FL
            DO NT = NTAU1, NTAU+1 , -1
               Do n = Size(Op_V,1),1,-1
-                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'c')
+                 Call Op_mmultR(udvl(nf)%U,Op_V(n,nf),nsigma%f(n,nt),'c')
               enddo
               Call  Hop_mod_mmthlc (udvl(nf)%U,nf)
            ENDDO
            
            !Carry out U,D,V decomposition.
            CALL UDVL(nf)%decompose
-        ENDDO
+        Enddo
 #endif
       END SUBROUTINE WRAPUL
       

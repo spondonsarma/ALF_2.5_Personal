@@ -23,7 +23,9 @@
       Logical              :: Projector
 !>    Defines MPI communicator 
       Integer              :: Group_Comm
+      Logical              :: Symm = .false.
 
+      
 !>    Variables for updating scheme
 !       Logical              :: Propose_S0, Global_moves
 !       Integer              :: N_Global

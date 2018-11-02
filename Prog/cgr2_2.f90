@@ -106,8 +106,8 @@
            TMPVEC = conjg(1.D0/D3)
            ! set HLPB1 equal to zero
            call zlaset('A', LQ2, LQ2, zero, zero, HLPB1, LQ2)
-           DO I = 1, LQ
-              DO J = 1, LQ
+           DO J = 1, LQ
+              DO I = 1, LQ
                  HLPB1(I   , J    ) =  UCT(I, J)
                  HLPB1(I+LQ, J+LQ ) =  VINV(I,J)
               ENDDO
@@ -151,7 +151,7 @@
            Implicit none
            Integer, intent(in) :: LQ, LWORK
            Complex (Kind=Kind(0.D0)), intent(in) :: A(2*LQ, 2*LQ), D(2*LQ), TAU(2*LQ), UCT(LQ,LQ), VINV(LQ,LQ), WORK(LWORK)
-           Integer, Dimension(:), intent(in) :: PIVT(2*LQ)
+           Integer, intent(in) :: PIVT(2*LQ)
            Complex (Kind=Kind(0.D0)), intent(inout) :: HLP(2*LQ, 2*LQ)
            Complex (Kind=Kind(0.D0)), Allocatable, Dimension(:) :: TMPVEC
            Integer :: LQ2, info, I, j
@@ -319,7 +319,7 @@
         Complex  (Kind=Kind(0.d0)), allocatable, Dimension(:) :: D3, D1m, D2m
         Complex  (Kind=Kind(0.d0)) :: Z
         Complex(Kind = Kind(0.D0)), allocatable, Dimension(:, :) :: MYU2, HLPB1, HLPB2, V1INV
-        Integer :: LQ2, I, J, NCON, LWORK, info
+        Integer :: LQ2, I, J, LWORK
         
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
         INTEGER, Dimension(:), Allocatable :: IPVT
@@ -332,7 +332,6 @@
         endif
         
         LQ2 = LQ*2
-        NCON = 0
         ALLOCATE(MYU2(LQ, LQ), V1INV(LQ,LQ), HLPB1(LQ2, LQ2), HLPB2(LQ2, LQ2), D3(LQ2), D1m(LQ), D2m(LQ))
         Allocate(IPVT(LQ2), TAU(LQ2))
         IPVT = 0
@@ -343,13 +342,13 @@
         DO J=1,LQ
           !keep scales smaller than 1.0 in D1*U1 and D2*V2
           !bring scales larger that 1.0 with V1^-1 and U2^-1
-          If(udv1%L(J) <=0.d0) then
+          If(udv1%L(J) <= 0.d0) then
             D1m(J)=cmplx(exp(udv1%L(J)),0.d0,kind(0.d0))
           else
             D1m(J)=cmplx(1.d0,0.d0,kind(0.d0))
             call zscal(LQ,cmplx(exp(-udv1%L(J)),0.d0,kind(0.d0)),V1INV(J,1),LQ)
           endif
-          If(udv2%L(J) <=0.d0) then
+          If(udv2%L(J) <= 0.d0) then
             D2m(J)=cmplx(exp(udv2%L(J)),0.d0,kind(0.d0))
           else
             D2m(J)=cmplx(1.d0,0.d0,kind(0.d0))
@@ -360,7 +359,7 @@
         DO J=1,LQ
           !keep scales smaller than 1.0 in D1*U1 and D2*V2
           !bring scales larger that 1.0 with V1^-1 and U2^-1
-          If(dble(udv1%D(J)) <=1.d0) then
+          If(dble(udv1%D(J)) <= 1.d0) then
             D1m(J)=udv1%D(J)
           else
             D1m(J)=cmplx(1.d0,0.d0,kind(0.d0))
@@ -412,7 +411,5 @@
            call get_blocks(GRTT, GRT0, GR0T, GR00, HLPB2, LQ)
         Endif
         DEALLOCATE(MYU2, V1INV, HLPB1, HLPB2, WORK, IPVT, TAU, D3, D1m, D2m)
-
 #endif
-        
       END SUBROUTINE CGR2_2

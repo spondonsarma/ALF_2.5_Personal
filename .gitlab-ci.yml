@@ -4,34 +4,85 @@ stages:
   - test
   - memleaks
 
-.build_template: &build_definition
+.build_template: &build_definitionDeb
   stage: build
   script:
     - . configureHPC.sh GNU serial
     - gfortran -v
-    - make all
+    - make lib
+    - make ana
+    - make program
+
+.build_template: &build_definitionCent
+  stage: build
+  script:
+    - . configureHPC.sh GNU serial
+    - gfortran -v
+    - make lib
+    - make ana
+    - make program
+
+.build_template: &build_definitionSUSE
+  stage: build
+  script:
+    - . configureHPC.sh GNU serial
+    - gfortran -v
+    - make lib
+    - make ana
+    - make program
 
 .build_template_pgi: &build_definition_pgi
   stage: build
   script:
-    - . configureHPC.sh Matrix23
-    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make all
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
+
+.warnconv_template: &warnconv_definitionDeb
+  stage: warnconv
+  script:
+    - . configureHPC.sh Devel serial
+    - gfortran -v
+    - make lib
+    - make ana
+    - make program
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
-    - make all
+    - make lib
+    - make ana
+    - make program
+
+.test_template: &test_definitionDeb
+  stage: test
+  script:
+    - . configureHPC.sh Devel serial
+    - gfortran -v
+    - make lib
+    - make ana
+    - make program
+    - cd testsuite
+    - cmake -E make_directory tests
+    - cd tests
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
+    - cmake --build . --target all --config Release
+    - ctest -VV -O log.txt
+    - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 .test_template: &test_definition
   stage: test
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
-    - make all
+    - make lib
+    - make ana
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -42,39 +93,23 @@ stages:
 
 GQMCT_Wheezy:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
-  <<: *build_definition
-
-GQMCT_Jessie:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
-  <<: *build_definition
-
-GQMCT_Stretch:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
-  <<: *build_definition
+  <<: *build_definitionDeb
 
 GQMCT_Wheezy_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
-  <<: *build_definition
-
-GQMCT_Jessie_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
-  <<: *build_definition
-
-GQMCT_Stretch_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
-  <<: *build_definition
+  <<: *build_definitionDeb
 
 GQMCT_CentOS:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  <<: *build_definition
+  <<: *build_definitionCent
 
 GQMCT_OpenSuse-13.2:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  <<: *build_definition
+  <<: *build_definitionSUSE
 
 GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  <<: *build_definition
+  <<: *build_definitionSUSE
 
 GQMCT_Wheezy-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
@@ -86,15 +121,7 @@ GQMCT_Jessie-PGI:
 
 GQMCT_Ubuntu_Trusty:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
-  <<: *build_definition
-
-GQMCT_Ubuntu_Xenial:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
-  <<: *build_definition
-
-GQMCT_Ubuntu_Bionic:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
-  <<: *build_definition
+  <<: *build_definitionDeb
 
 GQMCT_Jessie_MPI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack-fftw-scipy
@@ -103,7 +130,9 @@ GQMCT_Jessie_MPI:
     - gfortran -v
     - . configureHPC.sh Devel Tempering
     - export ALF_FC="mpif90"
-    - make all
+    - make lib
+    - make ana
+    - make program
 
 GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
@@ -145,10 +174,12 @@ GQMCT_Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   stage: warnconv
   script:
-    - . configureHPC.sh Matrix23
-    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make all
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
   
 GQMCT_Wheezy_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
@@ -198,10 +229,12 @@ GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
   script:
-    - . configureHPC.sh Matrix23
-    - export ALF_FC="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make all
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -217,14 +250,11 @@ GQMCT_jessie_valgrind:
       - export ALF_FLAGS_EXT="-g"
       - . configureHPC.sh Devel serial
       - gfortran -v
-      - cd Libraries
-      - make
-      - cd ..
-      - cd Prog
-      - make SPT
-      - cp SPT.out ../Test_Runs/Test_SPT/Start/
-      - cd ../Test_Runs/Test_SPT/Start/
-      - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
+      - make lib
+      - make program
+      - cp Prog/Examples.out Examples/LRC_Test/Start 
+      - cd Examples/LRC_Test/Start
+      - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 

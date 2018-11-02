@@ -31,18 +31,18 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-  module Control
 
 !--------------------------------------------------------------------
-!
 !> @author 
 !> ALF-project
-!
+!>
 !> @brief 
-!> This module handles the  calculation of the acceptance ratio. It also  
-!> monitors the precision of the code, as well as the timing.
+!> This module handles the  calculation of the acceptance ratio.
+!> It also monitors the precision of the code, as well as the timing.
 !
 !--------------------------------------------------------------------
+
+module Control
 
     Use MyMats
     Implicit none
@@ -115,7 +115,7 @@
       Subroutine Control_upgrade_Glob(toggle,size_clust) 
         Implicit none
         Logical :: toggle
-        Real (Kind=Kind(0.d0)) :: size_clust
+        Real (Kind=Kind(0.d0)), intent(in) :: size_clust
         NC_Glob_up = NC_Glob_up + 1
         size_clust_Glob_up = size_clust_Glob_up + size_clust
         if (toggle) then 
@@ -133,8 +133,6 @@
         Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG = NCG + 1
-        XMEAN = 0.d0
-        XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAXG) XMAXG = XMAX
         XMEANG = XMEANG + XMEAN
@@ -148,8 +146,6 @@
         Real    (Kind=Kind(0.d0)) :: XMAX, XMEAN
 
         NCG_tau = NCG_tau + 1
-        XMEAN = 0.d0
-        XMAX  = 0.d0
         CALL COMPARE(A, B, XMAX, XMEAN)
         IF (XMAX  >  XMAX_tau) XMAX_tau = XMAX
         XMEAN_tau = XMEAN_tau + XMEAN

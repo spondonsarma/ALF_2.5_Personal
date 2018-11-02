@@ -1,10 +1,9 @@
 TARGET= Examples.out
 HAMILTONIAN= Hamiltonian_Examples.o
-OBJS=  Operator.o WaveFunction.o observables_mod.o control_mod.o $(HAMILTONIAN) \
-       QDRP_decompose.o udv_state.o Hop_mod.o  UDV_WRAP.o Global_mod.o Wrapgr_mod.o \
-       tau_m.o tau_p.o  main.o wrapul.o  cgr1.o  wrapur.o upgrade.o \
-       outconfc.o  inconfc.o  cgr2_2.o 
-
+OBJS=  LRC_mod.o control_mod.o Fields_mod.o Operator.o WaveFunction.o observables_mod.o Predefined_structures.o \
+       $(HAMILTONIAN) \
+       QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o \
+       tau_m.o tau_p.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
 
   
 .SUFFIXES: .f90 .f .F90

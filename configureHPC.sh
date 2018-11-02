@@ -150,21 +150,22 @@ case $MACHINE in
 #Fakhers MacBook
 FakhersMAC)
 
-F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -fbacktrace"
+# F90OPTFLAGS=$GNUOPTFLAGS
+F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
 f90="gfortran"
 else
-f90=$mpif90
+f90="$mpif90"
 fi
 LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-F90USEFULFLAGS=""
 ;;
 
 #Development
 Devel|Development)
 
-F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+# F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Werror -fcheck=all -g -fbacktrace "
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
 f90=$GNUCOMPILER
@@ -173,9 +174,9 @@ LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 
 #LRZ enviroment
 SuperMUC)
-module switch mpi.ibm mpi.intel
-module switch intel intel/17.0
-module switch mkl mkl/2017
+module switch mpi.ibm  mpi.intel/2018
+module switch intel intel/18.0
+module switch mkl mkl/2018
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
@@ -183,8 +184,8 @@ f90=mpif90
 LIB_BLAS_LAPACK=$MKL_LIB
 ;;
 
-#JURECA enviroment
-JURECA)
+#JUWELS enviroment
+JUWELS)
 module load Intel
 module load IntelMPI
 module load imkl
@@ -211,10 +212,14 @@ f90=$GNUCOMPILER
 LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
-#Matrix23 PGI
-Matrix23)
-f90=pgfortran
-LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/17.4/lib -llapack -lblas"
+#PGI
+PGI)
+if [ "$MPICOMP" -eq "0" ]; then
+f90="pgfortran"
+else
+f90="$(dirname $(dirname $(command -v pgfortran)))/mpi/openmpi/bin/mpifort"
+fi
+LIB_BLAS_LAPACK="-llapack -lblas"
 F90OPTFLAGS="-Mpreprocess -O3 -mp"
 F90USEFULFLAGS="-Minform=inform"
 ;;
@@ -233,7 +238,7 @@ echo "usage 'source configureHPC.sh MACHINE MODE STAB'"
 echo 
 echo "Please choose one of the following machines:"
 echo " * SuperMUC"
-echo " * JURECA"
+echo " * JUWELS"
 echo " * Devel"
 echo " * Intel"
 echo " * GNU"
@@ -256,19 +261,24 @@ PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
 Libs="$(pwd)/Libraries"
 ALF_INC="-I${Libs}/Modules"
-
-if [ ! -z ${ALF_FLAGS_EXT+x} ]; then 
-  echo; echo "Appending additional compiler flag '${ALF_FLAGS_EXT}'"
-fi
-export ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
+ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
+export ALF_LIB
 
 export ALF_DIR="$(pwd)"
 export ALF_FC=$f90
 
-export ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
-export ALF_FLAGS_QRREF="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
-export ALF_FLAGS_ANA="-c ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
-export ALF_FLAGS_MODULES="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+if [ ! -z ${ALF_FLAGS_EXT+x} ]; then 
+  echo; echo "Appending additional compiler flag '${ALF_FLAGS_EXT}'"
+fi
+
+ALF_FLAGS_QRREF="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_MODULES="-c ${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_ANA="-c ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_PROG="-c ${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_QRREF
+export ALF_FLAGS_MODULES
+export ALF_FLAGS_ANA
+export ALF_FLAGS_PROG
 
 echo
 echo "To compile your program use:    'make TARGET'"

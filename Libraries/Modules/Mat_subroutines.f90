@@ -1,5 +1,68 @@
-subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
+!  Copyright (C) 2016 - 2018 The ALF project
+! 
+!  This file is part of the ALF project.
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Matrix operations for operator type.   
+!> type. 
+!
+!--------------------------------------------------------------------
+
+subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
+! Small Large general matrix multiplication
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> !!!!!  Side = L
+!>   M = op( P^T A P) * M 
+!>   Side = R
+!>   M =  M * op( P^T A P)
+!>   On input: P =  Op%P and A = Op%O  
+!> !!!!!   type 
+!>   op = N  -->  None
+!>   op = T  -->  Transposed  
+!>   op = C  -->  Transposed + Complex conjugation 
+!> !!!!! Mat has dimensions M1,M2
+!>
+!--------------------------------------------------------------------
+  
         IMPLICIT NONE
         CHARACTER (1)            , INTENT(IN) :: side, op
         INTEGER                  , INTENT(IN) :: N, M1, M2
@@ -8,10 +71,10 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
         INTEGER                  , INTENT(IN)   , DIMENSION(N)   :: P
         
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), ALLOCATABLE :: WORK, WORK2
-        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z_tmp, Z(8)
-        INTEGER :: I, L, K, IDX, NUMBLOCKS, op_id
+        Complex (Kind = Kind(0.D0)) :: alpha, beta, Z(8)
+        INTEGER :: I, L, IDX, NUMBLOCKS, op_id
         INTEGER, DIMENSION(:), ALLOCATABLE :: IDXLIST, DIMLIST
-        LOGICAL :: COMPACT, ALLOC, LEFT
+        LOGICAL :: COMPACT, LEFT
         
         IF ( side == 'L' .or. side == 'l' ) THEN
           LEFT=.true.
@@ -43,7 +106,6 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           L = 1
           IDX = 1
           ALLOCATE(IDXLIST(N),DIMLIST(N))
-          ALLOC = .TRUE.
           NUMBLOCKS=0
           DO I=1,N-1
             IF ( P(I)+1 .ne. P(I+1) ) THEN
@@ -446,8 +508,31 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
 
 end subroutine ZSLGEMM
 
-subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
 
+subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
+! Small Large  hermitian matrix multiplication
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!  
+!> @brief
+!> P^T A P is hermitian
+!> !!!!!  Side = L
+!>   M = op( P^T A P) * M 
+!>   Side = R
+!>   M =  M * op( P^T A P)
+!>   On input: P =  Op%P and A = Op%O  
+!> !!!!!   type 
+!>   op = N  -->  None
+!>   op = T  -->  Transposed  
+!>   op = C  -->  Transposed + Complex conjugation. Same as N.
+!> !!!!! Mat has dimensions M1,M2
+!>
+!--------------------------------------------------------------------
+  
+
+  
         IMPLICIT NONE
         CHARACTER (1)            , INTENT(IN) :: side, uplo
         INTEGER                  , INTENT(IN) :: N, M1, M2
@@ -866,7 +951,7 @@ subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
           
         ELSE
           write(*,*) 'Illegal argument for side: It is not one of [R,r,L,l] !'
-          call EXIT(1)
+          stop 1
         ENDIF
 
 end subroutine ZSLHEMM

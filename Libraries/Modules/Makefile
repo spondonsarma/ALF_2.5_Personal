@@ -16,6 +16,8 @@ errors.o: mat_mod.o
 
 maxent.o: mat_mod.o errors.o
 
+lattices_v3.o: matrix.o
+
 clean:
 	rm -f *.mod $(OBJS) *~ \#* 
 

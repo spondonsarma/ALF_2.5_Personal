@@ -1,4 +1,43 @@
-     Module Print_bin_mod
+!  Copyright (C) 2016 - 2018 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Handles printing of bins etc. This module is outdated and replaced by the Observables module
+!
+!--------------------------------------------------------------------
+    Module Print_bin_mod
 
        Interface Print_bin
           module procedure Print_bin_C, Print_bin_R
@@ -23,11 +62,12 @@
            Integer,                            Intent(In)   :: Nobs
 
            ! Local
-           Integer :: Norb, I, no,no1
-           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Integer :: Norb, I, no, no1
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2) 
            Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
+           Complex (Kind=Kind(0.d0)), allocatable :: Tmp1(:)
            Complex (Kind=Kind(0.d0)):: Z
            Integer         :: Ierr, Isize, Irank
            INTEGER         :: STATUS(MPI_STATUS_SIZE)
@@ -40,7 +80,7 @@
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
-           Allocate (Tmp(Latt%N,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Latt%N,Norb,Norb))
            Dat_eq = Dat_eq/dble(Nobs)
            Dat_eq0 = Dat_eq0/dble(Nobs*Latt%N)
 
@@ -55,10 +95,11 @@
            Phase_bin= Z/DBLE(ISIZE)
 
            I = Norb
+           Allocate (Tmp1(Norb))
            Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
-
+           deallocate(Tmp1)
            If (Irank == 0 ) then
 #endif
               do no = 1,Norb
@@ -85,7 +126,7 @@
            Endif
 #endif
 
-           deallocate (Tmp, tmp1 )
+           deallocate (Tmp)
 
          End Subroutine Print_bin_C
 
@@ -107,12 +148,13 @@
            
            ! Local
            Integer :: Norb, I, no,no1
-           Real    (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:), Tmp1(:)
+           Real    (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2) 
            Complex (Kind=Kind(0.d0))              :: Phase_bin
 #ifdef MPI
            Integer        :: Ierr, Isize, Irank
            Complex (Kind=Kind(0.d0))              :: Z
+           Real    (Kind=Kind(0.d0)), allocatable :: Tmp1(:)
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -124,7 +166,7 @@
               Write(6,*) 'Error in Print_bin' 
               Stop
            endif
-           Allocate (Tmp(Latt%N,Norb,Norb), Tmp1(Norb) )
+           Allocate (Tmp(Latt%N,Norb,Norb))
            Dat_eq  = Dat_eq/dble(Nobs)
            Dat_eq0 = Dat_eq0/(dble(Nobs)*dble(Latt%N))
 #ifdef MPI
@@ -138,11 +180,12 @@
            Phase_bin= Z/DBLE(ISIZE)
            If (Irank == 0 ) then
 
-           I = Norb 
+           I = Norb
+           Allocate (Tmp1(Norb) )
            Tmp1 = 0.D0
            CALL MPI_REDUCE(Dat_eq0,Tmp1,I,MPI_REAL8,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Dat_eq0 = Tmp1/DBLE(ISIZE)
-
+           deallocate( Tmp1)
 #endif
               do no = 1,Norb
                  do no1 = 1,Norb
@@ -182,19 +225,18 @@
            Integer,                          Intent(In)    :: Nobs
 
            ! Local
-           Integer :: Norb,I
-           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
+           Integer :: I
 #ifdef MPI
-           Integer        :: Ierr, Isize, Irank
+           Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
+           Integer        :: Ierr, Isize, Irank, Norb
            INTEGER        :: STATUS(MPI_STATUS_SIZE)
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
 #endif
-
-           Norb = size(Obs,1)
-           Allocate ( Tmp(Norb) )
            Obs = Obs/dble(Nobs)
 #ifdef MPI
+           Norb = size(Obs,1)
+           Allocate ( Tmp(Norb) )
            Tmp = 0.d0
            CALL MPI_REDUCE(Obs,Tmp,Norb,MPI_COMPLEX16,MPI_SUM, 0,MPI_COMM_WORLD,IERR)
            Obs = Tmp/DBLE(ISIZE)
@@ -205,8 +247,8 @@
               close(10)
 #ifdef MPI
            endif
-#endif
            deallocate (Tmp )
+#endif
            
          End Subroutine Print_scal
 

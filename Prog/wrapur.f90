@@ -36,11 +36,15 @@
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> Given    B(NTAU,  1 ) =  UR, DR, VR
-!> Returns  B(NTAU1, 1 ) =  UR, DR, VR
-!> NOTE:    NTAU1 > NTAU.
-!
+!> @brief
+!> Imaginary time propagation and udv decompostion from Ntau to Ntau1, Ntau1 > Ntau
+!>
+!> @details
+!> On input   B(NTAU ,1)  =  UR*DR*VR \n
+!> On output  B(NTAU1,1)  =  UR*DR*VR
+!> @param[in] Ntau, Ntau1  Integer
+!> @param[inout] UDVR Class(UDV_state)
+
 !-------------------------------------------------------------------
 
         Use Hop_mod
@@ -51,8 +55,8 @@
         Implicit None
 
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: udvr(N_FL)
-        Integer :: NTAU1, NTAU
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.
@@ -69,10 +73,10 @@
            DO NT = NTAU + 1, NTAU1
               !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
               Call Hop_mod_mmthr(TMP,nf)
-!               TMP = TMP1
+!             TMP = TMP1
               Do n = 1,Size(Op_V,1)
 !                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(Tmp,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
            CALL MMULT(TMP1,TMP, udvr(nf)%U)
@@ -88,23 +92,21 @@
            if(allocated(udvr(nf)%V)) CALL MMULT(udvr(nf)%V, V1, TMP)
         ENDDO
 #else
-        Use Operator_mod, only : Phi
         Implicit None
 
         ! Arguments
-        CLASS(UDV_State), intent(inout) :: udvr(N_FL)
-        Integer :: NTAU1, NTAU
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvr
+        Integer,          Intent(IN) :: NTAU1, NTAU
 
 
         ! Working space.
-        Integer :: NT, NCON, n, nf
+        Integer :: NT, n, nf
 
-        NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
         Do nf = 1,N_FL
            DO NT = NTAU + 1, NTAU1
               Call Hop_mod_mmthR(UDVR(nf)%U,nf)
               Do n = 1,Size(Op_V,1)
-                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
 
@@ -112,4 +114,5 @@
         ENDDO
 
 #endif
+        
       END SUBROUTINE WRAPUR

@@ -29,17 +29,18 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-     Module Tau_m_mod
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
-!> @brief 
-!> This routine  handles calculation of imagimary time displaced Green functions and  
-!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute the user
-!> defined  correlations. 
+!> @brief
+!> This module  handles calculation of imagimary time displaced Green functions and  
+!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute the 
+!> defined  time dispalced correlations functions. This modules is for the finite temperature code.
+!> 
 !
 !--------------------------------------------------------------------
+     Module Tau_m_mod
        Use Hamiltonian 
        Use Operator_mod
        Use Control
@@ -57,7 +58,7 @@
                 Use Hamiltonian
                 Use UDV_State_mod
                 Implicit none
-                CLASS(UDV_State), intent(inout) :: UDVr(N_FL)
+                CLASS(UDV_State), intent(inout), ALLOCATABLE, dimension(:) :: UDVr
                 Integer :: NTAU1, NTAU
               END SUBROUTINE WRAPUR
               SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, udv2, udv1, LQ)
@@ -82,11 +83,16 @@
            ! Local 
            ! This could be placed as  private for the module 
            Complex (Kind=Kind(0.d0))  :: GT0(NDIM,NDIM,N_FL),  G00(NDIM,NDIM,N_FL), GTT(NDIM,NDIM,N_FL), G0T(NDIM,NDIM,N_FL)
+           Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  :: GT0_T,  G00_T, GTT_T, G0T_T
            CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvr
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z
-           Integer  ::  I, J, nf, NT, NT1, NTST, NST, NVAR
+           Integer  ::  I, J, nf, NT, NT1, NTST, NST
+           
+           If (Symm) Then
+              Allocate ( G00_T(Ndim,Ndim,N_FL), G0T_T(Ndim,Ndim,N_FL), GT0_T(Ndim,Ndim,N_FL),  GTT_T(Ndim,Ndim,N_FL) )
+           endif
            
            !Tau = 0
            Do nf = 1, N_FL
@@ -103,7 +109,15 @@
            Enddo
            NT = 0
            ! In Module Hamiltonian
-           CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+           If (Symm) then
+              Call Hop_mod_Symm(G00_T,G00)
+              Call Hop_mod_Symm(GTT_T,GTT)
+              Call Hop_mod_Symm(G0T_T,G0T)
+              Call Hop_mod_Symm(GT0_T,GT0)
+              CALL OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE)
+           Else
+              CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+           Endif
            
            ALLOCATE(udvr(N_FL))
            Z = cmplx(1.d0,0.d0,kind(0.d0))
@@ -124,7 +138,15 @@
               CALL PROPRM1 (GTT,NT1)
               CALL PROPR   (GTT,NT1)
               ! In Module Hamiltonian
-              CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
+              If (Symm) then
+                 Call Hop_mod_Symm(G00_T,G00)
+                 Call Hop_mod_Symm(GTT_T,GTT)
+                 Call Hop_mod_Symm(G0T_T,G0T)
+                 Call Hop_mod_Symm(GT0_T,GT0)
+                 CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE)
+              Else
+                 CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
+              Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN
                  !NTST = NT1 - NWRAP
@@ -136,8 +158,6 @@
                     HLP4(:,:) = GTT(:,:,nf)
                     HLP5(:,:) = GT0(:,:,nf)
                     HLP6(:,:) = G0T(:,:,nf)
-                    NVAR = 1
-                    IF (NT1  >  LTROT/2) NVAR = 2
                     Call CGR2_2(GT0(:,:,nf), G00(:,:,nf), GTT(:,:,nf), G0T(:,:,nf), &
                          & udvr(nf), udvst(NST, nf), NDIM)
                     Call Control_Precision_tau(GR(:,:,nf), G00(:,:,nf), Ndim)
@@ -153,32 +173,34 @@
               CALL udvr(nf)%dealloc
            ENDDO
            DEALLOCATE(udvr)
+           If (Symm) Then
+              Deallocate ( G00_T, G0T_T, GT0_T,  GTT_T )
+           endif
+
          END SUBROUTINE TAU_M
 
 !--------------------------------------------------------------------
-         
+
          SUBROUTINE PROPR(AIN,NT) 
 
            ! Ain =       B(NT-1, NT1) 
            ! Aout= Ain = B(NT  , NT1)
-           
+
            Implicit none
            Complex (Kind=Kind(0.D0)), intent(INOUT) :: Ain(Ndim,Ndim,N_FL)
            Integer, INTENT(IN) :: NT
 
            !Locals
-           Integer :: J,I,nf,n 
-           Real    (Kind=Kind(0.D0)) :: X
-           
+           Integer :: nf,n 
 
            Do nf = 1,N_FL
               Call Hop_mod_mmthr(Ain(:,:,nf),nf)
               Do n = 1,Size(Op_V,1)
 !                  X = Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultR(Ain(:,:,nf),Op_V(n,nf),nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultR(Ain(:,:,nf),Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            Enddo
-           
+
          end SUBROUTINE PROPR
 
 !--------------------------------------------------------------------
@@ -187,28 +209,25 @@
 
            !Ain = B^{-1}(NT-1, NT1) 
            !Aout= B^{-1}(NT  , NT1)
-           
-           
+
            Implicit none
-           
+
            !Arguments 
            Complex (Kind=Kind(0.D0)), intent(Inout) ::  AIN(Ndim, Ndim, N_FL) 
            Integer :: NT
-           
+
            ! Locals 
-           Integer :: J,I,nf,n 
-           Real    (Kind=Kind(0.D0)) :: X
-           
-           
+           Integer :: nf, n 
+
            do nf = 1,N_FL
               !Call MMULT(HLP4,Ain(:,:,nf),Exp_T_M1(:,:,nf) )
               Call Hop_mod_mmthl_m1(Ain(:,:,nf),nf)
               Do n =1,Size(Op_V,1)
 !                  X = -Phi(nsigma(n,nt),Op_V(n,nf)%type)
-                 Call Op_mmultL(Ain(:,:,nf),Op_V(n,nf),-nsigma(n,nt),Ndim,'n')
+                 Call Op_mmultL(Ain(:,:,nf),Op_V(n,nf),-nsigma%f(n,nt),'n')
               Enddo
            enddo
-           
+
          END SUBROUTINE PROPRM1
 
        end Module Tau_m_mod

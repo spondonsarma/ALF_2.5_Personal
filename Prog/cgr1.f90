@@ -43,7 +43,7 @@
 !> Implementation note: we calculate the Phase as:
 !> NVAR = 1 : Phase = det(URUP * ULUP)/ |det(URUP * ULUP)| * det(P) * det(R) *det(Q)/ |det(R) det(Q)| 
 !> NVAR = 2 : Phase = det(URUP * ULUP)/ |det(URUP * ULUP)| * det(P) * det^*(R) *det^*(Q)/ |det(R) det(Q)| 
-!> If STAB3 is selected the following tweek is applied
+!> If STAB3 is selected the following tweak is applied
 !> We seperate D as D^+ * D^- where D^+ (D^-) contains the scales larger (smaller) then 1.0
 !> Also, we use (DR^+^-1 UR^* UL^* DL^+^-1 + DR^- VR VL DL^- )^-1 = UL^* DL^+^-1 GRUP Dr^+^-1 UR^* .
 !
@@ -56,9 +56,8 @@
 
         Implicit None
 
-
-	!Arguments.
-	CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+        !Arguments.
+        CLASS(UDV_State), INTENT(IN) :: udvl, udvr
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)) :: PHASE
         INTEGER         :: NVAR
@@ -67,8 +66,8 @@
           subroutine cgrp(PHASE, GRUP, udvr, udvl)
             Use UDV_State_mod
             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-            COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+            COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
           end subroutine cgrp
         end interface
  
@@ -176,7 +175,7 @@
         USE QDRP_mod
         
         Implicit None
-	!Arguments.
+        !Arguments.
 !         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(IN)   ::  URUP, VRUP, ULUP, VLUP
 !         COMPLEX(Kind=Kind(0.d0)), Dimension(:),   Intent(IN)   ::  DLUP, DRUP
         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
@@ -188,8 +187,8 @@
           subroutine cgrp(PHASE, GRUP, udvr, udvl)
             Use UDV_State_mod
             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-            COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+            COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
           end subroutine cgrp
         end interface
  
@@ -198,7 +197,7 @@
         COMPLEX (Kind=Kind(0.d0)), Dimension(:) , Allocatable ::  DUP
         INTEGER, Dimension(:), Allocatable :: IPVT, VISITED
         COMPLEX (Kind=Kind(0.d0)) ::  alpha, beta, Z, DLJ
-        Integer :: I, J, N_size, NCON, info, LWORK, next, L
+        Integer :: I, J, N_size, info, LWORK, next, L
         Real (Kind=Kind(0.D0)) :: X, Xmax, sv
         
         COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
@@ -218,7 +217,6 @@
         endif
             
         N_size = udvl%ndim
-        NCON = 0
         alpha = 1.D0
         beta = 0.D0
         Allocate(TPUP(N_size,N_size), RHS(N_size, N_size), IPVT(N_size), TAU(N_size), DUP(N_size))
@@ -236,7 +234,7 @@
 #else
 #if ! defined(LOG)
         !missuse DUP(I) as DR(I) for temporary storage
-        !scales in D are assumed to be real an positive
+        !scales in D are assumed to be real and positive
         DO I = 1,N_size
           If( dble(udvr%D(I))<=1.d0 ) then
             DUP(I)=udvr%D(I)
@@ -444,20 +442,30 @@
         
       END SUBROUTINE CGR
       
-      
-      SUBROUTINE CGRP(PHASE, GRUP, udvr, udvl)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Computes the Green's function in the projective implementation.
+!
+!> @param[out] PHASE
+!> @param[out] GRUP
+!> @param[in] udvr
+!> @param[in] udvl
+!
+!--------------------------------------------------------------------
+      SUBROUTINE CGRP(phase, GRUP, udvr, udvl)
         Use UDV_State_mod
-        use MyMats
         CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-        COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
-        
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, sMatInv, rMat
-        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: work 
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+        COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: phase
+
+        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:,:) :: sMat, rMat
         INTEGER, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha, beta
         INTEGER :: Ndim, N_part, info, n
-        
+
         if((udvl%side .ne. "L") .and. (udvl%side .ne. "l") ) then
           write(*,*) "cgrp: udvl is not of type left"
           write(*,*) "cgrp: actual side is ",udvl%side
@@ -466,10 +474,10 @@
           write(*,*) "cgrp: udvr is not of type right"
           write(*,*) "cgrp: actual side is ",udvr%side
         endif
-        
+
         Ndim = udvl%ndim
         N_part = udvl%n_part
-        Allocate(sMat(N_part,N_part),rMat(Ndim,N_part), ipiv(N_part), work(N_part))
+        Allocate(sMat(N_part,N_part), ipiv(N_part), rMat(N_part, Ndim))
         
         ! Gr = Ur (Ul Ur)^-1 Ul
         ! Phase = 1 + Ur (Ul Ur)^-1 Ul
@@ -489,17 +497,13 @@
             phase =  phase * sMat(n,n)/abs(sMat(n,n))
           endif
         enddo
-        ! ZGETRI computes the inverse of a matrix using the LU factorization
-        ! computed by DGETRF.do 10,i=1,n
-        call ZGETRI(N_part, sMat, N_part, ipiv, work, N_part, info)
-        
-        call ZGEMM('N','N',Ndim,N_part,N_part,alpha,udvr%U(1,1),Ndim,sMat(1,1),N_part,beta,rMat(1,1),Ndim)
-!         call initd(Grup,alpha)
+        rMat = conjg(transpose(udvl%U))
+        call zgetrs('N', N_part, Ndim, sMat(1,1), N_part, ipiv, rMat(1,1), N_part, info)
         alpha=-1.d0
-        call ZGEMM('N','C',Ndim,Ndim,N_part,alpha,rMat(1,1),Ndim,udvl%U(1,1),Ndim,beta,GRUP(1,1),Ndim)
+        call ZGEMM('N','N',Ndim,Ndim,N_part,alpha,udvr%U(1,1),Ndim,rMat(1,1),N_part,beta,GRUP(1,1),Ndim)
         do n=1,Ndim
-          Grup(n,n)=Grup(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
+          GRUP(n,n)=GRUP(n,n)+cmplx(1.d0, 0.d0, kind(0.d0))
         enddo
-        Deallocate(sMat,rMat, ipiv, work)
+        Deallocate(sMat, rMat, ipiv)
       
       END SUBROUTINE CGRP
