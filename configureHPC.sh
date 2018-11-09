@@ -261,7 +261,7 @@ PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
 Libs="$(pwd)/Libraries"
 ALF_INC="-I${Libs}/Modules"
-ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
+ALF_LIB="${Libs}/Modules/modules_90.a ${Libs}/libqrref/libqrref.a ${LIB_BLAS_LAPACK}"
 export ALF_LIB
 
 export ALF_DIR="$(pwd)"
