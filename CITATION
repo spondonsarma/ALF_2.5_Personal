@@ -1,0 +1,21 @@
+If you use the ALF package, please mention the following in your acknowledgements.
+The auxillary field QMC simulations were carried out with the ALF package available at
+https://alf.physik.uni-wuerzburg.de,
+and please cite our  SciPost article:
+M. Bercx, F. Goth, J. S. Hofmann, and F. F. Assaad,
+“The ALF (Algorithms for Lattice Fermions) project release 1.0. Documentation for the auxiliary field quantum Monte Carlo code,”
+SciPost Phys., vol. 3, p. 013, 2017.
+
+A suitable bibtex entry for the latex users would be:
+@Article{ALFQMC,
+	title={{The ALF (Algorithms for Lattice Fermions) project release 1.0.  Documentation for the auxiliary field quantum Monte Carlo code}},
+	author={Martin Bercx and Florian Goth and Johannes S. Hofmann and Fakher F. Assaad},
+	journal={SciPost Phys.},
+	volume={3},
+	issue={2},
+	pages={013},
+	year={2017},
+	publisher={SciPost},
+	doi={10.21468/SciPostPhys.3.2.013},
+	url={https://scipost.org/10.21468/SciPostPhys.3.2.013},
+}
