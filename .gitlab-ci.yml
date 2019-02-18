@@ -81,7 +81,7 @@ GQMCT_Stretch:
   <<: *build_definition
 
 GQMCT_Buster:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-lapack
   <<: *build_definition
 
 GQMCT_Wheezy_OpenBlas:
@@ -148,7 +148,7 @@ GQMCT_Stretch_conv:
   <<: *warnconv_definition
 
 GQMCT_Buster_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-lapack
   <<: *warnconv_definition
 
 GQMCT_Wheezy_OpenBlas_conv:
@@ -206,7 +206,7 @@ GQMCT_Stretch_tests:
   <<: *test_definition
 
 GQMCT_Buster_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-lapack
   <<: *test_definition
 
 GQMCT_Wheezy_OpenBlas_tests:
