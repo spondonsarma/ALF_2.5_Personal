@@ -117,7 +117,7 @@ GQMCT_Jessie-PGI:
   <<: *build_definition_pgi
 
 GQMCT_Ubuntu_Trusty:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *build_definition
 
 GQMCT_Ubuntu_Xenial:
@@ -234,7 +234,7 @@ GQMCT_OpenSuse-42.1_tests:
   <<: *test_definition
 
 GQMCT_Ubuntu-trusty_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
