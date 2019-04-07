@@ -209,10 +209,6 @@ GQMCT_Buster_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *test_definition
 
-GQMCT_Wheezy_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
-  <<: *test_definition
-
 GQMCT_Jessie_OpenBlas_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *test_definition
