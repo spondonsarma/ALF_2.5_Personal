@@ -262,7 +262,7 @@ GQMCT_Jessie-PGI_tests:
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 GQMCT_Stretch_valgrind:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-blas-lapack-valgrind
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
   script:
       - . setenv.sh
