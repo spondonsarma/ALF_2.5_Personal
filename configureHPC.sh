@@ -180,7 +180,19 @@ module switch mkl mkl/2018
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=mpif90
+export f90=mpiifort
+export LIB_BLAS_LAPACK=$MKL_LIB
+;;
+
+#LRZ enviroment
+SuperMUC-NG|NG)
+module switch mpi.intel  mpi.intel/2018
+module switch intel intel/18.0
+module switch mkl mkl/2018
+
+F90OPTFLAGS=$INTELOPTFLAGS
+F90USEFULFLAGS=$INTELUSEFULFLAGS
+export f90=mpiifort
 export LIB_BLAS_LAPACK=$MKL_LIB
 ;;
 
@@ -234,6 +246,7 @@ echo "usage 'source configureHPC.sh MACHINE MODE STAB'"
 echo 
 echo "Please choose one of the following machines:"
 echo " * SuperMUC"
+echo " * SuperMUC-NG"
 echo " * JUWELS"
 echo " * Devel"
 echo " * Intel"
