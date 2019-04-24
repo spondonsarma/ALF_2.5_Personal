@@ -92,27 +92,31 @@ stages:
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 GQMCT_Wheezy:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
   <<: *build_definitionDeb
 
 GQMCT_Jessie:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *build_definitionDeb
 
 GQMCT_Stretch:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
+  <<: *build_definitionDeb
+
+GQMCT_Buster:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *build_definitionDeb
 
 GQMCT_Wheezy_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
   <<: *build_definitionDeb
 
 GQMCT_Jessie_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *build_definitionDeb
 
 GQMCT_Stretch_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *build_definitionDeb
 
 GQMCT_CentOS:
@@ -136,7 +140,7 @@ GQMCT_Jessie-PGI:
   <<: *build_definition_pgi
 
 GQMCT_Ubuntu_Trusty:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *build_definitionDeb
 
 GQMCT_Ubuntu_Xenial:
@@ -147,8 +151,8 @@ GQMCT_Ubuntu_Bionic:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *build_definitionDeb
 
-GQMCT_Jessie_MPI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack-fftw-scipy
+GQMCT_Stretch_MPI:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy
   stage: build
   script:
     - gfortran -v
@@ -159,27 +163,31 @@ GQMCT_Jessie_MPI:
     - make program
 
 GQMCT_Wheezy_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
   <<: *warnconv_definition
 
 GQMCT_Jessie_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *warnconv_definition
 
 GQMCT_Stretch_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
+  <<: *warnconv_definition
+
+GQMCT_Buster_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *warnconv_definition
 
 GQMCT_Wheezy_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_Jessie_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_Stretch_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_CentOS_conv:
@@ -206,27 +214,27 @@ GQMCT_Wheezy-PGI_conv:
     - make program
   
 GQMCT_Wheezy_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Jessie_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Stretch_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *test_definition
 
-GQMCT_Wheezy_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+GQMCT_Buster_tests:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Jessie_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *test_definition
 
 GQMCT_Stretch_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *test_definition
 
 GQMCT_CentOS_tests:
@@ -242,7 +250,7 @@ GQMCT_OpenSuse-42.1_tests:
   <<: *test_definition
 
 GQMCT_Ubuntu-trusty_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
@@ -267,8 +275,8 @@ GQMCT_Jessie-PGI_tests:
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-GQMCT_jessie_valgrind:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-blas-lapack-valgrind
+GQMCT_Stretch_valgrind:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
   script:
       - export ALF_FLAGS_EXT="-g"
