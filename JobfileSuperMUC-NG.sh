@@ -33,10 +33,9 @@
 #Important
 module load slurm_setup
 
-#module switch mpi.intel  mpi.intel/2018
-#module switch intel intel/18.0
-#module switch mkl mkl/2018
-module load hdf5/serial/1.8
+module switch mpi.intel  mpi.intel/2018
+module switch intel intel/18.0
+module switch mkl mkl/2018
 
 # the follwing eviroment variables generate an optimal pinning (to the best of our knowledge)
 # This DOES NOT have to be addepted to the choice of Ntasks
