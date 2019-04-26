@@ -5,7 +5,7 @@ all:
 	(cd libqrref; make )
 
 cleanmodules:
-	cd Modules; make Makefile clean
+	cd Modules; make clean
 
 cleanqrref:
 	cd libqrref; make clean
