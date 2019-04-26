@@ -50,7 +50,6 @@ Program  test
   do n=1, N_udv
      call udv2(n)%reset("r")
      udv2(n) = udv1(n)
-     udv2(n)%side = "a"
   enddo
   
   do n=1, N_udv
@@ -79,15 +78,15 @@ Subroutine Check_assign_UDV_state(udv1, udv2, zero_in)
      zero = 1.D-10
   endif
   
-  if ( udv1%ndim   .ne. udv2%ndim   ) stop "ndim does not match"
-  if ( udv1%n_part .ne. udv2%n_part ) stop "n_part does not match"
-  if ( udv1%side   .ne. udv2%side   ) stop "side does not match"
+  if ( udv1%ndim   .ne. udv2%ndim   ) stop 1 !"ndim does not match"
+  if ( udv1%n_part .ne. udv2%n_part ) stop 2 !"n_part does not match"
+  if ( udv1%side   .ne. udv2%side   ) stop 3 !"side does not match"
   
   Do I = 1,udv1%Ndim
-     if ( abs( udv1%D(I) - udv2%D(I) ) > zero ) stop "difference too big"
+     if ( abs( udv1%D(I) - udv2%D(I) ) > zero ) stop 4 !"difference too big"
      Do I1 = 1,udv1%Ndim
-        if ( abs( udv1%U(I1,I) - udv2%U(I1,I) ) > zero ) stop "difference too big"
-        if ( abs( udv1%V(I1,I) - udv2%V(I1,I) ) > zero ) stop "difference too big"
+        if ( abs( udv1%U(I1,I) - udv2%U(I1,I) ) > zero ) stop 5 !"difference too big"
+        if ( abs( udv1%V(I1,I) - udv2%V(I1,I) ) > zero ) stop 6 !"difference too big"
      Enddo
   Enddo
 
