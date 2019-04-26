@@ -50,6 +50,7 @@ Program  test
   do n=1, N_udv
      call udv2(n)%reset("r")
      udv2(n) = udv1(n)
+     udv2(n)%side = "a"
   enddo
   
   do n=1, N_udv
