@@ -7,10 +7,10 @@ $(LIB): $(OBJS)
 	ar  -r $(LIB) $(OBJS)
 
 %.o: %.f90
-	$(ALF_FC) $(ALF_FLAGS_MODULES) $<
+	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
 
 %.o: %.F90
-	$(ALF_FC) $(ALF_FLAGS_MODULES) $<
+	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
 
 errors.o: mat_mod.o
 
