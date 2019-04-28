@@ -4,7 +4,7 @@ stages:
   - test
   - memleaks
 
-.build_template: &build_definitionDeb
+.build_template: &build_definition
   stage: build
   script:
     - . configureHPC.sh GNU serial
@@ -12,40 +12,12 @@ stages:
     - make lib
     - make ana
     - make program
-
-.build_template: &build_definitionCent
-  stage: build
-  script:
-    - . configureHPC.sh GNU serial
-    - gfortran -v
-    - make lib
-    - make ana
-    - make program
-
-.build_template: &build_definitionSUSE
-  stage: build
-  script:
-    - . configureHPC.sh GNU serial
-    - gfortran -v
-    - make lib
-    - make ana
-    - make program
-
 .build_template_pgi: &build_definition_pgi
   stage: build
   script:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
     - . configureHPC.sh PGI serial
-    - make lib
-    - make ana
-    - make program
-
-.warnconv_template: &warnconv_definitionDeb
-  stage: warnconv
-  script:
-    - . configureHPC.sh Devel serial
-    - gfortran -v
     - make lib
     - make ana
     - make program
@@ -58,22 +30,6 @@ stages:
     - make lib
     - make ana
     - make program
-
-.test_template: &test_definitionDeb
-  stage: test
-  script:
-    - . configureHPC.sh Devel serial
-    - gfortran -v
-    - make lib
-    - make ana
-    - make program
-    - cd testsuite
-    - cmake -E make_directory tests
-    - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
-    - cmake --build . --target all --config Release
-    - ctest -VV -O log.txt
-    - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 .test_template: &test_definition
   stage: test
@@ -93,43 +49,43 @@ stages:
 
 GQMCT_Wheezy:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Jessie:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Stretch:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Buster:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Wheezy_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Jessie_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Stretch_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_CentOS:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  <<: *build_definitionCent
+  <<: *build_definition
 
 GQMCT_OpenSuse-13.2:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  <<: *build_definitionSUSE
+  <<: *build_definition
 
 GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  <<: *build_definitionSUSE
+  <<: *build_definition
 
 GQMCT_Wheezy-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
@@ -141,15 +97,15 @@ GQMCT_Jessie-PGI:
 
 GQMCT_Ubuntu_Trusty:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Ubuntu_Xenial:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Ubuntu_Bionic:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
-  <<: *build_definitionDeb
+  <<: *build_definition
 
 GQMCT_Stretch_MPI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy
