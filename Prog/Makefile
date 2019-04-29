@@ -39,4 +39,4 @@ clean:
 	(make -f Compile_Kondo_Honey clean )
 	(make -f Compile_Z2_Slave clean )
 	(make -f Compile_NematicDirac clean )
-	rm -f *.mod *.o *.out *~ \#* 
+	rm -f *.mod *.o *~ \#* Hamiltonians/*.o

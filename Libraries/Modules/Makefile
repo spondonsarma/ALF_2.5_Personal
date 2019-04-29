@@ -4,7 +4,7 @@ OBJS=mat_mod.o Random_Wrap.o errors.o Files_mod.o maxent.o  matrix.o  maxent_sto
          Histogram_v2.o Mat_subroutines.o
 
 $(LIB): $(OBJS)
-	ar  -r $(LIB) $(OBJS)
+	ar -r $(LIB) $(OBJS)
 
 %.o: %.f90
 	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
@@ -19,5 +19,5 @@ maxent.o: mat_mod.o errors.o
 lattices_v3.o: matrix.o
 
 clean:
-	rm -f *.mod $(OBJS) *~ \#* 
+	rm -f *.mod $(OBJS) *~ \#* modules_90.a
 

@@ -7,4 +7,4 @@ all: cov_eq.out cov_scal.out cov_tau.out jackv5.out \
 	$(ALF_FC) -o $@ $*.o $(ALF_LIB)
 
 clean:
-	rm -f *.mod *~ \#* *.out *.o
+	rm -f *.mod *~ \#* *.o
