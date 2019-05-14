@@ -1,4 +1,4 @@
-export ANNAL=${DIR}"/Analysis/"
+export ANNAL=${ALF_DIR}"/Analysis/"
 
 for filename in *_scal; do
     echo $filename

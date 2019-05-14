@@ -103,7 +103,7 @@
          nbins  = Nbins - n_skip
          Write(6,*) "Effective # of bins: ", Nbins
          if(Nbins <= 1) then
-           write (*,*) "Effective # of bins smaller then 2. Analysis impossible!"
+           write (*,*) "Effective # of bins smaller than 2. Analysis impossible!"
            stop 1
          endif
 

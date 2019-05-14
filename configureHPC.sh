@@ -7,16 +7,16 @@ GNUCOMPILER="mpifort"
 MPICOMP=1
 
 # default optimization flags for Intel compiler
-INTELOPTFLAGS="-O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
+INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # uncomment the next line if you want to use additional openmp parallelization
-INTELOPTFLAGS=${INTELOPTFLAGS}" -parallel -qopenmp"
-INTELUSEFULFLAGS="-cpp -std03"
+INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
+INTELUSEFULFLAGS="-std03"
 
 # default optimization flags for GNU compiler
-GNUOPTFLAGS="-O3 -ffree-line-length-none -ffast-math"
+GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 # uncomment the next line if you want to use additional openmp parallelization
-GNUOPTFLAGS=${GNUOPTFLAGS}" -fopenmp"
-GNUUSEFULFLAGS="-cpp -std=f2003"
+GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
+GNUUSEFULFLAGS="-std=f2003"
 
 MACHINE=""
 Machinev=0
@@ -59,7 +59,6 @@ while [ "$#" -gt "0" ]; do
   esac
 done 
 
-export DIR=`pwd`
 
 echo ""
 
@@ -114,22 +113,22 @@ echo ""
 case $STAB in
 
 STAB1)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB1"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB1"
 echo "Using older stabilization with UDV decompositions"
 ;;
 
 STAB2)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB2"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB2"
 echo "Using older stabilization with UDV decompositions and additional normalizations"
 ;;
 
 STAB3)
-STABCONFIGURATION=${STABCONFIGURATION}" -DSTAB3"
+STABCONFIGURATION="${STABCONFIGURATION} -DSTAB3"
 echo "Using newest stabilization which seperates large and small scales"
 ;;
 
 LOG)
-STABCONFIGURATION=${STABCONFIGURATION}" -DLOG"
+STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
 echo "Using log storage for internal scales"
 ;;
 
@@ -151,25 +150,26 @@ case $MACHINE in
 #Fakhers MacBook
 FakhersMAC)
 
-F90OPTFLAGS=$GNUOPTFLAGS
-F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -fcheck=all -g -fbacktrace"
+# F90OPTFLAGS=$GNUOPTFLAGS
+F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
 F90USEFULFLAGS=$GNUUSEFULFLAGS 
 if [ "$MPICOMP" -eq "0" ]; then
-export f90="gfortran"
+f90="gfortran"
 else
-export f90="$mpif90"
+f90="$mpif90"
 fi
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
 #Development
 Devel|Development)
 
+# F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
 F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Werror -fcheck=all -g -fbacktrace "
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
-export f90=$GNUCOMPILER
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+f90=$GNUCOMPILER
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
 #LRZ enviroment
@@ -180,8 +180,8 @@ module switch mkl mkl/2018
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=mpiifort
-export LIB_BLAS_LAPACK=$MKL_LIB
+f90=mpiifort
+LIB_BLAS_LAPACK=$MKL_LIB
 ;;
 
 #LRZ enviroment
@@ -204,32 +204,36 @@ module load imkl
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=mpiifort
-export LIB_BLAS_LAPACK="-mkl"
+f90=mpiifort
+LIB_BLAS_LAPACK="-mkl"
 ;;
 
 #Intel (as Hybrid code)
 Intel)
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
-export f90=$INTELCOMPILER
-export LIB_BLAS_LAPACK="-mkl"
+f90=$INTELCOMPILER
+LIB_BLAS_LAPACK="-mkl"
 ;;
 
 #GNU (as Hybrid code)
 GNU)
 F90OPTFLAGS=$GNUOPTFLAGS
 F90USEFULFLAGS=$GNUUSEFULFLAGS
-export f90=$GNUCOMPILER
-export LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+f90=$GNUCOMPILER
+LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
-#Matrix23 PGI
-Matrix23)
-export f90=pgfortran
-export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/17.4/lib -llapack -lblas"
-F90OPTFLAGS="-O3 -mp"
-F90USEFULFLAGS="-Mpreprocess -Minform=inform"
+#PGI
+PGI)
+if [ "$MPICOMP" -eq "0" ]; then
+f90="pgfortran"
+else
+f90="$(dirname $(dirname $(command -v pgfortran)))/mpi/openmpi/bin/mpifort"
+fi
+LIB_BLAS_LAPACK="-llapack -lblas"
+F90OPTFLAGS="-Mpreprocess -O3 -mp"
+F90USEFULFLAGS="-Minform=inform"
 ;;
 
 #Default (unknown machine)
@@ -257,27 +261,38 @@ echo "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (
 echo "    and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)"
 
 PROGRAMMCONFIGURATION=""
-F90OPTFLAGS="-O3 -ffree-line-length-none -ffast-math"
-F90USEFULFLAGS="-cpp"
+F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
+F90USEFULFLAGS=""
 
-export f90=gfortran
-export LIB_BLAS_LAPACK="-llapack -lblas"
+f90=gfortran
+LIB_BLAS_LAPACK="-llapack -lblas"
 ;;
 
 esac
 
-PROGRAMMCONFIGURATION=$STABCONFIGURATION" "$PROGRAMMCONFIGURATION
+PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
-export F90USEFULFLAGS
-export F90OPTFLAGS
+Libs="$(pwd)/Libraries"
+ALF_INC="-I${Libs}/Modules"
+ALF_LIB="${Libs}/Modules/modules_90.a ${Libs}/libqrref/libqrref.a ${LIB_BLAS_LAPACK}"
+export ALF_LIB
 
-FL="-c ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION}"
-export FL
+export ALF_DIR="$(pwd)"
+export ALF_FC=$f90
 
-export Libs=${DIR}"/Libraries/"
+if [ ! -z ${ALF_FLAGS_EXT+x} ]; then 
+  echo; echo "Appending additional compiler flag '${ALF_FLAGS_EXT}'"
+fi
+
+ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_MODULES="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_ANA="${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
+export ALF_FLAGS_QRREF
+export ALF_FLAGS_MODULES
+export ALF_FLAGS_ANA
+export ALF_FLAGS_PROG
 
 echo
 echo "To compile your program use:    'make TARGET'"
 echo
-
-

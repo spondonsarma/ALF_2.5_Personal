@@ -1,15 +1,23 @@
-#FC= $(f90)
-#FC= mpxlf90
-#FLAGS= -c  -q64  -O4 
-#FLAGS= -c   -O3 -fbounds-check
-FLAGS= -c   -O3 -std=f2003
-SUFFIX= -qsuffix=f=f90
-LF= 
 LIB=modules_90.a
+OBJS=mat_mod.o Random_Wrap.o errors.o Files_mod.o maxent.o  matrix.o  maxent_stoch.o  fourier.o \
+         Histogram.o  lattices_v3.o  Natural_constants.o log_mesh.o  precdef.mod.o \
+         Histogram_v2.o Mat_subroutines.o
 
-all: 
-	(make -f Compile FC="$(FC)" FLAGS="$(FLAGS)"  LIB="$(LIB)" )
+$(LIB): $(OBJS)
+	ar -r $(LIB) $(OBJS)
+
+%.o: %.f90
+	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
+
+%.o: %.F90
+	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
+
+errors.o: mat_mod.o
+
+maxent.o: mat_mod.o errors.o
+
+lattices_v3.o: matrix.o
 
 clean:
-	(make -f Compile  clean ) ;\
- 	rm -f *.mod *~ \#* 
+	rm -f *.mod $(OBJS) *~ \#* modules_90.a
+

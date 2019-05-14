@@ -157,7 +157,7 @@
          Write(6,*) "Effective # of bins: ", Nbins
          N_auto=min(N_auto,Nbins/3)
          if(Nbins <= 1) then
-           write (*,*) "Effective # of bins smaller then 2. Analysis impossible!"
+           write (*,*) "Effective # of bins smaller than 2. Analysis impossible!"
            stop 1
          endif
 

@@ -7,59 +7,38 @@ stages:
 .build_template: &build_definition
   stage: build
   script:
-    - . setenv.sh
-    - export f90="gfortran"
+    - . configureHPC.sh GNU serial
     - gfortran -v
-    - cd Libraries
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - make clean
-    - make Examples
-
+    - make lib
+    - make ana
+    - make program
 .build_template_pgi: &build_definition_pgi
   stage: build
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make clean
-    - make Examples
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
   script:
-    - . setenv.sh
-    - export f90="gfortran"
-    - export FL="$FL -Wconversion -Werror"
-    - cd Libraries
+    - . configureHPC.sh Devel serial
     - gfortran -v
-    - make
-    - cd ..
-    - cd Prog
-    - make clean
-    - make Examples
+    - make lib
+    - make ana
+    - make program
 
 .test_template: &test_definition
   stage: test
   script:
-    - . setenv.sh
-    - export f90="gfortran"
-    - cd Libraries
+    - . configureHPC.sh Devel serial
     - gfortran -v
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - cd ..
+    - make lib
+    - make ana
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -133,7 +112,11 @@ GQMCT_Stretch_MPI:
   stage: build
   script:
     - gfortran -v
-    - make f90='mpif90' PROGRAMCONFIGURATION='-DMPI -DTEMPERING' Examples 
+    - . configureHPC.sh Devel Tempering
+    - export ALF_FC="mpif90"
+    - make lib
+    - make ana
+    - make program
 
 GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
@@ -179,19 +162,12 @@ GQMCT_Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   stage: warnconv
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3 -Minform=inform"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make Examples
-    - make clean
-    - make Examples
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
   
 GQMCT_Wheezy_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
@@ -241,18 +217,12 @@ GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - cd ..
+    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - pgfortran --version
+    - . configureHPC.sh PGI serial
+    - make lib
+    - make ana
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -265,17 +235,13 @@ GQMCT_Stretch_valgrind:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
   script:
-      - . setenv.sh
-      - export f90="gfortran"
-      - export FL="${FL} -g"
-      - cd Libraries
+      - export ALF_FLAGS_EXT="-g"
+      - . configureHPC.sh Devel serial
       - gfortran -v
-      - make
-      - cd ..
-      - cd Prog
-      - make Examples
-      - cp Examples.out ../Examples/LRC_Test/Start 
-      - cd ../Examples/LRC_Test/Start
+      - make lib
+      - make program
+      - cp Prog/Examples.out Examples/LRC_Test/Start 
+      - cd Examples/LRC_Test/Start
       - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
