@@ -547,7 +547,8 @@ CONTAINS
 !> @param [in] recvtag
 !> @param [out] STATUS
 !> @param [out] IERR
-!-------------------------------------------------------------------
+ !-------------------------------------------------------------------
+
 #if defined(MPI) 
      SUBROUTINE MPI_Sendrecv_UDV_state(this, dest, sendtag, source, recvtag, STATUS, IERR)
        Use mpi

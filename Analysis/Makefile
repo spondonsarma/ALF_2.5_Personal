@@ -1,5 +1,5 @@
 .PHONY : all
-all: cov_eq.out cov_scal.out cov_tau.out jackv5.out \
+all: cov_eq.out cov_scal.out cov_tau.out \
      Max_SAC.out Max_SAC_ph.out Max_SAC_T0.out \
 
 %.out: %.f90
@@ -8,3 +8,6 @@ all: cov_eq.out cov_scal.out cov_tau.out jackv5.out \
 
 clean:
 	rm -f *.mod *~ \#* *.o
+
+clean_all:
+	rm -f *.mod *~ \#* *.o *.out
