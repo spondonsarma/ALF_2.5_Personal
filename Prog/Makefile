@@ -5,6 +5,11 @@ OBJS= LRC_mod.o control_mod.o Fields_mod.o Operator.o WaveFunction.o observables
       $(HAMILTONIAN) QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o \
       tau_m.o tau_p.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
 
+cleanbla:
+	rm -f QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o
+	rm -f tau_m.o tau_p.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o
+	rm -f Hamiltonians/*.o
+
 
 Examples:
 	./Git_config.sh
@@ -47,10 +52,10 @@ Compile: $(OBJS)
 
 .SUFFIXES: .f90 .f .F90
 .f.o .f90.o .F90.o:
-	$(ALF_FC) -c $(ALF_FLAGS_PROG) $<
+	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) -Wcompare-reals -Wconversion $<
 
 clean:
-	rm -f $(OBJS) $(OBJS1) *.mod *.smod *.o *~ \#* Hamiltonians/*.o
+	rm -f $(OBJS) *.mod *.smod *.o *~ \#* Hamiltonians/*.o
 
 # clean: 	
 # 	(make -f Compile_Examples   clean )

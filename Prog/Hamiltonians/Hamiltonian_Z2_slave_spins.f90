@@ -18,7 +18,7 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Class (Fields)                   ,   allocatable  :: nsigma
+      Type  (Fields)       :: nsigma
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
       Logical              :: Projector
 !>    Defines MPI communicator 
@@ -347,9 +347,14 @@
         end Subroutine Ham_V
 
 !===================================================================================           
-        Real (Kind=Kind(0.d0)) function S0(n,nt)  
+        Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)  
           Implicit none
-          Integer, Intent(IN) :: n,nt
+          !> Operator index
+          Integer, Intent(IN) :: n
+          !> Time slice
+          Integer, Intent(IN) :: nt
+          !> New local field on time slice nt and operator index n
+          Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
           Integer :: nt1,I, F1,F2,I1,I2,I3
           
           !> Ratio for local spin-flip
@@ -499,7 +504,7 @@
           
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
+          type (Fields),  Intent(IN)  :: nsigma_old
           
           !> nsigma_old contains a copy of nsigma upon entry
           
@@ -541,7 +546,7 @@
           Implicit none 
 
           !> Arguments
-          Class (Fields),  allocatable, Intent(IN)  :: nsigma_old
+          type (Fields), Intent(IN)  :: nsigma_old
           !> Local 
 
           Delta_S0_global = 1.d0
@@ -1058,12 +1063,12 @@
               Isigma(I) = 1
               if ( ranf_wrap()  > 0.5D0 ) Isigma(I)  = -1
            enddo
-           nsigma(N_coord*Latt%N +1,nt) = Isigma(Latt%N) 
+           nsigma%f(N_coord*Latt%N +1,nt) = Isigma(Latt%N) 
            do nc = 1,N_coord*Latt%N
               I = L_bond_inv(nc,1)
               if (  L_bond_inv(nc,2) == 1 )  I1 = latt%nnlist(I,1,0)
               if (  L_bond_inv(nc,2) == 2 )  I1 = latt%nnlist(I,0,1)
-              nsigma(nc,nt) = Isigma(I)*Isigma(I1)
+              nsigma%f(nc,nt) = Isigma(I)*Isigma(I1)
            enddo
            Call Hamiltonian_set_Z2_matter(Isigma1,nt)
            Do nc = 1,Latt%N
@@ -1096,17 +1101,17 @@
         !Local
         Integer :: I, I1, nx, ny
         
-        Isigma(Latt%N) = nsigma( N_coord*Ndim + 1, nt )
+        Isigma(Latt%N) = nsigma%i( N_coord*Ndim + 1, nt )
         I = Latt%N
         do nx = 1,L1
            do ny = 1,L2 
               I1 = latt%nnlist(I,0,1)
-              Isigma(I1)  = Isigma(I)*nsigma(L_bond(I,2),nt)
+              Isigma(I1)  = Isigma(I)*nsigma%i(L_bond(I,2),nt)
               !Write(6,*) Latt%list(I,1), Latt%list(I,2), ' -> ', Latt%list(I1,1), Latt%list(I1,2)
               I = I1
            enddo
            I1          = latt%nnlist(I,1,0) 
-           Isigma(I1)  = Isigma(I)*nsigma(L_bond(I,1),nt)
+           Isigma(I1)  = Isigma(I)*nsigma%i(L_bond(I,1),nt)
            !Write(6,*) Latt%list(I,1), Latt%list(I,2), ' -> ', Latt%list(I1,1), Latt%list(I1,2)
            I = I1
         enddo
@@ -1179,36 +1184,36 @@
 !===================================================================================
 
 
-      Subroutine Test_Hamiltonian
-        
-        Implicit none
-        
-        Integer :: n,  nc, n_op, nt 
-        Integer, allocatable :: nsigma_old(:,:)
-        Real (Kind=kind(0.d0)) :: X, X1, size_clust
-        
-        n = size(Op_V,1)
-        allocate (nsigma_old(n,Ltrot))
-        do nc = 1,100
-           !nt  = nranf(Ltrot)
-           !n_op= nranf(n)
-           !if ( OP_V(n_op,1)%type == 1 ) then
-           !   X = S0(n_op,nt)
-           !   nsigma_old = nsigma
-           !   nsigma(n_op,nt) = -nsigma(n_op,nt)
-           !   X1 = Delta_S0_global(Nsigma_old) 
-           !   Write(6,*) nc, X, X1
-           !endif
-           nsigma_old = nsigma
-           Call Global_move(X,nsigma_old,size_clust)
-           X1 = Delta_S0_global(Nsigma_old) 
-           Write(6,*) nc, X, X1
-        enddo
-        deallocate (nsigma_old)
-
-        stop
-
-      end Subroutine Test_Hamiltonian
+!       Subroutine Test_Hamiltonian
+!         
+!         Implicit none
+!         
+!         Integer :: n,  nc, n_op, nt 
+!         Integer, allocatable :: nsigma_old(:,:)
+!         Real (Kind=kind(0.d0)) :: X, X1, size_clust
+!         
+!         n = size(Op_V,1)
+!         allocate (nsigma_old(n,Ltrot))
+!         do nc = 1,100
+!            !nt  = nranf(Ltrot)
+!            !n_op= nranf(n)
+!            !if ( OP_V(n_op,1)%type == 1 ) then
+!            !   X = S0(n_op,nt)
+!            !   nsigma_old = nsigma
+!            !   nsigma(n_op,nt) = -nsigma(n_op,nt)
+!            !   X1 = Delta_S0_global(Nsigma_old) 
+!            !   Write(6,*) nc, X, X1
+!            !endif
+!            nsigma_old = nsigma
+!            Call Global_move(X,nsigma_old,size_clust)
+!            X1 = Delta_S0_global(Nsigma_old) 
+!            Write(6,*) nc, X, X1
+!         enddo
+!         deallocate (nsigma_old)
+! 
+!         stop
+! 
+!       end Subroutine Test_Hamiltonian
 
       end Module Hamiltonian
 
