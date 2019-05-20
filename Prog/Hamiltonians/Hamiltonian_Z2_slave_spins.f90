@@ -52,15 +52,14 @@
 
 
       Subroutine Ham_Set
-#if defined (MPI) || defined(TEMPERING)
+#ifdef MPI
           Use mpi
 #endif
           Implicit none
 
 
-
           integer :: ierr
-          Character (len=64) :: file1
+          Character (len=64) :: file_info, file_para
           NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
 
 
@@ -68,18 +67,31 @@
                &                   Ham_h, Ham_J, Ham_xi, Ham_F
 
 #ifdef MPI
-          Integer        :: Isize, Irank
+          Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-          If (Irank == 0 ) then
+          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
+          call MPI_Comm_size(Group_Comm, isize_g, ierr)
+          igroup           = irank/isize_g
+          If (Irank_g == 0 ) then
 #endif
-             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+             File_para = "parameters"
+             File_info = "info"
+#ifdef TEMPERING
+             write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
+             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
+#endif
+
+             OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
                 STOP
              END IF
              READ(5,NML=VAR_lattice)
+             N_FL = 1; N_SUN = 2
+             ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
+             READ(5,NML=VAR_Z2_Slave)
              CLOSE(5)
 #ifdef MPI
           Endif
@@ -87,36 +99,6 @@
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
-#endif
-          Call Ham_latt
-          if ( Model == "Z2_Slave" ) then
-             N_FL = 1
-             N_SUN = 2
-             If ( Lattice_type == "Honeycomb" ) then 
-                Write(6,*) "Z2_Slave is only implemented for a square lattice"
-                Stop
-             Endif
-          else
-             Write(6,*) "Model not yet implemented!"
-             Stop
-          endif
-
-#if defined(TEMPERING) 
-          write(File1,'(A,I0,A)') "Temp_",Irank,"/parameters"
-          OPEN(UNIT=5,File=file1,STATUS='old',ACTION='read',IOSTAT=ierr)
-          ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
-          READ(5,NML=VAR_Z2_Slave)
-          CLOSE(5)
-#else
-#if defined(MPI) 
-          If (Irank == 0 ) then
-#endif
-             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-             ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
-             READ(5,NML=VAR_Z2_Slave)
-             CLOSE(5)
-#ifdef MPI
-          endif
           CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -127,7 +109,15 @@
           CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Ham_F    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
 #endif
-#endif                
+          Call Ham_latt
+          if ( Model .ne. "Z2_Slave" ) then
+             Write(6,*) "Model not yet implemented!"
+             Stop
+          endif
+          If ( Lattice_type .ne. "Square" ) then 
+             Write(6,*) "Z2_Slave is only implemented for a square lattice"
+             Stop
+          Endif
            
            Call Ham_hop
            Ltrot = nint(beta/dtau)
@@ -135,19 +125,12 @@
            Theta = 0.d0
            Thtrot = 0
            
-           If  ( Model == "Z2_Slave" )  Call Setup_Ising_action
-
-#if defined(TEMPERING)
-           write(File1,'(A,I0,A)') "Temp_",Irank,"/info"
-#else
-           File1 = "info"
-#endif
+           Call Setup_Ising_action
            
-#if defined(MPI) && !defined(TEMPERING)
-           If (Irank == 0 ) then
+#if defined(MPI)
+           If (Irank_g == 0 ) then
 #endif
-
-              Open (Unit = 50,file=file1,status="unknown",position="append")
+              Open (Unit = 50,file=file_info,status="unknown",position="append")
               Write(50,*) '====================================='
               Write(50,*) 'Model is      : ', Model 
               Write(50,*) 'Lattice is    : ', Lattice_type
@@ -166,7 +149,7 @@
                  Write(50,*) 'Ham_F         : ', Ham_F
               Endif
               close(50)
-#if defined(MPI) && !defined(TEMPERING)
+#if defined(MPI)
            endif
 #endif
            call Ham_V
@@ -426,9 +409,9 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(OUT) :: T0_Proposal_ratio, S0_ratio
-          Integer,    allocatable, INTENT(OUT) :: Flip_list(:)
-          Real (Kind= Kind(0.d0) ), allocatable, INTENT(out) :: Flip_value(:)
+          Real (Kind= kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio, S0_ratio
+          Integer                ,INTENT(OUT) :: Flip_list(:)
+          Real (Kind= Kind(0.d0)),INTENT(out) :: Flip_value(:)
           Integer, INTENT(OUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
@@ -1182,6 +1165,29 @@
         
       end Subroutine Print_fluxes
 !===================================================================================
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine  Hamiltonian_set_nsigma(Initial_field) 
+        Implicit none
+
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+
+        
+      end Subroutine Hamiltonian_set_nsigma
+!--------------------------------------------------------------------
 
 
 !       Subroutine Test_Hamiltonian

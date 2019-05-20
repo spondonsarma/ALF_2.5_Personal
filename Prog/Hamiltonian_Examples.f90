@@ -224,10 +224,6 @@
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
-          !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
-#endif
-          ! Open files
-#if defined(MPI) 
           If (Irank_g == 0 ) then
 #endif
              File_para = "parameters"
@@ -239,14 +235,6 @@
 
              OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-#ifdef MPI
-          Endif
-#endif
-
-
-#ifdef MPI
-          If (Irank_g == 0 ) then
-#endif
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
                 STOP
