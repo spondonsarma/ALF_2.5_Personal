@@ -11,7 +11,10 @@ stages:
     - gfortran -v
     - make lib
     - make ana
-    - make program
+    - make Examples
+    - make cleanprog
+    - make Z2_Slave
+
 .build_template_pgi: &build_definition_pgi
   stage: build
   script:
@@ -20,7 +23,9 @@ stages:
     - . configureHPC.sh PGI serial
     - make lib
     - make ana
-    - make program
+    - make Examples
+    - make cleanprog
+    - make Z2_Slave
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
@@ -29,7 +34,9 @@ stages:
     - gfortran -v
     - make lib
     - make ana
-    - make program
+    - make Examples
+    - make cleanprog
+    - make Z2_Slave
 
 .test_template: &test_definition
   stage: test
@@ -38,7 +45,7 @@ stages:
     - gfortran -v
     - make lib
     - make ana
-    - make program
+    - make Examples
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -116,7 +123,9 @@ GQMCT_Stretch_MPI:
     - export ALF_FC="mpif90"
     - make lib
     - make ana
-    - make program
+    - make Examples
+    - make cleanprog
+    - make Z2_Slave
 
 GQMCT_Wheezy_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
@@ -167,7 +176,9 @@ GQMCT_Wheezy-PGI_conv:
     - . configureHPC.sh PGI serial
     - make lib
     - make ana
-    - make program
+    - make Examples
+    - make cleanprog
+    - make Z2_Slave
   
 GQMCT_Wheezy_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
@@ -222,7 +233,7 @@ GQMCT_Jessie-PGI_tests:
     - . configureHPC.sh PGI serial
     - make lib
     - make ana
-    - make program
+    - make Examples
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -239,7 +250,7 @@ GQMCT_Stretch_valgrind:
       - . configureHPC.sh Devel serial
       - gfortran -v
       - make lib
-      - make program
+      - make Examples
       - cp Prog/Examples.out Examples/LRC_Test/Start 
       - cd Examples/LRC_Test/Start
       - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out

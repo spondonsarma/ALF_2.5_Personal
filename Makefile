@@ -1,13 +1,13 @@
-.PHONY : all lib ana program
+.PHONY : all lib ana Examples Z2_Slave
 #Hub_Ising SPT Hub Hub_Can Kondo_Honey
-all: lib ana program
+all: lib ana Examples
 #Hub_Ising SPT  Hub_Can Kondo_Honey Z2_Slave
 
 lib:
 	cd Libraries && $(MAKE)
 ana: lib
 	cd Analysis && $(MAKE)
-program: lib
+Examples: lib
 	cd Prog && $(MAKE) Examples
 #Hub_Ising: lib
 #	cd Prog && $(MAKE) Hub_Ising
