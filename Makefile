@@ -17,8 +17,8 @@ program: lib
 #	cd Prog && $(MAKE) Hub_Can
 #Kondo_Honey: lib
 #	cd Prog && $(MAKE) Kondo_Honey
-#Z2_Slave: lib
-#	cd Prog && $(MAKE) Z2_Slave
+Z2_Slave: lib
+	cd Prog && $(MAKE) Z2_Slave
 
 .PHONY : clean cleanall cleanprog cleanlib cleanana help
 clean: cleanall

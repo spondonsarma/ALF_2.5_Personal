@@ -52,7 +52,7 @@ Compile: $(OBJS)
 
 .SUFFIXES: .f90 .f .F90
 .f.o .f90.o .F90.o:
-	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) -Wcompare-reals -Wconversion $<
+	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 clean:
 	rm -f $(OBJS) *.mod *.smod *.o *~ \#* Hamiltonians/*.o

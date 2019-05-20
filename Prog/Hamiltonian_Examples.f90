@@ -137,7 +137,7 @@
       Type (Operator),     dimension(:,:), allocatable :: Op_T
       Type (WaveFunction), dimension(:),   allocatable :: WF_L
       Type (WaveFunction), dimension(:),   allocatable :: WF_R
-      Type  (Fields)       :: nsigma
+      Type (Fields)        :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
