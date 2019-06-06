@@ -260,10 +260,8 @@ GQMCT_Stretch_valgrind:
   stage: memleaks
   only:
     changes:
-      - Prog/*.F90
-      - Prog/*.f90
-      - Libraries/Modules/*.f90
-      - Libraries/Modules/*.F90
+      - Prog/*.(f|F)90
+      - Libraries/Modules/*.(f|F)90
   script:
       - export ALF_FLAGS_EXT="-g"
       - . configureHPC.sh Devel serial
