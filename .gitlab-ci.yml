@@ -6,6 +6,10 @@ stages:
 
 .build_template: &build_definition
   stage: build
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - . configureHPC.sh GNU serial
     - gfortran -v
@@ -14,6 +18,10 @@ stages:
     - make program
 .build_template_pgi: &build_definition_pgi
   stage: build
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
@@ -24,6 +32,10 @@ stages:
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
@@ -110,6 +122,10 @@ GQMCT_Ubuntu_Bionic:
 GQMCT_Stretch_MPI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy
   stage: build
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - gfortran -v
     - . configureHPC.sh Devel Tempering
@@ -161,6 +177,10 @@ GQMCT_OpenSuse-42.1_conv:
 GQMCT_Wheezy-PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
   stage: warnconv
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
@@ -216,6 +236,10 @@ GQMCT_Ubuntu-bionic_tests:
 GQMCT_Jessie-PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
   stage: test
+  except:
+    changes:
+      - README.md
+      - license.*
   script:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
@@ -234,6 +258,12 @@ GQMCT_Jessie-PGI_tests:
 GQMCT_Stretch_valgrind:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
+  only:
+    changes:
+      - Prog/*.F90
+      - Prog/*.f90
+      - Libraries/Modules/*.f90
+      - Libraries/Modules/*.F90
   script:
       - export ALF_FLAGS_EXT="-g"
       - . configureHPC.sh Devel serial
