@@ -8,6 +8,8 @@ stages:
   stage: build
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -20,6 +22,8 @@ stages:
   stage: build
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -34,6 +38,8 @@ stages:
   stage: warnconv
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -45,6 +51,12 @@ stages:
 
 .test_template: &test_definition
   stage: test
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
@@ -124,6 +136,8 @@ GQMCT_Stretch_MPI:
   stage: build
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -179,6 +193,8 @@ GQMCT_Wheezy-PGI_conv:
   stage: warnconv
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -238,6 +254,8 @@ GQMCT_Jessie-PGI_tests:
   stage: test
   except:
     changes:
+      - .gitignore
+      - CITATION
       - README.md
       - license.*
   script:
@@ -273,5 +291,4 @@ GQMCT_Stretch_valgrind:
       - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
-
 
