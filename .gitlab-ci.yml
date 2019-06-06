@@ -18,6 +18,7 @@ stages:
     - make lib
     - make ana
     - make program
+
 .build_template_pgi: &build_definition_pgi
   stage: build
   except:
