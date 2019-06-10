@@ -4,14 +4,17 @@ stages:
   - test
   - memleaks
 
-.build_template: &build_definition
-  stage: build
+.exemptfiles_template: &exemptfiles_definition  # Hidden key that defines an anchor named 'job_definition'
   except:
     changes:
       - .gitignore
       - CITATION
       - README.md
       - license.*
+
+.build_template: &build_definition
+  stage: build
+  <<: *exemptfiles_definition
   script:
     - . configureHPC.sh GNU serial
     - gfortran -v
@@ -21,12 +24,7 @@ stages:
 
 .build_template_pgi: &build_definition_pgi
   stage: build
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
+  <<: *exemptfiles_definition
   script:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
@@ -37,12 +35,7 @@ stages:
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
+  <<: *exemptfiles_definition
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
@@ -52,12 +45,7 @@ stages:
 
 .test_template: &test_definition
   stage: test
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
+  <<: *exemptfiles_definition
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
