@@ -306,6 +306,6 @@ create_doc:
       - Documentation/doc.pdf
   script:
     - cd Documentation
-    - latexmk -e '$pdflatex=q/pdflatex % -shell-escape %S/' -pdf
+    - latexmk -pdf doc.tex
 
 
