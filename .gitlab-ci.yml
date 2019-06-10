@@ -293,3 +293,19 @@ GQMCT_Stretch_valgrind:
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 
+create_doc:
+  image: aergus/latex
+  stage: build
+  only:
+    changes:
+      - Documentation/*.tex
+      - Documentation/*.bib
+      - Documentation/Figures/*
+  artifacts:
+    paths:
+      - Documentation/doc.pdf
+  script:
+    - cd Documentation
+    - latexmk -pdf doc.tex
+
+
