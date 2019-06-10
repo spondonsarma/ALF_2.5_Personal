@@ -294,7 +294,7 @@ GQMCT_Stretch_valgrind:
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 
 create_doc:
-  image: blang/latex
+  image: aergus/latex
   stage: build
   only:
     changes:
