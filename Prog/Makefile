@@ -5,11 +5,6 @@ OBJS= LRC_mod.o control_mod.o Fields_mod.o Operator.o WaveFunction.o observables
       $(HAMILTONIAN) QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o \
       tau_m.o tau_p.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
 
-cleanbla:
-	rm -f QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o
-	rm -f tau_m.o tau_p.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o
-	rm -f Hamiltonians/*.o
-
 
 Examples:
 	./Git_config.sh
