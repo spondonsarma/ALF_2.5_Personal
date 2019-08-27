@@ -4,7 +4,7 @@ stages:
   - test
   - memleaks
 
-.exemptfiles_template: &exemptfiles_definition  # Hidden key that defines an anchor named 'job_definition'
+.exemptfiles_template: &exemptfiles_definition  # Hidden key that defines an anchor named 'exemptfiles_definition'
   except:
     changes:
       - .gitignore
@@ -66,10 +66,6 @@ stages:
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-GQMCT_Wheezy:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
-  <<: *build_definition
-
 GQMCT_Jessie:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *build_definition
@@ -80,10 +76,6 @@ GQMCT_Stretch:
 
 GQMCT_Buster:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
-  <<: *build_definition
-
-GQMCT_Wheezy_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
   <<: *build_definition
 
 GQMCT_Jessie_OpenBlas:
@@ -105,10 +97,6 @@ GQMCT_OpenSuse-13.2:
 GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
-
-GQMCT_Wheezy-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
-  <<: *build_definition_pgi
 
 GQMCT_Jessie-PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
@@ -145,10 +133,6 @@ GQMCT_Stretch_MPI:
     - make cleanprog
     - make Z2_Slave
 
-GQMCT_Wheezy_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
-  <<: *warnconv_definition
-
 GQMCT_Jessie_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *warnconv_definition
@@ -159,10 +143,6 @@ GQMCT_Stretch_conv:
 
 GQMCT_Buster_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
-  <<: *warnconv_definition
-
-GQMCT_Wheezy_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_Jessie_OpenBlas_conv:
@@ -185,8 +165,8 @@ GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
   
-GQMCT_Wheezy-PGI_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
+GQMCT_Jessie-PGI_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-pgi1710
   stage: warnconv
   except:
     changes:
@@ -195,7 +175,7 @@ GQMCT_Wheezy-PGI_conv:
       - README.md
       - license.*
   script:
-    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - export PATH="/opt/pgi/linux86-64/2017/bin:$PATH"
     - pgfortran --version
     - . configureHPC.sh PGI serial
     - make lib
@@ -204,10 +184,6 @@ GQMCT_Wheezy-PGI_conv:
     - make cleanprog
     - make Z2_Slave
   
-GQMCT_Wheezy_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:wheezy-gfortran-blas-lapack
-  <<: *test_definition
-
 GQMCT_Jessie_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *test_definition
