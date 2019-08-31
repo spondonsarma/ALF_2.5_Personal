@@ -5,11 +5,13 @@
        Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
        Implicit Integer (H-N)
        
-       Real (Kind=Kind(0.d0)), Dimension(:), allocatable :: XQMC, XTAU, Alpha_tot, om_bf, alp_bf
+       Real (Kind=Kind(0.d0)), Dimension(:), allocatable :: XQMC, XTAU, Alpha_tot, om_bf, alp_bf, xom, A
        Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, Xn
        Real (Kind=Kind(0.d0)) :: X_moments(2), Xerr_moments(2)
        Real (Kind=Kind(0.d0)), External :: XKER, Back_trans_Aom
-       Character (Len=64) :: command
+       Character (Len=64) :: command, File1, File2
+       Complex (Kind=Kind(0.d0)) :: Z
+       
 
 
        Open(unit=50,File='Info',Status="unknown")
@@ -64,6 +66,7 @@
        Command = "ls"
        Call System (Command)
 
+       
        open (unit=10,File="g_dat", status="unknown") 
        read(10,*)  ntau
        XCOV  = 0.d0
@@ -93,6 +96,35 @@
        enddo
        close(11)
 
+       N_alpha_1 = N_alpha - 10  
+       File1 ="Aom_ps"
+       file2 =File_i(File1,N_alpha_1)
+       Write(50,*) file2
+       Open(Unit=66,File=file2,status="unknown")
+       Allocate (xom(Ndis), A(Ndis))
+       do nw = 1,Ndis
+          read(66,*) xom(nw), A(nw), x, x1, x2
+       enddo
+       close(66)
+       Dom = xom(2) - xom(1)
+       
+       ! Compute the real frequency Green function.
+       delta = Dom
+       Open (Unit=43,File="Green", Status="unknown", action="write")
+       pi = acos(-1.d0)
+       do nw = 1,Ndis
+          Z = cmplx(0.d0,0.d0,Kind(0.d0))
+          om = xom(nw)
+          do nwp = 1,Ndis
+             omp = xom(nwp)
+             Z = Z + A(nwp)/cmplx( om -  omp, delta, kind(0.d0))
+          enddo
+          Z = Z * dom
+          write(43,"('X'2x,F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
+       enddo
+       close(43)
+       
+       
      end Program Test
      
 
@@ -113,8 +145,8 @@
        Implicit None
        real (Kind=Kind(0.d0)) ::  Aom, om, beta
 
-       !Back_trans_Aom = Aom/(1.d0 + exp(-beta*om) )   ! This gives S(q,om) = chi(q,om)/(1 - e^(-beta om))
-       Back_trans_Aom = Aom
+       Back_trans_Aom = Aom/(1.d0 + exp(-beta*om) )   ! This gives S(q,om) = chi(q,om)/(1 - e^(-beta om))
+       !Back_trans_Aom = Aom
 
      end function BACK_TRANS_AOM
 

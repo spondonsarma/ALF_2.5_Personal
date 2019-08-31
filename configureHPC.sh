@@ -186,9 +186,12 @@ LIB_BLAS_LAPACK=$MKL_LIB
 
 #LRZ enviroment
 SuperMUC-NG|NG)
-module switch mpi.intel  mpi.intel/2018
-module switch intel intel/18.0
-module switch mkl mkl/2018
+#module switch mpi.intel  mpi.intel/2018
+#module switch intel intel/18.0
+#module switch mkl mkl/2018
+module load  mpi.intel
+module load intel
+module load mkl
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
