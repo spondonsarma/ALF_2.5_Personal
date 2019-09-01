@@ -5,6 +5,15 @@
        Implicit  None
        !Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
        !Implicit Integer (H-N)
+
+       Interface
+          Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Ntau) 
+            Implicit none
+            Real (Kind=Kind(0.d0)), INTENT(INOUT),allocatable ::  XCOV(:,:), XQMC(:), XTAU(:)
+            Integer,  INTENT(IN)    ::  Ntau_st, Ntau_en
+            Integer,  INTENT(INOUT) ::  Ntau
+          end Subroutine Rescale
+       end Interface
        
        Real (Kind=Kind(0.d0)), Dimension(:)  , allocatable :: XQMC, XQMC_st, XTAU, Xtau_st, &
             &                                                 Alpha_tot, om_bf, alp_bf, xom, A
@@ -22,7 +31,7 @@
        Character (Len=2)      :: Channel
        
        Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i
-       Integer                :: ntau_st, ntau_en, ntau_new
+       Integer                :: ntau_st, ntau_en, ntau_new, Ntau_old
        Real (Kind=Kind(0.d0)) :: dtau, pi, xmom1, x,x1,x2, tau, omp, om, Beta,err, delta, Dom
        Real (Kind=Kind(0.d0)) :: Zero
 
@@ -89,26 +98,9 @@
           Ntau_en = Ntau - 1
           Ntau_st = 1
           if ( xcov(1,1) < zero )  ntau_st = 2
-          ntau_new  =  ntau_en - Ntau_st   + 1
-          if (Ntau_new .ne. NTAU ) then 
-             Allocate ( XCOV_st(NTAU_new,NTAU_new), XQMC_st(NTAU_new),XTAU_st(NTAU_new) )
-             do nt = 1,ntau_new
-                XQMC_st(nt) = XQMC(nt + ntau_st -1 )
-                XTAU_st(nt) = XTAU(nt + ntau_st -1 )
-             enddo
-             do nt = 1,ntau_new
-                do nt1 = 1,ntau_new
-                   Xcov_st(nt,nt1) = Xcov(nt + ntau_st -1, nt1 + ntau_st -1)
-                enddo
-             enddo
-             NTAU = NTAU_New
-             Deallocate (XCOV, XQMC,XTAU )
-             allocate   (XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
-             XCOV = XCOV_st
-             XQMC = XQMC_st
-             XTAU = XTAU_st
-             Deallocate (XCOV_st, XQMC_st,XTAU_st )
-          endif
+          Ntau_old = Ntau
+          Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, NTAU)
+          Write(50,*) 'Data has been rescaled from Ntau  ', NTAU_old, 'to ', Ntau
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
@@ -302,4 +294,40 @@
        
      end function BACK_TRANS_P
 
+     
+     Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Ntau) 
+
+       Implicit none
+
+       Real (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  XCOV(:,:), XQMC(:), XTAU(:)
+       Integer,  INTENT(IN)    ::  Ntau_st, Ntau_en
+       Integer,  INTENT(INOUT) ::  Ntau
+
+       !Local
+       Integer :: Ntau_new, nt, nt1
+       Real (Kind=Kind(0.d0)), dimension(:,:), allocatable  ::  XCOV_st
+       Real (Kind=Kind(0.d0)), dimension(:)  , allocatable  ::  XQMC_st, XTAU_st
+       
+       ntau_new  =  ntau_en - Ntau_st   + 1
+       if (Ntau_new .ne. NTAU ) then 
+          Allocate ( XCOV_st(NTAU_new,NTAU_new), XQMC_st(NTAU_new),XTAU_st(NTAU_new) )
+          do nt = 1,ntau_new
+             XQMC_st(nt) = XQMC(nt + ntau_st -1 )
+             XTAU_st(nt) = XTAU(nt + ntau_st -1 )
+          enddo
+          do nt = 1,ntau_new
+             do nt1 = 1,ntau_new
+                Xcov_st(nt,nt1) = Xcov(nt + ntau_st -1, nt1 + ntau_st -1)
+             enddo
+          enddo
+          NTAU = NTAU_New
+          Deallocate (XCOV, XQMC,XTAU )
+          allocate   (XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
+          XCOV = XCOV_st
+          XQMC = XQMC_st
+          XTAU = XTAU_st
+          Deallocate (XCOV_st, XQMC_st,XTAU_st )
+       endif
+
+       end Subroutine Rescale
      
