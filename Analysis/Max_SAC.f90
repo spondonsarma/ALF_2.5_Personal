@@ -20,13 +20,13 @@
        Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, XCOV_st
        Real (Kind=Kind(0.d0))                              :: X_moments(2), Xerr_moments(2)
        Real (Kind=Kind(0.d0)), External                    :: XKER_ph, Back_trans_ph, XKER_pp, Back_trans_pp, &
-            &                                                 XKER_p, Back_trans_p
+            &                                                 XKER_p, Back_trans_p, XKER_T0, Back_trans_T0
        Character (Len=64)                                  :: command, File1, File2
        Complex (Kind=Kind(0.d0))                           :: Z
        
 
        Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, L_cov
-       Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R
+       Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
        Logical                :: Checkpoint
        Character (Len=2)      :: Channel
        
@@ -36,7 +36,7 @@
        Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, L_cov, &
-            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Channel
+            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Channel, Tolerance
 
        open(unit=30,file='paramSAC',status='old',action='read', iostat=io_error) 
        if (io_error.eq.0) then
@@ -101,6 +101,26 @@
           Ntau_old = Ntau
           Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, NTAU)
           Write(50,*) 'Data has been rescaled from Ntau  ', NTAU_old, 'to ', Ntau
+       Case ("T0")
+          xmom1 =  pi*xqmc(1)
+          Ntau_st = 1
+          if ( xcov(1,1) < zero )  ntau_st = 2
+          Ntau_en = 0
+          Do nt = 1,ntau
+             !Write(6,*)  sqrt(xcov(nt,nt))/xqmc(nt), Tolerance
+             if ( sqrt(xcov(nt,nt))/xqmc(nt) < Tolerance ) then
+                Ntau_en = Ntau_en + 1
+             else
+                exit
+             endif
+          Enddo
+          Ntau_old = Ntau
+          Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, NTAU)
+          Write(50,*) 'Data has been rescaled from Ntau  ', NTAU_old, 'to ', Ntau !, Ntau_en
+          If ( Ntau <= 4 ) then
+             write(6,*) 'Not enough data!'
+             stop
+          Endif
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
@@ -147,6 +167,15 @@
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
+       Case ("T0")
+          If (L_cov == 1 ) then
+             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_T0, Back_Trans_T0, Beta, &
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+          else
+             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_T0, Back_Trans_T0, Beta, &
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
+          endif
+          ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
@@ -182,6 +211,10 @@
           Case ("P")
              do i = 1,Ngamma
                 X = X + alp_bf(i)*Xker_p(tau,om_bf(i), beta)
+             enddo
+          Case ("T0")
+             do i = 1,Ngamma
+                X = X + alp_bf(i)*Xker_T0(tau,om_bf(i), beta)
              enddo
           Case default 
              Write(6,*) "Channel not yet implemented"
@@ -257,6 +290,17 @@
 
      end function XKER_p
 
+     Real (Kind=Kind(0.d0)) function XKER_T0(tau,om, beta)
+
+       Implicit None
+       real (Kind=Kind(0.d0)) :: tau, om, pi, beta
+
+       pi = 3.1415927
+
+       XKER_T0  = exp(-tau*om) / pi 
+
+     end function XKER_T0
+
      
      Real (Kind=Kind(0.d0)) function Back_trans_ph(Aom, om, beta)
 
@@ -293,6 +337,15 @@
        Back_trans_p =  Aom
        
      end function BACK_TRANS_P
+
+     Real (Kind=Kind(0.d0)) function Back_trans_T0(Aom, om, beta)
+       
+       Implicit None
+       real (Kind=Kind(0.d0)) ::  Aom, om, beta
+       
+       Back_trans_T0 =  Aom
+       
+     end function BACK_TRANS_T0
 
      
      Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Ntau) 
