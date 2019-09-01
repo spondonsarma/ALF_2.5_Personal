@@ -1314,7 +1314,7 @@
                    imj = latt%imj(I,J)
                    ! Green
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        & +  Z * GT0(I1,J1,1) * ZP* ZS
+                        & +    GT0(I1,J1,1) * ZP* ZS
                    
                    ! SpinZ
                    Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
@@ -1343,7 +1343,7 @@
                    imj = latt%imj(I,J)
                    !Green
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        &   +   ( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS
+                        &   +   cmplx(0.5d0,0.d0,Kind(0.d0))*( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS 
 
                    !SpinZ
                    Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
