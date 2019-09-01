@@ -6,10 +6,12 @@
        !Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
        !Implicit Integer (H-N)
        
-       Real (Kind=Kind(0.d0)), Dimension(:)  , allocatable :: XQMC, XTAU, Alpha_tot, om_bf, alp_bf, xom, A
-       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, Xn
+       Real (Kind=Kind(0.d0)), Dimension(:)  , allocatable :: XQMC, XQMC_st, XTAU, Xtau_st, &
+            &                                                 Alpha_tot, om_bf, alp_bf, xom, A
+       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, XCOV_st
        Real (Kind=Kind(0.d0))                              :: X_moments(2), Xerr_moments(2)
-       Real (Kind=Kind(0.d0)), External                    :: XKER_ph, Back_trans_ph, XKER_pp, Back_trans_pp
+       Real (Kind=Kind(0.d0)), External                    :: XKER_ph, Back_trans_ph, XKER_pp, Back_trans_pp, &
+            &                                                 XKER_p, Back_trans_p
        Character (Len=64)                                  :: command, File1, File2
        Complex (Kind=Kind(0.d0))                           :: Z
        
@@ -20,7 +22,9 @@
        Character (Len=2)      :: Channel
        
        Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i
+       Integer                :: ntau_st, ntau_en, ntau_new
        Real (Kind=Kind(0.d0)) :: dtau, pi, xmom1, x,x1,x2, tau, omp, om, Beta,err, delta, Dom
+       Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, L_cov, &
             &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Channel
@@ -69,6 +73,7 @@
        close(10)
        dtau = Xtau(2) - Xtau(1)
 
+       Zero = 1.D-10
        pi = acos(-1.d0)
        Select Case (Channel)
        Case ("PH")
@@ -76,12 +81,45 @@
        Case ("PP")
           xmom1 = 2.d0* pi * xqmc(1)
        Case ("P")
-          xmom1 =  pi 
+          xmom1 =  pi
+          !  Remove the tau = beta point from the data since  it is correlated
+          !  due to the sum rule with  the tau=0 data point. Also if the tau = 0
+          !  data point has no fluctations (due to particle-hole symmetry for instance)
+          !  it will be removed.
+          Ntau_en = Ntau - 1
+          Ntau_st = 1
+          if ( xcov(1,1) < zero )  ntau_st = 2
+          ntau_new  =  ntau_en - Ntau_st   + 1
+          if (Ntau_new .ne. NTAU ) then 
+             Allocate ( XCOV_st(NTAU_new,NTAU_new), XQMC_st(NTAU_new),XTAU_st(NTAU_new) )
+             do nt = 1,ntau_new
+                XQMC_st(nt) = XQMC(nt + ntau_st -1 )
+                XTAU_st(nt) = XTAU(nt + ntau_st -1 )
+             enddo
+             do nt = 1,ntau_new
+                do nt1 = 1,ntau_new
+                   Xcov_st(nt,nt1) = Xcov(nt + ntau_st -1, nt1 + ntau_st -1)
+                enddo
+             enddo
+             NTAU = NTAU_New
+             Deallocate (XCOV, XQMC,XTAU )
+             allocate   (XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
+             XCOV = XCOV_st
+             XQMC = XQMC_st
+             XTAU = XTAU_st
+             Deallocate (XCOV_st, XQMC_st,XTAU_st )
+          endif
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
        end Select
-
+       ! Store
+       Allocate ( XCOV_st(NTAU,NTAU), XQMC_st(NTAU),XTAU_st(NTAU) )
+       XCOV_st = XCOV
+       XQMC_st = XQMC
+       XTAU_st = XTAU
+       
+       
        Allocate (Alpha_tot(N_alpha) )
        do nt = 1,N_alpha
           alpha_tot(nt) = alpha_st*(R**(nt-1))
@@ -108,6 +146,15 @@
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
+       Case ("P")
+          If (L_cov == 1 ) then
+             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p, Back_Trans_p, Beta, &
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+          else
+             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p, Back_Trans_p, Beta, &
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
+          endif
+          ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
@@ -119,17 +166,6 @@
           Command = "ls"
           Call System (Command)
        endif
-       
-       open (unit=10,File="g_dat", status="unknown") 
-       read(10,*)  ntau, n, beta
-       XCOV  = 0.d0
-       Do nt = 1,NTAU
-          read(10,*)  xtau(nt), xqmc(nt), err 
-          xcov(nt,nt) = err*err
-       Enddo
-       close(10)
-       pi = acos(-1.d0)
-       xmom1 = pi * xqmc(1) 
 
        Open (Unit = 10,File="Best_fit", Status ="unknown") 
        Allocate (om_bf(Ngamma), alp_bf(Ngamma) )
@@ -141,11 +177,25 @@
        Open (Unit = 11,File="Data_out", Status ="unknown") 
        do nt = 1,Ntau
           X = 0.d0
-          tau = xtau(nt)
-          do i = 1,Ngamma
-             X = X + alp_bf(i)*Xker_ph(tau,om_bf(i), beta)
-          enddo
-          Write(11,"(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)")  xtau(nt), xqmc(nt),  sqrt(xcov(nt,nt)), xmom1*X
+          tau = xtau_st(nt)
+          Select Case (Channel)
+          Case ("PH")
+             do i = 1,Ngamma
+                X = X + alp_bf(i)*Xker_ph(tau,om_bf(i), beta)
+             enddo
+          Case ("PP")
+             do i = 1,Ngamma
+                X = X + alp_bf(i)*Xker_pp(tau,om_bf(i), beta)
+             enddo
+          Case ("P")
+             do i = 1,Ngamma
+                X = X + alp_bf(i)*Xker_p(tau,om_bf(i), beta)
+             enddo
+          Case default 
+             Write(6,*) "Channel not yet implemented"
+             Stop
+          end Select
+          Write(11,"(F14.7,2x,F14.7,2x,F14.7,2x,F14.7)")  xtau_st(nt), xqmc_st(nt),  sqrt(xcov_st(nt,nt)), xmom1*X
        enddo
        close(11)
 
@@ -230,7 +280,6 @@
             
        Implicit None
        real (Kind=Kind(0.d0)) ::  Aom, om, beta
-
        real (Kind=Kind(0.d0)) :: Zero
 
        Zero = 1.D-8
