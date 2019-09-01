@@ -1136,7 +1136,7 @@
              Do I = 1,Latt%N
                 Do n = 1,Latt_unit%N_coord
                    Select Case (Lattice_type)
-                   Case ("Square" .or. "One_dimensional")
+                   Case ("Square", "One_dimensional")
                       I1 = I
                       If (n == 1)  J1 = Latt%nnlist(I,1,0)
                       If (n == 2)  J1 = Latt%nnlist(I,0,1)
