@@ -1136,7 +1136,7 @@
              Do I = 1,Latt%N
                 Do n = 1,Latt_unit%N_coord
                    Select Case (Lattice_type)
-                   Case ("Square")
+                   Case ("Square" .or. "One_dimensional")
                       I1 = I
                       If (n == 1)  J1 = Latt%nnlist(I,1,0)
                       If (n == 2)  J1 = Latt%nnlist(I,0,1)
@@ -1145,7 +1145,7 @@
                       If (n == 1)  J1 = invlist(I,2)
                       If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
                       If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
-                   Case Default
+                   Case default
                       stop
                    end Select
                    Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
