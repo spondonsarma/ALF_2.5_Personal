@@ -224,7 +224,7 @@
                Open (Unit=10,File=File_out,status="unknown")
                Write(10,*) Lt_eff,  nbins, real(lt-1,kind(0.d0))*dtau
                do nt = 1, Lt_eff
-                  Write(10,"(D14.7,2x,D16.8,2x,D16.8)") &
+                  Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                        & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
                enddo
                If (N_cov == 1) Then ! print covarariance
@@ -252,7 +252,7 @@
          Open (Unit=10,File=File_out,status="unknown")
          Write(10,*) LT_eff,  nbins,  real(lt-1,kind(0.d0))*dtau
          do nt = 1, LT_eff
-            Write(10,"(D14.7,2x,D16.8,2x,D16.8)") &
+            Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                  & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
          enddo
          If (N_cov == 1) Then ! Print  covariance
