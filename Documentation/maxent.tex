@@ -1,0 +1,241 @@
+% Copyright (c) 2016-2019 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
+% !TEX root = Doc.tex
+
+\subsection{Maximum entropy }
+
+\subsubsection{General setup}
+Generically, the maximum entropy code computes the  Image  $A(\omega) $ for a given  data $g(\tau) $  and kernel $K(\tau,\omega) $:
+\begin{equation}
+g(\tau) =  \int_{\omega_{start}}^{\omega_{end}} d {\omega} K(\tau,\omega) A(\omega).
+\end{equation} 
+The  ALF-package includes a standard implementation of the stochastic MaxEnt    as formulated in the article of K. Beach  Ref.~\cite{Beach04a}.  Here we will  comment on the workflow.  The module 
+\texttt{/Libraries/Modules/maxent\_stoch\.f90} contains  a general implementation and  the wrapper  \texttt{Analysis/Max\_SAC.f90}. 
+
+The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
+\begin{equation}
+  \chi^{2}(A) =  \sum_{i,j=1}^{n}   \left[ g(\tau_i)  –    \overline{g(\tau_i)} \right] C^{-1}(\tau_i,\tau_j) \left[    g(\tau_j)  –  \overline{g(\tau_j)} \right] 
+\end{equation} with $ \overline{g(i)} =\int d{\omega} K(\tau_{i},\omega)  A(\omega)$ and  $C$ the covariance matrix. 
+The set  of inverse temperatures   we will consider  in the parallel tempering read:
+$ \alpha_m = \alpha_{st}  R^{m}, \; \; m = 1 \cdots N_{\alpha} $.   The phase space corresponds to all possible spectral functions with given sum rule and required positivity.  Finally,  the partition function reads
+$Z =  \int{DA} e^{-\alpha \chi^{2}(A)}$.  
+
+In the code, the spectral function is parametrized  by a  set of Dirac $\delta$ functions: 
+\begin{equation}
+      A(\omega)  = \sum_{i=1}^{N_{\gamma}} a_{i} \delta \left( \omega - \omega_i \right).
+\end{equation}
+To produce a histogram of  $ A(\omega) $ we divide  the frequency range in \texttt{Ndis} intervals. 
+The Green function is read from the file \texttt{g\_dat}  corresponding to the  output of the the  \texttt{cov\_tau.f90} analysis program.  
+Below, we summarize the  parameters   in   \texttt{param\_SAC}  required  to run the code .  
+\lstset{style=fortran}
+\begin{lstlisting} 
+
+&VAR_Max_Stoch               ! Variables for Stochastic Maximum entropy
+Ngamma                       ! # of  Dirac functions for parametrization
+Om_st                        ! Frequency range lower bound
+Om_en                        ! Frequency range upper bound
+NDis                         ! # of boxes for histogram
+Nbins                        ! # of bins for Monte Carlo
+Nsweeps                      ! # of sweeps per bin
+NWarm                        ! The Nwarm first bins will be ommitted
+N_alpha                      ! # of tempertures
+alpha_st                     ! smallest inverse temperature
+R                            ! increment for inverse temperature (see above) 
+L_cov                        ! =1  covariance is taken into  account
+	                     ! =0  covariance is not taken into account
+Channel                      ! T0       : Zero temperature
+                             ! P        : Finite temperarure particle 
+                             ! PH       : Finite temperarure particle-hole
+                             ! PP       : Finite temperarure particle-particle 
+Checkpoint                   !.true.    : dump files will be produces so  
+                             !            as to be able to restart the simulation
+                             !.false.   : dump files will not be produces 
+Tolerance                    !For the zero temperature case,
+                             !if the relative error exceeds this number then 
+                             !the tail will be cut off. 
+/
+\end{lstlisting}
+
+\noindent
+\textbf{Output files} \\
+The code produces  the following output files.
+\begin{itemize}
+\item The files  \texttt{Aom\_n}  correspond to the average spectral function at inverse  temperature  $ \alpha_n $. This corresponds to
+$  \langle A_n(\omega) \rangle =   \frac{1}{Z}   \int DA(\omega)    e^{-\alpha_n \chi^{2}(A)  } A(\omega). $
+The file contains three colums  $ \omega, \;  \langle A_n(\omega) \rangle , \;  \Delta \langle A_n(\omega) \rangle $.
+
+\item The files \texttt{Aom\_ps\_n}   contain the average image over  the  inverse   temperatures  $ \alpha_n $ to $ \alpha_{N_\gamma} $  see Ref.~\cite{Beach04a} for more details.   
+ The first three columns have the same meaning as for the files \texttt{Aom\_n}
+
+\item The file \texttt{Green} contains the Green function. The three columns correspond to $ \omega, \;   \text{ Re} G(\omega), \;  \text{  Im} G(\omega)  $.  This is obtained from the spectral function through:
+\begin{equation}
+ G(\omega) =  -\frac{1}{\pi} \int d \Omega   \frac{A(\Omega)}{\omega – \Omega + i \delta}
+ \end{equation}
+where  $ \delta =  \Delta \omega$ with $ \Delta \omega = (\omega_{end} -  \omega_{start})/\text{Ndis}$ and the image corresponds to that of the file \texttt{Aom\_ps\_m} with $ m = N_{\alpha} -10 $.
+
+\item  One of the most important files is the file  \texttt{energies}. It contains there columns:  $ \alpha_n, \langle \chi^2 \rangle, \Delta \langle \chi^2 \rangle $.
+
+\item   \texttt{best\_fit}  gives the values of $a_i$ and $\omega_i$   (recall that $ A(\omega)  = \sum_{i=1}^{N_{\gamma}} a_{i} \delta \left( \omega - \omega_i \right).$) corresponding to the last configuration of the  lowest temperature run.
+
+\item  The File \texttt{data\_out}  is a crosscheck. It plots   $ \tau,  g(\tau),  \Delta g(\tau), \int d \omega  K(\tau, \omega) A(\omega) $ where the image  corresponds to the best fit (i.e. the lowest temperature). 
+This file will give you  a feeling on how good the fit actually is.
+
+
+\item There are two \texttt{dump} files which are generated. Since  the MaxEnt is a  Monte Carlo code, one  would like to be able to continue a simulation to improve. The data in the dump files will allow you to pursue the simulation without loosing the first run(s).   These files are  only generated if the variable  \texttt{checkpoint} is set to true. 
+ \end{itemize}
+
+The essential question is: which image should one use. There is no real answer to this question in the context of the stochastic MaxEnt. The only rule of thumb is to consider temperatures for which the \( \chi^2 \) is  comparable to the number of data points.
+
+
+\subsubsection{Single particle quantities}
+For the single-particle Green function, 
+
+\begin{equation} 
+	\langle \hat{c}^{\phantom\dagger}_{k} (\tau)  \hat{c}^{\dagger}_{k} (0)   \rangle   = \int d \omega  K_p(\tau,\omega)   A_p(k, \omega) 
+\end{equation}
+with 
+\begin{equation}
+K_{p}(\tau,\omega) =    \frac{1}{\pi} \frac{e^{-\tau \omega} }  {  1 + e^{-\beta\omega} }
+\end{equation}
+and 
+\begin{equation}
+   A_p(k, \omega) = \frac{ \pi}{Z} \sum_{n,m} e^{-\beta E_n } \left( 1 + e^{-\beta \omega}\right) | \langle n | c_n | m  \rangle |^{2} \delta \left( E_m - E_n - \omega \right)  
+\end{equation}  
+Note that  $ A_p(k, \omega)  = - \text{Im} G^{\text{ret}} (k, \omega) $ with 
+\begin{equation}
+	G^{\text{ret}} (k, \omega)  = -i \int d t \Theta(t)  e^{i \omega t} \langle \left\{ \hat{c}^{\phantom\dagger}_{k} (t), \hat{c}^{\dagger}_{k} (0) \right\} \rangle
+\end{equation}
+Finally the sum rule reads:
+\begin{equation}
+	\int d \omega  A_p(k, \omega)  = \pi \langle  \left\{ \hat{c}^{\phantom\dagger}_{k} \hat{c}^{\dagger}_{k}  \right\}   \rangle = \pi 
+\end{equation}
+Using the \texttt{Max\_Sac.f90}  with \texttt{Channel="P"}   will  load the above Kernel in the MaxEnt library.  Note that in this case the back  transformation is set to unity. 
+\subsubsection{Particle-hole quantities }
+
+\noindent
+\textbf{Imaginary time formulation.}
+ For particle-hole quantities such as spin-spin or charge-charge correlations, 
+the  Kernel reads:
+\begin{equation}
+	\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle  = \frac{1}{\pi} 
+   \int {\text d} \omega  \frac{e^{- \tau \omega} }{ 1 - e^{-\beta  \omega} } \chi''(q,\omega).
+\end{equation}
+This follows directly from the  Lehmann representation: 
+\begin{equation}
+ \chi''(q,\omega)  = \frac{\pi}{Z} \sum_{n,m} e^{-\beta E_n} |\langle n | \hat{S}(q) | \rangle m |^2 
+\delta ( \omega + E_n - E_m) \left( 1 - e^{-\beta  \omega} \right) 
+\end{equation}
+Since the linear response to a Hermitian perturbation  is real, $\chi''(q,\omega)  = - \chi''(-q,-\omega)$.  Hence for systems with inversion symmetry -- that 
+we will consider here -- $\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle $ is a symmetric function around $\beta= \tau/2$.  The analysis  file \texttt{cov\_tau\_ph.f90} produced at compilation
+time will use this  to define an improved estimator. 
+
+The  Stochastic MaxEnt requires a sum rule, such that   the Kernel and image have to be adequately redefined. 
+Consider: 
+\begin{equation}
+	\text{coth}(\beta \omega/2) \chi''(q,\omega)
+\end{equation}
+For this quantitiy, we have the sum rule since: 
+\begin{equation}
+	\int {\text d} \omega 	\text{coth}(\beta \omega/2) \chi''(q,\omega) = 
+  2 \pi \langle \hat{S}(q,\tau=0) \hat{S}(-q,0) \rangle
+\end{equation}
+which is just the first point in the data. 
+
+Hence,
+\begin{equation}
+	\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle  =  
+       \int {\text d} \omega  \underbrace{ \frac{1}{\pi} \frac{e^{- \tau \omega} }
+            { 1 - e^{-\beta  \omega} } \text{tanh}(\beta \omega/2)  }_{K_{pp}(\tau,\omega)} 
+       \underbrace{ \text{coth}(\beta \omega/2)   \chi''(q,\omega) }_{A(\omega)} 
+\label{Kpp.eq}
+\end{equation}
+and one  computes $A(\omega)$. Note that since $\chi'' $ is an odd function of $\omega$  one restricts the integration range  positive values of $\omega$. 
+Hence: 
+\begin{equation}
+	\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle  =  
+       \int_{0}^{\infty}  {\text d} \omega \underbrace{\left( K(\tau,\omega)  + K(\tau,-\omega) \right)}_{K_{ph}(\tau,\omega)}  A(\omega).
+\end{equation}
+In the code, $\omega_{start}$ is set to zero by default and the Kernel $K_{ph}$ is used in the code and is defined in the  routine \texttt{XKER\_ph}. 
+In general,  one would like to produce the  dynamical structure factor that relates to the susceptibility according to
+\begin{equation}
+ S(q,\omega)  = \chi''(q,\omega)/\left( 1 - e^{-\beta  \omega} \right). 
+\end{equation}
+
+In the code the routine \texttt{BACK\_TRANS\_ph}   transformations the image $A$ to the desired quantity.
+\begin{equation}
+	S(q,\omega) = \frac{A(\omega)}{1 + e^{-\beta \omega} }  
+\end{equation}
+
+\noindent
+\textbf{Matsubara frequency formulation.}
+The ALF  library uses  imaginary time. It is however possible to formulate the MaxEnt in  Matsubara frequencies.
+Consider:
+\begin{equation}
+  \chi(q,i\Omega_m) = \int_0^{\beta} {\text d} \tau  e^{i \Omega_m \tau}
+	\langle S(q,\tau) S(-q,0) \rangle  = \frac{1}{\pi}
+   \int {\text d} \omega  \frac{\chi''(q,\omega)}{ \omega - i \Omega_m }.
+\end{equation}
+Using the fact that $\chi''(q,\omega) = -\chi''(-q,-\omega) = -\chi''(q,-\omega)$ one obtains:
+\begin{equation}
+\begin{gathered}
+  \chi(q,i\Omega_m) = 
+	\frac{1}{\pi}
+   \int_0^{\infty} {\text d} \omega \left(\frac{1}{ \omega - i \Omega_m } - \frac{1}{ -\omega - i \Omega_m } \right)
+         \chi''(q,\omega) \\
+    = \frac{2}{\pi} \int_0^{\infty} {\text d} \omega \frac{\omega^2}{ \omega^2  + \Omega_m^2 } 
+  \frac{\chi''(q,\omega)}{\omega} 
+   \equiv \int_0^{\infty} {\text d} \omega K(\omega,i\Omega_m) A(q,\omega)
+\end{gathered}
+\end{equation}
+with
+\begin{equation}
+   K(\omega,i\Omega_m) = \frac{\omega^2}{ \omega^2  + \Omega_m^2 } 
+\end{equation}
+and
+\begin{equation}
+A(q,\omega) =  \frac{2}{\pi}   \frac{\chi''(q,\omega)}{\omega} 
+\end{equation}
+The above definitions are useful since the image satisfies the sum rule:
+\begin{equation}
+\int_0^{\infty} {\text d} \omega A(q,\omega) =  \frac{1}{\pi}  \int_{-\infty}^{\infty} {\text d} \omega 
+   \frac{\chi''(q,\omega)}{\omega}   \equiv \chi(q,i\Omega_m=0)
+\end{equation}
+
+
+\subsubsection{Particle-Particle quantities}
+
+Similarly to the particle-hole channel  the particle-particle channel is also a bosonic correlation function. Here however we do not assume the 
+imaginary time data is symmetric around   the $\tau = \beta/2$ point.  We use the Kernel $K_{pp}$ define in Eq.~\ref{Kpp.eq}  and consider the whole frequency range. 
+The back transformation  yields
+\begin{equation}
+ \frac{\chi''(\omega)} {\omega}   = \frac{\text{tanh} \left( \beta \omega/2 \right) }{ \omega }   A(\omega) 
+\end{equation}
+
+
+
+\subsubsection{Zero temperature, projective code}
+
+ In the zero temperature limit,  the spectral function associated to an operator $\hat{O} $    reads:
+ \begin{equation}
+ 	  A_o(\omega)    = \pi  \sum_{n}    | \langle n  | \hat{O} | 0 \rangle |^2 \delta( E_n - E_0 - \omega) 
+ \end{equation}
+ such that 
+ \begin{equation}
+ 	\langle 0 | \hat{O}^{\dagger}(\tau) \hat{O}^{}(0) | 0 \rangle =  \int d  \omega  K_0(\tau,\omega) A_0(\omega) 
+ \end{equation}
+ with 
+ \begin{equation}
+ 	K_0(\tau,\omega)  = \frac{1}{\pi}e^{-\tau \omega}.
+ \end{equation}
+ The zeroth moment of the spectral function reads, 
+ \begin{equation}
+  \int d \omega A_o(\omega) = \pi \langle 0 | \hat{O}^{\dagger}(0) \hat{O}^{}(0) | 0 \rangle, 
+ \end{equation}
+ and hence corresponds to the first data point. 
+ In the zero temperature limit one does not distinguish between  particle, particle-hole, or particle-particle channels.
+ Using the \texttt{Max\_Sac.f90}  with \texttt{Channel="T0"}   will  load the above Kernel in the MaxEnt library. In this case the back  transformation is set to unity. 
+ The code will also cut-off the tail of the  imaginary time correlation function  if the relative error is greater that the variable \texttt{Tolerance}. 
