@@ -66,7 +66,8 @@
        Complex (Kind=Kind(0.d0))                           :: Z
        
 
-       Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, L_cov
+       Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov
+       Integer                :: N_skip, N_rebin
        Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
        Logical                :: Checkpoint
        Character (Len=2)      :: Channel
@@ -76,16 +77,20 @@
        Real (Kind=Kind(0.d0)) :: dtau, pi, xmom1, x,x1,x2, tau, omp, om, Beta,err, delta, Dom
        Real (Kind=Kind(0.d0)) :: Zero
 
-       NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, L_cov, &
+       NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
             &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Channel, Tolerance
 
-       open(unit=30,file='paramSAC',status='old',action='read', iostat=io_error) 
+       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov
+
+       open(unit=30,file='parameters',status='old',action='read', iostat=io_error) 
        if (io_error.eq.0) then
+          READ(30,NML=VAR_errors)
           READ(30,NML=VAR_Max_Stoch)
        else
-          write(6,*) 'No file paramSAC ' 
+          write(6,*) 'No file parameters ' 
           stop
        endif
+       close(30)
 
        Open(unit=50,File='Info_MaxEnt',Status="unknown")
        write(50,*) 'Channel      :: ', Channel
@@ -93,7 +98,7 @@
           Write(50,*)  'Om_start is set to zero. PH channel corresponds to symmetric data '
           Om_st = 0.d0
        endif
-       Write(50, "('Covariance         :: ',I2)")  L_cov
+       Write(50, "('Covariance         :: ',I2)")  N_cov
        Write(50, "('Checkpoint         :: ',L )")  Checkpoint
        Write(50, "('Om_st, Om_en       :: ',2x,F12.6,2x,F12.6)") Om_st, Om_en
        Write(50, "('Delta Om           :: ',2x,F12.6)")  (Om_en - Om_st)/real(Ndis,kind(0.d0))
@@ -113,7 +118,7 @@
           read(10,*)  xtau(nt), xqmc(nt), err 
           xcov(nt,nt) = err*err
        Enddo
-       if (L_cov.eq.1) then
+       if (N_cov.eq.1) then
           do nt = 1,ntau
              do nt1 = 1,ntau
                 read(10,*) xcov(nt,nt1)
@@ -156,8 +161,8 @@
           write(6,*) 'Not enough data!'
           stop
        Endif
-       If (  nbin_qmc > 2*Ntau .and. L_cov == 0  )   Write(50,*) 'Consider using the covariance. You seem to have enough bins'
-       If (  nbin_qmc < 2*Ntau .and. L_cov == 1  )   Write(50,*) 'You do not seem to have enough bins for a reliable estimate of the covariance '
+       If (  nbin_qmc > 2*Ntau .and. N_cov == 0  )   Write(50,*) 'Consider using the covariance. You seem to have enough bins'
+       If (  nbin_qmc < 2*Ntau .and. N_cov == 1  )   Write(50,*) 'You do not seem to have enough bins for a reliable estimate of the covariance '
           
         
        ! Store
@@ -175,36 +180,36 @@
 
        Select Case (Channel)
        Case ("PH")
-          If (L_cov == 1 ) then
+          If (N_cov == 1 ) then
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_ph, Back_Trans_ph, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
           else
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_ph, Back_Trans_ph, Beta, &
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case ("PP")
-          If (L_cov == 1 ) then
+          If (N_cov == 1 ) then
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_pp, Back_Trans_pp, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
           else
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_pp, Back_Trans_pp, Beta, &
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case ("P")
-          If (L_cov == 1 ) then
+          If (N_cov == 1 ) then
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p, Back_Trans_p, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
           else
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p, Back_Trans_p, Beta, &
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case ("T0")
-          If (L_cov == 1 ) then
+          If (N_cov == 1 ) then
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_T0, Back_Trans_T0, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, L_Cov)
+                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
           else
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_T0, Back_Trans_T0, Beta, &
                   &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
