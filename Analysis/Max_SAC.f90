@@ -47,9 +47,10 @@
        !Implicit Integer (H-N)
 
        Interface
-          Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Ntau) 
+          Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance,  Ntau) 
             Implicit none
             Real (Kind=Kind(0.d0)), INTENT(INOUT),allocatable ::  XCOV(:,:), XQMC(:), XTAU(:)
+            Real (Kind=Kind(0.d0)), INTENT (IN) :: Tolerance
             Integer,  INTENT(IN)    ::  Ntau_st, Ntau_en
             Integer,  INTENT(INOUT) ::  Ntau
           end Subroutine Rescale
@@ -70,7 +71,7 @@
        Logical                :: Checkpoint
        Character (Len=2)      :: Channel
        
-       Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i
+       Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i,  nbin_qmc
        Integer                :: ntau_st, ntau_en, ntau_new, Ntau_old
        Real (Kind=Kind(0.d0)) :: dtau, pi, xmom1, x,x1,x2, tau, omp, om, Beta,err, delta, Dom
        Real (Kind=Kind(0.d0)) :: Zero
@@ -92,20 +93,20 @@
           Write(50,*)  'Om_start is set to zero. PH channel corresponds to symmetric data '
           Om_st = 0.d0
        endif
-       Write(50,*) 'Covariance         :: ', L_cov
-       Write(50,*) 'Checkpoint         :: ', Checkpoint
-       Write(50,*) 'Om_st, Om_en       :: ', Om_st, Om_en
-       Write(50,*) 'Delta Om           :: ', (Om_en - Om_st)/real(Ndis,kind(0.d0))
-       Write(50,*) 'Bins, Sweeps, Warm :: ', NBins, NSweeps, Nwarm
+       Write(50, "('Covariance         :: ',I2)")  L_cov
+       Write(50, "('Checkpoint         :: ',L )")  Checkpoint
+       Write(50, "('Om_st, Om_en       :: ',2x,F12.6,2x,F12.6)") Om_st, Om_en
+       Write(50, "('Delta Om           :: ',2x,F12.6)")  (Om_en - Om_st)/real(Ndis,kind(0.d0))
+       Write(50, "('Bins, Sweeps, Warm :: ',2x,I4,2x,I4,2x,I4)") NBins, NSweeps, Nwarm
        If (N_alpha <= 10 ) then
           Write(50,*) 'Not enough temperatures: N_alpha has to be bigger than 10'
           Stop
        Endif
-       Write(50,*) 'N_Alpha, Alpha_st,R:: ', N_alpha, alpha_st, R
+       Write(50, "('N_Alpha, Alpha_st,R:: ',2x,I4,F12.6,2x,F12.6)") N_alpha, alpha_st, R
        
 
        open (unit=10,File="g_dat", status="unknown") 
-       read(10,*)  ntau, n, Beta
+       read(10,*)  ntau, nbin_qmc, Beta
        Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
        XCOV  = 0.d0
        Do nt = 1,NTAU
@@ -124,6 +125,8 @@
 
        Zero = 1.D-10
        pi = acos(-1.d0)
+       Ntau_st = 1
+       Ntau_en = Ntau
        Select Case (Channel)
        Case ("PH")
           xmom1 = pi * xqmc(1) 
@@ -131,40 +134,32 @@
           xmom1 = 2.d0* pi * xqmc(1)
        Case ("P")
           xmom1 =  pi
-          !  Remove the tau = beta point from the data since  it is correlated
+          !  Remove the tau = beta point from the data since it is  correlated
           !  due to the sum rule with  the tau=0 data point. Also if the tau = 0
           !  data point has no fluctations (due to particle-hole symmetry for instance)
           !  it will be removed.
           Ntau_en = Ntau - 1
           Ntau_st = 1
           if ( xcov(1,1) < zero )  ntau_st = 2
-          Ntau_old = Ntau
-          Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, NTAU)
-          Write(50,*) 'Data has been rescaled from Ntau  ', NTAU_old, 'to ', Ntau
        Case ("T0")
           xmom1 =  pi*xqmc(1)
           Ntau_st = 1
           if ( xcov(1,1) < zero )  ntau_st = 2
-          Ntau_en = 0
-          Do nt = 1,ntau
-             !Write(6,*)  sqrt(xcov(nt,nt))/xqmc(nt), Tolerance
-             if ( sqrt(xcov(nt,nt))/xqmc(nt) < Tolerance ) then
-                Ntau_en = Ntau_en + 1
-             else
-                exit
-             endif
-          Enddo
-          Ntau_old = Ntau
-          Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, NTAU)
-          Write(50,*) 'Data has been rescaled from Ntau  ', NTAU_old, 'to ', Ntau !, Ntau_en
-          If ( Ntau <= 4 ) then
-             write(6,*) 'Not enough data!'
-             stop
-          Endif
        Case default 
           Write(6,*) "Channel not yet implemented"
           Stop
        end Select
+       Ntau_old = Ntau
+       Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance, NTAU)
+       Write(50,"('Data has been rescaled from Ntau  ',  I4,' to ', I4)")  NTAU_old, Ntau
+       If ( Ntau <= 4 ) then
+          write(6,*) 'Not enough data!'
+          stop
+       Endif
+       If (  nbin_qmc > 2*Ntau .and. L_cov == 0  )   Write(50,*) 'Consider using the covariance. You seem to have enough bins'
+       If (  nbin_qmc < 2*Ntau .and. L_cov == 1  )   Write(50,*) 'You do not seem to have enough bins for a reliable estimate of the covariance '
+          
+        
        ! Store
        Allocate ( XCOV_st(NTAU,NTAU), XQMC_st(NTAU),XTAU_st(NTAU) )
        XCOV_st = XCOV
@@ -176,8 +171,7 @@
        do nt = 1,N_alpha
           alpha_tot(nt) = alpha_st*(R**(nt-1))
        enddo
-       write(50,*) 'First Moment, Beta  ', Xmom1, Beta
-       close(50)
+       write(50,"('First Moment, Beta  ',2x,F12.6,2x,F12.6)")  Xmom1, Beta
 
        Select Case (Channel)
        Case ("PH")
@@ -227,7 +221,16 @@
           Command = "ls"
           Call System (Command)
        endif
-
+       Open (Unit=10,File="energies",status="unknown")
+       
+       Do n = 1,N_alpha
+          Read(10,*) X,X1,X2
+       enddo
+       Write(50,"('Chisq at lowest temperature: 1/T, Chi^2, Error',2x,F12.6,2x,F12.6,2x,F12.6)") X,X1,X2
+       close(50)
+       
+       
+       
        Open (Unit = 10,File="Best_fit", Status ="unknown") 
        Allocate (om_bf(Ngamma), alp_bf(Ngamma) )
        DO i = 1, Ngamma
@@ -267,7 +270,6 @@
        N_alpha_1 = N_alpha - 10  
        File1 ="Aom_ps"
        file2 =File_i(File1,N_alpha_1)
-       !Write(50,*) file2
        Open(Unit=66,File=file2,status="unknown")
        Allocate (xom(Ndis), A(Ndis))
        do nw = 1,Ndis
@@ -388,39 +390,58 @@
      end function BACK_TRANS_T0
 
      
-     Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Ntau) 
-
+     Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance,  Ntau) 
+       
        Implicit none
-
+       
        Real (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  XCOV(:,:), XQMC(:), XTAU(:)
+       Real (Kind=Kind(0.d0)), INTENT (IN) :: Tolerance
+       
        Integer,  INTENT(IN)    ::  Ntau_st, Ntau_en
        Integer,  INTENT(INOUT) ::  Ntau
-
+       
        !Local
        Integer :: Ntau_new, nt, nt1
+       Integer, allocatable :: List(:)
        Real (Kind=Kind(0.d0)), dimension(:,:), allocatable  ::  XCOV_st
        Real (Kind=Kind(0.d0)), dimension(:)  , allocatable  ::  XQMC_st, XTAU_st
        
-       ntau_new  =  ntau_en - Ntau_st   + 1
-       if (Ntau_new .ne. NTAU ) then 
-          Allocate ( XCOV_st(NTAU_new,NTAU_new), XQMC_st(NTAU_new),XTAU_st(NTAU_new) )
-          do nt = 1,ntau_new
-             XQMC_st(nt) = XQMC(nt + ntau_st -1 )
-             XTAU_st(nt) = XTAU(nt + ntau_st -1 )
+       
+       
+       ! Count the number of elements
+       ntau_new = 0
+       Do nt = ntau_st,ntau_en
+          if ( sqrt(xcov(nt,nt))/xqmc(nt) < Tolerance .and. xqmc(nt) > 0.d0  ) then
+             ntau_new  = ntau_new + 1
+          endif
+       Enddo
+       Allocate ( XCOV_st(NTAU_new,NTAU_new), XQMC_st(NTAU_new),XTAU_st(NTAU_new), List(NTAU_new) )
+       ntau_new = 0
+       Do nt = ntau_st,ntau_en
+          if ( sqrt(xcov(nt,nt))/xqmc(nt) < Tolerance .and. xqmc(nt) > 0.d0 ) then
+             ntau_new  = ntau_new + 1
+             List(ntau_new) = nt
+          endif
+       Enddo
+       do nt = 1,ntau_new
+          XQMC_st(nt) = XQMC( List(nt) )
+          XTAU_st(nt) = XTAU( List(nt) )
+       enddo
+       do nt = 1,ntau_new
+          do nt1 = 1,ntau_new
+             Xcov_st(nt,nt1) = Xcov(List(nt), List(nt1) )
           enddo
-          do nt = 1,ntau_new
-             do nt1 = 1,ntau_new
-                Xcov_st(nt,nt1) = Xcov(nt + ntau_st -1, nt1 + ntau_st -1)
-             enddo
-          enddo
-          NTAU = NTAU_New
-          Deallocate (XCOV, XQMC,XTAU )
-          allocate   (XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
-          XCOV = XCOV_st
-          XQMC = XQMC_st
-          XTAU = XTAU_st
-          Deallocate (XCOV_st, XQMC_st,XTAU_st )
-       endif
+       enddo
+       NTAU = NTAU_New
+       Deallocate (XCOV, XQMC,XTAU )
+       allocate   (XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
+       XCOV = XCOV_st
+       XQMC = XQMC_st
+       XTAU = XTAU_st
+       Deallocate (XCOV_st, XQMC_st,XTAU_st, List )
+       
+       
+       
 
        end Subroutine Rescale
      
