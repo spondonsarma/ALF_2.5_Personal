@@ -11,16 +11,16 @@
 \subsubsection{General setup}
 Generically, the maximum entropy code computes the  Image  $A(\omega) $ for a given  data $g(\tau) $  and kernel $K(\tau,\omega) $:
 \begin{equation}
-g(\tau) =  \int_{\omega_{start}}^{\omega_{end}} d {\omega} K(\tau,\omega) A(\omega).
+g(\tau) =  \int_{\omega_\text{start}}^{\omega_\text{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
 The  ALF-package includes a standard implementation of the stochastic MaxEnt    as formulated in the article of K. Beach  Ref.~\cite{Beach04a}.  Here we will  comment on the workflow.  The module 
-\texttt{/Libraries/Modules/maxent\_stoch\.f90} contains  a general implementation and  the wrapper  \texttt{Analysis/Max\_SAC.f90}. 
+\texttt{/Libraries/Modules/\allowbreak{}maxent\_stoch.f90} contains  a general implementation and  the wrapper  \texttt{Analysis/Max\_SAC.f90}. 
 
 The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
   \chi^{2}(A) =  \sum_{i,j=1}^{n}   \left[ g(\tau_i)  –    \overline{g(\tau_i)} \right] C^{-1}(\tau_i,\tau_j) \left[    g(\tau_j)  –  \overline{g(\tau_j)} \right] 
 \end{equation} with $ \overline{g(i)} =\int d{\omega} K(\tau_{i},\omega)  A(\omega)$ and  $C$ the covariance matrix. 
-The set  of inverse temperatures   we will consider  in the parallel tempering read:
+The set  of inverse temperatures  we will consider  in the parallel tempering reads:
 $ \alpha_m = \alpha_{st}  R^{m}, \; \; m = 1 \cdots N_{\alpha} $.   The phase space corresponds to all possible spectral functions with given sum rule and required positivity.  Finally,  the partition function reads
 $Z =  \int{DA} e^{-\alpha \chi^{2}(A)}$.  
 
@@ -51,10 +51,10 @@ Channel                      ! T0       : Zero temperature
                              ! P        : Finite temperarure particle 
                              ! PH       : Finite temperarure particle-hole
                              ! PP       : Finite temperarure particle-particle 
-Checkpoint                   !.true.    : dump files will be produces so  
+Checkpoint                   !.true.    : dump files will be produced so  
                              !            as to be able to restart the simulation
-                             !.false.   : dump files will not be produces 
-Tolerance                    !For the zero temperature case,
+                             !.false.   : dump files will not be produced 
+Tolerance                    !For the zero temperature cases
                              !if the relative error exceeds this number then 
                              !the tail will be cut off. 
 /
@@ -75,7 +75,7 @@ The file contains three colums  $ \omega, \;  \langle A_n(\omega) \rangle , \;  
 \begin{equation}
  G(\omega) =  -\frac{1}{\pi} \int d \Omega   \frac{A(\Omega)}{\omega – \Omega + i \delta}
  \end{equation}
-where  $ \delta =  \Delta \omega$ with $ \Delta \omega = (\omega_{end} -  \omega_{start})/\text{Ndis}$ and the image corresponds to that of the file \texttt{Aom\_ps\_m} with $ m = N_{\alpha} -10 $.
+where  $ \delta =  \Delta \omega$ with $ \Delta \omega = (\omega_\text{end} -  \omega_\text{start})/\text{Ndis}$ and the image corresponds to that of the file \texttt{Aom\_ps\_m} with $ m = N_{\alpha} -10 $.
 
 \item  One of the most important files is the file  \texttt{energies}. It contains there columns:  $ \alpha_n, \langle \chi^2 \rangle, \Delta \langle \chi^2 \rangle $.
 
@@ -159,13 +159,13 @@ Hence:
 	\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle  =  
        \int_{0}^{\infty}  {\text d} \omega \underbrace{\left( K(\tau,\omega)  + K(\tau,-\omega) \right)}_{K_{ph}(\tau,\omega)}  A(\omega).
 \end{equation}
-In the code, $\omega_{start}$ is set to zero by default and the Kernel $K_{ph}$ is used in the code and is defined in the  routine \texttt{XKER\_ph}. 
+In the code, $\omega_\text{start}$ is set to zero by default and the Kernel $K_{ph}$ is used in the code and is defined in the  routine \texttt{XKER\_ph}. 
 In general,  one would like to produce the  dynamical structure factor that relates to the susceptibility according to
 \begin{equation}
  S(q,\omega)  = \chi''(q,\omega)/\left( 1 - e^{-\beta  \omega} \right). 
 \end{equation}
 
-In the code the routine \texttt{BACK\_TRANS\_ph}   transformations the image $A$ to the desired quantity.
+In the code the routine \texttt{BACK\_TRANS\_ph}   transforms the image $A$ to the desired quantity.
 \begin{equation}
 	S(q,\omega) = \frac{A(\omega)}{1 + e^{-\beta \omega} }  
 \end{equation}
@@ -236,6 +236,6 @@ The back transformation  yields
   \int d \omega A_o(\omega) = \pi \langle 0 | \hat{O}^{\dagger}(0) \hat{O}^{}(0) | 0 \rangle, 
  \end{equation}
  and hence corresponds to the first data point. 
- In the zero temperature limit one does not distinguish between  particle, particle-hole, or particle-particle channels.
+ In the zero-temperature limit one does not distinguish between  particle, particle-hole, or particle-particle channels.
  Using the \texttt{Max\_Sac.f90}  with \texttt{Channel="T0"}   will  load the above Kernel in the MaxEnt library. In this case the back  transformation is set to unity. 
  The code will also cut-off the tail of the  imaginary time correlation function  if the relative error is greater that the variable \texttt{Tolerance}. 
