@@ -4,7 +4,7 @@
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
 
-% !TEX root = Doc.tex
+% !TEX root = doc.tex
 
 \subsection{Maximum entropy }
 
@@ -13,8 +13,8 @@ Generically, the maximum entropy code computes the  Image  $A(\omega) $ for a gi
 \begin{equation}
 g(\tau) =  \int_{\omega_\text{start}}^{\omega_\text{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
-The  ALF-package includes a standard implementation of the stochastic MaxEnt    as formulated in the article of K. Beach  Ref.~\cite{Beach04a}.  Here we will  comment on the workflow.  The module 
-\texttt{/Libraries/Modules/\allowbreak{}maxent\_stoch.f90} contains  a general implementation and  the wrapper  \texttt{Analysis/Max\_SAC.f90}. 
+The  ALF-package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach Ref.~\cite{Beach04a}. Here we will comment on the workflow.  The module 
+\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch.f90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.f90}. 
 
 The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
@@ -233,7 +233,7 @@ The back transformation  yields
  \end{equation}
  The zeroth moment of the spectral function reads, 
  \begin{equation}
-  \int d \omega A_o(\omega) = \pi \langle 0 | \hat{O}^{\dagger}(0) \hat{O}^{}(0) | 0 \rangle, 
+  \int d \omega A_o(\omega) = \pi \langle 0 | \hat{O}^{\dagger}(0) \hat{O}^{}(0) | 0 \rangle, 
  \end{equation}
  and hence corresponds to the first data point. 
  In the zero-temperature limit one does not distinguish between  particle, particle-hole, or particle-particle channels.
