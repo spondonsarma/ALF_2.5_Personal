@@ -55,13 +55,13 @@
 !> ALF-project
 !
 !> @brief
-!> Definition of  a set of lattices: Square, One_dimensional, Honeycomb, Pi_Flux
+!> Definition of  a set of lattices: Square,  Honeycomb, Pi_Flux
 !>
 !> @param [in]  Latttice_type  
 !>\verbatim 
 !> Character(64)  
 !> Can take the values
-!> Square, One_dimensional, Honeycomb, Pi_Flux
+!> Square,  Honeycomb, Pi_Flux
 !> \endverbatim
 !> @param [in]  L1, L2  
 !>\verbatim 
@@ -108,26 +108,15 @@
         
         select case (Lattice_type)
         case("Square")
-           If (L1==1 .or. L2==1 ) then
-              Write(6,*) 'For one-dimensional lattices set : L2 = 1'
-              stop
-           endif
-           Latt_Unit%Norb      = 1
-           Latt_Unit%N_coord   = 2
-           Allocate (Latt_unit%Orb_pos_p(1,2))
-           Latt_Unit%Orb_pos_p(1,:) = 0.d0 
-           a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-           a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-           L1_p    =  dble(L1)*a1_p
-           L2_p    =  dble(L2)*a2_p
-           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-        case("One_dimensional")
-           If (L1 == 1 ) then 
-              Write(6,*) ' For one dimensional systems set  L2 = 1 ' 
+           If ( L2==1 .and. L1 > 1 ) then
+              Latt_Unit%N_coord   = 1
+           elseif (L2 >1 .and. L1 > 1) then
+              Latt_Unit%N_coord   = 2
+           else
+              Write(6,*) 'For one-dimnesional lattices set L2=1'
               Stop
            endif
            Latt_Unit%Norb      = 1
-           Latt_Unit%N_coord   = 1
            Allocate (Latt_unit%Orb_pos_p(1,2))
            Latt_Unit%Orb_pos_p(1,:) = 0.d0 
            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
@@ -201,7 +190,7 @@
 !> @param [in]  Latttice_type
 !>    Character(64)
 !>\verbatim 
-!>     Square, One_dimensional, Honeycomb, Pi_Flux 
+!>     Square,  Honeycomb, Pi_Flux 
 !>\endverbatim 
 !> @param [in]  Latt_unit
 !>    Type(Unit_cell)
@@ -309,61 +298,63 @@
               nc = 1
               Select case (Lattice_type)
               Case ("Square")
-                 ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
-                 ZY  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_Y/Xnorm(Latt%L2_p), kind=kind(0.d0) ) )
-                 DO I = 1, Latt%N
-                    I1 = Latt%nnlist(I,1,0)
-                    I2 = Latt%nnlist(I,0,1)
-                    If ( Latt%list(I,1) == 0 ) then
-                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
-                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
-                    else
-                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
-                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
-                    endif
-                    If ( Latt%list(I,2) == 0 ) then
-                       Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*ZY
-                       Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*conjg(ZY)
-                    else
-                       Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*ZY
-                       Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*conjg(ZY)
-                    endif
-                    Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                 Enddo
-                 if (Present(Dimer)) then
-                    Do I = 1, Latt%N
-                       Ix = Latt%list(I,1); Iy = Latt%list(I,2)
-                       If ( mod(Ix + Iy,2)  == 0 ) then
-                          I1 = I
-                          I2 = Latt%nnlist(I,1,0)
-                          Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
-                          Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                 If ( Latt_unit%N_coord == 2 ) then 
+                    ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
+                    ZY  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_Y/Xnorm(Latt%L2_p), kind=kind(0.d0) ) )
+                    DO I = 1, Latt%N
+                       I1 = Latt%nnlist(I,1,0)
+                       I2 = Latt%nnlist(I,0,1)
+                       If ( Latt%list(I,1) == 0 ) then
+                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
+                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
+                       else
+                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
+                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
                        endif
-                    enddo
-                 endif
-              Case ("One_dimensional")
-                 ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
-                 DO I = 1, Latt%N
-                    I1 = Latt%nnlist(I,1,0)
-                    If ( Latt%list(I,1) == 0 ) then
-                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
-                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
-                    else
-                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
-                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
-                    endif
-                    Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                 Enddo
-                 if (Present(Dimer)) then
-                    Do I = 1, Latt%N
-                       Ix = Latt%list(I,1); Iy = Latt%list(I,2)
-                       If ( mod(Ix + Iy,2)  == 0 ) then
-                          I1 = I
-                          I2 = Latt%nnlist(I,1,0)
-                          Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
-                          Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                       If ( Latt%list(I,2) == 0 ) then
+                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*ZY
+                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*conjg(ZY)
+                       else
+                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*ZY
+                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*conjg(ZY)
                        endif
-                    enddo
+                       Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                    Enddo
+                    if (Present(Dimer)) then
+                       Do I = 1, Latt%N
+                          Ix = Latt%list(I,1); Iy = Latt%list(I,2)
+                          If ( mod(Ix + Iy,2)  == 0 ) then
+                             I1 = I
+                             I2 = Latt%nnlist(I,1,0)
+                             Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
+                             Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                          endif
+                       enddo
+                    endif
+                 else
+                    ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
+                    DO I = 1, Latt%N
+                       I1 = Latt%nnlist(I,1,0)
+                       If ( Latt%list(I,1) == 0 ) then
+                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
+                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
+                       else
+                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
+                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
+                       endif
+                       Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+                    Enddo
+                    if (Present(Dimer)) then
+                       Do I = 1, Latt%N
+                          Ix = Latt%list(I,1); Iy = Latt%list(I,2)
+                          If ( mod(Ix + Iy,2)  == 0 ) then
+                             I1 = I
+                             I2 = Latt%nnlist(I,1,0)
+                             Op_T(nc,n)%O(I1,I2)  = Op_T(nc,n)%O(I1,I2) + Dimer
+                             Op_T(nc,n)%O(I2,I1)  = Op_T(nc,n)%O(I2,I1) + Dimer
+                          endif
+                       enddo
+                    endif
                  endif
               Case ("Honeycomb")
                  X = 2.d0 * acos(-1.d0)*Phi_X / ( Xnorm(Latt%L1_p) * (Xnorm(Latt%a1_p)**2)  )
@@ -675,7 +666,7 @@
       !> @param [in]  Lattice_type
       !>    Character(64)
       !> \verbatim
-      !>    Square, One_dimensional, Honeycomb, Pi_Flux
+      !>    Square,  Honeycomb, Pi_Flux
       !> \endverbatim
       !> @param [in]  Latt_unit
       !>    Type(Unit_cell)
@@ -754,7 +745,7 @@
         Dimer    = 0.d0
         Checkerboard  = .false.
         Symm          = .false.
-        !If (Lattice_type == "Square" .or.  Lattice_type == "One_dimensional" ) then 
+        !If (Lattice_type == "Square"  ) then 
         !   Dimer    = 0.001d0
         !else
            Phi_X    = 0.01

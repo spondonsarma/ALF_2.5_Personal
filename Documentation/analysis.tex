@@ -24,7 +24,12 @@
                            & (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  \\
                            & time displaced correlation function traced over the  orbitals.  It also contains the  \\
                            & covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  (see Sec.~\ref{sec:input}). \\
-                           & Equally, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated. \\\bottomrule
+                           & Equally, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated.  \\                         
+   \texttt{cov\_tau\_ph.f90}            & At compilation time  the file \texttt{cov\_tau\_ph.f90} is generated, and  should be used to compute \\ 
+                           & particle-hole  imaginary time correlation functions such as Spin and Charge.   Here we use  \\
+                           &  the fact that these  correlation functions  are symmetric around $\tau = \beta/2$ so that we \\
+                           &  can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.  
+                                  \\\bottomrule
    \end{tabular}
    \caption{ Overview of analysis programs that are called within the script \texttt{analysis.sh}. \label{table:analysis_programs}}
 \end{table}
@@ -88,13 +93,16 @@ enddo
 where \texttt{Re} and \texttt{Im} refer to the real and imaginary part, respectively.
 
 \item The imaginary-time displaced correlation functions \texttt{Y} are written to the output files \texttt{Y\_R0/g\_R0}, when measured locally in space, 
-and to the output files \texttt{Y\_kx\_ky/g\_kx\_ky} when they are measured $\vec{k}$-resolved. 
+and to the output files \texttt{Y\_kx\_ky/g\_kx\_ky} when they are measured $\vec{k}$-resolved.    The first line of the  file prints the number of time slices, 
+ the number of bins and the inverse temperature. 
 Both output files have the following formatting:
 \begin{alltt}
 do i = 0, Ltau
    tau(i)   <mean( Tr[Y] )>   <error( Tr[Y])>
 enddo
 \end{alltt}
-where \texttt{Tr} corresponds to the trace over the orbital degrees of freedom.
+where \texttt{Tr} corresponds to the trace over the orbital degrees of freedom.   For particle-hole quantities at finite temperature,  $\tau$ runs from 
+$0$ to $\beta/2$.   In all other cases it runs from $0$ to $\beta$. 
+
 
 \end{itemize}

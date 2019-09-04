@@ -48,6 +48,7 @@
 
          Integer :: Nunit, Norb, N_auto
          Integer :: no, no1, n, nbins, n_skip, nb, NT, NT1, Lt, N_rebin, N_cov, ierr, N_Back
+         Integer :: Lt_eff
          real    (Kind=Kind(0.d0)):: X, Y,  dtau, X_diag
          Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
          Complex (Kind=Kind(0.d0)) :: Zmean, Zerr
@@ -55,7 +56,7 @@
          Real    (Kind=Kind(0.d0)) :: Zero=1.D-8
          Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
          Complex (Kind=Kind(0.d0)), allocatable :: PhaseI(:)
-         Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:), Bins_chi(:,:)
+         Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:), Bins_chi(:,:), OneBin(:,:,:)
          Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
          Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
          Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
@@ -76,6 +77,7 @@
          READ(5,NML=VAR_errors)
          CLOSE(5)
 
+         
          ! Determine the number of bins. 
          Open ( Unit=10, File="intau", status="unknown" ) 
          nbins = 0
@@ -107,13 +109,24 @@
            stop 1
          endif
 
-
-         ! Allocate  space
-         Allocate ( bins(Nunit,Lt,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
-              &     V_help(lt,Nbins), bins0(Nbins,Norb))
-         Allocate ( Bins_chi(Nunit,Nbins) )
+#ifdef PartHole
+         if (mod(Lt-1,2) == 0 ) then
+            Lt_eff = (Lt -1 ) /2   + 1
+         else
+            Lt_eff = Lt/2 
+         endif
+#else
+         Lt_eff = Lt
+#endif
          
-         Allocate (Xmean(Lt), Xcov(Lt,Lt))
+         ! Allocate  space
+         Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
+              &     V_help(Lt_eff,Nbins), bins0(Nbins,Norb))
+         Allocate ( Bins_chi(Nunit,Nbins) )
+
+         Allocate ( OneBin(Lt,Norb,Norb) )
+         
+         Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
          bins  = 0.d0
          bins0 = cmplx(0.d0,0.d0,Kind(0.d0))
          Open ( Unit=10, File="intau", status="unknown" ) 
@@ -129,23 +142,56 @@
                Enddo
                do n = 1,Nunit
                   Read(10,*) Xk_p(1,n), Xk_p(2,n)
+                  !  Read 
                   do nt = 1,Lt
                      do no = 1,norb
                         do no1 = 1,Norb
-                           read(10,*) Z
-                           if (no == no1) bins(n,nt,nb-n_skip) = bins(n,nt,nb-n_skip) +  Z
+                           read(10,*) OneBin(nt,no,no1)
                         enddo
                      enddo
                   enddo
                   if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 ) then
                      Do nt = 1,Lt
-                        bins(n,nt,nb-n_skip) =   bins(n,nt,nb-n_skip) - Z_diag*cmplx(dble(Nunit),0.d0,kind(0.d0))
+                        do no = 1,norb
+                           do no1 = 1,Norb
+                              OneBin(nt,no,no1) =   OneBin(nt,no,no1) - &
+                                   & bins0(nb-n_skip,no)*bins0(nb-n_skip,no1)*cmplx(dble(Nunit),0.d0,kind(0.d0))&
+                                   & /Phase(nb-n_skip)
+                           enddo
+                        enddo
                      enddo
                   endif
-                  Z = cmplx(0.d0,0.d0,kind(0.d0))
-                  Do nt = 1,Lt -1
-                     Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb-n_skip) + bins(n,nt+1,nb-n_skip) )
+
+#ifdef PartHole
+                  ! tau = nt*dtau   nt = 0,Ltrot  
+                  ! beta - tau = (lt-1)*dtau - nt*dtau = (lt -1 - nt)*dtau
+                  ! --> g(nt + 1 )  = g(lt -1 -nt +1) -->  g(nt + 1 )  = g(lt -nt ) --> g(nt )  = g(lt -nt +1 )
+                  do nt = 1,Lt_eff
+                     do no = 1,Norb
+                        bins(n,nt,nb-n_skip) = bins(n,nt,nb-n_skip) + &
+                             & ( OneBin(nt,no,no) +  OneBin(Lt - nt + 1,no,no) ) / cmplx(2.d0,0.d0,Kind(0.d0))
+                     enddo
                   enddo
+#else
+                  do nt = 1,Lt_eff
+                     do no = 1,Norb
+                        bins(n,nt,nb-n_skip) = bins(n,nt,nb-n_skip) + OneBin(nt,no,no)
+                     enddo
+                  enddo
+#endif
+                     
+
+                  Z = cmplx(0.d0,0.d0,kind(0.d0))
+                  Do nt = 1,Lt_eff -1
+                     do no = 1,Norb
+                        do no1 = 1,Norb
+                           Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( OneBin(nt,no,no1) + Onebin(nt+1,no,no1) )
+                        enddo
+                     enddo
+                  enddo
+#ifdef PartHole
+                  Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
+#endif
                   Bins_chi(N,Nb-n_skip)   = Z 
                enddo
                
@@ -176,13 +222,14 @@
                call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
                write(File_out,'("g_",F4.2,"_",F4.2)')  Xk_p(1,n), Xk_p(2,n)
                Open (Unit=10,File=File_out,status="unknown")
-               do nt = 1, LT
+               Write(10,*) Lt_eff,  nbins, real(lt-1,kind(0.d0))*dtau
+               do nt = 1, Lt_eff
                   Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                        & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
                enddo
                If (N_cov == 1) Then ! print covarariance
-                  Do nt = 1,LT
-                     Do nt1 = 1,LT
+                  Do nt = 1,LT_eff
+                     Do nt1 = 1,LT_eff
                         Write(10,*) dble(Xcov(nt,nt1))
                      Enddo
                   Enddo
@@ -194,7 +241,7 @@
          V_help = cmplx(0.d0,0.d0,kind(0.d0))
          do n = 1,Nunit
             do nb = 1,nbins
-               do nt = 1,LT
+               do nt = 1,LT_eff
                   V_help(nt,nb) = V_help(nt,nb) +  bins(n,nt,nb)
                enddo
             enddo
@@ -203,13 +250,14 @@
          call COV(V_help, phase, Xcov, Xmean, N_Rebin )
          write(File_out,'("g_R0")') 
          Open (Unit=10,File=File_out,status="unknown")
-         do nt = 1, LT
+         Write(10,*) LT_eff,  nbins,  real(lt-1,kind(0.d0))*dtau
+         do nt = 1, LT_eff
             Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                  & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
          enddo
          If (N_cov == 1) Then ! Print  covariance
-            Do nt = 1,LT
-               Do nt1 = 1,LT
+            Do nt = 1,LT_eff
+               Do nt1 = 1,LT_eff
                   Write(10,*) dble(Xcov(nt,nt1))
                Enddo
             Enddo
