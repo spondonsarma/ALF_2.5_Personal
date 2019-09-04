@@ -156,7 +156,7 @@
       real (Kind=Kind(0.d0)),        private :: XB_Y, Phi_Y
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
-      Logical,              private :: One_dimensional, Checkerboard
+      Logical,              private :: Checkerboard
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
 
@@ -203,7 +203,7 @@
 
           NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi, Dtau, Beta, Theta, Projector
 
-          NAMELIST /VAR_t_V/      ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_t_V/      Ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
@@ -275,7 +275,7 @@
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
              Write(50,*) '# of orbitals : ', Ndim
-             If (Lattice_type == "Square" .or. Lattice_type == "One_dimensional" ) then
+             If (Lattice_type == "Square" ) then
                 Write(50,*) 'X_boundary    : ', XB_X
                 Write(50,*) 'Flux_X        : ', Phi_X
              Endif
@@ -703,7 +703,7 @@
                       Op_V(nc,1)%P(2) = I2
                       Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
                       Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g      = SQRT(CMPLX(-DTAU*ham_tV, 0.D0, kind(0.D0))) 
+                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/2.d0, 0.D0, kind(0.D0))) 
                       Op_V(nc,1)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,1)%type   = 2
                       Call Op_set( Op_V(nc,1) )
@@ -1136,7 +1136,7 @@
              Do I = 1,Latt%N
                 Do n = 1,Latt_unit%N_coord
                    Select Case (Lattice_type)
-                   Case ("Square", "One_dimensional")
+                   Case ("Square" )
                       I1 = I
                       If (n == 1)  J1 = Latt%nnlist(I,1,0)
                       If (n == 2)  J1 = Latt%nnlist(I,0,1)
