@@ -1136,7 +1136,7 @@
              Do I = 1,Latt%N
                 Do n = 1,Latt_unit%N_coord
                    Select Case (Lattice_type)
-                   Case ("Square")
+                   Case ("Square", "One_dimensional")
                       I1 = I
                       If (n == 1)  J1 = Latt%nnlist(I,1,0)
                       If (n == 2)  J1 = Latt%nnlist(I,0,1)
@@ -1145,7 +1145,7 @@
                       If (n == 1)  J1 = invlist(I,2)
                       If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
                       If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
-                   Case Default
+                   Case default
                       stop
                    end Select
                    Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
@@ -1314,7 +1314,7 @@
                    imj = latt%imj(I,J)
                    ! Green
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        & +  Z * GT0(I1,J1,1) * ZP* ZS
+                        & +    GT0(I1,J1,1) * ZP* ZS
                    
                    ! SpinZ
                    Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
@@ -1343,7 +1343,7 @@
                    imj = latt%imj(I,J)
                    !Green
                    Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
-                        &   +   ( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS
+                        &   +   cmplx(0.5d0,0.d0,Kind(0.d0))*( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS 
 
                    !SpinZ
                    Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &

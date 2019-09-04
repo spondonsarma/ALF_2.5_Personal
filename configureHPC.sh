@@ -8,6 +8,7 @@ MPICOMP=1
 
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
+INTELOPTFLAGS="-cpp -O3"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
 INTELUSEFULFLAGS="-std03"
@@ -186,9 +187,12 @@ LIB_BLAS_LAPACK=$MKL_LIB
 
 #LRZ enviroment
 SuperMUC-NG|NG)
-module switch mpi.intel  mpi.intel/2018
-module switch intel intel/18.0
-module switch mkl mkl/2018
+#module switch mpi.intel  mpi.intel/2018
+#module switch intel intel/18.0
+#module switch mkl mkl/2018
+module load  mpi.intel
+module load intel
+module load mkl
 
 F90OPTFLAGS=$INTELOPTFLAGS
 F90USEFULFLAGS=$INTELUSEFULFLAGS
