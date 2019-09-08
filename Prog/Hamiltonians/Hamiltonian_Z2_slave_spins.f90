@@ -74,6 +74,10 @@
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
+          ! Default values
+          N_FL = 1; N_SUN = 2
+          ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
+
           If (Irank_g == 0 ) then
 #endif
              File_para = "parameters"
@@ -89,14 +93,13 @@
                 STOP
              END IF
              READ(5,NML=VAR_lattice)
-             N_FL = 1; N_SUN = 2
-             ham_T = 0.d0;  ham_U= 0.d0;   Ham_J= 0.d0;  Ham_F = 0.d0
              READ(5,NML=VAR_Z2_Slave)
              CLOSE(5)
 #ifdef MPI
           Endif
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
+          CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
           CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -1028,7 +1031,7 @@
 !>  the initial field
 !> \endverbatim
 !--------------------------------------------------------------------
-      Subroutine  Hamiltonian_set_random_nsigma(Initial_field)
+      Subroutine  Hamiltonian_set_nsigma(Initial_field)
 
         ! The user can set the initial configuration
         
@@ -1039,6 +1042,7 @@
         
         Integer :: I,nc, I1, nt
         Integer, allocatable::  Isigma(:), Isigma1(:)
+        Allocate  (Initial_field(N_coord*Latt%N +1, Ltrot) )
         
         allocate (Isigma(Latt%N), Isigma1(Latt%N) )
         Do nt = 1,Ltrot
@@ -1046,13 +1050,14 @@
               Isigma(I) = 1
               if ( ranf_wrap()  > 0.5D0 ) Isigma(I)  = -1
            enddo
-           nsigma%f(N_coord*Latt%N +1,nt) = Isigma(Latt%N) 
+           Initial_field(N_coord*Latt%N +1,nt) = real(Isigma(Latt%N), kind(0.d0)) 
            do nc = 1,N_coord*Latt%N
               I = L_bond_inv(nc,1)
               if (  L_bond_inv(nc,2) == 1 )  I1 = latt%nnlist(I,1,0)
               if (  L_bond_inv(nc,2) == 2 )  I1 = latt%nnlist(I,0,1)
-              nsigma%f(nc,nt) = Isigma(I)*Isigma(I1)
+              Initial_field(nc,nt) = real(Isigma(I)*Isigma(I1), kind(0.d0))
            enddo
+           nsigma%f = Initial_field
            Call Hamiltonian_set_Z2_matter(Isigma1,nt)
            Do nc = 1,Latt%N
               if ( Isigma(nc) .ne.  Isigma1(nc)  ) then
@@ -1067,9 +1072,9 @@
         enddo
         deallocate (Isigma, Isigma1)
         
-        Call Print_fluxes
+        !Call Print_fluxes
         
-      end Subroutine Hamiltonian_set_random_nsigma
+      end Subroutine Hamiltonian_set_nsigma
 !===================================================================================
       Subroutine  Hamiltonian_set_Z2_matter(Isigma,nt)
         
@@ -1166,30 +1171,8 @@
       end Subroutine Print_fluxes
 !===================================================================================
 
+
 !--------------------------------------------------------------------
-!> @author 
-!> ALF Collaboration
-!>
-!> @brief
-!> The user can set the initial field.
-!>
-!> @details
-!> @param[OUT] Initial_field Real(:,:)
-!> \verbatim
-!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
-!>  the initial field
-!> \endverbatim
-!--------------------------------------------------------------------
-      Subroutine  Hamiltonian_set_nsigma(Initial_field) 
-        Implicit none
-
-        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
-
-        
-      end Subroutine Hamiltonian_set_nsigma
-!--------------------------------------------------------------------
-
-
 !       Subroutine Test_Hamiltonian
 !         
 !         Implicit none
