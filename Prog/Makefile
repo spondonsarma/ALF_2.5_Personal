@@ -16,10 +16,9 @@ Z2_Slave:
 	(make Compile TARGET="Hamiltonian_Z2_slave_spins.out" HAMILTONIAN="Hamiltonians/Hamiltonian_Z2_slave_spins.o")
 # 	make -f Compile_Z2_Slave
 
-Hub_Ising:
+Z2_Matter:
 	./Git_config.sh
-	(make Compile TARGET="Hubbard_Ising.out" HAMILTONIAN="Hamiltonians/Hamiltonian_Hubbard_Ising.o")
-# 	make -f Compile_Hub_Ising
+	(make Compile TARGET="Hamiltonian_Z2_Matter.out" HAMILTONIAN="Hamiltonians/Hamiltonian_Z2_Matter.o")
 
 Hub_Can:
 	./Git_config.sh
