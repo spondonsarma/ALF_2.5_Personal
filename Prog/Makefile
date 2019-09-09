@@ -1,5 +1,5 @@
-.PHONY : all Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac clean
-all: Examples Z2_Slave Hub_Ising Hub_Can SPT Kondo_Honey NematicDirac
+.PHONY : all Examples Z2_Slave  Z2_Matter Hub_Can
+all: Examples Z2_Slave Z2_Matter Hub_Can   
 
 OBJS= LRC_mod.o control_mod.o Fields_mod.o Operator.o WaveFunction.o observables_mod.o Predefined_structures.o \
       $(HAMILTONIAN) QDRP_decompose.o udv_state.o Hop_mod.o UDV_WRAP.o Global_mod.o Wrapgr_mod.o \

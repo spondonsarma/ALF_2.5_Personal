@@ -771,4 +771,22 @@
       end Subroutine Hamiltonian_set_nsigma
 !--------------------------------------------------------------------
 
-      end Module Hamiltonian
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> This routine allows to user to  determine the global_tau sampling parameters at run time
+!> It is especially usefull if these parameters are dependent on other parameters.
+!>      
+!> @details
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+
+        Implicit none
+        Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+      end Subroutine Overide_global_tau_sampling_parameters
+      
+    end Module Hamiltonian
