@@ -32,7 +32,7 @@ SPT:
 
 Kondo_Honey:
 	./Git_config.sh
-	(make Compile TARGET="Kondo_Honey.out" HAMILTONIAN="Hamiltonians/Hamiltonian_Kondo_Honey_mod.o")
+	(make Compile TARGET="Kondo_Honey.out" HAMILTONIAN="Hamiltonians/Hamiltonian_Kondo_Honey.o")
 # 	make -f Compile_Kondo_Honey
 
 NematicDirac:
