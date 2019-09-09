@@ -7,6 +7,7 @@
       Use MyMats 
       Use Random_Wrap
       Use Files_mod
+      Use Observables
       Use Matrix
       Use Fields_mod
       
@@ -25,7 +26,8 @@
       ! What is below is  private 
       
       Type (Lattice),       private :: Latt
-      Integer, parameter,   private :: Norb=4
+      Type (Unit_cell),     private :: Latt_Unit
+      !Integer, parameter,   private :: Norb=4
       Integer, allocatable, private :: List(:,:), Invlist(:,:)
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T, Ham_U,  Ham_J, Ham_Jz, del_p(2)
@@ -36,25 +38,10 @@
       Integer,              private :: N_coord 
       Real (Kind=Kind(0.d0)),        private :: Bound
 
-
-      ! Observables
-      Integer,                       private :: Nobs
-      Complex (Kind=Kind(0.d0)), allocatable, private :: obs_scal(:)
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Spinz_eq(:,:,:), Spinz_eq0(:)
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Spinxy_eq(:,:,:),Spinxy_eq0(:) 
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Den_eq(:,:,:), Den_eq0(:)
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Dimer_eq(:,:,:), Dimer_eq0(:)
-
-!-------------add-----------------------------------------------------------------
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Greenu_eq(:,:,:), Greenu_eq0(:)
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Greend_eq(:,:,:), Greend_eq0(:)
-!---------------------------------------------------------------------------------
-
-
-      ! For time displaced
-      Integer,                       private :: NobsT
-      Complex (Kind=Kind(0.d0)),              private :: Phase_tau
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Green_tau(:,:,:,:), Den_tau(:,:,:,:)
+!>    Privat Observables
+      Type (Obser_Vec ),  private, dimension(:), allocatable ::   Obs_scal
+      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
+      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
 
       contains 
 
@@ -168,19 +155,20 @@
              L1_p    =  dble(L1)*a1_p
              L2_p    =  dble(L2)*a2_p
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-             !Write(6,*)  'Lattice: ', Ndim
-             One_dimensional = .false.
              N_coord   = 2
              If ( L1 == 1 .or. L2 == 1 ) then 
-                One_dimensional = .true.
                 N_coord   = 1
                 If (L1 == 1 ) then 
                    Write(6,*) ' For one dimensional systems set  L2 = 1 ' 
                    Stop
                 endif
              endif
-          elseif ( Lattice_type=="Honeycomb" ) then
+             Latt_Unit%Norb      = 2
+             Allocate (Latt_unit%Orb_pos_p(2,2))
+             Latt_Unit%Orb_pos_p(1,:) = 0.d0
+             Latt_Unit%Orb_pos_p(2,:) = 0.d0
              
+          elseif ( Lattice_type=="Honeycomb" ) then
              a1_p(1) =  1.0  ; a1_p(2) =  0.d0
              a2_p(1) =  0.5  ; a2_p(2) =  sqrt(3.0)/2.0
              del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
@@ -189,17 +177,22 @@
              L2_p    =  dble(L2) * a2_p
              
              Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-
+             Latt_Unit%Norb      = 4
+             Allocate (Latt_unit%Orb_pos_p(4,2))
+             Latt_Unit%Orb_pos_p(1,:) = 0.d0
+             Latt_Unit%Orb_pos_p(2,:) = del_p(:)
+             Latt_Unit%Orb_pos_p(3,:) = 0.d0
+             Latt_Unit%Orb_pos_p(4,:) = del_p(:)
           else
              Write(6,*) "Lattice not yet implemented!"
              Stop
           endif
 
-          Ndim = Latt%N*Norb
-          Allocate (List(Ndim,Norb), Invlist(Latt%N,Norb))
+          Ndim = Latt%N*Latt_Unit%Norb
+          Allocate (List(Ndim,Latt_Unit%Norb), Invlist(Latt%N,Latt_Unit%Norb))
           nc = 0
           Do I = 1,Latt%N
-             Do no = 1,Norb
+             Do no = 1,Latt_unit%Norb
                 nc = nc + 1
                 List(nc,1) = I
                 List(nc,2) = no
@@ -387,68 +380,159 @@
         end Subroutine Ham_V
 
 !===================================================================================           
-        Real (Kind=Kind(0.d0)) function S0(n,nt)  
+        Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
           Implicit none
-          Integer, Intent(IN) :: n,nt 
-          Integer :: i, nt1 
+          Integer, Intent(IN) :: n,nt
+          Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+
           S0 = 1.d0
         end function S0
-!===================================================================================           
+!===================================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Specifiy the equal time and time displaced observables
+!> @details
+!--------------------------------------------------------------------
         Subroutine  Alloc_obs(Ltau) 
 
           Implicit none
+          !>  Ltau=1 if time displaced correlations are considered.
           Integer, Intent(In) :: Ltau
-          Integer :: I
-          Allocate ( Obs_scal(5) )
-          Allocate ( Spinz_eq(Latt%N,Norb,Norb) , Spinz_eq0(Norb)   )
-          Allocate ( Spinxy_eq(Latt%N,Norb,Norb), Spinxy_eq0(Norb) ) 
-          Allocate ( Den_eq(Latt%N,Norb,Norb),    Den_eq0(Norb)       ) 
+          Integer    ::  i, N, Ns,Nt,No, Norb
+          Character (len=64) ::  Filename
 
-!-------------add-----------------------------------------------------------------
-          Allocate ( Greenu_eq(Latt%N,Norb,Norb),  Greenu_eq0(Norb)     ) 
-          Allocate ( Greend_eq(Latt%N,Norb,Norb),  Greend_eq0(Norb)     )
-!---------------------------------------------------------------------------------
+
+          Norb = Latt_unit%Norb
+          ! Scalar observables
+          Allocate ( Obs_scal(4) )
+          Do I = 1,Size(Obs_scal,1)
+             select case (I)
+             case (1)
+                N = 1;   Filename ="Kin"
+             case (2)
+                N = 1;   Filename ="Pot"
+             case (3)
+                N = 1;   Filename ="Part"
+             case (4)
+                N = 1;   Filename ="Ener"
+             case default
+                Write(6,*) ' Error in Alloc_obs '  
+             end select
+             Call Obser_Vec_make(Obs_scal(I),N,Filename)
+          enddo
+
+
+          ! Equal time correlators
+          Allocate ( Obs_eq(5) )
+          Do I = 1,Size(Obs_eq,1)
+             select case (I)
+             case (1)
+                Ns = Latt%N;  No = Norb;  Filename ="Green"
+             case (2)
+                Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
+             case (3)
+                Ns = Latt%N;  No = Norb;  Filename ="SpinXY"
+             case (4)
+                Ns = Latt%N;  No = Norb;  Filename ="Den"
+             case (5)
+                Ns = Latt%N;  No = Norb;  Filename ="SpinT"
+             case default
+                Write(6,*) ' Error in Alloc_obs '  
+             end select
+             Nt = 1
+             Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+          enddo
 
           If (Ltau == 1) then 
-             Allocate ( Green_tau(Latt%N,Ltrot+1-2*Thtrot,Norb,Norb), Den_tau(Latt%N,Ltrot+1-2*Thtrot,Norb,Norb) )
+             ! Equal time correlators
+             Allocate ( Obs_tau(4) )
+             Do I = 1,Size(Obs_tau,1)
+                select case (I)
+                case (1)
+                   Ns = Latt%N; No = Norb;  Filename ="Green"
+                case (2)
+                   Ns = Latt%N; No = Norb;  Filename ="SpinZ"
+                case (3)
+                   Ns = Latt%N; No = Norb;  Filename ="SpinXY"
+                case (4)
+                   Ns = Latt%N; No = Norb;  Filename ="Den"
+                case default
+                   Write(6,*) ' Error in Alloc_obs '  
+                end select
+                Nt = Ltrot+1-2*Thtrot
+                Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
+             enddo
           endif
-          
-        end Subroutine Alloc_obs
+        End Subroutine Alloc_obs
 
-!===================================================================================           
-        
+
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Initializes observables to zero before each bins.  No need to change
+!> this routine.
+!-------------------------------------------------------------------
         Subroutine  Init_obs(Ltau) 
 
           Implicit none
           Integer, Intent(In) :: Ltau
           
-          Integer :: I,n
-          
-          Nobs = 0
-          Obs_scal  = cmplx(0.d0,0.d0,Kind(0.d0))
-          SpinZ_eq  = cmplx(0.d0,0.d0,Kind(0.d0)) 
-          SpinZ_eq0 = cmplx(0.d0,0.d0,Kind(0.d0)) 
-          Spinxy_eq = cmplx(0.d0,0.d0,Kind(0.d0)) 
-          Spinxy_eq0= cmplx(0.d0,0.d0,Kind(0.d0)) 
-          Den_eq    = cmplx(0.d0,0.d0,Kind(0.d0))
-          Den_eq0   = cmplx(0.d0,0.d0,Kind(0.d0))
+          ! Local 
+          Integer :: I
 
-!-------------add-----------------------------------------------------------------
-          Greenu_eq  = cmplx(0.d0,0.d0,Kind(0.d0))
-          Greenu_eq0 = cmplx(0.d0,0.d0,Kind(0.d0)) 
-          Greend_eq  = cmplx(0.d0,0.d0,Kind(0.d0))
-          Greend_eq0 = cmplx(0.d0,0.d0,Kind(0.d0)) 
-!---------------------------------------------------------------------------------
+          Do I = 1,Size(Obs_scal,1)
+             Call Obser_vec_Init(Obs_scal(I))
+          Enddo
+
+          Do I = 1,Size(Obs_eq,1)
+             Call Obser_Latt_Init(Obs_eq(I))
+          Enddo
 
           If (Ltau == 1) then
-             NobsT = 0
-             Phase_tau = cmplx(0.d0,0.d0,Kind(0.d0))
-             Green_tau = cmplx(0.d0,0.d0,Kind(0.d0))
-             Den_tau = cmplx(0.d0,0.d0,Kind(0.d0))
-          endif
+             Do I = 1,Size(Obs_tau,1)
+                Call Obser_Latt_Init(Obs_tau(I))
+             Enddo
+          Endif
 
         end Subroutine Init_obs
         
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Prints out the bins.  No need to change this routine.
+!-------------------------------------------------------------------
+        Subroutine  Pr_obs(LTAU)
+
+          Implicit none
+
+          Integer,  Intent(In) ::  Ltau
+          
+          !Local 
+          Integer :: I
+
+
+          Do I = 1,Size(Obs_scal,1)
+             Call  Print_bin_Vec(Obs_scal(I),Group_Comm)
+          enddo
+          Do I = 1,Size(Obs_eq,1)
+             Call  Print_bin_Latt(Obs_eq(I),Latt,dtau,Group_Comm)
+          enddo
+          If (Ltau  == 1 ) then
+             Do I = 1,Size(Obs_tau,1)
+                Call  Print_bin_Latt(Obs_tau(I),Latt,dtau,Group_Comm)
+             enddo
+          endif
+
+        end Subroutine Pr_obs
+
 !========================================================================
         Subroutine Obser(GR,Phase,Ntau)
           
@@ -460,16 +544,15 @@
           
           !Local 
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK, G(4,4,N_FL)
-          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZXY, ZZ
           Integer :: I,J, no,no1, n, n1, imj, nf, I1, I2,I3, J1, J2, I0, J0, ns, nc, NC_tot
+          Integer :: no_I, no_J
           
           Real (Kind=Kind(0.d0)) ::  X
           
-          Nobs = Nobs + 1
           ZP = PHASE/cmplx(Real(Phase,Kind=Kind(0.d0)),0.d0,Kind(0.d0))
           ZS = cmplx(Real(Phase,Kind=Kind(0.d0))/Abs(Real(Phase,Kind=Kind(0.d0))), 0.d0,Kind(0.d0))
           
-
           Do nf = 1,N_FL
              Do I = 1,Ndim
                 Do J = 1,Ndim
@@ -480,7 +563,14 @@
              Enddo
           Enddo
           ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
-          ! Compute scalar observables. 
+          ! Compute scalar observables.
+
+          Do I = 1,Size(Obs_scal,1)
+             Obs_scal(I)%N         =  Obs_scal(I)%N + 1
+             Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
+          Enddo
+
+          
           Zkin = cmplx(0.d0,0.d0,Kind(0.d0))
           Do nf = 1,N_FL
              Do I = 1,Latt%N
@@ -494,21 +584,8 @@
              Enddo
           Enddo
           Zkin = - Zkin*cmplx( Ham_T*dble(N_SUN), 0.d0,Kind(0.d0) )
-          !Nc_tot = Size(OP_T,1)
-          !Write(6,*) 'Obser', Nc_tot
-          !Do nf = 1,N_FL
-          !   do nc = 1, Nc_tot
-          !      Do J = 1,Op_T(nc,nf)%N
-          !         J1 = Op_T(nc,nf)%P(J)
-          !         DO I = 1,Op_T(nc,nf)%N
-          !            I1 = Op_T(nc,nf)%P(I)
-          !            Zkin  = Zkin  + Op_T(nc,nf)%O(i,j)*Grc(i1,j1,nf) 
-          !         Enddo
-          !      ENddo
-          !   enddo
-          !enddo
-          !Write(6,*) 'End Compute Kin: ', Size(OP_T,1), Size(OP_T,2)
-          
+          Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
+
 
           Zrho = cmplx(0.d0,0.d0,Kind(0.d0))
           Do nf = 1,N_FL
@@ -517,7 +594,9 @@
              enddo
           enddo
           Zrho = Zrho*cmplx( dble(N_SUN), 0.d0,Kind(0.d0) )
+          Obs_scal(3)%Obs_vec(1)  =    Obs_scal(3)%Obs_vec(1) + Zrho * ZP*ZS
 
+          
           ZPot = cmplx(0.d0,0.d0,Kind(0.d0))
           Do no = 3,4
              Do I = 1,Latt%N
@@ -525,105 +604,46 @@
                 ZPot = ZPot + Grc(I1,I1,1) * Grc(I1,I1,2)
              Enddo
           Enddo
-          Zpot = Zpot!*cmplx(ham_U,0.d0,Kind(0.d0))
-
-          Obs_scal(1) = Obs_scal(1) + zrho * ZP*ZS
-          Obs_scal(2) = Obs_scal(2) + zkin * ZP*ZS
-          Obs_scal(3) = Obs_scal(3) + Zpot * ZP*ZS
-          Obs_scal(4) = Obs_scal(4) + (zkin +  Zpot)*ZP*ZS
-          Obs_scal(5) = Obs_scal(5) + ZS
-          ! You will have to allocate more space if you want to include more  scalar observables.
+          Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
+          ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
+          DO I = 1,Size(Obs_eq,1)
+             Obs_eq(I)%N        = Obs_eq(I)%N + 1
+             Obs_eq(I)%Ave_sign = Obs_eq(I)%Ave_sign + real(ZS,kind(0.d0))
+          ENDDO
 
-          DO I1 = 1,Ndim
-             I = List(I1,1)
-             no = List(I1,2)
-             DO J1 = 1, Ndim
-                J = List(J1,1)
-                no1 = list(J1,2)
+          Do I1 = 1,Ndim
+             I    = List(I1,1)
+             no_I = List(I1,2)
+             Do J1 = 1,Ndim
+                J    = List(J1,1)
+                no_J = List(J1,2)
                 imj = latt%imj(I,J)
-                SPINZ_Eq (imj,no,no1) = SPINZ_Eq (imj,no,no1)  +  &
-                     & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                     &   (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))    ) * ZP*ZS
+                ! Green
+                Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(1)%Obs_Latt(imj,1,no_I,no_J) + &
+                     &                          ( GRC(I1,J1,1) + GRC(I1,J1,2)) *  ZP*ZS 
+                ! SpinZ
+                ZZ =       GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
+                     &    (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))  
+                Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(2)%Obs_Latt(imj,1,no_I,no_J) + ZZ* ZP*ZS
+                ! SpinXY
                 ! c^d_(i,u) c_(i,d) c^d_(j,d) c_(j,u)  +  c^d_(i,d) c_(i,u) c^d_(j,u) c_(j,d)
-                SPINXY_Eq (imj,no,no1) = SPINXY_Eq (imj,no,no1)  +  &
-                     & (   GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)    ) * &
-                     &   cmplx(2.d0,0.d0,Kind(0.d0))* ZP*ZS
-
-                DEN_Eq (imj,no,no1) = DEN_Eq (imj,no,no1)  +  &
+                ZXY =  GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1) 
+                Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(3)%Obs_Latt(imj,1,no_I,no_J) + ZXY* ZP*ZS
+                ! SpinT
+                Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(5)%Obs_Latt(imj,1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
+                !Den
+                Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
                      & (   GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                     &   (GRC(I1,I1,2) + GRC(I1,I1,1))*(GRC(J1,J1,2) + GRC(J1,J1,1))    ) * ZP*ZS
-
-!-------------add-----------------------------------------------------------------
-                Greenu_eq(imj,no,no1)=Greenu_eq(imj,no,no1)+GRC(I1,J1,1)*ZP*ZS
-                Greend_eq(imj,no,no1)=Greend_eq(imj,no,no1)+GRC(I1,J1,2)*ZP*ZS
-!---------------------------------------------------------------------------------
-
+                     &   (GRC(I1,I1,2) + GRC(I1,I1,1))*(GRC(J1,J1,2) + GRC(J1,J1,1))     ) * ZP*ZS
              enddo
-             Den_eq0(no) = Den_eq0(no) + (GRC(I1,I1,2) + GRC(I1,I1,1)) * ZP*ZS
+             Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  (GRC(I1,I1,1) + GRC(I1,I1,2)) * ZP*ZS
           enddo
-
+          
         end Subroutine Obser
-!==========================================================        
-        Subroutine  Pr_obs(LTAU)
-          Use Print_bin_mod
-#ifdef MPI
-          Use mpi
-#endif
-          Implicit none
-
-          Integer,  Intent(In) ::  Ltau
-
-          Character (len=64) :: File_pr
-          Complex   (Kind=Kind(0.d0)) :: Phase_bin
-#ifdef MPI
-          Integer        :: Isize, Irank, Ierr
-          Integer        :: STATUS(MPI_STATUS_SIZE)
-          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-#endif
-!!$#ifdef MPI
-!!$          Write(6,*)  Irank, 'In Pr_obs', LTAU
-!!$#else
-!!$          Write(6,*)  'In Pr_obs', LTAU
-!!$#endif
-    
-          Phase_bin = Obs_scal(5)/cmplx(dble(Nobs),0.d0,Kind(0.d0))
-
-          File_pr ="SpinZ_eq"
-          Call Print_bin(SpinZ_eq ,SpinZ_eq0, Latt, Nobs, Phase_bin, file_pr)
-
-          File_pr ="SpinXY_eq"
-          Call Print_bin(Spinxy_eq, Spinxy_eq0,Latt, Nobs, Phase_bin, file_pr)
-
-          File_pr ="Den_eq"
-          Call Print_bin(Den_eq   , Den_eq0, Latt, Nobs, Phase_bin, file_pr)
-
-!-------------add-----------------------------------------------------------------
-          File_pr ="Greenu_eq"
-          Call Print_bin(Greenu_eq   , Greenu_eq0, Latt, Nobs, Phase_bin, file_pr)
-          File_pr ="Greend_eq"
-          Call Print_bin(Greend_eq   , Greend_eq0, Latt, Nobs, Phase_bin, file_pr)
-!---------------------------------------------------------------------------------
-
-          File_pr ="ener"
-          Call Print_scal(Obs_scal, Nobs, file_pr)
-          If (Ltau == 1) then
-             Phase_tau = Phase_tau/cmplx(dble(NobsT),0.d0,Kind(0.d0))
-             File_pr = "Green_tau"
-             Call Print_bin_tau(Green_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
-             File_pr = "Den_tau"
-             Call Print_bin_tau(Den_tau,Latt,NobsT,Phase_tau, file_pr,dtau)
-          endif
-!!$#ifdef MPI
-!!$          Write(6,*)  Irank, 'out Pr_obs', LTAU
-!!$#else
-!!$          Write(6,*)  'out Pr_obs', LTAU
-!!$#endif
-        end Subroutine Pr_obs
-!==========================================================        
-
+!==========================================================
+        
         Subroutine OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
           Implicit none
           
@@ -633,28 +653,52 @@
           
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
-          Integer :: IMJ, I, J
+          Integer :: IMJ, I, J, I1, J1, no_I, no_J
+          
 
           ZP = PHASE/cmplx(Real(Phase,Kind=Kind(0.d0)),0.d0,Kind(0.d0))
           ZS = cmplx(Real(Phase,Kind=Kind(0.d0))/Abs(Real(Phase,Kind=Kind(0.d0))), 0.d0,Kind(0.d0))
           If (NT == 0 ) then 
-             Phase_tau = Phase_tau + ZS
-             NobsT     = NobsT + 1
+             DO I = 1,Size(Obs_tau,1)
+                Obs_tau(I)%N = Obs_tau(I)%N + 1
+                Obs_tau(I)%Ave_sign = Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
+             ENDDO
           endif
-          If ( N_FL == 1 ) then 
+          Do I1 = 1,Ndim
+             I    = List(I1,1)
+             no_I = List(I1,2)
+             Do J1 = 1,Ndim
+                J    = List(J1,1)
+                no_J = List(J1,2)
+                imj = latt%imj(I,J)
+                !Green
+                Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(1)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                     &   +   cmplx(0.5d0,0.d0,Kind(0.d0))*( GT0(I1,J1,1) + GT0(I1,J1,2) ) * ZP* ZS 
+                
+                !SpinZ
+                Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(2)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                     & +  ( &
+                     &    (GTT(I1,I1,1) -  GTT(I1,I1,2) ) * ( G00(J1,J1,1)  -  G00(J1,J1,2) )   &
+                     &  - (G0T(J1,I1,1) * GT0(I1,J1,1)  +  G0T(J1,I1,2) * GT0(I1,J1,2) )    )*ZP*ZS
+                
+                !SpinXY
+                Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(3)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                     &  - &
+                     &   (G0T(J1,I1,1) * GT0(I1,J1,2)  +  G0T(J1,I1,2) * GT0(I1,J1,1))*ZP*ZS
+                !Den
+                Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,nt+1,no_I,no_J)  &
+                     & +  (                                        &  
+                     &    (cmplx(2.D0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2) ) * &
+                     &    (cmplx(2.D0,0.d0,kind(0.d0)) - G00(J1,J1,1) - G00(J1,J1,2) )   &
+                     & -  ( G0T(J1,I1,1) * GT0(I1,J1,1) + G0T(J1,I1,2) * GT0(I1,J1,2) )  )*ZP*ZS     
+                
+             enddo
+             
+             Obs_tau(4)%Obs_Latt0(no_I) =  Obs_tau(4)%Obs_Latt0(no_I) + &
+                  &       (cmplx(2.d0,0.d0,kind(0.d0)) - GTT(I1,I1,1) - GTT(I1,I1,2)) * ZP * ZS
+          Enddo
           
-             Z =  ZP * ZS * N_SUN
-             Do I = 1,Latt%N
-                Do J = 1,Latt%N
-                   imj = latt%imj(I,J)
-                   Z = Z * GT0(I, J, 1)
-                   Green_tau(imj,nt+1,1,1) = green_tau(imj,nt+1,1,1)  +  Z
-                   Den_tau  (imj,nt+1,1,1) = Den_tau  (imj,nt+1,1,1)  -  Z * G0T(J,I,1)
-                Enddo
-             Enddo
-          Endif
         end Subroutine OBSERT
-
 !========================================================================
         ! Functions for Global moves.  These move are not implemented in this example.
         Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
@@ -665,7 +709,8 @@
           !>   
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+          type (Fields),  Intent(IN)  :: nsigma_old
+
         End Subroutine Global_move
 !========================================================================
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
@@ -674,26 +719,9 @@
           Implicit none 
           
           !> Arguments
-          Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
-        end Function Delta_S0_global
-!========================================================================
-        Subroutine  Hamiltonian_set_random_nsigma
-          
-          ! The user can set the initial configuration
-          
-          Implicit none
-          
-          Integer :: I, nt
-          
-          Do nt = 1,Ltrot
-             Do I = 1,Size(OP_V,1)
-                nsigma(I,nt)  = 1
-                if ( ranf_wrap()  > 0.5D0 ) nsigma(I,nt)  = -1
-             enddo
-          enddo
-          
-        end Subroutine Hamiltonian_set_random_nsigma
+          type (Fields),  Intent(IN)  :: nsigma_old
 
+        end Function Delta_S0_global
 !---------------------------------------------------------------------
         Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
@@ -720,12 +748,53 @@
           
           Implicit none 
           Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
+          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:)
+          Real (Kind= Kind(0.d0)), INTENT(INOUT) :: Flip_value(:)
           Integer, INTENT(INOUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
         end Subroutine Global_move_tau
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> This routine allows to user to  determine the global_tau sampling parameters at run time
+!> It is especially usefull if these parameters are dependent on other parameters.
+!>      
+!> @details
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+
+        Implicit none
+        Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+      end Subroutine Overide_global_tau_sampling_parameters
 
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine  Hamiltonian_set_nsigma(Initial_field)
+
+        ! The user can set the initial configuration
+        
+        Implicit none
+
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+
+      end Subroutine Hamiltonian_set_nsigma
+      
     end Module Hamiltonian
