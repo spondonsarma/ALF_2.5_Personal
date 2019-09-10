@@ -1133,7 +1133,14 @@
                       If (n == 1)  J1 = invlist(I,2)
                       If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
                       If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
+                   Case ("Pi_Flux")
+                      I1 = invlist(I,1) 
+                      If (n == 1 )  J1 = invlist(I,2)
+                      If (n == 2 )  J1 = invlist(Latt%nnlist(I,0, 1),2) 
+                      If (n == 3 )  J1 = invlist(Latt%nnlist(I,-1,1),2)
+                      If (n == 4 )  J1 = invlist(Latt%nnlist(I,-1,0),2) 
                    Case default
+                      Write(6,*) 'Kin energy is not imoplemented'
                       stop
                    end Select
                    Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
