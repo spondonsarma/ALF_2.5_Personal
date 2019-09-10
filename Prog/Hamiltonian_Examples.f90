@@ -691,7 +691,7 @@
                       Op_V(nc,1)%P(2) = I2
                       Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
                       Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/2.d0, 0.D0, kind(0.D0))) 
+                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
                       Op_V(nc,1)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,1)%type   = 2
                       Call Op_set( Op_V(nc,1) )
@@ -711,7 +711,7 @@
                       Op_V(nc,1)%P(2) = I2
                       Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
                       Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g     = SQRT(CMPLX(-DTAU*ham_tV, 0.D0, kind(0.D0))) 
+                      Op_V(nc,1)%g     = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
                       Op_V(nc,1)%alpha = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,1)%type  = 2
                       Call Op_set( Op_V(nc,1) )

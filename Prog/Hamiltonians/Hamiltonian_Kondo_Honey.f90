@@ -395,7 +395,7 @@
                       Op_V(nc,nf)%P(2) = Invlist(J,no)
                       Op_V(nc,nf)%O(1,1) = cmplx( 1.d0  ,0.d0,Kind(0.d0))
                       Op_V(nc,nf)%O(2,2) = cmplx(-1.d0  ,0.d0,Kind(0.d0))
-                      Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_Jz/2.d0,0.D0,Kind(0.d0))) 
+                      Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*Ham_Jz/8.d0,0.D0,Kind(0.d0))) 
                       Op_V(nc,nf)%alpha  = cmplx(0.d0,0.d0,Kind(0.d0))
                       Op_V(nc,nf)%type   = 2
                       Call Op_set( Op_V(nc,nf) )
