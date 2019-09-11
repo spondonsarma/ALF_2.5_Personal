@@ -290,7 +290,6 @@ Program Main
         CALL MPI_BCAST(Nt_sequential_end  ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(N_Global_tau       ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
 #endif
-        
         Call Fields_init()
         Call Ham_set
         log=.false.
@@ -304,14 +303,15 @@ Program Main
           LOBS_ST = Thtrot+1
         endif
         if ( LOBS_EN == 0) then 
-          LOBS_EN = Ltrot-Thtrot
-       endif
+           LOBS_EN = Ltrot-Thtrot
+        endif
         If ( .not. Global_tau_moves )  then
            ! This  corresponds to the default updating scheme
            Nt_sequential_start = 1 
            Nt_sequential_end   = Size(OP_V,1) 
            N_Global_tau        = 0
         endif
+        Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
         
         N_op = Size(OP_V,1)
         call nsigma%make(N_op, Ltrot)
@@ -345,6 +345,7 @@ Program Main
         do n = 1,Nstm -1
            Stab_nt(n) = nwrap*n
         enddo
+        
         Stab_nt(Nstm) = Ltrot
 
 #if defined(TEMPERING)

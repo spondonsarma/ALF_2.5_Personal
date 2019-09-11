@@ -1,24 +1,22 @@
-.PHONY : all lib ana program
-#Hub_Ising SPT Hub Hub_Can Kondo_Honey
-all: lib ana program
-#Hub_Ising SPT  Hub_Can Kondo_Honey Z2_Slave
+.PHONY : all lib ana Examples Z2_Slave Z2_Matter Hub_Can Kondo_Honey
+
+all: lib ana
+	cd Prog && $(MAKE) all
 
 lib:
 	cd Libraries && $(MAKE)
 ana: lib
 	cd Analysis && $(MAKE)
-program: lib
+Examples: lib
 	cd Prog && $(MAKE) Examples
-#Hub_Ising: lib
-#	cd Prog && $(MAKE) Hub_Ising
-#SPT: lib
-#	cd Prog && $(MAKE) SPT
-#Hub_Can: lib
-#	cd Prog && $(MAKE) Hub_Can
-#Kondo_Honey: lib
-#	cd Prog && $(MAKE) Kondo_Honey
-#Z2_Slave: lib
-#	cd Prog && $(MAKE) Z2_Slave
+Z2_Slave: lib
+	cd Prog && $(MAKE) Z2_Slave
+Z2_Matter: lib
+	cd Prog && $(MAKE) Z2_Matter
+Hub_Can: lib
+	cd Prog && $(MAKE) Hub_Can
+Kondo_Honey: lib
+	cd Prog && $(MAKE) Kondo_Honey
 
 .PHONY : clean cleanall cleanprog cleanlib cleanana help
 clean: cleanall
@@ -29,8 +27,8 @@ cleanlib:
 	cd Libraries && $(MAKE) clean
 cleanana:
 	cd Analysis && $(MAKE) clean
+
 help:
 	@echo "The following are some of the valid targets of this Makefile"
-	@echo "all, program, lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
-#	@echo "Hub_Ising SPT Hub Hub_Can Kondo_Honey"
-
+	@echo "lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
+	@echo "Examples, Z2_Slave, Z2_Matter, Hub_Can, Kondo_Honey"

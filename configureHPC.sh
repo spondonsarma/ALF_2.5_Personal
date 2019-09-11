@@ -167,6 +167,7 @@ Devel|Development)
 
 # F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
 F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Werror -fcheck=all -g -fbacktrace "
+# F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
 F90USEFULFLAGS=$GNUUSEFULFLAGS
 
 f90=$GNUCOMPILER

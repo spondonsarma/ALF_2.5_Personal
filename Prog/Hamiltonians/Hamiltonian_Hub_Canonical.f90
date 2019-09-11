@@ -7,13 +7,14 @@
       Use Random_Wrap
       Use Files_mod
       Use Matrix
-      Use Observables      
+      Use Observables 
+      Use Fields_mod     
 
       Type (Operator), dimension(:,:), allocatable  :: Op_V
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Type  (Fields)       :: nsigma
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
       Logical              :: Projector
 !>    Defines MPI communicator 
@@ -342,9 +343,11 @@
         end Subroutine Ham_V
 
 !===================================================================================           
-        Real (Kind=8) function S0(n,nt)  
+        Real (Kind=8) function S0(n,nt,Hs_new)  
           Implicit none
-          Integer, Intent(IN) :: n,nt 
+          Integer, Intent(IN) :: n,nt
+          Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+
           S0 = 1.d0
           
         end function S0
@@ -696,7 +699,8 @@
           !>   
           Implicit none
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-          Integer, dimension(:,:),  allocatable, intent(in)  :: nsigma_old
+          type (Fields),  Intent(IN)  :: nsigma_old
+          
         End Subroutine Global_move
 !---------------------------------------------------------------------
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
@@ -705,29 +709,13 @@
           Implicit none 
           
           !> Arguments
-          Integer, dimension(:,:), allocatable, intent(IN) :: Nsigma_old
-        end Function Delta_S0_global
-!---------------------------------------------------------------------
-        Subroutine  Hamiltonian_set_random_nsigma
-          
-          ! The user can set the initial configuration
-          
-          Implicit none
-          
-          Integer :: I, nt
-          
-          Do nt = 1,Ltrot
-             Do I = 1,Size(OP_V,1)
-                nsigma(I,nt)  = 1
-                if ( ranf_wrap()  > 0.5D0 ) nsigma(I,nt)  = -1
-             enddo
-          enddo
-          
-        end Subroutine Hamiltonian_set_random_nsigma
+          type (Fields),  Intent(IN)  :: nsigma_old
 
+        end Function Delta_S0_global
 !---------------------------------------------------------------------
         Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
+
 
 !--------------------------------------------------------------------
 !> @author 
@@ -750,13 +738,55 @@
 !--------------------------------------------------------------------
           
           Implicit none 
-          Real (Kind= kind(0.d0)), INTENT(INOUT) :: T0_Proposal_ratio,  S0_ratio
-          Integer,    allocatable, INTENT(INOUT) :: Flip_list(:), Flip_value(:)
-          Integer, INTENT(INOUT) :: Flip_length
+          Real (Kind= kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio, S0_ratio
+          Integer                ,INTENT(OUT) :: Flip_list(:)
+          Real (Kind= Kind(0.d0)),INTENT(out) :: Flip_value(:)
+          Integer, INTENT(OUT) :: Flip_length
           Integer, INTENT(IN)    :: ntau
 
         end Subroutine Global_move_tau
 
 
 
-      end Module Hamiltonian
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine  Hamiltonian_set_nsigma(Initial_field) 
+        Implicit none
+
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+
+        
+      end Subroutine Hamiltonian_set_nsigma
+!--------------------------------------------------------------------
+
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> This routine allows to user to  determine the global_tau sampling parameters at run time
+!> It is especially usefull if these parameters are dependent on other parameters.
+!>      
+!> @details
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+
+        Implicit none
+        Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+      end Subroutine Overide_global_tau_sampling_parameters
+      
+    end Module Hamiltonian

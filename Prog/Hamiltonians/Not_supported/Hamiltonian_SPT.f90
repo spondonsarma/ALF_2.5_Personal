@@ -8,13 +8,14 @@
       Use Random_Wrap
       Use Files_mod
       Use Matrix
+      Use Fields_mod
       
 
       Type (Operator), dimension(:,:), allocatable  :: Op_V
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Type  (Fields)       :: nsigma
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
       Logical              :: Projector
 !>    Defines MPI communicator 

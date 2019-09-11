@@ -8,6 +8,7 @@
       Use Files_mod
       Use Matrix
       Use Observables
+      Use Fields_mod
 
       
       Implicit none
@@ -17,7 +18,7 @@
       Type (Operator), dimension(:,:), allocatable  :: Op_T
       Type (WaveFunction), dimension(:),   allocatable  :: WF_L
       Type (WaveFunction), dimension(:),   allocatable  :: WF_R
-      Integer, allocatable :: nsigma(:,:)
+      Type  (Fields)       :: nsigma
       Integer              :: Ndim,  N_FL,  N_SUN,  Ltrot, Thtrot
       Logical              :: Projector
 !>    Defines MPI communicator 

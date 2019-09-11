@@ -9,7 +9,34 @@ The Hamiltonian we will consider here reads
 \begin{eqnarray}
 	\hat{H} & = & -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}
 	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
-	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{X}_{\langle \vec{i}, \vec{j} \rangle }  + K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
-	& &  + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\pmb{i}}  \hat{Z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\pmb{i}}   -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\pmb{i}}   \hat{\tau}^z_{\pmb{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)
+	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{X}_{\langle \vec{i}, \vec{j} \rangle }  +
+	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
+	& &  + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\pmb{i}}  \hat{Z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\pmb{j}}   
+	      -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\pmb{i}}   \hat{\tau}^z_{\pmb{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)
 \end{eqnarray}  
+Here the  $\hat{\Psi}^{\dagger}_{\vec{i},\sigma}$  creates an orthogonal fermion with $Z_2$ and  and electric charges.    
+The implementation of this Hamiltonian can be found in the file \texttt{Hamiltonian\_Z2\_Matter.f90}.
+ For this Hamiltonian, the the $Z_2$ local conservation law reads: 
+\begin{equation}
+	\hat{Q}_{\vec{i}} =  (-1)^{\sum_{\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   } 
+	\;  \hat{\tau}^{x}_{\vec{i}}  \; \hat{X}_{\vec{i},\vec{i} +  \vec{a}_x} \hat{X}_{\vec{i},\vec{i} -  \vec{a}_x} \hat{X}_{\vec{i},\vec{i} +  \vec{a}_y} \hat{X}_{\vec{i}}.
+\end{equation} 
 
+The Hamiltonian was investigated in Ref.~\cite{Gazit19}.   Here is a todo list. 
+\begin{itemize}
+\item  Include an attractive $U$-term. This breaks the O(4) symmetry down to SU(2)$\times$SU(2)   and selects the $\hat{Q}_{\vec{i}} =1 $ sector.   Note that a repulsive U should  can also be included and should produce equivalent results under particle-hole symmetry.
+\item  Include dynamics, so as to study the dynamics of the OSM to  FL* phase. Note that the FL* phase will ultimately be unstable to the AFM* phase, but the energy scale is expected to be extremely small at small U.  
+\item  Include a projective version, with different left and right wave functions. The right imposes translation invariance and  the left  the constraint.  That is,  we choose the right trial wave function to be the ground state of 
+\begin{equation}
+	\hat{H}_T^{R}  = -  t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } 
+	  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}    + h.c. \right)  
+	  - h \sum_{\vec{i} } \left( \hat{X}_{\vec{i},\vec{i} +  \vec{a}_x }+  \hat{X}_{\vec{i},\vec{i} +  \vec{a}_y}  + \tau^{x}_{\vec{i}} \right)
+\end{equation}
+and the left one to be the ground state of
+\begin{equation}
+	\hat{H}_T^{L}  =  - U  \sum_{ \vec{i},  \sigma } 
+	    e^{i \vec{Q} \cdot \vec{i} } \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
+	  - h \sum_{\vec{i} } \left( \hat{X}_{\vec{i},\vec{i} +  \vec{a}_x }+  \hat{X}_{\vec{i},\vec{i} +  \vec{a}_y}  + \tau^{x}_{\vec{i}} \right)
+\end{equation}
+with $\vec{Q} = ( \pi,\pi ) $. 
+\end{itemize}  

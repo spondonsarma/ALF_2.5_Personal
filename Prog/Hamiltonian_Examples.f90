@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2019 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@
       Type (Operator),     dimension(:,:), allocatable :: Op_T
       Type (WaveFunction), dimension(:),   allocatable :: WF_L
       Type (WaveFunction), dimension(:),   allocatable :: WF_R
-      Type  (Fields)       :: nsigma
+      Type (Fields)        :: nsigma
       Integer              :: Ndim
       Integer              :: N_FL
       Integer              :: N_SUN
@@ -224,10 +224,6 @@
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
-          !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
-#endif
-          ! Open files
-#if defined(MPI) 
           If (Irank_g == 0 ) then
 #endif
              File_para = "parameters"
@@ -239,14 +235,6 @@
 
              OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-#ifdef MPI
-          Endif
-#endif
-
-
-#ifdef MPI
-          If (Irank_g == 0 ) then
-#endif
              IF (ierr /= 0) THEN
                 WRITE(*,*) 'unable to open <parameters>',ierr
                 STOP
@@ -703,7 +691,7 @@
                       Op_V(nc,1)%P(2) = I2
                       Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
                       Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/2.d0, 0.D0, kind(0.D0))) 
+                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
                       Op_V(nc,1)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,1)%type   = 2
                       Call Op_set( Op_V(nc,1) )
@@ -723,7 +711,7 @@
                       Op_V(nc,1)%P(2) = I2
                       Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
                       Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g     = SQRT(CMPLX(-DTAU*ham_tV, 0.D0, kind(0.D0))) 
+                      Op_V(nc,1)%g     = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
                       Op_V(nc,1)%alpha = cmplx(0.d0, 0.d0, kind(0.D0))
                       Op_V(nc,1)%type  = 2
                       Call Op_set( Op_V(nc,1) )
@@ -1145,7 +1133,14 @@
                       If (n == 1)  J1 = invlist(I,2)
                       If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
                       If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
+                   Case ("Pi_Flux")
+                      I1 = invlist(I,1) 
+                      If (n == 1 )  J1 = invlist(I,2)
+                      If (n == 2 )  J1 = invlist(Latt%nnlist(I,0, 1),2) 
+                      If (n == 3 )  J1 = invlist(Latt%nnlist(I,-1,1),2)
+                      If (n == 4 )  J1 = invlist(Latt%nnlist(I,-1,0),2) 
                    Case default
+                      Write(6,*) 'Kin energy is not imoplemented'
                       stop
                    end Select
                    Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
@@ -1540,7 +1535,22 @@
 
         
       end Subroutine Hamiltonian_set_nsigma
-!--------------------------------------------------------------------
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> This routine allows to user to  determine the global_tau sampling parameters at run time
+!> It is especially usefull if these parameters are dependent on other parameters.
+!>      
+!> @details
+!> \endverbatim
+!--------------------------------------------------------------------
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+
+        Implicit none
+        Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+      end Subroutine Overide_global_tau_sampling_parameters
         
       end Module Hamiltonian
