@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -Wall -std=f2003 -I ../../../Prog_8/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
+! gfortran -Wall -std=f2003 -I ../../../Prog_8/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.F90 ../../../Prog_8/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas ../../../Libraries/MyNag/libnag.a
 !
 Program Wrapup
 !
@@ -62,7 +62,7 @@ Program Wrapup
             End Do
 !
 !
-! check against old version from Operator_FFA.f90
+! check against old version from Operator_FFA.F90
 !
             Call Op_WrapupFFA (matold, Op, spin, Ndim, N_Type)
 !

@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -std=f2003  -I ../../../Prog/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test2.f90 ../../../Prog/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
+! gfortran -std=f2003  -I ../../../Prog/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test2.F90 ../../../Prog/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 !
 !

@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ main.f90 ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/MyLin/liblin.a ../../Libraries/MyNag/libnag.a
+! gfortran -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ main.F90 ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/MyLin/liblin.a ../../Libraries/MyNag/libnag.a
 
 Program Test4
 

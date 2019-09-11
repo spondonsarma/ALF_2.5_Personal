@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -Wall -std=f2003 -I ../../../Prog/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog_8/cgr1.o ../../../Prog/UDV_WRAP.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
+! gfortran -Wall -std=f2003 -I ../../../Prog/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.F90 ../../../Prog_8/cgr1.o ../../../Prog/UDV_WRAP.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 Program TESTCGRP
 USE UDV_State_mod

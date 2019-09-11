@@ -1,5 +1,5 @@
 ! compile with
-!  gfortran -std=f2003  -I ../../../Prog/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ 7-opexpmultct-2.f90
+!  gfortran -std=f2003  -I ../../../Prog/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ 7-opexpmultct-2.F90
 !
 !
 Program OPEXPMULTCTTEST

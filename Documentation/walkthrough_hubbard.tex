@@ -11,7 +11,7 @@
 
 To implement a Hamiltonian, the user has to provide  a module   which  specifies the lattice, the model, as well as the observables  they wish to compute. 
 In this section, we describe the module 
-\path{Hamiltonian_Examples.f90} which contains an implementation of the Hubbard model on the square lattice. 
+\path{Hamiltonian_Examples.F90} which contains an implementation of the Hubbard model on the square lattice. 
 A sample run for this model can be found in \path{Examples/Hubbard_SU2_Square/}.
 
 The Hamiltonian reads 
@@ -33,7 +33,7 @@ $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T
 \subsubsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
 %------------------------------------------------------------
 
-The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.f90}.
+The main program will call the subroutine   \texttt{Ham\_set} in the module \texttt{Hamiltonian\_Hub.F90}.
 The latter  subroutine  defines the  public variables
 \lstset{style=fortran}
 \begin{lstlisting}
@@ -299,7 +299,7 @@ We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:
 $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
  The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry out the simulation in the above representation. 
- With respect to the $SU(2)$ case, the changes required in the \texttt{Hamiltonian\_Examples.f90}   module are  minimal and essentially effect only the interaction term, and the calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+ With respect to the $SU(2)$ case, the changes required in the \texttt{Hamiltonian\_Examples.F90}   module are  minimal and essentially effect only the interaction term, and the calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
  A sample run for this model can be found in \texttt{Examples/Hubbard\_Mz\_Square/}.
 
 %-------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ a couple of order of magnitudes less precise than a HS decomposition coupling to
 \subsection{The $SU(2)$-Hubbard model on  the honeycomb  lattice}\label{sec:walk1.2}
 %-------------------------------------------------------------------------------------
 
-The Hamilton module \texttt{Hamiltonian\_Examples.f90}   can also carry out simulations for the Hubbard model on the Honeycomb lattice by setting in the parameter file   \path{Lattice_type = "Honeycomb"} (see Sec.~\ref{sec:input}).
+The Hamilton module \texttt{Hamiltonian\_Examples.F90}   can also carry out simulations for the Hubbard model on the Honeycomb lattice by setting in the parameter file   \path{Lattice_type = "Honeycomb"} (see Sec.~\ref{sec:input}).
  A sample run for this model can be found in \path{Examples/Hubbard_SU2_Honeycomb/}.
 
  %-------------------------------------------------------------------------------------
@@ -414,7 +414,7 @@ With the above lists one can run through all the orbitals and at each time keep 
 \subsubsection{The hopping term:  \texttt{Call Ham\_Hop} }
 %-------------------------------------------------------------------------------------
 
-Some care has to be taken when setting the hopping matrix.    In the Hamilton module \path{Hamiltonian_Examples.f90}   we do this in the following way:
+Some care has to be taken when setting the hopping matrix.    In the Hamilton module \path{Hamiltonian_Examples.F90}   we do this in the following way:
 
 \begin{lstlisting}
 

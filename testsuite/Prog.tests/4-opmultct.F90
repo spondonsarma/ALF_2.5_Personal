@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
+! gfortran -std=f2003  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.F90 ../../../Prog/Operator.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 !
 Program OPMULTTEST

@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -Wall -std=f2003 -I ../../Prog_8/  -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ 18-ul-update-matrices.f90 ../../Prog_8/wrap_helpers.o ../../Prog_8/UDV_WRAP.o ../../Libraries/Modules/modules_90.a ../../../../lapack-3.6.1/liblapack.a -lblas
+! gfortran -Wall -std=f2003 -I ../../Prog_8/  -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ 18-ul-update-matrices.F90 ../../Prog_8/wrap_helpers.o ../../Prog_8/UDV_WRAP.o ../../Libraries/Modules/modules_90.a ../../../../lapack-3.6.1/liblapack.a -lblas
 
 Program TESTQDRP
         Use QDRP_mod

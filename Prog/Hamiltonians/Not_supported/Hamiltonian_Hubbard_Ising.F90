@@ -1133,13 +1133,13 @@
                           G(3,1)= -GR(I,J,1) ; G(3,2)=-GR(I1,J,1)  ;G(3,3)= GRC(J,J,1) ;G(3,4)=GRC(J,J1,1)
                           G(4,1)= -GR(I,J1,1); G(4,2)=-GR(I1,J1,1) ;G(4,3)=-GR(J,J1,1) ;G(4,4)=GRC(J1,J1,1)
                           If ( N_SUN == 4 ) then
-#include "Bid_N4.f90"
+#include "Bid_N4.F90"
                           endif
                           If ( N_SUN == 3 ) then
-#include "Bid_N3.f90"
+#include "Bid_N3.F90"
                           endif
                           If ( N_SUN == 2 ) then
-#include "Bid_N2.f90"
+#include "Bid_N2.F90"
                           endif
                           Obs_eq(7)%Obs_Latt(imj,1,no,no1)  = Obs_eq(7)%Obs_Latt(imj,1,no,no1)   +  Z * ZP*ZS
 
@@ -1154,7 +1154,7 @@
 
                     enddo
                     If ( N_SUN == 2 ) then
-#include "Bid_N2_0.f90"
+#include "Bid_N2_0.F90"
                     endif
                     Obs_eq(7)%Obs_Latt0(no) =  Obs_eq(7)%Obs_Latt0(no) +  Z * ZP*ZS
                     Z = (GRC(I,I1,1) +  GRC(I1,I,1))*ZN*Real(nsigma(L_bond(I ,no),ntau),kind(0.d0))
@@ -1320,13 +1320,13 @@
 !!$                         G(3,1)= -GR(I,J,1) ; G(3,2)=-GR(I1,J,1)  ;G(3,3)= GRC(J,J,1) ;G(3,4)=GRC(J,J1,1)
 !!$                         G(4,1)= -GR(I,J1,1); G(4,2)=-GR(I1,J1,1) ;G(4,3)=-GR(J,J1,1) ;G(4,4)=GRC(J1,J1,1)
                          If ( N_SUN == 4 ) then
-#include "Bid_N4.f90"
+#include "Bid_N4.F90"
                          endif
                          If ( N_SUN == 3 ) then
-#include "Bid_N3.f90"
+#include "Bid_N3.F90"
                          endif
                          If ( N_SUN == 2 ) then
-#include "Bid_N2.f90"
+#include "Bid_N2.F90"
                          endif
                          Obs_tau(7)%Obs_Latt(imj,nt+1,no,no1)  = Obs_tau(7)%Obs_Latt(imj,nt+1,no,no1)   +  Z * ZP*ZS
 
@@ -1346,7 +1346,7 @@
                       
                    enddo
                    If ( N_SUN == 2 ) then
-#include "Bid_N2_0.f90"
+#include "Bid_N2_0.F90"
                    endif
                    Obs_tau(7)%Obs_Latt0(no) =  Obs_tau(7)%Obs_Latt0(no) +  Z * ZP*ZS
                    Z = -(GTT(I,I1,1) +  GTT(I1,I,1)) *ZN * Real(nsigma(L_bond(I ,no),NT1),kind(0.d0))

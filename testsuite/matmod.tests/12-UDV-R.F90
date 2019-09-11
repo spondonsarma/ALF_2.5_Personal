@@ -1,4 +1,4 @@
-!compile with gfortran 12-UDV-R.f90 -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/myold/libnag.a
+!compile with gfortran 12-UDV-R.F90 -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/myold/libnag.a
 
 Program UDVR
 Use MyMats

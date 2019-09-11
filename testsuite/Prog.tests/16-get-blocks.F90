@@ -1,6 +1,6 @@
 ! compile with
 !gfortran -Wall -std=f2003  -I ../../../Libraries/Modules/ -I ../../../Prog_8/ -L ../../../Libraries/Modules/ 
-! -L ../../../Prog_8/  16-get-blocks.f90 ../../../Prog_8/cgr2.o ../../../Prog_8/UDV_WRAP.o 
+! -L ../../../Prog_8/  16-get-blocks.F90 ../../../Prog_8/cgr2.o ../../../Prog_8/UDV_WRAP.o 
 ! ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 Program TESTGETMATRIXSUBBLOCKS

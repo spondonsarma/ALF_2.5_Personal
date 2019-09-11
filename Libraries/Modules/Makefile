@@ -6,7 +6,7 @@ OBJS=mat_mod.o Random_Wrap.o errors.o Files_mod.o maxent.o  matrix.o  maxent_sto
 $(LIB): $(OBJS)
 	ar -r $(LIB) $(OBJS)
 
-%.o: %.f90
+%.o: %.F90
 	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
 
 %.o: %.F90

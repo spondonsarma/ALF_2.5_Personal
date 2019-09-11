@@ -45,7 +45,7 @@ Consider an Ising spin at space-time $i,\tau$ in the configuration $C$. Flipping
   \begin{equation}
  T_0(C \rightarrow C')  =  \frac{e^{-S_0(C')}}{ e^{-S_0(C')} + e^{-S_0(C)} }   = 1 - \frac{1}{1 +  e^{-S_0(C')} /e^{-S_0(C)}}
   \end{equation}
- Note that the function $\texttt{S0}$ in the  \texttt{Hamitonian\_example.f90}  module  computes precisely the ratio\\
+ Note that the function $\texttt{S0}$ in the  \texttt{Hamitonian\_example.F90}  module  computes precisely the ratio\\
  ${e^{-S_0(C')} /e^{-S_0(C)}}$ so that  $T_0(C \rightarrow C') $ does not require any further programming. 
  Thereby one will accept  the proposed move with the probability: 
  \begin{equation}
@@ -93,7 +93,7 @@ Since we allow for a stochastic  generation of  the global move, it may very wel
 \subsubsection{Global updates in time and space}
 %------------------------------------------------------------
 %  
-The code equally allows for global updates.  The user will have to provide two other functions in the module \texttt{Hamiltonian\_Examples.f90}.   
+The code equally allows for global updates.  The user will have to provide two other functions in the module \texttt{Hamiltonian\_Examples.F90}.   
 
 
 The subroutine  \texttt{Global\_move(T0\_Proposal\_ratio,nsigma\_old,size\_clust)}  proposes  a global move. 

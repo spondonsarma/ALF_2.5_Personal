@@ -1,4 +1,4 @@
-!compile with gfortran 11-UDV-C.f90 -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/myold/libnag.a
+!compile with gfortran 11-UDV-C.F90 -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ ../../Libraries/Modules/modules_90.a -llapack -lblas ../../Libraries/myold/libnag.a
 
 Program UDVC
 Use MyMats

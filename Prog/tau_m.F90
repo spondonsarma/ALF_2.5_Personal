@@ -35,7 +35,7 @@
 !
 !> @brief
 !> This module  handles calculation of imagimary time displaced Green functions and  
-!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute the 
+!> calls the routine ObserT.F90 in the Hamiltonian module,  so as to compute the 
 !> defined  time dispalced correlations functions. This modules is for the finite temperature code.
 !> 
 !

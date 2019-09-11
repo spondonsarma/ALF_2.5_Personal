@@ -31,8 +31,8 @@ Kondo_Honey:
 Compile: $(OBJS)
 	$(ALF_FC) -o $(TARGET) $(OBJS) $(ALF_LIB)
 
-.SUFFIXES: .f90 .f .F90
-.f.o .f90.o .F90.o:
+.SUFFIXES: .F90 .f
+.f.o .F90.o:
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 clean:

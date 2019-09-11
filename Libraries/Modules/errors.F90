@@ -713,7 +713,7 @@
            NDATA = SIZE(GR,2)
 
 
-           !Write(6,*) 'Errors.f90 ', NTDM, NDATA
+           !Write(6,*) 'Errors.F90 ', NTDM, NDATA
            IF ( (SIZE(XCOV,1).NE.SIZE(XCOV,2) ) .OR. (SIZE(XCOV,1).NE.NTDM) ) THEN
               WRITE(6,*) 'Error in COV'
               STOP

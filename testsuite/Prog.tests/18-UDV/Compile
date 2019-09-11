@@ -3,8 +3,8 @@ OBJS=  UDV_WRAP_Testing.o main.o
 
 
   
-.SUFFIXES: .f90 .f
-.f.o .f90.o:
+.SUFFIXES: .F90 .f
+.f.o .F90.o:
 	$(FC) -c -cpp -o $@ $(FLAGS) $<
 
 $(TARGET): $(OBJS)

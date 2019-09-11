@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -Wall -std=f2003 -I ../../Prog/  -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ 21-Op-make.f90 ../../Prog/Operator.o ../../Libraries/Modules/modules_90.a -llapack -lblas
+! gfortran -Wall -std=f2003 -I ../../Prog/  -I ../../Libraries/Modules/ -L ../../Libraries/Modules/ 21-Op-make.F90 ../../Prog/Operator.o ../../Libraries/Modules/modules_90.a -llapack -lblas
 !
 Program TESTOPMAKE
 !
@@ -35,7 +35,7 @@ Program TESTOPMAKE
             Op%g = 2.D0
             Op%alpha = 0.D0
             Call Op_set (Op)
-! check against old version from Operator_FFA.f90
+! check against old version from Operator_FFA.F90
 !
             Call Op_exp_FFA (Op%g, Op, matold)
 !

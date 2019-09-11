@@ -803,12 +803,12 @@ INPUT_ENCODING         = UTF-8
 # If left blank the following patterns are tested:*.c, *.cc, *.cxx, *.cpp,
 # *.c++, *.java, *.ii, *.ixx, *.ipp, *.i++, *.inl, *.idl, *.ddl, *.odl, *.h,
 # *.hh, *.hxx, *.hpp, *.h++, *.cs, *.d, *.php, *.php4, *.php5, *.phtml, *.inc,
-# *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
+# *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.F90, *.f95, *.f03, *.f08,
 # *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
 FILE_PATTERNS          = *.txt \
                          *.f \
-                         *.f90 \
+                         *.F90 \
                          *.F90 \
                          *.include
 
@@ -825,18 +825,18 @@ RECURSIVE              = NO
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = Bid_N2.f90 \
-                         Bid_N2_0.f90 \
-                         Bid_N3.f90 \
-                         Bid_N4.f90 \
-                         Hamiltonian_Hubbard_Ising.f90 \
-                         Hamiltonian_NematicDirac.f90 \
-                         Hamiltonian_Hub.f90 \
-                         Hamiltonian_Ising.f90 \
-                         Hamiltonian_SPT.f90 \
-                         Hamiltonian_Hub_Canonical.f90 \
-                         Hamiltonian_Kondo_Honey_mod.f90 \
-                         Hamiltonian_Z2_slave_spins.f90
+EXCLUDE                = Bid_N2.F90 \
+                         Bid_N2_0.F90 \
+                         Bid_N3.F90 \
+                         Bid_N4.F90 \
+                         Hamiltonian_Hubbard_Ising.F90 \
+                         Hamiltonian_NematicDirac.F90 \
+                         Hamiltonian_Hub.F90 \
+                         Hamiltonian_Ising.F90 \
+                         Hamiltonian_SPT.F90 \
+                         Hamiltonian_Hub_Canonical.F90 \
+                         Hamiltonian_Kondo_Honey_mod.F90 \
+                         Hamiltonian_Z2_slave_spins.F90
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

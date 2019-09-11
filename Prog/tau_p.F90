@@ -35,7 +35,7 @@
 !
 !> @brief 
 !> This module  handles calculation of imagimary time displaced Green functions and  
-!> calls the routine ObserT.f90 in the Hamiltonian module,  so as to compute  user
+!> calls the routine ObserT.F90 in the Hamiltonian module,  so as to compute  user
 !> defined  time dispalced correlations functions. This modules is for the projector code.
 !> 
 !

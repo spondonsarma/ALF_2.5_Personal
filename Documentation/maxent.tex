@@ -14,7 +14,7 @@ Generically, the maximum entropy code computes the  image  $A(\omega) $ for a gi
 g(\tau) =  \int_{\omega_\text{start}}^{\omega_\text{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
 The  ALF-package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach Ref.~\cite{Beach04a}. Here we will comment on the workflow.  The module 
-\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch.f90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.f90}. 
+\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch.F90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.f90}. 
 
 The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
@@ -29,7 +29,7 @@ In the code, the spectral function is parametrized  by a  set of Dirac $\delta$ 
       A(\omega)  = \sum_{i=1}^{N_{\gamma}} a_{i} \delta \left( \omega - \omega_i \right).
 \end{equation}
 To produce a histogram of  $ A(\omega) $ we divide  the frequency range in \texttt{Ndis} intervals. 
-The Green function is read from the file \texttt{g\_dat}  corresponding to the  output of the the  \texttt{cov\_tau.f90} analysis program.  
+The Green function is read from the file \texttt{g\_dat}  corresponding to the  output of the the  \texttt{cov\_tau.F90} analysis program.  
 Below, we summarize the  parameters   in   name-lists  \texttt{VAR\_Max\_Stoch }  and  \texttt{VAR\_errors }   in the  \texttt{parameters}  file   required  to run the maxent code .  
 \lstset{style=fortran}
 \begin{lstlisting} 
@@ -120,7 +120,7 @@ Finally the sum rule reads:
 \begin{equation}
 	\int d \omega  A_p(k, \omega)  = \pi \langle  \left\{ \hat{c}^{\phantom\dagger}_{k} , \hat{c}^{\dagger}_{k}  \right\}   \rangle = \pi 
 \end{equation}
-Using the \texttt{Max\_Sac.f90}  with \texttt{Channel="P"}   will  load the above Kernel in the MaxEnt library.  Note that in this case the back  transformation is set to unity.  
+Using the \texttt{Max\_Sac.F90}  with \texttt{Channel="P"}   will  load the above Kernel in the MaxEnt library.  Note that in this case the back  transformation is set to unity.  
 Note that since for each  configuration of fields,  $ \langle  \langle \hat{c}^{\phantom\dagger}_{k} (\tau=0)  \hat{c}^{\dagger}_{k} (0)   \rangle  \rangle_{C} +   
 \langle \langle \hat{c}^{\phantom\dagger}_{k} (\tau=\beta)  \hat{c}^{\dagger}_{k} (0)   \rangle \rangle_{C} = 
 \langle \langle \left\{ \hat{c}^{\phantom\dagger}_{k},   \hat{c}^{\dagger}_{k}    \right\} \rangle \rangle_{C}   = 1$.  Hence if both  the $\tau=0$ anf $\tau=\beta$ data points are included, the covariance matrix will have a zero eigenvalue and the $\chi^{2}$. measure is not defined. Hence for the particle channel, the program omits the $\tau=\beta$ data point.     One should also not that there are special  particle-hole symmetric  cases where the $\tau=0$ data point shows no  fluctuations. In this case, the 
@@ -141,7 +141,7 @@ This follows directly from the  Lehmann representation:
 \delta ( \omega + E_n - E_m) \left( 1 - e^{-\beta  \omega} \right) 
 \end{equation}
 Since the linear response to a Hermitian perturbation  is real, $\chi''(q,\omega)  = - \chi''(-q,-\omega)$.  Hence for systems with inversion symmetry -- that 
-we will consider here -- $\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle $ is a symmetric function around $\beta= \tau/2$.  The analysis  file \texttt{cov\_tau\_ph.f90} produced at compilation
+we will consider here -- $\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle $ is a symmetric function around $\beta= \tau/2$.  The analysis  file \texttt{cov\_tau\_ph.F90} produced at compilation
 time will use this  to define an improved estimator. 
 
 The  Stochastic MaxEnt requires a sum rule, such that   the Kernel and image have to be adequately redefined. 
@@ -248,5 +248,5 @@ The back transformation  yields
  \end{equation}
  and hence corresponds to the first data point. 
  In the zero-temperature limit one does not distinguish between  particle, particle-hole, or particle-particle channels.
- Using the \texttt{Max\_Sac.f90}  with \texttt{Channel="T0"}   will  load the above Kernel in the MaxEnt library. In this case the back  transformation is set to unity. 
+ Using the \texttt{Max\_Sac.F90}  with \texttt{Channel="T0"}   will  load the above Kernel in the MaxEnt library. In this case the back  transformation is set to unity. 
  The code will also cut-off the tail of the  imaginary time correlation function  if the relative error is greater that the variable \texttt{Tolerance}. 

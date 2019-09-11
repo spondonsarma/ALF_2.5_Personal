@@ -1,5 +1,5 @@
 ! compile with
-! gfortran -Wall -std=f2003  -I ../../../Prog_8/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test1.f90 ../../../Prog_8/cgr2_1.o ../../../Libraries/Modules/modules_90.a ../../../Prog_8/UDV_WRAP.o ../../../Prog_8/cgr1.o -llapack -lblas ../../../Libraries/MyNag/libnag.a
+! gfortran -Wall -std=f2003  -I ../../../Prog_8/ -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ test1.F90 ../../../Prog_8/cgr2_1.o ../../../Libraries/Modules/modules_90.a ../../../Prog_8/UDV_WRAP.o ../../../Prog_8/cgr1.o -llapack -lblas ../../../Libraries/MyNag/libnag.a
 
 
 Program TESTSCALEMATRIX

@@ -1,5 +1,5 @@
 ! compile with
-!gfortran  -Wall -std=f2003 -I ../../../Prog/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.f90 ../../../Prog/Operator.o ../../../Prog/UDV_WRAP.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
+!gfortran  -Wall -std=f2003 -I ../../../Prog/  -I ../../../Libraries/Modules/ -L ../../../Libraries/Modules/ main.F90 ../../../Prog/Operator.o ../../../Prog/UDV_WRAP.o ../../../Libraries/Modules/modules_90.a -llapack -lblas
 
 !
 !
@@ -67,7 +67,7 @@ Program OPWRAPDO
 !
             Call Op_Wrapdo (matnew, Op, nspin, Ndim, N_Type)
 !
-! check against old version from Operator_FFA.f90
+! check against old version from Operator_FFA.F90
             Call Op_WrapdoFFA (matold, Op, spin, Ndim, N_Type)
 !
             Do i = 1, 3
