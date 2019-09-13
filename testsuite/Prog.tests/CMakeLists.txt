@@ -39,14 +39,14 @@ set(progtests ${operatorparts} ${cgr1tests} ${cgr2_1tests} ${cgr2_2tests} ${udvs
 set_target_properties(${progtests} PROPERTIES COMPILE_FLAGS "-Wall -I  ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/ -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/ -L ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/")
 
 foreach(iter ${operatorparts})
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Operator.o ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Fields_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Operator_mod.o ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/Fields_mod.o)
 endforeach(iter)
 
 foreach(iter ${cgr2_2tests})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/cgr2_2.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state_mod.o)
 endforeach(iter)
 
 #foreach(iter ${cgr2_1tests})
@@ -57,15 +57,15 @@ endforeach(iter)
 
 foreach(iter ${cgr1tests})
 target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/cgr1.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state_mod.o)
 endforeach(iter)
 
 foreach(iter ${udvstatetests})
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state.o)
-target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/UDV_WRAP_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/udv_state_mod.o)
+target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decompose_mod.o)
 endforeach(iter)
 
 
