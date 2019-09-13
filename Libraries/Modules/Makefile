@@ -1,7 +1,10 @@
 LIB=modules_90.a
-OBJS=mat_mod.o Random_Wrap.o errors.o Files_mod.o maxent.o  matrix.o  maxent_stoch.o  fourier.o \
-         Histogram.o  lattices_v3.o  Natural_constants.o log_mesh.o  precdef.mod.o \
-         Histogram_v2.o Mat_subroutines.o
+OBJS=errors_mod.o files_mod.o   fourier_mod.o histograms_mod.o histograms_v2_mod.o lattices_v3_mod.o \
+	log_mesh_mod.o mymats_mod.o matrix_mod.o maxent_mod.o   maxent_stoch_mod.o   \
+	natural_constants_mod.o precdef_mod.o random_wrap_mod.o Mat_subroutines.o
+MODS=errors.mod   files_mod.mod fourier.mod   histograms.mod   histograms_v2.mod   lattices_v3.mod   \
+	log_mesh.mod   mymats.mod   matrix.mod   maxent_mod.mod maxent_stoch_mod.mod \
+	natural_constants.mod   precdef.mod   random_wrap.mod
 
 $(LIB): $(OBJS)
 	ar -r $(LIB) $(OBJS)
@@ -9,15 +12,14 @@ $(LIB): $(OBJS)
 %.o: %.F90
 	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
 
-%.o: %.F90
-	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
-
-errors.o: mat_mod.o
-
-maxent.o: mat_mod.o errors.o
-
-lattices_v3.o: matrix.o
+errors_mod.o: mymats_mod.o random_wrap_mod.o
+fourier_mod.o: maxent_mod.o maxent_stoch_mod.o matrix_mod.o
+lattices_v3_mod.o: mymats_mod.o 
+maxent_mod.o: mymats_mod.o errors_mod.o
+histograms_v2_mod.o: log_mesh_mod.o
 
 clean:
-	rm -f *.mod $(OBJS) *~ \#* modules_90.a
+	rm -f $(OBJS) $(MODS) $(LIB)
 
+#unused modules: histograms histograms_v2 log_mesh natural_constants
+#unused, except for in Prog/FFA_Orginals/: precdef
