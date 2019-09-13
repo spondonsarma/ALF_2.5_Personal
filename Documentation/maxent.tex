@@ -14,7 +14,7 @@ Generically, the maximum entropy code computes the  image  $A(\omega) $ for a gi
 g(\tau) =  \int_{\omega_\text{start}}^{\omega_\text{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
 The  ALF-package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach Ref.~\cite{Beach04a}. Here we will comment on the workflow.  The module 
-\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch.F90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.f90}. 
+\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch.F90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.F90}. 
 
 The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
