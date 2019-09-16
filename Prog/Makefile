@@ -11,7 +11,6 @@ OHAM= Hamiltonian_Examples_mod.o Hamiltonians/Hamiltonian_Z2_slave_spins_mod.o H
 BINS= Examples.out Z2_slave_spins.out Z2_Matter.out Hubb_Can.out Kondo_Honey.out
       
 all:
-	(make tidy program)
 	(make tidy Examples)
 	(make tidy Z2_Slave)
 	(make tidy Z2_Matter)
