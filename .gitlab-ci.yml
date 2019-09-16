@@ -18,11 +18,7 @@ stages:
   script:
     - . configureHPC.sh GNU serial
     - gfortran -v
-    - make lib
-    - make ana
-    - make Examples
-    - make cleanprog
-    - make Z2_Slave
+    - make all
 
 .build_template_pgi: &build_definition_pgi
   stage: build
@@ -31,11 +27,7 @@ stages:
     - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
     - pgfortran --version
     - . configureHPC.sh PGI serial
-    - make lib
-    - make ana
-    - make Examples
-    - make cleanprog
-    - make Z2_Slave
+    - make all
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
@@ -43,11 +35,7 @@ stages:
   script:
     - . configureHPC.sh Devel serial
     - gfortran -v
-    - make lib
-    - make ana
-    - make Examples
-    - make cleanprog
-    - make Z2_Slave
+    - make all
 
 .test_template: &test_definition
   stage: test
@@ -127,11 +115,7 @@ GQMCT_Stretch_MPI:
     - gfortran -v
     - . configureHPC.sh Devel Tempering
     - export ALF_FC="mpif90"
-    - make lib
-    - make ana
-    - make Examples
-    - make cleanprog
-    - make Z2_Slave
+    - make all
 
 GQMCT_Jessie_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
@@ -178,11 +162,7 @@ GQMCT_Jessie-PGI_conv:
     - export PATH="/opt/pgi/linux86-64/2017/bin:$PATH"
     - pgfortran --version
     - . configureHPC.sh PGI serial
-    - make lib
-    - make ana
-    - make Examples
-    - make cleanprog
-    - make Z2_Slave
+    - make all
   
 GQMCT_Jessie_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack

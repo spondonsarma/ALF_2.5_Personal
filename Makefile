@@ -18,15 +18,20 @@ Hub_Can: lib
 Kondo_Honey: lib
 	cd Prog && $(MAKE) Kondo_Honey
 
-.PHONY : clean cleanall cleanprog cleanlib cleanana help
+.PHONY : clean cleanall cleanprog cleanlib cleanana tidy tidyprog tidyana help
 clean: cleanall
-cleanall: cleanprog cleanlib cleanana  
+cleanall: cleanprog cleanlib cleanana
+tidy: cleanlib tidyana tidyprog
 cleanprog:
 	cd Prog && $(MAKE) clean 
 cleanlib:
 	cd Libraries && $(MAKE) clean
 cleanana:
 	cd Analysis && $(MAKE) clean
+tidyana:
+	cd Analysis && $(MAKE) tidy
+tidyprog:
+	cd Prog && $(MAKE) tidy
 
 help:
 	@echo "The following are some of the valid targets of this Makefile"
