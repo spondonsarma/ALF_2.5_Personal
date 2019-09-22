@@ -165,12 +165,13 @@
               GRUPB = -GRUP
               do nf=1,N_FL
                  do I=1,Ndim
-                    GRUPB(I,I,nf)=GRUPB(I,I,nf)+1
+                    GRUPB(I,I,nf)=GRUPB(I,I,nf)+1.d0
                  enddo
               enddo
               
-              XMAX  = 0.D0
-              XMEAN = 0.D0
+              XMAX     = 0.D0
+              XMEAN    = 0.D0
+              XMAX_DYN = 0.D0
               do nf=1,N_FL
                  CALL COMPARE (GTTUP(:,:,nf), GRUP(:,:,nf), XMAX,XMEAN)
                  IF (XMAX.GT.XMAX_DYN) XMAX_DYN = XMAX
