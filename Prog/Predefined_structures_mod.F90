@@ -731,6 +731,7 @@
         Real (Kind=Kind(0.d0))  :: delta = 0.01
         
         Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J
+        Logical :: Test=.false.
         
         
         Allocate(WF_L(N_FL),WF_R(N_FL))
@@ -744,15 +745,17 @@
 
         Select case (Lattice_type)
         case ("Honeycomb")
+           !  Kekule Mass term to avoid  degeneracy at half-filling.
            Allocate(Op_Tmp(1,N_FL))
            do n = 1,N_FL
               Call Op_make(Op_Tmp(1,n),Ndim)
            enddo
-           
-           Open (Unit=31,status="Unknown", file="Tmp1_latt") 
-           Open (Unit=32,status="Unknown", file="Tmp2_latt") 
-           Open (Unit=33,status="Unknown", file="Tmp3_latt")
-           
+
+           If (test) then
+              Open (Unit=31,status="Unknown", file="Tmp1_latt") 
+              Open (Unit=32,status="Unknown", file="Tmp2_latt") 
+              Open (Unit=33,status="Unknown", file="Tmp3_latt")
+           endif
            A1_p = 2.d0 * Latt%a1_p  - Latt%a2_p
            A2_p =        Latt%a1_p  + Latt%a2_p
            L1_p = Latt%L1_p
@@ -800,10 +803,11 @@
                     lp = 32
                     if (hop(nc1) > 1.d0 ) lp = 33
                     if (hop(nc1) < 1.d0 ) lp = 31
-                    Write(lp,"(F14.7,2x,F14.7)")  x_p(1), x_p(2)
-                    Write(lp,"(F14.7,2x,F14.7)")  x1_p(1), x1_p(2)
-                    Write(lp,*)
-                    
+                    If (test) then
+                       Write(lp,"(F14.7,2x,F14.7)")  x_p(1), x_p(2)
+                       Write(lp,"(F14.7,2x,F14.7)")  x1_p(1), x1_p(2)
+                       Write(lp,*)
+                    endif
                     do n = 1,N_FL
                        Op_Tmp(1,n)%O(I1,J1) =   cmplx( - hop(nc1),    0.d0, kind(0.D0))
                        Op_Tmp(1,n)%O(J1,I1) =   cmplx( - hop(nc1),    0.d0, kind(0.D0))
@@ -818,12 +822,12 @@
               Op_Tmp(1,n)%g    = cmplx(1.d0, 0.d0,kind(0.d0))
               Op_Tmp(1,n)%alpha= cmplx(0.d0,0.d0, kind(0.D0))
               Call Op_set(Op_Tmp(1,n))
-              Write(6,*)  Op_Tmp(1,n)%N_non_zero
            Enddo
-
-           Close(31)
-           Close(32)
-           Close(33)
+           If (test) then
+              Close(31)
+              Close(32)
+              Close(33)
+           endif
            
         case default 
            Dtau     = 1.d0
@@ -863,14 +867,16 @@
            WF_R(nf)%Degen = Op_tmp(1,nf)%E(N_part+1) - Op_tmp(1,nf)%E(N_part)
         enddo
 
-        DO  I = 1,N_part
-           Write(6,*) Op_tmp(1,1)%E(I)
-        enddo
-        Do I = 1,Ndim
-           do J = 1,Ndim
-              Write(6,*) Op_tmp(1,1)%O(I,J)
+        If (test) then
+           DO  I = 1,NDim
+              Write(6,*) Op_tmp(1,1)%E(I)
            enddo
-        enddo
+           Do I = 1,Ndim
+              do J = 1,Ndim
+                 Write(6,*) Op_tmp(1,1)%O(I,J)
+              enddo
+           enddo
+        endif
         Do nf = 1,N_FL
            Call Op_clear(OP_tmp(1,nf),Ndim)
         enddo
