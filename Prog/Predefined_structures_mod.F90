@@ -90,9 +90,14 @@
 !>    Type(Lattice)
 !>    Sets the lattice
 !>\endverbatim 
+!> @param [out]  Latt_unit
+!>\verbatim 
+!>    Type(Unit_cell)
+!>    Sets the lattice
+!>\endverbatim 
 !>
 !-------------------------------------------------------------------
-      Subroutine Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
+      Subroutine Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit )
 
         Implicit none
 
@@ -160,6 +165,7 @@
         end select
         ! Call Print_latt(Latt)
         ! This is for the orbital structure.
+
         
         Ndim = Latt%N*Latt_Unit%Norb
         Allocate (List(Ndim,2), Invlist(Latt%N,Latt_Unit%Norb))
@@ -172,8 +178,10 @@
               List(nc,2) = no
               Invlist(I,no) = nc 
            Enddo
+           
         Enddo
-        
+
+
       end Subroutine Predefined_Latt
       
 !--------------------------------------------------------------------
