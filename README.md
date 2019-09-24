@@ -2,7 +2,7 @@
 [![pipeline status](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/pipeline.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 [![coverage report](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/coverage.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 ## General information ##
-This version of the **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model on the Honeycomb lattice  as well as the Hubbard model  on the square lattice coupled to a transverse Ising field are  provided and discussed in the [documentation](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/blob/master/Documentation/doc.pdf).
+This version of the **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model on the Honeycomb lattice  as well as the Hubbard model  on the square lattice coupled to a transverse Ising field are  provided and discussed in the [documentation](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/blob/master/Documentation/doc.pdf) and can be tested using ALF's [Test Suite](https://git.physik.uni-wuerzburg.de/fassaad/Testsuite_General_QMCT_code).
 
 The Hamiltonians we can consider reads:
 ![The Hamiltonian0](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/raw/master/Images/Hamiltonian0.png)
@@ -30,17 +30,15 @@ Once you have run the configuration script, run **make** to compile the whole pa
 
 ## FILES AND DIRECTORIES ##
 
-**Libraries**    Libraries.
+**Libraries**   Libraries.
 
 **Prog**   Main program and subroutines.
 
-**Analysis** Analysis programs. 
+**Analysis**   Analysis programs. 
 
-**Start**   This directory contain the files required to start a run. In particular it contains the **parameters** file   that specifies the model, the lattice, and various parameters for the Monte Carlo run and  error analysis. 
+**Scripts_and_Parameters_files**  Suite of helper scripts and the Start directory which contains the files required to start a run, in particular  the **parameters** file that specifies the model, the lattice, and various parameters for the Monte Carlo run and  error analysis. 
 
-**Examples** This directory provides a set of short example runs.
-
-**Documentation**  We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/blob/master/Documentation/doc.pdf)   an extensive documentation. The development of the documentation will take place **only** in the documentation_new branch. In this branch you all have permission to push things so that we can keep on improving  things. 
+**Documentation**   We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/blob/master/Documentation/doc.pdf)   an extensive documentation. The development of the documentation will take place **only** in the documentation_new branch. In this branch you all have permission to push things so that we can keep on improving  things. 
  
 
 ## TESTING ##
