@@ -165,20 +165,27 @@
               GRUPB = -GRUP
               do nf=1,N_FL
                  do I=1,Ndim
-                    GRUPB(I,I,nf)=GRUPB(I,I,nf)+1
+                    GRUPB(I,I,nf)=GRUPB(I,I,nf)+1.d0
                  enddo
               enddo
               
-              XMAX  = 0.D0
-              XMEAN = 0.D0
-              do nf=1,N_FL
-                 CALL COMPARE (GTTUP(:,:,nf), GRUP(:,:,nf), XMAX,XMEAN)
-                 IF (XMAX.GT.XMAX_DYN) XMAX_DYN = XMAX
-                 XMEAN_DYN = XMEAN_DYN + XMEAN
+              Do nf = 1,N_FL
+                 Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
               enddo
-              !#ifdef test
-              !                  WRITE(6,*) 'Compare up: ',XMEAN/Real(N_FL*LQ*LQ,Kind(0.d0)), XMAX
-              !#endif
+              
+!!$              XMAX      = 0.D0
+!!$              XMEAN     = 0.D0
+!!$              XMAX_DYN  = 0.D0
+!!$              XMEAN_DYN = 0.D0
+!!$              do nf=1,N_FL
+!!$                 CALL COMPARE (GTTUP(:,:,nf), GRUP(:,:,nf), XMAX,XMEAN)
+!!$                 IF (XMAX.GT.XMAX_DYN) XMAX_DYN = XMAX
+!!$                 XMEAN_DYN = XMEAN_DYN + XMEAN
+!!$              enddo
+!!$              !#ifdef test
+!!$                                WRITE(6,*) 'Compare up: ',XMEAN/Real(N_FL*LQ*LQ,Kind(0.d0)), XMAX
+!!$              !#endif
+
               GTTUP = GRUP
               
               do nf=1,N_FL
