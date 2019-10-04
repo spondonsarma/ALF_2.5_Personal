@@ -66,7 +66,7 @@ The program adopts per default a sequential, single spin-flip strategy. It will 
  \end{equation}
 
 This default updating scheme can be overruled by, e.g., setting \texttt{Global\_tau\_moves} to \texttt{true} and not setting \texttt{Nt\_sequential\_start} and \texttt{Nt\_sequential\_end} (see Sec.~\ref{sec:input}).
-It is worth noting that this type of sequential spin-flip updating does not satisfy detailed balance but the more fundamental stationarity condition \cite{Sokal89}. 
+It is also worth noting that this type of sequential spin-flip updating does not satisfy detailed balance but the more fundamental stationarity condition \cite{Sokal89}. 
  
  
 % 
@@ -81,7 +81,7 @@ This option allows one to carry out  user-defined global moves on a single time 
 where $e^{-V_{n}(s_{n})}$ denotes one element of the  operator list  containing the HS fields.  One can provide  an interval of indices, 
 $ \left[ \texttt{Nt\_sequential\_start}, 
 \texttt{Nt\_sequential\_end} \right] $,  in which the operators will be updated  sequentially. Setting $ \texttt{Nt\_sequential\_start} =1 $ and 
-$ \texttt{Nt\_sequential\_end} = M_I+M_V$  reproduces the  sequential single spin flip strategy of the above section.   One can also define globals moves on this time-slice.  Let  \texttt{N\_tau\_Global}  be the number of global moves to be carried out on the given time slice \texttt{ntau}.  Each global move is generated in the routine  \texttt{Global\_move\_tau} provided by the user in the Hamiltonian file.    To  define this move, one specifies the following: 
+$ \texttt{Nt\_sequential\_end} = M_I+M_V$  reproduces the  sequential single spin flip strategy of the above section.   One can also define globals moves on this time-slice.  Let  \texttt{N\_tau\_Global}  be the number of global moves to be carried out on the given time slice \texttt{ntau}.  Each global move is generated in the routine  \texttt{Global\_move\_tau} provided by the user in the Hamiltonian file.    To  define this move, one specifies the following variables: 
 \begin{itemize}
 \item \texttt{Flip\_length}:  An integer stipulating the  number of spins to be flipped.
 \item \texttt{Flip\_list(1:Flip\_length)}:   Integer array containing the  indices of the operators to be flipped.
@@ -103,22 +103,19 @@ The code allows for global updates as well. The user must then provide two other
 
 
 The subroutine  \texttt{Global\_move(T0\_Proposal\_ratio,nsigma\_old,size\_clust)}  proposes  a global move. 
-The two-dimensional array \texttt{nsigma\_old(M\_V+ M\_I, Ltrot)}  contains  the full  configuration $C$.  On output, the new configuration,   C', determined by the user,  is to be stored in the 
-array  \texttt{nsigma(M\_V+ M\_I, Ltrot)}.   The global variable \texttt{nsigma(M\_V+ M\_I, Ltrot)} is declared in the module \texttt{Hamiltonian}.  Equally, on output, the variable 
+The two-dimensional array \texttt{nsigma\_old(M\_V + M\_I, Ltrot)}  contains  the full  configuration $C$.  On output, the new configuration C', determined by the user,  is to be stored in the two-dimensional array \texttt{nsigma}.   The global variable \texttt{nsigma} is declared in the module \texttt{Hamiltonian}.  Equally, on output, the variable 
 \texttt{T0\_Proposal\_ratio} contains the proposal ratio 
 \begin{equation}
 	 \frac{T_0(C' \rightarrow C)}{T_0(C \rightarrow C') }  \;.
 \end{equation}
-Since we allow for a stochastic  generation of  the global move, it may very well be that no change is proposed. In this case, \texttt{T0\_Proposal\_ratio}   takes the value 0 upon exit, and  
-\texttt{nsigma=nsigma\_old}.   
-Furthermore, the real-valued \texttt{size\_clust} should give the size of the proposed move (e.g. $\tfrac{\text{Number of flipped spins}}{\text{Total number of spins}}$). This will be used to calculate the average sizes of proposed and of accepted moves which will be printed in the \texttt{info} file. For the simulation it is not necessary to calculate \texttt{size\_clust}, but the information will help the user to estimate the effectiveness of the global update.
+Since we allow for a stochastic  generation of  the global move, it may very well be that no change is proposed. In this case, \texttt{T0\_Proposal\_ratio}   takes the value 0 upon exit, and  \texttt{nsigma=nsigma\_old}.   
+The real-valued \texttt{size\_clust} gives the size of the proposed move (e.g., $\tfrac{\text{Number of flipped spins}}{\text{Total number of spins}}$). This is used to calculate the average sizes of proposed and accepted moves which will be printed in the \texttt{info} file. The variable \texttt{size\_clust} is not necessary for the simulation, but may help the user to estimate the effectiveness of the global update.
 
-
-To compute the acceptance-rejection ratio,  the user  will equally have to provide the function \\
-\texttt{Delta\_S0\_global(Nsigma\_old)} that computes the ratio $e^{-S_0(C')}/e^{-S_0(C)}$. Again the configuration $C'$ is   given by the array \texttt{nsigma(M\_V+ M\_I, Ltrot)}  which is 
+In order to compute the acceptance-rejection ratio,  the user must also provide a function \linebreak
+\texttt{Delta\_\-S0\_\-global(Nsigma\_old)} that computes the ratio $e^{-S_0(C')}/e^{-S_0(C)}$. Again the configuration $C'$ is   given by the array \texttt{nsigma(M\_V + M\_I, Ltrot)}  which is 
 a global variable declared in the module \texttt{Hamiltonian}.
 
-Note that global updates are expensive since they require a complete recalculation of the weight. We thereby  allow the user to set a variable \texttt{N\_Global} that allows to  determine how many global updates per sweeps will be carried out. 
+Note that global updates are expensive since they require a complete recalculation of the weight. We therefore allow the user to set a variable \texttt{N\_Global} that determines the number of global updates performed per sweep.
 % 
 
 %------------------------------------------------------------
@@ -126,8 +123,8 @@ Note that global updates are expensive since they require a complete recalculati
 \label{Parallel_tempering.sec}
 %------------------------------------------------------------
 % 
-Exchange Monte Carlo \cite{Hukushima96}  or parallel tempering \cite{Greyer91} is a possible route to overcome sampling issues in parts of the parameter space.
-Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$  could correspond to the  inverse temperature.  Here at high temperatures,  phase space is easily sampled   but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2, h_3   \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}
+Exchange Monte Carlo \cite{Hukushima96}, or parallel tempering \cite{Greyer91}, is a possible route to overcome sampling issues in parts of the parameter space.
+Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$  could correspond to the  inverse temperature.  Here at high temperatures the phase space is easily sampled, but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2,  \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}
 	P(\left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right] ) =  \frac{W(h_1,C_1) W(h_2,C_2) \cdots   W(h_n,C_n) } {\sum_{C_1, C_2, \cdots, C_n} W( h_1,C_1) W( h_2,C_2) \cdots   W(h_n,C_n)}
 \end{equation}
 where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C. 
@@ -164,9 +161,9 @@ The above equation becomes transparent  for  classical systems  with $ S(h,C) = 
 Several comments are in order.
 \begin{itemize}
 \item[i)] Let us identify $h$ with the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.
-\item[ii)] In the proximity of a phase transition,   the specific heat can diverge such that   care has to be taken in the choices of  $h$.
-\item[iii)]  Since the action is formulation dependent, one expects the acceptance of the  exchange move to equally depend  upon the fomulation. 
+\item[ii)] In the proximity of a phase transition the specific heat can diverge, therefore care has to be taken in the choices of $h$.
+\item[iii)]  Since the action is formulation dependent, one expects the acceptance of the  exchange move to equally depend  upon the formulation. 
 \end{itemize}
 %\mycomment{MB: Do you track the $n-1$ exchange acceptance rates $acc(i,i+1)$ for the $n$ replicas in the code? Could the exchange rates be an efficient way to locate  a phase transition in the parameters space of $h$, without a priori knowing the order parameter? Also for topological phase transitions w/o an order parameter?  }
 %\mycomment{FFA:  Yes I do track the individual acceptances and I do see  singularities in the  acceptance at the phase transition. However, owing to comment iii) at would now be very careful at interpreting the results since they are really formulation dependent. }
- The auxiliary field quantum Monte Carlo code in the ALF project  comes with a parallel tempering  compiler option which we will discuss  in section \ref{Parallel.Sec}. 
+The quantum Monte Carlo code in the ALF project carries out parallel-tempering runs when compiled with flag -DTEMPERING, see Sec.~\ref{sec:compilation}.
