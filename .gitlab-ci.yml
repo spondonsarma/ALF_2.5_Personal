@@ -262,7 +262,7 @@ create_doc:
     - cd Documentation
     - latexmk -pdf doc.tex
 
-create doxygen:
+create_doxygen:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-buildd
   stage: build
   only:
