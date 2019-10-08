@@ -269,8 +269,11 @@ create doxygen:
     changes:
       - Prog/*.(f|F)90
       - Libraries/Modules/*.(f|F)90
+      - README.md
   artifacts:
     paths:
-      - 
+      - doxygen/*
+      - Images/*
   script:
       - apt install -y doxygen
+      - doxygen doxygen/alf-doxygen.cfg
