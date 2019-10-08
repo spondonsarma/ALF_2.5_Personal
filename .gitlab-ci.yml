@@ -266,6 +266,7 @@ create_doxygen:
   image: aergus/latex
   stage: build
   artifacts:
+    expires_in: 120 days
     paths:
       - doxygen/*
       - Images/*
