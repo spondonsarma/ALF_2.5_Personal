@@ -270,5 +270,5 @@ create_doxygen:
       - doxygen/*
       - Images/*
   script:
-      - apt install -y doxygen
+      - apt-get update && apt install -y doxygen
       - doxygen doxygen/alf-doxygen.cfg
