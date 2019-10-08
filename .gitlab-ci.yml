@@ -265,11 +265,6 @@ create_doc:
 create_doxygen:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-buildd
   stage: build
-  only:
-    changes:
-      - Prog/*.(f|F)90
-      - Libraries/Modules/*.(f|F)90
-      - README.md
   artifacts:
     paths:
       - doxygen/*
