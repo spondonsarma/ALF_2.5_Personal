@@ -53,14 +53,14 @@ where the fields $\eta$ and $\gamma$ take the values:
   \gamma(\pm 2) = 1 - \sqrt{6}/3, \quad  \eta(\pm 2 ) = \pm \sqrt{2 \left(3 + \sqrt{6} \right)}\;.
 \nonumber
 \end{align}
-Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, this transformation is next to exact. 
-\item In general $\hat{Z}_k$ can denote different operators and we can work, for instance, in a basis for the Ising spins where $\hat{Z}_k$ is diagonal: $\hat{Z}_{k}|s_{k}\rangle = s_{k}|s_{k}\rangle$, where $s_{k}=\pm 1$.
+Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, this transformation is next to exact.
+\item $\hat{Z}_k$ can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$, in which case the Ising spins take the values $s_{k} = \pm 1$, or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi|\phi\rangle $, with $\phi$ a real number.
 \item From the above it follows that the  Monte Carlo configuration space $C$  
 is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
 \begin{equation}
 	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}.
 \end{equation}
-Here, the HS fields take the values $l_{j,\tau} = \pm 2, \pm 1 $ and, for $\hat{Z}_k$  corresponding to the Pauli matrix $\hat{\sigma}_{z}$, the Ising spins take the values $s_{i,\tau} = \pm 1$. However, $\hat{Z}_k$ may stand for, e.g., the position operator, in which case the field $s_{i,\tau}$ is a continuous real field.
+Here, the HS fields take the values $l_{j,\tau} = \pm 2, \pm 1 $ and the Ising spins $s_{i,\tau}$ may, for instance, be a continuous real field or, if $\hat{Z}_k = \hat{\sigma}_{z}$, be restricted to $\pm 1$.
 \end{itemize}
 
 %------------------------------------------------------------
