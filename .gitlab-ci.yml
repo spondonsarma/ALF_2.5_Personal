@@ -263,7 +263,7 @@ create_doc:
     - latexmk -pdf doc.tex
 
 create_doxygen:
-  image: aergus/latex
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-buildd
   stage: build
   artifacts:
     expire_in: 120 days
