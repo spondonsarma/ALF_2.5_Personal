@@ -272,4 +272,4 @@ create_doxygen:
       - Images/*
   script:
       - apt-get update && apt install -y doxygen graphviz
-      - doxygen doxygen/alf-doxygen.cfg
+      - doxygen doxygen/Doxyfile
