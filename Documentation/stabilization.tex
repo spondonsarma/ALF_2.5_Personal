@@ -10,11 +10,11 @@
 %-----------------------------------------------------------------------------------
 %
 From the partition function in Eq.~\eqref{eqn:partition_2} it can be seen that, for the calculation of the Monte Carlo weight and of the observables, a long product of matrix exponentials has to be formed.
-In addition to that we need to be able to extract the single-particle Green function  for a given flavor index at, say, time slice $\tau = 0$.  As  mentioned above (cf. Eq.~\eqref{eqn:Green_eq}), this quantity is given by: 
+In addition to that, we need to be able to extract the single-particle Green function  for a given flavor index at, say, time slice $\tau = 0$.  As  mentioned above (cf. Eq.~\eqref{eqn:Green_eq}), this quantity is given by: 
 \begin{equation}
 \bm{G}= \left( \mathds{1} + \prod_{ \tau= 1}^{L_{\text{Trotter}}} \bm{B}_\tau \right)^{-1},
 \end{equation}
-which can be recast as the more familiar linear-algebra problem of finding a solution for the linear system
+which can be recast as the more familiar linear algebra problem of finding a solution for the linear system
 \begin{equation}
 \left(\mathds{1} + \prod_\tau \bm{B}_\tau\right) x = b.
 \end{equation}
@@ -22,7 +22,7 @@ The matrices $\bm{B}_\tau \in \mathbb{C}^{n\times n}$ depend on the lattice size
 From standard perturbation theory for linear systems, the computed solution $\tilde{x}$ would 
 contain a relative error
 \begin{equation}
-\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa_p\left(\mathds{1} + \prod_\tau \bm{B}_\tau\right)\right).
+\frac{|\tilde{x} - x|}{|x|} = \mathcal{O}\left(\epsilon \kappa_p\left(\mathds{1} + \prod_\tau \bm{B}_\tau\right)\right),
 \end{equation}
 where $\epsilon$ denotes the machine precision, which is $2^{-53}$ for IEEE double-precision numbers, and $\kappa_p(\bm{M})$ is the condition number of the matrix $\bm{M}$ with respect to the matrix $p$-norm. Due to $\prod_ \tau \bm{B}_\tau$ containing exponentially large and small scales, as can be seen in Eq.~\eqref{eqn:partition_2}, a straightforward inversion turns out to be completely ill-suited. That would lead the condition number, as a function of increasing inverse temperature, to grow exponentially, rendering the computed solution $\tilde{x}$ meaningless.
 
@@ -33,7 +33,7 @@ In order to circumvent this, more sophisticated methods have to be employed. As 
 \begin{equation}
 \bm{G} = \left( \mathds{1} + \prod\limits_{ i = 1}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap}}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{(i-1)  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.
 \end{equation}
-The default stabilization strategy in the auxiliary-field QMC implementation of the ALF project, is then to form a product of QR-decompositions which was proven to be weakly backwards stable in \cite{Bai2011}.
+The default stabilization strategy in the auxiliary-field QMC implementation of the ALF project, is then to form a product of QR-decompositions, which was proven to be weakly backwards stable in \cite{Bai2011}.
 The key idea is to efficiently separate the scales of a matrix from the orthogonal part of a matrix.
 This can be achieved using a QR decomposition of a matrix $\bm{A}$ in the form $\bm{A}_i = \bm{Q}_i \bm{R}_i$. The matrix $\bm{Q}_i$ is unitary and hence in the usual $2$-norm it holds that $\kappa_2(\bm{Q}_i) = 1$.
 To get a handle on the condition number of $\bm{R}_i$ we will form the
@@ -49,8 +49,7 @@ This gives the decomposition
 \end{equation}
 $\bm{D}_i$ now contains the row norms of the original $\bm{R}_i$ matrix and hence attempts to separate off the total scales of the problem from $\bm{R}_i$.
 This is similar in spirit to the so-called matrix equilibration which tries to improve the condition number of a matrix through suitably chosen column and row scalings.
-Due to a theorem by van der Sluis \cite{vanderSluis1969} we know that the choice in \eqref{eq:diagnorm} is almost optimal among all diagonal matrices $\bm{D}$ from the space of diagonal matrices 
-$\mathcal{D}$ in the sense that
+Due to a theorem by van der Sluis \cite{vanderSluis1969} we know that the choice in Eq.~\eqref{eq:diagnorm} is almost optimal among all diagonal matrices $\bm{D}$ from the space of diagonal matrices $\mathcal{D}$, in the sense that
 \begin{equation*}
 \kappa_p((\bm{D}_i)^{-1} \bm{R}_i ) \leq n^{1/p} \min_{\bm{D} \in \mathcal{D}} \kappa_p(\bm{D}^{-1} \bm{R}_i).
 \end{equation*}
@@ -70,8 +69,7 @@ The effectiveness of the stabilization \emph{has} to be judged for every simulat
 \item \texttt{Precision Green}
 \item \texttt{Precision Phase}
 \end{itemize}
-The Green function as well as the average phase are usually numbers with a magnitude of $\mathcal{O} (1)$. 
+The Green function, as well as the average phase, are usually numbers with a magnitude of $\mathcal{O} (1)$. 
 For that reason we recommend that \path{NWrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better.  
-We have included typical values of \texttt{Precision Phase} and of the mean and the maximal values of \texttt{Precision Green} in the 
-discussion of example simulations, see Sec.~\ref{sec:prec_charge} and Sec.~\ref{sec:prec_spin}.
+We include typical values of \texttt{Precision Phase} and of the mean and the maximal values of \texttt{Precision Green} in the example simulations discussed in Sec.~\ref{sec:prec_charge} and Sec.~\ref{sec:prec_spin}.
 
