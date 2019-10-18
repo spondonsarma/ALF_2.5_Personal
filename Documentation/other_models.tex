@@ -53,7 +53,7 @@ An implementation of the Kondo Lattice model on the  Honeycomb lattice with addi
  & & \hat{H}_{\text{Kondo}}  =  
   J^{\text{K}} \sum_{i}    \frac{1}{2} \hat{\pmb{c}}^{\dagger}_{i} \pmb{\sigma}\hat{\pmb{c}}^{\phantom\dagger}_{i} \cdot \hat{{\bm S}}^{\phantom\dagger} _{i} ,
 \end{eqnarray}
-can be found in  the \texttt{Hamiltonian\_Kondo\_Honey.F90}
+can be found in  the \texttt{Hamiltonian\_Kondo\_Honey\_mod.F90}
 
 %-------------------------------------------------------------------------------------
 \subsubsection{$SU(N)$ Hubbard-Heisenberg models}
@@ -108,4 +108,4 @@ To implement this in the QMC code of the ALF project,  we have adopted the follo
 	\underbrace{e^{-\frac{\Delta \tau}{n_{\lambda}} \hat{H}_{\lambda} } \cdots e^{-\frac{\Delta \tau}{n_{\lambda}} \hat{H}_{\lambda} } }_{n_\lambda \text{-times } }\right].
 \end{equation}
 Thereby, we need $n_\lambda $ fields per time slice  to impose the constraint.  Since for each field the coupling  constant is suppressed by a factor $n_{\lambda}$, we can monitor the acceptance. 
-An implementation of this program can be found in  \path{Prog/Hamiltonian_Hub_Canonical.F90}  and a test run in the directory \path{Examples/Hubbard_Mz_Square_Can}
+An implementation of this program can be found in  \path{Prog/Hamiltonian_Hub_Canonical_mod.F90}  and a test run in the directory \path{Examples/Hubbard_Mz_Square_Can}

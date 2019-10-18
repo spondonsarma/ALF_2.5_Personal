@@ -96,9 +96,9 @@ At this point,  and  since for a given configuration $C$  we are dealing with a 
     \det\left(  \mathds{1} + 
      \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
-      \prod_{k=1}^{M_T}   e^{-\Delta \tau \textbf{T}^{(ks)}}   \right) \right]^{N_{\mathrm{col}}}\;,
+      \prod_{k=1}^{M_T}   e^{-\Delta \tau \bm{T}^{(ks)}}   \right) \right]^{N_{\mathrm{col}}}\;,
 \end{align}
-where the matrices $\textbf{T}^{(ks)}$,  $\textbf{V}^{(ks)}$, and  $\textbf{I}^{(ks)}$ define the Hamiltonian [Eq.~(\ref{eqn:general_ham}) - (\ref{eqn:general_ham_i})].
+where the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$, and  $\bm{I}^{(ks)}$ define the Hamiltonian [Eq.~(\ref{eqn:general_ham}) - (\ref{eqn:general_ham_i})].
 All in all, the partition function is given by:
 \begin{align}\label{eqn:partition_2}
     Z  &=   \sum_{C}   e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
@@ -168,7 +168,7 @@ To compute equal-time, as well as time-displaced observables, one can make use o
  \end{bmatrix}.
 \end{align}
 Here, we have defined the super-index $\underline{ x} = \left\{   x,\sigma,s \right\}$.
-In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples.F90} (see Sec.~\ref{sec:obs})   the user is provided with the equal-time and time-displaced correlation functions. Using the  above  formulation  of  Wick's theorem, arbitrary  correlation functions can be computed. We note, however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
+In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples_mod.F90} (see Sec.~\ref{sec:obs})   the user is provided with the equal-time and time-displaced correlation functions. Using the  above  formulation  of  Wick's theorem, arbitrary  correlation functions can be computed. We note, however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
 
 %------------------------------------------------------------
 \subsubsection{Reweighting and the sign problem}\label{sec:reweight}

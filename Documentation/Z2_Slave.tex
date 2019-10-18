@@ -63,7 +63,7 @@ $ Z_{\vec{i},\vec{i} +  \vec{a}_y} \rightarrow - Z_{\vec{i},\vec{i} +  \vec{a}_y
 \item The map from  $ \left\{ \tau^{z}_{\vec{i}}  \right\} $ to $ \left\{ Z_{\langle \vec{i}, \vec{j} \rangle } \right\} $  is unique.  The reverse however  is valid only up to  to a global sign.  To pin down this sign  (and thereby   the  relative signs between different time slices)  we  store per time slice the $  Z_{\langle \vec{i},\vec{j} \rangle } $ fields as well as the value of the Ising field  at  a reference site $\tau^{z}_{\vec{i} = 1} $. Within the ALF, this can be done by adding a dummy operator in the \texttt{Op\_V}  list which will carry this degree of freedom.    With this extra degree of freedom we can switch  between the two representations, without loosing any information.   To compute the Ising part of the action it is certainly more transparent to work  with the $ \left\{ \tau^{z}_{\vec{i}}  \right\} $  variables. For the  fermion determinant,  the $ \left\{ Z_{\langle \vec{i}, \vec{j} \rangle } \right\} $   are more convenient. 
  \end{itemize}
  
- We have carried out some test simulations at half-filling and at low temperatures.  The simulation can be found in directory \texttt{Examples/Z2\_Slave} and the  Hamiltonian in \texttt{Hamiltonian\_Z2\_slave\_spins.F90 }.  The simulations  are carried out at half-filling such that particle-hole symmetry leads to 
+ We have carried out some test simulations at half-filling and at low temperatures.  The simulation can be found in directory \texttt{Examples/Z2\_Slave} and the  Hamiltonian in \texttt{Hamiltonian\_Z2\_slave\_spins\_mod.F90 }.  The simulations  are carried out at half-filling such that particle-hole symmetry leads to 
  \begin{equation}
  \langle \hat{Q}_{\vec{i}}    \rangle_{H_{Z_2}} =0.
  \end{equation} 
@@ -71,12 +71,12 @@ However the simulations suggest that
  \begin{equation}
  \frac{1}{N}\sum_{i,j} \langle \hat{Q}_{\vec{i}}   \hat{Q}_{\vec{j}} \rangle_{H_{Z_2}}  = N 
  \end{equation} 
- at low temperatures  where  $N$  corresponds  to size of the lattice.  Note that this measurement is very noisy,  and suffers from very long autocorrelation times.  Thereby, the constraint is dynamically imposed and   simulations of the attractive Hubbard model with  \texttt{Hamiltonian\_Examples.F90}  should yield identical results. To test this,  we have computed equal time Green functions:
+ at low temperatures  where  $N$  corresponds  to size of the lattice.  Note that this measurement is very noisy,  and suffers from very long autocorrelation times.  Thereby, the constraint is dynamically imposed and   simulations of the attractive Hubbard model with  \texttt{Hamiltonian\_Examples\_mod.F90}  should yield identical results. To test this,  we have computed equal time Green functions:
 \begin{equation}
 \langle  \hat{\tau}^{z}_{\vec{i}} \hat{f}^{\dagger}_{\vec{i},\sigma} \hat{\tau}^{z}_{\vec{j}} \vec{f}^{\phantom{\dagger}}_{\vec{j},\sigma} \rangle_{H_{Z_2}} = 
 \langle  \hat{c}^{\dagger}_{\vec{i},\sigma} \hat{c}^{\phantom{\dagger}}_{\vec{j},\sigma} \rangle_{H} 
 \end{equation}
-as obtained  from  the \texttt{Hamiltonian\_Examples.F90} and    \texttt{Hamiltonian\_Z2\_slave\_spins.F90 } codes.  
+as obtained  from  the \texttt{Hamiltonian\_Examples\_mod.F90} and    \texttt{Hamiltonian\_Z2\_slave\_spins\_mod.F90} codes.  
 A test run for the $8\times 8 $ lattice at $U/t = 4$ and $\beta t = 40$ gives: 
 \begin{center}
 \begin{tabular}{ l | c | r }

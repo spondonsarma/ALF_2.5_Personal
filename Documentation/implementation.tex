@@ -9,12 +9,11 @@
 \subsection{Implementation of the Hamiltonian and the lattice} 
 %------------------------------------------------------------
 
-The module \path{Hamiltonian}, contained in the file \path{Hamiltonian.F90}, defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). 
-We have collected a number of example Hamiltonians, lattices and observables in the file  \path{Hamiltonian_Examples.F90}.  The examples are described in Sec.~\ref{sec:ex}.
-To implement a user-defined model, only the module \path{Hamiltonian} has to be set up. Accordingly, this documentation focusses almost entirely  on this module and the subprograms it includes. 
+The module \path{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). This module can be found in the file \path{Hamiltonian_Examples_mod.F90}, which also contains a number of example Hamiltonians, lattices and observables.  The examples are described in Sec.~\ref{sec:ex}.
+In order to implement a user-defined model, only the module \path{Hamiltonian} has to be set up. Accordingly, this documentation focuses almost entirely  on this module and the subprograms it includes.
 The remaining parts of the code may hence be treated as a black box.  
 
-To specify the Hamiltonian, one needs  an  \path{Operator} and a \path{Lattice} type as well as a type for the observables. These three data structures will be described in the following sections.
+In order to specify the Hamiltonian, one needs  an  \path{Operator} and a \path{Lattice} type as well as a type for the observables. These three data structures are described in the following sections.
 
 %
 \begin{table}[h]
@@ -26,16 +25,15 @@ To specify the Hamiltonian, one needs  an  \path{Operator} and a \path{Lattice} 
     \hl{\texttt{Ham\_V}}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
                          by calling \texttt{Op\_make} and \texttt{Op\_set}.& \ref{sec:op}, \ref{sec:specific}\\  
     \hl{\texttt{Ham\_Latt}} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
-    \hl{\texttt{S0}}        & A function which returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
+    \hl{\texttt{S0}}        & Returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
     & \ref{sec:s0} \\
     \hl{\texttt{Alloc\_obs}} & Assigns memory storage to the observables & \\
     \hl{\texttt{Obser}}      & Computes the scalar observables and equal-time correlation functions. & \ref{sec:obs} \\
     \hl{\texttt{ObserT}}     & Computes time-displaced correlation functions. & \ref{sec:obs}\\
     \texttt{Init\_obs}  & Initializes the observables to zero. & \\    
-    \texttt{Pr\_obs}    & Writes the observables to the disk by calling \texttt{Print\_bin}. \\\bottomrule    
+    \texttt{Pr\_obs}    & Writes the observables to disk by calling \texttt{Print\_bin}. \\\bottomrule    
    \end{tabular}
-   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables. 
-   The \hl{highlighted} subroutines have to be modified by the user.
+   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user.
     \label{table:hamiltonian}}
 \end{table}
 %
@@ -44,25 +42,24 @@ To specify the Hamiltonian, one needs  an  \path{Operator} and a \path{Lattice} 
 \subsubsection{The \texttt{Operator} type}\label{sec:op}
 %------------------------------------------------------------
 
-The fundamental data structure in the code is the data structure \path{Operator}. It is implemented as a Fortran derived data type.
-This type is used to define the Hamiltonian (\ref{eqn:general_ham}).
-In general, the matrices $\textbf{T}^{(ks)}$, $\textbf{V}^{(ks)}$ and $\textbf{I}^{(ks)}$ are sparse Hermitian matrices.
-Consider the  matrix   ${\bm X}$ of dimension  $N_{\mathrm{dim}} \times N_{\mathrm{dim}}$, as a representative for each of the above three matrices. 
-Let us  denote  with  $ \left\{z_{1},\cdots,  z_{N}  \right\}$  a subset  of $N$ indices,
+The fundamental data structure in the code is the \path{Operator}. It is implemented as a Fortran derived data type designed to efficiently define the Hamiltonian~\eqref{eqn:general_ham}.
+
+Let the matrix $\bm{X}$ of dimension $N_{\mathrm{dim}} \times N_{\mathrm{dim}}$ stand for any of the typically sparse, Hermitian matrices $\bm{T}^{(ks)}$, $\bm{V}^{(ks)}$ and $\bm{I}^{(ks)}$ that define the Hamiltonian.
+Furthermore, let $\left\{z_{1},\cdots, z_{N} \right\}$ denote a subset of $N$ indices
 for which
 \begin{equation}
 X_{x,y} 
 \left\{\begin{matrix}  \neq 0  &  \text{ if }   x,  y  \in \left\{ z_1, \cdots z_N \right\}\\ 
-                                 = 0         &  \text{ otherwise } 
+                                 = 0         &  \text{ otherwise. } 
       \end{matrix}\right.
 \end{equation}
 Usually, we have $N\ll N_{\text{dim}}$.
- We define the $N \times N_{\mathrm{dim}}$ matrices $\mathbf{P}$  as
+ We define the $N \times N_{\mathrm{dim}}$ matrices $\bm{P}$  as
 \begin{equation}
 P_{i,x}=\delta_{z_{i},x}\;,
 \end{equation}
 where $i \in [1,\cdots, N ]$ and $ x  \in [1,\cdots, N_{\mathrm{dim}}]$. The matrix  $\bm{P}$ selects the non-vanishing entries of $\bm{X}$, 
-which are contained in the rank-$N$  matrix $\bm{O}$:
+which are contained in the rank-$N$  matrix $\bm{O}$ defined by:
 \begin{equation}\label{eqn:xeqpdop}
 \bm{X} =\bm{P}^{T} \bm{O} \bm{P}\;,
 \end{equation}
@@ -94,18 +91,18 @@ This type \path{Operator} bundles several components, listed in Table \ref{table
     \begin{tabular}{@{} l l l @{}}\toprule
     Variable & Type & Description \\\midrule
     \hl{\texttt{Op\_X\%N}}       & Integer     &  Effective dimension $N$ \\
-    \hl{\texttt{Op\_X\%O}}       & Complex    &  Matrix  $\mathbf{O}$  of dimension $N \times N$\\
-    \hl{\texttt{Op\_X\%P}}       & Integer   &  Matrix $\mathbf{P}$  encoded as a vector of dimension $N$\\
+    \hl{\texttt{Op\_X\%O}}       & Complex    &  Matrix  $\bm{O}$  of dimension $N \times N$\\
+    \hl{\texttt{Op\_X\%P}}       & Integer   &  Matrix $\bm{P}$  encoded as a vector of dimension $N$\\
     \hl{\texttt{Op\_X\%g}}       & Complex    &  Coupling strength $g$ \\  
     \hl{\texttt{Op\_X\%alpha}}   & Complex  &  Constant $\alpha$ \\
     \hl{\texttt{Op\_X\%type}}    & Integer   &  Sets the type of HS transformation (1: Ising; 2: discrete HS for\\
              &   &   perfect-square term; 3: continuous real field.)  \\ 
-    \texttt{Op\_X\%diag}  & Logical & True if   $\mathbf{O}$  is  diagonal  \\
-    \texttt{Op\_X\%U}            & Complex &  Matrix containing the eigenvectors of $\mathbf{O}$  \\
-    \texttt{Op\_X\%E}            & Real &  Eigenvalues of $\mathbf{O}$ \\
-    \texttt{Op\_X\%N\_non\_zero} & Integer &  Number of non-vanishing eigenvalues of $\mathbf{O}$  \\
-    \texttt{Op\_X\%M\_exp}    & Complex &  Stores $ \texttt{M\_exp}(:,:,s) = e^{g  \phi(s,\texttt{type}) \mathbf{O}(:,:)} $  \\
-    \texttt{Op\_X\%E\_exp}    & Complex &  Stores $ \texttt{E\_exp}(:,s) = e^{g  \phi(s,\texttt{type}) \mathbf{E}(:)} $ 
+    \texttt{Op\_X\%diag}  & Logical & True if   $\bm{O}$  is  diagonal  \\
+    \texttt{Op\_X\%U}            & Complex &  Matrix containing the eigenvectors of $\bm{O}$  \\
+    \texttt{Op\_X\%E}            & Real &  Eigenvalues of $\bm{O}$ \\
+    \texttt{Op\_X\%N\_non\_zero} & Integer &  Number of non-vanishing eigenvalues of $\bm{O}$  \\
+    \texttt{Op\_X\%M\_exp}    & Complex &  Stores $ \texttt{M\_exp}(:,:,s) = e^{g  \phi(s,\texttt{type}) \bm{O}(:,:)} $  \\
+    \texttt{Op\_X\%E\_exp}    & Complex &  Stores $ \texttt{E\_exp}(:,s) = e^{g  \phi(s,\texttt{type}) \bm{E}(:)} $ 
      \\\bottomrule
    \end{tabular}
    \caption{Member variables of the \texttt{Operator}  type. 
@@ -117,18 +114,18 @@ This type \path{Operator} bundles several components, listed in Table \ref{table
 \end{table}
 %
 In this section we show how to specify the  Hamiltonian (\ref{eqn:general_ham}) in the code. 
-More precisely, we have to set the matrix representation of the imaginary-time propagators --
-$ e^{-\Delta \tau {\bm T}^{(ks)}}$, $e^{  \sqrt{- \Delta \tau  U_k} \eta_{k\tau} {\bm V}^{(ks)} }$, and $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$ -- that appear in the 
+More precisely, we have to set the matrix representation of the imaginary-time propagators,
+$ e^{-\Delta \tau {\bm T}^{(ks)}}$, $e^{  \sqrt{- \Delta \tau  U_k} \eta_{k\tau} {\bm V}^{(ks)} }$ and $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$, that appear in the 
 partition function (\ref{eqn:partition_2}).  For each pair of indices $(k,s)$, these terms have the general form
 \begin{equation}\label{eqn:exponent_mat}
 \text{Matrix Exponential}=
-e^{g \,\phi(\texttt{type})\,\mathbf{X} }\;.
+e^{g \,\phi(\texttt{type})\,\bm{X} }\;.
 \end{equation}
 In case of the  perfect-square term,  we additionally have to set the constant $\alpha$, see the definition of the operators $\hat{V}^{(k)}$ in Eq.~(\ref{eqn:general_ham_v}).
 The data structures which hold all the above information are variables of the type \path{Operator} (see Table \ref{table:operator}). 
 For each pair of indices $(k,s)$, we store the following parameters in an \path{Operator} variable:
 \begin{itemize}
-\item $\vec{P}$ and   $ \mathbf{O}$   defining the matrix $\mathbf{X}$ [see Eq.~(\ref{eqn:xeqpdop})]
+\item $\vec{P}$ and   $ \bm{O}$   defining the matrix $\bm{X}$ [see Eq.~(\ref{eqn:xeqpdop})]
 \item the constants $g$, $\alpha$
 \item optionally: the type \texttt{type} of the discrete fields $\phi$
 \end{itemize}
@@ -138,68 +135,61 @@ Note that we have dropped the color index $\sigma$, since the implementation use
 
 Accordingly, the following data structures fully describe the  Hamiltonian (\ref{eqn:general_ham}):
 \begin{itemize}
-\item For the hopping Hamiltonian (\ref{eqn:general_ham_t}), we have to set the exponentiated hopping matrices $ e^{-\Delta \tau {\bm T}^{(ks)}}$: 
-
-In this case $\mathbf{X}^{(ks)}=\mathbf{T}^{(ks)}$. Precisely, a single variable  \texttt{Op\_T}  describes the operator matrix
+\item For the hopping Hamiltonian (\ref{eqn:general_ham_t}), we have to set the exponentiated hopping matrices $ e^{-\Delta \tau {\bm T}^{(ks)}}$: \\
+In this case $\bm{X}^{(ks)}=\bm{T}^{(ks)}$, and a single variable  \texttt{Op\_T}  describes the operator matrix
 \begin{equation}
             \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x T_{xy}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  \;,
 \end{equation} 
-where $k=[1, M_{T}]$ and $s=[1, N_{\mathrm{fl}}]$.  
-To make contact with the general expression (\ref{eqn:exponent_mat}) we set $g=-\Delta \tau$ (and $\alpha = 0$).
+where $k=[1, M_{T}]$ and $s=[1, N_{\mathrm{fl}}]$. In the notation of the general expression (\ref{eqn:exponent_mat}), we set $g=-\Delta \tau$ (and $\alpha = 0$).
 In case of the hopping matrix, the type variable $\texttt{Op\_T\%type}$  is neglected by the code. 
 All in all, the corresponding array of structure variables is  \texttt{Op\_T(M$_T$,N$_{fl}$)}.
 
-\item For the interaction Hamiltonian (\ref{eqn:general_ham_v}), which is of perfect-square type, we have to set the exponentiated matrices $e^{  \sqrt{ -  \Delta \tau  U_k} \eta_{k\tau} {\bm V}^{(ks)} }$:
-
-In this case, ${\mathbf X}  = \mathbf{V}^{(ks)}$. A single variable  \texttt{Op\_V}  describes the operator matrix:
+\item For the interaction Hamiltonian (\ref{eqn:general_ham_v}), which is of perfect-square type, we have to set the exponentiated matrices $e^{  \sqrt{ -  \Delta \tau  U_k} \eta_{k\tau} {\bm V}^{(ks)} }$:\\
+In this case, $\bm{X}  = \bm{V}^{(ks)}$ and a single variable  \texttt{Op\_V}  describes the operator matrix:
 \begin{equation}
              \left[ \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x V_{x,y}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  + \alpha_{ks} \right]  \;,
 \end{equation} 
-where $k=[1, M_{V}]$ and $s=[1, N_{\mathrm{fl}}]$. 
-To make contact with the general expression (\ref{eqn:exponent_mat}) and to set the constant $\alpha$, we choose $g = \sqrt{-\Delta \tau  U_k}$ and  $\alpha = \alpha_{ks}$. 
+where $k=[1, M_{V}]$ and $s=[1, N_{\mathrm{fl}}]$, $g = \sqrt{-\Delta \tau  U_k}$ and  $\alpha = \alpha_{ks}$. 
 The discrete Hubbard-Stratonovich decomposition which is used for the perfect-square interaction, is selected by setting the type variable to $\texttt{Op\_V\%type}=2$.
-All in all, the required structure variables \texttt{Op\_V} are defined  using the array \texttt{Op\_V(M$_V$,N$_{fl}$)}.
+All in all, the required structure variables \texttt{Op\_V} are defined  using the array \texttt{Op\_V(M$_V$,N$_\mathrm{fl}$)}.
 
 
-\item For the Ising interaction Hamiltonian (\ref{eqn:general_ham_i}), we have to set the exponentiated matrices $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$:
-
-In this case, $\bm{X}  = \bm{I}^{(k,s)} $.  
-A single variable  \texttt{Op\_V} then  describes the operator matrix:
+\item For the Ising interaction Hamiltonian (\ref{eqn:general_ham_i}), we have to set the exponentiated matrices $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$:\\
+In this case, $\bm{X}  = \bm{I}^{(k,s)} $ and a single variable  \texttt{Op\_V} then  describes the operator matrix:
 \begin{equation}
             \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x I_{xy}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  \;,
 \end{equation} 
-where $k=[1, M_{I}]$ and $s=[1, N_{\mathrm{fl}}]$. 
-To make contact with the general expression (\ref{eqn:exponent_mat}), we set  $g = -\Delta \tau$ (and $\alpha = 0$).
+where $k=[1, M_{I}]$ and $s=[1, N_{\mathrm{fl}}]$ and $g = -\Delta \tau$ (and $\alpha = 0$).
 The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\%type=1}$. 
-All in all, the required structure variables are contained in the array \texttt{Op\_V(M$_{I}$,N$_{fl}$)}.
+All in all, the required structure variables are contained in the array \texttt{Op\_V(M$_{I}$,N$_\mathrm{fl}$)}.
 
 \item In case of a full interaction [perfect-square term (\ref{eqn:general_ham_v}) and Ising term (\ref{eqn:general_ham_i})],
-we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_{fl}$) } and set the variables separately for both ranges of the array according to the above.  
+we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm{fl}$)} and set the variables separately for both ranges of the array according to the above.  
 
 \end{itemize}
 
 %------------------------------------------------------------
-\subsubsection{The \texttt{Lattice} type}\label{sec:latt}
+\subsubsection{The \texttt{Lattice} and \texttt{Unit\_cell} types}\label{sec:latt}
 %------------------------------------------------------------
 
-We have a lattice module  which can generate one- and two-dimensional Bravais lattices.
+ALF's lattice module can generate one- and two-dimensional Bravais lattices.
+Both the lattice and the unit cell are defined in the Predefined structures module and their components are detailed in Tables \ref{table:lattice} and \ref{table:unit_cell}.
 Note that the orbital structure of each unit cell has to be specified by the user in the Hamiltonian module. 
- The user has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$ as well as the size of the  lattice. The size is  characterized by  two vectors $\vec{L}_1$ and $\vec{L}_2$   and  the lattice is placed on a torus 
- (periodic boundary conditions): 
+The user also has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$, as well as the size of the  lattice, characterized by the vectors $\vec{L}_1$ and $\vec{L}_2$. The lattice is placed on a torus (periodic boundary conditions):
 \begin{equation}
 	\hat{c}_{\vec{i} + \vec{L}_1 }  = \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}
 \end{equation}
 The function call 
 \lstset{style=fortran}
 \begin{lstlisting} 
-Call Make_Lattice( L1, L2, a1,  a2, Latt )
+Call Make_Lattice( L1, L2, a1, a2, Latt )
 \end{lstlisting}
-will generate the lattice   \texttt{Latt} of type \texttt{Lattice}.   Note again that  the orbital structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
+generates the lattice \texttt{Latt} of type \texttt{Lattice}.   Note again that  the orbital structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors are defined by: 
 \begin{equation}
 \label{Latt.G.eq}
 	\vec{a}_i  \cdot \vec{g}_i = 2 \pi \delta_{i,j}, 
 \end{equation}
-and the Brillouin zone corresponds to the Wigner-Seitz cell of the lattice. 
+and the Brillouin zone $BZ$ corresponds to the Wigner-Seitz cell of the lattice. 
 With $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follows from: 
 \begin{equation}
 \begin{bmatrix}
@@ -220,7 +210,7 @@ With $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follow
 such that 
 \begin{eqnarray}
 \label{k.quant.eq}
-     \vec{k} =  n \vec{b}_1  + m \vec{b}_2 \text{  with  }   & &   \vec{b}_1 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   \left[  (\vec{L}_2 \cdot  \vec{g}_2) \vec{g}_1 -   (\vec{L}_2  \cdot \vec{g_1} ) \vec{g}_2 \right] \text{   and  } \nonumber \\ 
+     \vec{k} =  n \vec{b}_1  + m \vec{b}_2 \text{,  with  }   & &   \vec{b}_1 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   \left[  (\vec{L}_2 \cdot  \vec{g}_2) \vec{g}_1 -   (\vec{L}_2  \cdot \vec{g_1} ) \vec{g}_2 \right] \text{   and  } \nonumber \\ 
         & & \vec{b}_2 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
            \left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right] 
 \end{eqnarray}
@@ -235,11 +225,11 @@ such that
     \texttt{Latt\%N}                                                 &   Integer &  Number of lattice points, $N_{\text{unit cell}}$   \\
     \texttt{Latt\%list}                                               & Integer &  Maps each lattice point $i=1,\cdots, N_{\text{unit cell}}$ to a real space vector\\ 
                                                                              &   &  denoting the position of the unit cell: \\
-                                                                             &   & $\vec{R}_i$ = \texttt{list(i,1)} $\vec{a}_1$ +  \texttt{list(i,2)} $\vec{a}_2$  $  \equiv i_1  \vec{a}_1 + i_2  \vec{a}_2 $ \\
+                                                                             &   & $\vec{R}_i$ = \texttt{list(i,1)}$\vec{a}_1$ + \texttt{list(i,2)}$\vec{a}_2$  $  \equiv i_1  \vec{a}_1 + i_2  \vec{a}_2 $ \\
     \texttt{Latt\%invlist}                                        &  Integer &   \texttt{Invlist}$(i_1,i_2) = i $ \\
     \texttt{Latt\%nnlist}                                         &  Integer &   $j = \texttt{nnlist} (i, n_1, n_2) $,  $n_1, n_2 \in [-1,1] $ \\
                                                                            &              &    $\vec{R}_j = \vec{R}_i + n_1 \vec{a}_1  + n_2 \vec{a}_2 $ \\
-   \texttt{Latt\%imj}                                             &   Integer  &  $ \vec{R}_{imj(i,j)}  =  \vec{R}_i -  \vec{R}_j$.        $imj, i, j \in  1,\cdots, N_{\text{unit cell}}$\\
+   \texttt{Latt\%imj}                                             &   Integer  &  $ \vec{R}_{\mathrm{imj}(i,j)}  =  \vec{R}_i -  \vec{R}_j$.        $\mathrm{imj}, i, j \in  1,\cdots, N_{\text{unit cell}}$\\
     \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}  &   Real     & Reciprocal space vectors $\vec{g}_i$   (See Eq.~\ref{Latt.G.eq})\\
     \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}       &   Real     &  $k$-quantization (See Eq.~\ref{k.quant.eq}) \\
     \texttt{Latt\%listk}                                           &  Integer &  Maps each reciprocal lattice point $k=1,\cdots, N_{\text{unit cell}}$\\
@@ -255,19 +245,19 @@ such that
 \end{table}
 %
 
-The \path{Lattice}  module equally handles  the Fourier transformation.  For example  the  subroutine  \path{Fourier_R_to_K}   carries out the  transformation: 
+The \path{Lattice} module also handles the Fourier transformation.  For example,  the  subroutine  \path{Fourier_R_to_K}   carries out the  transformation: 
 \begin{equation}
-	S(\vec{k}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{i},\vec{j}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
+	S(\vec{k}, :,:,:) =  \frac{1}{N_\mathrm{unit \,cell}}  \sum_{\vec{i},\vec{j}}   e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j} \right)} S(\vec{i}  - \vec{j}, :,:,:)
 \end{equation}
 and  \path{Fourier_K_to_R}  the  inverse Fourier transform 
  \begin{equation}
-	S(\vec{r}, :,:,:) =  \frac{1}{N_{unit \,cell}}  \sum_{\vec{k} \in BZ }   e^{ i \vec{k} \cdot \vec{r}} S(\vec{k}, :,:,:).
+	S(\vec{r}, :,:,:) =  \frac{1}{N_\mathrm{unit \,cell}}  \sum_{\vec{k} \in BZ }   e^{ i \vec{k} \cdot \vec{r}} S(\vec{k}, :,:,:).
 \end{equation}
 In the above,   the unspecified dimensions of  the structure factor can refer  to imaginary-time  and orbital indices. 
 
-\subsubsection{The \texttt{Unit\_cell} type}\label{sec:unit}
+%\subsubsection{The \texttt{Unit\_cell} type}\label{sec:unit}
+%This type defines the unit cell.   
 
-This type defines the unit cell.   
 \begin{table}[h]
    \begin{tabular}{@{} l l l @{}}\toprule
     Variable  & Type & Description \\\midrule
@@ -280,7 +270,7 @@ This type defines the unit cell.
     \label{table:unit_cell}
 \end{table}
 
-Both the lattice and the unit cell are defined in the predefined  structures module.
+
 %--------------------------------------------------------------------------------------------
 \subsection{The observable types \texttt{Obser\_Vec} and \texttt{Obser\_Latt}}\label{sec:obs}
 %--------------------------------------------------------------------------------------------
@@ -289,7 +279,7 @@ Our definition  of the model includes observables [Eq.~(\ref{eqn:obs_rw})]. We h
 such as the energy, and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the output.   
 We also obtain improved estimators by taking measurements in the imaginary-time interval \texttt{[LOBS\_ST,LOBS\_EN]}  (see the parameter file in Sec.~\ref{sec:input}) thereby exploiting the invariance under translation in imaginary-time.
 Note that the translation symmetries  in space and in time are \textit{broken} for a given  configuration $C$ but restored by the Monte Carlo sampling. 
-In general, the user defines size and number of bins in the parameter file, each bin having a given amount of sweeps. Within a sweep we run sequentially through the HS and Ising fields, from time slice $1$ to time slice $L_{\text{Trotter}}$ and back.  The results of each bin are written to a file  and analyzed at the end of the run.     
+In general, the user defines size and number of bins in the parameter file, each bin containing a given amount of sweeps. Within a sweep we run sequentially through the HS and Ising fields, from time slice $1$ to time slice $L_{\text{Trotter}}$ and back.  The results of each bin are written to a file  and analyzed at the end of the run.     
 
 To accomplish the reweighting of observables (see Sec.~\ref{sec:reweight}), for each configuration the measured value of an observable is multiplied by the factors \texttt{ZS} and \texttt{ZP}:
 \begin{eqnarray}
@@ -307,15 +297,15 @@ Note that each observable structure also includes the average sign [Eq.~(\ref{eq
 \subsubsection{Scalar observables}
 %---------------------------------
 
-This data type  is described in Table  \ref{table:Obser_vec} and  is useful to compute an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.F90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by one, the sign  (see Eq.~\ref{Sign.eq}) is accumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are accumulated in the vector \texttt{Obs\%Obs\_vec}.  
+This data type  is described in Table  \ref{table:Obser_vec} and  is suited to store an array of  scalar observables.   Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.F90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign =0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by one, the sign  (see Eq.~\ref{Sign.eq}) is accumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are accumulated in the vector \texttt{Obs\%Obs\_vec}.  
 %
 \begin{table}[h]
    \begin{tabular}{@{} l l l l @{}}\toprule
     Variable  &  Type      &  Description &  Contribution of  \\
         &  & & configuration $C$ \\\midrule
     \texttt{Obs\%N}                       &  Int.        &   Number of measurements &\\
-    \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~(\ref{eqn:sign_rw})] & $\text{sign}(C)$  \\
-    \texttt{Obs\%Obs\_vec(:)}        & Compl.      &    Cumulated vector of observables [Eq.~(\ref{eqn:obs_rw})] &
+    \texttt{Obs\%Ave\_sign}               &  Real     &    Cumulated sign [Eq.~\eqref{eqn:sign_rw}] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Obs\_vec(:)}        & Comp.      &    Cumulated vector of observables [Eq.~\eqref{eqn:obs_rw}] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
      \texttt{Obs\%File\_Vec}           &  Char.    &    Name of output file  &\\\bottomrule
    \end{tabular}
