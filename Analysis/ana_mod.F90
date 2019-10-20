@@ -423,7 +423,7 @@
          do n = 1,Nunit
             Z = cmplx(0.d0,0.d0,kind(0.d0))
             Do nt = 1,Lt_eff -1
-               Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb-n_skip) + bins(n,nt+1,nb-n_skip) )
+               Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb) + bins(n,nt+1,nb) )
 #ifdef PartHole
                Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
 #endif
