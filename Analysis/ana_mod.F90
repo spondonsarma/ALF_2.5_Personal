@@ -341,7 +341,6 @@
       Integer :: Nbins, Norb, LT, Lt_eff, Nunit
       Integer :: nb, no, no1, n, nt, nt1, ierr
       Complex (Kind=Kind(0.d0)) :: Z, Zmean, Zerr
-!       Complex (Kind=Kind(0.d0)) :: Z, Z_diag, Zmean, Zerr
       Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
       Complex (Kind=Kind(0.d0)), allocatable :: PhaseI(:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
@@ -349,7 +348,6 @@
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
-!       Complex (Kind=Kind(0.d0)), allocatable :: OneBin(:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
       
       NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
@@ -390,8 +388,6 @@
       Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
             &     V_help(Lt_eff,Nbins), bins0(Nbins,Norb))
       Allocate ( Bins_chi(Nunit,Nbins) )
-
-!       Allocate ( OneBin(Lt,Norb,Norb) )
       
       Allocate (Xmean(Lt), Xcov(Lt,Lt))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
@@ -428,20 +424,18 @@
             Z = cmplx(0.d0,0.d0,kind(0.d0))
             Do nt = 1,Lt_eff -1
                Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb-n_skip) + bins(n,nt+1,nb-n_skip) )
-            enddo
 #ifdef PartHole
                Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
 #endif
             Bins_chi(N,nb) = Z 
             enddo
-         endif
+         enddo
       enddo
    
       do n = 1,Nunit
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
             call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
             write(File_out,'(A,"_",F4.2,"_",F4.2)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n)
-!             write(File_out,'(A,"_",F4.2,"_",F4.2,A)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n), "_hdf5"
             Open (Unit=10,File=File_out,status="unknown")
             do nt = 1, LT
                Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
