@@ -71,48 +71,47 @@
       NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard, Symm, Model_vers
       
       
-
       ! Read in lattice
-      print*, "read ", file
-      Open ( Unit=10, File=file, status="unknown" )
-      Read(10,*,IOSTAT=ierr) X, Norb, Nunit, LT, dt, ndim
-      print*, X, Norb, Nunit, LT, dt, ndim
+      open ( Unit=10, File=file, status="unknown" )
+      read(10,*,ERR=100) X, Norb, Nunit, LT, dt, ndim
+      rewind(10)
+      allocate( a1_p(ndim), a2_p(ndim), L1_p(ndim), L2_p(ndim) )
+      read(10,*) X, Norb, Nunit, LT, dt, ndim, L1_p, L2_p, a1_p, a2_p
+      close(10)
+      goto 110
+      
+  100 continue
       Close(10)
-      if (ierr /= 0) then
-         allocate( a1_p(ndim), a2_p(ndim), L1_p(ndim), L2_p(ndim) )
-         Open ( Unit=10, File=file, status="unknown" )
-         Read(10,*) X, Norb, Nunit, LT, dt, ndim, L1_p, L2_p, a1_p, a2_p
-         Close(10)
+      allocate( a1_p(2), a2_p(2), L1_p(2), L2_p(2) )
+      OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read')
+      READ(5,NML=VAR_lattice)
+      CLOSE(5)
+      If ( Lattice_type =="BipartiteSquare" ) then
+         a1_p(1) =  1.D0/sqrt(2.D0)  ; a1_p(2) =  1.D0/sqrt(2.D0)
+         a2_p(1) =  1.D0/sqrt(2.D0)  ; a2_p(2) = -1.D0/sqrt(2.D0)
+         L1_p    =  dble(L1)*a1_p
+         L2_p    =  dble(L2)*a2_p
+      elseif ( Lattice_type =="Square" ) then
+         a1_p(1) =  1.0  ; a1_p(2) =  0.d0
+         a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+         L1_p    =  dble(L1)*a1_p
+         L2_p    =  dble(L2)*a2_p
+      elseif ( Lattice_type=="Honeycomb" ) then
+         a1_p(1) =  1.d0   ; a1_p(2) =  0.d0
+         a2_p(1) =  0.5d0  ; a2_p(2) =  sqrt(3.d0)/2.d0
+         L1_p    =  dble(L1) * a1_p
+         L2_p    =  dble(L2) * a2_p
+      elseif ( Lattice_type == "Pi_Flux" ) then 
+         a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
+         a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
+         !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
+         L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
+         L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
       else
-         allocate( a1_p(2), a2_p(2), L1_p(2), L2_p(2) )
-         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read')
-         READ(5,NML=VAR_lattice)
-         CLOSE(5)
-         If ( Lattice_type =="BipartiteSquare" ) then
-            a1_p(1) =  1.D0/sqrt(2.D0)  ; a1_p(2) =  1.D0/sqrt(2.D0)
-            a2_p(1) =  1.D0/sqrt(2.D0)  ; a2_p(2) = -1.D0/sqrt(2.D0)
-            L1_p    =  dble(L1)*a1_p
-            L2_p    =  dble(L2)*a2_p
-         elseif ( Lattice_type =="Square" ) then
-            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-            a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-            L1_p    =  dble(L1)*a1_p
-            L2_p    =  dble(L2)*a2_p
-         elseif ( Lattice_type=="Honeycomb" ) then
-            a1_p(1) =  1.d0   ; a1_p(2) =  0.d0
-            a2_p(1) =  0.5d0  ; a2_p(2) =  sqrt(3.d0)/2.d0
-            L1_p    =  dble(L1) * a1_p
-            L2_p    =  dble(L2) * a2_p
-         elseif ( Lattice_type == "Pi_Flux" ) then 
-            a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
-            a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
-            !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-            L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
-            L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
-         else
-            Stop "Lattice not yet implemented!"
-         endif
+         Stop "Lattice not yet implemented!"
       endif
+      
+  110 continue
       Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
       deallocate( a1_p, a2_p, L1_p, L2_p )
 
@@ -143,8 +142,7 @@
          nbins = nbins + 1
       enddo
    10 continue
-      Close(10) 
-      Write(6,*) "# of bins: ", Nbins
+      Close(10)
       
       ! Allocate  space
       Allocate ( bins(Nunit,Ntau,Norb,Norb,Nbins), sgn(Nbins), Xk_p(2,Nunit), bins0(Norb,Nbins))
