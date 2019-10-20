@@ -195,11 +195,8 @@
                  enddo
               enddo
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              If ( Ntau == 1 ) then
-                 Write(10,*) Obs%Ave_sign,Norb,Latt%N
-              else
-                 Write(10,*) Obs%Ave_sign,Norb,Latt%N, Ntau, dtau
-              endif
+              Write(10,*) Obs%Ave_sign,Norb,Latt%N, Ntau, dtau, &
+                          & size(Latt%L1_p), Latt%L1_p(:), Latt%L2_p(:), Latt%a1_p(:), Latt%a2_p(:)
               Do no = 1,Norb
                  Write(10,*)  Obs%Obs_Latt0(no)
               enddo
