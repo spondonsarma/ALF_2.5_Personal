@@ -28,7 +28,6 @@
          Nbins = Nbins + 1
       enddo
 10    continue
-!       Write(*,*) "# of bins: ", Nbins
       Close(10) 
       
       ALLOCATE(bins(NOBS,Nbins))
@@ -339,16 +338,18 @@
       Character (len=64) :: File_out
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
-      Integer :: Nbins, Norb, LT, Nunit
+      Integer :: Nbins, Norb, LT, Lt_eff, Nunit
       Integer :: nb, no, no1, n, nt, nt1, ierr
-      Complex (Kind=Kind(0.d0)) :: Z, Z_diag, Zmean, Zerr
-      Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
+      Complex (Kind=Kind(0.d0)) :: Z, Zmean, Zerr
+!       Complex (Kind=Kind(0.d0)) :: Z, Z_diag, Zmean, Zerr
       Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
       Complex (Kind=Kind(0.d0)), allocatable :: PhaseI(:)
+      Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
+      Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
-      Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
+!       Complex (Kind=Kind(0.d0)), allocatable :: OneBin(:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
       
       NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
@@ -374,11 +375,23 @@
       if(Nbins/N_rebin < 2) then
          stop "Effective # of bins smaller than 2. Analysis impossible!"
       endif
+
+#ifdef PartHole
+      if (mod(Lt-1,2) == 0 ) then
+         Lt_eff = (Lt -1 ) /2   + 1
+      else
+         Lt_eff = Lt/2 
+      endif
+#else
+      Lt_eff = Lt
+#endif
       
       ! Allocate  space
-      Allocate ( bins(Nunit,Lt,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
-            &     V_help(lt,Nbins), bins0(Nbins,Norb))
+      Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
+            &     V_help(Lt_eff,Nbins), bins0(Nbins,Norb))
       Allocate ( Bins_chi(Nunit,Nbins) )
+
+!       Allocate ( OneBin(Lt,Norb,Norb) )
       
       Allocate (Xmean(Lt), Xcov(Lt,Lt))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
@@ -388,31 +401,38 @@
          xk_p(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p  
       enddo
       
-      do nb = 1, nbins + n_skip
-         if (nb > n_skip ) then
-            Phase(nb-n_skip) = sgn(nb)
-            PhaseI(nb-n_skip) = cmplx(Phase(nb-n_skip),0.d0,Kind(0.d0))
-            Z_diag = cmplx(0.d0,0.d0,kind(0.d0))
-            Do no = 1,Norb
-               If ( N_Back == 1 ) bins0(nb-n_skip,no) = Bins0_raw(no,nb)
-               Z_diag = Z_diag + bins0(nb-n_skip,no)*bins0(nb-n_skip,no)/Phase(nb-n_skip)
-            Enddo
-            do n = 1,Nunit
-               do nt = 1,Lt
-                  do no = 1,Norb
-                     bins(n,nt,nb-n_skip) = bins(n,nt,nb-n_skip) + Bins_raw(n,nt,no,no,nb)
-                  enddo
+      do nb = 1, nbins
+         Phase (nb) = sgn(nb+n_skip)
+         PhaseI(nb) = cmplx(sgn(nb+n_skip),0.d0,Kind(0.d0))
+         do n = 1,Nunit
+            do nt = 1,Lt_eff
+               do no = 1,Norb
+#ifdef PartHole
+                  bins(n,nt,nb) = ( bins_raw(n,nt,no,no,nb+n_skip) + bins_raw(n,Lt-nt+1,no,no,nb+n_skip) ) &
+                                       & / cmplx(2.d0,0.d0,Kind(0.d0))
+#else
+                  bins(n,nt,nb) = bins_raw(n,nt,no,no,nb+n_skip)
+#endif
+                  if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+                     bins(n,nt,nb) = bins(n,nt,nb) - Bins0_raw(no,nb+n_skip)*Bins0_raw(no,nb+n_skip) &
+                                                     & *cmplx(dble(Nunit)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                  endif
                enddo
-               if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 ) then
-                  Do nt = 1,Lt
-                     bins(n,nt,nb-n_skip) = bins(n,nt,nb-n_skip) - Z_diag*cmplx(dble(Nunit),0.d0,kind(0.d0))
-                  enddo
-               endif
-               Z = cmplx(0.d0,0.d0,kind(0.d0))
-               Do nt = 1,Lt -1
-                  Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb-n_skip) + bins(n,nt+1,nb-n_skip) )
-               enddo
-               Bins_chi(N,Nb-n_skip) = Z 
+            enddo
+         enddo
+      enddo
+      
+      
+      do nb = 1, nbins
+         do n = 1,Nunit
+            Z = cmplx(0.d0,0.d0,kind(0.d0))
+            Do nt = 1,Lt_eff -1
+               Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb-n_skip) + bins(n,nt+1,nb-n_skip) )
+            enddo
+#ifdef PartHole
+               Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
+#endif
+            Bins_chi(N,nb) = Z 
             enddo
          endif
       enddo
