@@ -3,9 +3,9 @@
 !-------------------------------------------------------------------------------
 
 &VAR_lattice 
-L1    = 46
-L2    = 1 
-Lattice_type = "One_dimensional"
+L1    = 4
+L2    = 4 
+Lattice_type = "Square"
 Model = "Hubbard_Mz"  ! Hubbard_SU2, Hubbard_Mz
 /
 
@@ -21,12 +21,12 @@ Theta   = 20.0
 
 &VAR_QMC
 Nwrap   = 10
-NSweep  = 500
-NBin    = 2 
+NSweep  = 5
+NBin    = 5 
 Ltau    = 1
 LOBS_ST = 1
 LOBS_EN = 100
-CPU_MAX = 48.0
+CPU_MAX = 0
 /
 
 
