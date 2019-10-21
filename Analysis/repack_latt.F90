@@ -38,7 +38,6 @@ Program repack_latt
   else
     call read_latt(File_in, phase, bins, bins0, Latt)
     dtau = -1.d0
-    dtau = 0.1d0
   endif
   Nunit  = size(bins, 1) 
   Ntau   = size(bins, 2)
