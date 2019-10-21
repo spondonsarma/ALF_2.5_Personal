@@ -36,6 +36,7 @@
       Integer                         :: i, n, nargs
       Character (len=64)              :: name
       Character (len=64), allocatable :: names(:)
+      Logical                         :: PartHole
       
       nargs = COMMAND_ARGUMENT_COUNT()
       allocate( names(nargs) )
@@ -68,9 +69,15 @@
          name = names(n)
          i = len(trim(name)) -3
          if ( name(i:) == '_tau' ) then
+            if (name == 'Green_tau') then
+               PartHole = .false.
+            else
+               PartHole = .true.
+            endif
             print *, ''
             print '(A,A)', "analyzing ", name
-            call Cov_tau(name)
+            print *, PartHole
+            call Cov_tau(name, PartHole)
          endif
       enddo
       

@@ -296,7 +296,7 @@
 !==============================================================================
 
 
-   subroutine Cov_tau(file)
+   subroutine Cov_tau(file, PartHole)
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -308,6 +308,7 @@
 
       Implicit none
       Character (len=64), intent(in) :: file
+      Logical           , intent(in) :: PartHole
       
       Character (len=64) :: name_obs
       Real    (Kind=Kind(0.d0)), allocatable :: sgn(:)
@@ -320,13 +321,13 @@
       name_obs = file(:i)
       
       call read_latt(file, sgn, bins_raw, bins0_raw, Latt, dtau)
-      call ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau)
+      call ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau, PartHole)
 
    end subroutine Cov_tau
 
 !==============================================================================
 
-   Subroutine ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau)
+   Subroutine ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau, PartHole)
       Implicit none
       Character (len=64), intent(in) :: name_obs
       Real    (Kind=Kind(0.d0)), allocatable, intent(in) :: sgn(:)
@@ -334,6 +335,7 @@
       Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins0_raw(:,:)
       Type (Lattice), intent(in)    :: Latt
       Real    (Kind=Kind(0.d0)), intent(in) :: dtau
+      Logical, intent(in) :: PartHole
       
       Character (len=64) :: File_out
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
@@ -344,7 +346,6 @@
       Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
       Complex (Kind=Kind(0.d0)), allocatable :: PhaseI(:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
-      Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
@@ -374,41 +375,38 @@
          stop "Effective # of bins smaller than 2. Analysis impossible!"
       endif
 
-#ifdef PartHole
-      if (mod(Lt-1,2) == 0 ) then
+      if (PartHole .and. mod(Lt-1,2) == 0 ) then
          Lt_eff = (Lt -1 ) /2   + 1
-      else
+      elseif (PartHole) then
          Lt_eff = Lt/2 
+      else
+         Lt_eff = Lt
       endif
-#else
-      Lt_eff = Lt
-#endif
       
       ! Allocate  space
       Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
-            &     V_help(Lt_eff,Nbins), bins0(Nbins,Norb))
+            &     V_help(Lt_eff,Nbins))
       Allocate ( Bins_chi(Nunit,Nbins) )
-      
-      Allocate (Xmean(Lt), Xcov(Lt,Lt))
+      Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
-      bins0 = cmplx(0.d0,0.d0,Kind(0.d0))
    
       do n = 1,Nunit
          xk_p(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p  
       enddo
       
+      ! Do timedisplaced k-resolved ===============================
       do nb = 1, nbins
          Phase (nb) = sgn(nb+n_skip)
          PhaseI(nb) = cmplx(sgn(nb+n_skip),0.d0,Kind(0.d0))
          do n = 1,Nunit
             do nt = 1,Lt_eff
                do no = 1,Norb
-#ifdef PartHole
-                  bins(n,nt,nb) = ( bins_raw(n,nt,no,no,nb+n_skip) + bins_raw(n,Lt-nt+1,no,no,nb+n_skip) ) &
-                                       & / cmplx(2.d0,0.d0,Kind(0.d0))
-#else
-                  bins(n,nt,nb) = bins_raw(n,nt,no,no,nb+n_skip)
-#endif
+                  if (PartHole) then
+                     bins(n,nt,nb) = bins(n,nt,nb) + ( bins_raw(n,nt,no,no,nb+n_skip) + bins_raw(n,Lt-nt+1,no,no,nb+n_skip) ) &
+                                          & / cmplx(2.d0,0.d0,Kind(0.d0))
+                  else
+                     bins(n,nt,nb) = bins(n,nt,nb) + bins_raw(n,nt,no,no,nb+n_skip)
+                  endif
                   if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
                      bins(n,nt,nb) = bins(n,nt,nb) - Bins0_raw(no,nb+n_skip)*Bins0_raw(no,nb+n_skip) &
                                                      & *cmplx(dble(Nunit)/sgn(nb+n_skip),0.d0,kind(0.d0))
@@ -418,32 +416,19 @@
          enddo
       enddo
       
-      
-      do nb = 1, nbins
-         do n = 1,Nunit
-            Z = cmplx(0.d0,0.d0,kind(0.d0))
-            Do nt = 1,Lt_eff -1
-               Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins(n,nt,nb) + bins(n,nt+1,nb) )
-#ifdef PartHole
-               Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
-#endif
-            Bins_chi(N,nb) = Z 
-            enddo
-         enddo
-      enddo
-   
       do n = 1,Nunit
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
             call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
             write(File_out,'(A,"_",F4.2,"_",F4.2)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             Open (Unit=10,File=File_out,status="unknown")
-            do nt = 1, LT
+            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
+            do nt = 1, LT_eff
                Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                      & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
             enddo
             If (N_cov == 1) Then ! print covarariance
-               Do nt = 1,LT
-                  Do nt1 = 1,LT
+               Do nt = 1,LT_eff
+                  Do nt1 = 1,LT_eff
                      Write(10,*) dble(Xcov(nt,nt1))
                   Enddo
                Enddo
@@ -452,11 +437,13 @@
          endif
       enddo
       
+      
+      ! Do timedisplaced r=0 ===============================
       V_help = cmplx(0.d0,0.d0,kind(0.d0))
       do n = 1,Nunit
          do nb = 1,nbins
-            do nt = 1,LT
-               V_help(nt,nb) = V_help(nt,nb) +  bins(n,nt,nb)
+            do nt = 1,LT_eff
+               V_help(nt,nb) = V_help(nt,nb) + bins(n,nt,nb)
             enddo
          enddo
       enddo
@@ -464,23 +451,41 @@
       call COV(V_help, phase, Xcov, Xmean, N_Rebin )
       write(File_out,'(A,"_R0")') trim(name_obs)
       Open (Unit=10,File=File_out,status="unknown")
-      do nt = 1, LT
+      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
+      do nt = 1, LT_eff
          Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
       enddo
       If (N_cov == 1) Then ! Print  covariance
-         Do nt = 1,LT
-            Do nt1 = 1,LT
+         Do nt = 1,LT_eff
+            Do nt1 = 1,LT_eff
                Write(10,*) dble(Xcov(nt,nt1))
             Enddo
          Enddo
       Endif
       close(10)
-
-      ! Print  susceptibilities
-      write(File_out,'(A,"_SuscepJ")') trim(name_obs)
-      Open (Unit=33,File=File_out ,status="unknown")
       
+      
+      ! Do susceptibilities ===============================
+      do nb = 1, nbins
+         do n = 1,Nunit
+            Z = cmplx(0.d0,0.d0,kind(0.d0))
+            Do nt = 1,Lt_eff -1
+               do no = 1,Norb
+                  do no1 = 1,Norb
+                     Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins_raw(n,nt,no,no1,nb+n_skip) + bins_raw(n,nt+1,no,no1,nb+n_skip) )
+                     if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+                        z = z - Bins0_raw(no,nb+n_skip)*Bins0_raw(no1,nb+n_skip) * cmplx(dble(Nunit)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                     endif
+                  enddo
+               enddo
+            enddo
+            if (PartHole) Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
+            Bins_chi(N,nb) = Z 
+         enddo
+      enddo
+      write(File_out,'(A,"_tauJK")') trim(name_obs)
+      Open (Unit=33,File=File_out ,status="unknown")
       Do n = 1,Nunit
          call ERRCALCJ(Bins_chi(n,:), PhaseI, ZMean, ZERR, N_rebin )
          Zmean = Zmean*dtau
@@ -489,11 +494,11 @@
                &   Xk_p(1,n), Xk_p(2,n), dble(ZMean), dble(ZERR), aimag(ZMean), aimag(ZERR)
       enddo
       Close(33)
-
-      ! Deallocate  space
-      Deallocate ( bins, Phase,PhaseI, Xk_p, V_help, bins0)
+      
+      
+      ! Deallocate space ===============================
+      Deallocate ( bins, Phase,PhaseI, Xk_p, V_help)
       Deallocate ( Bins_chi, Xmean, Xcov )
-
       
    end Subroutine ana_tau
 
@@ -665,7 +670,7 @@
       Do n = 1,Nunit
          Xk_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          if (Xk_p(1) >= -1.d-8 .and. XK_p(2) >= -1.d-8) then
-            write(File_out,'("Var_eq_Auto_Tr_",F4.2,"_",F4.2)')  Xk_p(1), Xk_p(2)
+            write(File_out,'(A,"_Auto_Tr_",F4.2,"_",F4.2)') trim(name), Xk_p(1), Xk_p(2)
             OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
             WRITE(21,*)
             do nb = 1,Nbins
@@ -764,7 +769,6 @@
       enddo
          
       write(File_out,'(A,A)') trim(name), "J"
-!       write(File_out,'(A,A)') trim(name), "J_hdf5"
       OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
       WRITE(21,*) 'Effective number of bins, and bins: ', Nbins_eff/N_rebin, Nbins
       ALLOCATE (EN(Nbins_eff), vec(NOBS), vec_err(NOBS))
@@ -780,13 +784,13 @@
       WRITE(21,*)
       WRITE(21,2001) NOBS+1, XM,  XERR
       CLOSE(21)
-2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
+2001    FORMAT('OBS : ', I4,4x,F12.6,2X, F12.6)
+#2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
         
       if(N_auto>0) then
          ALLOCATE(AutoCorr(N_auto))
          DO IOBS = 1,NOBS
             write(File_out,'(A,A,I1.1)') trim(name), '_Auto_', iobs
-!             write(File_out,'(A,A,I1.1,A)') trim(name), '_Auto_', iobs, '_hdf5'
             write(*,*) File_out
             OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
             WRITE(21,*)
