@@ -785,7 +785,7 @@
       WRITE(21,2001) NOBS+1, XM,  XERR
       CLOSE(21)
 2001    FORMAT('OBS : ', I4,4x,F12.6,2X, F12.6)
-#2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
+!2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
         
       if(N_auto>0) then
          ALLOCATE(AutoCorr(N_auto))
