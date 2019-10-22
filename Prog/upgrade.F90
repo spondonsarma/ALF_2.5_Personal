@@ -238,7 +238,7 @@
                 Z = -x_v(Op_V(n_op,nf)%P(1), 1)
                 CALL ZGERU(Ndim, Ndim, Z, xp_v(1,1), 1, y_v(1, 1), 1, gr(1,1,nf), Ndim)
               ELSE
-                Allocate (Op_dim, Op_dim), grarr(NDim, Op_dim))
+                Allocate (zarr(Op_dim, Op_dim), grarr(NDim, Op_dim))
                 Zarr = x_v(Op_V(n_op,nf)%P(1:Op_dim), :)
                 grarr = gr(:, Op_V(n_op,nf)%P(1:Op_dim), nf)
                 alpha = 1.D0
