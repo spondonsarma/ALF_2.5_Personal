@@ -448,7 +448,7 @@
       Real    (Kind=Kind(0.d0)), intent(in) :: dtau
       Logical, intent(in) :: PartHole
       
-      Character (len=64) :: File_out
+      Character (len=64) :: File_out, command
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
       Integer :: Nbins, Norb, LT, Lt_eff, Nunit
@@ -530,7 +530,10 @@
       do n = 1,Nunit
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
             call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
-            write(File_out,'(A,"_",F4.2,"_",F4.2)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n)
+            !write(File_out,'(A,"_",F4.2,"_",F4.2)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n)
+            write(File_out,'(A,"_",F4.2,"_",F4.2,"/g_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n), Xk_p(1,n), Xk_p(2,n)
+            write(command, '("mkdir -p ",A,"_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
+            CALL EXECUTE_COMMAND_LINE(command)
             Open (Unit=10,File=File_out,status="unknown")
             Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
             do nt = 1, LT_eff
@@ -560,7 +563,10 @@
       enddo
       V_help = V_help/dble(Nunit)
       call COV(V_help, phase, Xcov, Xmean, N_Rebin )
-      write(File_out,'(A,"_R0")') trim(name_obs)
+      !write(File_out,'(A,"_R0")') trim(name_obs)
+      write(File_out,'(A,"_R0/g_R0")') trim(name_obs)
+      write(command, '("mkdir -p ",A,"_R0")') trim(name_obs)
+      CALL EXECUTE_COMMAND_LINE(command)
       Open (Unit=10,File=File_out,status="unknown")
       Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
       do nt = 1, LT_eff
