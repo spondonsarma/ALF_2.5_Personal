@@ -1,4 +1,43 @@
+!  Copyright (C) 2019 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
    module ana_mod 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Collection of routines for postprocessing the Monte Carlo bins
+!
+!--------------------------------------------------------------------
       Use Errors
       Use MyMats
       Use Matrix
@@ -7,6 +46,26 @@
    contains
 
    Subroutine read_vec(file, sgn, bins)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Reads in bins of scalar observables from file
+!> 
+!> @param [IN] file Character(len=64)
+!> \verbatim
+!>  Name of file that gets read in
+!> \endverbatim
+!> @param [OUT] sgn Real(:)
+!> \verbatimam
+!>  Sign of bins 
+!> \endverbatim
+!> @param [OUT] bins Complex(:,:)
+!> \verbatim
+!>  Monte Carlo bins
+!> \endverbatim
+!-------------------------------------------------------------------
       Implicit none
       Character (len=64), intent(in) :: file
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
@@ -47,6 +106,36 @@
 !==============================================================================
 
    Subroutine read_latt(file, sgn, bins, bins0, Latt, dtau)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Reads in bins of lattice-type observables (both equal time and timedisplaced) from file
+!> 
+!> @param [IN] file Character(len=64)
+!> \verbatim
+!>  Name of file that gets read in
+!> \endverbatim
+!> @param [OUT] sgn Real(:)
+!> \verbatimam
+!>  Sign of bins 
+!> \endverbatim
+!> @param [OUT] bins Complex(:,:,:,:,:)
+!> \verbatim
+!>  Monte Carlo bins of correlation
+!> @param [OUT] bins0 Complex(:,:)
+!> \verbatim
+!>  Monte Carlo bins of background
+!> @param [OUT] Latt Type(Lattice)
+!> \verbatim
+!>  Bravais lattice
+!> \endverbatim
+!> @param [OUT] dtau Real
+!> \verbatim
+!>  Size of imaginary time step
+!> \endverbatim
+!-------------------------------------------------------------------
       Implicit none
       Character (len=64), intent(in) :: file
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
@@ -181,6 +270,14 @@
 !==============================================================================
 
    Subroutine jack(func, data, N_skip, N_rebin, best, err)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Performs jackknife error Analysis
+!> 
+!-------------------------------------------------------------------
       Implicit none
       
       Complex (Kind=Kind(0.d0)), External                :: func
@@ -248,6 +345,13 @@
 !==============================================================================
 
    subroutine auto(func, data, N_skip, res)
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Calculates autocorrelation
+!-------------------------------------------------------------------
       implicit none
       
       complex (Kind=Kind(0.d0)), External   :: func
@@ -301,6 +405,15 @@
 !
 !> @brief 
 !> Analysis of imaginary time displaced  correlation functions.
+!> 
+!> @param [IN] file Character(len=64)
+!> \verbatim
+!>  Name of file that gets read in
+!> \endverbatim
+!> @param [IN] PartHole logical
+!> \verbatimam
+!>  If true, it is assumed that observable is symmetric in imaginary time around tau = beta/2
+!> \endverbatim
 !
 !--------------------------------------------------------------------        
 

@@ -36,8 +36,18 @@
 !> ALF-project
 !
 !> @brief 
-!> Wrapper program for analyzing scalar observables, equal-time and timedisplaced correlation functions
+!> Wrapper program for analyzing Monte Carlo bins.
 !> 
+!> @details
+!>  Analyzes scalar observables, equal-time and timedisplaced correlation functions.
+!>
+!>  Hand over any number of file names as command line argumens to this program.
+!>  If will analyze names ending in "_scal" as scalar observables, "_eq"  asequal-time 
+!>  correlation functions and "_tau" as timedisplaced correlation functions.
+!>
+!>  For timedisplaced observables that are listen in "names_PH" in namelist "VAR_PH_names"
+!>  in file "parameters", it is assumed that they are symmetric in imaginary time around tau = beta/2
+!>  
 !
 !--------------------------------------------------------------------
       
@@ -75,36 +85,42 @@
       do n=1, size(names)
          name = names(n)
          i = len(trim(name)) -4
-         if ( name(i:) == '_scal' ) then
-            print *, ''
-            print '(A,A)', "analyzing scalar observble ", name
-            call Cov_vec(name)
+         if ( i > 1 ) then
+            if ( name(i:) == '_scal'  ) then
+               print *, ''
+               print '(A,A)', "analyzing scalar observble ", name
+               call Cov_vec(name)
+            endif
          endif
       enddo
       
       do n=1, size(names)
          name = names(n)
          i = len(trim(name)) -2
-         if ( name(i:) == '_eq' ) then
-            print *, ''
-            print '(A,A)', "analyzing equal time correlation ", name
-            call Cov_eq(name)
+         if ( i > 1 ) then
+            if ( name(i:) == '_eq' ) then
+               print *, ''
+               print '(A,A)', "analyzing equal time correlation ", name
+               call Cov_eq(name)
+            endif
          endif
       enddo
       
       do n=1, size(names)
          name = names(n)
          i = len(trim(name)) -3
-         if ( name(i:) == '_tau' ) then
-            print *, ''
-            if ( any(names_PH == name) ) then
-               PartHole = .true.
-               print '(A,A)', "analyzing particle hole symmetric time displaced correlation ", name
-            else
-               PartHole = .false.
-               print '(A,A)', "analyzing time displaced correlation ", name
+         if ( i > 1 ) then
+            if ( name(i:) == '_tau' ) then
+               print *, ''
+               if ( any(names_PH == name) ) then
+                  PartHole = .true.
+                  print '(A,A)', "analyzing particle hole symmetric time displaced correlation ", name
+               else
+                  PartHole = .false.
+                  print '(A,A)', "analyzing time displaced correlation ", name
+               endif
+               call Cov_tau(name, PartHole)
             endif
-            call Cov_tau(name, PartHole)
          endif
       enddo
       
