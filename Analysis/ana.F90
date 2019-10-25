@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2019 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -29,14 +29,41 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-
    Program ana
+      
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Wrapper program for analyzing scalar observables, equal-time and timedisplaced correlation functions
+!> 
+!
+!--------------------------------------------------------------------
+      
+      
       use ana_mod
       implicit none
-      Integer                         :: i, n, nargs
+      Integer                         :: i, n, nargs, ierr, N_PartHole
       Character (len=64)              :: name
-      Character (len=64), allocatable :: names(:)
+      Character (len=64), allocatable :: names(:), names_PH(:)
       Logical                         :: PartHole
+
+      !NAMELIST /VAR_PH_N/     N_PartHole
+      NAMELIST /VAR_PH_names/ names_PH
+
+
+      N_PartHole = 100
+      OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
+      IF (ierr /= 0) THEN
+         WRITE(*,*) 'unable to open <parameters>',ierr
+         STOP
+      END IF
+      !READ(5,NML=VAR_PH_N,IOSTAT=ierr)
+      !rewind(5)
+      allocate( names_PH(N_PartHole) )
+      READ(5,NML=VAR_PH_names,IOSTAT=ierr)
+      close(5)
       
       nargs = COMMAND_ARGUMENT_COUNT()
       allocate( names(nargs) )
@@ -50,7 +77,7 @@
          i = len(trim(name)) -4
          if ( name(i:) == '_scal' ) then
             print *, ''
-            print '(A,A)', "analyzing ", name
+            print '(A,A)', "analyzing scalar observble ", name
             call Cov_vec(name)
          endif
       enddo
@@ -60,7 +87,7 @@
          i = len(trim(name)) -2
          if ( name(i:) == '_eq' ) then
             print *, ''
-            print '(A,A)', "analyzing ", name
+            print '(A,A)', "analyzing equal time correlation ", name
             call Cov_eq(name)
          endif
       enddo
@@ -69,17 +96,18 @@
          name = names(n)
          i = len(trim(name)) -3
          if ( name(i:) == '_tau' ) then
-            if (name == 'Green_tau') then
-               PartHole = .false.
-            else
-               PartHole = .true.
-            endif
             print *, ''
-            print '(A,A)', "analyzing ", name
-            print *, PartHole
+            if ( any(names_PH == name) ) then
+               PartHole = .true.
+               print '(A,A)', "analyzing particle hole symmetric time displaced correlation ", name
+            else
+               PartHole = .false.
+               print '(A,A)', "analyzing time displaced correlation ", name
+            endif
             call Cov_tau(name, PartHole)
          endif
       enddo
       
+      deallocate( names, names_PH )
+      
    end Program ana
-       
