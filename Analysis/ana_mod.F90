@@ -53,10 +53,10 @@
       Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins(:,:,:,:,:)
       Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins0(:,:)
       Type (Lattice), intent(out)    :: Latt
-      Real    (Kind=Kind(0.d0)), intent(out), optional :: dtau
+      Real    (Kind=Kind(0.d0)), intent(out) :: dtau
 
-      Integer :: no, no1, n, nt, nb, Ntau, Nunit, Nbins, Norb, LT
-      Real    (Kind=Kind(0.d0)):: X, Y, dt
+      Integer :: no, no1, n, nt, nb, Ntau, Nunit, Nbins, Norb!, LT
+      Real    (Kind=Kind(0.d0)):: X, Y !, dt
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Real    (Kind=Kind(0.d0))              :: x_p(2)
       Complex (Kind=Kind(0.d0)) :: Z
@@ -72,15 +72,23 @@
       
       ! Read in lattice
       open ( Unit=10, File=file, status="unknown" )
-      read(10,*,ERR=100) X, Norb, Nunit, LT, dt, ndim
+      read(10,*,ERR=100) X, Norb, Nunit, Ntau, dtau, ndim
       rewind(10)
       allocate( a1_p(ndim), a2_p(ndim), L1_p(ndim), L2_p(ndim) )
-      read(10,*) X, Norb, Nunit, LT, dt, ndim, L1_p, L2_p, a1_p, a2_p
+      read(10,*) X, Norb, Nunit, Ntau, dtau, ndim, L1_p, L2_p, a1_p, a2_p
       close(10)
-      goto 110
+      goto 120 
       
   100 continue
+      Ntau = 1
+      dtau = -1.d0
+      rewind(10)
+      Read(10,*,ERR=110) X, Norb, Nunit, Ntau, dtau
+  110 continue
+      rewind(10)
+      Read(10,*) X, Norb, Nunit
       Close(10)
+      
       allocate( a1_p(2), a2_p(2), L1_p(2), L2_p(2) )
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read')
       READ(5,NML=VAR_lattice)
@@ -110,30 +118,24 @@
          Stop "Lattice not yet implemented!"
       endif
       
-  110 continue
+  120 continue
       Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
       deallocate( a1_p, a2_p, L1_p, L2_p )
 
       ! Determine the number of bins. 
-      Open ( Unit=10, File=file, status="unknown" ) 
+      Open ( Unit=10, File=file, status="unknown" )
       nbins = 0
       do
-         if( present(dtau) )then
-            Read(10,*,End=10) X, Norb, Nunit, LT, dtau
-            Ntau = LT
-         else
-            Read(10,*,End=10) X, Norb, Nunit
-            Ntau = 1
-         endif
+         Read(10,*,End=10)
          Do no = 1,Norb
-            Read(10,*) Z
+            Read(10,*)
          enddo
          do n = 1,Nunit
-            Read(10,*) X,Y
+            Read(10,*)
             do nt = 1,Ntau
                do no = 1,Norb
                   do no1 = 1,Norb
-                     read(10,*) Z
+                     read(10,*)
                   enddo
                enddo
             enddo
@@ -148,11 +150,7 @@
       
       Open ( Unit=10, File=file, status="unknown" ) 
       do nb = 1, nbins
-         if( present(dtau) ) then
-            Read(10,*,End=10) sgn(nb),no,no1,n, X
-         else
-            Read(10,*,End=10) sgn(nb),no,no1
-         endif
+         Read(10,*,End=10) sgn(nb)
          Do no = 1,Norb
             Read(10,*) bins0(no,nb)
          Enddo
@@ -521,8 +519,9 @@
       Real    (Kind=Kind(0.d0)), allocatable :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer :: Bins_raw(:,:,:,:,:), Bins0_raw(:,:)
       Type (Lattice)   :: Latt
+      Real    (Kind=Kind(0.d0)) :: dtau
       
-      call read_latt(file, sgn, bins_raw, bins0_raw, Latt)
+      call read_latt(file, sgn, bins_raw, bins0_raw, Latt, dtau)
       call ana_eq(file, sgn, bins_raw, bins0_raw, Latt)
    
    end subroutine Cov_eq
