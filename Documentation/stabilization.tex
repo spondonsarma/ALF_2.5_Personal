@@ -26,7 +26,7 @@ contain a relative error
 \end{equation}
 where $\epsilon$ denotes the machine precision, which is $2^{-53}$ for IEEE double-precision numbers, and $\kappa_p(\bm{M})$ is the condition number of the matrix $\bm{M}$ with respect to the matrix $p$-norm. Due to $\prod_ \tau \bm{B}_\tau$ containing exponentially large and small scales, as can be seen in Eq.~\eqref{eqn:partition_2}, a straightforward inversion turns out to be completely ill-suited. That would lead the condition number, as a function of increasing inverse temperature, to grow exponentially, rendering the computed solution $\tilde{x}$ meaningless.
 
-In order to circumvent this, more sophisticated methods have to be employed. As a first step, assuming that the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number and, for simplicity, that \texttt{NWrap} is a divisor of $L_{\text{Trotter}}$, we can write: \mycomment{(JP: I made $i \in (1, L_\text{Trotter}/\texttt{NWrap})$, instead of $i \in (0, L_\text{Trotter}/(\texttt{NWrap}-1))$ {\small and put $i-1$ instead of $i$ in $\bm{B}$})}
+In order to circumvent this, more sophisticated methods have to be employed. As a first step, assuming that the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number and, for simplicity, that \texttt{NWrap} is a divisor of $L_{\text{Trotter}}$, we can write:
 %\begin{equation}
 %\bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.
 %\end{equation}
