@@ -19,15 +19,16 @@ The Hamiltonian reads
 \label{eqn_hubbard_sun}
 \mathcal{H}= 
 \sum\limits_{\sigma=1}^{2} 
-\sum\limits_{x,y =1 }^{N_{\text{unit cell}}} 
+\sum\limits_{x,y =1 }^{N_{\text{unit-cell}}} 
   c^{\dagger}_{x \sigma} T_{x,y}c^{\phantom\dagger}_{y \sigma} 
 + \frac{U}{2}\sum\limits_{x}\left[
 \sum\limits_{\sigma=1}^{2}
 \left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}\;.
 \end{equation} 
 We can make contact with the general form of the Hamiltonian by setting: 
-$N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   -\frac{U}{2}$, 
+$N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   -\frac{U}{2}$, 
  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 0 $.
+
 
 %------------------------------------------------------------
 \subsubsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
@@ -53,7 +54,7 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 %------------------------------------------------------------
 
 The choice \texttt{Lattice\_type = "Square"} sets $\vec{a}_1 =  (1,0) $ and $\vec{a}_2 =  (0,1) $  and for an $L_1 \times L_2$  lattice  $\vec{L}_1 = L_1 \vec{a}_1$ and  $\vec{L}_2 = L_2 \vec{a}_2$.     The call to  \texttt{Call Make\_Lattice( L1, L2, a1,  a2, Latt)} will generate the lattice   \texttt{Latt} of type \texttt{Lattice}. 
-For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit cell}}   \cdot \texttt{NORB}  = \texttt{Latt\%N} \cdot \texttt{NORB}$, since $N_{\text{unit cell}} = \texttt{Latt\%N}$.
+For the Hubbard model on the square lattice, the number of orbitals per unit cell is given by \texttt{NORB=1} such that   $N_{\mathrm{dim}}   \equiv N_{\text{unit-cell}}   \cdot \texttt{NORB}  = \texttt{Latt\%N} \cdot \texttt{NORB}$, since $N_{\text{unit-cell}} = \texttt{Latt\%N}$.
 
 %------------------------------------------------------------
 \paragraph{The hopping term: \texttt{Call Ham\_hop}}
@@ -296,7 +297,7 @@ The Hubbard Hamiltonian can equally be written as:
 c^{\dagger}_{x, \uparrow} c^{\phantom\dagger}_{x \uparrow}  -   c^{\dagger}_{x, \downarrow} c^{\phantom\dagger}_{x \downarrow}  \right]^{2}\;.
 \end{equation} 
 We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:general_ham}) by setting: 
-$N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} $,  $U_{k}       =   \frac{U}{2}$, 
+$N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
  The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.       In the parameter file  listed in  Sec.~\ref{sec:input}  setting the model variable to  \texttt{Hubbard\_Mz}  will carry out the simulation in the above representation. 
  With respect to the $SU(2)$ case, the changes required in the \texttt{Hamiltonian\_Examples\_mod.F90}  module are  minimal and essentially effect only the interaction term, and the calculation of observables.  We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
@@ -469,8 +470,8 @@ The model we consider here  is very similar to the  above,  but has an additiona
   \hat{Z}_{\langle x,y \rangle}   \hat{Z}_{\langle x',y' \rangle} 
 \end{eqnarray}
 We can make contact with the general form of the Hamiltonian by setting: 
-$N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit cell}} \equiv N_{\mathrm{dim}}$,  $U_{k}       =   -\frac{U}{2}$, 
- $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 2 N_{\text{unit cell}} $.  
+$N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} \equiv N_{\mathrm{dim}}$,  $U_{k}       =   -\frac{U}{2}$, 
+ $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 2 N_{\text{unit-cell}} $.  
  The last two terms of the  above Hamiltonian describe a transverse Ising field model on the bonds of the square lattice.  This  type of Hamiltonian  has  recently been extensively discussed  \cite{Schattner15,Xu16,Assaad16}.  Here we adopt the notation of Ref.~\cite{Assaad16}. Note that   $\langle \langle x,y \rangle \langle x',y' \rangle \rangle $ denotes nearest neighbor bonds.
 The modifications  required to generalize the Hubbard model code to the above model are two-fold. 
 
@@ -560,7 +561,7 @@ Enddo
 
 As mentioned above,  a configuration now includes both HS spins and Ising spins and is given by
 \begin{equation}
-	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,  j = 1\cdots M_V,  \tau=1,L_{Trotter}  \right\}\:.
+	C = \left\{   s_{i,\tau} ,  l_{j,\tau},  \text{ with }  i=1,\cdots, M_I;\;  j = 1,\cdots, M_V;\;  \tau=1,\cdots,L_\text{Trotter}  \right\}\:.
 \end{equation}
 This configuration is stored in the  integer array \texttt{nsigma(M\_V + M\_I, Ltrot)}.  With the above ordering of Hubbard and Ising interaction terms, and a for a given imaginary time, the first \texttt{2*Ndim} fields correspond to the Ising interaction and the next \path{Ndim} ones to the Hubbard interaction.
 The first   argument of the function \texttt{S0}, namely \texttt{n},  corresponds to the index of the operator  string 
