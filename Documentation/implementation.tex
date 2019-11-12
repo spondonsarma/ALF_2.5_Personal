@@ -173,11 +173,11 @@ we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm
 
 For some models, its auxiliary fields may be accommodated in an array of integers, such as the array \texttt{nsigma(M\_V + M\_I, Ltrot)}, used to store both discrete HS and Ising interaction terms in the example given in Sec.~\ref{sec:walk1}. For the general case, however, a variable of type \texttt{Fields}, which offers more advanced facilities, can be used.
 
-The generic term of the partition function (see Sec.~\ref{sec:method}) is written in terms of fields $\gamma$ and $\phi$ as
+The partition function (see Sec.~\ref{sec:method}) consists of terms which, in general, can be written as
 \begin{align}
 \gamma e^{g \phi \bm{X} },
 \end{align}
-where $\bm{X}$ denotes an arbitrary operator and $g$ is a constant
+where $\gamma$ and $\phi$ are fields, $\bm{X}$ denotes an arbitrary operator, and $g$ is a constant.
 
 
 For a Ising term, we store \path{type=1}, which sets $\phi_{k\tau}=s_{k\tau}$. 
