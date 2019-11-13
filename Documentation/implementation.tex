@@ -341,11 +341,12 @@ This suffix  is important to allow automatic analysis of the data at the end of 
 \subsubsection{ Equal-time and time-displaced correlation functions}
 %------------------------------------------------------------
 
-This data type (see Table~\ref{table:Obser_latt}) is useful for dealing with both equal-time and imaginary-time-displaced correlation functions of the form: 
+The data type \texttt{Obser\_latt} (see Table~\ref{table:Obser_latt}) is useful for dealing with both equal-time and imaginary-time-displaced correlation functions of the form: 
 \begin{equation}\label{eqn:s}
-	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{- \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
-	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{j},\beta}  \rangle \right).
+	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
+	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{j},\beta}  \rangle \right),
 \end{equation}
+where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ lattice positions.
 %
 \begin{table}[h]
 	\begin{tabular}{@{} l l l l @{}}\toprule
