@@ -241,6 +241,7 @@
                 Allocate (zarr(Op_dim, Op_dim), grarr(NDim, Op_dim))
                 Zarr = x_v(Op_V(n_op,nf)%P(1:Op_dim), :)
                 grarr = gr(:, Op_V(n_op,nf)%P(1:Op_dim), nf)
+                beta  = 0.d0
                 alpha = 1.D0
                 CALL ZGEMM('N', 'N', NDim, Op_Dim, Op_Dim, alpha, grarr, Ndim, Zarr, Op_dim, beta, xp_v, Ndim)
                 Deallocate(Zarr, grarr)
