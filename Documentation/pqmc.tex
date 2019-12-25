@@ -1,0 +1,20 @@
+% Copyright (c) 2016-2019 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
+% !TEX root = doc.tex
+
+The projective  approach is the method of choice if  one is interested in ground state properties.   For a given trial wave functions  $| \Psi_{T,L/R} \rangle  $  that are  not orthogonal to the ground state,  $| \Psi_0 \rangle  $,   
+($  \langle \Psi_{T,L/R}  | \Psi_T \rangle  \neq 0  $), the ground state expectation value of an observable  $\hat{O} $ is given by: 
+\begin{equation}
+	 \frac{ \langle \Psi_0 | \hat{O} | \Psi_0 \rangle }{ \langle \Psi_0 | \Psi_0 \rangle}   = \lim_{\theta \rightarrow \infty}  
+	 \frac{ \langle \Psi_{T,L} | e^{-\theta \hat{H}}  e^{-(\beta - \tau)\hat{H}  }\hat{O} e^{- \tau  \hat{H} }   e^{-\theta \hat{H}} | \Psi_{T,R} \rangle } 
+	        { \langle \Psi_{T,L} | e^{-(2 \theta + \beta) \hat{H}  } | \Psi_{T,R} \rangle } 
+\end{equation}
+The simulations are carried out at large  but finite values of  $\Theta$ so as to guarantee convergence to the ground  state within the statistical uncertainly.   $\beta$ denotes an imaginary time range where  observables 
+(time displaced and equal time) can be measured.  
+
+
+\subsection{The choice and specification of the trial wave function}
