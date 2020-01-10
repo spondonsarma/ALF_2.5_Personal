@@ -174,7 +174,6 @@ we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm
 The partition function (see Sec.~\ref{sec:method}) consists of terms which, in general, can be written as $\gamma e^{g \phi \bm{X} }$, where $\bm{X}$ denotes an arbitrary operator, $g$ is a constant, and $\gamma$ and $\phi$ are fields. 
 For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly (as there are only two Ising states, $s_{k,\tau} = \pm 1$, it simply inverts the sign for those).
 
-The routine
 For an Ising term, we store type \texttt{t=1}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=s_{k,\tau} = \pm 1$. 
 In the case of a perfect-square term, the fields results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{t=2}, which sets $\gamma_{k,\tau} = s_{k,\tau}$ and $\phi_{k,\tau}=\eta_{k,\tau}$ (see Eq.~\ref{eta_gamma_fields}). For continuous real fields $f$ we store \texttt{t=3}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=f$.
 
