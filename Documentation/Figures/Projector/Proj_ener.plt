@@ -11,7 +11,7 @@ set pointsize 1.5
 #set yrange [-80.5:-79.5]
 set xrange [0.0:0.21] 
 set ylabel "$ \\langle \\hat{H}  \\rangle $"
-set title "$L=6,  U/t=4$ "
+set title "$L=6,  U/t=2$ "
 set xlabel " $ \\frac{1}{\\beta t},  \\frac{1}{2 \\theta t + \\beta t} $ "
 #set x2label " $ \\frac{1}{2 \\theta t + \\beta t} $ "
 plot "Finite_T/Ener.dat" u (1/$1):2:3 w e lc rgb "black" lt 1 pt 8 t "Finite T", \

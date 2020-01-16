@@ -55,7 +55,7 @@
 \contentsline {paragraph}{\numberline {6.1.2.1}Allocating space for the observables: \texttt {Call Alloc\_obs(Ltau) }}{37}{paragraph.6.1.2.1}
 \contentsline {paragraph}{\numberline {6.1.2.2}Measuring equal time observables: \texttt {Obser(GR,Phase,Ntau)}}{38}{paragraph.6.1.2.2}
 \contentsline {paragraph}{\numberline {6.1.2.3}Measuring time displaced observables: \texttt {ObserT(NT, GT0,G0T,G00,GTT, PHASE) }}{39}{paragraph.6.1.2.3}
-\contentsline {subsubsection}{\numberline {6.1.3}Numerical precision}{40}{subsubsection.6.1.3}
+\contentsline {subsubsection}{\numberline {6.1.3}Numerical precision}{39}{subsubsection.6.1.3}
 \contentsline {subsection}{\numberline {6.2}The $M_z$-Hubbard model on a square lattice}{40}{subsection.6.2}
 \contentsline {subsubsection}{\numberline {6.2.1}The interaction term: \texttt {Call Ham\_V}}{40}{subsubsection.6.2.1}
 \contentsline {subsubsection}{\numberline {6.2.2}The measurements: \texttt {Call Obser, Call ObserT}}{41}{subsubsection.6.2.2}
@@ -64,7 +64,7 @@
 \contentsline {subsubsection}{\numberline {6.3.1}Working with multi-orbital unit cells: \texttt {Call Ham\_Latt}}{41}{subsubsection.6.3.1}
 \contentsline {subsubsection}{\numberline {6.3.2}The hopping term: \texttt {Call Ham\_Hop}}{42}{subsubsection.6.3.2}
 \contentsline {subsubsection}{\numberline {6.3.3}Observables: \texttt {Call Obser}, \texttt {Call ObserT}}{42}{subsubsection.6.3.3}
-\contentsline {subsection}{\numberline {6.4}The $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}{43}{subsection.6.4}
+\contentsline {subsection}{\numberline {6.4}The $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}{42}{subsection.6.4}
 \contentsline {subsubsection}{\numberline {6.4.1}The Ising term.}{43}{subsubsection.6.4.1}
 \contentsline {subsubsection}{\numberline {6.4.2}The interaction term: \texttt {Call Ham\_V}}{43}{subsubsection.6.4.2}
 \contentsline {subsubsection}{\numberline {6.4.3}The function \texttt {Real (Kind=8) function S0(n,nt)}}{44}{subsubsection.6.4.3}
@@ -72,7 +72,7 @@
 \contentsline {subsection}{\numberline {7.1}Other models}{44}{subsection.7.1}
 \contentsline {subsubsection}{\numberline {7.1.1}Kondo lattice model}{44}{subsubsection.7.1.1}
 \contentsline {subsubsection}{\numberline {7.1.2}$SU(N)$ Hubbard-Heisenberg models}{45}{subsubsection.7.1.2}
-\contentsline {subsubsection}{\numberline {7.1.3}Hubbard model in the canonical ensemble}{46}{subsubsection.7.1.3}
+\contentsline {subsubsection}{\numberline {7.1.3}Hubbard model in the canonical ensemble}{45}{subsubsection.7.1.3}
 \contentsline {subsubsection}{\numberline {7.1.4}$Z_2$ slave spin formualtion of the Hubbard model}{47}{subsubsection.7.1.4}
 \contentsline {subsubsection}{\numberline {7.1.5}$Z_2$ gauge theory coupled to $Z_2$ matter.}{49}{subsubsection.7.1.5}
 \contentsline {subsubsection}{\numberline {7.1.6}Generalized t-V model}{49}{subsubsection.7.1.6}
