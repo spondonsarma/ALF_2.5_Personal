@@ -10,24 +10,38 @@
 %------------------------------------------------------------
 %
 \begin{table}[h]
-   \begin{tabular}{@{} l l @{}}\toprule
-   Directory & Description \\\midrule
-   \path{Prog/} & Main program and subroutines  \\
-  \path{Libraries/} & Collection of mathematical routines \\  
-  \path{Analysis/} & Routines for error analysis \\
-  \path{Examples/} & Example simulations for Hubbard-type models\\
-  \path{Start/}   & Parameter files and scripts  \\
-  \path{Documentation/} & Documentation of the QMC code.\\\bottomrule
-  \hline
-%   \path{configure.sh} & sets the global variables for compilation \\
-   \end{tabular}
-   \caption{Overview of the directories.\label{table:files}}
+	\begin{tabular}{@{} l l @{}}\toprule
+   	Directory & Description \\\midrule
+   	\path{Prog/} & Main program and subroutines  \\
+   	\path{Libraries/} & Collection of mathematical routines \\  
+  	\path{Analysis/} & Routines for error analysis \\
+  	\path{Scripts_and_Parameters_files/}   & Helper scripts and the \path{Start/} directory, which contains the files \\ 
+  	                                      & required to start a run \\
+  	\path{Documentation/} & This documentation.\\
+  	\path{testsuite/} & A suite for automatic testing various parts of the code.\\\bottomrule
+  	\hline
+	\end{tabular}
+   	\caption{Overview of the directories.\label{table:files}}
 \end{table}
 %
 
-The code package consists of the program directories \path{Prog/}, \path{Libraries/} and \path{Analysis/}. 
-The example simulations corresponding to the walkthroughs of Sec.~\ref{sec:walk1} - \ref{sec:walk2} are included in \path{Examples/}. 
-The package content is summarized in Table~\ref{table:files}.
+The code package, summarized in Table~\ref{table:files}, consists of the program directories \path{Prog/}, \path{Libraries/}, and \path{Analysis/}, as well as the directory \path{Scripts_and_Parameters_files/}, which contains supporting scripts and, in the subdirectory \path{Start}, the necessary input files, described in the Sec.~\ref{sec:input}. Additionally, a suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite} -- the tests can be run by executing the following sequence of commands: 
+\begin{verbatim}
+. configureHPC.sh Devel serial
+gfortran -v
+make lib
+make ana
+make Examples
+cd testsuite
+cmake -E make_directory tests
+cd tests
+cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} \
+      -DCMAKE_BUILD_TYPE=RELEASE ..
+cmake --build . --target all --config Release
+ctest -VV -O log.txt
+\end{verbatim}
+which will output the tests output and total success rate.
+%The example simulations corresponding to the walkthroughs of Sec.~\ref{sec:walk1} - \ref{sec:walk2} are included in \path{Examples/}.
 
 %------------------------------------------------------------
 \subsubsection{Input files}\label{sec:input}

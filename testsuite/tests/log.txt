@@ -1,0 +1,578 @@
+[HANDLER_VERBOSE_OUTPUT] 
+UpdateCTestConfiguration  from :/home/stafusa/ALF/ALF/testsuite/tests/DartConfiguration.tcl
+
+UpdateCTestConfiguration  from :/home/stafusa/ALF/ALF/testsuite/tests/DartConfiguration.tcl
+[HANDLER_OUTPUT] 
+Test project /home/stafusa/ALF/ALF/testsuite/tests
+
+[HANDLER_VERBOSE_OUTPUT] 
+Constructing a list of tests
+
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+[HANDLER_OUTPUT] 
+      Start  1: 1-diag-real-matrix
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+1: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/1-diag-real-matrix
+
+1: Test timeout computed to be: 10000000
+1:  success
+[HANDLER_OUTPUT] 
+ 1/28 Test  #1: 1-diag-real-matrix ...............
+   Passed    0.03 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 2
+
+[HANDLER_OUTPUT] 
+      Start  2: 2-inv-r0
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+2: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/2-inv-r0
+
+2: Test timeout computed to be: 10000000
+2:  success
+[HANDLER_OUTPUT] 
+ 2/28 Test  #2: 2-inv-r0 .........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 3
+
+[HANDLER_OUTPUT] 
+      Start  3: 3-inv-R-variable
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+3: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/3-inv-R-variable
+
+3: Test timeout computed to be: 10000000
+3:  success
+[HANDLER_OUTPUT] 
+ 3/28 Test  #3: 3-inv-R-variable .................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 4
+
+[HANDLER_OUTPUT] 
+      Start  4: 4-inv-R-variable-1
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+4: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/4-inv-R-variable-1
+
+4: Test timeout computed to be: 10000000
+4:  success
+[HANDLER_OUTPUT] 
+ 4/28 Test  #4: 4-inv-R-variable-1 ...............
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 5
+
+[HANDLER_OUTPUT] 
+      Start  5: 5-inv-R1
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+5: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/5-inv-R1
+
+5: Test timeout computed to be: 10000000
+5:  success
+[HANDLER_OUTPUT] 
+ 5/28 Test  #5: 5-inv-R1 .........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 6
+
+[HANDLER_OUTPUT] 
+      Start  6: 6-inv_C
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+6: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/6-inv_C
+
+6: Test timeout computed to be: 10000000
+6:  success
+[HANDLER_OUTPUT] 
+ 6/28 Test  #6: 6-inv_C ..........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 7
+
+[HANDLER_OUTPUT] 
+      Start  7: 7-inv_C_variable
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+7: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/7-inv_C_variable
+
+7: Test timeout computed to be: 10000000
+7:  success
+[HANDLER_OUTPUT] 
+ 7/28 Test  #7: 7-inv_C_variable .................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 8
+
+[HANDLER_OUTPUT] 
+      Start  8: 8-inv-C1
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+8: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/8-inv-C1
+
+8: Test timeout computed to be: 10000000
+8:  success
+[HANDLER_OUTPUT] 
+ 8/28 Test  #8: 8-inv-C1 .........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 9
+
+[HANDLER_OUTPUT] 
+      Start  9: 9-inv-C1_test2
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+9: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/9-inv-C1_test2
+
+9: Test timeout computed to be: 10000000
+9:  success
+[HANDLER_OUTPUT] 
+ 9/28 Test  #9: 9-inv-C1_test2 ...................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 10
+
+[HANDLER_OUTPUT] 
+      Start 10: 10-initd_C
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+10: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/10-initd_C
+
+10: Test timeout computed to be: 10000000
+10:  success
+[HANDLER_OUTPUT] 
+10/28 Test #10: 10-initd_C .......................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 11
+
+[HANDLER_OUTPUT] 
+      Start 11: 11-UDV-C
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+11: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/11-UDV-C
+
+11: Test timeout computed to be: 10000000
+11:  Accuracy, ortho:    2.2204460492503131E-016
+[HANDLER_OUTPUT] 
+11/28 Test #11: 11-UDV-C .........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 12
+
+[HANDLER_OUTPUT] 
+      Start 12: 12-UDV-R
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+12: Test command: /home/stafusa/ALF/ALF/testsuite/tests/matmod.tests/12-UDV-R
+
+12: Test timeout computed to be: 10000000
+12:  Accuracy:    8.3266726846886741E-017
+12:  UDV1 orth U:    8.8817841970012523E-016
+[HANDLER_OUTPUT] 
+12/28 Test #12: 12-UDV-R .........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 13
+
+[HANDLER_OUTPUT] 
+      Start 13: 9-Op-Phase
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+13: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/9-Op-Phase
+
+13: Test timeout computed to be: 10000000
+13:  success
+[HANDLER_OUTPUT] 
+13/28 Test #13: 9-Op-Phase .......................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 14
+
+[HANDLER_OUTPUT] 
+      Start 14: 10-Op-mmultL
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+14: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/10-Op-mmultL
+
+14: Test timeout computed to be: 10000000
+14:  success
+[HANDLER_OUTPUT] 
+14/28 Test #14: 10-Op-mmultL .....................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 15
+
+[HANDLER_OUTPUT] 
+      Start 15: 11-Op-mmultR
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+15: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/11-Op-mmultR
+
+15: Test timeout computed to be: 10000000
+15:  success
+[HANDLER_OUTPUT] 
+15/28 Test #15: 11-Op-mmultR .....................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 16
+
+[HANDLER_OUTPUT] 
+      Start 16: 13-Op-Wrapup
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+16: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/13-Op-Wrapup
+
+16: Test timeout computed to be: 10000000
+16:  SUCCESS
+[HANDLER_OUTPUT] 
+16/28 Test #16: 13-Op-Wrapup .....................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 17
+
+[HANDLER_OUTPUT] 
+      Start 17: 14-Op-Wrapdo
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+17: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/14-Op-Wrapdo
+
+17: Test timeout computed to be: 10000000
+17:  success
+[HANDLER_OUTPUT] 
+17/28 Test #17: 14-Op-Wrapdo .....................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 18
+
+[HANDLER_OUTPUT] 
+      Start 18: 15-cgr
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+18: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/15-cgr
+
+18: Test timeout computed to be: 10000000
+18:  calling wrong decompose
+18:  calling wrong decompose
+18:  calling wrong decompose
+18:  calling wrong decompose
+18:  success
+[HANDLER_OUTPUT] 
+18/28 Test #18: 15-cgr ...........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 19
+
+[HANDLER_OUTPUT] 
+      Start 19: 16-get-blocks
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+19: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/16-get-blocks
+
+19: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT] 
+19/28 Test #19: 16-get-blocks ....................
+   Passed    0.00 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 20
+
+[HANDLER_OUTPUT] 
+      Start 20: 17-solve-extended-system
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+20: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/17-solve-extended-system
+
+20: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT] 
+20/28 Test #20: 17-solve-extended-system .........
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 21
+
+[HANDLER_OUTPUT] 
+      Start 21: 18-ul-update-matrices
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+21: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/18-ul-update-matrices
+
+21: Test timeout computed to be: 10000000
+21:  Accuracy, ortho:    1.3322676295501878E-015
+21:  Check afer  Pivoting   1.6653345369377348E-016
+21:  Accuracy, ortho:    1.5543122344752192E-015
+21:  Check afer  Pivoting   3.8857805861880479E-016
+21:  Accuracy, ortho:    8.8817841970012523E-016
+21:  Check afer  Pivoting   1.6653345369377348E-016
+21:  Accuracy, ortho:    1.5543122344752192E-015
+21:  Check afer  Pivoting   2.2204460492503131E-016
+21:  Accuracy, ortho:    3.7747582837255322E-015
+21:  Check afer  Pivoting   2.2204460492503131E-016
+21:  Accuracy, ortho:    3.7747582837255322E-015
+21:  Check afer  Pivoting   2.2204460492503131E-016
+21:  Accuracy, ortho:    2.6645352591003757E-015
+21:  Check afer  Pivoting   2.4980018054066022E-016
+21:  Accuracy, ortho:    4.2188474935755949E-015
+21:  Check afer  Pivoting   4.1633363423443370E-016
+21:  Accuracy, ortho:    2.6645352591003757E-015
+21:  Check afer  Pivoting   2.7755575615628914E-016
+21:  Accuracy, ortho:    4.2188474935755949E-015
+21:  Check afer  Pivoting   5.5511151231257827E-016
+21:  Accuracy, ortho:    5.7731597280508140E-015
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  Accuracy, ortho:    5.3290705182007514E-015
+21:  Check afer  Pivoting   1.2490009027033011E-016
+21:  Accuracy, ortho:    6.8833827526759706E-015
+21:  Check afer  Pivoting   5.8286708792820718E-016
+21:  Accuracy, ortho:    5.3290705182007514E-015
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  Accuracy, ortho:    6.8833827526759706E-015
+21:  Check afer  Pivoting   3.3306690738754696E-016
+21:  Accuracy, ortho:    7.3274719625260332E-015
+21:  Check afer  Pivoting   5.8286708792820718E-016
+21:  Accuracy, ortho:    4.2188474935755949E-015
+21:  Check afer  Pivoting   2.0816681711721685E-016
+21:  Accuracy, ortho:    5.5511151231257827E-015
+21:  Check afer  Pivoting   1.9428902930940239E-016
+21:  Accuracy, ortho:    5.7731597280508140E-015
+21:  Check afer  Pivoting   7.7715611723760958E-016
+21:  Accuracy, ortho:    8.8817841970012523E-015
+21:  Check afer  Pivoting   6.6613381477509392E-016
+21:  Accuracy, ortho:    8.6597395920762210E-015
+21:  Check afer  Pivoting   7.7715611723760958E-016
+21:  Accuracy, ortho:    1.1768364061026659E-014
+21:  Check afer  Pivoting   2.4980018054066022E-016
+21:  Accuracy, ortho:    6.8833827526759706E-015
+21:  Check afer  Pivoting   3.8857805861880479E-016
+21:  Accuracy, ortho:    9.9920072216264089E-015
+21:  Check afer  Pivoting   3.3306690738754696E-016
+21:  Accuracy, ortho:    9.5479180117763462E-015
+21:  Check afer  Pivoting   2.2204460492503131E-016
+21:  Accuracy, ortho:    1.1546319456101628E-014
+21:  Check afer  Pivoting   3.6082248300317588E-016
+21:  Accuracy, ortho:    1.0436096431476471E-014
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  Accuracy, ortho:    1.0436096431476471E-014
+21:  Check afer  Pivoting   2.7755575615628914E-016
+21:  Accuracy, ortho:    9.9920072216264089E-015
+21:  Check afer  Pivoting   4.9960036108132044E-016
+21:  Accuracy, ortho:    1.1990408665951691E-014
+21:  Check afer  Pivoting   2.9143354396410359E-016
+21:  Accuracy, ortho:    1.6209256159527285E-014
+21:  Check afer  Pivoting   1.1102230246251565E-015
+21:  Accuracy, ortho:    1.2212453270876722E-014
+21:  Check afer  Pivoting   7.2164496600635175E-016
+21:  Accuracy, ortho:    1.2656542480726785E-014
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  Accuracy, ortho:    1.1102230246251565E-014
+21:  Check afer  Pivoting   7.2164496600635175E-016
+21:  Accuracy, ortho:    1.3100631690576847E-014
+21:  Check afer  Pivoting   5.8286708792820718E-016
+21:  Accuracy, ortho:    1.4876988529977098E-014
+21:  Check afer  Pivoting   5.5511151231257827E-016
+21:  Accuracy, ortho:    1.1990408665951691E-014
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  Accuracy, ortho:    1.4210854715202004E-014
+21:  Check afer  Pivoting   2.4980018054066022E-016
+21:  Accuracy, ortho:    9.9920072216264089E-015
+21:  Check afer  Pivoting   4.1633363423443370E-016
+21:  Accuracy, ortho:    1.3766765505351941E-014
+21:  Check afer  Pivoting   4.4408920985006262E-016
+21:  success
+[HANDLER_OUTPUT] 
+21/28 Test #21: 18-ul-update-matrices ............
+   Passed    0.47 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 22
+
+[HANDLER_OUTPUT] 
+      Start 22: 19-ur-update-matrices
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+22: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/19-ur-update-matrices
+
+22: Test timeout computed to be: 10000000
+22:  Accuracy, ortho:    1.1102230246251565E-016
+22:  Check afer  Pivoting   6.2172489379008766E-015
+22:  Accuracy, ortho:    1.9428902930940239E-016
+22:  Check afer  Pivoting   1.4210854715202004E-014
+22:  Accuracy, ortho:    6.6613381477509392E-016
+22:  Check afer  Pivoting   3.9079850466805510E-014
+22:  Accuracy, ortho:    4.4408920985006262E-016
+22:  Check afer  Pivoting   4.6185277824406512E-014
+22:  Accuracy, ortho:    5.5511151231257827E-016
+22:  Check afer  Pivoting   1.2079226507921703E-013
+22:  Accuracy, ortho:    1.1102230246251565E-015
+22:  Check afer  Pivoting   1.9895196601282805E-013
+22:  Accuracy, ortho:    6.6613381477509392E-016
+22:  Check afer  Pivoting   1.9184653865522705E-013
+22:  Accuracy, ortho:    7.7715611723760958E-016
+22:  Check afer  Pivoting   2.7000623958883807E-013
+22:  Accuracy, ortho:    3.8857805861880479E-016
+22:  Check afer  Pivoting   3.2684965844964609E-013
+22:  Accuracy, ortho:    3.3306690738754696E-016
+22:  Check afer  Pivoting   1.9895196601282805E-013
+22:  Accuracy, ortho:    3.0531133177191805E-016
+22:  Check afer  Pivoting   4.5474735088646412E-013
+22:  Accuracy, ortho:    7.7715611723760958E-016
+22:  Check afer  Pivoting   4.6895820560166612E-013
+22:  Accuracy, ortho:    7.7715611723760958E-016
+22:  Check afer  Pivoting   7.5317529990570620E-013
+22:  Accuracy, ortho:    8.8817841970012523E-016
+22:  Check afer  Pivoting   7.6738615462090820E-013
+22:  Accuracy, ortho:    7.7715611723760958E-016
+22:  Check afer  Pivoting   8.2422957348171622E-013
+22:  Accuracy, ortho:    6.6613381477509392E-016
+22:  Check afer  Pivoting   8.8107299234252423E-013
+22:  Accuracy, ortho:    1.2212453270876722E-015
+22:  Check afer  Pivoting   1.1084466677857563E-012
+22:  Accuracy, ortho:    4.4408920985006262E-016
+22:  Check afer  Pivoting   1.3358203432289883E-012
+22:  Accuracy, ortho:    7.2164496600635175E-016
+22:  Check afer  Pivoting   9.0949470177292824E-013
+22:  Accuracy, ortho:    5.5511151231257827E-016
+22:  Check afer  Pivoting   1.3642420526593924E-012
+22:  success
+[HANDLER_OUTPUT] 
+22/28 Test #22: 19-ur-update-matrices ............
+   Passed    0.25 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 23
+
+[HANDLER_OUTPUT] 
+      Start 23: 20-qdrp
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+23: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/20-qdrp
+
+23: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT] 
+23/28 Test #23: 20-qdrp ..........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 24
+
+[HANDLER_OUTPUT] 
+      Start 24: 21-Op-make
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+24: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/21-Op-make
+
+24: Test timeout computed to be: 10000000
+24:  success
+[HANDLER_OUTPUT] 
+24/28 Test #24: 21-Op-make .......................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 25
+
+[HANDLER_OUTPUT] 
+      Start 25: 22-sl-mat-mults
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+25: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/22-sl-mat-mults
+
+25: Test timeout computed to be: 10000000
+25:  SUCCESS
+[HANDLER_OUTPUT] 
+25/28 Test #25: 22-sl-mat-mults ..................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 26
+
+[HANDLER_OUTPUT] 
+      Start 26: 23-cgrp
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+26: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/23-cgrp
+
+26: Test timeout computed to be: 10000000
+26:  success
+[HANDLER_OUTPUT] 
+26/28 Test #26: 23-cgrp ..........................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 27
+
+[HANDLER_OUTPUT] 
+      Start 27: 24-udv
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+27: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/24-udv
+
+27: Test timeout computed to be: 10000000
+27:  Right:    2.4525628233156873E-015
+27:  Left:    2.4525628233156873E-015
+27:  Right:    1.3203721447146771E-014
+27:  Left:    1.3203721447146771E-014
+27:  Right:    6.5321884819258336E-014
+27:  Left:    6.5321884819258336E-014
+27:  Right:    3.6397547304618732E-013
+27:  Left:    3.6397547304618732E-013
+27:  Right:    2.1914225415231652E-012
+27:  Left:    2.1914225415231652E-012
+27:  Right:    1.2934344934663288E-011
+27:  Left:    1.2934344934663288E-011
+27:  Right:    5.2467676512081949E-011
+27:  Left:    5.2467676512081949E-011
+27:  Right:    2.9103830456733704E-010
+27:  Left:    2.9103830456733704E-010
+27:  Right:    1.6339669059517559E-009
+27:  Left:    1.6339669059517559E-009
+27:  Right:    8.2533865545114773E-009
+27:  Left:    8.2533865545114773E-009
+[HANDLER_OUTPUT] 
+27/28 Test #27: 24-udv ...........................
+   Passed    0.02 sec
+[HANDLER_VERBOSE_OUTPUT] 
+test 28
+
+[HANDLER_OUTPUT] 
+      Start 28: 25-assign-UDV-state
+
+[HANDLER_VERBOSE_OUTPUT] 
+
+28: Test command: /home/stafusa/ALF/ALF/testsuite/tests/Prog.tests/25-assign-UDV-state
+
+28: Test timeout computed to be: 10000000
+28:  success
+[HANDLER_OUTPUT] 
+28/28 Test #28: 25-assign-UDV-state ..............
+   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 28
+
+Total Test time (real) =   0.92 sec

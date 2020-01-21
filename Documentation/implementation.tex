@@ -342,7 +342,7 @@ Scalar observables are stored in the data type \texttt{Obser\_vec}, described in
    \begin{tabular}{@{} l l l l @{}}\toprule
     Variable  &  Type      &  Description &  Contribution of configuration $C$ \\\midrule
     \texttt{Obs\%N}                       &  Int.       &    Number of measurements &    $+1$ \\
-    \texttt{Obs\%Ave\_sign}               &  Real     	&    Cumulated sign [Eq.~\eqref{eqn:sign_rw}] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Ave\_sign}               &  Real     	&    Cumulated average sign [Eq.~\eqref{eqn:sign_rw}] & $\text{sign}(C)$  \\
     \texttt{Obs\%Obs\_vec(:)}  		      &  Comp.      &    Cumul. vector of observables [Eq.~\eqref{eqn:obs_rw}] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
      \texttt{Obs\%File\_Vec}           &  Char.    &    Name of output file  &\\\bottomrule
