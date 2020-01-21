@@ -1,7 +1,7 @@
 STABCONFIGURATION=""
 # STABCONFIGURATION=${STABCONFIGURATION}" -DQRREF"
 
-PROGRAMMCONFIGURATION="-DMPI"
+PROGRAMCONFIGURATION="-DMPI"
 INTELCOMPILER="mpiifort"
 GNUCOMPILER="mpifort"
 MPICOMP=1
@@ -74,7 +74,7 @@ case $MODE in
 
 noMPI|serial)
 echo "serial job."
-PROGRAMMCONFIGURATION=""
+PROGRAMCONFIGURATION=""
 INTELCOMPILER="ifort"
 GNUCOMPILER="gfortran"
 MPICOMP=0
@@ -83,7 +83,7 @@ MPICOMP=0
 Tempering)
 echo "Activating parallel tempering."
 echo "This requires also MPI parallization which is set as well."
-PROGRAMMCONFIGURATION="-DMPI -DTEMPERING"
+PROGRAMCONFIGURATION="-DMPI -DTEMPERING"
 INTELCOMPILER="mpiifort"
 GNUCOMPILER="mpifort"
 MPICOMP=1
@@ -91,7 +91,7 @@ MPICOMP=1
 
 MPI)
 echo "Activating MPI parallization."
-PROGRAMMCONFIGURATION="-DMPI"
+PROGRAMCONFIGURATION="-DMPI"
 INTELCOMPILER="mpiifort"
 GNUCOMPILER="mpifort"
 MPICOMP=1
@@ -101,7 +101,7 @@ MPICOMP=1
 echo -e "Activating "${RED}"MPI parallization (default)"${NC}"."
 echo "To turn MPI off, pass noMPI as the second argument."
 echo "To turn on parallel tempering, pass Tempering as the second argument."
-PROGRAMMCONFIGURATION="-DMPI"
+PROGRAMCONFIGURATION="-DMPI"
 INTELCOMPILER="mpiifort"
 GNUCOMPILER="mpifort"
 MPICOMP=1
@@ -265,7 +265,7 @@ echo "Possible modes are MPI (default), noMPI and Tempering"
 echo "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)"
 echo "    and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)"
 
-PROGRAMMCONFIGURATION=""
+PROGRAMCONFIGURATION=""
 F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 F90USEFULFLAGS=""
 
@@ -275,7 +275,7 @@ LIB_BLAS_LAPACK="-llapack -lblas"
 
 esac
 
-PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
+PROGRAMCONFIGURATION="$STABCONFIGURATION $PROGRAMCONFIGURATION"
 
 Libs="$(pwd)/Libraries"
 ALF_INC="-I${Libs}/Modules"
@@ -292,7 +292,7 @@ fi
 ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_MODULES="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_ANA="${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
-ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
+ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
 export ALF_FLAGS_QRREF
 export ALF_FLAGS_MODULES
 export ALF_FLAGS_ANA

@@ -25,7 +25,7 @@
 \end{table}
 %
 
-The code package, summarized in Table~\ref{table:files}, consists of the program directories \path{Prog/}, \path{Libraries/}, and \path{Analysis/}, as well as the directory \path{Scripts_and_Parameters_files/}, which contains supporting scripts and, in the subdirectory \path{Start}, the necessary input files, described in the Sec.~\ref{sec:input}. Additionally, a suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite} -- the tests can be run by executing the following sequence of commands: 
+The code package, summarized in Table~\ref{table:files}, consists of the program directories \path{Prog/}, \path{Libraries/}, and \path{Analysis/}, as well as the directory \path{Scripts_and_Parameters_files/}, which contains supporting scripts and, in the subdirectory \path{Start}, the necessary input files, described in the Sec.~\ref{sec:input}. Additionally, a suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite} -- the tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} is described in Sec.~\ref{sec:running}.): 
 %\begin{verbatim}
 \lstset{style=bash}
 \begin{lstlisting}
@@ -250,24 +250,21 @@ Using this structure for the bins as input, the full correlation function $S_{\a
 \subsubsection{Output: Precision} \label{sec:output_prec}
 %------------------------------------------------------------
 %
-The finite temperature  auxiliary field QMC algorithm is known to be numerically  unstable, as discussed in Sec.~\ref{sec:stable}.
-The origin the numerical instabilities arises  from the imaginary-time propagation which invariably leads to exponentially small and exponentially large scales.
-Numerical stabilization of the code is delicate and has been pioneered in Ref.~\cite{White89}  for the finite-temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero temperature projective algorithm.
-As shown in Ref.~\cite{Assaad08_rev}  scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite-temperature code. Apart from runtime information, the file \texttt{info} contains important information concerning the stability of the code.
-It is important to know that numerical stabilization is delicate and there is no guarantee  that it will work for all models.
+The finite-temperature, auxiliary-field QMC algorithm is known to be numerically unstable, as discussed in Sec.~\ref{sec:stable}.
+The numerical instabilities arise from the imaginary-time propagation, which invariably leads to exponentially small and exponentially large scales.
+As shown in Ref.~\cite{Assaad08_rev}, scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite-temperature code.
 
+Numerical stabilization of the code is a delicate procedure that has been pioneered in Ref.~\cite{White89}  for the finite-temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero-temperature projective algorithm.
+It is important to be aware of the fragility of the numerical stabilization and that there is no guarantee that it will work for a given model. It is therefore crucial to always check the file \texttt{info}, which apart from runtime information, lists important information concerning the stability of the code, such as \texttt{Precision Green}.
 
-
-
-If the numerical stabilization turns out to be bad, one option is to reduce the  value of the parameter \texttt{Nwrap} in the parameter file. 
-For performing the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Hence it is very likely that your results may change significantly if you switch the LAPACK implementation.
-In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines we have included parts of the LAPACK-3.6.1 reference implementation from
-\url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the LAPACK reference implementation by including the switch \texttt{-DQRREF} into the PROGRAMMCONFIGURATION string.
+If the numerical stabilization fails, [IDEA: INCLUDE 'rules of thumb' from notes-ALF.md: ``possible measures include: <table>"] one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file. 
+For performing the stabilization of the involved matrix multiplications we rely on routines from LAPACK, and results are very likely to change significantly if a different LAPACK implementation is used.
+In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines, we have included parts of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the LAPACK reference implementation by including the switch \texttt{-DQRREF} into the PROGRAMCONFIGURATION string in the script \path{configureHPC.sh}, described in Sec.~\ref{sec:running}.
 To use these routines you need to link against a lapack library that implements at least the LAPACK-3.4.0 interface.\footnote{ We have encountered some compiling issues with this flag. In particular  the  older  intel  ifort  compiler version 10.1  fails for all optimization levels.}
 
 To provide further flexibility, we have  kept the history of different stabilization schemes.   Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch 
 \texttt{-DSTAB2} (stabilization scheme based on the QR decomposition, but not using the LAPACK reference implementation) or  
-\texttt{-DSTAB1} (stabilization scheme based on singular value decomposition)   in the header of the file \texttt{Makefile} and recompile the code.  
+\texttt{-DSTAB1} (stabilization scheme based on singular value decomposition) in the header of the file \texttt{Makefile} [CORRECT THAT, NOW IT'S PROBABLY IN configureHPC] and recompile the code.  
 
 Typical values for the numerical precision can be found in the examples of Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
 
