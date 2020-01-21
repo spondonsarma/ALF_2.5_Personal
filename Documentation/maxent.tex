@@ -6,17 +6,17 @@
 
 % !TEX root = doc.tex
 
-\section{Maximum entropy }
+\section{Maximum entropy } \label{sec:maxent}
 
 \subsection{General setup}
-Generically, the maximum entropy code computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
+Generically, the maximum entropy code (MaxEnt) computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
 \begin{equation}
 g(\tau) =  \int_{\omega_\text{start}}^{\omega_\text{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
-The  ALF-package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach Ref.~\cite{Beach04a}. Here we will comment on the workflow.  The module 
-\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90} contains a general implementation and the wrapper is in \texttt{Analysis/Max\_SAC.F90}. 
+The  ALF package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach Ref.~\cite{Beach04a}. Here we will comment on the workflow.  The module 
+\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90} contains a general implementation and its wrapper is in \texttt{Analysis/Max\_SAC.F90}. 
 
-The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.    For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
+The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.  For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
   \chi^{2}(A) =  \sum_{i,j=1}^{n}   \left[ g(\tau_i)  –    \overline{g(\tau_i)} \right] C^{-1}(\tau_i,\tau_j) \left[    g(\tau_j)  –  \overline{g(\tau_j)} \right] 
 \end{equation} with $ \overline{g(i)} =\int d{\omega} K(\tau_{i},\omega)  A(\omega)$ and  $C$ the covariance matrix. 
@@ -28,41 +28,11 @@ In the code, the spectral function is parametrized  by a  set of Dirac $\delta$ 
 \begin{equation}
       A(\omega)  = \sum_{i=1}^{N_{\gamma}} a_{i} \delta \left( \omega - \omega_i \right).
 \end{equation}
-To produce a histogram of  $ A(\omega) $ we divide  the frequency range in \texttt{Ndis} intervals. 
-The Green function is read from the file \texttt{g\_dat}  corresponding to the  output of the the  \texttt{cov\_tau.F90} analysis program.  
-Below, we summarize the  parameters   in   name-lists  \texttt{VAR\_Max\_Stoch }  and  \texttt{VAR\_errors }   in the  \texttt{parameters}  file   required  to run the maxent code .  
-\lstset{style=fortran}
-\begin{lstlisting} 
+In order to produce a histogram of  $ A(\omega) $ we divide  the frequency range in \texttt{Ndis} intervals. 
+The Green function is read from the file \texttt{g\_dat}  corresponding to the  output of the  \texttt{cov\_tau.F90} analysis program.
 
-&VAR_Max_Stoch               ! Variables for Stochastic Maximum entropy
-Ngamma                       ! # of Dirac delta-functions for parametrization
-Om_st                        ! Frequency range lower bound
-Om_en                        ! Frequency range upper bound
-NDis                         ! # of boxes for histogram
-Nbins                        ! # of bins for Monte Carlo
-Nsweeps                      ! # of sweeps per bin
-NWarm                        ! The Nwarm first bins will be ommitted
-N_alpha                      ! # of tempertures
-alpha_st                     ! smallest inverse temperature
-R                            ! increment for inverse temperature (see above) 
-Channel                      ! T0       : Zero temperature
-                             ! P        : Finite temperarure particle 
-                             ! PH       : Finite temperarure particle-hole
-                             ! PP       : Finite temperarure particle-particle 
-Checkpoint                   !.true.    : dump files will be produced so  
-                             !            as to be able to restart the simulation
-                             !.false.   : dump files will not be produced 
-Tolerance                    !Data points for which the relative error
-                             !exceeds the tolerance threshold will be omitted.
-/
+Besides the parameters included in the name-list \texttt{VAR\_Max\_Stoch} of the file \texttt{parameters}, described in Sec.~\ref{sec:files}, also the variable \texttt{N\_cov}, from the name-list \texttt{VAR\_errors}, is required to run the maxent code. Recalling: \texttt{N\_cov = 1} (\texttt{N\_cov = 0}) sets that the covariance will (will not) be taken into account.
 
-&VAR_erros                   ! Variables for the error analyis
-....                         !
-N_cov                        ! =1  Covariance will be taken into account
-                             ! =0  Covariance will not be taken into account 
-/
-\end{lstlisting}
-Note that the variable  \texttt{N\_cov}  req
 
 \noindent
 \textbf{Output files} \\
@@ -70,12 +40,12 @@ The code produces  the following output files.
 \begin{itemize}
 \item The files  \texttt{Aom\_n}  correspond to the average spectral function at inverse  temperature  $ \alpha_n $. This corresponds to
 $  \langle A_n(\omega) \rangle =   \frac{1}{Z}   \int DA(\omega)    e^{-\alpha_n \chi^{2}(A)  } A(\omega). $
-The file contains three colums  $ \omega, \;  \langle A_n(\omega) \rangle , \;  \Delta \langle A_n(\omega) \rangle $.
+The file contains three columns  $ \omega, \;  \langle A_n(\omega) \rangle , \;  \Delta \langle A_n(\omega) \rangle $.
 
 \item The files \texttt{Aom\_ps\_n}   contain the average image over  the  inverse   temperatures  $ \alpha_n $ to $ \alpha_{N_\gamma} $  see Ref.~\cite{Beach04a} for more details.   
  The first three columns have the same meaning as for the files \texttt{Aom\_n}
 
-\item The file \texttt{Green} contains the Green function. The three columns correspond to $ \omega, \;   \text{ Re} G(\omega), \;  \text{  Im} G(\omega)  $.  This is obtained from the spectral function through:
+\item The file \texttt{Green} contains the Green function. Its three columns correspond to $ \omega, \;   \Re G(\omega),$ and $\Im G(\omega)  $.  This is obtained from the spectral function through:
 \begin{equation}
  G(\omega) =  -\frac{1}{\pi} \int d \Omega   \frac{A(\Omega)}{\omega – \Omega + i \delta}
  \end{equation}
@@ -125,6 +95,7 @@ Note that since for each  configuration of fields,  $ \langle  \langle \hat{c}^{
 \langle \langle \hat{c}^{\phantom\dagger}_{k} (\tau=\beta)  \hat{c}^{\dagger}_{k} (0)   \rangle \rangle_{C} = 
 \langle \langle \left\{ \hat{c}^{\phantom\dagger}_{k},   \hat{c}^{\dagger}_{k}    \right\} \rangle \rangle_{C}   = 1$.  Hence if both  the $\tau=0$ anf $\tau=\beta$ data points are included, the covariance matrix will have a zero eigenvalue and the $\chi^{2}$. measure is not defined. Hence for the particle channel, the program omits the $\tau=\beta$ data point.     One should also not that there are special  particle-hole symmetric  cases where the $\tau=0$ data point shows no  fluctuations. In this case, the 
 code equally omits the $\tau=0$ data point. 
+
 \subsection{Particle-hole quantities }
 
 \noindent

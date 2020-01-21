@@ -128,7 +128,7 @@ Let $h$ be a parameter which one can vary without  altering the configuration sp
 where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C. 
 Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$ independent runs.
 However, parallel tempering  includes the following   exchange step:
-\begin{equation}
+\begin{equation} \label{eq:exchangestep}
 	\left[h_1,C_1\right], \cdots, \left[h_i,C_i\right],\left[h_{i+1},C_{i+1}\right] \cdots, \left[h_n,C_n\right]   \rightarrow 
 	\left[h_1,C_1\right], \cdots, \left[h_i,C_{i+1}\right],\left[h_{i+1},C_{i}\right] \cdots, \left[h_n,C_n\right] 
 \end{equation}
