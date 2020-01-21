@@ -133,7 +133,7 @@ so as to completely define the interaction term.
 \subsubsection{Observables}
 %------------------------------------------------------------
 
-At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal time correlation functions. 
+At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal-time correlation functions. 
 If \texttt{Ltau=1} the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again  provided by the user and handles  imaginary-time displaced correlation functions. 
 
 The user will have to  implement the  observables  they  want to compute. Here  we  will describe how to  proceed. 
@@ -164,7 +164,7 @@ enddo
 \end{lstlisting}
 Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the $x$- and $y$-components of the kinetic energy for example.  
 
-For equal time correlation  functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal time Green functions. 
+For equal-time correlation functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal-time Green functions. 
 \begin{lstlisting}
 
 Allocate ( Obs_eq(4) )
@@ -185,14 +185,14 @@ Do I = 1,Size(Obs_eq,1)
    Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
 enddo
  \end{lstlisting} 
- For the Hubbard model \texttt{Norb = 1} and for   equal time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal time correlation functions will be used albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
+ For the Hubbard model \texttt{Norb = 1} and for   equal-time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal-time correlation functions will be used, albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
  \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
-\paragraph{Measuring equal time observables: \texttt{Obser(GR,Phase,Ntau)}}
+\paragraph{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}}
 %-------------------------------------------------------------------------------------
 
-The equal time  Green function,
+The equal-time  Green function,
 \begin{equation}
 	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle c^{\phantom{\dagger}}_{x,\sigma} c^{\dagger}_{y,\sigma}  \rangle,
 \end{equation}
@@ -214,7 +214,7 @@ Enddo
 Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
 
 
-Equal time correlations  are also computed in this routine. As an explicit example, we  consider the equal time density-density correlation:
+Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
 	 \langle n_{\vec{i},\alpha}   n_{\vec{j},\beta} \rangle   -  \langle n_{\vec{i},\alpha} \rangle  \langle    n_{\vec{j},\beta}  \rangle \;.
 \end{equation} 
@@ -224,7 +224,7 @@ For the calculation of such quantities, it is convenient to  define:
 	\texttt{GRC(x,y,s)}   =  \delta_{x,y}  - \texttt{GR(y,x,s)  }
 \end{equation}
 such that \texttt{GRC(x,y,s)}    corresponds to  $ \langle \langle  \hat{c}_{x,s}^{\dagger}\hat{c}_{y,s}^{\phantom\dagger} \rangle \rangle $. 
-In the program code, the calculation of the equal time density-density correlation function looks as follows:
+In the program code, the calculation of the equal-time density-density correlation function looks as follows:
 \begin{lstlisting} 
 
 Obs_eq(4)%N     = Obs_eq(4)%N + 1       ! Even if it is redundant, each observable  
@@ -266,7 +266,7 @@ are thereby given by:
 	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   = - 2 \; \texttt{G0T(J1,I1,1) } \texttt{GT0(I1,J1,1) } \;.
 \end{equation}
 Note that the above holds for the $SU(2)$ HS transformation discussed in this chapter. 
-The handling of time displaced correlation functions is identical to that of equal time correlations. 
+The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
 \subsubsection{Numerical precision}\label{sec:prec_charge}
@@ -338,13 +338,13 @@ In the above, one will see explicitly that  there is a sign   difference between
  \subsubsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
 %-------------------------------------------------------------------------------------
 
- Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal time spin-spin correlation functions 
+ Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal-time spin-spin correlation functions 
  $ 4 \langle \langle \hat{S}^{z}_{\vec{i}}   \hat{S}^{z}_{\vec{j}} \rangle \rangle   $  calculated in the subroutine  \texttt{Obser}  will take the form: 
-  \begin{eqnarray}
-   4 \langle \langle \hat{S}^{z}_{x}   \hat{S}^{z}_{y} \rangle \rangle   =  & &  \texttt{  GRC(x,y,1) * GR(x,y,1) + GRC(x,y,2) * GR(x,y,2) + }  \nonumber \\ 
-& & \texttt{   (GRC(x,x,2) - GRC(x,x,1))*(GRC(y,y,2) - GRC(y,y,1))}  \nonumber
-  \end{eqnarray}
-Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal time and time displaced observables. 
+  \begin{align}
+   4 \langle \langle \hat{S}^{z}_{x}   \hat{S}^{z}_{y} \rangle \rangle   =   &  \texttt{  GRC(x,y,1) * GR(x,y,1) + GRC(x,y,2) * GR(x,y,2) + }  \nonumber \\ 
+ & \texttt{   (GRC(x,x,2) - GRC(x,x,1))*(GRC(y,y,2) - GRC(y,y,1))}  \nonumber
+  \end{align}
+Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal-time and time displaced observables. 
   
 Apart from these modifications, the program  will run in exactly the same manner as for the $SU(2)$ case. 
     
