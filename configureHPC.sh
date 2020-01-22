@@ -115,17 +115,17 @@ case $STAB in
 
 STAB1)
 STABCONFIGURATION="${STABCONFIGURATION} -DSTAB1"
-echo "Using older stabilization with UDV decompositions"
+echo "Using older stabilization with UDV (QR-, not SVD-based) decompositions"
 ;;
 
 STAB2)
 STABCONFIGURATION="${STABCONFIGURATION} -DSTAB2"
-echo "Using older stabilization with UDV decompositions and additional normalizations"
+echo "Using older stabilization with UDV (QR-, not SVD-based) decompositions and additional normalizations"
 ;;
 
 STAB3)
 STABCONFIGURATION="${STABCONFIGURATION} -DSTAB3"
-echo "Using newest stabilization which seperates large and small scales"
+echo "Using newest stabilization which separates large and small scales"
 ;;
 
 LOG)

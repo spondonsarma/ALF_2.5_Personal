@@ -12,24 +12,23 @@
 \begin{table}[h]
 	\begin{tabular}{@{} l l @{}}\toprule
    	Directory & Description \\\midrule
-   	\path{Prog/} & Main program and subroutines  \\
-   	\path{Libraries/} & Collection of mathematical routines \\  
-  	\path{Analysis/} & Routines for error analysis \\
+   	\path{Prog/} & Main program and subroutines.  \\
+   	\path{Libraries/} & Collection of mathematical routines. \\  
+  	\path{Analysis/} & Routines for error analysis. \\
   	\path{Scripts_and_Parameters_files/}   & Helper scripts and the \path{Start/} directory, which contains the files \\ 
-  	                                      & required to start a run \\
+  	                                      & required to start a run. \\
   	\path{Documentation/} & This documentation.\\
   	\path{testsuite/} & A suite for automatic testing various parts of the code.\\\bottomrule
   	\hline
 	\end{tabular}
-   	\caption{Overview of the directories.\label{table:files}}
+   	\caption{Overview of the directories included in the ALF package.\label{table:files}}
 \end{table}
 %
 
-The code package, summarized in Table~\ref{table:files}, consists of the program directories \path{Prog/}, \path{Libraries/}, and \path{Analysis/}, as well as the directory \path{Scripts_and_Parameters_files/}, which contains supporting scripts and, in the subdirectory \path{Start}, the necessary input files, described in the Sec.~\ref{sec:input}. Additionally, a suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite} -- the tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} is described in Sec.~\ref{sec:running}.): 
-%\begin{verbatim}
-\lstset{style=bash}
-\begin{lstlisting}
-. configureHPC.sh Devel serial
+The code package, summarized in Table~\ref{table:files}, consists of the program directories \path{Prog/}, \path{Libraries/}, and \path{Analysis/}, as well as the directory \path{Scripts_and_Parameters_files/}, which contains supporting scripts and, in its subdirectory \path{Start}, the input files necessary for a run, described in the Sec.~\ref{sec:input}. Additionally, a suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite} -- the tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} sets environment variables and is described in Sec.~\ref{sec:running}.):
+\begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]
+
+source configureHPC.sh Devel serial
 gfortran -v
 make lib
 make ana
@@ -42,8 +41,7 @@ cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} \
 cmake --build . --target all --config Release
 ctest -VV -O log.txt
 \end{lstlisting}
-%\end{verbatim}
-which will output the tests output and total success rate.
+which will output test results and total success rate.
 %The example simulations corresponding to the walkthroughs of Sec.~\ref{sec:walk1} - \ref{sec:walk2} are included in \path{Examples/}.
 
 %------------------------------------------------------------
@@ -67,10 +65,9 @@ The input files are listed in Table~\ref{table:input}.
 The parameter file \path{Start/parameters} has the following form --
 using as an example  the $SU(2)$-symmetric Hubbard model on a square lattice (see Sec.~\ref{sec:walk1} for a detailed walkthrough):
 %
-\lstset{style=fortran}
-\begin{lstlisting} 
+\begin{lstlisting}[style=fortran]
 
-===============================================================================
+!===============================================================================
 !  Variables for the Hubb program
 !-------------------------------------------------------------------------------
 &VAR_lattice
@@ -122,11 +119,10 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 %
 
 The program allows for a number of different  updating schemes.  If no other variables are specified in the \texttt{VAR\_QMC} name space, then the program will run in its default mode, namely the sequential single spin-flip mode.   The additional, optional variables in   \texttt{VAR\_QMC}   include the following: 
-\lstset{style=fortran}
-\begin{lstlisting} 
+\begin{lstlisting}[style=fortran]
 
 &VAR_QMC                 ! Variables for the QMC run 
-Propose_S0      = .true. ! Proposes single spin flip moves  with probability exp(-S0) 
+Propose_S0      = .true. ! Proposes single spin flip moves with probability exp(-S0) 
 Global_moves    = .true. ! Allows for global moves in space and time 
 N_Global        = 1      ! Number of global moves  per sweep 
 Global_tau_moves= .true. ! Allows for global moves on a single time slice.  
@@ -142,11 +138,10 @@ Nt_sequential_end =      ! The program will carry our sequential local moves in 
 Note that if \texttt{Nt\_sequential\_start}  and \texttt{Nt\_sequential\_end}  are not specified and that the variable \texttt{Global\_tau\_moves}  is set to true, then  the program will  carry out only global moves, by setting  \\  \texttt{Nt\_sequential\_start=1}  and \texttt{Nt\_sequential\_end=0}. 
 
 If the program is compiled with the parallel tempering flag, then the additional name space \texttt{VAR\_TEMP} has to be included in the parameter file.
-\lstset{style=fortran}
-\begin{lstlisting}[escapechar=\%]
+\begin{lstlisting}[style=fortran,escapechar=\%]
 
 &VAR_TEMP                      ! Variables for parallel tempering
-N_exchange_steps      = 6      ! Number of exchange moves %(see Eq.~\eqref{eq:exchangestep})%
+N_exchange_steps      = 6      ! Number of exchange moves %[see Eq.~\eqref{eq:exchangestep}]%
 N_Tempering_frequency = 10     ! The frequency in units of sweeps at which the
                                ! exchange moves will be carried 
 mpi_per_parameter_set = 2      ! Number of mpi-processes per parameter set
@@ -158,8 +153,7 @@ Tempering_calc_det    = .true. ! Specifies whether the fermion weight has to be 
 \end{lstlisting}
 
 Additionally, in order for the maximum entropy code, described in Sec.~\ref{sec:maxent}, to be used, the namelist \texttt{VAR\_Max\_Stoch} should also be defined:
-\lstset{style=fortran}
-\begin{lstlisting} 
+\begin{lstlisting}[style=fortran]
 
 &VAR_Max_Stoch               ! Variables for Stochastic Maximum entropy
 Ngamma     = 400             ! # of Dirac delta-functions for parametrization
@@ -196,9 +190,9 @@ Tolerance  = 0.1d0           ! Data points for which the relative error exceeds 
    & the model, as well as the QMC run and simulation metrics (precision,\\
    & acceptance rate, wallclock time).\\
    \path{X_scal} & Results of equal-time measurements of scalar observables. \\
-   & The placeholder \path{X} stands for the observables \path{Kin, Pot, Part}, and \path{Ener}. \\
+   & The placeholder \path{X} stands for the observables \path{Kin}, \path{Pot}, \path{Part}, and \path{Ener}. \\
    \path{Y_eq, Y_tau} & Results of equal-time and time-displaced measurements of correlation\\
-   & functions. The placeholder \path{Y} stands for \path{Green, SpinZ, SpinXY}, and \path{Den}. \\   
+   & functions. The placeholder \path{Y} stands for \path{Green}, \path{SpinZ}, \path{SpinXY}, and \path{Den}. \\   
    \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and Ising configuration. \\\bottomrule
    \end{tabular}
    \caption{Overview of the standard output files. See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
@@ -224,7 +218,7 @@ of size \path{N_size=1}.
 For each additional bin, a new data block is added to the output file. 
 The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to the background part [Eq.~(\ref{eqn:s_back})] of the correlation function,
 and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
-For imaginary-time displaced correlation functions, the formatting of the block follows this scheme:
+For imaginary-time displaced correlation functions, the formatting of the block is given by:
 \begin{alltt}
 <measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>
 do alpha = 1, N_orbital
@@ -250,21 +244,29 @@ Using this structure for the bins as input, the full correlation function $S_{\a
 \subsubsection{Output: Precision} \label{sec:output_prec}
 %------------------------------------------------------------
 %
+
+
+\red{[THIS SECTION MAYBE BELONGS INTO THE "RUNNING"...]}
+
 The finite-temperature, auxiliary-field QMC algorithm is known to be numerically unstable, as discussed in Sec.~\ref{sec:stable}.
 The numerical instabilities arise from the imaginary-time propagation, which invariably leads to exponentially small and exponentially large scales.
 As shown in Ref.~\cite{Assaad08_rev}, scales can be omitted in the ground state algorithm -- thus rendering it very stable --  but have to be taken into account in the  finite-temperature code.
 
 Numerical stabilization of the code is a delicate procedure that has been pioneered in Ref.~\cite{White89}  for the finite-temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero-temperature projective algorithm.
-It is important to be aware of the fragility of the numerical stabilization and that there is no guarantee that it will work for a given model. It is therefore crucial to always check the file \texttt{info}, which apart from runtime information, lists important information concerning the stability of the code, such as \texttt{Precision Green}.
+It is important to be aware of the fragility of the numerical stabilization and that there is no guarantee that it will work for a given model. It is therefore crucial to always check the file \texttt{info}, which, apart from runtime data, contains important information concerning the stability of the code, in particular \texttt{Precision Green}.
+If the numerical stabilization fails, one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file, which will however also impact performance -- see Sec.~\ref{sec:optimize} for further optimization tips.
 
-If the numerical stabilization fails, [IDEA: INCLUDE 'rules of thumb' from notes-ALF.md: ``possible measures include: <table>"] one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file. 
-For performing the stabilization of the involved matrix multiplications we rely on routines from LAPACK, and results are very likely to change significantly if a different LAPACK implementation is used.
-In order to offer a simple baseline to which people can quickly switch if they want to see whether their results depend on the library used for linear algebra routines, we have included parts of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}. You can switch to the QR decomposition related routines from the LAPACK reference implementation by including the switch \texttt{-DQRREF} into the PROGRAMCONFIGURATION string in the script \path{configureHPC.sh}, described in Sec.~\ref{sec:running}.
-To use these routines you need to link against a lapack library that implements at least the LAPACK-3.4.0 interface.\footnote{ We have encountered some compiling issues with this flag. In particular  the  older  intel  ifort  compiler version 10.1  fails for all optimization levels.}
+For performing the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Notice that results are very likely to change
+%significantly
+depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}.
+In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by 
+%including the switch \texttt{-DQRREF} into the \texttt{STABCONFIGURATION} string in the 
+running the script \path{configureHPC.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}.
 
-To provide further flexibility, we have  kept the history of different stabilization schemes.   Our default strategy is quick and generically works well but we have  encountered some  models where  it  fails.   If this applies to your model, you can use the switch 
-\texttt{-DSTAB2} (stabilization scheme based on the QR decomposition, but not using the LAPACK reference implementation) or  
-\texttt{-DSTAB1} (stabilization scheme based on singular value decomposition) in the header of the file \texttt{Makefile} [CORRECT THAT, NOW IT'S PROBABLY IN configureHPC] and recompile the code.  
+In order to provide further flexibility, we offer various stabilization schemes that can be selected through the appropriate flags when running \texttt{configureHPC.sh}: \red{[MAKE A TABLE INSTEAD?]} \texttt{STAB1}, for using the reference stabilization scheme;
+\texttt{STAB2}, which sets a stabilization scheme based on the QR decomposition, but not using the LAPACK reference implementation and with additional normalizations;
+\texttt{STAB3}, for the newest and fastest stabilization, which separates large and small scales -- it generally works well, but there are models for which it fails;
+and \texttt{LOG}, for using log storage for internal scales.
 
 Typical values for the numerical precision can be found in the examples of Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
 
@@ -272,11 +274,13 @@ Typical values for the numerical precision can be found in the examples of Sec.~
 \subsection{Scripts}\label{sec:scripts}
 %------------------------------------------------------------
 %
+
+\red{[IMPROVE or eliminate?]}
+
 \begin{table}[h]
    \begin{tabular}{@{} l l l @{}}\toprule
    Script & Description & Section\\\midrule
-   \path{Start/out_to_in.sh} & Copies the output configurations of HS and Ising spins &\\
-   & to the respective input files. & \ref{sec:running} \\
+   \path{Start/out_to_in.sh} & Copies the output field configurations to the respective input files. & \ref{sec:running} \\
    \path{Start/analysis.sh} & Starts the error analysis. & \ref{sec:analysis}\\\bottomrule
    \end{tabular}
    \caption{Overview of the bash script files. 

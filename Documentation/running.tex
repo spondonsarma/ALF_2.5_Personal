@@ -17,9 +17,8 @@ In this section we describe the steps how to compile and run the code, as well a
 \label{sec:compilation}
 %-------------------------------------------------------------------------------------
 %
-The environment variables and the directives to compile the code are set in the following makefile \texttt{Makefile}:  [NOW A GOOD PART OF THIS IS IN THE SCRIPT configureHPC.sh -- Update]
-\lstset{style=bash}
-\begin{lstlisting}
+The environment variables and the directives to compile the code are set in the following makefile \texttt{Makefile}:  \red{[NOW A GOOD PART OF THIS IS IN THE SCRIPT configureHPC.sh -- Update]}
+\begin{lstlisting}[style=bash]
 
 # -DMPI selects MPI.
 # -DTEMPERING selects tempering mode.  MPI has to be switched on.
@@ -121,3 +120,10 @@ source ./setenv.sh
 To perform an error analysis based on the Jackknife resampling method (Sec.~\ref{sec:jack})  of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
 (see Sec.~\ref{sec:analysis}). In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
 
+
+%
+%-------------------------------------------------------------------------------------
+\subsubsection{Performance \& Parameter optimization} \label{sec:optimize}
+%-------------------------------------------------------------------------------------
+%
+\red{INCLUDE 'rules of thumb' from notes-ALF.md: ``$<$table$>$"}

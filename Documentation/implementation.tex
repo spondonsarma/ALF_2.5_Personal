@@ -191,8 +191,8 @@ In the case of a perfect-square term, the fields results from the discrete HS tr
 		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \\\bottomrule
 	\end{tabular}
 	\begin{tabular}{@{} l l @{}}\toprule	
-		Function/Routine       & Description  \\\midrule
-		\texttt{Fields\_init}  & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.    \\
+		Function/Routine       & Description   \hspace{107.8mm}  \\\midrule
+		\texttt{Fields\_init}  & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.  \\
 		\texttt{Field\%make}   & Reserves memory for the field.    \\
 		\texttt{Field\%clear}  & Clears field from memory.    \\
 		\texttt{Field\%set}    & Sets a random configuration.    \\
@@ -220,8 +220,7 @@ The user also has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$, as well a
 	\hat{c}_{\vec{i} + \vec{L}_1 }  = \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}\;.
 \end{align}
 The function call 
-\lstset{style=fortran}
-\begin{lstlisting} 
+\begin{lstlisting}[style=fortran]
 Call Make_Lattice( L1, L2, a1, a2, Latt )
 \end{lstlisting}
 generates the lattice \texttt{Latt} of type \texttt{Lattice}.   Note again that  the orbital structure of the unit cell has to be provided by the user.    The reciprocal lattice vectors $\vec{g}_i$ are defined by: 

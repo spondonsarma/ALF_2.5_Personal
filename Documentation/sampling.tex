@@ -85,9 +85,11 @@ In order to determine the autocorrelation time, we calculate the correlation fun
 where $O_i$ refers to the Monte Carlo estimate of the observable $\hat{O}$ in the $i^{\text{th}}$ bin. This function typically shows an exponential decay and the decay rate defines the autocorrelation time.
 %
 \begin{figure}
-\includegraphics[width=1.0\textwidth]{Figures/fig1.pdf}
-	\caption{The autocorrelation function $S_{\hat{O}}(t_{\textrm{QMC}})$ (a) and the scaling of the error with effective bin size (b) of three equal-time, spin-spin correlation functions $\hat{O}$ of the Hubbard model in the $M_z$ decoupling (see Sec.~\ref{sec:walk1.1}). Simulations were done on a $ 6 \times 6$ square lattice, with  $U/t=4$ and $\beta t = 6$.  The original bin contained only one sweep and we calculated around one million bins on a single core. The different  autocorrelation times for the $xy$-plane compared to the $z$-direction can be detected from the decay rate of the autocorrelation function (a) and from the point where saturation of the error sets in (b), which defines the required effective bin size for independent measurements. The improved estimator $(S_{\hat{S}^{x}} + S_{\hat{S}^{y}}+ S_{\hat{S}^{z}})/3$ appears to have the smallest autocorrelation time, as argued in the text.}
-	\label{fig_autocorr}
+	\begin{center}
+		\includegraphics[width=.95\textwidth]{Figures/fig1.pdf}
+		\caption{The autocorrelation function $S_{\hat{O}}(t_{\textrm{QMC}})$ (a) and the scaling of the error with effective bin size (b) of three equal-time, spin-spin correlation functions $\hat{O}$ of the Hubbard model in the $M_z$ decoupling (see Sec.~\ref{sec:walk1.1}). Simulations were done on a $ 6 \times 6$ square lattice, with  $U/t=4$ and $\beta t = 6$.  The original bin contained only one sweep and we calculated around one million bins on a single core. The different  autocorrelation times for the $xy$-plane compared to the $z$-direction can be detected from the decay rate of the autocorrelation function (a) and from the point where saturation of the error sets in (b), which defines the required effective bin size for independent measurements. The improved estimator $(S_{\hat{S}^{x}} + S_{\hat{S}^{y}}+ S_{\hat{S}^{z}})/3$ appears to have the smallest autocorrelation time, as argued in the text.}
+		\label{fig_autocorr}
+	\end{center}
 \end{figure}
 %
 Figure~\ref{fig_autocorr}(a) shows the autocorrelation functions $S_{\hat{O}}(t_{\textrm{QMC}})$ for three spin-spin-correlation functions [Eq.~(\ref{eqn:s})] at momentum $\vec{k}=(\pi,\pi)$ and at $\tau=0$: 

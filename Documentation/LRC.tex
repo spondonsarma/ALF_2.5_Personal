@@ -29,7 +29,7 @@ e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \f
 
 The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    The definition of  the Coulomb repulsion is as follows. 
 A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
-\begin{lstlisting}
+\begin{lstlisting}[style=fortran]
 X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:) 
           +   Latt_unit%Orb_pos_p(no_j,:)
 \end{lstlisting}

@@ -48,8 +48,7 @@ where
 The trial wave function is hence  completely defined by the set of orthogonal vectors  $ U^{(s, L/R)}_{x,n}  $    for  $ n $ ranging from  $ 1 $ to  the number of particles   in each flavor sector,  $N_{\mathrm{part},s}$.    This information  is stored in the \texttt{WaveFunction}   type defined in the module \texttt{WaveFunction\_mod}.    Note  that  owing to the SU(N$_{\mathrm{col}}$) symmetry the color index is not necessary to define  the trial wave function.  The user will have to specify to specify  the trial wave function in the following way:
 
 
-\lstset{style=fortran}
-\begin{lstlisting}
+\begin{lstlisting}[style=fortran]
 Do s = 1, N_fl
    Do x = 1,Ndim
       Do n = 1, N_part(s)
