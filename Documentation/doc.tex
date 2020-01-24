@@ -31,6 +31,7 @@
 \usepackage[breaklinks=true,colorlinks,pdfborder={0 0 0}]{hyperref} 
 \hypersetup{linkcolor={blue!80!black},citecolor={blue!80!black},urlcolor={blue!99!black}}
 \usepackage{float} 
+\usepackage{placeins} 
 
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
@@ -133,20 +134,21 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 \clearpage
 \section{Introduction}\label{sec:intro}
 \input{intro}
-\section{Auxiliary Field Quantum Monte Carlo: finite temperature }\label{sec:def}
+\section{Auxiliary Field Quantum Monte Carlo: finite temperature}\label{sec:def}
 \input{model}
 \input{updating}
 \input{stabilization}
 \input{sampling}
 \input{pseudocode}
+\section{Auxiliary Field Quantum Monte Carlo: projective algorithm}\label{sec:defT0}
+\input{pqmc}
+\section{Maximum entropy}\label{sec:maxent}
+\input{maxent}
 \section{Data Structures and Input/Output}\label{sec:imp}
 \input{implementation}
 \input{files}
-\input{analysis}
+\section{Running the code}\label{sec:running}
 \input{running}
-\section{Auxiliary Field Quantum Monte Carlo: projective algorithm }\label{sec:defT0}
-\input{pqmc}
-\input{maxent}
 \section{Examples}\label{sec:ex}
 \input{walkthrough_hubbard}
 \section{Miscellaneous}\label{sec:misc}

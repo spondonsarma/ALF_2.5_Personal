@@ -82,12 +82,21 @@ Once you have run the configuration script, run **make** to compile the whole pa
 
 We have about 30 tests that test various parts of the program in the folder testsuite.
 As testing framework we employ CTest.
-From the subfolder testsuite the tests can be run as follows
-- mkdir tests
-- cd tests
-- cmake ..
-- make
-- make test
+From the ALF folder the tests can be run as follows
+```bash​
+source configureHPC.sh Devel serial
+gfortran -v
+make lib
+make ana
+make Examples
+cd testsuite
+cmake -E make_directory tests
+cd tests
+cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} \
+      -DCMAKE_BUILD_TYPE=RELEASE ..
+cmake --build . --target all --config Release
+ctest -VV -O log.txt
+```
 
 
 ## LICENSE ##
