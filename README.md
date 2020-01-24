@@ -83,7 +83,7 @@ Once you have run the configuration script, run **make** to compile the whole pa
 We have about 30 tests that test various parts of the program in the folder testsuite.
 As testing framework we employ CTest.
 From the ALF folder the tests can be run as follows
-```bash​
+```bash
 source configureHPC.sh Devel serial
 gfortran -v
 make lib
