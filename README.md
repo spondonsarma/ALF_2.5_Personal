@@ -76,7 +76,8 @@ Once you have run the configuration script, run **make** to compile the whole pa
 **Scripts_and_Parameters_files**  Suite of helper scripts and the Start directory which contains the files required to start a run, in particular  the **parameters** file that specifies the model, the lattice, and various parameters for the Monte Carlo run and  error analysis. 
 
 **Documentation**   We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/blob/master/Documentation/doc.pdf)   an extensive documentation. The development of the documentation will take place **only** in the documentation_new branch. In this branch you all have permission to push things so that we can keep on improving  things. 
- 
+
+**testsuite**   Contains the files for performing the testing described below.
 
 ## TESTING ##
 
