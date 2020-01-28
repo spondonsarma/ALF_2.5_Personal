@@ -6,15 +6,14 @@
 
 % !TEX root = doc.tex
 
-\red{Include an introduction like the one from Beach~\cite{Beach04a}}
-
-\subsection{General setup}
-Generically, the maximum entropy code (MaxEnt) computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
+If we want to compare the data we obtain from Monte Carlo simulations with experiments, we must extract spectral information from the imaginary-time output. This can be achieve through the maximum entropy method (MaxEnt), which generically computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
 \begin{equation}
 g(\tau) =  \int_{\omega_\mathrm{start}}^{\omega_\mathrm{end}} d {\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
-The  ALF package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach~\cite{Beach04a}. Here we will comment on the workflow.  The module 
-\texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90} contains a general implementation and its wrapper is in \texttt{Analysis/Max\_SAC.F90}. 
+The  ALF package includes a standard implementation of the stochastic MaxEnt as formulated in the article of K. Beach~\cite{Beach04a}. Here we will comment on its workflow.
+
+\subsection{General setup}
+The module  \texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90} contains a general implementation and its wrapper is in \texttt{Analysis/Max\_SAC.F90}. 
 
 The stochastic MaxEnt is essentially a parallel tempering Monte Carlo simulation.  For a discrete set of $\tau_i$ points,  $i \in 1 \cdots n $ the energy reads
 \begin{equation}
