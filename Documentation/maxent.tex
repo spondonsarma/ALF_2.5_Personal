@@ -59,7 +59,7 @@ The first column of the  \texttt{Green}  file is a place holder for post-process
 
 \item The file \texttt{data\_out} facilitates crosschecking. It lists $\tau$,  $g(\tau)$, $\Delta g(\tau)$, and $\int \d \omega  K(\tau, \omega) A(\omega)$, where the image corresponds to the best fit (i.e. the lowest temperature). This data should give an indication of how good the fit actually is.  Note that  \texttt{data\_out} contains only the data points that have  passed the tolerance test. 
 
-\item Two dump files are also generated, \texttt{dump\_conf} and \texttt{dump\_Aom}. Since the MaxEnt is a Monte Carlo code, it is possible to improve the data by continuing a previous simulation. The data in the dump files allow you to do so. These files are only generated if the variable \texttt{checkpoint} is set to \path{true}. 
+\item Two dump files are also generated, \texttt{dump\_conf} and \texttt{dump\_Aom}. Since the MaxEnt is a Monte Carlo code, it is possible to improve the data by continuing a previous simulation. The data in the dump files allow you to do so. These files are only generated if the variable \texttt{checkpoint} is set to \path{.true.}. 
 
 \end{itemize}
 
