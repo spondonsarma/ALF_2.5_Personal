@@ -48,11 +48,10 @@ The  relation to the Kondo lattice model follows  from expanding the square  of 
  In this Hilbert space $\hat{\eta}^{x,f} = \hat{\eta}^{y,f} =  \hat{\eta}^{z,f} =0$  such that the Hamiltonian (\ref{eqn:ham_kondo}) reduces to the Kondo lattice model. 
 
 An implementation of the Kondo Lattice model on the  Honeycomb lattice with additional z-z frustration considered in Ref.~\cite{SatoT17_1}, 
-\begin{eqnarray}
-& & \hat{H}_{\text{Spin}} = J^{z}\sum_{\langle \langle i,j \rangle \rangle}\hat{S}_{i}^{z}\hat{S}_{j}^{z},  \; \;  \hat{H}_{\text{Fermion}} = -t\sum_{\langle i,j \rangle,\sigma}\hat{c}_{i\sigma}^\dagger \hat{c}^{\phantom\dagger} _{j\sigma}  \nonumber \\ 
- & & \hat{H}_{\text{Kondo}}  =  
-  J^{\text{K}} \sum_{i}    \frac{1}{2} \hat{\pmb{c}}^{\dagger}_{i} \pmb{\sigma}\hat{\pmb{c}}^{\phantom\dagger}_{i} \cdot \hat{{\bm S}}^{\phantom\dagger} _{i} ,
-\end{eqnarray}
+\begin{equation}
+\hat{H}_{\text{Spin}} = J^{z}\sum_{\langle \langle i,j \rangle \rangle}\hat{S}_{i}^{z}\hat{S}_{j}^{z},  \hfill  \hat{H}_{\text{Fermion}} = -t\sum_{\langle i,j \rangle,\sigma}\hat{c}_{i\sigma}^\dagger \hat{c}^{\phantom\dagger} _{j\sigma},  \hfill
+\hat{H}_{\text{Kondo}}  =  J^{\text{K}} \sum_{i}    \frac{1}{2} \hat{\pmb{c}}^{\dagger}_{i} \pmb{\sigma}\hat{\pmb{c}}^{\phantom\dagger}_{i} \cdot \hat{{\bm S}}^{\phantom\dagger} _{i} , \hfill
+\end{equation}
 can be found in  the \texttt{Hamiltonian\_Kondo\_Honey\_mod.F90}
 
 %-------------------------------------------------------------------------------------

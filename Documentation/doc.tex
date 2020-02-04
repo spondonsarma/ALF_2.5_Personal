@@ -13,7 +13,7 @@
 \usepackage[fleqn]{amsmath} 
 \usepackage{amssymb}
 \usepackage{wasysym}
-\usepackage{color}
+\usepackage{color}[colornames]
 \usepackage{soul}
 \usepackage{xspace}
 \usepackage{bm}
@@ -31,6 +31,7 @@
 \usepackage[breaklinks=true,colorlinks,pdfborder={0 0 0}]{hyperref} 
 \hypersetup{linkcolor={blue!80!black},citecolor={blue!80!black},urlcolor={blue!99!black}}
 \usepackage{float} 
+\usepackage{placeins} 
 
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
@@ -44,23 +45,27 @@
 \setcounter{secnumdepth}{4} 
 \setcounter{tocdepth}{4}
 \definecolor{light-gray}{gray}{0.95}
+\definecolor{comment-color}{rgb}{0.8,0.1,0.1}
+\definecolor{keyword-color}{rgb}{0.3,0.3,1}
 
 \lstdefinestyle{fortran}{
-  language=Fortran,
-  basicstyle=\ttfamily,
-  keywordstyle=\color{red},
-  commentstyle=\color{blue},
-  morecomment=[l]{!\ }% Comment only with space after !
+  language={[03]Fortran},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword-color},
+  commentstyle=\color{comment-color},
+  morecomment=[l]{!\ }% Otherwise it's a comment only with space after !
   breakatwhitespace=false,
   keepspaces=true,
   showstringspaces=false,
-  columns=flexible,
+  columns=fullflexible,
   backgroundcolor=\color{light-gray},
-  frame=single
+  frame=single,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt
 }
 
 \lstdefinestyle{fortran_pseudo_code}{
-  language=Fortran,
+  language={[03]Fortran},
   basicstyle=\ttfamily,
   keywordstyle=\color{red},
   commentstyle=\normalfont\color{black},
@@ -71,23 +76,28 @@
   columns=flexible,
   backgroundcolor=\color{white},
   frame=single,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt,
   escapeinside={\!*}{*)},
 }
 
 \lstdefinestyle{bash}{
   language=bash,
   basicstyle=\ttfamily,
-  keywordstyle=\color{red},
-  commentstyle=\color{blue},
+  keywordstyle=\color{keyword-color},
+  commentstyle=\color{comment-color},
   morecomment=[l]{\#\ }% Comment only with space after #
   breakatwhitespace=false,
   keepspaces=true,
   showstringspaces=false,
-  columns=flexible
+  columns=flexible,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt,
 }
 
 \def\Tr{\mathop{\mathrm{Tr}}}
 \def\Trf{\mathop{\mathrm{Tr}_{\mathrm{F}}}}
+\def\d{\mathrm{d}}
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
@@ -97,6 +107,8 @@
 % \RedeclareSectionCommand[style=section,indent=0pt]{part}
 % \renewcommand*\partformat{\thepart\autodot\enskip}
 
+\newcommand*{\red}{\textcolor{red}}
+\newcommand*{\blue}{\textcolor{blue}}
 \newcommand{\mycomment}[1]{{\color{red} #1}}
 \newcommand{\FAcomment}[1]{{\color{red} #1}}
 
@@ -109,11 +121,11 @@
 \title{The \emph{ALF} (\emph{A}lgorithms for \emph{L}attice \emph{F}ermions) project release 1.2}
 
 \subtitle{Documentation for the  auxiliary-field quantum Monte Carlo code.}
-\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Fakher F. Assaad }
+\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Jefferson S. E. Portela,\\Fakher F. Assaad }
 %---------------------------------------------------------------------------------------------------------
 \maketitle
 
-Copyright \textcopyright ~2016, 2017 The \textit{ALF} Project.\\
+Copyright \textcopyright ~2016--2020 The \textit{ALF} Project.\\
 This is the ALF Project Documentation by the ALF contributors.
 It is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 You are free to share and benefit from this documentation as long as this license is preserved
@@ -123,20 +135,21 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 \clearpage
 \section{Introduction}\label{sec:intro}
 \input{intro}
-\section{Auxiliary Field Quantum Monte Carlo: finite temperature }\label{sec:def}
+\section{Auxiliary Field Quantum Monte Carlo: finite temperature}\label{sec:def}
 \input{model}
 \input{updating}
 \input{stabilization}
 \input{sampling}
 \input{pseudocode}
+\section{Auxiliary Field Quantum Monte Carlo: projective algorithm}\label{sec:defT0}
+\input{pqmc}
+\section{Maximum entropy}\label{sec:maxent}
+\input{maxent}
 \section{Data Structures and Input/Output}\label{sec:imp}
 \input{implementation}
 \input{files}
-\input{analysis}
+\section{Running the code}\label{sec:running}
 \input{running}
-\section{Auxiliary Field Quantum Monte Carlo: projective algorithm }\label{sec:defT0}
-\input{pqmc}
-\input{maxent}
 \section{Examples}\label{sec:ex}
 \input{walkthrough_hubbard}
 \section{Miscellaneous}\label{sec:misc}
