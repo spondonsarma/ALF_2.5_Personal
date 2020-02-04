@@ -98,7 +98,7 @@ The indices and symbols used above have the following meaning:
 \item The number of interaction terms  is labeled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition.
 \item $\hat{c}^{\dagger}_{y \sigma s} $ is a second-quantized operator that creates an electron in a Wannier state centered around lattice site $y$, with color $\sigma$, and  flavor index $s$.  The operators satisfy the anti-commutation relations: 
 \begin{equation}
-	\left\{ \hat{c}^{\dagger}_{y \sigma s},    \hat{c}^{\phantom\dagger}_{y' \sigma' s'}  \right\}   =   \delta_{x,x'}  \delta_{s,s'} \delta_{\sigma,\sigma'},   
+	\left\{ \hat{c}^{\dagger}_{y \sigma s},    \hat{c}^{\phantom\dagger}_{y' \sigma' s'}  \right\}   =   \delta_{xx'}  \delta_{ss'} \delta_{\sigma\sigma'},   
 	\; \text{ and } \left\{ \hat{c}^{\phantom\dagger}_{y \sigma s},    \hat{c}^{\phantom\dagger}_{y' \sigma' s'}  \right\}   =0.
 \end{equation}
 
@@ -123,9 +123,12 @@ The user has to provide this one-body, imaginary-time propagator for a given con
 We also discuss the Monte Carlo updates, the strategies for numerical stabilization of the code, as well as the Monte Carlo sampling.
 
 Section \ref{sec:imp} is devoted to the data structures that are needed to implement the model, as well as to the input and output file structure.   
-The data structure includes  an \texttt{Operator} type to  optimally work with sparse Hermitian matrices, a \texttt{Lattice} type  to define one- and two-dimensional Bravais lattices, and   two   \texttt{Observable} types to handle  scalar observables  (e.g., total energy)   and   equal-time or time-displaced two-point correlation functions (e.g., spin-spin correlations).
+The data structure includes an \texttt{Operator} type to optimally work with sparse Hermitian matrices, a \texttt{Lattice} type  to define one- and two-dimensional Bravais lattices, a generic \texttt{Fields} type, and two \texttt{Observable} types to handle scalar observables (e.g., total energy) and equal-time or time-displaced two-point correlation functions (e.g., spin-spin correlations).
 
 The Monte Carlo simulation and the associated data analysis are separated processes: the QMC run  dumps the results of \emph{bins}  sequentially into files  which are then analyzed by  analysis programs. In Sec.~\ref{sec:analysis}, we provide a brief description of the analysis programs  for our  observable types.  The analysis programs allow for omitting a given number of initial bins in order to account for warm-up times. Also, a rebinning analysis is included  to account for, \emph{a posteriori}, long autocorrelation times.  Finally, Sec.~\ref{sec:running} provides all the necessary details  to compile and run the code. 
+
+
+{\color{red} To Do: include descriptions of Sec. 4 and 5 (projective and max. ent.).}
 
 
 In Sec.~\ref{sec:ex}, we  give explicit examples on how to use the code for  the  Hubbard model on square and honeycomb lattices,  for different choices of the Hubbard-Stratonovich transformation  (see Secs.~\ref{sec:walk1},~\ref{sec:walk1.1} and ~\ref{sec:walk1.2}), as well as for the Hubbard model on a square lattice coupled to a transverse Ising field (see Sec.~\ref{sec:walk2} ).   Our implementation is rather general, allowing for a variety of other models to be simulated and, in Sec.~\ref{sec:misc}, further examples are given, such as the Kondo lattice and the $SU(N)$ symmetric Hubbard-Heisenberg models.

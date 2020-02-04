@@ -33,7 +33,7 @@ In order to specify the Hamiltonian, one needs  an  \path{Operator} and a \path{
     \texttt{Init\_obs}  & Initializes the observables to zero. & \\    
     \texttt{Pr\_obs}    & Writes the observables to disk by calling \texttt{Print\_bin}. \\\bottomrule    
    \end{tabular}
-   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian} to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user.
+   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian\_Examples\_mod} to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user.
     \label{table:hamiltonian}}
 \end{table}
 %
@@ -171,23 +171,42 @@ we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm
 \subsubsection{ Handling of the fields: the \texttt{Fields}  type } \label{sec:fields}
 %------------------------------------------------------------
 
-For some models, its auxiliary fields may be accommodated in an array of integers, such as the array \texttt{nsigma(M\_V + M\_I, Ltrot)}, used to store both discrete HS and Ising interaction terms in the example given in Sec.~\ref{sec:walk1}. For the general case, however, a variable of type \texttt{Fields}, which offers more advanced facilities, can be used.
+The partition function (see Sec.~\ref{sec:method}) consists of terms which, in general, can be written as $\gamma e^{g \phi \bm{X} }$, where $\bm{X}$ denotes an arbitrary operator, $g$ is a constant, and $\gamma$ and $\phi$ are fields. 
+For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly (as there are only two Ising states, $s_{k,\tau} = \pm 1$, it simply inverts the sign for those).
 
-The partition function (see Sec.~\ref{sec:method}) consists of terms which, in general, can be written as
-\begin{align}
-\gamma e^{g \phi \bm{X} },
-\end{align}
-where $\gamma$ and $\phi$ are fields, $\bm{X}$ denotes an arbitrary operator, and $g$ is a constant.
+For an Ising term, we store type \texttt{t=1}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=s_{k,\tau} = \pm 1$. 
+In the case of a perfect-square term, the fields results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{t=2}, which sets $\gamma_{k,\tau} = s_{k,\tau}$ and $\phi_{k,\tau}=\eta_{k,\tau}$ (see Eq.~\ref{eta_gamma_fields}). For continuous real fields $f$ we store \texttt{t=3}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=f$.
 
+%
+\begin{table}[h]
+	\begin{tabular}{@{} l l l @{}}\toprule
+		Variable                  &  Type    & Description  \\\midrule
+		\texttt{Field\%f(:,:)}    &  Real    & Defines the auxiliary fields. The first index runs through the operator \\ 
+		                          &          & sequence and the second through the time slices. \\
+		\texttt{Field\%t(:)}      &  Integer & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-\\
+		                          &          & square term; 3: continuous real field). The index denotes the operator. \\
+		\texttt{Field\%i}         &  Integer & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
+		\texttt{Field\%del}       &  Real    & Width of the uniform random initial configuration for fields of type \texttt{t=3},\\
+		                          &          & with a default value of \texttt{1}. \\
+		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \\\bottomrule
+	\end{tabular}
+	\begin{tabular}{@{} l l @{}}\toprule	
+		Function/Routine       & Description  \\\midrule
+		\texttt{Fields\_init}  & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.    \\
+		\texttt{Field\%make}   & Reserves memory for the field.    \\
+		\texttt{Field\%clear}  & Clears field from memory.    \\
+		\texttt{Field\%set}    & Sets a random configuration.    \\
+		\texttt{Field\%flip}   & Flips the field values randomly. \\
+		\texttt{Field\%phi}    & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
+		\texttt{Field\%gamma}  & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
+		\texttt{Field\%in}     & Reads in the field configuration.    \\
+		\texttt{Field\%out}    & Writes out the field configuration.    \\\bottomrule
+	\end{tabular}
+	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.}
+	\label{table:Fields}
+\end{table}
+%
 
-For a Ising term, we store \path{type=1}, which sets $\phi_{k\tau}=s_{k\tau}$. 
-In the case of a perfect-square term, the field results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{type=2}, which sets $\phi_{k\tau}=\eta_{k\tau}$. For continuous real fields $f$ we store \path{type=3}, which sets $\phi_{k\tau}=f$
-
-....\\
-
-table?
-
-....\\
 
 %------------------------------------------------------------
 \subsubsection{The \texttt{Lattice} and \texttt{Unit\_cell} types}\label{sec:latt}
