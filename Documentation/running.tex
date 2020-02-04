@@ -7,14 +7,32 @@
 % !TEX root = doc.tex
 
 
-In this section we describe the steps how to compile and run the code, as well as how to perform the error analysis of the data.
-%
+In this section we describe the steps for compiling and running the code, and describe how to search for optimal parameter values as well as how to perform the error analysis of the data.
+
 %-------------------------------------------------------------------------------------
 \subsection{Compilation}
 \label{sec:compilation}
 %-------------------------------------------------------------------------------------
-%
-The environment variables and the directives to compile the code are set in the following makefile \texttt{Makefile}:  \red{[NOW A GOOD PART OF THIS IS IN THE SCRIPT configureHPC.sh -- Update]}
+
+The necessary environment variables and the directives for compiling the code are set by the script \texttt{configureHPC.sh}:
+\begin{lstlisting}[style=bash]
+source configureHPC.sh [MACHINE] [MODE] [STAB]
+\end{lstlisting}
+Running it with no arguments lists its available options and sets a generic, \emph{serial} \texttt{gfortran} compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined \texttt{MACHINES} are listed in Table~\ref{table:machines}.
+
+\begin{table}[h]
+	\begin{tabular}{@{} l l @{}}\toprule
+		machine & Description \\\midrule
+		\texttt{SuperMUC-NG}  &  Select the Intel compiler and load the necessary modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
+		\texttt{JUWELS}  &  Select the Intel compiler and load the necessary modules for JUWELS\footnote{J\"ulich Wizard for European Leadership Science, at the J\"ulich Supercomputing Centre (JSC).}.\\\bottomrule
+	\end{tabular}
+	\caption{Predefined machines at the \texttt{configureHPC.sh} script.} \label{table:machines}
+\end{table}
+
+The configuration can be further controlled by the options \texttt{MODE}
+
+
+
 \begin{lstlisting}[style=bash]
 
 # -DMPI selects MPI.
@@ -190,7 +208,7 @@ As listed in Table  \ref{table:analysis_programs}  we provide three analysis pro
 	\begin{tabular}{@{} l l l @{}}\toprule
 		File & Description \\\midrule
 		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, and \texttt{Ener}.\\
-		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
+		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
 		& The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively.\\
 		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y},\\
 		& where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
