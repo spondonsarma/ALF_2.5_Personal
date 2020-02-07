@@ -17,15 +17,19 @@ In order to specify the Hamiltonian, one needs  an  \path{Operator} and a \path{
 
 %
 \begin{table}[h]
+	\begin{center}
     \begin{tabular}{@{} l l l @{}}\toprule
     Subprogram & Description & Section \\\midrule
     \hl{\texttt{Ham\_Set}}  & Reads in model and lattice parameters from the file \texttt{parameters}. \\
                        & And it sets the Hamiltonian by calling \texttt{Ham\_latt}, \texttt{Ham\_hop}, and \texttt{Ham\_V}. & \\
     \hl{\texttt{Ham\_hop}}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}. & \ref{sec:op}, \ref{sec:specific}\\
     \hl{\texttt{Ham\_V}}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
-                         by calling \texttt{Op\_make} and \texttt{Op\_set}.& \ref{sec:op}, \ref{sec:specific}\\  
+                         by calling \texttt{Op\_make} and \texttt{Op\_set}.& \ref{sec:op}, \ref{sec:specific}\\
+    \hl{\texttt{Setup\_Ising\_action}}    & Sets bonds and median lattice for the Ising bond fields. & \ref{sec:walk2}\\
     \hl{\texttt{Ham\_Latt}} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
     \hl{\texttt{S0}}        & Returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
+    & \ref{sec:s0} \\
+    \hl{\texttt{Global\_move}}        & Generates a global move and returns \texttt{T0\_Proposal\_ratio} (see Eq.~\eqref{T0_ratio}). 
     & \ref{sec:s0} \\
     \hl{\texttt{Alloc\_obs}} & Assigns memory storage to the observables. & \\
     \hl{\texttt{Obser}}      & Computes the scalar observables and equal-time correlation functions. & \ref{sec:obs} \\
@@ -33,8 +37,9 @@ In order to specify the Hamiltonian, one needs  an  \path{Operator} and a \path{
     \texttt{Init\_obs}  & Initializes the observables to zero. & \\    
     \texttt{Pr\_obs}    & Writes the observables to disk by calling \texttt{Print\_bin}. \\\bottomrule    
    \end{tabular}
-   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian\_Examples\_mod} to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user. \red{COMPLETE TABLE -- it should list all subroutines.}
+   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian}, contained in \texttt{Hamiltonian\_Examples\_mod.F90}, used to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user. \red{COMPLETE TABLE -- it should list all subroutines.}
     \label{table:hamiltonian}}
+\end{center}
 \end{table}
 %
 

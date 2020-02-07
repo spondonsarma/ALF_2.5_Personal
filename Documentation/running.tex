@@ -18,98 +18,39 @@ The necessary environment variables and the directives for compiling the code ar
 \begin{lstlisting}[style=bash]
 source configureHPC.sh [MACHINE] [MODE] [STAB]
 \end{lstlisting}
-Running it with no arguments lists its available options and sets a generic, \emph{serial} \texttt{gfortran} compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined \texttt{MACHINES} are listed in Table~\ref{table:machines}.
+If run with no arguments, it lists the available options and sets a generic, serial GNU compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined machine configurations and parallelization modes available, as well as the options for stabilization schemes for the matrix multiplications (see Sec.~\ref{sec:stable}) are shown Table~\ref{table:configureHPC}.
 
 \begin{table}[h]
-	\begin{tabular}{@{} l l @{}}\toprule
-		machine & Description \\\midrule
-		\texttt{SuperMUC-NG}  &  Select the Intel compiler and load the necessary modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
-		\texttt{JUWELS}  &  Select the Intel compiler and load the necessary modules for JUWELS\footnote{J\"ulich Wizard for European Leadership Science, at the J\"ulich Supercomputing Centre (JSC).}.\\\bottomrule
-	\end{tabular}
-	\caption{Predefined machines at the \texttt{configureHPC.sh} script.} \label{table:machines}
+	\begin{center}
+		\begin{tabular}{@{} l l @{}}\toprule
+			Argument & Selected feature \\\midrule
+			\textbf{\texttt{MACHINE}} &  \\\midrule
+			\texttt{Intel}  &   Intel compiler for a generic machine\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
+				which \texttt{ifort} allocates on the stack. For large system sizes and/or low temperatures this may lead to a runtime error. One solution is to demand allocation of arrays above a certain size on the heap instead of the stack. This is accomplished by the \texttt{ifort} compiler flag \texttt{-heap-arrays [n]} where \texttt{[n]} is the minimal size (in kilobytes, for example \texttt{n=1024}) of arrays that are allocated on the heap.}. \\
+			\texttt{GNU}  &   GNU compiler for a generic machine (\emph{default}). \\
+			\texttt{PGI}  &   PGI compiler for a generic machine. \\
+			\texttt{MAC}  &   GNU compiler for a generic MAC computer. \\
+			\texttt{SuperMUC-NG}  &  Intel compiler and loading the necessary modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
+			\texttt{JUWELS}  &  Intel compiler and loading the necessary modules for JUWELS\footnote{Supercomputer at the J\"ulich Supercomputing Centre.}. \\
+			\texttt{Devel|Development}  &  GNU compiler, and flags appropriate for debugging.  \vspace{5pt}\\
+
+			\textbf{\texttt{MODE}} &  \\\midrule
+			\texttt{noMPI|serial}  &  No parallelization. \\
+			\texttt{MPI}  &  MPI parallelization (\emph{default} -- if a machine is selected). \\
+			\texttt{Tempering}  &  Parallel tempering (Sec.~\ref{Parallel_tempering.sec}) and the required MPI as well. \vspace{5pt}\\ 
+
+			\textbf{\texttt{STAB}} &  \\\midrule
+			\texttt{STAB1}  &  Simplest stabilization, with UDV (QR-, not SVD-based) decompositions.\\
+			\texttt{STAB2}  &  SVD-based UDV decompositions and additional normalizations.\\
+			\texttt{STAB3}  &  Newest stabilization, additionally separates large and small scales (\emph{default}).\\
+			\texttt{LOG}  &  Log storage for internal scales, increaeses accessible ranges.\\\bottomrule
+		\end{tabular}
+		\caption{Available arguments for the script \texttt{configureHPC.sh}, called before compilation of the package: predefined machines, parallelization modes, and stabilization schemes.} \label{table:configureHPC}
+	\end{center}
 \end{table}
 
-The configuration can be further controlled by the options \texttt{MODE}
-
-
-
-\begin{lstlisting}[style=bash]
-
-# -DMPI selects MPI.
-# -DTEMPERING selects tempering mode.  MPI has to be switched on.
-# -DSTAB1   Alternative stabilization, using the singular value decomposition.
-# -DSTAB2   Alternative stabilization, lapack QR with  manual pivoting.
-#           Packed form of QR factorization is not used.
-# -DSTAB3   Alternative stabilization, using QR  with pivoting.
-#           Internally, scales larger and smaller one are distinguished.
-# -DLOG     Alternative stabilization, using QR  with pivoting.
-#           Internally, scales are stored on log axsis to allow larger beta and
-#           larger and smaller have to be distinguished.
-# (no flag) Default  stabilization, using lapack QR with pivoting. 
-#           Packed form of QR factorization  is used. 
-# -DQRREF   Enables reference lapack implementation of QR decomposition.
-# Recommendation: just use the -DMPI flag if you want to run in parallel or 
-#                 leave it empty for serial jobs.  
-#                 The default stabilization, no flag, is generically the best. 
-#                 Consider using -DLOG if you run into overflows
-PROGRAMCONFIGURATION = -DMPI 
-PROGRAMCONFIGURATION = 
-f90 = gfortran
-export f90
-F90OPTFLAGS = -O3 -Wconversion  -fcheck=all
-F90OPTFLAGS = -O3
-export F90OPTFLAGS
-F90USEFULFLAGS = -cpp -std=f2003
-F90USEFULFLAGS = -cpp
-export F90USEFULFLAGS
-FL = -c ${F90OPTFLAGS} ${PROGRAMCONFIGURATION}
-export FL
-DIR = ${CURDIR}
-export DIR
-Libs = ${DIR}/Libraries/
-export Libs
-LIB_BLAS_LAPACK = -llapack -lblas
-export LIB_BLAS_LAPACK
-
-all: lib ana program
-
-lib:
-	cd Libraries && $(MAKE)
-ana:
-	cd Analysis && $(MAKE)
-program:
-	cd Prog && $(MAKE)
-
-
-clean: cleanall
-cleanall: cleanprog cleanlib cleanana
-cleanprog:
-	cd Prog && $(MAKE) clean
-cleanlib:
-	cd Libraries && $(MAKE) clean
-cleanana:
-	cd Analysis && $(MAKE) clean
-help:
-	@echo "The following are some of the valid targets of this Makefile"
-	@echo "all, program, lib, ana, clean, cleanall, cleanprog, cleanlib,
-	       cleanana"
-
-\end{lstlisting}
-In the above, the GNU Fortan compiler \texttt{gfortran} is set.\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
-which \texttt{ifort} allocates on the stack. For large system sizes and/or low temperatures this may lead to 
-a runtime error. One solution is to demand allocation of arrays above a certain size on the heap instead of the stack. 
-This is accomplished by the \texttt{ifort} compiler flag \texttt{-heap-arrays [n]} where \texttt{[n]} is the minimal size (in kilobytes, for example \texttt{n=1024}) of arrays 
-that are allocated on the heap.}
-We provide a set of options for compilation of the QMC code. The present options are \texttt{-DMPI}, \texttt{-DQRREF}, \texttt{-DSTAB1}, and \texttt{-DSTAB2}. 
-They can be included in the string variable \texttt{PROGRAMCONFIGURATION} by the user, as shown above.
-The program can be compiled and ran either in single-thread mode (default) or 
-in multi-threading mode (define \texttt{-DMPI}) using the MPI standard for parallelization. The remaining three compiler options select a particular stabilization scheme for the matrix multiplications (see Sec.~\ref{sec:output_prec}).
-To compile the libraries, the analysis routines and the QMC program at once, just execute the single command:
-\begin{verbatim}
-make
-\end{verbatim}
-To clean up all directories and remove the object files and executables, execute the command \texttt{make clean}. As can be seen in the above makefile, there exist also rules to compile/clean up the library, the analysis routines and the QMC program separately.  
-
+In order to compile the libraries, the analysis routines and the QMC program at once, just execute the single command: \lstinline[style=bash,morekeywords={make}]{make}.
+Related directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
 
 A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} sets environment variables and is described in Sec.~\ref{sec:running}.):
 \begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]

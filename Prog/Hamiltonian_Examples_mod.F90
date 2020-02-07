@@ -178,7 +178,7 @@
 !> ALF Collaboration
 !>
 !> @brief
-!> Sets the Hamiltonian
+!> Sets the Hamiltonian and lattice parameters based on the "parameters" file
 !--------------------------------------------------------------------
       Subroutine Ham_Set
 #if defined (MPI) || defined(TEMPERING)
