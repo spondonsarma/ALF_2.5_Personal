@@ -243,11 +243,13 @@ At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(
 %
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
 \begin{align}
-\texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle = \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle  \nonumber \\
+\begin{aligned}
+\texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle = \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle   \\
 \texttt{G0T(x,y,s) }   &=  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle =
-    \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle  \nonumber  \\
-  \texttt{G00(x,y,s) }  &=    \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle    \nonumber \\
+    \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    \\
+  \texttt{G00(x,y,s) }  &=    \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle     \\
     \texttt{GTT(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    
+\end{aligned}
 \end{align}
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
@@ -281,7 +283,7 @@ The Hubbard Hamiltonian can equally be written as:
 \label{eqn_hubbard_Mz}
 \mathcal{H}=
 \sum\limits_{\sigma=1}^{2} 
-\sum\limits_{x,y =1 }^{N_{unit\; cells }} 
+\sum\limits_{x,y =1 }^{N_\text{unit cells }} 
   c^{\dagger}_{x \sigma} T_{x,y}c^{\phantom\dagger}_{y \sigma} 
 - \frac{U}{2}\sum\limits_{x}\left[
 c^{\dagger}_{x, \uparrow} c^{\phantom\dagger}_{x \uparrow}  -   c^{\dagger}_{x, \downarrow} c^{\phantom\dagger}_{x \downarrow}  \right]^{2}\;.
@@ -439,19 +441,21 @@ In the multi-orbital case,  the correlation functions have additional orbital in
 %-------------------------------------------------------------------------------------
 
 The model we consider here  is very similar to the  above,  but has an additional coupling to a transverse field: 
-\begin{eqnarray}
+\begin{equation}
+\begin{aligned}
 \label{eqn_hubbard_sun_Ising}
-\mathcal{H}= & & 
+\mathcal{H} =&
 \sum\limits_{\sigma=1}^{2} 
 \sum\limits_{x,y } 
   c^{\dagger}_{x \sigma} T_{x,y}c^{\phantom\dagger}_{y \sigma} 
 + \frac{U}{2}\sum\limits_{x}\left[
 \sum\limits_{\sigma=1}^{2}
 \left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}   
-+  \xi \sum_{\sigma,\langle x,y \rangle} \hat{Z}_{\langle x,y \rangle}  \left( c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{y \sigma}  + h.c. \right)  \nonumber \\ 
- & & - h \sum_{\langle x,y \rangle} \hat{X}_{\langle x,y \rangle}   - J \sum_{\langle \langle x,y \rangle \langle x',y' \rangle \rangle} 
++  \xi \sum_{\sigma,\langle x,y \rangle} \hat{Z}_{\langle x,y \rangle}  \left( c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{y \sigma}  + h.c. \right) \\ 
+ &- h \sum_{\langle x,y \rangle} \hat{X}_{\langle x,y \rangle}   - J \sum_{\langle \langle x,y \rangle \langle x',y' \rangle \rangle} 
   \hat{Z}_{\langle x,y \rangle}   \hat{Z}_{\langle x',y' \rangle} 
-\end{eqnarray}
+  \end{aligned}
+\end{equation}
 We can make contact with the general form of the Hamiltonian by setting: 
 $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} \equiv N_{\mathrm{dim}}$,  $U_{k}       =   -\frac{U}{2}$, 
  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 2 N_{\text{unit-cell}} $.  
@@ -479,12 +483,12 @@ Do I = 1, Latt%N
 enddo
 enddo
 \end{lstlisting}
-The two legs of the bond are given by  the anchor $\vec{I}$ and $\vec{I}+ \vec{a}_{n_{orientation}}$
+The two legs of the bond are given by  the anchor $\vec{I}$ and $\vec{I}+ \vec{a}_{n_\text{orientation}}$
 %-------------------------------------------------------------------------------------
 \subsubsection{The interaction term: \texttt{Call Ham\_V}}
 %-------------------------------------------------------------------------------------
 
-The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=((N_{coord} +  1 )N_{\mathrm{dim}}) \times 1$ since each site has $N_{coord} =2$ bonds   for the square lattice.
+The dimension of   \texttt{Op\_V}  is now  $(M_I + M_V)\times N_{\mathrm{fl}}=((N_\text{coord} +  1 )N_{\text{dim}}) \times 1$ since each site has $N_\text{coord} =2$ bonds   for the square lattice.
 \begin{lstlisting}[style=fortran]
 
 do i  = 1,N_coord*Ndim                     ! Runs over bonds for Ising interaction.

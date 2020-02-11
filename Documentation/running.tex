@@ -49,10 +49,13 @@ If run with no arguments, it lists the available options and sets a generic, ser
 	\end{center}
 \end{table}
 
-In order to compile the libraries, the analysis routines and the QMC program at once, just execute the single command: \lstinline[style=bash,morekeywords={make}]{make}.
+In order to compile the libraries, the analysis routines and the QMC program at once, just execute the single command:%\lstinline[style=bash,morekeywords={make}]{make}.
+\begin{lstlisting}[style=bash,morekeywords={make}]
+make
+\end{lstlisting}
 Related directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
 
-A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} sets environment variables and is described in Sec.~\ref{sec:running}.):
+A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} sets environment variables as described above.):
 \begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]
 
 source configureHPC.sh Devel serial
@@ -75,12 +78,12 @@ which will output test results and total success rate.
 \subsection{Starting a simulation}
 %-------------------------------------------------------------------------------------
 %
-To start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds}. 
-To run a single-thread simulation, for example by using the parameters of one of the  Hubbard models described in Sec.~\ref{sec:ex}, issue the command
-\begin{verbatim}
+In order to start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds} (see Sec.~\ref{sec:input}). 
+To run the simulation for a given model, for instance one of the Hubbard models included in \texttt{Hamiltonian\_Examples\_mod.F90}, described in Sec.~\ref{sec:ex}, issue the command
+\begin{lstlisting}[style=bash]
 ./Prog/Examples.out
-\end{verbatim}
-To restart the code using an existing simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files.
+\end{lstlisting}
+To restart the code using the configuration from a previous simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files.
 %
 %-------------------------------------------------------------------------------------
 \subsection{Error analysis}\label{sec:analysis}
@@ -101,28 +104,18 @@ To perform an error analysis based on the Jackknife resampling method (Sec.~\ref
 
 
 \begin{table}[h]
-	\begin{tabular}{@{} l l @{}}\toprule
+	\begin{center}
+	\begin{tabular}{@{} p{0.15\linewidth} p{0.8\linewidth} @{}}\toprule
 		Program & Description \\\midrule
-		\texttt{cov\_scal.F90}  &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_scal} are read in, \\
-		& and  the corresponding files with suffix \texttt{\_scalJ} are produced. They  contain the  result \\
-		& of the Jackknife rebinning analysis  (see Sec.~\ref{sec:sampling}).  \\
-		\texttt{cov\_eq.F90}    &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_eq} are read in, \\
-		& and the corresponding files with suffix  \texttt{\_eqJR}  and  \texttt{\_eqJK}  are produced. They  correspond \\
-		& to correlation functions in real and Fourier space, respectively.  \\
-		\texttt{cov\_tau.F90}   &  In combination with the script \texttt{analysis.sh}, the bin files  \texttt{X\_tau} are read in, \\
-		& and the directories  \texttt{X\_kx\_ky} are produced  for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
-		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc   as specified in \texttt{ Alloc\_obs(Ltau)} \\
-		& (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  \\
-		& time displaced correlation function traced over the  orbitals.  It also contains the  \\
-		& covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  (see Sec.~\ref{sec:input}). \\
-		& Equally, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated.  \\                         
-		\texttt{cov\_tau\_ph.F90}            & At compilation time  the file \texttt{cov\_tau\_ph.F90} is generated, and  should be used to compute \\ 
-		& particle-hole  imaginary time correlation functions such as Spin and Charge.   Here we use  \\
-		&  the fact that these  correlation functions  are symmetric around $\tau = \beta/2$ so that we \\
-		&  can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.  
+		\texttt{cov\_scal.F90}  &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_scal} are read in, and  the corresponding files with suffix \texttt{\_scalJ} are produced. They  contain the  result of the Jackknife rebinning analysis  (see Sec.~\ref{sec:sampling}).  \\
+		\texttt{cov\_eq.F90}    &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_eq} are read in, and the corresponding files with suffix  \texttt{\_eqJR}  and  \texttt{\_eqJK}  are produced. They  correspond to correlation functions in real and Fourier space, respectively.  \\
+		\texttt{cov\_tau.F90}   &  In combination with the script \texttt{analysis.sh}, the bin files  \texttt{X\_tau} are read in, and the directories  \texttt{X\_kx\_ky} are produced  for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
+		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  time displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  (see Sec.~\ref{sec:input}). Also, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated.  \\                         
+		\texttt{cov\_tau\_ph.F90} & At compilation time  the file \texttt{cov\_tau\_ph.F90} is generated, and  should be used to compute particle-hole  imaginary time correlation functions such as Spin and Charge. Here we use the fact that these  correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.  
 		\\\bottomrule
 	\end{tabular}
 	\caption{ Overview of analysis programs that are called within the script \texttt{analysis.sh}. \label{table:analysis_programs}}
+\end{center}
 \end{table}
 %
 Here we briefly   discuss the analysis programs which read in bins and carry out the error analysis. (See Sec.~\ref{sec:sampling}  for a more detailed discussion.)
@@ -136,6 +129,7 @@ As listed in Table  \ref{table:analysis_programs}  we provide three analysis pro
 \texttt{analysis.sh}.
 %
 \begin{table}[h]
+	\begin{center}
 	\begin{tabular}{@{} l l @{}}\toprule
 		File & Description \\\midrule
 		\texttt{parameters}  &  Contains also variables for the error analysis:\\
@@ -143,20 +137,20 @@ As listed in Table  \ref{table:analysis_programs}  we provide three analysis pro
 		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \\\bottomrule
 	\end{tabular}
 	\caption{Standard input files for the error analysis. \label{table:analysis_input}}
+\end{center}
 \end{table}
 %
 \begin{table}[h]
-	\begin{tabular}{@{} l l l @{}}\toprule
+	\begin{center}
+	\begin{tabular}{@{} p{0.18\linewidth} p{0.78\linewidth} @{}}\toprule
 		File & Description \\\midrule
-		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, and \texttt{Ener}.\\
-		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
-		& The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively.\\
-		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y},\\
-		& where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
-		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y},\\
-		& where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\\bottomrule
+		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}.\\
+		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, or \texttt{Den}. The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively.\\
+		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
+		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\\bottomrule
 	\end{tabular}
 	\caption{ Standard output files of the error analysis. \label{table:analysis_output}}
+\end{center}
 \end{table}
 %
 In the following, we describe the formatting of the output files mentioned in Table \ref{table:analysis_output}.
