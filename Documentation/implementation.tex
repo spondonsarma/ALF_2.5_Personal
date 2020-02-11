@@ -200,13 +200,10 @@ In the case of a perfect-square term, the fields results from the discrete HS tr
 		                          &          & sequence and the second through the time slices. \\
 		\texttt{Field\%t(:)}      &  Integer & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-\\
 		                          &          & square term; 3: continuous real field). The index denotes the operator. \\
-		\texttt{Field\%i}         &  Integer & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
 		\texttt{Field\%del}       &  Real    & Width of the uniform random initial configuration for fields of type \texttt{t=3},\\
 		                          &          & with a default value of \texttt{1}. \\
-		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ %\bottomrule
-	%\end{tabular}
-	%\begin{tabular}{@{} l l @{}}\toprule	
-		Function/Routine      & &    \hspace{107.8mm}  \\\midrule
+		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
+		Subprogram            & &    \\ \midrule
 		\texttt{Fields\_init} & & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.  \\
 		\texttt{Field\%make}  & & Reserves memory for the field.    \\
 		\texttt{Field\%clear} & & Clears field from memory.    \\
@@ -214,6 +211,7 @@ In the case of a perfect-square term, the fields results from the discrete HS tr
 		\texttt{Field\%flip}  & & Flips the field values randomly. \\
 		\texttt{Field\%phi}   & & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$. \\
 		\texttt{Field\%gamma} & & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
+		\texttt{Field\%i}     & & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
 		\texttt{Field\%in}    & & Reads in the field configuration.    \\
 		\texttt{Field\%out}   & & Writes out the field configuration.    \\\bottomrule
 	\end{tabular}

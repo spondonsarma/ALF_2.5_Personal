@@ -10,7 +10,7 @@
 In this section we describe the steps for compiling and running the code, and describe how to search for optimal parameter values as well as how to perform the error analysis of the data.
 
 %-------------------------------------------------------------------------------------
-\subsection{Compilation}
+\subsection{Compiling and running}
 \label{sec:compilation}
 %-------------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ which will output test results and total success rate.
 
 %
 %-------------------------------------------------------------------------------------
-\subsection{Starting a simulation}
+\subsection*{Starting a simulation}
 %-------------------------------------------------------------------------------------
 %
 In order to start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds} (see Sec.~\ref{sec:input}). 
@@ -83,25 +83,24 @@ To run the simulation for a given model, for instance one of the Hubbard models 
 \begin{lstlisting}[style=bash]
 ./Prog/Examples.out
 \end{lstlisting}
+For running a different model, for instance, the Kondo model (Sec.~\ref{sec:kondo}), use the corresponding executable (\texttt{Kondo\_Honey.out} here).
+
 To restart the code using the configuration from a previous simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files.
+
 %
 %-------------------------------------------------------------------------------------
 \subsection{Error analysis}\label{sec:analysis}
 %-------------------------------------------------------------------------------------
 %
 
-\red{\texttt{./setenv.sh} does not exist anymore -- a lot to update here}
+The ALF package includes a few bash scripts for performing simple error analysis and correlation function calculations, as listed in Table~\ref{table:analysis_programs}. 
+To perform an error analysis based on the Jackknife resampling method~\cite{efron1981} (Sec.~\ref{sec:jack}) of the Monte Carlo bins for all observables run
+\begin{lstlisting}[style=bash]
+./analysis.sh
+\end{lstlisting}
+In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
 
-Note that the error analysis script requires the presence of the environment variable \path{DIR} which defines the path to the error analysis programs.
-So before starting the error analysis, one has to make this variable available which is done by the script \path{setenv.sh}. The command is
-\begin{verbatim}
-source ./setenv.sh
-\end{verbatim}
-To perform an error analysis based on the Jackknife resampling method (Sec.~\ref{sec:jack})  of the Monte Carlo bins for all observables run the script \texttt{analysis.sh} 
-(see Sec.~\ref{sec:analysis}). In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
-
-\red{[MOVING SECTION ANALYSIS HERE - HAS TO BE SMOOTHED OUT]}
-
+Note that the error analysis script requires the presence of the environment variable \texttt{ALF\_DIR}, which stores the package's path and can be set by running \texttt{source configureHPC.sh}. The files taken by \texttt{analysis.sh} as input, as well as its output files are listed in Table~\ref{table:analysis_files}.
 
 \begin{table}[h]
 	\begin{center}
@@ -118,61 +117,49 @@ To perform an error analysis based on the Jackknife resampling method (Sec.~\ref
 \end{center}
 \end{table}
 %
-Here we briefly   discuss the analysis programs which read in bins and carry out the error analysis. (See Sec.~\ref{sec:sampling}  for a more detailed discussion.)
-Error analysis   is based  on the central limit theorem,  which requires bins to be statistically independent, and also the existence of a well-defined variance  for the observable under consideration. 
-The former will be the case if bins are  longer than the autocorrelation time.  The latter has to be checked by the user.  In the parameter file listed in Sec.~\ref{sec:input}, the user  can specify how many initial bins should be omitted (variable \texttt{n\_skip}). 
+%Here we briefly describe the analysis programs, which read in bins and carry out the error analysis. (See Sec.~\ref{sec:sampling}  for a more detailed discussion.)
+The error analysis is based on the central limit theorem, which requires bins to be statistically independent, and also the existence of a well-defined variance for the observable under consideration (see Sec.~\ref{sec:sampling}).
+The former will be the case if bins are  longer than the autocorrelation time.  The latter has to be checked by the user.  In the parameter file described in Sec.~\ref{sec:input}, the user  can specify how many initial bins should be omitted (variable \texttt{n\_skip}). 
 This  number should be comparable to the autocorrelation time.     
 The  rebinning  variable \texttt{N\_rebin} will merge \texttt{N\_rebin}  bins into a single new bin. 
-If the autocorrelation time  is smaller than the effective bin size, the error should become independent of the bin size and thereby of the variable \texttt{N\_rebin}.  
-Our analysis is based on the Jackknife resampling\cite{efron1981}.
-As listed in Table  \ref{table:analysis_programs}  we provide three analysis programs to account for the three observable types. The programs can be found in the directory \texttt{Analysis}  and   are executed by running the  bash shell script 
-\texttt{analysis.sh}.
+If the autocorrelation time  is smaller than the effective bin size, the error should become independent of the bin size and thereby of the variable \texttt{N\_rebin}.
 %
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} l l @{}}\toprule
-		File & Description \\\midrule
-		\texttt{parameters}  &  Contains also variables for the error analysis:\\
-		& \texttt{n\_skip}, \texttt{N\_rebin} and \texttt{N\_Cov} (see Sec.~\ref{sec:input}) \\
-		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \\\bottomrule
-	\end{tabular}
-	\caption{Standard input files for the error analysis. \label{table:analysis_input}}
-\end{center}
-\end{table}
-%
-\begin{table}[h]
-	\begin{center}
-	\begin{tabular}{@{} p{0.18\linewidth} p{0.78\linewidth} @{}}\toprule
-		File & Description \\\midrule
+		\begin{tabular}{@{} p{0.2\linewidth} p{0.75\linewidth} @{}}\toprule
+		File & Description  \\ \midrule
+		Input &  \\\midrule %\cmidrule{1-1}
+		\texttt{parameters}  &  Includes error analysis variables \texttt{n\_skip}, \texttt{N\_rebin}, and \texttt{N\_Cov} (see Sec.~\ref{sec:input}). \\
+		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}). \vspace{5pt} \\
+
+		Output &  \\\midrule
 		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}.\\
 		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, or \texttt{Den}. The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively.\\
 		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
 		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\\bottomrule
 	\end{tabular}
-	\caption{ Standard output files of the error analysis. \label{table:analysis_output}}
+	\caption{ Standard input and output files of the error analysis script \texttt{analysis.sh}. \label{table:analysis_files}}
 \end{center}
 \end{table}
 %
-In the following, we describe the formatting of the output files mentioned in Table \ref{table:analysis_output}.
+The analysis output files listed in Table \ref{table:analysis_files} and are formatted in the following way:
 \begin{itemize}
 	\item For the scalar quantities \texttt{X}, the output files  \texttt{X\_scalJ} have the following formatting:
 	\begin{alltt}
-		Effective number of bins, and bins:           <N_bin - n_skip>          <N_bin>
-		
-		OBS :    1      <mean(X)>      <error(X)>
-		
+		Effective number of bins, and bins:           <N_bin - n_skip>          <N_bin>	
+		OBS :    1      <mean(X)>      <error(X)>	
 		OBS :    2      <mean(sign)>   <error(sign)>
 	\end{alltt}
 	
-	\item For the equal-time correlation functions \texttt{Y}, the formatting of the output files \texttt{Y\_eqJR} and \texttt{Y\_eqJK} follows this structure:
+	\item For the equal-time correlation functions \texttt{Y}, the formatting of the output files \texttt{Y\_eqJR} and \texttt{Y\_eqJK} follows the structure:
 	\begin{alltt}
 		do i = 1, N_unit_cell
-		<k_x(i)>   <k_y(i)>
-		do alpha = 1, N_orbital
-		do beta  = 1, N_orbital
-		alpha   beta   Re<mean(Y)>   Re<error(Y)>   Im<mean(Y)>   Im<error(Y)>
-		enddo
-		enddo
+		   <k_x(i)>   <k_y(i)>
+		   do alpha = 1, N_orbital
+		      do beta  = 1, N_orbital
+		         alpha   beta   Re<mean(Y)>   Re<error(Y)>   Im<mean(Y)>   Im<error(Y)>
+		      enddo
+		   enddo
 		enddo
 	\end{alltt}
 	where \texttt{Re} and \texttt{Im} refer to the real and imaginary part, respectively.
@@ -183,7 +170,7 @@ In the following, we describe the formatting of the output files mentioned in Ta
 	Both output files have the following formatting:
 	\begin{alltt}
 		do i = 0, Ltau
-		tau(i)   <mean( Tr[Y] )>   <error( Tr[Y])>
+		   tau(i)   <mean( Tr[Y] )>   <error( Tr[Y])>
 		enddo
 	\end{alltt}
 	where \texttt{Tr} corresponds to the trace over the orbital degrees of freedom.   For particle-hole quantities at finite temperature,  $\tau$ runs from 
