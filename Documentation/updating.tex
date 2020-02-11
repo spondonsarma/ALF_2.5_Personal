@@ -38,6 +38,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 % 
 %------------------------------------------------------------
 \subsubsection{Sampling of $e^{-S_0}$}
+\label{sec:S0}
 %------------------------------------------------------------
 % 
 This section refers to single spin-flip updates in the presence of a non-vanishing Ising action $S_0(C)$. This sampling scheme is used if the logical variable \texttt{Propose\_S0} is set to \texttt{.true.}.
@@ -99,6 +100,7 @@ Since we allow for a stochastic  generation of  the global move, it may very wel
 %------------------------------------------------------------
 %------------------------------------------------------------
 \subsubsection{Global updates in time and space}
+\label{sec:global_slice}
 %------------------------------------------------------------
 %  
 The code allows for global updates as well. The user must then provide two additional functions in the module \texttt{Hamiltonian\_Examples\_mod.F90}: \texttt{Global\_move} and \texttt{Delta\_\-S0\_\-global(Nsigma\_old)}.   
