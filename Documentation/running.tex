@@ -214,14 +214,14 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 			Stabilization scheme & use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}). \\
 			Parallelism & for some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell. \\\bottomrule
 		\end{tabular}
-		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \label{table:tips}}
+		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \red{SHOULD we include tips on when to use a give updating scheme (see Table~\ref{table:Updating_schemes})?} \label{table:tips}}
 	\end{center}
 \end{table}
 
 
 In particular, for the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Notice that results are very likely to change
 %significantly
-depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configureHPC.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}.
+depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configureHPC.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}. The performance of the package is further discussed in Sec.~\ref{sec:performance}.
 
 
 
