@@ -7,14 +7,14 @@
 \subsubsection{$Z_2$ gauge theory coupled to $Z_2$ matter.   }
 \label{Z2.Sec}
 The Hamiltonian we will consider here reads
-\begin{eqnarray}
-	\hat{H} & = & -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}
+\begin{align}
+	\hat{H} =& -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}
 	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
 	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{X}_{\langle \vec{i}, \vec{j} \rangle }  +
 	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
-	& &  + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\vec{i}}  \hat{Z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\vec{j}}   
-	      -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\vec{i}}   \hat{\tau}^z_{\vec{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)
-\end{eqnarray}  
+	& + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\pmb{i}}  \hat{Z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\pmb{j}}   
+	      -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\pmb{i}}   \hat{\tau}^z_{\pmb{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)
+\end{align}  
 Here the  $\hat{\Psi}^{\dagger}_{\vec{i},\sigma}$  creates an orthogonal fermion with $Z_2$ and  and electric charges.    
 The implementation of this Hamiltonian can be found in the file \texttt{Hamiltonian\_Z2\_Matter\_mod.F90}.
  For this Hamiltonian, the the $Z_2$ local conservation law reads: 

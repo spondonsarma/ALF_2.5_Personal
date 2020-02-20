@@ -10,19 +10,19 @@
 The model we consider here reads: 
 \begin{equation}
 	\hat{H}  = -t \sum_{\vec{i},\vec{j},\sigma=1}^{N}   \hat{c}^{\dagger}_{\vec{i},\sigma}  T_{\vec{i},\vec{j}} \hat{c}^{}_{\vec{j},\sigma}   +     
-	\frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{\vec{i}} -  \frac{N}{2}  \right)  V_{\vec{i},\vec{j}} \left(  \hat{n}_{\vec{j}} -  \frac{N}{2}  \right) \; \; 
-	\text{ with }  \hat{n}_{\vec{i}} = \sum_{\sigma=1}^{N}  \hat{c}^{\dagger}_{\vec{i},\sigma}  \hat{c}^{}_{\vec{i},\sigma}
+	\frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{\vec{i}} -  \frac{N}{2}  \right)  V_{\vec{i},\vec{j}} \left(  \hat{n}_{\vec{j}} -  \frac{N}{2}  \right), \; \; 
+	\text{ with }  \hat{n}_{\vec{i}} = \sum_{\sigma=1}^{N}  \hat{c}^{\dagger}_{\vec{i},\sigma}  \hat{c}^{}_{\vec{i},\sigma}.
 \end{equation}
 The interaction is specified in the following way: 
 \begin{equation}
 	V_{\vec{i}, \vec{j}}   =   U \left\{
 	\begin{array}{ll}  
 	1          &   \text{ if } \vec{i} - \vec{j}    = 0 \\
-	\frac{\alpha   \;   d_{min}}{ |   \vec{i} - \vec{j} | } &     \text{ otherwise }
+	\frac{\alpha   \;   d_\mathrm{min}}{ |   \vec{i} - \vec{j} | } &     \text{ otherwise }
 	\end{array}
 \right.
 \end{equation}
-Here $d_{min}$ is the minimal distance between two orbitals.     The code uses the following  HS decomposition:
+Here $d_\mathrm{min}$ is the minimal distance between two orbitals.     The code uses the following  HS decomposition:
 \begin{equation}
 e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) } 
 \end{equation}
@@ -36,7 +36,7 @@ X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:)
 or in more compact notation $ \vec{i}  + \vec{\delta}_i $.   By definition \texttt{Latt\_unit\%Orb\_pos\_p(1,:)=0}.
 The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \vec{j}  + \vec{\delta}_j $   reads: 
 \begin{equation}
-	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
+	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_\mathrm{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
 \end{equation}
 Here  we use periodic boundary conditions such that  $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.
 

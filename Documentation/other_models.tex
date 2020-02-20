@@ -13,7 +13,7 @@
 The aim of this section is to briefly mention  a small  selection of  other models that can be studied using the QMC code of the ALF project.  
   
 %-------------------------------------------------------------------------------------
-\subsubsection{Kondo lattice model}
+\subsubsection{Kondo lattice model} \label{sec:kondo}
 %-------------------------------------------------------------------------------------
 
 Simulating the Kondo lattice with the QMC code of the ALF project    requires rewriting of the model along the lines of Refs.~\cite{Assaad99a,Capponi00,Beach04}.  
@@ -67,7 +67,7 @@ $SU(2N)$ Hubbard-Heisenberg \cite{Assaad04,Lang13} models can be written as:
             \hat{D}^{\phantom\dagger}_{ \vec{i},\vec{j} } \hat{D}^{\dagger}_{ \vec{i},\vec{j} }  \right) }_{\equiv\hat{\mathcal{H}}_J}
             + 
  \underbrace{\frac{U}{N}  \sum_{\vec{i}} \left(
-             \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2}_{\equiv \hat{\mathcal{H}}_U}
+             \vec{\hat{c}}^{\dagger}_{\vec{i}}  \vec{\hat{c}}^{\phantom\dagger}_{\vec{i}} -  {\frac{N}{2} } \right)^2}_{\equiv \hat{\mathcal{H}}_U}.
 \end{equation}
 Here,
 $ \vec{\hat{c}}^{\dagger}_{\vec{i}} =
@@ -94,7 +94,7 @@ For odd values of $N$ recent progress  in our understanding of the  origins of t
 
 To simulate the Hubbard model in the canonical ensemble  one can add the constraint: 
 \begin{equation}
-	\hat{\mathcal{H}}   = \hat{\mathcal{H}_{tU}}     + \underbrace{\lambda \left( \hat{N} -  N \right)^{2}}_{\equiv \hat{H}_\lambda }
+	\hat{\mathcal{H}}   = \hat{\mathcal{H}_{tU}}     + \underbrace{\lambda \left( \hat{N} -  N \right)^{2}}_{\equiv \hat{H}_\lambda }.
 \end{equation}
 In the limit $\lambda \rightarrow \infty $, the uniform charge fluctuations,
 \begin{equation} 
@@ -107,4 +107,4 @@ To implement this in the QMC code of the ALF project,  we have adopted the follo
 	\underbrace{e^{-\frac{\Delta \tau}{n_{\lambda}} \hat{H}_{\lambda} } \cdots e^{-\frac{\Delta \tau}{n_{\lambda}} \hat{H}_{\lambda} } }_{n_\lambda \text{-times } }\right].
 \end{equation}
 Thereby, we need $n_\lambda $ fields per time slice  to impose the constraint.  Since for each field the coupling  constant is suppressed by a factor $n_{\lambda}$, we can monitor the acceptance. 
-An implementation of this program can be found in  \path{Prog/Hamiltonian_Hub_Canonical_mod.F90}  and a test run in the directory \path{Examples/Hubbard_Mz_Square_Can}
+An implementation of this program can be found in  \path{Prog/Hamiltonian_Hub_Canonical_mod.F90}  and a test run in the directory \path{Examples/Hubbard_Mz_Square_Can}.

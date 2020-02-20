@@ -10,18 +10,20 @@
 %------------------------------------------------------------
 %
 \begin{table}[h]
+	\begin{center}
 	\begin{tabular}{@{} l l @{}}\toprule
    	Directory & Description \\\midrule
    	\path{Prog/} & Main program and subroutines.  \\
    	\path{Libraries/} & Collection of mathematical routines. \\  
   	\path{Analysis/} & Routines for error analysis. \\
-  	\path{Scripts_and_Parameters_files/}   & Helper scripts and the \path{Start/} directory, which contains the files \\ 
-  	                                      & required to start a run. \\
+  	\path{Scripts_and_Parameters_files/}   & Helper scripts and the \path{Start/} directory, which contains \\ 
+  	                                      & the files required to start a run. \\
   	\path{Documentation/} & This documentation.\\
   	\path{testsuite/} & A suite for automatic testing various parts of the code.\\\bottomrule
   	\hline
 	\end{tabular}
    	\caption{Overview of the directories included in the ALF package.\label{table:files}}
+   \end{center}
 \end{table}
 %
 
@@ -93,6 +95,7 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 %
 
 \begin{table}[h]
+	\begin{center}
 	\begin{tabular}{@{} l l @{}}\toprule
 		File & Description \\\midrule
 		\path{parameters} &  Sets the parameters for lattice, model, QMC process, and the error analysis.\\
@@ -103,6 +106,7 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 		\\\bottomrule
 	\end{tabular}
 	\caption{Overview of the input files required for a simulation, which can be found in the subdirectory \texttt{Scripts\_and\_Parameters\_files/Start/}. \label{table:input}}
+\end{center}
 \end{table}
 %
 \FloatBarrier
@@ -152,7 +156,7 @@ NDis       = 2000            ! # of boxes for histogram
 Nbins      = 250             ! # of bins for Monte Carlo
 Nsweeps    = 70              ! # of sweeps per bin
 NWarm      = 20              ! The Nwarm first bins will be ommitted
-N_alpha    = 14              ! # of tempertures
+N_alpha    = 14              ! # of temperatures
 alpha_st   = 1.d0            ! smallest inverse temperature
 R          = 1.2d0           ! increment for inverse temperature (see above) 
 Channel    = "P"             ! T0       : Zero temperature
@@ -173,6 +177,7 @@ Tolerance  = 0.1d0           ! Data points for which the relative error exceeds 
 %------------------------------------------------------------
 %
 \begin{table}[h]
+	\begin{center}
    \begin{tabular}{@{} l l @{}}\toprule
    File & Description \\\midrule
    \path{info} & After completion of the simulation, this file documents the parameters of\\
@@ -185,6 +190,7 @@ Tolerance  = 0.1d0           ! Data points for which the relative error exceeds 
    \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and Ising configuration. \\\bottomrule
    \end{tabular}
    \caption{Overview of the standard output files. See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
+\end{center}
 \end{table}
 %
 The standard output files are listed in Table~\ref{table:output}. 

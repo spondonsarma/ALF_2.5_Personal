@@ -148,8 +148,8 @@ esac
 
 case $MACHINE in
 
-#Fakhers MacBook
-FakhersMAC)
+#MacBook
+MAC)
 
 # F90OPTFLAGS=$GNUOPTFLAGS
 F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
@@ -175,23 +175,11 @@ LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
 ;;
 
 #LRZ enviroment
-SuperMUC)
-module switch mpi.ibm  mpi.intel/2018
-module switch intel intel/18.0
-module switch mkl mkl/2018
-
-F90OPTFLAGS=$INTELOPTFLAGS
-F90USEFULFLAGS=$INTELUSEFULFLAGS
-f90=mpiifort
-LIB_BLAS_LAPACK=$MKL_LIB
-;;
-
-#LRZ enviroment
 SuperMUC-NG|NG)
 #module switch mpi.intel  mpi.intel/2018
 #module switch intel intel/18.0
 #module switch mkl mkl/2018
-module load  mpi.intel
+module load mpi.intel
 module load intel
 module load mkl
 
@@ -254,13 +242,12 @@ echo
 echo "usage 'source configureHPC.sh MACHINE MODE STAB'"
 echo 
 echo "Please choose one of the following machines:"
-echo " * SuperMUC"
 echo " * SuperMUC-NG"
 echo " * JUWELS"
 echo " * Devel"
 echo " * Intel"
 echo " * GNU"
-echo " * FakhersMAC"
+echo " * MAC"
 echo "Possible modes are MPI (default), noMPI and Tempering"
 echo "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)"
 echo "    and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)"

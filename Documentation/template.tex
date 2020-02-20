@@ -1,0 +1,40 @@
+% Copyright (c) 2016-2019 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+
+% !TEX root = doc.tex
+
+ \red{TODO} Go through everything one has to defined/set in order to define a new Hamiltonian. \red{TODO}
+
+\begin{itemize}
+	\item Hamiltonian -- one-body, imaginary-time propagator for a given configuration of HS and  Ising fields
+	\item Table~\ref{table:hamiltonian}:
+	\begin{itemize}
+		\item \texttt{Ham\_Set}
+		\item \texttt{Ham\_V}
+		\item \texttt{S0}
+		\item \texttt{Setup\_Ising\_action}
+		\item \texttt{Global\_move}
+		\item \texttt{Delta\_S0\_global}
+		\item \texttt{Global\_move\_tau}
+		\item \texttt{Alloc\_obs}
+		\item \texttt{Obser}
+		\item \texttt{ObserT}
+	\end{itemize}
+	\item Check Table~\ref{table:operator}.
+	\item Table~\ref{table:lattice} and \ref{table:unit_cell}:
+	\begin{itemize}
+		\item \texttt{Lattice\%a1\_p}, \texttt{Lattice\%a2\_p}
+		\item \texttt{Lattice\%L1\_p}, \texttt{Lattice\%L2\_p}
+		\item \texttt{Lattice\%N}
+		\item \texttt{Norb}
+		\item \texttt{N\_coord}
+		\item \texttt{Orb\_pos(1..Norb,2)}
+	\end{itemize}
+\end{itemize}
+
+
+\red{Maybe merge this with Chapter on Examples.}
+

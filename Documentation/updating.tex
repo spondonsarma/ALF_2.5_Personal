@@ -25,7 +25,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 		\texttt{Global\_tau\_moves}  &  Logical         &  This option allows to carry out  global moves on a single time slice.
 		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{Nt\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out.   \\
 		\texttt{Global\_moves}      &  Logical          &   If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep. \\
-		\texttt{TEMPERING}          &  Compiling option &    Requires MPI and  runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec}. \\
+		\texttt{Tempering}          &  Compiling option &    Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation}. \\
 		\bottomrule
 	\end{tabular}
 	\caption{Variables required to control the updating scheme. Per default the program carries out sequential, single spin-flip sweeps, and logical variables are set to \texttt{false}.}
@@ -38,6 +38,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 % 
 %------------------------------------------------------------
 \subsubsection{Sampling of $e^{-S_0}$}
+\label{sec:S0}
 %------------------------------------------------------------
 % 
 This section refers to single spin-flip updates in the presence of a non-vanishing Ising action $S_0(C)$. This sampling scheme is used if the logical variable \texttt{Propose\_S0} is set to \texttt{.true.}.
@@ -90,7 +91,7 @@ The variable \texttt{N\_tau\_Global}  sets the number of global moves carried ou
 \item \texttt{Flip\_value(1:Flip\_length)}:  \texttt{Flip\_value(n)} is an  integer containing the new value of the  HS  field for the operator \texttt{Flip\_list(n)}.
 \item  \texttt{T0\_Proposal\_ratio}:   Real number containing  the quotient
 \begin{equation}
-	 \frac{T_0(C' \rightarrow C)}{T_0(C \rightarrow C') }  \;,
+	 \frac{T_0(C' \rightarrow C)}{T_0(C \rightarrow C') }  \;, \label{T0_ratio}
 \end{equation}
 where $ C'$  denotes the new configuration  obtained by flipping the spins specified in the \texttt{Flip\_list}  array. 
 Since we allow for a stochastic  generation of  the global move, it may very well be that no change is proposed. In this case, \texttt{T0\_Proposal\_ratio}   takes the value 0 upon exit of the routine \texttt{Global\_move\_tau} and  no update is carried out. 
@@ -99,6 +100,7 @@ Since we allow for a stochastic  generation of  the global move, it may very wel
 %------------------------------------------------------------
 %------------------------------------------------------------
 \subsubsection{Global updates in time and space}
+\label{sec:global_slice}
 %------------------------------------------------------------
 %  
 The code allows for global updates as well. The user must then provide two additional functions in the module \texttt{Hamiltonian\_Examples\_mod.F90}: \texttt{Global\_move} and \texttt{Delta\_\-S0\_\-global(Nsigma\_old)}.   

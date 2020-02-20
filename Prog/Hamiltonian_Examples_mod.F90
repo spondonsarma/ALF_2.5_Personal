@@ -178,7 +178,7 @@
 !> ALF Collaboration
 !>
 !> @brief
-!> Sets the Hamiltonian
+!> Sets the Hamiltonian and lattice parameters based on the "parameters" file
 !--------------------------------------------------------------------
       Subroutine Ham_Set
 #if defined (MPI) || defined(TEMPERING)
@@ -640,7 +640,7 @@
                 do i  =  1, Latt_unit%N_coord*Ndim
                    call Op_make(Op_V(i,nf),2)
                 enddo
-                do i  = Latt_unit%N_coord*Ndim +1 ,  Latt_unit%N_coord*Ndim + Ndim ! For Hubbatd
+                do i  = Latt_unit%N_coord*Ndim +1 ,  Latt_unit%N_coord*Ndim + Ndim ! For Hubbard
                    Call Op_make(Op_V(i,nf),1)
                 enddo
              enddo

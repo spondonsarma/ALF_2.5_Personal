@@ -7,6 +7,7 @@
 % !TEX root = doc.tex
 %------------------------------------------------------------
 \subsection{Implementation of the Hamiltonian and the lattice} 
+\label{sec:hamiltonian}
 %------------------------------------------------------------
 
 The module \path{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). This module can be found in the file \path{Hamiltonian_Examples_mod.F90}, which also contains a number of example Hamiltonians, lattices and observables.  The examples are described in Sec.~\ref{sec:ex}.
@@ -17,24 +18,36 @@ In order to specify the Hamiltonian, one needs  an  \path{Operator} and a \path{
 
 %
 \begin{table}[h]
+	\begin{center}
     \begin{tabular}{@{} l l l @{}}\toprule
     Subprogram & Description & Section \\\midrule
-    \hl{\texttt{Ham\_Set}}  & Reads in model and lattice parameters from the file \texttt{parameters}. \\
-                       & And it sets the Hamiltonian by calling \texttt{Ham\_latt}, \texttt{Ham\_hop}, and \texttt{Ham\_V}. & \\
-    \hl{\texttt{Ham\_hop}}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}. & \ref{sec:op}, \ref{sec:specific}\\
-    \hl{\texttt{Ham\_V}}    & Sets the interaction terms  $\hat{\mathcal{H}}_{V}$ and $\hat{\mathcal{H}}_{I}$ 
-                         by calling \texttt{Op\_make} and \texttt{Op\_set}.& \ref{sec:op}, \ref{sec:specific}\\  
-    \hl{\texttt{Ham\_Latt}} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
+    \hl{\texttt{Ham\_Set}}  & Reads in model and lattice parameters from the file \texttt{parameters}; \\
+                       & sets the Hamiltonian calling the necessary subprograms. & \ref{sec:hamiltonian}\\
+    %\hl{\texttt{Ham\_hop}}  & Sets the hopping term  $\hat{\mathcal{H}}_{T}$ by calling \texttt{Op\_make} and \texttt{Op\_set}. & \ref{sec:op}, \ref{sec:specific}\\
+    \hl{\texttt{Ham\_V}}    & Sets the interaction term $\hat{\mathcal{H}}_{V}$ (i.e., operator \texttt{Op\_V}, Sec.~\ref{sec:op}). & \ref{sec:specific}\\
+    %\hl{\texttt{Ham\_Latt}} & Sets the lattice by calling \texttt{Make\_Lattice}.& \ref{sec:latt}\\
     \hl{\texttt{S0}}        & Returns an update ratio for the Ising term $\hat{\mathcal{H}}_{I,0}$. 
-    & \ref{sec:s0} \\
+    & \ref{sec:S0} \\
+    \hl{\texttt{Setup\_Ising\_action}}    & Sets bonds and median lattice for the Ising bond fields. & \ref{sec:walk2}\\
+    \hl{\texttt{Global\_move}} & Generates a global move and returns \texttt{T0\_Proposal\_ratio}. 
+    & \ref{sec:global_space} \\
+    \hl{\texttt{Delta\_S0\_global}} & Computes the ratio $e^{-S_0(C')}/e^{-S_0(C)}$. 
+    & \ref{sec:global_space} \\
+    \hl{\texttt{Global\_move\_tau}} & Generates a global move on a given time slice $\tau$ and returns\\ & \texttt{T0\_Proposal\_ratio} (see Eq.~\eqref{T0_ratio}). 
+    & \ref{sec:global_slice} \\
     \hl{\texttt{Alloc\_obs}} & Assigns memory storage to the observables. & \\
-    \hl{\texttt{Obser}}      & Computes the scalar observables and equal-time correlation functions. & \ref{sec:obs} \\
+    \hl{\texttt{Obser}}      & Computes the scalar and equal-time observables. & \ref{sec:obs} \\
     \hl{\texttt{ObserT}}     & Computes time-displaced correlation functions. & \ref{sec:obs}\\
+    \texttt{Hamiltonian\_set\_} & & \\
+    \texttt{nsigma}  & Sets the initial field. & \\
+    \texttt{Overide\_global\_tau\_} & & \\
+    \texttt{sampling\_parameters}  & Allows setting \texttt{global\_tau} parameters at run time. & \\    
     \texttt{Init\_obs}  & Initializes the observables to zero. & \\    
     \texttt{Pr\_obs}    & Writes the observables to disk by calling \texttt{Print\_bin}. \\\bottomrule    
    \end{tabular}
-   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian\_Examples\_mod} to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user.
+   \caption{Overview of the subprograms of the  module \texttt{Hamiltonian}, contained in \texttt{Hamiltonian\_Examples\_mod.F90}, used to define the Hamiltonian, the lattice and the observables. The \hl{highlighted} subroutines may have to be modified by the user.
     \label{table:hamiltonian}}
+\end{center}
 \end{table}
 %
 
@@ -179,30 +192,31 @@ In the case of a perfect-square term, the fields results from the discrete HS tr
 
 %
 \begin{table}[h]
+	\begin{center}
 	\begin{tabular}{@{} l l l @{}}\toprule
-		Variable                  &  Type    & Description  \\\midrule
+		Component                 &  \multicolumn{2}{l}{Description}    \\ \midrule
+		Variable                  &          &  \\ \midrule
 		\texttt{Field\%f(:,:)}    &  Real    & Defines the auxiliary fields. The first index runs through the operator \\ 
 		                          &          & sequence and the second through the time slices. \\
 		\texttt{Field\%t(:)}      &  Integer & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-\\
 		                          &          & square term; 3: continuous real field). The index denotes the operator. \\
-		\texttt{Field\%i}         &  Integer & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
 		\texttt{Field\%del}       &  Real    & Width of the uniform random initial configuration for fields of type \texttt{t=3},\\
 		                          &          & with a default value of \texttt{1}. \\
-		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \\\bottomrule
-	\end{tabular}
-	\begin{tabular}{@{} l l @{}}\toprule	
-		Function/Routine       & Description   \hspace{107.8mm}  \\\midrule
-		\texttt{Fields\_init}  & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.  \\
-		\texttt{Field\%make}   & Reserves memory for the field.    \\
-		\texttt{Field\%clear}  & Clears field from memory.    \\
-		\texttt{Field\%set}    & Sets a random configuration.    \\
-		\texttt{Field\%flip}   & Flips the field values randomly. \\
-		\texttt{Field\%phi}    & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
-		\texttt{Field\%gamma}  & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
-		\texttt{Field\%in}     & Reads in the field configuration.    \\
-		\texttt{Field\%out}    & Writes out the field configuration.    \\\bottomrule
+		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
+		Subprogram            & &    \\ \midrule
+		\texttt{Fields\_init} & & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.  \\
+		\texttt{Field\%make}  & & Reserves memory for the field.    \\
+		\texttt{Field\%clear} & & Clears field from memory.    \\
+		\texttt{Field\%set}   & & Sets a random configuration.    \\
+		\texttt{Field\%flip}  & & Flips the field values randomly. \\
+		\texttt{Field\%phi}   & & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$. \\
+		\texttt{Field\%gamma} & & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
+		\texttt{Field\%i}     & & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
+		\texttt{Field\%in}    & & Reads in the field configuration.    \\
+		\texttt{Field\%out}   & & Writes out the field configuration.    \\\bottomrule
 	\end{tabular}
 	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.}
+    \end{center}
 	\label{table:Fields}
 \end{table}
 %
@@ -246,8 +260,7 @@ With $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follow
 \end{bmatrix}
 \end{equation}
 such that 
-\begin{eqnarray}
-\label{k.quant.eq}
+\begin{eqnarray} \label{k.quant.eq}
      \vec{k} =  n \vec{b}_1  + m \vec{b}_2,\; \text{with}   & &   \vec{b}_1 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   \left[  (\vec{L}_2 \cdot  \vec{g}_2) \vec{g}_1 -   (\vec{L}_2  \cdot \vec{g_1} ) \vec{g}_2 \right], \nonumber \\ 
         & & \vec{b}_2 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
            \left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right].
@@ -255,12 +268,13 @@ such that
 
 %
 \begin{table}[h]
+	\begin{center}
    \begin{tabular}{@{} l l l @{}}\toprule
     Variable  & Type & Description \\\midrule
      \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & Real     & Unit vectors $\vec{a}_1$,  $\vec{a}_2$. \\ 
      \hl{\texttt{Latt\%L1\_p}, \texttt{Latt\%L2\_p}}   & Real     & Vectors $\vec{L}_1$, $\vec{L}_2$ that define the topology of the  lattice. \\
      									  &              &  Tilted lattices are  thereby possible to implement.  \\
-    \texttt{Latt\%N}                                                 &   Integer &  Number of lattice points, $N_{\text{unit-cell}}$.   \\
+    \hl{\texttt{Latt\%N}}                                                 &   Integer &  Number of lattice points, $N_{\text{unit-cell}}$.   \\
     \texttt{Latt\%list}                                               & Integer &  Maps each lattice point $i=1,\cdots, N_{\text{unit-cell}}$ to a real space vector\\ 
                                                                              &   &  denoting the position of the unit cell: \\
                                                                              &   & $\vec{R}_i$ = \texttt{list(i,1)}$\vec{a}_1$ + \texttt{list(i,2)}$\vec{a}_2$  $  \equiv i_1  \vec{a}_1 + i_2  \vec{a}_2 $. \\
@@ -280,6 +294,7 @@ such that
    \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example the default lattice name \texttt{Latt}.
    The \hl{highlighted} variables must be specified by the user.  Other components of the Lattice are generated upon calling: \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )}. 
     \label{table:lattice}}
+\end{center}
 \end{table}
 %
 
@@ -297,6 +312,7 @@ In the above,   the unspecified dimensions of  the structure factor can refer  t
 %This type defines the unit cell.   
 
 \begin{table}[h]
+	\begin{center}
    \begin{tabular}{@{} l l l @{}}\toprule
     Variable  & Type & Description \\\midrule
      \hl{\texttt{Norb}}   & Integer    & Number of orbitals.  \\
@@ -306,6 +322,7 @@ In the above,   the unspecified dimensions of  the structure factor can refer  t
      \caption{Components of an instance \texttt{Latt\_unit} of the \texttt{Unit\_cell} type.
    The \hl{highlighted} variables have to be specified by the user. } 
     \label{table:unit_cell}
+\end{center}
 \end{table}
 
 
@@ -338,6 +355,7 @@ Note that each observable structure also includes the average sign [Eq.~(\ref{eq
 Scalar observables are stored in the data type \texttt{Obser\_vec}, described in Table \ref{table:Obser_vec}. Consider  a variable \texttt{Obs} of type  \texttt{Obser\_vec}.  At the beginning of each bin,  a call to  \texttt{Obser\_Vec\_Init} in the module \texttt{observables\_mod.F90}  will  set   \texttt{Obs\%N=0},   \texttt{Obs\%Ave\_sign=0}  and  \texttt{Obs\%Obs\_vec(:)=0}.  Each time the main  program calls the routine \texttt{Obser}  in the  \texttt{Hamiltonian} module,  the counter \texttt{Obs\%N}   is incremented by one, the sign  (see Eq.~\ref{Sign.eq}) is accumulated in the  variable \texttt{Obs\%Ave\_sign},  and the desired observables (multiplied by the sign and   $\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}$, see Sec.~\ref{Observables.General})  are accumulated in the vector \texttt{Obs\%Obs\_vec}.  
 %
 \begin{table}[h]
+	\begin{center}
    \begin{tabular}{@{} l l l l @{}}\toprule
     Variable  &  Type      &  Description &  Contribution of configuration $C$ \\\midrule
     \texttt{Obs\%N}                       &  Int.       &    Number of measurements &    $+1$ \\
@@ -349,6 +367,7 @@ Scalar observables are stored in the data type \texttt{Obser\_vec}, described in
    \caption{Components of a variable of type \texttt{Obser\_vec} named \texttt{Obs}.}
    % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
          \label{table:Obser_vec}
+     \end{center}
 \end{table}
 %
 At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.F90}  will  append the result of the bin in the file  \texttt{File\_Vec}\emph{\_scal}.  Note that this subroutine will automatically append the suffix \emph{\_scal}
@@ -360,13 +379,14 @@ This suffix  is important to allow automatic analysis of the data at the end of 
 %------------------------------------------------------------
 
 The data type \texttt{Obser\_latt} (see Table~\ref{table:Obser_latt}) is useful for dealing with both equal-time and imaginary-time-displaced correlation functions of the form: 
-\begin{equation}\label{eqn:s}
+\begin{align}\label{eqn:s}
 	S_{\alpha,\beta}(\vec{k},\tau) =   \frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{-i \vec{k} \cdot \left( \vec{i}-\vec{j}\right) } \left( \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle  - 
 	  \langle \hat{O}_{\vec{i},\alpha} \rangle \langle   \hat{O}_{\vec{j},\beta}  \rangle \right),
-\end{equation}
+\end{align}
 where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ lattice positions.
 %
 \begin{table}[h]
+	\begin{center}
 	\begin{tabular}{@{} l l l l @{}}\toprule
 		Variable  &  Type      &  Description &  Contribution of configuration $C$ \\\midrule
 		\texttt{Obs\%N}                       &  Int.        &   Number of measurements &    $+1$\\
@@ -379,20 +399,23 @@ where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ latti
 	\end{tabular}
 	\caption{Components of a variable of type \texttt{Obser\_latt} named \texttt{Obs}.}
 	\label{table:Obser_latt}
+\end{center}
 \end{table}
 %
 Here,  translation symmetry of the Bravais lattice is explicitly taken into account. 
 The correlation function splits in a correlated part $S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)$ and a background part $S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k})$:
-\begin{eqnarray}
-  S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)
-  &=&
-   \frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle\label{eqn:s_corr}\;,\\
-         S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k})
-  &=&
-   \frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle \langle \hat{O}_{\vec{j},\beta} \rangle\nonumber\\
-  &=& 
-  N_{\text{unit-cell}}\, \langle \hat{O}_{\alpha} \rangle \langle \hat{O}_{\beta} \rangle \, \delta(\vec{k})\label{eqn:s_back}\;,
-\end{eqnarray}
+\begin{align}
+S_{\alpha,\beta}^{\mathrm{(corr)}}(\vec{k},\tau)
+&=
+\frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \label{eqn:s_corr} \;,\\
+\begin{split}
+S_{\alpha,\beta}^{\mathrm{(back)}}(\vec{k})
+&=
+\frac{1}{N_{\text{unit-cell}}} \sum_{\vec{i},\vec{j}}  e^{- i\vec{k} \cdot \left( \vec{i}-\vec{j}\right) }  \langle \hat{O}_{\vec{i},\alpha} (\tau)\rangle \langle \hat{O}_{\vec{j},\beta} \rangle\\
+&=
+N_{\text{unit-cell}}\, \langle \hat{O}_{\alpha} \rangle \langle \hat{O}_{\beta} \rangle \, \delta(\vec{k}) \label{eqn:s_back}\;,
+\end{split}
+\end{align}
 where translation invariance in space and time has been exploited to obtain the last line. 
 The background part depends only on the expectation value $\langle \hat{O}_{\alpha} \rangle$, for which we use the following estimator 
 \begin{equation}\label{eqn:o}
