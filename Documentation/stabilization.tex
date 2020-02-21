@@ -73,3 +73,23 @@ The Green function, as well as the average phase, are usually numbers with a mag
 For that reason we recommend that \path{NWrap} is chosen such that the mean precision is of the order of $10^{-8}$ or better (or further recommendations see Sec.~\ref{sec:optimize}).
 We include typical values of \texttt{Precision Phase} and of the mean and the maximal values of \texttt{Precision Green} in the example simulations discussed in Sec.~\ref{sec:prec_charge} and Sec.~\ref{sec:prec_spin}.
 
+
+%-----------------------------------------------------------------------------------
+\subsection{Stabilization - ensuring Hermitian evolution}\label{sec:hermitian}
+%-----------------------------------------------------------------------------------
+%
+
+\red{\large TODO}\\ \\
+
+parameter \texttt{Symm = .true.}: \\
+
+Green's functions will be symmetrized before being  sent to the Obser, ObserT subroutines. 
+
+In particular, the transformation,  $ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $
+ will be carried out  and $ \tilde{G} $  will be sent to the Obser and ObserT subroutines.  Note that
+if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
+symmetrically. If Symm is true, the propagation reads:
+\begin{align}
+\prod_{\tau} \; \;  \prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n/2}
+\end{align}
+
