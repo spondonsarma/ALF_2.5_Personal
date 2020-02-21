@@ -6,7 +6,11 @@
 
 % !TEX root = doc.tex
 
- \red{TODO} Go through everything one has to defined/set in order to define a new Hamiltonian. \red{TODO}
+ \red{TODO} Go through everything one has to defined/set in order to define a new Hamiltonian. \red{TODO}\\
+
+We'd want to provide a \emph{minimum} Hamiltonian, probably written in pseudo-code, from which one could write their own.\\ \\
+
+\noindent A \emph{complete} list of all the code that would have to be changed for the \emph{most general} case could read as:
 
 \begin{itemize}
 	\item Hamiltonian -- one-body, imaginary-time propagator for a given configuration of HS and  Ising fields
@@ -23,7 +27,7 @@
 		\item \texttt{Obser}
 		\item \texttt{ObserT}
 	\end{itemize}
-	\item Check Table~\ref{table:operator}.
+	\item Check Table~\ref{table:operator} (Operator type).
 	\item Table~\ref{table:lattice} and \ref{table:unit_cell}:
 	\begin{itemize}
 		\item \texttt{Lattice\%a1\_p}, \texttt{Lattice\%a2\_p}
@@ -36,5 +40,5 @@
 \end{itemize}
 
 
-\red{Maybe merge this with Chapter on Examples.}
+\red{Maybe merge this with Chapter on Examples and Models/Model Classes.}
 
