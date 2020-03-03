@@ -79,14 +79,15 @@ We include typical values of \texttt{Precision Phase} and of the mean and the ma
 %-----------------------------------------------------------------------------------
 %
 
-In order to guarantee that in every numerical step the evolution remains Hermitian, one should make sure that the hopping and interaction terms are decomposed symmetrically.
+In order to guarantee that in every numerical step the evolution remains Hermitian, the user should make sure that the hopping and interaction terms are decomposed symmetrically. For instance, a Hamiltonian $H = T + V $ with
 
 When that is the case, the parameter \texttt{Symm} should be set to \texttt{.true.}, which implies:
 
 \begin{itemize}
 	\item Green's functions are symmetrized before being sent to the observables' subroutines, i.e., the transformation $ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $ is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines;
-	\item the propagation for one step reads:
+	\item the propagation for one step $\Delta \tau$ of a hopping operator $T= \sum_{n=1}^{N_T} T_n$ reads:
 \begin{align}
-\prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n/2}.
+\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} T_n}  \prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} T_n},
 \end{align}
+	and similarly for an interaction term $V= \sum_{n=1}^{N_V} V_n$.
 \end{itemize}
