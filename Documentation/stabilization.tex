@@ -79,17 +79,14 @@ We include typical values of \texttt{Precision Phase} and of the mean and the ma
 %-----------------------------------------------------------------------------------
 %
 
-\red{\large TODO}\\ \\
+In order to guarantee that in every numerical step the evolution remains Hermitian, one should make sure that the hopping and interaction terms are decomposed symmetrically.
 
-parameter \texttt{Symm = .true.}: \\
+When that is the case, the parameter \texttt{Symm} should be set to \texttt{.true.}, which implies:
 
-Green's functions will be symmetrized before being  sent to the Obser, ObserT subroutines. 
-
-In particular, the transformation,  $ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $
- will be carried out  and $ \tilde{G} $  will be sent to the Obser and ObserT subroutines.  Note that
-if you want to use this  feature, then you have to be sure the hopping and interaction terms are decomposed
-symmetrically. If Symm is true, the propagation reads:
+\begin{itemize}
+	\item Green's functions are symmetrized before being sent to the observables' subroutines, i.e., the transformation $ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $ is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines;
+	\item the propagation for one step reads:
 \begin{align}
-\prod_{\tau} \; \;  \prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n/2}
+\prod_{n=N_T}^{1}e^{T_n/2} \prod_{n=1}^{N_V}e^{V_n(\tau)}  \prod_{n=1}^{N_T}e^{T_n/2}.
 \end{align}
-
+\end{itemize}

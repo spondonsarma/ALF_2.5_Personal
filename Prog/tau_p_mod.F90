@@ -34,9 +34,9 @@
 !> ALF-project
 !
 !> @brief 
-!> This module  handles calculation of imagimary time displaced Green functions and  
-!> calls the routine ObserT.F90 in the Hamiltonian module,  so as to compute  user
-!> defined  time dispalced correlations functions. This modules is for the projector code.
+!> This module handles calculation of imaginary-time-displaced Green functions and  
+!> calls the routine ObserT.F90 in the Hamiltonian module, so as to compute  user
+!> defined time-displaced correlations functions. This modules is for the projector code.
 !> 
 !
 !--------------------------------------------------------------------
