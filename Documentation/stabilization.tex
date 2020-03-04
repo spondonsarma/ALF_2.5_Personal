@@ -79,22 +79,22 @@ We include typical values of \texttt{Precision Phase} and of the mean and the ma
 %-----------------------------------------------------------------------------------
 %
 
-In order to guarantee that in every numerical step the evolution remains Hermitian, the user should make sure that the hopping and interaction terms are decomposed symmetrically. For instance, for a hopping operator $\hat{T}$ consisting of two noncommuting terms, $\hat{T}=\hat{T}_1+\hat{T}_2$, the propagator should not be written in the most straightforward manner, $e^{-\hat{T}_1}e^{-\hat{T}_2} $, but instead symmetrically, such as in:
+In order to guarantee that in every numerical step the evolution remains Hermitian, the user should make sure that the hopping and interaction terms are decomposed symmetrically. For instance, for a hopping operator $\hat{T}$ consisting of two noncommuting terms, $\hat{T}=\hat{T}_1+\hat{T}_2$, the propagator should not be written simply $e^{-\hat{T}_1}e^{-\hat{T}_2} $, but instead symmetrically, such as in:
 \begin{align}
-e^{-\hat{T}_1/2}\, e^{-\hat{T}_2}\, e^{-\hat{T}_1/2}.
+e^{-\hat{T}_1/2}\, e^{-\hat{T}_2}\, e^{-\hat{T}_1/2},
 \end{align}
-When that is the case, the parameter \texttt{Symm} should be set to \texttt{.true.}, which implies:
-\begin{itemize}
-	\item Green's functions are symmetrized before being sent to the observables' subroutines, i.e., the transformation $ \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 } $ is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines;
-	\item the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ reads:
-	\begin{align}
-	\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}
-	\prod_{n=N_V}^{1}e^{-\frac{\Delta \tau}{2} \hat{V}_n}  \prod_{n=1}^{N_V}e^{-\frac{\Delta \tau}{2} \hat{V}_n}
-	\prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n}.
-	\end{align}
-	%\item the propagation for one step $\Delta \tau$ of a kinetic operator $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ reads:
-	%\begin{align}
-	%\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}  \prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n},
-	%\end{align}
-	%and similarly for an interaction term $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$.
-\end{itemize}
+and similarly for the interaction term $\hat{V}=\hat{V}_1+\hat{V}_2$:
+\begin{align}
+e^{-\hat{V}_1/2}\, e^{-\hat{V}_2}\, e^{-\hat{V}_1/2}.
+\end{align} 
+In a more general case, the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ should read:
+\begin{align}
+\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}
+\prod_{n=N_V}^{1}e^{-\frac{\Delta \tau}{2} \hat{V}_n}  \prod_{n=1}^{N_V}e^{-\frac{\Delta \tau}{2} \hat{V}_n}
+\prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n}.
+\end{align}
+When the user has provided symmetric decompositions, the parameter \texttt{Symm} can be set to \texttt{.true.}, which causes the Green's functions to be symmetrized before being sent to the observables' subroutines, i.e., the transformation
+\begin{align}
+\tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 }
+\end{align}
+is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines.
