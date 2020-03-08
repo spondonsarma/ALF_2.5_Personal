@@ -562,7 +562,8 @@
 !> Sets the interaction
 !--------------------------------------------------------------------
         Subroutine Ham_V
-          
+
+          Use Predefined_Int
           Implicit none 
           
           Integer :: nf, I, I1, I2,  nc, nc1,  J
@@ -572,68 +573,22 @@
           Select case (Model)
           Case ("LRC")
              Allocate(Op_V(Ndim,N_FL))
-             do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
-             enddo
-             Do nf = 1,N_FL
-                nc = 0
-                Do i = 1,Ndim
-                   nc = nc + 1
-                   Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%g      = cmplx(0.d0  ,Dtau, kind(0.D0)) 
-                   Op_V(nc,nf)%type   = 3
-                   Call Op_set( Op_V(nc,nf) )
-                Enddo
+             nc = 0
+             Do i = 1,Ndim
+                nc = nc + 1
+                Call Predefined_Int_LRC( OP_V(nc,1), I, DTAU  )
              Enddo
           Case ("Hubbard_SU2")  
              !Write(50,*) 'Model is ', Model
              Allocate(Op_V(Ndim,N_FL))
-             do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
-             enddo
-             Do nf = 1,N_FL
-                nc = 0
-                Do i = 1,Ndim
-                   nc = nc + 1
-                   Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                   Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
-                   !! Three fields
-                   Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
-                   Op_V(nc,nf)%type   = 2
-                   !! Hirsch Decomp  *** This is just for testing  type = 3 **   This was just for testing
-                   !! Op_V(nc,nf)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
-                   !! Op_V(nc,nf)%type   = 3
-                   Call Op_set( Op_V(nc,nf) )
-                Enddo
+             Do I = 1,Ndim
+                Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U  )
              Enddo
           Case ("Hubbard_Mz") 
              Allocate(Op_V(Ndim,N_FL))
-             do nf = 1,N_FL
-                do i  = 1, Ndim
-                   Call Op_make(Op_V(i,nf),1)
-                enddo
+             do i  = 1, Ndim
+                Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U ) 
              enddo
-             Do nf = 1,N_FL
-                nc = 0
-                X = 1.d0
-                if (nf == 2) X = -1.d0
-                Do i = 1,Ndim
-                   nc = nc + 1
-                   Op_V(nc,nf)%P(1) = I
-                   Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
-                   Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
-                   Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
-                   Op_V(nc,nf)%type   = 2
-                   Call Op_set( Op_V(nc,nf) )
-                Enddo
-             Enddo
           Case ("Hubbard_SU2_Ising") 
              Allocate(Op_V(3*Ndim,N_FL))
              do nf = 1,N_FL
@@ -650,33 +605,15 @@
                 I2 = I1
                 if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
                 if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
-                Op_V(nc,1)%P(1) = I1
-                Op_V(nc,1)%P(2) = I2
-                Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                Op_V(nc,1)%g = cmplx(-dtau*Ham_xi,0.D0,kind(0.D0))
-                Op_V(nc,1)%alpha = cmplx(0d0,0.d0, kind(0.D0)) 
-                Op_V(nc,1)%type =1
-                Call Op_set( Op_V(nc,1) )
+                Call Predefined_Int_Ising_SUN( OP_V(nc,1), I1, I2, DTAU, Ham_xi ) 
              Enddo
              
              Do i = 1,Ndim
                 nc1 = Latt_unit%N_coord*Ndim + i
-                Op_V(nc1,1)%P(1)   = i
-                Op_V(nc1,1)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
-                Op_V(nc1,1)%g      = sqrt(cmplx(-dtau*ham_U/(DBLE(N_SUN)), 0.D0, kind(0.D0)))
-                Op_V(nc1,1)%alpha  = cmplx(-0.5d0,0.d0, kind(0.d0))
-                Op_V(nc1,1)%type   = 2
-                !!  Hirsch Decomp  *** This is just for testing  type = 3 **
-                !!Op_V(nc1,1)%g      = cmplx(0.d0, acos(exp(-DTAU*ham_U/2.d0)), kind(0.D0)) 
-                !!Op_V(nc1,1)%type   = 3
-                Call Op_set( Op_V(nc1,1) )
+                Call Predefined_Int_U_SUN(  OP_V(nc1,1), I, N_SUN, DTAU, Ham_U  )
              Enddo
           case ("t_V")
              Allocate(Op_V(Latt_unit%N_coord*Latt%N,1))
-             do i  =  1, Latt_unit%N_coord*Latt%N
-                call Op_make(Op_V(i,1),2)
-             enddo
              select case (Lattice_type)
              case ("Square")
                 !Write(6,*) "N_coord, Latt%N", N_coord, Latt%N, Dtau, ham_tV
@@ -685,16 +622,9 @@
                    I1 = I
                    do nc1 = 1,Latt_unit%N_coord
                       nc = nc + 1
-                      if (nc1 == 1 ) I2 = latt%nnlist(I,1,0) 
+                      if (nc1 == 1 )  I2 = latt%nnlist(I,1,0) 
                       if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
-                      Op_V(nc,1)%P(1) = I1
-                      Op_V(nc,1)%P(2) = I2
-                      Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                      Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g      = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
-                      Op_V(nc,1)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
-                      Op_V(nc,1)%type   = 2
-                      Call Op_set( Op_V(nc,1) )
+                      Call Predefined_Int_V_SUN( OP_V(nc,1), I1, I2, N_SUN, DTAU, Ham_tV ) 
                    Enddo
                 Enddo
              case ("Pi_Flux")
@@ -707,14 +637,7 @@
                       If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2) 
                       If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
                       If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2) 
-                      Op_V(nc,1)%P(1) = I1
-                      Op_V(nc,1)%P(2) = I2
-                      Op_V(nc,1)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
-                      Op_V(nc,1)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
-                      Op_V(nc,1)%g     = SQRT(CMPLX(DTAU*ham_tV/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
-                      Op_V(nc,1)%alpha = cmplx(0.d0, 0.d0, kind(0.D0))
-                      Op_V(nc,1)%type  = 2
-                      Call Op_set( Op_V(nc,1) )
+                      Call Predefined_Int_V_SUN( OP_V(nc,1), I1, I2, N_SUN, DTAU, Ham_tV ) 
                    Enddo
                 Enddo
              case default
