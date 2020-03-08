@@ -180,19 +180,19 @@
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
       Subroutine Ham_Set
+        
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
 #endif
           Implicit none
 
           integer                :: ierr, N_part, nf
-          Character (len=64) :: file_info, file_para
+          Character (len=64)     :: file_info, file_para
           
           
           ! L1, L2, Lattice_type, List(:,:), Invlist(:,:) -->  Lattice information
           ! Ham_T, Chem, Phi_X, XB_B, Checkerboard, Symm   -->  Hopping
           ! Interaction                              -->  Model
-          
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
@@ -254,7 +254,7 @@
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
 #endif
           
-          Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
+          Call  Ham_Latt
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -485,17 +485,11 @@
              Stop
           end Select
 
-          Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
-           &                      Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
-           &                      N_FL,  Checkerboard, Symm, OP_T )
+          Call  Ham_Hop
 
           
-          
-          if (Projector) then
-             N_part = Ndim/2
-             Call Predefined_TrialWaveFunction(Lattice_type ,Ndim,  List,Invlist,Latt, Latt_unit, &
-                  &                            N_part, N_FL,  WF_L, WF_R)
-
+          if (Projector)  Then
+             Call Ham_Trial 
 #ifdef MPI
              If (Irank_g == 0) then
 #endif
@@ -503,13 +497,11 @@
                    Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
                    Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
                 enddo
-                   
 #ifdef MPI
              Endif
 #endif             
-             
-          endif
-
+          Endif
+          
 #ifdef MPI
           If (Irank_g == 0 )  then
 #endif
@@ -519,8 +511,6 @@
           endif
 #endif
 
-
-          
 ! #ifdef MPI
 !           If (Irank == 0 )  then
 ! #endif
@@ -553,6 +543,57 @@
           
 
         end Subroutine Ham_Set
+        
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the  Lattice
+!--------------------------------------------------------------------
+        Subroutine Ham_Latt
+          
+          Implicit none
+          ! Use predefined stuctures or set your own lattice.
+          Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
+          
+        end Subroutine Ham_Latt
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the Hopping
+!--------------------------------------------------------------------
+        Subroutine Ham_Hop
+          
+          Implicit none
+          ! Use predefined stuctures or set your own hopping
+          Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
+           &                      Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
+           &                      N_FL,  Checkerboard, Symm, OP_T )
+
+        end Subroutine Ham_Hop
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the Hopping
+!--------------------------------------------------------------------
+        Subroutine Ham_Trial
+
+
+          Implicit none
+          Integer :: N_part
+
+          ! Use predefined stuctures or set your own Trial  wave function
+          N_part = Ndim/2
+          Call Predefined_TrialWaveFunction(Lattice_type ,Ndim,  List,Invlist,Latt, Latt_unit, &
+               &                            N_part, N_FL,  WF_L, WF_R)
+          
+          
+        end Subroutine Ham_Trial
 !--------------------------------------------------------------------
 !> @author 
 !> ALF Collaboration
