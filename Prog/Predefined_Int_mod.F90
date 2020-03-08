@@ -41,10 +41,8 @@
 
     Module Predefined_Int
       
-      Use Lattices_v3
       Use Operator_mod
-      Use WaveFunction_mod
-      Use MyMats
+      
       Implicit none
       
       
@@ -209,7 +207,6 @@
         Call Op_set( Op )
         
       end Subroutine Predefined_Int_LRC
-      
 
 !-------------------------------------------------------------------
 !> @author 
@@ -249,17 +246,15 @@
         Op_do%g      = -SQRT(CMPLX(DTAU*Jz/8.d0, 0.D0, kind(0.D0))) 
         Op_do%type   =  2
 
-        Call Op_set( Op_up )
+        Call Op_set( Op_up ) 
         Call Op_set( Op_do )
         
       end Subroutine Predefined_Int_Jz
 
-
-      
+!!$       Still has to be done when implementing Hamiltoninas.
 !!$      Subroutine Predefined_Int_J_SUN( )
 !!$        Implicit none
 !!$      end Subroutine Predefined_Int_J_SUN
-!!$
 
 
      end Module Predefined_Int
