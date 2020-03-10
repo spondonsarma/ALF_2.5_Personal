@@ -124,6 +124,7 @@ Program Main
         Use UDV_State_mod
         Use Wrapgr_mod
         Use Fields_mod
+        Use OpTvector_mod
 #ifdef MPI
         Use mpi
 #endif
