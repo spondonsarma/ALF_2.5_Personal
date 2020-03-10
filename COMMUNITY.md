@@ -1,0 +1,26 @@
+# Community guidelines
+This document serves to describe the processes that outline our interaction with the community.
+## Release cycle
+ALF has a major release cycle with a major release with an asoociated publication
+every three year and minor releases in april and october each year.
+The current plan is ALF-2.0 in June-20 and ALF-3.0 in June-23.
+The next minor release will be in Oct-20.
+
+## Contributing
+We gladly accept patches for bugfixes, portability enhancements or new feature!
+
+## Becoming a Core Developer
+Someone who is already a core developer needs to create a public issue on our gitlab
+that describes who you are and why you can contribute to the ALF Project in the long run.
+Then we vote. You are accepted if all agree.
+
+## Getting access to the Development repository.
+Someone who already has access must open a public issue on our gitlab that describes
+why someone needs access to the Development code. The other developers are required to declare
+that their projects are not affected by the work of the new person.
+
+## Reporting issues
+Write a ticket!
+
+## Getting support
+ write us an E-Mail at alf@physik.uni-wuerzburg.de
