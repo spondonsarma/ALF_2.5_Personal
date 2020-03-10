@@ -12,7 +12,7 @@ We gladly accept patches for bugfixes, portability enhancements or new feature!
 ## Becoming a Core Developer
 Someone who is already a core developer needs to create a public issue on our gitlab
 that describes who you are and why you can contribute to the ALF Project in the long run.
-Then we vote. You are accepted if all agree.
+Then we vote. You are accepted if all (the group of owners) agree.
 
 ## Getting access to the Development repository.
 Someone who already has access must open a public issue on our gitlab that describes
