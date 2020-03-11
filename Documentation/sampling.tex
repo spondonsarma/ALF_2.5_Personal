@@ -9,13 +9,13 @@
 \subsection{Monte Carlo sampling}\label{sec:sampling}
 %------------------------------------------------------------
 %
-Error estimates  in Monte Carlo simulations  can be  delicate and are based on the central limit theorem \cite{Negele}. This theorem requires independent 
+Error estimates in Monte Carlo simulations are based on the central limit theorem~\cite{Negele} and can be delicate. This theorem requires independent 
 measurements and  a finite variance.
 In this subsection we will give examples of the issues that a user will have to look out for while 
 using a Monte Carlo code. Those effects are part of the common lore of the field
 and we can only cover them briefly in this text.
 For a deeper understanding of the inherent issues of Markov-chain Monte Carlo methods 
-we refer the reader to the pedagogical introduction in chapter 1.3.5 of Krauth\cite{Krauth2006}, the overview article of Sokal~\cite{Sokal89},  the more specialized literature by Geyer~\cite{Geyer1992} and chapter 6.3 of Neal~\cite{neal1993}. 
+we refer the reader to the pedagogical introduction in chapter 1.3.5 of Krauth~\cite{Krauth2006}, the overview article of Sokal~\cite{Sokal89},  the more specialized literature by Geyer~\cite{Geyer1992} and chapter 6.3 of Neal~\cite{neal1993}.
 
 In general, one distinguishes local from global updates. As the name suggest, the local update corresponds to a small change of the configuration, e.g., a single spin flip of one of the $L_{\mathrm{Trotter}}(M_I+M_V)$ field entries (see Sec.~\ref{sec:updating}), whereas a global update changes a significant part of the configuration. The default update scheme of the ALF implementation are local updates, such that there is a minimum number of moves required for generating an independent configuration. The associated time scale is called  the autocorrelation time, $T_\mathrm{auto}$, and is generically dependent upon the choice of the observables. 
 

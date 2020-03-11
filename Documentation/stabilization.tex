@@ -87,20 +87,43 @@ and similarly for the interaction term $\hat{V}=\hat{V}_1+\hat{V}_2$:
 \begin{align}
 e^{-\hat{V}_1/2}\, e^{-\hat{V}_2}\, e^{-\hat{V}_1/2}.
 \end{align} 
-In a more general case, the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ should read:
+In the more general case, the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ should read:
 \begin{align}
 \prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}
 \prod_{n=N_V}^{1}e^{-\frac{\Delta \tau}{2} \hat{V}_n}  \prod_{n=1}^{N_V}e^{-\frac{\Delta \tau}{2} \hat{V}_n}
 \prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n}.
 \end{align}
+
+The leading order error produced in the symmetric Trotter decomposition for two operators $\hat{H}_1 $ and $\hat{H}_2 $ can be shown to be
+\begin{align}
+e^{ -\frac{\Delta \tau}{2} \hat{H}_1 }  e^{  -\Delta \tau \hat{H}_2 }  e^{ - \frac{\Delta \tau}{2} \hat{H}_1 }
+= e^{ -\Delta \tau (\hat{H}_1 + \hat{H}_2) + \frac{\Delta \tau^3}{12} [ 2 \hat{H}_1 + \hat{H}_2, [\hat{H}_1, \hat{H}_2  ] ] }  +  \mathcal{O} (\Delta \tau^4)
+\end{align}
+which gives, for the more general sum,
+\begin{align}
+\prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}   
+=   e^{- \Delta \tau \sum_{n=1}^N \hat{H}_n   - \frac{\Delta \tau^3}{12}  \sum_{n=1}^{N} \sum_{n'=n+1}^N  [ 2 \hat{H}_n + \hat{H}_{n'}, [\hat{H}_n, \hat{H}_{n'} ] ]  } 
++  \mathcal{O} (\Delta \tau^4 ) 
+\end{align}
+So that the leading-order error for the Trotter decomposition $ \left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \right)^{L_\text{Trotter}} $, obtained through time-dependent perturbation theory, reads
+\begin{align}
+\left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  
+=  e^{- \beta \hat{H} } - e^{ -\beta \hat{H}} \int_0^{\beta}  d \tau  e^{\tau \hat{H}} \hat{\lambda}  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^3 ),
+\end{align}
+where $\hat{\lambda} \equiv -\frac{ \Delta \tau^2 }{12} \sum_{m=1}^N  \sum_{m'=m+1}^N  [2 \hat{H}_m + \hat{H}_{m'}, [\hat{H}_m , \hat{H}_{m'}] ] $  is a  measure of the leading order error on the free energy density $f$:
+\begin{align}
+f_{QMC} &\equiv  -\frac{1}{\beta V} \ln{ \Tr{  \left( \prod_{m=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_m} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  } }      \\  
+ & =  f + \frac{1}{\beta V} \int_0^{\beta} d\tau  
+\langle  e^{\tau \hat{H}}  \hat{\lambda}  e^{- \tau \hat{H}} \rangle  + \mathcal{O} (\Delta \tau^3 ) \\  
+ & = f + \frac{1}{ V }  \langle  \hat{\lambda}  \rangle  +  \mathcal{O} ( \Delta \tau^3 ).
+\end{align}
+
 When the user has provided symmetric decompositions, the parameter \texttt{Symm} can be set to \texttt{.true.}, which causes the Green's functions to be symmetrized before being sent to the observables' subroutines, i.e., the transformation
 \begin{align}
 \tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 }
 \end{align}
 is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines.
 
-\noindent
-{\color{red}  FFA    Here it would be nice to add a small  derivation of the Trotter error  along the lines  done  Zhenjiu's paper.  It should be online next week} 
 
 \begin{figure}
 \center
