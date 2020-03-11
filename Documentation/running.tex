@@ -199,7 +199,7 @@ Numerical stabilization of the code is a delicate procedure that has been pionee
 It is important to be aware of the fragility of the numerical stabilization and that there is no guarantee that it will work for a given model. It is therefore crucial to always check the file \texttt{info}, which, apart from runtime data, contains important information concerning the stability of the code, in particular \texttt{Precision Green}.
 If the numerical stabilization fails, one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file, which will however also impact performance -- see Table.~\ref{table:tips} for further optimization tips for the Monte Carlo algorithm (Sec.~\ref{sec:sampling}). Typical values for the numerical precision ALF can achieve can be found in the examples in Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
 
-\begin{table}[h]
+\begin{table}[h!]
 	\begin{center}
 		\begin{tabular}{@{} p{0.18\linewidth} p{0.75\linewidth} @{}}\toprule
 			Element & Suggestion  \\ \midrule
@@ -214,7 +214,7 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 			Stabilization scheme & use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}). \\
 			Parallelism & for some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell. \\\bottomrule
 		\end{tabular}
-		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \red{SHOULD we include tips on when to use a give updating scheme (see Table~\ref{table:Updating_schemes})?} \label{table:tips}}
+		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \label{table:tips}}
 	\end{center}
 \end{table}
 
