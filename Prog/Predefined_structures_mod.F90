@@ -131,7 +131,7 @@
            Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
         case("Honeycomb")
            If (L1==1 .or. L2==1 ) then
-              Write(6,*) 'For one-dimensional lattices set : L2 = 1'
+              Write(6,*) 'The Honeycomb lattice cannot be one-dimensional.'
               stop
            endif
            Latt_Unit%Norb    = 2
@@ -146,7 +146,7 @@
            Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
         case("Pi_Flux")
            If (L1==1 .or. L2==1 ) then
-              Write(6,*) 'For one-dimensional lattices set : L2 = 1'
+              Write(6,*) 'The Pi Flux lattice cannot be one-dimensional.'
               stop
            endif
            Latt_Unit%Norb    = 2
