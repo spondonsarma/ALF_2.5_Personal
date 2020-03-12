@@ -6,9 +6,28 @@
 
 % !TEX root = doc.tex
 
+ALF includes modules providing predefined structures which the user can combine together or use as templates for defining new structures, namely: 
+\begin{itemize}
+	\item lattices and unit cells
+	\item hopping Hamiltonians
+	\item interaction Hamiltonians
+	\item observables
+	\item trial wave functions
+\end{itemize}
+which are defined using the data structures described in the Sec.~\ref{sec:imp}, as detailed below.
+
+[take a look at the first example of next section]
+
+
+\subsection{Template}
+
+\red{Maybe discard this subsection.}\\
+	
+\red{Maybe merge this with Chapter on Examples and Models/Model Classes.\\}
+
  \red{TODO} Go through everything one has to defined/set in order to define a new Hamiltonian. \red{TODO}\\
 
-We'd want to provide a \emph{minimum} Hamiltonian, probably written in pseudo-code, from which one could write their own.\\ \\
+We'd perhaps want to provide a \emph{minimum} Hamiltonian, probably written in pseudo-code, from which one could write their own.\\ \\
 
 \noindent A \emph{complete} list of all the code that would have to be changed for the \emph{most general} case could read as:
 
@@ -38,7 +57,4 @@ We'd want to provide a \emph{minimum} Hamiltonian, probably written in pseudo-co
 		\item \texttt{Orb\_pos(1..Norb,2)}
 	\end{itemize}
 \end{itemize}
-
-
-\red{Maybe merge this with Chapter on Examples and Models/Model Classes.}
 
