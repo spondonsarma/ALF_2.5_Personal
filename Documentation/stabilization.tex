@@ -75,54 +75,113 @@ We include typical values of \texttt{Precision Phase} and of the mean and the ma
 
 
 %-----------------------------------------------------------------------------------
-\subsection{Ensuring Hermitian evolution and the Trotter error}\label{sec:hermitian}
+\subsection{The Trotter error and  checkerboard  decomposition }\label{sec:hermitian}
 %-----------------------------------------------------------------------------------
 %
 
-In order to guarantee that in every numerical step the evolution remains Hermitian, the user should make sure that the hopping and interaction terms are decomposed symmetrically. For instance, for a hopping operator $\hat{T}$ consisting of two noncommuting terms, $\hat{T}=\hat{T}_1+\hat{T}_2$, the propagator should not be written simply $e^{-\hat{T}_1}e^{-\hat{T}_2} $, but instead symmetrically, such as in:
-\begin{align}
-e^{-\hat{T}_1/2}\, e^{-\hat{T}_2}\, e^{-\hat{T}_1/2},
-\end{align}
-and similarly for the interaction term $\hat{V}=\hat{V}_1+\hat{V}_2$:
-\begin{align}
-e^{-\hat{V}_1/2}\, e^{-\hat{V}_2}\, e^{-\hat{V}_1/2}.
-\end{align} 
-In the more general case, the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ should read:
-\begin{align}
-\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}
-\prod_{n=N_V}^{1}e^{-\frac{\Delta \tau}{2} \hat{V}_n}  \prod_{n=1}^{N_V}e^{-\frac{\Delta \tau}{2} \hat{V}_n}
-\prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n}.
-\end{align}
+In practice, many applications are carried out at finite  imaginary time steps,  and it is important to  understand the consequences of the Trotter error.   How does it scales with system size and  what  symmetries  does it  breaks?   In particular, if  one is investigating a critical  point, then one should understand  if the potential symmetry breaking  associated  with the Trotter decomposition   generates  relevant operators. 
 
-The leading order error produced in the symmetric Trotter decomposition for two operators $\hat{H}_1 $ and $\hat{H}_2 $ can be shown to be
-\begin{align}
-e^{ -\frac{\Delta \tau}{2} \hat{H}_1 }  e^{  -\Delta \tau \hat{H}_2 }  e^{ - \frac{\Delta \tau}{2} \hat{H}_1 }
-= e^{ -\Delta \tau (\hat{H}_1 + \hat{H}_2) + \frac{\Delta \tau^3}{12} [ 2 \hat{H}_1 + \hat{H}_2, [\hat{H}_1, \hat{H}_2  ] ] }  +  \mathcal{O} (\Delta \tau^4)
-\end{align}
-which gives, for the more general sum,
-\begin{align}
-\prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}   
-=   e^{- \Delta \tau \sum_{n=1}^N \hat{H}_n   - \frac{\Delta \tau^3}{12}  \sum_{n=1}^{N} \sum_{n'=n+1}^N  [ 2 \hat{H}_n + \hat{H}_{n'}, [\hat{H}_n, \hat{H}_{n'} ] ]  } 
-+  \mathcal{O} (\Delta \tau^4 ) 
-\end{align}
-So that the leading-order error for the Trotter decomposition $ \left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \right)^{L_\text{Trotter}} $, obtained through time-dependent perturbation theory, reads
-\begin{align}
-\left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  
-=  e^{- \beta \hat{H} } - e^{ -\beta \hat{H}} \int_0^{\beta}  d \tau  e^{\tau \hat{H}} \hat{\lambda}  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^3 ),
-\end{align}
-where $\hat{\lambda} \equiv -\frac{ \Delta \tau^2 }{12} \sum_{m=1}^N  \sum_{m'=m+1}^N  [2 \hat{H}_m + \hat{H}_{m'}, [\hat{H}_m , \hat{H}_{m'}] ] $  is a  measure of the leading order error on the free energy density $f$:
-\begin{align}
-f_{QMC} &\equiv  -\frac{1}{\beta V} \ln{ \Tr{  \left( \prod_{m=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_m} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  } }      \\  
- & =  f + \frac{1}{\beta V} \int_0^{\beta} d\tau  
-\langle  e^{\tau \hat{H}}  \hat{\lambda}  e^{- \tau \hat{H}} \rangle  + \mathcal{O} (\Delta \tau^3 ) \\  
- & = f + \frac{1}{ V }  \langle  \hat{\lambda}  \rangle  +  \mathcal{O} ( \Delta \tau^3 ).
-\end{align}
+To at best describe the workings of the ALF  code,  we divide the Hamiltonian into  hopping terms  $\hat{\mathcal{H}}_{T}$  and into interaction terms  
+$\hat{\mathcal{H}}_{V} +  \hat{\mathcal{H}}_{I}   +   \hat{\mathcal{H}}_{0,I} $.       Let 
+\begin{equation}
+	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}  \equiv \sum_{i=1}^{N_T} \hat{T}_{i} 
+\end{equation}
+Here the decomposition follows the rule  that if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ the   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  As an 
+example, we can mention the checkerboard decomposition.   For the square lattice we can decouple the nearest neighbor hopping  into $N_T=4$ groups,  each group consisting  sum  of two site hopping processes.    This type of checkerboard decomposition is activated for a set  of predefined lattices provided that the flag 
+\texttt{Checkerboard}   is activated.     
+We will carry out the same decomposition for the interaction: 
+\begin{equation}
+	\hat{\mathcal{H}}_{V}  +  \hat{\mathcal{H}}_{I}   +   \hat{\mathcal{H}}_{0,I}   = \sum_{i=1}^{N_I}  \hat{O}_{i}
+\end{equation}
+where $\hat{O}_{i}$  contains a sum of commuting terms.  For instance, for the Hubbard model,   the  above reduces to 
+$U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow } \hat{n}_{\vec{i},\downarrow }  $    such the $N_T = 1$ and   $ \hat{O}_{1} = U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow } \hat{n}_{\vec{i},\downarrow }   $. 
 
-When the user has provided symmetric decompositions, the parameter \texttt{Symm} can be set to \texttt{.true.}, which causes the Green's functions to be symmetrized before being sent to the observables' subroutines, i.e., the transformation
-\begin{align}
-\tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 }
-\end{align}
-is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines.
+The default   Trotter decomposition in the ALF code is  based on the equation: 
+\begin{equation}
+	e^{ -\Delta \tau \left( \hat{A} + \hat{B} \right)  }  =  e^{ -\Delta \tau \hat{A}}  e^{ -\Delta \tau  \hat{B} \  }   +  \frac{\Delta  \tau^2}{2} \left[ \hat{B}, \hat{A} \right] + \mathcal{O} \left (\Delta \tau ^3 \right) 
+\end{equation}
+Using   iteratively the above  the single time step is given by: 
+\begin{equation}
+    e^{-\Delta \tau \mathcal{H}}    =   \prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  +  \underbrace{ \frac{\Delta \tau^2}{2} 
+    \left(   \sum_{i=1}^{N_O}  \sum_{j=1}^{N_T} \left[ \hat{T}_j, \hat{O}_i \right]  +   \sum_{j>j'}  \left[ \hat{T}_{j'}, \hat{T}_j \right]
+    +   \sum_{i>i'}  \left[ \hat{O}_{i'}, \hat{O}_i \right]
+      \right) }_{\equiv \Delta \tau \hat{\lambda}_1}   + \mathcal{O} \left( \Delta \tau^3 \right)
+\end{equation}
+The full propagation   then reads
+\begin{equation}
+  Z_{\text{Approx}} =  \left(\prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  \right)   = e^{-\beta \left(  \hat{H} + \hat{\lambda}_1 \right)} 
+  + \mathcal{O} \left( \Delta \tau^2 \right)
+  =  e^{-\beta  \hat{H}  }  - 
+	 \int_0^{\beta}  d \tau  e^{-(\beta-\tau )\hat{H}} \hat{\lambda}_1  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^2 ).
+\end{equation}
+The last step follows from time dependent perturbation theory. 
+The following comments are in order:
+\begin{itemize}
+\item    The error is anti-hermitian  since $\hat{\lambda}_1^{\dagger} = - \hat{\lambda}_1 $.  This has for consequence that if all the operators as well as  the quantity one is measuring are all  simultaneously real representable,  then   the prefactor of the linear in $\Delta  \tau$ error vanishes since it ultimately corresponds to computing the trace of a  anti-symmetric matrix. This \textit{lucky}   cancelation was put forward in  Ref.~\cite{Fye86}.   Hence, under this assumption which is certainly valid for the Hubbard model considered in Fig.~\ref{Trotter.fig}   the systematic error is of order $\Delta \tau^2$. 
+\item   The biggest drawbacks  of the above decomposition is that  the imaginary time propagation is not hermitian.   This can lead to acausal  features in imaginary time   correlation functions \cite{Beyl_thesis}. { \color{red} Is Stefan's Beyl PhD thesis citable?}  Furthermore, the  prefactor of the $\Delta \tau^2$ error is rather big (see Fig.~\ref{Trotter.fig})  in comparison to higher order approximations. 
+\end{itemize}
+
+{ \color{red}    Continue with symmetric decomposition } 
+
+%The Trotter decomposition is 
+%
+%The manner in which one formulates a single time step will have imp
+%
+%Let  $\hat{H}   = \hat{T} + \hat{V}$.  The simplest  Trotter  decomposition  approximates the imaginary time step as: 
+%\begin{equation}
+%      e^{-\Delta \tau \hat{H}}    =  e^{-\Delta \tau \hat{V}}  e^{-\Delta \tau \hat{T}}   +  \frac{\Delta   \tau^2}{2} \left[  \hat{V}, \hat{T} \right] + \mathcal{O}\left( \Delta \tau ^3 \right) 
+%\end{equation} 
+%The above allows us to  estimate the error  involved in the Trotter decomposition. 
+%\begin{equation}
+%	\left( e^{-\Delta \tau \hat{V}}  e^{-\Delta \tau \hat{T}}    \right)^{L_\text{Trotter}}   =   e^{-\beta \left( \hat{H} + \hat{\lambda}_2  \right) }  + 
+%	\mathcal{O}\left( \Delta \tau ^2 \right)     =  e^{-\beta  \hat{H}  }  \left( 1  - 
+%	 \int_0^{\beta}  d \tau  e^{\tau \hat{H}} \hat{\lambda}_2  e^{-\tau \hat{H}}   \right) +  \mathcal{O} (\Delta \tau^2 ).
+%\end{equation}
+%In the above,  $\hat{\lambda}_2 =  \frac{\Delta \tau}{2} \left[  \hat{V}, \hat{T} \right] $. 
+%In order to guarantee that in every numerical step the evolution remains Hermitian, the user should make sure that the hopping and interaction terms are decomposed symmetrically. For instance, for a hopping operator $\hat{T}$ consisting of two noncommuting terms, $\hat{T}=\hat{T}_1+\hat{T}_2$, the propagator should not be written simply $e^{-\hat{T}_1}e^{-\hat{T}_2} $, but instead symmetrically, such as in:
+%\begin{align}
+%e^{-\hat{T}_1/2}\, e^{-\hat{T}_2}\, e^{-\hat{T}_1/2},
+%\end{align}
+%and similarly for the interaction term $\hat{V}=\hat{V}_1+\hat{V}_2$:
+%\begin{align}
+%e^{-\hat{V}_1/2}\, e^{-\hat{V}_2}\, e^{-\hat{V}_1/2}.
+%\end{align} 
+%In the more general case, the propagation $e^{-\hat{H}}$ for one step $\Delta \tau$ for operators $\hat{T}= \sum_{n=1}^{N_T} \hat{T}_n$ and $\hat{V}= \sum_{n=1}^{N_V} \hat{V}_n$ should read:
+%\begin{align}
+%\prod_{n=N_T}^{1}e^{-\frac{\Delta \tau}{2} \hat{T}_n}
+%\prod_{n=N_V}^{1}e^{-\frac{\Delta \tau}{2} \hat{V}_n}  \prod_{n=1}^{N_V}e^{-\frac{\Delta \tau}{2} \hat{V}_n}
+%\prod_{n=1}^{N_T}e^{-\frac{\Delta \tau}{2} \hat{T}_n}.
+%\end{align}
+%
+%The leading order error produced in the symmetric Trotter decomposition for two operators $\hat{H}_1 $ and $\hat{H}_2 $ can be shown to be
+%\begin{align}
+%e^{ -\frac{\Delta \tau}{2} \hat{H}_1 }  e^{  -\Delta \tau \hat{H}_2 }  e^{ - \frac{\Delta \tau}{2} \hat{H}_1 }
+%= e^{ -\Delta \tau (\hat{H}_1 + \hat{H}_2) + \frac{\Delta \tau^3}{12} [ 2 \hat{H}_1 + \hat{H}_2, [\hat{H}_1, \hat{H}_2  ] ] }  +  \mathcal{O} (\Delta \tau^4)
+%\end{align}
+%which gives, for the more general sum,
+%\begin{align}
+%\prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}   
+%=   e^{- \Delta \tau \sum_{n=1}^N \hat{H}_n   - \frac{\Delta \tau^3}{12}  \sum_{n=1}^{N} \sum_{n'=n+1}^N  [ 2 \hat{H}_n + \hat{H}_{n'}, [\hat{H}_n, \hat{H}_{n'} ] ]  } 
+%+  \mathcal{O} (\Delta \tau^4 ) 
+%\end{align}
+%So that the leading-order error for the Trotter decomposition $ \left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n} \right)^{L_\text{Trotter}} $, obtained through time-dependent perturbation theory, reads
+%\begin{align}
+%\left( \prod_{n=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}      \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  
+%=  e^{- \beta \hat{H} } - e^{ -\beta \hat{H}} \int_0^{\beta}  d \tau  e^{\tau \hat{H}} \hat{\lambda}  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^3 ),
+%\end{align}
+%where $\hat{\lambda} \equiv -\frac{ \Delta \tau^2 }{12} \sum_{m=1}^N  \sum_{m'=m+1}^N  [2 \hat{H}_m + \hat{H}_{m'}, [\hat{H}_m , \hat{H}_{m'}] ] $  is a  measure of the leading order error on the free energy density $f$:
+%\begin{align}
+%f_{QMC} &\equiv  -\frac{1}{\beta V} \ln{ \Tr{  \left( \prod_{m=1}^{N}  e^{-\frac{\Delta \tau}{2} \hat{H}_m} \prod_{n=N}^{1}  e^{-\frac{\Delta \tau}{2} \hat{H}_n}  \right)^{L_\text{Trotter}}  } }      \\  
+% & =  f + \frac{1}{\beta V} \int_0^{\beta} d\tau  
+%\langle  e^{\tau \hat{H}}  \hat{\lambda}  e^{- \tau \hat{H}} \rangle  + \mathcal{O} (\Delta \tau^3 ) \\  
+% & = f + \frac{1}{ V }  \langle  \hat{\lambda}  \rangle  +  \mathcal{O} ( \Delta \tau^3 ).
+%\end{align}
+%
+%When the user has provided symmetric decompositions, the parameter \texttt{Symm} can be set to \texttt{.true.}, which causes the Green's functions to be symmetrized before being sent to the observables' subroutines, i.e., the transformation
+%\begin{align}
+%\tilde{G} =  e^{-\Delta \tau T /2 } G e^{\Delta \tau T /2 }
+%\end{align}
+%is carried out and $ \tilde{G} $  is sent to the \texttt{Obser} and \texttt{ObserT} subroutines.
 
 
 \begin{figure}
