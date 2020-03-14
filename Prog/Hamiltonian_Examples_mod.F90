@@ -125,7 +125,6 @@
       Use Files_mod
       Use Matrix
       Use Observables
-      Use Predefined_structures
       Use Fields_mod
       Use LRC_Mod
 
@@ -552,6 +551,8 @@
 !> Sets  the  Lattice
 !--------------------------------------------------------------------
         Subroutine Ham_Latt
+
+          Use Predefined_Lattices
           
           Implicit none
           ! Use predefined stuctures or set your own lattice.
@@ -567,6 +568,8 @@
 !--------------------------------------------------------------------
         Subroutine Ham_Hop
           
+          Use Predefined_Hoppings
+
           Implicit none
           ! Use predefined stuctures or set your own hopping
           Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
@@ -579,11 +582,13 @@
 !> ALF Collaboration
 !>
 !> @brief
-!> Sets  the Hopping
+!> Sets the trial wave function
 !--------------------------------------------------------------------
         Subroutine Ham_Trial
 
 
+          Use Predefined_Trial
+          
           Implicit none
           Integer :: N_part
 
