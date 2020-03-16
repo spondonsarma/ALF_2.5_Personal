@@ -132,24 +132,24 @@ $ \log  U_{\text{Approx}}$   need not be real such that imaginary time displaced
 
 To   address the above,  the ALF library provides the possibility to use a symmetric Trotter decomposition: 
 \begin{equation}
-	e^{ -\Delta \tau \left( \hat{A} + \hat{B} \right)  }  =  e^{ -\Delta \tau \hat{A/2}}  e^{ -\Delta \tau  \hat{B}  }   e^{ -\Delta \tau \hat{A/2}}  +  \frac{\Delta  \tau^3}{12} \left[ 2\hat{A} + \hat{B}, \left[\hat{B}, \hat{A} \right]\right] + \mathcal{O} \left (\Delta \tau ^4 \right)  
+	e^{ -\Delta \tau \left( \hat{A} + \hat{B} \right)  }  =  e^{ -\Delta \tau \hat{A/2}}  e^{ -\Delta \tau  \hat{B}  }   e^{ -\Delta \tau \hat{A/2}}  +  \frac{\Delta  \tau^3}{12} \left[ 2\hat{A} + \hat{B}, \left[\hat{B}, \hat{A} \right]\right] + \mathcal{O} \left (\Delta \tau ^5 \right)  
 \end{equation}
 We can apply   the above to our  time  step.  First
 \begin{equation}
 	e^{-\Delta \tau \mathcal{H}}    =       e^{-\frac{\Delta \tau}{2} \sum_{j=1}^{N_T} \hat{T}_j } e^{-\Delta \tau \sum_{i=1}^{N_I} \hat{O}_i } e^{-\frac{\Delta \tau}{2} \sum_{j=1}^{N_T} \hat{T}_j }   
-	 +  \underbrace{\frac{\Delta \tau ^3}{12}   \left[ 2\hat{T}^{>}_0 + \hat{O}^{>}_0, \left[\hat{O}^{>}_{0}, \hat{T}^{>}_0 \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{TO}}   + \mathcal{O}\left(  \Delta \tau^4 \right).
+	 +  \underbrace{\frac{\Delta \tau ^3}{12}   \left[ 2\hat{T}^{>}_0 + \hat{O}^{>}_0, \left[\hat{O}^{>}_{0}, \hat{T}^{>}_0 \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{TO}}   + \mathcal{O}\left(  \Delta \tau^5 \right).
 \end{equation}
 Then using,
 \begin{equation}
  e^{-\Delta \tau \sum_{i}^{N_I} \hat{O}_i }  =  \left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
    \left(  \prod_{i=N_O-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)   + 
-  \underbrace{\frac{\Delta \tau ^3}{12}  \sum_{i=1}^{N_0-1} \left[ 2\hat{O}_i + \hat{O}^{>}_i, \left[\hat{O}^{>}_{i}, \hat{O}_i \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{O}}    + \mathcal{O}\left(  \Delta  \tau^4 \right) 
+  \underbrace{\frac{\Delta \tau ^3}{12}  \sum_{i=1}^{N_0-1} \left[ 2\hat{O}_i + \hat{O}^{>}_i, \left[\hat{O}^{>}_{i}, \hat{O}_i \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{O}}    + \mathcal{O}\left(  \Delta  \tau^5 \right) 
 \end{equation}
 and 
 \begin{equation}
  e^{- \frac{\Delta \tau}{2} \sum_{j}^{N_T} \hat{T}_j }  =  \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)   + 
-  \underbrace{\frac{\Delta \tau ^3}{96}  \sum_{j=1}^{N_T-1} \left[ 2\hat{T}_j + \hat{T}^{>}_j, \left[\hat{T}^{>}_{j}, \hat{T}_j \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{T}}    + \mathcal{O}\left(  \Delta  \tau^4 \right) 
+  \underbrace{\frac{\Delta \tau ^3}{96}  \sum_{j=1}^{N_T-1} \left[ 2\hat{T}_j + \hat{T}^{>}_j, \left[\hat{T}^{>}_{j}, \hat{T}_j \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{T}}    + \mathcal{O}\left(  \Delta  \tau^5 \right) 
 \end{equation}
 we can derive  a  closed equation  for  the free energy density
 \begin{eqnarray}
@@ -161,7 +161,7 @@ f_{\text{Approx} }  =
      & & \left.   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)   
    \right]^{L_{\text{Trotter}}}     \nonumber  \\ 
-   = & &  f    - \frac{1}{V}   \langle \hat{\lambda}_{TO} + \hat{\lambda}_{O} + 2 \hat{\lambda}_{T} \rangle  + \mathcal{O}( \Delta \tau ^4). 
+   = & &  f    - \frac{1}{V}   \langle \hat{\lambda}_{TO} + \hat{\lambda}_{O} + 2 \hat{\lambda}_{T} \rangle  + \mathcal{O}( \Delta \tau ^5). 
 \end{eqnarray}
 The following comments are in order
 \begin{itemize}
