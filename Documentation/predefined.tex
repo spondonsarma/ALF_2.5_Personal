@@ -6,6 +6,10 @@
 
 % !TEX root = doc.tex
 
+
+
+
+
 ALF includes modules providing predefined structures which the user can combine together or use as templates for defining new structures, namely: 
 \begin{itemize}
 	\item lattices and unit cells -- \texttt{Predefined\_Latt\_mod.F90}
@@ -16,6 +20,7 @@ ALF includes modules providing predefined structures which the user can combine 
 \end{itemize}
 which are defined using the data structures described in the Sec.~\ref{sec:imp}, as detailed below.
 
+\input{generic_hopping}
 
 \subsection{Interaction Hamiltonians}
 
@@ -41,11 +46,10 @@ The SU(N) Hubbard interaction is given by
 \sum\limits_{\sigma=1}^{2}
 \left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}\;,
 \end{align} 
-which defined by a single operator
+which defined by a single operator .....................
 We can make contact with the general form of the Hamiltonian by setting: 
 $N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   -\frac{U}{2}$, 
 $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 0 $.
-
 
 
 
