@@ -8,15 +8,45 @@
 
 ALF includes modules providing predefined structures which the user can combine together or use as templates for defining new structures, namely: 
 \begin{itemize}
-	\item lattices and unit cells
-	\item hopping Hamiltonians
-	\item interaction Hamiltonians
-	\item observables
-	\item trial wave functions
+	\item lattices and unit cells -- \texttt{Predefined\_Latt\_mod.F90}
+	\item hopping Hamiltonians -- \texttt{Predefined\_Hop\_mod.F90 }
+	\item interaction Hamiltonians -- \texttt{Predefined\_Int\_mod.F90}
+	\item observables -- \texttt{Predefined\_Obs\_mod.F90 }
+	\item trial wave functions -- \texttt{Predefined\_Trial\_mod.F90 }
 \end{itemize}
 which are defined using the data structures described in the Sec.~\ref{sec:imp}, as detailed below.
 
-[take a look at the first example of next section]
+
+\subsection{Interaction Hamiltonians}
+
+In its most general form, an interaction Hamiltonian expressed in terms of sums of perfect squares can be written, as presented in Section~\ref{sec:intro}, in the form %Eq.~\eqref{eqn:general_ham_v}:
+
+\begin{align*}
+\hat{\mathcal{H}}_{V} =  \sum\limits_{k=1}^{M_V}U_{k}
+\left\{ \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
+\sum\limits_{s=1}^{N_{\mathrm{fl}}} \left[ \left(
+\sum\limits_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_{x \sigma s}V_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}\right)  +\alpha_{k s}  \right] \right\}^{2}
+\equiv    \sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}^{(k)} \right)^2.
+\tag{\ref{eqn:general_ham_v}}
+\end{align*}
+The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction Hamiltonians.
+
+\subsubsection{Hubbard interaction}
+
+The SU(N) Hubbard interaction is given by 
+\begin{align}
+%\label{eqn_hubbard_sun}
+\hat{\mathcal{H}}_{V} =
++ \frac{U}{2}\sum\limits_{x}\left[
+\sum\limits_{\sigma=1}^{2}
+\left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}\;,
+\end{align} 
+which defined by a single operator
+We can make contact with the general form of the Hamiltonian by setting: 
+$N_{\mathrm{fl}} = 1$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =2 $,   $M_T    =    1$,  $T^{(ks)}_{x y}   =  T_{x,y}$,  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   -\frac{U}{2}$, 
+$V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$,  $\alpha_{ks}   = - \frac{1}{2}  $ and $M_I       = 0 $.
+
+
 
 
 \subsection{Template}
