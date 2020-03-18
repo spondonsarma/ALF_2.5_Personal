@@ -197,33 +197,31 @@ In the case of a perfect-square term, the fields results from the discrete HS tr
 %
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} l l l @{}}\toprule
-		Component                 &  \multicolumn{2}{l}{Description}    \\ \midrule
-		\textbf{Variable}         &          &  \\ \midrule
-		\texttt{Field\%f(:,:)}    &  Real    & Defines the auxiliary fields. The first index runs through the operator \\ 
-		                          &          & sequence and the second through the time slices. \\
-		\texttt{Field\%t(:)}      &  Integer & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-\\
-		                          &          & square term; 3: continuous real field). The index denotes the operator. \\
-		\texttt{Field\%del}       &  Real    & Width of the uniform random initial configuration for fields of type \texttt{t=3},\\
-		                          &          & with a default value of \texttt{1}. \\
-		\texttt{Field\%amplitude} &  Real    & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
-		\textbf{Method}       & &    \\ \midrule
-		\texttt{Fields\_init} & & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$.  \\
-		\texttt{Field\%make}  & & Reserves memory for the field.    \\
-		\texttt{Field\%clear} & & Clears field from memory.    \\
-		\texttt{Field\%set}   & & Sets a random configuration.    \\
-		\texttt{Field\%flip}  & & Flips the field values randomly. \\
-		\texttt{Field\%phi}   & & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$. \\
-		\texttt{Field\%gamma} & & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
-		\texttt{Field\%i}     & & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
-		\texttt{Field\%in}    & & Reads in the field configuration.    \\
-		\texttt{Field\%out}   & & Writes out the field configuration.    \\\bottomrule
+	\begin{tabular}{@{} p{0.25\columnwidth} p{0.12\columnwidth} p{0.57\columnwidth} @{}}\toprule
+		Component                 &                & Description    \\ \midrule
+		\textbf{Variable}         &  \textbf{Type} &  \\ \midrule
+		\texttt{Field\%f(:,:)}    &  Real          & Defines the auxiliary fields. The first index runs through the operator sequence and the second through the time slices. \\
+		\texttt{Field\%t(:)}      &  Integer       & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-square term; 3: continuous real field). The index denotes the operator. \\
+		\texttt{Field\%del}       &  Real          & Width $\Delta x$ of the uniform random initial configuration for fields of type \texttt{t=3}, with a default value of \texttt{1}. \\
+		\texttt{Field\%amplitude} &  Real          & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
+		\multicolumn{2}{@{}l@{}}{ \textbf{Method (arguments)}}               &    \\ \midrule
+		\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init (del)}}               & Initializes internal variables such as $s_{k,\tau}$ and $\eta_{k,\tau}$, $\texttt{del}=\Delta x$.  \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%make (this,n\_op,n\_tau)}}  & Reserves memory for the field.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%clear (this)}}              & Clears field from memory.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%set (this)}}                & Sets a random configuration.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%flip (this,n\_op,n\_tau)}}  & Flips the field values randomly. \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%phi (this,n\_op,n\_tau)}}   & Returns $\phi_{k\tau}$ for the $k$-th operator at the time slice $\tau$. \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%gamma (this,n\_op,n\_tau)}} & Returns $\gamma_{k\tau}$ for the $k$-th operator at the time slice $\tau$.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%i (this,n\_op,n\_tau)}}     & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%in (this,Group\_Comm,In\_field)}} & Reads in the field configuration. \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out (this,Group\_Comm)}}    & Writes out the field configuration.    \\\bottomrule
 	\end{tabular}
-	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.}
+	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}, where \texttt{this} denotes the field itself, \texttt{del} (real) denotes the \texttt{Field\%del}, \texttt{n\_op} and \texttt{n\_tau} (integers) are the number of operators and time slices, respectively, \texttt{Group\_Comm} (integer) defines an MPI communicator, and \texttt{In\_field} is the initial field configuration.}
     \end{center}
 	\label{table:Fields}
 \end{table}
 %
+
 
 
 %------------------------------------------------------------
