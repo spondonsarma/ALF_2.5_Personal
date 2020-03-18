@@ -60,12 +60,12 @@
         
         Implicit none
         Integer,  Intent(In) :: I, N_SUN 
-        Real (Kind=Kind(0.d0)), Intent(IN) ::  Dtau, U
+        Real (Kind=Kind(0.d0)), Intent(IN) :: Dtau, U
         Type(Operator), Intent(Out) :: OP
 
         Call OP_Make( Op,1 )
 
-        Op%P(1) = I
+        Op%P(1)   = I
         Op%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
         Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
         Op%g      = SQRT(CMPLX(-DTAU*U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
@@ -133,8 +133,8 @@
 
         Call OP_Make( Op,2 )
 
-        Op%P(1) = I
-        Op%P(2) = J
+        Op%P(1)   = I
+        Op%P(2)   = J
         Op%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
         Op%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
         Op%g      = SQRT(CMPLX(DTAU*V/real(N_SUN,kind(0.d0)), 0.D0, kind(0.D0))) 
@@ -165,13 +165,13 @@
 
         Call OP_Make( Op,2 )
 
-        Op%P(1) = I
-        Op%P(2) = J
+        Op%P(1)   = I
+        Op%P(2)   = J
         Op%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
         Op%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
         Op%g      = cmplx(-dtau*xi,0.D0,kind(0.D0))
         Op%alpha  = cmplx(0d0,0.d0, kind(0.D0)) 
-        Op%type  =1
+        Op%type   = 1
         
         Call Op_set( Op )
         
@@ -185,7 +185,7 @@
 !> Sets  
 !>       \sum_{s=1}^{N_SUN} \Phi i ( c^{dag}_{i,s} c_{i,s} - 0.5 ) 
 !>   
-!>   For the long range  Coulomb replusion.
+!>   For the long range Coulomb repulsion.
 !>   
 !--------------------------------------------------------------------
       Subroutine Predefined_Int_LRC( OP, I, DTAU  ) 
