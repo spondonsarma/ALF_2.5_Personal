@@ -27,19 +27,19 @@ which are defined using the data structures defined in the Sec.~\ref{sec:imp}, a
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Interaction Hamiltonians}
+\subsection{Interaction Vertices}
 
-In its most general form, an interaction Hamiltonian expressed in terms of sums of perfect squares can be written, as presented in Section~\ref{sec:intro}, in the form %Eq.~\eqref{eqn:general_ham_v}:
+In its most general form, an interaction Hamiltonian expressed in terms of sums of perfect squares can be written, as presented in Section~\ref{sec:intro}, as a sum of $M_V$ vertices: %Eq.~\eqref{eqn:general_ham_v}:
 
 \begin{align*}
-\hat{\mathcal{H}}_{V} =  \sum\limits_{k=1}^{M_V}U_{k}
+\hat{\mathcal{H}}_{V} &=  \sum\limits_{k=1}^{M_V}U_{k}
 \left\{ \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \sum\limits_{s=1}^{N_{\mathrm{fl}}} \left[ \left(
 \sum\limits_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_{x \sigma s}V_{xy}^{(k s)}\hat{c}^{\phantom\dagger}_{y \sigma s}\right)  +\alpha_{k s}  \right] \right\}^{2}
-\equiv    \sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}^{(k)} \right)^2.
-\tag{\ref{eqn:general_ham_v}}
+\equiv    \sum\limits_{k=1}^{M_V}U_{k}   \left(\hat{V}^{(k)} \right)^2 \tag{\ref{eqn:general_ham_v}}\\
+&\equiv    \sum\limits_{k=1}^{M_V}\mathcal{H}_{V,k}.
 \end{align*}
-The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction Hamiltonians, as detailed below.
+The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction vertices $\mathcal{H}_{V,k}$, as detailed below.
 
 
 \subsubsection{The $SU(N)$ Hubbard interaction}
@@ -47,8 +47,8 @@ The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common 
 The $SU(N)$ Hubbard interaction is given by 
 \begin{align}
 %\label{eqn_hubbard_sun}
-\hat{\mathcal{H}}_{V} =
-+ \frac{U}{N}\left[
+\hat{\mathcal{H}}_{V,k} =
++ \frac{U}{N_{\mathrm{col}}}\left[
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \left(  c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{i \sigma}  -1/2 \right) \right]^{2},
 \end{align} 
@@ -70,7 +70,7 @@ Op%type   = 2
 The $M_z$-Hubbard interaction is given by 
 \begin{align}
 %\label{eqn_hubbard_Mz}
-\hat{\mathcal{H}}_{V} = - \frac{U}{2}\sum\limits_{x}\left[
+\hat{\mathcal{H}}_{V,k} = - \frac{U}{2}\sum\limits_{x}\left[
 c^{\dagger}_{x, \uparrow} c^{\phantom\dagger}_{x \uparrow}  -   c^{\dagger}_{x, \downarrow} c^{\phantom\dagger}_{x \downarrow}  \right]^{2},
 \end{align} 
 which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by setting: 
@@ -97,7 +97,7 @@ Op_do%type   = 2
 
 The interaction term of the generalized t-V model, given by 
 \begin{align}
-\hat{\mathcal{H}}_{V} =
+\hat{\mathcal{H}}_{V,k} =
 -\frac{V}{N_\mathrm{col}}\left[ \sum_{s=1}^{N_\mathrm{col}}\left( c^{\dagger}_{i,s} c_{j,s} + c^{\dagger}_{j,s} c_{i,s} \right) \right]^2,
 \end{align} 
 is coded in the subroutine \texttt{Predefined\_Int\_V\_SUN} by a single symmetric operator:
@@ -119,7 +119,7 @@ Op%type   = 2
 The interaction between the Ising and a fermion degree of freedom, given by
 \begin{align}
 %\label{eqn_hubbard_sun_Ising}
-\hat{\mathcal{H}}_{V} =
+\hat{\mathcal{H}}_{V,k} =
 \hat{Z}_{i,j} \xi  \sum_{s=1}^{N_\mathrm{col}}( c^{\dagger}_{i,s} c^{\phantom\dagger}_{j,s} + c^{\dagger}_{j,s} c^{\phantom\dagger}_{i,s} ),
 \end{align} 
 where $\xi$ determines the coupling strength, is implemented in the subroutine \texttt{Predefined\_Int\_Ising\_SUN}:
@@ -141,7 +141,7 @@ Op%type   = 1
 
 The Long-Range Coulomb (LRC) interaction can be written as
 \begin{align}
-\hat{\mathcal{H}}_{V} =
+\hat{\mathcal{H}}_{V,k} =
 \frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{\vec{i}} -  \frac{N}{2}  \right)  V_{\vec{i},\vec{j}} \left(  \hat{n}_{\vec{j}} -  \frac{N}{2}  \right), 
 \end{align} 
 where
@@ -159,7 +159,7 @@ V_{\vec{i}, \vec{j}}   =   U \left\{
 \end{equation}
 Here $d_\mathrm{min}$ is the minimal distance between two orbitals.     The code uses the following  HS decomposition:
 \begin{equation}
-e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) }.
+e^{-\Delta \tau \hat{H}_{V,k} }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) }.
 \end{equation}
 
 The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    The definition of  the Coulomb repulsion is as follows. 
@@ -189,32 +189,32 @@ Op%type   = 3
 
 \subsubsection{The $J_z$-$J_z$ Interaction}
 
-Another predefined interaction is:
+Another predefined vertex is:
 \begin{align}
-\hat{\mathcal{H}}_{V} =
+\hat{\mathcal{H}}_{V,k} =
 - \frac{|J_z|}{2}  \left( S^{z}_i - \sgn|J_z| S^{z}_j \right)^2 =
 J_z  S^{z}_i  S^{z}_j  - \frac{|J_z|}{2} (S^{z}_i)^2 - \frac{|J_z|}{2}(S^{z}_j)^2 
 \end{align} 
 which, if particle fluctuations are frozen on the $i$ and $j$ sites, then $(S^{z}_i)^2 = 1/4$ and the interactions corresponds to a $J_z$-$J_z$ ferro or antiferro coupling.
 
-The implementation in \texttt{Predefined\_Int\_Jz} defines two operators:
+The implementation of the interaction in \texttt{Predefined\_Int\_Jz} defines two operators:
 \begin{lstlisting}[style=fortran]
 
-Op_up%P(1)   =  I
-Op_up%P(2)   =  J
-Op_up%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
-Op_up%O(2,2) =  cmplx(- Jz/Abs(Jz)  ,0.d0, kind(0.D0))
-Op_up%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
-Op_up%g      =  SQRT(CMPLX(DTAU*Jz/8.d0, 0.D0, kind(0.D0))) 
-Op_up%type   =  2
+Op_up%P(1)   = I
+Op_up%P(2)   = J
+Op_up%O(1,1) = cmplx(        1.d0  ,0.d0, kind(0.D0))
+Op_up%O(2,2) = cmplx(- Jz/Abs(Jz)  ,0.d0, kind(0.D0))
+Op_up%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
+Op_up%g      = SQRT(CMPLX(DTAU*Jz/8.d0, 0.D0, kind(0.D0))) 
+Op_up%type   = 2
 
-Op_do%P(1)   =  I
-Op_do%P(2)   =  J
-Op_do%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
-Op_do%O(2,2) =  cmplx(- Jz/Abs(Jz)  ,0.d0, kind(0.D0))
-Op_do%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+Op_do%P(1)   = I
+Op_do%P(2)   = J
+Op_do%O(1,1) = cmplx(        1.d0  ,0.d0, kind(0.D0))
+Op_do%O(2,2) = cmplx(- Jz/Abs(Jz)  ,0.d0, kind(0.D0))
+Op_do%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
 Op_do%g      = -SQRT(CMPLX(DTAU*Jz/8.d0, 0.D0, kind(0.D0))) 
-Op_do%type   =  2
+Op_do%type   = 2
 
 \end{lstlisting}
 
