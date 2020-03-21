@@ -44,13 +44,13 @@ The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common 
 
 \subsubsection{The $SU(N)$ Hubbard interaction}
 
-The $SU(N)$ Hubbard interaction on a given site $x $ is given by 
+The $SU(N)$ Hubbard interaction on a given site $i$ is given by 
 \begin{align}
 %\label{eqn_hubbard_sun}
-\hat{\mathcal{H}}_{V,k} =
+\hat{\mathcal{H}}_{V,i} =
 + \frac{U}{N_{\mathrm{col}}}\left[
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}.
+\left(  c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{i\sigma}  -1/2 \right) \right]^{2}.
 \end{align} 
 Assuming that no other term in the Hamiltonian breaks the $SU(N) $  color symmetry,  then this interaction term  conveniently corresponds to  a single 
 operator  which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN}.   
@@ -59,7 +59,7 @@ operator  which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN}.
 
 \begin{lstlisting}[style=fortran]
 
-Op%P(1)   = x
+Op%P(1)   = i
 Op%O(1,1) = cmplx(1.d0,  0.d0, kind(0.D0))
 Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
 Op%g      = SQRT(CMPLX(-DTAU*U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
@@ -67,7 +67,7 @@ Op%type   = 2
 
 \end{lstlisting}
 
-To relate to  Eq.~\eqref{eqn:general_ham_v} we have,   $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$, $\alpha_{ks} = -\frac{1}{2}$ and $U_{k} =  \frac{U}{N_{\mathrm{col}}}$. 
+To relate to  Eq.~\eqref{eqn:general_ham_v} we have,   $V_{x y}^{(is)} =  \delta_{x,y} \delta_{x,i}$, $\alpha_{is} = -\frac{1}{2}$ and $U_{k} =  \frac{U}{N_{\mathrm{col}}}$.   Here  the flavor index, $s$,  plays no role. 
 
 
 \subsubsection{The $M_z$-Hubbard interaction}
