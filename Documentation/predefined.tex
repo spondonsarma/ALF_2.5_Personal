@@ -44,25 +44,30 @@ The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common 
 
 \subsubsection{The $SU(N)$ Hubbard interaction}
 
-The $SU(N)$ Hubbard interaction is given by 
+The $SU(N)$ Hubbard interaction on a given site $x $ is given by 
 \begin{align}
 %\label{eqn_hubbard_sun}
 \hat{\mathcal{H}}_{V,k} =
 + \frac{U}{N_{\mathrm{col}}}\left[
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\left(  c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{i \sigma}  -1/2 \right) \right]^{2},
+\left(  c^{\dagger}_{x \sigma} c^{\phantom\dagger}_{x \sigma}  -1/2 \right) \right]^{2}.
 \end{align} 
-which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by setting: 
-$N_{\mathrm{fl}} = 1$,  $M_V = N_{\text{unit-cell}} $,  $U_{k} =  -\frac{U}{N_{\mathrm{col}}}$,  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$, and $\alpha_{ks} = -\frac{1}{2}$; and which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN} by a single operator:
+Assuming that no other term in the Hamiltonian breaks the $SU(N) $  color symmetry,  then this interaction term  conveniently corresponds to  a single 
+operator  which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN}.   
+%which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by setting: 
+%$N_{\mathrm{fl}} = 1$,  $M_V = N_{\text{unit-cell}} $,  $U_{k} =  -\frac{U}{N_{\mathrm{col}}}$,  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$, and $\alpha_{ks} = -\frac{1}{2}$; and which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN} by a single operator:
+
 \begin{lstlisting}[style=fortran]
 
-Op%P(1)   = I
+Op%P(1)   = x
 Op%O(1,1) = cmplx(1.d0,  0.d0, kind(0.D0))
 Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
 Op%g      = SQRT(CMPLX(-DTAU*U/(DBLE(N_SUN)), 0.D0, kind(0.D0))) 
 Op%type   = 2
 
 \end{lstlisting}
+
+To relate to  Eq.~\eqref{eqn:general_ham_v} we have,   $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$, $\alpha_{ks} = -\frac{1}{2}$ and $U_{k} =  \frac{U}{N_{\mathrm{col}}}$. 
 
 
 \subsubsection{The $M_z$-Hubbard interaction}
