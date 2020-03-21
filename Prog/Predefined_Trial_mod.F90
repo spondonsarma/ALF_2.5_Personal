@@ -128,8 +128,8 @@
         Real (Kind=Kind(0.d0))  :: A1_p(2), A2_p(2), L1_p(2), L2_p(2), x_p(2),x1_p(2), hop(3), del_p(2)
         Real (Kind=Kind(0.d0))  :: delta = 0.01, Ham_T1
         
-        Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J
-        Logical :: Test=.false.
+        Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J, N_Phi
+        Logical :: Test=.false. ,  Bulk =.false. 
         Complex (Kind=Kind(0.d0)) :: Z_norm
         
         
@@ -269,10 +269,9 @@
            Dtau     = 1.d0
            Ham_T    = 1.d0
            Ham_Chem = 0.d0
-           XB_X     = 1.d0
-           XB_Y     = 1.d0
            Phi_X    = 0.00
            Phi_Y    = 0.d0
+           N_Phi    = 0
            Dimer    = 0.d0
            Checkerboard  = .false.
            Symm          = .false.
@@ -283,7 +282,7 @@
            !endif
            
            Call Predefined_Hopping(Lattice_type ,Ndim, List,Invlist,Latt, Latt_Unit, &
-                &                    Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
+                &                    Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y,  Bulk, N_Phi,&
                 &                    N_FL,  Checkerboard, Symm,  OP_tmp, Dimer )
            
            

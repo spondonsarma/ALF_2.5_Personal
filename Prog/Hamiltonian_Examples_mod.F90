@@ -150,12 +150,13 @@
       Type (Lattice),       private :: Latt
       Type (Unit_cell),     private :: Latt_unit
       Integer,              private :: L1, L2
-      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi, XB_X, Phi_X, Ham_tV
+      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi,  Ham_tV
       real (Kind=Kind(0.d0)),        private :: ham_alpha, Percent_change
-      real (Kind=Kind(0.d0)),        private :: XB_Y, Phi_Y
+      real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
+      Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
-      Logical,              private :: Checkerboard
+      Logical,              private :: Checkerboard,  Bulk
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
 
@@ -194,7 +195,7 @@
           ! Interaction                              -->  Model
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
           
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
+          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, Phi_y, Symm, Bulk, N_Phi
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
           
@@ -212,11 +213,10 @@
           N_SUN        = 1
           Checkerboard = .false.
           Symm         = .false.
+          Bulk         = .true. 
           Phi_X        = 0.d0
-          XB_X         = 1.d0
           Phi_Y        = 0.d0
-          XB_Y         = 1.d0
-
+          
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -245,11 +245,13 @@
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(N_Phi       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(XB_X        ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(Phi_Y       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
           CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
           CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Bulk        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
 #endif
           
@@ -262,10 +264,13 @@
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
              Write(50,*) '# of orbitals : ', Ndim
-             If (Lattice_type == "Square" ) then
-                Write(50,*) 'X_boundary    : ', XB_X
-                Write(50,*) 'Flux_X        : ', Phi_X
-             Endif
+             Write(50,*) 'Flux_1        : ', Phi_X
+             Write(50,*) 'Flux_2        : ', Phi_Y
+             If (Bulk) then 
+                Write(50,*) 'Twist as phase factor in bulk'
+             Else
+                Write(50,*) 'Twist as boundary condition'
+             endif
              Write(50,*) 'Checkerboard  : ', Checkerboard
              Write(50,*) 'Symm. decomp  : ', Symm
 #ifdef MPI
@@ -569,13 +574,23 @@
         Subroutine Ham_Hop
           
           Use Predefined_Hoppings
-
           Implicit none
+
           ! Use predefined stuctures or set your own hopping
           Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
-           &                      Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
-           &                      N_FL,  Checkerboard, Symm, OP_T )
-
+               &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
+               &                      N_FL,  Checkerboard, Symm, OP_T )
+      
+!!$          Integer :: n,nth
+!!$          Do nth = 1,1
+!!$          Do n = 1, size(OP_T(1,1)%E)
+!!$             Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
+!!$          enddo
+!!$          
+!!$          Call Op_clear (OP_T(1,1),N)
+!!$          Deallocate (OP_T)
+!!$          Enddo
+          
         end Subroutine Ham_Hop
 !--------------------------------------------------------------------
 !> @author 

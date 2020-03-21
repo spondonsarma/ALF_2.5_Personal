@@ -107,7 +107,7 @@
         Integer, Intent(OUT), Dimension(:,:), allocatable  :: List, Invlist
         Type(Unit_cell), Intent(Out)                       :: Latt_Unit
         Type(Lattice), Intent(Out)                         :: Latt
-        Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
+        Real (Kind=Kind(0.d0))  :: A1_p(2), a2_p(2), L1_p(2), L2_p(2)
         Integer :: I, nc, no
         
         select case (Lattice_type)
@@ -183,5 +183,4 @@
       end Subroutine Predefined_Latt
       
 
-      
     end Module Predefined_Lattices

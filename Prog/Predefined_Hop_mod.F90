@@ -143,18 +143,18 @@
 !>       
 !------------------------------------------------------------------
       Subroutine Predefined_Hopping(Lattice_type, Ndim, List,Invlist,Latt,  Latt_unit,  &
-           &                        Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, &
+           &                        Dtau, Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, &
            &                        N_FL,  Checkerboard, Symm, OP_T, Dimer )
 
         Implicit none
 
         Character (len=64), Intent(IN)               :: Lattice_type
-        Integer, Intent(IN)                          :: Ndim, N_FL
+        Integer, Intent(IN)                          :: Ndim, N_FL, N_Phi
         Integer, Intent(IN), Dimension(:,:)          :: List, Invlist
         Type(Lattice),  Intent(in)                   :: Latt
         Type(Unit_cell),Intent(in)                   :: Latt_unit
-        Real (Kind=Kind(0.d0)), Intent(In)           :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y
-        Logical                                      :: Checkerboard, Symm
+        Real (Kind=Kind(0.d0)), Intent(In)           :: Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y
+        Logical                                      :: Checkerboard, Symm,  Bulk
         Real(Kind=Kind(0.d0)), Intent(IN), Optional  :: Dimer
         
         Type(Operator), Intent(Out),  dimension(:,:), allocatable  :: Op_T 
@@ -162,7 +162,7 @@
 
         !Local
         Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no, N_Fam, L_FAM, Ix, Iy, n1
-        Complex (Kind=Kind(0.d0)) :: ZX, ZY
+        Complex (Kind=Kind(0.d0)) :: ZX, ZY, Z
         Real    (Kind=Kind(0.d0)) :: del_p(2), X, g
         
         If ( .not. Checkerboard) then
@@ -173,25 +173,15 @@
               Select case (Lattice_type)
               Case ("Square")
                  If ( Latt_unit%N_coord == 2 ) then   !  This is for the 2D case
-                    ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
-                    ZY  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_Y/Xnorm(Latt%L2_p), kind=kind(0.d0) ) )
                     DO I = 1, Latt%N
                        I1 = Latt%nnlist(I,1,0)
                        I2 = Latt%nnlist(I,0,1)
-                       If ( Latt%list(I,1) == 0 ) then
-                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
-                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
-                       else
-                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
-                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
-                       endif
-                       If ( Latt%list(I,2) == 0 ) then
-                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*ZY
-                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T*XB_Y,    0.d0, kind(0.D0))*conjg(ZY)
-                       else
-                          Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*ZY
-                          Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T     ,    0.d0, kind(0.D0))*conjg(ZY)
-                       endif
+                       ZX = Generic_hopping(I,1, 1, 0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                       ZY = Generic_hopping(i,1, 0, 1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
+                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
+                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
+                       Op_T(nc,n)%O(I,I2) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZY
+                       Op_T(nc,n)%O(I2,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZY)
                        Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                     Enddo
                     if (Present(Dimer)) then
@@ -206,16 +196,11 @@
                        enddo
                     endif
                  else  ! One dimensional
-                    ZX  =  exp( cmplx(0.d0, 2.d0 * acos(-1.d0)*Phi_X/Xnorm(Latt%L1_p), kind=kind(0.d0) ) )
                     DO I = 1, Latt%N
                        I1 = Latt%nnlist(I,1,0)
-                       If ( Latt%list(I,1) == 0 ) then
-                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*ZX
-                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T*XB_X, 0.d0, kind(0.D0))*conjg(ZX)
-                       else
-                          Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
-                          Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
-                       endif
+                       ZX = Generic_hopping(I,1, 1, 0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                       Op_T(nc,n)%O(I,I1) = cmplx(-Ham_T, 0.d0, kind(0.D0))*ZX
+                       Op_T(nc,n)%O(I1,I) = cmplx(-Ham_T, 0.d0, kind(0.D0))*conjg(ZX)
                        Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                     Enddo
                     if (Present(Dimer)) then
@@ -231,7 +216,6 @@
                     endif
                  endif
               Case ("Honeycomb")
-                 X = 2.d0 * acos(-1.d0)*Phi_X / ( Xnorm(Latt%L1_p) * (Xnorm(Latt%a1_p)**2)  )
                  DO I = 1, Latt%N
                     do no = 1,Latt_unit%Norb
                        I1 = Invlist(I,no)
@@ -243,18 +227,17 @@
                        select case (nc1)
                        case (1)
                           J1 = invlist(I,2)
-                          del_p(:)  =  Latt_unit%Orb_pos_p(2,:) 
+                          ZX = Generic_hopping(I,1, 0, 0, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                        case (2)
                           J1 = invlist(Latt%nnlist(I,1,-1),2)
-                          del_p(:)  =  Latt%a1_p(:) - Latt%a2_p(:)  + Latt_unit%Orb_pos_p(2,:)
+                          ZX = Generic_hopping(I,1, 1, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                        case (3)
                           J1 = invlist(Latt%nnlist(I,0,-1),2) 
-                          del_p(:)  =  - Latt%a2_p(:) +  Latt_unit%Orb_pos_p(2,:) 
+                          ZX = Generic_hopping(I,1, 0, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                        case default
                           Write(6,*) ' Error in  Ham_Hop '  
                           Stop
                        end select
-                       ZX = exp( cmplx(0.d0, X*Iscalar(Latt%a1_p,del_p), kind(0.D0) ) )
                        Op_T(nc,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0)) * ZX
                        Op_T(nc,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0)) * CONJG(ZX) 
                     Enddo
@@ -328,31 +311,38 @@
                              select case (nc1)
                              case(1)
                                 I2 = latt%nnlist(I1, 1, 0) 
+                                ZX = Generic_hopping(I,1,  1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              case(2)
                                 I2 = latt%nnlist(I1, 0, 1)
+                                ZX = Generic_hopping(I,1,  0,  1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              case(3)
                                 I2 = latt%nnlist(I1,-1, 0)
+                                ZX = Generic_hopping(I,1, -1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              case(4)
                                 I2 = latt%nnlist(I1, 0,-1)
+                                ZX = Generic_hopping(I,1,  0, -1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau
                              case(5)
                                 I2 = latt%nnlist(I1,-1, 0)
+                                ZX = Generic_hopping(I,1, -1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              case(6)
                                 I2 = latt%nnlist(I1, 0, 1)
+                                ZX = Generic_hopping(I,1,  0,  1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              case(7)
                                 I2 = latt%nnlist(I1, 1, 0) 
+                                ZX = Generic_hopping(I,1,  1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                                 g = -Dtau/2.d0
                              end select
                              !Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
                              Op_T(nc,n)%P(1)   = I1
                              Op_T(nc,n)%P(2)   = I2
-                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0))*ZX 
+                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))*CONJG(ZX)
                              Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
                              Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
                              if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
@@ -380,15 +370,25 @@
                           if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
                              I1 = I
                              nc = nc + 1
-                             if (nc1 == 1 ) I2 = latt%nnlist(I1, 1, 0) 
-                             if (nc1 == 2 ) I2 = latt%nnlist(I1, 0, 1)
-                             if (nc1 == 3 ) I2 = latt%nnlist(I1,-1, 0)
-                             if (nc1 == 4 ) I2 = latt%nnlist(I1, 0,-1)
+                             select case (nc1)
+                             case(1)
+                                I2 = latt%nnlist(I1, 1, 0) 
+                                ZX = Generic_hopping(I,1,  1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                             case(2)
+                                I2 = latt%nnlist(I1, 0, 1)
+                                ZX = Generic_hopping(I,1,  0,  1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                             case(3)
+                                I2 = latt%nnlist(I1,-1, 0)
+                                ZX = Generic_hopping(I,1, -1,  0, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                             case(4)
+                                I2 = latt%nnlist(I1, 0,-1)
+                                ZX = Generic_hopping(I,1,  0, -1, 1, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                             end select
                              !Write(6,*) nc,nc1, Latt%List(I1,1), Latt%List(I1,2),Latt%List(I2,1), Latt%List(I2,2), I1, I2
                              Op_T(nc,n)%P(1) = I1
                              Op_T(nc,n)%P(2) = I2
-                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                             Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * ZX
+                             Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * CONJG(ZX)
                              Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0)) 
                              Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/4.d0 ,0.d0, kind(0.D0))
                              if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
@@ -460,24 +460,29 @@
                           select case (nc1)
                           case(1)
                              I2 = invlist(I,2)
+                             ZX = Generic_hopping(I,1, 0, 0, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                              g = -Dtau/2.d0
                           case(2)
                              I2 = invlist(latt%nnlist(I,1,-1),2)
+                             ZX = Generic_hopping(I,1, 1, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                              g = -Dtau/2.d0
                           case(3)
                              I2 = invlist(latt%nnlist(I,0,-1),2)
+                             ZX = Generic_hopping(I,1, 0, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                              g = -Dtau
                           case(4)
                              I2 = invlist(latt%nnlist(I,1,-1),2)
+                             ZX = Generic_hopping(I,1, 1, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                              g = -Dtau/2.d0
                           case(5)
                              I2 = invlist(I,2)
+                             ZX = Generic_hopping(I,1, 0,  0, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
                              g = -Dtau/2.d0
                           end select
                           Op_T(nc,n)%P(1) = I1
                           Op_T(nc,n)%P(2) = I2
-                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * ZX
+                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * CONJG(ZX)
                           Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0)) 
                           Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0))
                           if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
@@ -501,13 +506,21 @@
                        do I = 1,Latt%N
                           I1 = invlist(I,1)
                           nc = nc + 1
-                          if (nc1 == 1 ) I2 = invlist(I,2)
-                          if (nc1 == 2 ) I2 = invlist(latt%nnlist(I,1,-1),2)
-                          if (nc1 == 3 ) I2 = invlist(latt%nnlist(I,0,-1),2)
+                          select case (nc1)
+                          case(1)
+                             I2 = invlist(I,2)
+                             ZX = Generic_hopping(I,1, 0, 0, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                          case(2)
+                             I2 = invlist(latt%nnlist(I,1,-1),2)
+                             ZX = Generic_hopping(I,1, 1, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                          case(3)
+                             I2 = invlist(latt%nnlist(I,0,-1),2)
+                             ZX = Generic_hopping(I,1, 0, -1, 2, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit) 
+                          end select
                           Op_T(nc,n)%P(1) = I1
                           Op_T(nc,n)%P(2) = I2
-                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) 
-                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0))
+                          Op_T(nc,n)%O(1,2) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * ZX 
+                          Op_T(nc,n)%O(2,1) = cmplx(-Ham_T ,0.d0, kind(0.D0)) * CONJG(ZX)
                           Op_T(nc,n)%O(1,1) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0)) 
                           Op_T(nc,n)%O(2,2) = cmplx(-Ham_Chem/3.d0 ,0.d0, kind(0.D0))
                           if ( abs(Ham_T) < 1.E-6  .and.  abs(Ham_chem) < 1.E-6 ) then 
@@ -529,5 +542,99 @@
         
       End Subroutine Predefined_Hopping
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
+!> This  function provides generic hopping.
+!>    
+!--------------------------------------------------------------------
+
+      complex  (Kind=kind(0.d0)) function Generic_hopping(i,no_i, del_1, del_2, no_j, N_Phi, Flux_1,Flux_2, Bulk, Latt, Latt_Unit)
+
+        Use Lattices_v3 
+        Implicit none
+
+        
+        Integer        ,  Intent(In) :: N_Phi, i, no_i, del_1, del_2, no_j
+        Type(Unit_cell),  Intent(In) :: Latt_Unit
+        Type(Lattice)  ,  Intent(In) :: Latt
+        Real (Kind = Kind(0.d0)), intent(In) :: Flux_1,Flux_2
+        Logical        ,  Intent(In) :: Bulk 
+
+
+        !Local
+        Integer                   :: j, N1, N2
+        real (Kind=Kind(0.d0))    :: xj_p(2), xi_p(2), xjp_p(2), del_p(2), A_p(2), pi, XB_p(2), V, B, Zero, x_p(2), x1_p(2)
+
+        Complex (Kind=Kind(0.d0)) :: Z_hop
+
+        
+        Z_hop = cmplx(1.d0,0.d0,kind(0.d0))
+        
+        xj_p =  real(latt%list(i,1) + del_1 ,kind(0.d0)) * latt%a1_p  +  real(latt%list(i,2) + del_2 ,kind(0.d0)) * latt%a2_p
+        ! Check if you have crossed the boundary:  xj_p  = xjp_p + N1*L1_p  + N2*L2_p  with  xjp_p  in the set of lattice sites. 
+        N1 = 0; N2 = 0
+        Call npbc(xjp_p, xj_p, Latt%L1_p, Latt%L2_p,  N1, N2)
+        XB_p = real(N1,kind(0.d0))*Latt%L1_p  +  real(N2,kind(0.d0))*Latt%L2_p  
+        xj_p (:) = xj_p (:) + Latt_unit%Orb_pos_p(no_j,:)
+        xjp_p(:) = xjp_p(:) + Latt_unit%Orb_pos_p(no_j,:)   
+        xi_p    = real(latt%list(i,1), kind(0.d0)) * latt%a1_p  +  real(latt%list(i,2),kind(0.d0)) * latt%a2_p
+        xi_p(:) = xi_p(:) +  Latt_unit%Orb_pos_p(no_i,:)
+
+        !!Check that  xjp_p(:) + XB_p(:) =  xj_p(:)
+        !!x1_p(:) = xjp_p(:) + XB_p
+        !!Write(6,"(F12.6,2x,F12.6,2x,F12.6,2x,F12.6,2x,I2,3x,I2)")  x1_p(1),x1_p(2), xj_p(1), xj_p(2), N1,N2
+        !! -->  i + del_1*a_1 + del_2* a_2  =  i' + N1*L1_p + N2*L2_p  with i' in the set of lattice points.   
+
+        
+        ! The hopping increment.
+        del_p  =  xj_p - xi_p
+
+        !Twist
+        pi = acos(-1.d0)
+        A_p(:)  =  2.d0*pi* (Flux_1 * latt%a1_p(:) /  Abs(Iscalar(Latt%L1_p,Latt%a1_p)) + &
+             &               Flux_2 * latt%a2_p(:) /  Abs(Iscalar(Latt%L2_p,Latt%a2_p))    )
+        
+        if (Bulk) then
+           !Twist in bulk
+           Z_hop = Z_hop * exp(cmplx(0.d0,Iscalar(A_p,del_p),Kind(0.d0)))
+        else
+           !Twist as boundary
+           Z_hop = Z_hop * exp(cmplx(0.d0,Iscalar(A_p,XB_p ),Kind(0.d0)))
+        endif
+        
+        !Orbital magnetic field (Landau gauge)
+        Zero =  1.0E-8
+        V  =  abs(Latt%L1_p(1) * Latt%L2_p(2)  -  Latt%L1_p(2) * Latt%L2_p(1) ) 
+        If ( V > Zero )  then
+           B = real(N_Phi,kind(0.d0))/V
+           Z_hop = Z_hop*exp(cmplx(0.d0, -2.d0*pi* B * del_p(1) *  ( xj_p(2) + xi_p(2) )/2.d0,kind(0.d0) ) )
+           ! Boundary
+           Z_hop =   Z_hop &
+                &  *  exp(cmplx( 0.d0, -Chi(N2*Latt%L2_p, Xjp_p + N1*Latt%L1_p,B,pi),kind(0.d0))) &
+                &  *  exp(cmplx( 0.d0, -Chi(N1*Latt%L1_p, Xjp_p ,B,pi),kind(0.d0)))
+        endif
+        
+        Generic_hopping =  Z_hop
+        
+      end function GENERIC_HOPPING
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
+!> Periodic boundary conditions for Landau gauge: c_{i+L} = e{-i Chi(L,i)} c_{i}
+!>    
+!--------------------------------------------------------------------
+      Real (Kind=kind(0.d0)) function Chi(L_p,X_p,B,pi)
+        Implicit none
+
+        Real (Kind=Kind(0.d0)), Intent(In) :: L_p(2), X_p(2), B, pi 
+
+        Chi =  - 2.d0 * pi *B * L_p(2) * X_p(1)
+      end function Chi
       
     end Module Predefined_Hoppings
