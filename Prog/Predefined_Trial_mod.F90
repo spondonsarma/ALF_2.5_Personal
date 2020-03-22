@@ -129,7 +129,7 @@
         Real (Kind=Kind(0.d0))  :: delta = 0.01, Ham_T1
         
         Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J, N_Phi
-        Logical :: Test=.false. ,  Bulk =.false. 
+        Logical :: Test=.false. ,  Bulk =.true. 
         Complex (Kind=Kind(0.d0)) :: Z_norm
         
         
