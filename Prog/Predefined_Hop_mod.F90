@@ -612,9 +612,12 @@
            B = real(N_Phi,kind(0.d0))/V
            Z_hop = Z_hop*exp(cmplx(0.d0, -2.d0*pi* B * del_p(1) *  ( xj_p(2) + xi_p(2) )/2.d0,kind(0.d0) ) )
            ! Boundary
-           Z_hop =   Z_hop &
-                &  *  exp(cmplx( 0.d0, -Chi(N2*Latt%L2_p, Xjp_p + N1*Latt%L1_p,B,pi),kind(0.d0))) &
-                &  *  exp(cmplx( 0.d0, -Chi(N1*Latt%L1_p, Xjp_p ,B,pi),kind(0.d0)))
+           x_p   =  Real(N2,Kind(0.d0))*Latt%L2_p
+           x1_p  =  Xjp_p + Real(N1,Kind(0.d0))*Latt%L1_p
+           Z_hop =  Z_hop  *  exp(cmplx( 0.d0, -Chi(x_p, x1_p,B,pi),kind(0.d0))) 
+           x_p   =  Real(N1,Kind(0.d0))*Latt%L1_p
+           x1_p  =  Xjp_p 
+           Z_hop =  Z_hop  *  exp(cmplx( 0.d0, -Chi(x_p, x1_p,B,pi),kind(0.d0))) 
         endif
         
         Generic_hopping =  Z_hop

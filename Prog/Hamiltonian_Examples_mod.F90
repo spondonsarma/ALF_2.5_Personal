@@ -216,6 +216,7 @@
           Bulk         = .true. 
           Phi_X        = 0.d0
           Phi_Y        = 0.d0
+          N_Phi        = 0
           
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
