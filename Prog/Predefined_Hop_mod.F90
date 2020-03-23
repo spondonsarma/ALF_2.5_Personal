@@ -594,9 +594,9 @@
 
         !Twist
         pi = acos(-1.d0)
-        A_p(:)  =  2.d0*pi* (Flux_1 * latt%a1_p(:) /  Abs(Iscalar(Latt%L1_p,Latt%a1_p)) + &
-             &               Flux_2 * latt%a2_p(:) /  Abs(Iscalar(Latt%L2_p,Latt%a2_p))    )
-        
+        A_p(:)  =   Flux_1 * Xnorm(Latt%a1_p) * latt%bZ1_p(:)  /  Xnorm(Latt%L1_p) + &
+             &      Flux_2 * Xnorm(Latt%a2_p) * latt%bZ2_p(:)  /  Xnorm(Latt%L2_p) 
+
         if (Bulk) then
            !Twist in bulk
            Z_hop = Z_hop * exp(cmplx(0.d0,Iscalar(A_p,del_p),Kind(0.d0)))

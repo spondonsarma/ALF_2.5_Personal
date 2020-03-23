@@ -578,20 +578,20 @@
           Implicit none
 
           ! Use predefined stuctures or set your own hopping
+          Integer :: n,nth
+          Do Nth = 1,1
           Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
                &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
                &                      N_FL,  Checkerboard, Symm, OP_T )
           
-!!$          Integer :: n,nth
-!!$          Do N_Phi = 1,Latt%N
-!!$             Do n = 1, size(OP_T(1,1)%E)
-!!$                Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
-!!$             enddo
-!!$             
-!!$             Call Op_clear (OP_T(1,1),N)
-!!$             Deallocate (OP_T)
-!!$          Enddo
-!!$          Stop
+             Do n = 1, size(OP_T(1,1)%E)
+                Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
+             enddo
+             
+             Call Op_clear (OP_T(1,1),N)
+             Deallocate (OP_T)
+          Enddo
+          Stop
           
         end Subroutine Ham_Hop
 !--------------------------------------------------------------------
