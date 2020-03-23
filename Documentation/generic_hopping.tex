@@ -10,4 +10,40 @@
 %-----------------------------------------------------------------------------------
 
 
-Here we compute the hopping matrix element  between two sites of a given lattice  in the presence of twisted boundary conditions,  orbital magnetic field.
+Here we compute the hopping matrix element  between two sites of a given lattice  in the presence of twisted boundary conditions and  orbital magnetic field. 
+The generic Hopping Hamiltonian will read: 
+\begin{equation}
+	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
+\end{equation}
+with boundary conditions 
+\begin{equation}
+	c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi_{L_1} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
+\end{equation}
+The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux  quanta and the scalar function $\chi$ is defined  through as:
+\begin{equation}
+	\vec{A}( \vec{x} + \vec{L}_{i} )  = \vec{A}( \vec{x} )   +  \vec{\nabla} \chi_{L_{\alpha}}(\vec{x}). 
+\end{equation}
+
+ Provided that the bare hopping Hamiltonian, $T$,  is invariant under lattice translations, $\hat{H}_T$ commutes with magnetic translations  that satisfy the  Algebra: 
+\begin{equation}
+	\hat{T}_{\vec{a}} \hat{T}_{\vec{b}} =  e^{ \frac{2 \pi i}{\Phi_0}   \vec{B} \cdot \left( \vec{a} \times \vec{b} \right) }  \hat{T}_{\vec{b}} \hat{T}_{\vec{a}}. 
+\end{equation}
+On the  torus, the uniqueness of the wave functions requires that  $\hat{T}_{\vec{L}_1} \hat{T}_{\vec{L}_2}  =   \hat{T}_{\vec{L}_2} \hat{T}_{\vec{L}_1} $ such
+that
+\begin{equation}
+	 \frac{\vec{B} \cdot \left( \vec{a} \times \vec{b}  \right) }{\Phi_0 } = N_{\Phi}   
+\end{equation}
+with  $N_\Phi $ an integer  The variable \texttt{N\_Phi},   specified in the parameter file,   denotes the number of flux quanta piercing the lattice.    The variables \texttt{Phi\_1}  and   \texttt{Phi\_2} also   in the parameter file denote  the twists  -- in units of the flux quanta  --  along the $\vec{L}_1$ and  $\vec{L}_2$ directions.     There are gauge  equivalent ways to insert the  twist in the boundary conditions. In the above we  have inserted   twist as a boundary condition such  for example setting  \texttt{Phi\_1=0.5}  corresponds to anti-periodic boundary conditions along the $L_1$  axis.   Alternatively we  can  consider the 
+Hamiltonian:
+\begin{equation}
+	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    \tilde{c}^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'} \left(  \vec{A}(\vec{l})  + \vec{A}_{\phi} \right)  d \vec{l}} \tilde{c}^{}_{(j,\delta'),s,\sigma }
+\end{equation}
+with boundary conditions 
+\begin{equation}
+	\tilde{c}^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{\frac{2 \pi i }{\Phi_0} \chi_{L_1} ( i + \delta ) } \, \tilde{c}^{\dagger}_{(i,\delta) ,s,\sigma }.
+\end{equation}
+Here 
+\begin{equation}
+	\vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
+\end{equation}
+and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  on inserting the twist angle. If \texttt{bulk=\.true\.}    then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
