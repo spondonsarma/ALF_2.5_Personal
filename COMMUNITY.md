@@ -1,8 +1,8 @@
 # Community guidelines
 This document serves to describe the processes that outline our interaction with the community.
 ## Release cycle
-ALF has a major release cycle with a major release with an asoociated publication
-every three year and minor releases in april and october each year.
+ALF has a major release cycle with a major release with an associated publication
+every three years and minor releases in april and october of each year.
 The current plan is ALF-2.0 in June-20 and ALF-3.0 in June-23.
 The next minor release will be in Oct-20.
 
