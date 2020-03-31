@@ -6,7 +6,14 @@
 % For the licensing details of the documentation see license.CCBYSA.
 %
 %-----------------------------------------------------------------------------------
-\subsection{Generic hopping matrix elements}\label{sec:generic_hopping}
+\subsection{ Setting up the hopping matrix }
+
+The module \texttt{Predefined\_Hopping}   provides a set of generic Hopping Hamiltonians.    For each  predefined lattice type 
+\texttt{Square}  and \texttt{Honeycomb}   this routine sets  up the nearest  neighbor hopping matrix with twisted boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions 
+\texttt{Phi\_1}  and \texttt{Phi\_2}  respectively,  and with  a total number of \texttt{N\_Phi}  flux quanta traversing the lattice.    If the \texttt{Checkerboard}  flag is set then a checkerboard decomposition will be carried out.  If furthermore the flag \texttt{Symm} is set, then  a symmetric  Trotter  splitting  will be carried out  for the checkerboard   decomposition.    Finally,  the flag 
+\texttt{bulk}  monitors how to set the twisted boundary condition.  If  \texttt{bulk=.true.}   then 
+
+\subsubsection{Generic hopping matrix elements}\label{sec:generic_hopping}
 %-----------------------------------------------------------------------------------
 
 
