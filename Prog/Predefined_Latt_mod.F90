@@ -34,8 +34,7 @@
 !> ALF-project
 !>
 !> @brief 
-!> This module provides a set of predefined lattices, hoppings, interactions,
-!> trial wave functions as well as observables.
+!> This module provides a set of predefined lattices.
 !>       
 !
 !--------------------------------------------------------------------
