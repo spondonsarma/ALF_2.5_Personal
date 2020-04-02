@@ -10,27 +10,42 @@
 %-----------------------------------------------------------------------------------
 
 
-The types \texttt{Lattice} and \texttt{Unit\_cell}, described in Section~\ref{sec:latt}, allow us to define arbitrary one- and two-dimensional Bravais lattices. The subroutine \texttt{Predefined\_Latt} provides some of the most common lattices, namely Square, Honeycomb, and Pi Flux, as described bellow.
+The types \texttt{Lattice} and \texttt{Unit\_cell}, described in Section~\ref{sec:latt}, allow us to define arbitrary one- and two-dimensional Bravais lattices. The subroutine \texttt{Predefined\_Latt} provides some of the most common lattices, as described bellow.
 
 The subroutine is called as:
 \begin{lstlisting}[style=fortran]
 Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
 \end{lstlisting}
-taking 3 input variables:
-\begin{itemize}
-	\item \texttt{Lattice\_type}, which can take the values
-	\begin{itemize}
-		\item Square
-		\item Honeycomb
-		\item Pi\_Flux
-	\end{itemize}
-	\item \texttt{L1} and \texttt{L2} -- the lattice sizes (set \texttt{L2=1} for 1D lattices)
-\end{itemize}
-and returns:
-\begin{itemize}
-	\item \texttt{Ndim} -- total number of orbitals
-	\item \texttt{List} -- for every site index $\texttt{I} \in [1,\texttt{Ndim}]$, stores the corresponding lattice position \texttt{List(I,1)} and the (local) orbital index \texttt{List(I,2)}
-	\item \texttt{Invlist} -- for every $\textrm{"lattice position"} \in [1,\texttt{Latt\%N}]$ and $\textrm{"orbital"} \in [1,\texttt{Norb}]$ stores the corresponding site index \texttt{I(\textrm{orbital},\textrm{orbital})}
-	\item \texttt{Latt} -- sets the lattice
-	\item \texttt{Latt\_Unit} -- sets the unit cell
-\end{itemize}
+which returns a lattice of size \texttt{L1$\times$L2} of the given \texttt{Lattice\_type}, as detailed in Table~\ref{table:predefined_lattices}.
+%
+\begin{center}
+\begin{table}[h]
+	\begin{tabular}{@{} p{0.13\columnwidth}  p{0.1\columnwidth} p{0.09\columnwidth} p{0.58\columnwidth}  @{}}
+		\toprule
+		Argument                 & Type       & Role   & Description \\
+		\midrule
+		\texttt{Lattice\_type}   & String     & Input  & lattice configuration, which can take the values:
+		%\vspace{-\topsep}
+		\begin{itemize}
+			\setlength{\itemsep}{0pt} \setlength{\parskip}{0pt} \setlength{\parsep}{0pt}
+			\item[-] Square
+			\item[-] Honeycomb
+			\item[-] Pi\_Flux \vspace{-1.4\topsep}
+		\end{itemize} \\
+	    %\vspace{-\topsep} \\ \vspace{-\topsep}
+		\texttt{L1}, \texttt{L2} & Integer    & Input  & lattice sizes (set \texttt{L2=1} for 1D lattices)\\
+		\texttt{Ndim}            & Integer    & Output & total number of orbitals\\
+		\texttt{List}            & Integer    & Output & for every site index $\texttt{I} \in [1,\texttt{Ndim}]$, stores the corresponding lattice position, \texttt{List(I,1)}, and the (local) orbital index, \texttt{List(I,2)}\\
+		\texttt{Invlist}         & Integer    & Output &  for every $\texttt{lattice\_position} \in [1,\texttt{Latt\%N}]$ and $\texttt{orbital} \in [1,\texttt{Norb}]$ stores the corresponding site index \texttt{I(lattice\_position,orbital)}\\
+		\texttt{Latt}            & Lattice    & Output &  sets the lattice\\
+		\texttt{Latt\_Unit}      & Unit\_cell & Output & sets the unit cell\\
+		\bottomrule
+	\end{tabular}
+\caption{Arguments of the subroutine \texttt{Predefined\_Latt}.}		\label{table:predefined_lattices}
+\end{table}
+\end{center}
+
+
+
+
+
