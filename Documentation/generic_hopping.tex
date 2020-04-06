@@ -20,12 +20,16 @@ The module \texttt{Predefined\_Hopping}   provides a set of generic Hopping Hami
 Here we compute the hopping matrix element  between two sites of a given lattice  in the presence of twisted boundary conditions and  orbital magnetic field. 
 The generic Hopping Hamiltonian will read: 
 \begin{equation}
-	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
+	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}^{(s)}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
 \end{equation}
 with boundary conditions 
 \begin{equation}
-	c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi_{L_1} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
+	c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i^{(s)}}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi^{(s)}_{L_1} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
 \end{equation}
+Both the twist and  vector  potential can have a flavor dependency. For  now onwards we will  omit the flavor index $^{s}$.  
+
+\noindent
+\textbf{Phase factors}.  
 The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux  quanta and the scalar function $\chi$ is defined  through as:
 \begin{equation}
 	\vec{A}( \vec{x} + \vec{L}_{i} )  = \vec{A}( \vec{x} )   +  \vec{\nabla} \chi_{L_{\alpha}}(\vec{x}). 
@@ -54,3 +58,13 @@ Here
 	\vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
 \end{equation}
 and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  on inserting the twist angle. If \texttt{bulk=\.true\.}    then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
+The information for the phases,    is encoded in  the type \texttt{Hopping\_phases} 
+
+\noindent
+\textbf{The  Hopping matrix elements}. 
+To specify the hopping matrix  we  assume  only translation invariance.  The point group symmetry of the lattice can be broken.   In particular, we set, for each flavor  index:
+\begin{equation} 
+	 T_{(i,\delta), (i +  n_1\vec{a}_1  + n_2 \vec{a}_2,\delta')}^{(s)}   =   t^{(s)}_{\delta_1,\delta_2,n_1,n_2, s}
+\end{equation}
+The right  hand side of the above equation is given  the type  \texttt{Hopping\_matrix}. 
+
