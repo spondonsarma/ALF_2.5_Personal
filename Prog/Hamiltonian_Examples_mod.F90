@@ -579,19 +579,26 @@
 
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
-          Do Nth = 1,1
-          Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
-               &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
-               &                      N_FL,  Checkerboard, Symm, OP_T )
+
+          Call  Set_Default_hopping_parameters_square( Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+               &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          Call  Predefined_Hopping_new(List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
           
-             Do n = 1, size(OP_T(1,1)%E)
-                Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
-             enddo
-             
-             Call Op_clear (OP_T(1,1),N)
-             Deallocate (OP_T)
-          Enddo
-          Stop
+          !Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
+          !     &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
+          !      &                      N_FL,  Checkerboard, Symm, OP_T )
+          
+          
+          
+          !Do Nth = 1,1
+          !   Do n = 1, size(OP_T(1,1)%E)
+          !      Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
+          !   enddo
+          !   
+          !   Call Op_clear (OP_T(1,1),N)
+          !   Deallocate (OP_T)
+          !Enddo
+          !Stop
           
         end Subroutine Ham_Hop
 !--------------------------------------------------------------------

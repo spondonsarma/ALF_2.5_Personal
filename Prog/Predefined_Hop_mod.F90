@@ -46,9 +46,316 @@
       Use WaveFunction_mod
       Use MyMats
       Implicit none
+
+      
+      Type Hopping_Matrix_type
+         Integer                   :: N_bonds
+         Complex (Kind=Kind(0.d0)), pointer :: T    (:)    !  This does not include  local terms
+         Complex (Kind=Kind(0.d0)), pointer :: T_loc(:)    !  This is just for the local matrix elements such as chemical potential-
+         Integer                  , pointer :: list(:,:)
+         ! T(N_b=1..N_bonds)
+         ! List(N_b,1) = no_1
+         ! List(N_b,2) = no_2
+         ! List(N_b,3) = n_1
+         ! List(N_b,4) = n_2
+         ! H_[(i,no_1),(i + n_1 a_1 + n_2 a_2,no_2)] = T(N_b) 
+         Integer                   :: N_Phi   
+         Real    (Kind=Kind(0.d0)) :: Phi_X, Phi_Y
+         Logical                   :: Bulk
+         ! N_Phi         = #  of flux quanta  piercieng the lattice
+         ! Phi_X, Phi_Y  =  Twist
+         ! Bulk          =  Twist as boundary condtion (Bulk=.F.) 
+         !               =  Twist as Vector potential  (Bulk=.T.)
+      end type Hopping_Matrix_Type
+
+      Type (Hopping_Matrix_type), allocatable, private ::  Hopping_Matrix(:)
+      Integer, private              ::  N_Fam
+      Integer, allocatable, private ::  L_Fam(:),  List_Fam(:,:,:), Multiplicity(:)
+      Real (Kind=Kind(0.d0)), allocatable,  private ::  Prop_Fam(:)
       
       
     contains
+
+      Subroutine Set_Default_hopping_parameters_square(Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+           &                                           List, Invlist, Latt, Latt_unit, Checkerboard )
+ 
+        Implicit none
+        
+        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T, Ham_Chem, Phi_x, Phi_y
+        Integer, Intent(IN)                   :: N_Phi, N_FL
+        Logical, Intent(IN)                   :: Bulk
+        Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
+        Type(Lattice),  Intent(in)            :: Latt
+        Type(Unit_cell),Intent(in)            :: Latt_unit
+        Logical,  Intent (in)                 :: Checkerboard
+
+
+        ! Local
+        Integer :: nf,N_Bonds, nc, I, I1
+        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
+
+        Allocate( Hopping_Matrix(N_FL) )
+        do nf = 1,N_FL
+           Hopping_Matrix(nf)%N_bonds = 0
+           if ( abs(Ham_T) > Zero)  then
+              Hopping_Matrix(nf)%N_bonds = 2
+              Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
+                   &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
+              nc = 0
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) = 1
+              Hopping_Matrix(nf)%List(nc,2) = 1
+              Hopping_Matrix(nf)%List(nc,3) = 0
+              Hopping_Matrix(nf)%List(nc,4) = 1
+              
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) = 1
+              Hopping_Matrix(nf)%List(nc,2) = 1
+              Hopping_Matrix(nf)%List(nc,3) = 1
+              Hopping_Matrix(nf)%List(nc,4) = 0
+           Endif
+           Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
+           do nc = 1,Latt_Unit%Norb
+              Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+           enddo
+           Hopping_Matrix(nf)%N_Phi =  N_Phi
+           Hopping_Matrix(nf)%Phi_X =  Phi_X
+           Hopping_Matrix(nf)%Phi_Y =  Phi_Y
+           Hopping_Matrix(nf)%Bulk =   Bulk
+        enddo
+
+        If  (Checkerboard)  then
+           N_Fam  = 4
+           Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
+           L_FAM  = Latt%N/2
+           Prop_Fam = 1.d0
+           Allocate (List_Fam(N_Fam,L_FAM(1),2))
+           Multiplicity = 4
+           L_FAM  = 0
+           do I = 1,Latt%N
+              if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                 Nf = 1
+                 L_FAM(Nf) = L_FAM(Nf) + 1
+                 List_Fam(Nf,L_FAM(Nf),1) = I ! Unit cell
+                 List_Fam(Nf,L_FAM(Nf),2) = 1 ! The bond (See above)
+                 Nf = 2
+                 L_FAM(Nf) = L_FAM(Nf) + 1
+                 List_Fam(Nf,L_FAM(Nf),1) = I
+                 List_Fam(Nf,L_FAM(Nf),2) = 2 
+              else
+                 Nf = 3
+                 L_FAM(Nf) = L_FAM(Nf) + 1
+                 List_Fam(Nf,L_FAM(Nf),1) = I
+                 List_Fam(Nf,L_FAM(Nf),2) = 1  
+                 Nf = 4
+                 L_FAM(Nf) = L_FAM(Nf) + 1
+                 List_Fam(Nf,L_FAM(Nf),1) = I
+                 List_Fam(Nf,L_FAM(Nf),2) = 2  
+              endif
+           enddo
+        endif
+        
+      end Subroutine Set_Default_hopping_parameters_square
+      
+!!$      Subroutine Set_Default_hopping_parameters_Honeycomb(Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
+!!$        
+!!$      end Subroutine Set_Default_hopping_parameters_Honeycomb
+!!$      
+!!$      Subroutine Set_Default_hopping_parameters_Bilayer(Ham_T1,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
+!!$        
+!!$      end Subroutine Set_Default_hopping_parameters_Bilayer
+
+
+      Subroutine Symmetrize_Families
+        implicit none
+        
+        ! In Families.  Out Symmetrized Families.
+
+        !  Make a copy  of the unsymmetrized forms
+        Integer                              ::  N_Fam_C
+        Integer, allocatable                 ::  L_Fam_C(:),  List_Fam_C(:,:,:)
+        Real (Kind=Kind(0.d0)), allocatable  ::  Prop_Fam_C(:)
+
+        Integer :: n,n1,n2, n_f_max, n_l_max, nc
+        Integer, allocatable ::  list_Fam_tmp(:)
+        
+        ! Copy
+        N_FAM_C = N_FAM
+        Allocate(L_FAM_C(N_FAM_C)) 
+        n2 = Size(List_Fam,2)
+        Allocate ( List_Fam_C(N_FAM_C,n2,2), Prop_Fam_C(N_Fam_C) )
+        L_FAM_C    = L_FAM
+        List_Fam_C = List_Fam
+        Prop_Fam_C = Prop_Fam
+
+        ! Re-allocate
+        N_FAM  =  2*N_FAM_C - 1
+        Deallocate (L_Fam, List_Fam, Prop_Fam)
+        Allocate (L_Fam(N_Fam), List_Fam(N_FAM,n2,2), Prop_Fam(N_Fam) )
+
+        ! Symmetrize
+        ! Find de longest family.
+        n_l_max = 0
+        do n = 1, N_FAM_C
+           if (L_FAM_C(n) > n_l_max ) then
+              n_l_max = L_FAM_C(n)
+              n_f_max = n
+           endif
+        enddo
+
+        Allocate( list_Fam_tmp(N_FAM) )
+        nc = 0
+        Do n = 1, N_FAM_C   
+           nc = nc + 1
+           list_Fam_tmp(nc) = n
+        Enddo
+        Do n = N_FAM_C-1,1,-1 
+           nc = nc + 1
+           list_Fam_tmp(nc) = n
+        Enddo
+        ! Place the largest familly in the middle and set the time step.
+        Prop_Fam          = 0.5D0
+        Prop_Fam(N_Fam_C) = 1.D0
+        list_Fam_tmp(N_FAM_C) = n_f_max
+        list_Fam_tmp(1)       = N_Fam_C
+        list_Fam_tmp(N_FAM )  = N_Fam_C
+
+        do n = 1,N_FAM
+           n1 = list_Fam_tmp(n)
+           L_FAM(n)        = L_FAM_C(n1)
+           List_Fam(n,:,:) = List_Fam_C(n1,:,:)
+        enddo
+
+        ! Clean
+        Deallocate(L_FAM_C,List_Fam_C, Prop_Fam_C, List_Fam_tmp )
+
+        !Write(6,*)  N_FAM
+        !Write(6,*)  Prop_Fam
+      end Subroutine Symmetrize_Families
+      
+      Subroutine Predefined_Hopping_new(List,Invlist,Latt,  Latt_unit,  Dtau,Checkerboard, Symm,  OP_T )
+        
+        Implicit none
+        
+        Integer, Intent(IN), Dimension(:,:)                 :: List, Invlist
+        Type(Lattice),  Intent(in)                          :: Latt
+        Type(Unit_cell),Intent(in)                          :: Latt_unit
+        Real (Kind=Kind(0.d0)), Intent(In)                  :: Dtau
+        Logical                                             :: Checkerboard, Symm
+        
+        Type(Operator), Intent(Out),  dimension(:,:), allocatable  :: Op_T 
+        
+
+
+        ! Local 
+        Integer                           :: Ndim, N_FL, N_Phi, I, J, I1, J1, no_I, no_J, nf
+        Integer                           :: n_1, n_2, Nb, n_f,l_f, n_l, N, nc
+        Real   (Kind=Kind(0.d0))          :: Ham_T, Ham_Chem,  Phi_X, Phi_Y
+        Logical                           :: Bulk
+        Complex(Kind=Kind(0.d0))          :: Z 
+        
+        N_FL =  size(Hopping_Matrix,1)
+        !Write(6,*)  'N_FL ', N_FL
+        Ndim =  Latt%N * Latt_Unit%Norb
+        
+        If ( .not. Checkerboard) then
+           allocate(Op_T(1,N_FL))
+           do nf = 1,N_FL
+              Call Op_make(Op_T(1,nf),Ndim)
+              N_Phi     = Hopping_Matrix(nf)%N_Phi
+              Phi_X     = Hopping_Matrix(nf)%Phi_X  
+              Phi_Y     = Hopping_Matrix(nf)%Phi_Y 
+              Bulk      = Hopping_Matrix(nf)%Bulk 
+              DO I = 1, Latt%N
+                 do Nb = 1, Hopping_Matrix(nf)%N_bonds
+                    no_I = Hopping_Matrix(nf)%list(Nb,1)
+                    no_J = Hopping_Matrix(nf)%list(Nb,2)
+                    n_1  = Hopping_Matrix(nf)%list(Nb,3)
+                    n_2  = Hopping_Matrix(nf)%list(Nb,4)
+                    J    = Latt%nnlist(I,n_1,n_2)
+                    Z    = Generic_hopping(I,no_I, n_1, n_2, no_J, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
+                    I1   = Invlist(I,no_I)
+                    J1   = Invlist(J,no_J)
+                    Op_T(1,nf)%O(I1,J1) = Hopping_Matrix(nf)%T(Nb)*Z
+                    Op_T(1,nf)%O(J1,I1) = Conjg(Hopping_Matrix(nf)%T(Nb)*Z)
+                 enddo
+                 ! T(N_b=1..N_bonds)
+                 ! List(N_b,1) = no_1
+                 ! List(N_b,2) = no_2
+                 ! List(N_b,3) = n_1
+                 ! List(N_b,4) = n_2
+                 ! H_[(i,no_1),(i + n_1 a_1 + n_2 a_2,no_2)] = T(N_b)
+                 Do no_I = 1, Latt_Unit%Norb
+                    I1   = Invlist(I,no_I)
+                    Op_T(1,nf)%O(I1,I1) = Hopping_Matrix(nf)%T_Loc(no_I)
+                 Enddo
+              enddo
+              Do I = 1,Ndim
+                 Op_T(1,nf)%P(i) = i 
+              Enddo
+              if ( Hopping_Matrix(nf)%N_bonds == 0 ) then 
+                 Op_T(1,nf)%g = 0.d0
+              else
+                 Op_T(1,nf)%g = -Dtau
+              endif
+              Op_T(1,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
+              Call Op_set(Op_T(1,nf))
+              !Do I = 1,Size(Op_T(nc,n)%E,1)
+              !   Write(6,*) Op_T(nc,n)%E(I)
+              !Enddo
+           Enddo
+        Elseif (Checkerboard) then
+           If (Symm) Call Symmetrize_families
+           N = 0
+           do n_f = 1,N_Fam
+              N = N +  L_Fam(n_f)
+           enddo
+           allocate(Op_T(N,N_FL))
+           do nf = 1,N_FL
+              N_Phi     = Hopping_Matrix(nf)%N_Phi
+              Phi_X     = Hopping_Matrix(nf)%Phi_X  
+              Phi_Y     = Hopping_Matrix(nf)%Phi_Y 
+              Bulk      = Hopping_Matrix(nf)%Bulk 
+              do nc = 1, Size(Op_T,1)
+                 Call Op_make(Op_T(nc,nf),2)
+              enddo
+              nc = 0
+              Do n_f = 1, N_Fam
+                 Do l_f = 1, L_Fam(n_f)
+                    I  = List_Fam(n_f,l_f,1)
+                    nb = List_Fam(n_f,l_f,2)
+                    no_I = Hopping_Matrix(nf)%list(Nb,1)
+                    no_J = Hopping_Matrix(nf)%list(Nb,2)
+                    n_1  = Hopping_Matrix(nf)%list(Nb,3)
+                    n_2  = Hopping_Matrix(nf)%list(Nb,4)
+                    J    = Latt%nnlist(I,n_1,n_2)
+                    Z    = Generic_hopping(I,no_I, n_1, n_2, no_J, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
+                    I1   = Invlist(I,no_I)
+                    J1   = Invlist(J,no_J)
+                    nc = nc + 1
+                    Op_T(nc,nf)%P(1) = I1 
+                    Op_T(nc,nf)%P(2) = J1 
+                    Op_T(nc,nf)%O(1,2) = Hopping_Matrix(nf)%T(Nb)*Z
+                    Op_T(nc,nf)%O(2,1) = Conjg(Hopping_Matrix(nf)%T(Nb)*Z)
+                    Op_T(nc,nf)%O(1,1) = Hopping_Matrix(nf)%T_loc(no_I)/Multiplicity(no_I)
+                    Op_T(nc,nf)%O(2,2) = Hopping_Matrix(nf)%T_loc(no_J)/Multiplicity(no_J)
+                    Op_T(nc,nf)%g = -Dtau*Prop_Fam(n_f)
+                    Op_T(nc,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
+                    Call Op_set(Op_T(nc,nf))
+                 enddo
+              enddo
+           enddo
+        else
+           Write(6,*) 'Generic checkerboard  is not yet implemented'
+           Stop
+        endif
+        
+      end Subroutine Predefined_Hopping_new
+
+
+      
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
