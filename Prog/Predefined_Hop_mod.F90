@@ -34,9 +34,10 @@
 !> ALF-project
 !>
 !> @brief 
-!> This module provides a set of predefined hoppings.
-!>       
-!
+!> This module provides a set of predefined hoppings as well as a 
+!> general framework to specify the hopping matrix for translation invariant      
+!> multi-orbital systems.
+!> 
 !--------------------------------------------------------------------
 
     Module Predefined_Hoppings
@@ -158,10 +159,127 @@
         endif
         
       end Subroutine Set_Default_hopping_parameters_square
+
+
+      Subroutine Set_Default_hopping_parameters_N_Leg_Ladder(Ham_T, Ham_T_perp,  Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+           &                                           List, Invlist, Latt, Latt_unit, Checkerboard )
+ 
+        Implicit none
+        
+        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T, Ham_T_perp, Ham_Chem, Phi_x, Phi_y
+        Integer, Intent(IN)                   :: N_Phi, N_FL
+        Logical, Intent(IN)                   :: Bulk
+        Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
+        Type(Lattice),  Intent(in)            :: Latt
+        Type(Unit_cell),Intent(in)            :: Latt_unit
+        Logical,  Intent (in)                 :: Checkerboard
+
+
+        ! Local
+        Integer :: nf,N_Bonds, nc, I, I1, n, no
+        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
+
+        Allocate( Hopping_Matrix(N_FL) )
+        do nf = 1,N_FL
+           Hopping_Matrix(nf)%N_bonds = Latt_unit%Norb +  (Latt_unit%Norb - 1 )
+           Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
+                &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
+           nc = 0
+           do n = 1,Latt_unit%Norb
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) = n
+              Hopping_Matrix(nf)%List(nc,2) = n
+              Hopping_Matrix(nf)%List(nc,3) = 1
+              Hopping_Matrix(nf)%List(nc,4) = 0
+           enddo
+           
+           do n = 1,Latt_unit%Norb -1 
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T_perp,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) = n
+              Hopping_Matrix(nf)%List(nc,2) = n + 1
+              Hopping_Matrix(nf)%List(nc,3) = 0
+              Hopping_Matrix(nf)%List(nc,4) = 0
+           enddo
+           
+           Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
+           do nc = 1,Latt_Unit%Norb
+              Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+           enddo
+           Hopping_Matrix(nf)%N_Phi =  N_Phi
+           Hopping_Matrix(nf)%Phi_X =  Phi_X
+           Hopping_Matrix(nf)%Phi_Y =  Phi_Y
+           Hopping_Matrix(nf)%Bulk =   Bulk
+        enddo
+
+        Write(6,*) Latt_unit%Norb
+        If (Checkerboard)  then
+           Allocate ( Multiplicity(Latt_unit%Norb) )
+           If     ( Latt_Unit%Norb  == 1 ) then
+              Multiplicity = 2
+              N_Fam        = 2
+           elseif ( Latt_Unit%Norb  == 2 ) then
+              Multiplicity = 3
+              N_Fam        = 3
+           else
+              Multiplicity                 = 4
+              Multiplicity(1)              = 3
+              Multiplicity(Latt_unit%Norb) = 3
+              N_Fam        = 4
+           endif
+           Allocate ( L_FAM(N_FAM),  Prop_Fam(N_FAM) )
+           L_Fam    = Latt%N*Latt_unit%Norb/2
+           Prop_Fam = 1.d0
+           Allocate ( List_Fam(N_Fam,L_FAM(1),2) )
+           
+
+           L_FAM  = 0
+           do I = 1,Latt%N
+              if ( mod(Latt%List(I,1),2) == 0 ) then
+                 Nf = 1
+                 do no = 1,Latt_unit%Norb
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I ! Unit cell
+                    List_Fam(Nf,L_FAM(Nf),2) = no ! The bond (See above)
+                 enddo
+              else 
+                 Nf = 2
+                 do no = 1,Latt_unit%Norb
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = no
+                 enddo
+              endif
+           enddo
+           do no = 1,Latt_unit%Norb - 1
+              if (mod(no,2) == 1 ) then
+                 Nf = 3
+                 Write(6,*)  NF, no + Latt_unit%Norb
+                 do I = 1,Latt%N
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = no + Latt_unit%Norb
+                 enddo
+              else
+                 Nf = 4
+                 Write(6,*)  NF, no + Latt_unit%Norb
+                 do I = 1,Latt%N
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = no + Latt_unit%Norb
+                 enddo
+              endif
+           enddo
+        endif
+!HERE   THE ERROR is present for  odd values of 
+        
+      end Subroutine Set_Default_hopping_parameters_N_Leg_Ladder
+
       
-!!$      Subroutine Set_Default_hopping_parameters_Honeycomb(Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
-!!$        
-!!$      end Subroutine Set_Default_hopping_parameters_Honeycomb
+!      Subroutine Set_Default_hopping_parameters_Honeycomb(Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
+!  
+!      end Subroutine Set_Default_hopping_parameters_Honeycomb
 !!$      
 !!$      Subroutine Set_Default_hopping_parameters_Bilayer(Ham_T1,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
 !!$        
@@ -229,10 +347,12 @@
         enddo
 
         ! Clean
-        Deallocate(L_FAM_C,List_Fam_C, Prop_Fam_C, List_Fam_tmp )
+        Deallocate( L_FAM_C, List_Fam_C, Prop_Fam_C, List_Fam_tmp )
 
-        !Write(6,*)  N_FAM
-        !Write(6,*)  Prop_Fam
+        Write(6,*)  N_FAM
+        Write(6,*)  L_FAM
+        Write(6,*)  Prop_Fam
+        
       end Subroutine Symmetrize_Families
       
       Subroutine Predefined_Hopping_new(List,Invlist,Latt,  Latt_unit,  Dtau,Checkerboard, Symm,  OP_T )
@@ -354,8 +474,60 @@
         
       end Subroutine Predefined_Hopping_new
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
+!> The subroutine computes the kinietic energy  based on the generic form of the 
+!> the hopping matrix.
+!> 
+!--------------------------------------------------------------------
+      Subroutine  Predefined_Hop_Compute_Kin(List,Invlist, Latt, Latt_unit, GRC, Z_Kin)
 
-      
+        Implicit none
+
+        Integer, Intent(IN), Dimension(:,:)                 :: List, Invlist
+        Type(Lattice),  Intent(in)                          :: Latt
+        Type(Unit_cell),Intent(in)                          :: Latt_unit
+        Complex (Kind=Kind(0.d0)), intent(in), Dimension(:,:,:) :: GRC(:,:,:)
+        Complex (Kind=Kind(0.d0)),  intent(out) :: Z_kin
+
+        !Local
+        Integer                           :: Ndim, N_FL, N_Phi, I, J, I1, J1, no_I, no_J, nf
+        Integer                           :: n_1, n_2, Nb, n_f,l_f, n_l, N, nc
+        Real   (Kind=Kind(0.d0))          :: Ham_T, Ham_Chem,  Phi_X, Phi_Y
+        Logical                           :: Bulk
+        Complex(Kind=Kind(0.d0))          :: Z 
+
+        N_FL  =  Size(GRC,3)
+
+        Z_Kin = cmplx(0.d0,0.d0,Kind(0.d0))
+        do nf = 1,N_FL
+           N_Phi     = Hopping_Matrix(nf)%N_Phi
+           Phi_X     = Hopping_Matrix(nf)%Phi_X  
+           Phi_Y     = Hopping_Matrix(nf)%Phi_Y 
+           Bulk      = Hopping_Matrix(nf)%Bulk 
+           DO I = 1, Latt%N
+              do Nb = 1, Hopping_Matrix(nf)%N_bonds
+                 no_I = Hopping_Matrix(nf)%list(Nb,1)
+                 no_J = Hopping_Matrix(nf)%list(Nb,2)
+                 n_1  = Hopping_Matrix(nf)%list(Nb,3)
+                 n_2  = Hopping_Matrix(nf)%list(Nb,4)
+                 J    = Latt%nnlist(I,n_1,n_2)
+                 Z    = Generic_hopping(I,no_I, n_1, n_2, no_J, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
+                 I1   = Invlist(I,no_I)
+                 J1   = Invlist(J,no_J)
+                 Z_Kin = Z_Kin + Hopping_Matrix(nf)%T(Nb)*Z * GRC(I1,J1,nf) + conjg(Hopping_Matrix(nf)%T(Nb)*Z)*GRC(J1,I1,nf)
+              enddo
+              Do no_I = 1, Latt_Unit%Norb
+                 I1   = Invlist(I,no_I)
+                 Z_Kin = Z_Kin   +  Hopping_Matrix(nf)%T_Loc(no_I)*GRC(I1,I1,nf)
+              Enddo
+           enddo
+        enddo
+           
+      end Subroutine Predefined_Hop_Compute_Kin
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project

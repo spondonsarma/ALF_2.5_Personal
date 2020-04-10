@@ -577,11 +577,21 @@
           Use Predefined_Hoppings
           Implicit none
 
+          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp
+
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
 
-          Call  Set_Default_hopping_parameters_square( Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-               &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          Select case (Lattice_type)
+          Case ("Square")
+             Call  Set_Default_hopping_parameters_square( Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          Case ("N_leg_ladder")
+             Ham_T_perp = Ham_T
+             Call  Set_Default_hopping_parameters_n_leg_ladder( Ham_T, Ham_T_perp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          end Select
+          
           Call  Predefined_Hopping_new(List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
           
           !Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
@@ -685,7 +695,7 @@
                    do nc1 = 1,Latt_unit%N_coord
                       nc = nc + 1
                       if (nc1 == 1 )  I2 = latt%nnlist(I,1,0) 
-                      if (nc1 == 2 ) I2 = latt%nnlist(I,0,1)
+                      if (nc1 == 2 )  I2 = latt%nnlist(I,0,1)
                       Call Predefined_Int_V_SUN( OP_V(nc,1), I1, I2, N_SUN, DTAU, Ham_tV ) 
                    Enddo
                 Enddo
@@ -1113,6 +1123,8 @@
         subroutine Obser(GR,Phase,Ntau)
 
           Use Predefined_Obs
+          Use Predefined_Hoppings  !  Needed to compute the kinetic energy. 
+          
           Implicit none
           
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
@@ -1147,34 +1159,8 @@
              
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
-          Do nf = 1,N_FL
-             Do I = 1,Latt%N
-                Do n = 1,Latt_unit%N_coord
-                   Select Case (Lattice_type)
-                   Case ("Square" )
-                      I1 = I
-                      If (n == 1)  J1 = Latt%nnlist(I,1,0)
-                      If (n == 2)  J1 = Latt%nnlist(I,0,1)
-                   Case ("Honeycomb")
-                      I1 = invlist(I,1) 
-                      If (n == 1)  J1 = invlist(I,2)
-                      If (n == 2)  J1 = invlist(Latt%nnlist(I,1,-1),2)
-                      If (n == 3)  J1 = invlist(Latt%nnlist(I,0,-1),2)
-                   Case ("Pi_Flux")
-                      I1 = invlist(I,1) 
-                      If (n == 1 )  J1 = invlist(I,2)
-                      If (n == 2 )  J1 = invlist(Latt%nnlist(I,0, 1),2) 
-                      If (n == 3 )  J1 = invlist(Latt%nnlist(I,-1,1),2)
-                      If (n == 4 )  J1 = invlist(Latt%nnlist(I,-1,0),2) 
-                   Case default
-                      Write(6,*) 'Kin energy is not implemented'
-                      stop
-                   end Select
-                   Zkin = Zkin +  Grc( I1,J1, nf ) + Grc(J1,I1,nf)
-                Enddo
-             Enddo
-          Enddo
-          Zkin = -Ham_T*Zkin * dble(N_SUN)
+          Call Predefined_Hop_Compute_Kin(List,Invlist, Latt, Latt_unit, GRC, ZKin)      
+          Zkin = Zkin* dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 

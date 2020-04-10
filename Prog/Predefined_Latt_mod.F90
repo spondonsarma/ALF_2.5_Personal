@@ -42,8 +42,6 @@
     Module Predefined_Lattices
       
       Use Lattices_v3
-      Use Operator_mod
-      Use MyMats
       Implicit none
       
       
@@ -111,12 +109,10 @@
         
         select case (Lattice_type)
         case("Square")
-           If ( L2==1 .and. L1 > 1 ) then
-              Latt_Unit%N_coord   = 1
-           elseif (L2 >1 .and. L1 > 1) then
+           If (L2 > 1 .and. L1 > 1) then
               Latt_Unit%N_coord   = 2
            else
-              Write(6,*) 'For one-dimnesional lattices set L2=1'
+              Write(6,*) 'For one-dimensional lattices use n_leg_ladded with n=1'
               Stop
            endif
            Latt_Unit%Norb      = 1
@@ -127,6 +123,19 @@
            L1_p    =  dble(L1)*a1_p
            L2_p    =  dble(L2)*a2_p
            Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+        case("N_leg_ladder")
+           Latt_Unit%Norb     = L2
+           Latt_Unit%N_coord  = 1
+           Allocate (Latt_unit%Orb_pos_p(L2,2))
+           do no = 1,L2
+              Latt_Unit%Orb_pos_p(no,1) = 0.d0 
+              Latt_Unit%Orb_pos_p(no,2) = real(I-1,kind(0.d0))
+           enddo
+           a1_p(1) =  1.0  ; a1_p(2) =  0.d0
+           a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+           L1_p    =  dble(L1)*a1_p
+           L2_p    =           a2_p
+           Call Make_Lattice( L1_p, L2_p, a1_p, a2_p, Latt )
         case("Honeycomb")
            If (L1==1 .or. L2==1 ) then
               Write(6,*) 'The Honeycomb lattice cannot be one-dimensional.'
@@ -176,7 +185,6 @@
               List(nc,2) = no
               Invlist(I,no) = nc 
            Enddo
-           
         Enddo
 
       end Subroutine Predefined_Latt
