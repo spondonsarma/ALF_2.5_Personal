@@ -577,7 +577,7 @@
           Use Predefined_Hoppings
           Implicit none
 
-          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp
+          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp, Ham_Lambda
 
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
@@ -589,6 +589,10 @@
           Case ("N_leg_ladder")
              Ham_T_perp = Ham_T
              Call  Set_Default_hopping_parameters_n_leg_ladder( Ham_T, Ham_T_perp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          Case ("Honeycomb")
+             Ham_Lambda = 0.d0
+             Call  Set_Default_hopping_parameters_honeycomb( Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
           end Select
           

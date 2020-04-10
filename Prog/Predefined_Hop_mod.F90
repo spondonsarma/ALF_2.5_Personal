@@ -213,7 +213,7 @@
            Hopping_Matrix(nf)%Bulk =   Bulk
         enddo
 
-        Write(6,*) Latt_unit%Norb
+        !Write(6,*) Latt_unit%Norb
         If (Checkerboard)  then
            Allocate ( Multiplicity(Latt_unit%Norb) )
            If     ( Latt_Unit%Norb  == 1 ) then
@@ -272,14 +272,85 @@
               endif
            enddo
         endif
-!HERE   THE ERROR is present for  odd values of 
         
       end Subroutine Set_Default_hopping_parameters_N_Leg_Ladder
 
       
-!      Subroutine Set_Default_hopping_parameters_Honeycomb(Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
-!  
-!      end Subroutine Set_Default_hopping_parameters_Honeycomb
+      Subroutine Set_Default_hopping_parameters_honeycomb(Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+                                                        & List, Invlist, Latt, Latt_unit, Checkerboard )
+        
+        Implicit none
+        
+        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T, Ham_Lambda, Ham_Chem, Phi_x, Phi_y
+        Integer, Intent(IN)                   :: N_Phi, N_FL
+        Logical, Intent(IN)                   :: Bulk
+        Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
+        Type(Lattice),  Intent(in)            :: Latt
+        Type(Unit_cell),Intent(in)            :: Latt_unit
+        Logical,  Intent (in)                 :: Checkerboard
+
+
+        ! Local
+        Integer :: nf,N_Bonds, nc, I, I1, n, no
+        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
+
+        If (abs(Ham_Lambda) > 0 ) then
+           Write(6,*)  'Kane Mele term is not yet implemented'
+           Stop
+        endif
+        Allocate( Hopping_Matrix(N_FL) )
+        do nf = 1,N_FL
+           Hopping_Matrix(nf)%N_bonds =  3
+           Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
+                &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
+           nc = 0
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  1
+           Hopping_Matrix(nf)%List(nc,2) =  2
+           Hopping_Matrix(nf)%List(nc,3) =  0
+           Hopping_Matrix(nf)%List(nc,4) =  0
+           
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  2
+           Hopping_Matrix(nf)%List(nc,2) =  1 
+           Hopping_Matrix(nf)%List(nc,3) =  0
+           Hopping_Matrix(nf)%List(nc,4) =  1
+
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  1
+           Hopping_Matrix(nf)%List(nc,2) =  2 
+           Hopping_Matrix(nf)%List(nc,3) =  1
+           Hopping_Matrix(nf)%List(nc,4) = -1
+
+           Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
+           do nc = 1,Latt_Unit%Norb
+              Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+           enddo
+           Hopping_Matrix(nf)%N_Phi =  N_Phi
+           Hopping_Matrix(nf)%Phi_X =  Phi_X
+           Hopping_Matrix(nf)%Phi_Y =  Phi_Y
+           Hopping_Matrix(nf)%Bulk =   Bulk
+        enddo
+        
+        If  (Checkerboard)  then
+           N_Fam  = 3
+           Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
+           L_FAM  = Latt%N
+           Prop_Fam = 1.d0
+           Allocate (List_Fam(N_Fam,L_FAM(1),2))
+           Multiplicity = 3
+           do I = 1,Latt%N
+              Do  nf = 1,N_Fam
+                 List_Fam(nf,I,1) = I  ! Unit cell
+                 List_Fam(nf,I,2) = nf ! The bond (See above)
+              Enddo
+           enddo
+        endif
+        
+      end Subroutine Set_Default_hopping_parameters_honeycomb
 !!$      
 !!$      Subroutine Set_Default_hopping_parameters_Bilayer(Ham_T1,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL)
 !!$        
