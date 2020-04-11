@@ -577,7 +577,7 @@
           Use Predefined_Hoppings
           Implicit none
 
-          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp, Ham_Lambda
+          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp, Ham_Lambda, Ham_T2
 
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
@@ -594,6 +594,12 @@
              Ham_Lambda = 0.d0
              Call  Set_Default_hopping_parameters_honeycomb( Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+          Case ("Bilayer_square")
+             Ham_T2     = 0.5 * Ham_T
+             Ham_T_perp = 0.25* Ham_T
+             Call  Set_Default_hopping_parameters_Bilayer_square(Ham_T,Ham_T2,Ham_T_perp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+           &                                                   List, Invlist, Latt, Latt_unit, Checkerboard )
+
           end Select
           
           Call  Predefined_Hopping_new(List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
