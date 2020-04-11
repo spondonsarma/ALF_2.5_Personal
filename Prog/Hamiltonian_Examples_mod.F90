@@ -151,6 +151,7 @@
       Type (Unit_cell),     private :: Latt_unit
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi,  Ham_tV
+      real (Kind=Kind(0.d0)),        private :: ham_T2, ham_U2, ham_Tperp !  For Bilayers 
       real (Kind=Kind(0.d0)),        private :: ham_alpha, Percent_change
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
@@ -197,7 +198,7 @@
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, Phi_y, Symm, Bulk, N_Phi
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector, ham_T2, ham_U2, ham_Tperp 
           
           NAMELIST /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change, Dtau, Beta, Theta, Projector
 
@@ -282,8 +283,11 @@
 
           ! Default is finite temperature. 
           Projector = .false.
-          Theta = 0.d0
-          Thtrot = 0
+          Theta     = 0.d0
+          Thtrot    = 0
+          Ham_T2    = 0.d0
+          Ham_Tperp = 0.d0
+          Ham_U2    = 0.d0
           Select Case (Model)
           Case ("LRC")
              N_SUN = 2
@@ -363,6 +367,10 @@
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             
 #endif
           Case ("Hubbard_SU2")
              N_FL = 1
@@ -400,6 +408,9 @@
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
 #endif
           Case ("Hubbard_SU2_Ising")
              N_FL = 1
@@ -577,7 +588,7 @@
           Use Predefined_Hoppings
           Implicit none
 
-          Real (Kind=Kind(0.d0) ) ::  Ham_T_perp, Ham_Lambda, Ham_T2
+          Real (Kind=Kind(0.d0) ) ::  Ham_Lambda
 
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
@@ -587,17 +598,18 @@
              Call  Set_Default_hopping_parameters_square( Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
           Case ("N_leg_ladder")
-             Ham_T_perp = Ham_T
-             Call  Set_Default_hopping_parameters_n_leg_ladder( Ham_T, Ham_T_perp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+             Call  Set_Default_hopping_parameters_n_leg_ladder( Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
           Case ("Honeycomb")
              Ham_Lambda = 0.d0
              Call  Set_Default_hopping_parameters_honeycomb( Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
           Case ("Bilayer_square")
-             Ham_T2     = 0.5 * Ham_T
-             Ham_T_perp = 0.25* Ham_T
-             Call  Set_Default_hopping_parameters_Bilayer_square(Ham_T,Ham_T2,Ham_T_perp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+             Call  Set_Default_hopping_parameters_Bilayer_square(Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+           &                                                   List, Invlist, Latt, Latt_unit, Checkerboard )
+
+          Case ("Bilayer_honeycomb")
+             Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
            &                                                   List, Invlist, Latt, Latt_unit, Checkerboard )
 
           end Select

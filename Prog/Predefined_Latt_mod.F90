@@ -105,7 +105,7 @@
         Type(Unit_cell), Intent(Out)                       :: Latt_Unit
         Type(Lattice), Intent(Out)                         :: Latt
         Real (Kind=Kind(0.d0))  :: A1_p(2), a2_p(2), L1_p(2), L2_p(2)
-        Integer :: I, nc, no
+        Integer :: I, nc, no,n
         
         select case (Lattice_type)
         case("Square")
@@ -139,10 +139,11 @@
         case("Bilayer_square")
            Latt_Unit%Norb     = 2
            Latt_Unit%N_coord  = 2
-           Allocate (Latt_unit%Orb_pos_p(2,2))
+           Allocate (Latt_unit%Orb_pos_p(2,3))
            do no = 1,2
               Latt_Unit%Orb_pos_p(no,1) = 0.d0 
-              Latt_Unit%Orb_pos_p(no,2) = real(no-1,kind(0.d0))
+              Latt_Unit%Orb_pos_p(no,2) = 0.d0 
+              Latt_Unit%Orb_pos_p(no,3) = real(1-no,kind(0.d0))
            enddo
            a1_p(1) =  1.0  ; a1_p(2) =  0.d0
            a2_p(1) =  0.0  ; a2_p(2) =  1.d0
@@ -164,6 +165,24 @@
            L1_p    =  dble(L1) * a1_p
            L2_p    =  dble(L2) * a2_p
            Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+        case("Bilayer_honeycomb")
+           Latt_Unit%Norb     = 4
+           Latt_Unit%N_coord  = 3
+           Allocate (Latt_unit%Orb_pos_p(4,3))
+           Latt_unit%Orb_pos_p = 0.d0
+           do n = 1,2
+              Latt_Unit%Orb_pos_p(1,n) = 0.d0 
+              Latt_Unit%Orb_pos_p(2,n) = (a2_p(n) - 0.5D0*a1_p(n) ) * 2.D0/3.D0
+              Latt_Unit%Orb_pos_p(3,n) = 0.d0 
+              Latt_Unit%Orb_pos_p(4,n) = (a2_p(n) - 0.5D0*a1_p(n) ) * 2.D0/3.D0
+           Enddo
+           Latt_Unit%Orb_pos_p(3,3) = -1.d0
+           Latt_Unit%Orb_pos_p(4,3) = -1.d0
+           a1_p(1) =  1.D0   ; a1_p(2) =  0.d0
+           a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
+           L1_p    =  dble(L1)*a1_p
+           L2_p    =  dble(L2)*a2_p
+           Call Make_Lattice( L1_p, L2_p, a1_p, a2_p, Latt )
         case("Pi_Flux")
            If (L1==1 .or. L2==1 ) then
               Write(6,*) 'The Pi Flux lattice cannot be one-dimensional.'

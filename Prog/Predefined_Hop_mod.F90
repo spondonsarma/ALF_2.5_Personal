@@ -273,7 +273,7 @@
            do no = 1,Latt_unit%Norb - 1
               if (mod(no,2) == 1 ) then
                  Nf = 3
-                 Write(6,*)  NF, no + Latt_unit%Norb
+                 !Write(6,*)  NF, no + Latt_unit%Norb
                  do I = 1,Latt%N
                     L_FAM(Nf) = L_FAM(Nf) + 1
                     List_Fam(Nf,L_FAM(Nf),1) = I
@@ -281,7 +281,7 @@
                  enddo
               else
                  Nf = 4
-                 Write(6,*)  NF, no + Latt_unit%Norb
+                 !Write(6,*)  NF, no + Latt_unit%Norb
                  do I = 1,Latt%N
                     L_FAM(Nf) = L_FAM(Nf) + 1
                     List_Fam(Nf,L_FAM(Nf),1) = I
@@ -482,6 +482,7 @@
            if (abs(Ham_Tperp) > Zero )  N_Fam=5
            
            Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
+           Prop_Fam = 1.d0
            
            No_Shift = 0
            If (abs(Ham_Tperp) > Zero ) No_Shift=1
@@ -562,8 +563,8 @@
                  Do n = 1,L_Fam(nf)
                     I =  List_Fam(Nf,n,1)
                     nb = List_Fam(Nf,n,2)
-                    Write(6,"(I3,2x,I3,2x,I3,2x,I3,2x,I3,2x,I3)")   Latt%list(I,1), Latt%list(I,2), Hopping_Matrix(1)%List(nb,1),Hopping_Matrix(1)%List(nb,2), &
-                         &Hopping_Matrix(1)%List(nb,3), Hopping_Matrix(1)%List(nb,4)
+                    Write(6,"(I3,2x,I3,2x,I3,2x,I3,2x,I3,2x,I3,2x,F6.3)")   Latt%list(I,1), Latt%list(I,2), Hopping_Matrix(1)%List(nb,1),Hopping_Matrix(1)%List(nb,2), &
+                         &Hopping_Matrix(1)%List(nb,3), Hopping_Matrix(1)%List(nb,4), real(Hopping_Matrix(1)%T(nb))
                  enddo
                  Write(6,*)
               enddo
@@ -573,6 +574,194 @@
 
         
       end Subroutine Set_Default_hopping_parameters_Bilayer_square
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
+!> Default hopping for a bilayer square. Ham_T1, Ham_T2, are the nearest neighbour hopping on the first and second layer and
+!> Ham_T_perp   is the interlayer  hopping.
+!> 
+!     
+!--------------------------------------------------------------------      
+      Subroutine Set_Default_hopping_parameters_Bilayer_honeycomb(Ham_T1,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+           &                                                   List, Invlist, Latt, Latt_unit, Checkerboard )
+ 
+        Implicit none
+        
+        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T1, Ham_T2, Ham_Tperp, Ham_Chem, Phi_x, Phi_y
+        Integer, Intent(IN)                   :: N_Phi, N_FL
+        Logical, Intent(IN)                   :: Bulk
+        Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
+        Type(Lattice),  Intent(in)            :: Latt
+        Type(Unit_cell),Intent(in)            :: Latt_unit
+        Logical,  Intent (in)                 :: Checkerboard
+
+
+        ! Local
+        Integer :: nf,N_Bonds, nc, I, I1, No_Shift, n, nb, no
+        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
+        Logical :: Test=.false.
+
+
+        If (abs(Ham_T1) < Zero ) Then
+           Write(6,*) 'At least Ham_T1 has to be bigger than zero'
+           Stop
+        endif
+
+
+        Allocate( Hopping_Matrix(N_FL) )
+        do nf = 1,N_FL
+           N_bonds = 0
+           if (abs(Ham_T1)    > Zero )  N_bonds = N_bonds + 3
+           if (abs(Ham_Tperp) > Zero )  N_bonds = N_bonds + 2
+           if (abs(Ham_T2)    > Zero )  N_bonds = N_bonds + 3
+           Hopping_Matrix(nf)%N_bonds =  N_Bonds
+           Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
+                &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
+           nc = 0
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T1,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  1
+           Hopping_Matrix(nf)%List(nc,2) =  2
+           Hopping_Matrix(nf)%List(nc,3) =  0
+           Hopping_Matrix(nf)%List(nc,4) =  0
+           
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T1,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  2
+           Hopping_Matrix(nf)%List(nc,2) =  1 
+           Hopping_Matrix(nf)%List(nc,3) =  0
+           Hopping_Matrix(nf)%List(nc,4) =  1
+
+           nc = nc + 1
+           Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T1,0.d0,kind(0.d0))
+           Hopping_Matrix(nf)%List(nc,1) =  1
+           Hopping_Matrix(nf)%List(nc,2) =  2 
+           Hopping_Matrix(nf)%List(nc,3) =  1
+           Hopping_Matrix(nf)%List(nc,4) = -1
+
+           If (abs(Ham_Tperp) > Zero )  then
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_Tperp,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) =  1
+              Hopping_Matrix(nf)%List(nc,2) =  3
+              Hopping_Matrix(nf)%List(nc,3) =  0
+              Hopping_Matrix(nf)%List(nc,4) =  0
+
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_Tperp,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) =  2
+              Hopping_Matrix(nf)%List(nc,2) =  4
+              Hopping_Matrix(nf)%List(nc,3) =  0
+              Hopping_Matrix(nf)%List(nc,4) =  0
+           endif
+           If (abs(Ham_T2) > Zero )  then
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T2,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) =  1 + 2
+              Hopping_Matrix(nf)%List(nc,2) =  2 + 2
+              Hopping_Matrix(nf)%List(nc,3) =  0
+              Hopping_Matrix(nf)%List(nc,4) =  0
+              
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T2,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) =  2 + 2
+              Hopping_Matrix(nf)%List(nc,2) =  1 + 2
+              Hopping_Matrix(nf)%List(nc,3) =  0
+              Hopping_Matrix(nf)%List(nc,4) =  1
+              
+              nc = nc + 1
+              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T2,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%List(nc,1) =  1 + 2
+              Hopping_Matrix(nf)%List(nc,2) =  2 + 2
+              Hopping_Matrix(nf)%List(nc,3) =  1
+              Hopping_Matrix(nf)%List(nc,4) = -1
+           endif
+           Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
+           do nc = 1,Latt_Unit%Norb
+              Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+           enddo
+           Hopping_Matrix(nf)%N_Phi =  N_Phi
+           Hopping_Matrix(nf)%Phi_X =  Phi_X
+           Hopping_Matrix(nf)%Phi_Y =  Phi_Y
+           Hopping_Matrix(nf)%Bulk =   Bulk
+           
+        enddo
+        
+        If  (Checkerboard)  then
+           N_Fam  = 3
+           If ( abs(Ham_Tperp) > Zero ) N_Fam = 4
+           Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
+           Prop_Fam = 1.d0
+
+           No_Shift = 0
+           If (abs(Ham_Tperp) > Zero ) No_Shift=2
+           
+           If     ( abs(Ham_T2)   <  Zero  .and. abs(Ham_Tperp) < Zero)    then
+              L_FAM  = Latt%N
+              Allocate (List_Fam(N_Fam,Latt%N,2))
+              Multiplicity = 3
+           elseif ( abs(Ham_T2)   <  Zero  .and. abs(Ham_Tperp) > Zero)    then
+              L_FAM    =   Latt%N
+              L_FAM(4) = 2*Latt%N
+              Allocate (List_Fam(N_Fam,2*Latt%N,2))
+              Multiplicity(1) = 4
+              Multiplicity(2) = 4
+              Multiplicity(3) = 1
+              Multiplicity(4) = 1
+           elseif ( abs(Ham_T2)   >  Zero  .and. abs(Ham_Tperp) < Zero)    then
+              L_FAM    = 2*Latt%N
+              Allocate (List_Fam(N_Fam,2*Latt%N,2))
+              Multiplicity = 3
+           elseif ( abs(Ham_T2)   >  Zero  .and. abs(Ham_Tperp) > Zero)    then
+              L_FAM    = 2*Latt%N
+              Allocate (List_Fam(N_Fam,2*Latt%N,2))
+              Multiplicity = 4
+              No_Shift     = 2
+           endif
+           
+           do I = 1,Latt%N
+              Do  nf = 1,N_Fam
+                 List_Fam(nf,I,1) = I  ! Unit cell
+                 List_Fam(nf,I,2) = nf ! The bond (See above)
+              Enddo
+           enddo
+           if (abs(Ham_T2)   >  Zero ) Then
+              do I = 1,Latt%N
+                 Do  nf = 1,N_Fam
+                    List_Fam(nf,I + Latt%N,1) = I                   ! Unit cell
+                    List_Fam(nf,I + Latt%N,2) = nf + 3 +  No_Shift  ! The bond (See above)
+                 Enddo
+              enddo
+           endif
+           if (abs(Ham_Tperp)   >  Zero ) Then
+              do no = 0,1
+                 do I = 1,Latt%N
+                    List_Fam(4,I + no*Latt%N,1) = I       ! Unit cell
+                    List_Fam(4,I + no*Latt%N,2) = 4 + no  ! The bond (See above)
+                 Enddo
+              enddo
+           endif
+           ! Test
+           If (Test) then
+              Write(6,*)  N_FAM,  L_FAM
+              Write(6,*)  Ham_T1,Ham_T2, Ham_Tperp
+              Do nf = 1,N_FAM
+                 Do n = 1,L_Fam(nf)
+                    I =  List_Fam(Nf,n,1)
+                    nb = List_Fam(Nf,n,2)
+                    Write(6,"(I3,2x,I3,2x,I3,2x,I3,2x,I3,2x,I3,2x,F6.3)")   Latt%list(I,1), Latt%list(I,2), Hopping_Matrix(1)%List(nb,1),Hopping_Matrix(1)%List(nb,2), &
+                         &Hopping_Matrix(1)%List(nb,3), Hopping_Matrix(1)%List(nb,4), Real(Hopping_Matrix(1)%T(nb))
+                 enddo
+                 Write(6,*)
+              enddo
+           endif
+        endif
+
+      end Subroutine Set_Default_hopping_parameters_Bilayer_honeycomb
+
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -608,10 +797,10 @@
         ! Re-allocate
         N_FAM  =  2*N_FAM_C - 1
         Deallocate (L_Fam, List_Fam, Prop_Fam)
-        Allocate (L_Fam(N_Fam), List_Fam(N_FAM,n2,2), Prop_Fam(N_Fam) )
+        Allocate   (L_Fam(N_Fam), List_Fam(N_FAM,n2,2), Prop_Fam(N_Fam) )
 
         ! Symmetrize
-        ! Find de longest family.
+        ! Find the longest family.
         n_l_max = 0
         do n = 1, N_FAM_C
            if (L_FAM_C(n) > n_l_max ) then
@@ -619,7 +808,7 @@
               n_f_max = n
            endif
         enddo
-
+        Write(6,*) 'N_f_max' , n_f_max
         Allocate( list_Fam_tmp(N_FAM) )
         nc = 0
         Do n = 1, N_FAM_C   
@@ -630,13 +819,16 @@
            nc = nc + 1
            list_Fam_tmp(nc) = n
         Enddo
+
         ! Place the largest familly in the middle and set the time step.
         Prop_Fam          = 0.5D0
         Prop_Fam(N_Fam_C) = 1.D0
-        list_Fam_tmp(N_FAM_C) = n_f_max
-        list_Fam_tmp(1)       = N_Fam_C
-        list_Fam_tmp(N_FAM )  = N_Fam_C
-
+        If (N_F_Max .ne. N_FAM_C )  then
+           list_Fam_tmp(N_FAM_C) = n_f_max
+           list_Fam_tmp(1)       = N_Fam_C
+           list_Fam_tmp(N_FAM )  = N_Fam_C
+        endif
+        
         do n = 1,N_FAM
            n1 = list_Fam_tmp(n)
            L_FAM(n)        = L_FAM_C(n1)
@@ -646,9 +838,9 @@
         ! Clean
         Deallocate( L_FAM_C, List_Fam_C, Prop_Fam_C, List_Fam_tmp )
 
-        Write(6,*)  N_FAM
-        Write(6,*)  L_FAM
-        Write(6,*)  Prop_Fam
+        !Write(6,*)  N_FAM
+        !Write(6,*)  L_FAM
+        !Write(6,*)  Prop_Fam
         
       end Subroutine Symmetrize_Families
       
@@ -773,9 +965,6 @@
                  enddo
               enddo
            enddo
-        else
-           Write(6,*) 'Generic checkerboard  is not yet implemented'
-           Stop
         endif
         
       end Subroutine Predefined_Hopping_new
@@ -1349,7 +1538,7 @@
 
 
         !Local
-        Integer                   :: j, N1, N2
+        Integer                   :: j, N1, N2,n
         real (Kind=Kind(0.d0))    :: xj_p(2), xi_p(2), xjp_p(2), del_p(2), A_p(2), pi, XB_p(2), V, B, Zero, x_p(2), x1_p(2)
 
         Complex (Kind=Kind(0.d0)) :: Z_hop
@@ -1361,12 +1550,15 @@
         ! Check if you have crossed the boundary:  xj_p  = xjp_p + N1*L1_p  + N2*L2_p  with  xjp_p  in the set of lattice sites. 
         N1 = 0; N2 = 0
         Call npbc(xjp_p, xj_p, Latt%L1_p, Latt%L2_p,  N1, N2)
-        XB_p = real(N1,kind(0.d0))*Latt%L1_p  +  real(N2,kind(0.d0))*Latt%L2_p  
-        xj_p (:) = xj_p (:) + Latt_unit%Orb_pos_p(no_j,:)
-        xjp_p(:) = xjp_p(:) + Latt_unit%Orb_pos_p(no_j,:)   
+        XB_p = real(N1,kind(0.d0))*Latt%L1_p  +  real(N2,kind(0.d0))*Latt%L2_p
+        Do n = 1,2
+           xj_p (n) = xj_p (n) + Latt_unit%Orb_pos_p(no_j,n)
+           xjp_p(n) = xjp_p(n) + Latt_unit%Orb_pos_p(no_j,n)
+        enddo
         xi_p    = real(latt%list(i,1), kind(0.d0)) * latt%a1_p  +  real(latt%list(i,2),kind(0.d0)) * latt%a2_p
-        xi_p(:) = xi_p(:) +  Latt_unit%Orb_pos_p(no_i,:)
-
+        Do n = 1,2
+           xi_p(n) = xi_p(n) +  Latt_unit%Orb_pos_p(no_i,n)
+        Enddo
         !!Check that  xjp_p(:) + XB_p(:) =  xj_p(:)
         !!x1_p(:) = xjp_p(:) + XB_p
         !!Write(6,"(F12.6,2x,F12.6,2x,F12.6,2x,F12.6,2x,I2,3x,I2)")  x1_p(1),x1_p(2), xj_p(1), xj_p(2), N1,N2
