@@ -109,10 +109,13 @@
         
         select case (Lattice_type)
         case("Square")
-           If (L2 > 1 .and. L1 > 1) then
+           If ( L2==1 .and. L1 > 1 ) then
+              Latt_Unit%N_coord   = 1
+           elseif (L2 >1 .and. L1 > 1) then
               Latt_Unit%N_coord   = 2
            else
-              Write(6,*) 'For one-dimensional lattices use n_leg_ladded with n=1'
+              Write(6,*) 'For one-dimnesional lattices set L2=1.'
+              Write(6,*) 'You can also use use n_leg_ladder with n=1' 
               Stop
            endif
            Latt_Unit%Norb      = 1

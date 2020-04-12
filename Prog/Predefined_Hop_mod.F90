@@ -102,69 +102,76 @@
 
         ! Local
         Integer :: nf,N_Bonds, nc, I, I1
-        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
+        Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8,  Ham_T_perp
 
-        Allocate( Hopping_Matrix(N_FL) )
-        do nf = 1,N_FL
-           Hopping_Matrix(nf)%N_bonds = 0
-           if ( abs(Ham_T) > Zero)  then
-              Hopping_Matrix(nf)%N_bonds = 2
-              Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
-                   &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
-              nc = 0
-              nc = nc + 1
-              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
-              Hopping_Matrix(nf)%List(nc,1) = 1
-              Hopping_Matrix(nf)%List(nc,2) = 1
-              Hopping_Matrix(nf)%List(nc,3) = 0
-              Hopping_Matrix(nf)%List(nc,4) = 1
-              
-              nc = nc + 1
-              Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
-              Hopping_Matrix(nf)%List(nc,1) = 1
-              Hopping_Matrix(nf)%List(nc,2) = 1
-              Hopping_Matrix(nf)%List(nc,3) = 1
-              Hopping_Matrix(nf)%List(nc,4) = 0
-           Endif
-           Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
-           do nc = 1,Latt_Unit%Norb
-              Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+        If ( Xnorm(Latt%L2_p - Latt%a2_p)  < Zero)  then
+           Ham_T_perp = 0.d0
+           Call Set_Default_hopping_parameters_N_Leg_Ladder(Ham_T, Ham_T_perp,  Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                &                                           List, Invlist, Latt, Latt_unit, Checkerboard )
+             
+        else
+           Allocate( Hopping_Matrix(N_FL) )
+           do nf = 1,N_FL
+              Hopping_Matrix(nf)%N_bonds = 0
+              if ( abs(Ham_T) > Zero)  then
+                 Hopping_Matrix(nf)%N_bonds = 2
+                 Allocate (Hopping_Matrix(nf)%List(Hopping_Matrix(nf)%N_bonds,4), &
+                      &    Hopping_Matrix(nf)%T(Hopping_Matrix(nf)%N_bonds) )
+                 nc = 0
+                 nc = nc + 1
+                 Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+                 Hopping_Matrix(nf)%List(nc,1) = 1
+                 Hopping_Matrix(nf)%List(nc,2) = 1
+                 Hopping_Matrix(nf)%List(nc,3) = 0
+                 Hopping_Matrix(nf)%List(nc,4) = 1
+                 
+                 nc = nc + 1
+                 Hopping_Matrix(nf)%T(nc)    = cmplx(-Ham_T,0.d0,kind(0.d0))
+                 Hopping_Matrix(nf)%List(nc,1) = 1
+                 Hopping_Matrix(nf)%List(nc,2) = 1
+                 Hopping_Matrix(nf)%List(nc,3) = 1
+                 Hopping_Matrix(nf)%List(nc,4) = 0
+              Endif
+              Allocate ( Hopping_Matrix(nf)%T_Loc(Latt_Unit%Norb) )
+              do nc = 1,Latt_Unit%Norb
+                 Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
+              enddo
+              Hopping_Matrix(nf)%N_Phi =  N_Phi
+              Hopping_Matrix(nf)%Phi_X =  Phi_X
+              Hopping_Matrix(nf)%Phi_Y =  Phi_Y
+              Hopping_Matrix(nf)%Bulk =   Bulk
            enddo
-           Hopping_Matrix(nf)%N_Phi =  N_Phi
-           Hopping_Matrix(nf)%Phi_X =  Phi_X
-           Hopping_Matrix(nf)%Phi_Y =  Phi_Y
-           Hopping_Matrix(nf)%Bulk =   Bulk
-        enddo
-
-        If  (Checkerboard)  then
-           N_Fam  = 4
-           Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
-           L_FAM  = Latt%N/2
-           Prop_Fam = 1.d0
-           Allocate (List_Fam(N_Fam,L_FAM(1),2))
-           Multiplicity = 4
-           L_FAM  = 0
-           do I = 1,Latt%N
-              if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
-                 Nf = 1
-                 L_FAM(Nf) = L_FAM(Nf) + 1
-                 List_Fam(Nf,L_FAM(Nf),1) = I ! Unit cell
-                 List_Fam(Nf,L_FAM(Nf),2) = 1 ! The bond (See above)
-                 Nf = 2
-                 L_FAM(Nf) = L_FAM(Nf) + 1
-                 List_Fam(Nf,L_FAM(Nf),1) = I
-                 List_Fam(Nf,L_FAM(Nf),2) = 2 
-              else
-                 Nf = 3
-                 L_FAM(Nf) = L_FAM(Nf) + 1
-                 List_Fam(Nf,L_FAM(Nf),1) = I
-                 List_Fam(Nf,L_FAM(Nf),2) = 1  
-                 Nf = 4
-                 L_FAM(Nf) = L_FAM(Nf) + 1
-                 List_Fam(Nf,L_FAM(Nf),1) = I
-                 List_Fam(Nf,L_FAM(Nf),2) = 2  
-              endif
-           enddo
+           
+           If  (Checkerboard)  then
+              N_Fam  = 4
+              Allocate (L_FAM(N_FAM),  Prop_Fam(N_FAM), Multiplicity(Latt_unit%Norb) )
+              L_FAM  = Latt%N/2
+              Prop_Fam = 1.d0
+              Allocate (List_Fam(N_Fam,L_FAM(1),2))
+              Multiplicity = 4
+              L_FAM  = 0
+              do I = 1,Latt%N
+                 if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                    Nf = 1
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I ! Unit cell
+                    List_Fam(Nf,L_FAM(Nf),2) = 1 ! The bond (See above)
+                    Nf = 2
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = 2 
+                 else
+                    Nf = 3
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = 1  
+                    Nf = 4
+                    L_FAM(Nf) = L_FAM(Nf) + 1
+                    List_Fam(Nf,L_FAM(Nf),1) = I
+                    List_Fam(Nf,L_FAM(Nf),2) = 2  
+                 endif
+              enddo
+           endif
         endif
         
       end Subroutine Set_Default_hopping_parameters_square
@@ -471,6 +478,7 @@
            do nc = 1,Latt_Unit%Norb
               Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
            enddo
+           If (Abs(Ham_T2) < Zero .and. Abs(Ham_Tperp) < Zero ) Hopping_Matrix(nf)%T_Loc(2)  = cmplx(0.0,0.d0,kind(0.d0))
            Hopping_Matrix(nf)%N_Phi =  N_Phi
            Hopping_Matrix(nf)%Phi_X =  Phi_X
            Hopping_Matrix(nf)%Phi_Y =  Phi_Y
@@ -683,6 +691,10 @@
            do nc = 1,Latt_Unit%Norb
               Hopping_Matrix(nf)%T_Loc(nc)  = cmplx(-Ham_Chem,0.d0,kind(0.d0))
            enddo
+           If (abs(Ham_Tperp) < Zero .and. abs(Ham_T2) < Zero ) then
+              Hopping_Matrix(nf)%T_Loc(3) = cmplx(0.d0,0.d0,kind(0.d0))
+              Hopping_Matrix(nf)%T_Loc(4) = cmplx(0.d0,0.d0,kind(0.d0))
+           Endif
            Hopping_Matrix(nf)%N_Phi =  N_Phi
            Hopping_Matrix(nf)%Phi_X =  Phi_X
            Hopping_Matrix(nf)%Phi_Y =  Phi_Y
