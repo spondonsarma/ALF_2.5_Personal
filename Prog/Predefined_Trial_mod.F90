@@ -120,12 +120,13 @@
 
         
         Type(Operator),  dimension(:,:), allocatable  :: OP_tmp
+        Type (Hopping_Matrix_type), allocatable       :: Hopping_Matrix_tmp(:)
         Real (Kind=Kind(0.d0))                        :: Dtau, Ham_T, Ham_Chem, XB_X, XB_Y, Phi_X, Phi_Y, Dimer
         Logical                                       :: Checkerboard, Symm, Kekule_Trial
 
         Type (Lattice)                                :: Latt_Kekule
         Real (Kind=Kind(0.d0))  :: A1_p(2), A2_p(2), L1_p(2), L2_p(2), x_p(2),x1_p(2), hop(3), del_p(2)
-        Real (Kind=Kind(0.d0))  :: delta = 0.01, Ham_T1
+        Real (Kind=Kind(0.d0))  :: delta = 0.01, Ham_T1, Ham_T2, Ham_Tperp
         
         Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J, N_Phi
         Logical :: Test=.false. ,  Bulk =.true. 
@@ -140,7 +141,16 @@
 
 
 
-        Kekule_Trial = .false.
+        Checkerboard  = .false.
+        Kekule_Trial  = .false.
+        Symm          = .false.
+        N_Phi = 0.d0
+        Phi_X = 0.d0
+        Bulk  = .false.
+        Ham_Chem = 0.d0
+        Dtau     = 1.d0
+
+
         Select case (Lattice_type)
            
         case ("Honeycomb")
@@ -264,29 +274,60 @@
                  Call Op_set(Op_Tmp(1,n))
               Enddo
            endif
-        case default 
-           Dtau     = 1.d0
-           Ham_T    = 1.d0
-           Ham_Chem = 0.d0
-           Phi_X    = 0.00
-           Phi_Y    = 0.d0
-           N_Phi    = 0
-           Dimer    = 0.d0
-           Checkerboard  = .false.
-           Symm          = .false.
-           !If (Lattice_type == "Square"  ) then 
-           !   Dimer    = 0.001d0
-           !else
+        Case ("Square")
+           Ham_T = 1.d0
            Phi_X    = 0.01
-           !endif
+           Call  Set_Default_hopping_parameters_square(Hopping_Matrix_tmp,Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+        Case ("N_leg_ladder")
+           Ham_T     = 1.d0
+           Ham_Tperp = 1.d0
+           Phi_X     = 0.01
+           Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix_tmp, Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+                &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+           !Case ("Honeycomb")
+           !   Ham_Lambda = 0.d0
+           !   Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix_tmp, Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+           !        &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+        Case ("Bilayer_square")
+           Ham_T     = 1.d0
+           Ham_T2    = 0.d0
+           Ham_Tperp = 1.d0
+           Phi_X     = 0.00
+           Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+        Case ("Bilayer_honeycomb")
+           Ham_T     = 1.d0
+           Ham_T2    = 0.d0
+           Ham_Tperp = 1.d0
+           Phi_X     = 0.00
+           Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
+                &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
            
-           Call Predefined_Hopping(Lattice_type ,Ndim, List,Invlist,Latt, Latt_Unit, &
-                &                    Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y,  Bulk, N_Phi,&
-                &                    N_FL,  Checkerboard, Symm,  OP_tmp, Dimer )
-           
-           
-           
+        case default
+           Write(6,*) 'No predefined trial wave function '
+           stop
         end Select
+
+           
+        If (Lattice_type .ne. "Honeycomb" )   &
+             &     Call  Predefined_Hopping_new(Hopping_Matrix_tmp,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_tmp )
+
+        
+!!$           Symm          = .false.
+!!$           !If (Lattice_type == "Square"  ) then 
+!!$           !   Dimer    = 0.001d0
+!!$           !else
+!!$           Phi_X    = 0.01
+!!$           !endif
+!!$           
+!!$           Call Predefined_Hopping(Lattice_type ,Ndim, List,Invlist,Latt, Latt_Unit, &
+!!$                &                    Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y,  Bulk, N_Phi,&
+!!$                &                    N_FL,  Checkerboard, Symm,  OP_tmp, Dimer )
+!!$           
+!!$           
+!!$           
+!!$        end Select
         
         
         Do nf = 1,N_FL
@@ -320,6 +361,7 @@
            Call Op_clear(OP_tmp(1,nf),Ndim)
         enddo
         Deallocate (OP_tmp)
+        !  Clear Hopping_Matrix_tmp
 
       end Subroutine Predefined_TrialWaveFunction
 
