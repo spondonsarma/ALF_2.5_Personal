@@ -144,7 +144,7 @@
         Checkerboard  = .false.
         Kekule_Trial  = .false.
         Symm          = .false.
-        N_Phi = 0.d0
+        N_Phi = 0
         Phi_X = 0.d0
         Bulk  = .false.
         Ham_Chem = 0.d0
