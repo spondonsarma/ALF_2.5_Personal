@@ -278,31 +278,31 @@
            Ham_T = 1.d0
            Phi_X    = 0.01
            Call  Set_Default_hopping_parameters_square(Hopping_Matrix_tmp,Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
         Case ("N_leg_ladder")
            Ham_T     = 1.d0
            Ham_Tperp = 1.d0
            Phi_X     = 0.01
            Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix_tmp, Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                &                                       List, Invlist, Latt, Latt_unit )
            !Case ("Honeycomb")
            !   Ham_Lambda = 0.d0
            !   Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix_tmp, Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-           !        &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+           !        &                                       List, Invlist, Latt, Latt_unit )
         Case ("Bilayer_square")
            Ham_T     = 1.d0
            Ham_T2    = 0.d0
            Ham_Tperp = 1.d0
            Phi_X     = 0.00
            Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
         Case ("Bilayer_honeycomb")
            Ham_T     = 1.d0
            Ham_T2    = 0.d0
            Ham_Tperp = 1.d0
            Phi_X     = 0.00
            Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                &                                       List, Invlist, Latt, Latt_unit )
            
         case default
            Write(6,*) 'No predefined trial wave function '
@@ -311,7 +311,7 @@
 
            
         If (Lattice_type .ne. "Honeycomb" )   &
-             &     Call  Predefined_Hopping_new(Hopping_Matrix_tmp,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_tmp )
+             &     Call  Predefined_Hoppings_set_OPT(Hopping_Matrix_tmp,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_tmp )
 
         
 !!$           Symm          = .false.
@@ -361,7 +361,7 @@
            Call Op_clear(OP_tmp(1,nf),Ndim)
         enddo
         Deallocate (OP_tmp)
-        !  Clear Hopping_Matrix_tmp
+        Call Predefined_hoppings_clear(Hopping_Matrix_tmp)
 
       end Subroutine Predefined_TrialWaveFunction
 

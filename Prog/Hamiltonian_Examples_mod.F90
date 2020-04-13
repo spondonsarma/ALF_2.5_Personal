@@ -597,25 +597,25 @@
           Select case (Lattice_type)
           Case ("Square")
              Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
           Case ("N_leg_ladder")
              Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix, Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
           Case ("Honeycomb")
              Ham_Lambda = 0.d0
              Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix, Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
           Case ("Bilayer_square")
              Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
 
           Case ("Bilayer_honeycomb")
              Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit, Checkerboard )
+                  &                                       List, Invlist, Latt, Latt_unit )
 
           end Select
           
-          Call  Predefined_Hopping_new(Hopping_Matrix,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
+          Call  Predefined_Hoppings_set_OPT(Hopping_Matrix,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
           
           !Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
           !     &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
@@ -1181,7 +1181,7 @@
              
 
           Zkin = cmplx(0.d0, 0.d0, kind(0.D0))
-          Call Predefined_Hop_Compute_Kin(Hopping_Matrix,List,Invlist, Latt, Latt_unit, GRC, ZKin)      
+          Call Predefined_Hoppings_Compute_Kin(Hopping_Matrix,List,Invlist, Latt, Latt_unit, GRC, ZKin)      
           Zkin = Zkin* dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
