@@ -367,7 +367,7 @@ The Hamilton module \texttt{Hamiltonian\_Examples\_mod.F90} can also carry out s
 \subsubsection{Working with multi-orbital unit cells:  \texttt{Call Ham\_Latt} } \label{sec:multi-orbital}
 %-------------------------------------------------------------------------------------
 
-  This model is an example of  a multi-orbital unit cell, and the aim of this section is to document how to implement this in the code.  The  Honeycomb lattice is a  triangular Bravais lattice with two orbitals per unit cell.  The routine  \texttt{Ham\_Latt} will set: 
+This model is an example of  a multi-orbital unit cell, and the aim of this section is to document how to implement this in the code.  The Honeycomb lattice is a triangular Bravais lattice with two orbitals per unit cell.  The routine \texttt{Ham\_Latt} will set: 
 
 \begin{lstlisting}[style=fortran]
 
@@ -378,7 +378,7 @@ a2_p(1) =  0.5D0  ; a2_p(2) =  sqrt(3.D0)/2.D0
 L1_p    =  dble(L1) * a1_p
 L2_p    =  dble(L2) * a2_p
 \end{lstlisting}
-and then  call \path{ Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt ) } so as to generate the triangular lattice.  The coordination number of this lattice is \texttt{ N\_coord=3 }  and  the number of orbitals per unit cell  corresponds to \texttt{NORB=2}.    The total number of  orbitals  is thereby: \texttt{$N_{\mathrm{dim}}$=Latt\%N*NORB}.    To easily keep track of the orbital and unit cell, we define a  super-index as shown below:
+and then  call \path{ Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt ) } so as to generate the triangular lattice.  The coordination number of this lattice is \texttt{ N\_coord=3 }  and  the number of orbitals per unit cell  corresponds to \texttt{NORB=2}.    The total number of  orbitals  is thereby: \texttt{$N_{\mathrm{dim}}$=Latt\%N*NORB}. In order to easily keep track of the orbital and unit cell, we define a  super-index as shown below:
 
 
 \begin{lstlisting}[style=fortran]
