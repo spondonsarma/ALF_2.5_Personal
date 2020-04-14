@@ -9,9 +9,11 @@
 \subsection{ Setting up the hopping matrix }
 
 The module \texttt{Predefined\_Hopping}   provides a set of generic Hopping Hamiltonians.    For each  predefined lattice type 
-\texttt{Square}  and \texttt{Honeycomb}   this routine sets  up the nearest  neighbor hopping matrix with twisted boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions 
-\texttt{Phi\_1}  and \texttt{Phi\_2}  respectively,  and with  a total number of \texttt{N\_Phi}  flux quanta traversing the lattice.    If the \texttt{Checkerboard}  flag is set then a checkerboard decomposition will be carried out.  If furthermore the flag \texttt{Symm} is set, then  a symmetric  Trotter  splitting  will be carried out  for the checkerboard   decomposition.    Finally,  the flag 
-\texttt{bulk}  monitors how to set the twisted boundary condition.  If  \texttt{bulk=.true.}   then 
+\texttt{Square}, \texttt{Honeycomb}, \texttt{N\_leg\_ladder},  \texttt{Bilayer\_honeycomb},  \texttt{Bilayer\_square},
+    this routine sets  up the nearest  neighbor hopping matrix with twisted boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by 
+\texttt{Phi\_1}  and \texttt{Phi\_2}  respectively.  If the flag  \texttt{bulk=.true.}   then   the twist will be implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist will be imposed at the boundary.   The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.   All above phase factors  can be flavor dependent.  
+
+Lattice specific information for the checkerboard  decomposition is   equally   provided such that for each aforementioned lattice type,  symmetric and asymmetric  checkerboard decompositions  are available.    
 
 \subsubsection{Generic hopping matrix elements}\label{sec:generic_hopping}
 %-----------------------------------------------------------------------------------
@@ -20,12 +22,16 @@ The module \texttt{Predefined\_Hopping}   provides a set of generic Hopping Hami
 Here we compute the hopping matrix element  between two sites of a given lattice  in the presence of twisted boundary conditions and  orbital magnetic field. 
 The generic Hopping Hamiltonian will read: 
 \begin{equation}
-	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
+	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}^{(s)}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
 \end{equation}
 with boundary conditions 
 \begin{equation}
-	c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi_{L_1} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
+	c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i^{(s)}}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi^{(s)}_{L_1} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
 \end{equation}
+Both the twist and  vector  potential can have a flavor dependency. For  now onwards we will  omit the flavor index $^{s}$.  
+
+\noindent
+\textbf{Phase factors}.  
 The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux  quanta and the scalar function $\chi$ is defined  through as:
 \begin{equation}
 	\vec{A}( \vec{x} + \vec{L}_{i} )  = \vec{A}( \vec{x} )   +  \vec{\nabla} \chi_{L_{\alpha}}(\vec{x}). 
@@ -54,3 +60,34 @@ Here
 	\vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
 \end{equation}
 and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  on inserting the twist angle. If \texttt{bulk=\.true\.}    then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
+The information for the phases,    is encoded in  the type \texttt{Hopping\_matrix\_type} 
+
+\noindent
+\textbf{The  Hopping matrix elements}. 
+To specify the hopping matrix  we  assume  only translation invariance.  The point group symmetry of the lattice can be broken.   In particular, we set, for each flavor  index:
+\begin{equation} 
+	 T_{(i,\delta), (i +  n_1\vec{a}_1  + n_2 \vec{a}_2,\delta')}^{(s)}   =   t^{(s)}_{\delta_1,\delta_2,n_1,n_2, s}
+\end{equation}
+The right  hand side of the above equation is given  the type  \texttt{Hopping\_matrix\_type}.
+
+
+\noindent
+\textbf{The checkerboard decomposition.}   Aside from the hopping phases and hopping matrix elements, the \texttt{Hopping\_matrix\_type} type, contains information  concerning the checkerboard   decomposition.  In Eq.~\ref{Checkerboard.Eq} we wrote the hopping Hamiltonian as:
+\begin{equation}
+	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}   
+\end{equation}
+with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.   This decomposition is carried out for the aforementioned set of lattices with nearest neighbor  hopping matrix elements.  This information is stored in  \texttt{Hopping\_matrix\_type}. In this data type  \texttt{N\_FAM}  corresponds to the number of sets  ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM}   corresponds to the number of bonds in the set,  and finally, 
+ \texttt{LIST\_FAM(1:N\_FAM, 1:max(L\_FAM(:)), 2)}    contains  information concerning the two legs of the bonds.    In the checkerboard decomposition, care has to be taken for local terms: each site  occurs multiple times in the list of bonds.    Since we have postulated translation symmetry,    a one-dimensional array, \texttt{Multiplicity},  of length  given by  the number of orbitals per unit cell suffices to  encode the required information.  
+ Finally to be able to generate  the imaginary time step of length $\Delta \tau$  we  have to know   by which fraction of  $\Delta \tau$   we have to propagate each set.  This information is given in  the array  \texttt{Prop\_Fam}.  
+ 
+
+The  data in the \texttt{Hopping\_matrix\_type} type suffices to uniquely define the  unit step propagation    for the Kinetic energy, for the  any combinations of the  \texttt{Checkerboard} and  \texttt{Symm}  options (see Sec.~\ref{sec:trotter}).   This is carried out in the routine \texttt{Predefined\_Hoppings\_set\_OPT}. 
+Finally  \texttt{Hopping\_matrix\_type}     allows to compute the kinetic energy. This  task is carried out in  \texttt{Predefined\_Hoppings\_Compute\_Kin}.
+
+
+\subsubsection{Usage}
+
+Two steps. 
+a)  Set  \texttt{Hopping\_matrix\_type}  with predefined routines for the supported lattices   b) Set \texttt{OP\_T}  with  \texttt{Predefined\_Hoppings\_set\_OPT}.   
+{\color{red}FFA:  Jefferson, it would be nice if you would provide more detailed info on this. }
+

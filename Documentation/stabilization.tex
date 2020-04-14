@@ -75,7 +75,7 @@ We include typical values of \texttt{Precision Phase} and of the mean and the ma
 
 
 %-----------------------------------------------------------------------------------
-\subsection{The Trotter error and  checkerboard  decomposition }\label{sec:hermitian}
+\subsection{The Trotter error and  checkerboard  decomposition }\label{sec:trotter}
 %-----------------------------------------------------------------------------------
 %
 
@@ -85,6 +85,7 @@ In practice, many applications are carried out at finite  imaginary time steps, 
 To at best describe the workings of the ALF  code,  we divide the Hamiltonian into  hopping terms  $\hat{\mathcal{H}}_{T}$  and into interaction terms  
 $\hat{\mathcal{H}}_{V} +  \hat{\mathcal{H}}_{I}   +   \hat{\mathcal{H}}_{0,I} $.       Let 
 \begin{equation}
+\label{Checkerboard.Eq}
 	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}  \equiv \sum_{i=1}^{N_T} \hat{T}_{i} 
 \end{equation}
 Here the decomposition follows the rule  that if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  As an 

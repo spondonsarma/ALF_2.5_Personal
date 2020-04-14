@@ -30,7 +30,11 @@ which returns a lattice of size \texttt{L1$\times$L2} of the given \texttt{Latti
 			\setlength{\itemsep}{0pt} \setlength{\parskip}{0pt} \setlength{\parsep}{0pt}
 			\item[-] Square
 			\item[-] Honeycomb
-			\item[-] Pi\_Flux \vspace{-1.4\topsep}
+			\item[-] Pi\_Flux  (Depreciated)
+			\item[-] N\_leg\_ladder
+			\item[-] Bilayer\_square
+			\item[-] Bilayer\_honeycomb
+			\vspace{-1.4\topsep} 
 		\end{itemize} \\
 	    %\vspace{-\topsep} \\ \vspace{-\topsep}
 		\texttt{L1}, \texttt{L2} & Integer    & Input  & lattice sizes (set \texttt{L2=1} for 1D lattices)\\
@@ -41,7 +45,7 @@ which returns a lattice of size \texttt{L1$\times$L2} of the given \texttt{Latti
 		\texttt{Latt\_Unit}      & Unit\_cell & Output & sets the unit cell\\
 		\bottomrule
 	\end{tabular}
-\caption{Arguments of the subroutine \texttt{Predefined\_Latt}.}		\label{table:predefined_lattices}
+\caption{Arguments of the subroutine \texttt{Predefined\_Latt}.   Note that the Pi\_Flux lattice is deprecated for the moment since it can be emulated with the Square lattice with half a flux quanta piercing each plaquette. }		\label{table:predefined_lattices}
 \end{center}
 \end{table}
 
