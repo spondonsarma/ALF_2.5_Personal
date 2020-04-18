@@ -107,17 +107,17 @@
 !> 
 !     
 !--------------------------------------------------------------------      
-      Subroutine Set_Default_hopping_parameters_square(this, Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL, &
+      Subroutine Set_Default_hopping_parameters_square(this, Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk,  N_Phi_vec, N_FL, &
            &                                           List, Invlist, Latt, Latt_unit )
  
         Implicit none
 
         Type  (Hopping_Matrix_type), allocatable     :: this(:)
-        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T_vec(:), Ham_Chem_vec(:), Phi_x_vec(:), Phi_y_vec(:)
-        Integer, Intent(IN)                   :: N_Phi_vec(:)
-        Integer, Intent(IN)                   :: N_FL
-        Logical, Intent(IN)                   :: Bulk_vec(:)
-        Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
+        Real (Kind=Kind(0.d0)), Intent(IN),Dimension(:)   :: Ham_T_vec, Ham_Chem_vec, Phi_x_vec, Phi_y_vec
+        Integer, Intent(IN),Dimension(:)                  :: N_Phi_vec
+        Integer, Intent(IN)                               :: N_FL
+        Logical, Intent(IN)                               :: Bulk
+        Integer, Intent(IN), Dimension(:,:)               :: List, Invlist
         Type(Lattice),  Intent(in)            :: Latt
         Type(Unit_cell),Intent(in)            :: Latt_unit
 
@@ -131,7 +131,7 @@
            Allocate( Ham_T_perp_vec(N_FL) )
            Ham_T_perp_vec = 0.d0
            Call Set_Default_hopping_parameters_N_Leg_Ladder(this,Ham_T_vec, Ham_T_perp_vec, Ham_Chem_vec, Phi_X_vec, &
-                &                                           Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL, &
+                &                                           Phi_Y_vec, Bulk,  N_Phi_vec, N_FL, &
                 &                                           List, Invlist, Latt, Latt_unit )
            Deallocate ( Ham_T_perp_vec ) 
         else
@@ -171,7 +171,7 @@
               this(nf)%N_Phi =  N_Phi_vec(nf)
               this(nf)%Phi_X =  Phi_X_vec(nf)
               this(nf)%Phi_Y =  Phi_Y_vec(nf)
-              this(nf)%Bulk =   Bulk_vec(nf)
+              this(nf)%Bulk =   Bulk
            enddo
 
            !Set Checkerboard
@@ -216,16 +216,17 @@
 !> 
 !     
 !--------------------------------------------------------------------      
-      Subroutine Set_Default_hopping_parameters_N_Leg_Ladder(this,Ham_T_vec, Ham_T_perp_vec,  Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk_vec, &
+      Subroutine Set_Default_hopping_parameters_N_Leg_Ladder(this,Ham_T_vec, Ham_T_perp_vec,  Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk, &
            &                                                 N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
  
+
         Implicit none
         
         type   (Hopping_Matrix_type), allocatable :: this(:)
-        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T_vec(:), Ham_T_perp_vec(:), Ham_Chem_vec(:), Phi_x_vec(:), Phi_y_vec(:)
-        Integer, Intent(IN)                   :: N_Phi_vec(:)
         Integer, Intent(IN)                   :: N_FL
-        Logical, Intent(IN)                   :: Bulk_vec(:)
+        Real (Kind=Kind(0.d0)), Intent(IN), Dimension(:)    :: Ham_T_vec, Ham_T_perp_vec, Ham_Chem_vec, Phi_x_vec, Phi_y_vec
+        Integer, Intent(IN), Dimension(:)                   :: N_Phi_vec
+        Logical, Intent(IN)                                 :: Bulk
         Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
         Type(Lattice),  Intent(in)            :: Latt
         Type(Unit_cell),Intent(in)            :: Latt_unit
@@ -235,6 +236,7 @@
         Integer :: nf,N_Bonds, nc, I, I1, n, no
         Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
 
+        !Write(6,*) Ham_T_vec,  Ham_T_perp_vec, Ham_chem_vec
         Allocate( this(N_FL) )
         do nf = 1,N_FL
            this(nf)%N_bonds = Latt_unit%Norb +  (Latt_unit%Norb - 1 )
@@ -266,7 +268,7 @@
            this(nf)%N_Phi =  N_Phi_vec(nf)
            this(nf)%Phi_X =  Phi_X_vec(nf)
            this(nf)%Phi_Y =  Phi_Y_vec(nf)
-           this(nf)%Bulk =   Bulk_vec(nf)
+           this(nf)%Bulk =   Bulk
         enddo
 
         !Write(6,*) Latt_unit%Norb
@@ -341,16 +343,16 @@
 !     
 !--------------------------------------------------------------------      
       Subroutine Set_Default_hopping_parameters_honeycomb(this,Ham_T_vec, Ham_Lambda_vec, Ham_Chem_vec, Phi_X_vec, &
-           &                                              Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+           &                                              Phi_Y_vec, Bulk,  N_Phi_vec, N_FL,&
            &                                              List, Invlist, Latt, Latt_unit)
         
         Implicit none
 
         type (Hopping_Matrix_type), allocatable            :: this(:)
-         Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T_vec(:), Ham_Chem_vec(:), Phi_x_vec(:), Phi_y_vec(:), Ham_Lambda_vec(:)
-        Integer, Intent(IN)                   :: N_Phi_vec(:)
-        Integer, Intent(IN)                   :: N_FL
-        Logical, Intent(IN)                   :: Bulk_vec(:)
+        Real (Kind=Kind(0.d0)), Intent(IN),Dimension(:), allocatable  :: Ham_T_vec, Ham_Chem_vec, Phi_x_vec, Phi_y_vec, Ham_Lambda_vec
+        Integer, Intent(IN),Dimension(:), allocatable                 :: N_Phi_vec
+        Integer, Intent(IN)                                           :: N_FL
+        Logical, Intent(IN)                                           :: Bulk
         Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
         Type(Lattice),  Intent(in)            :: Latt
         Type(Unit_cell),Intent(in)            :: Latt_unit
@@ -359,6 +361,7 @@
         Integer :: nf,N_Bonds, nc, I, I1, n, no
         Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8, Ham_Lambda_Max
 
+        Write(6,*) Ham_T_vec, Ham_Chem_vec
         Ham_Lambda_Max = 0.d0
         do nf = 1,N_FL
            if ( Abs(Ham_Lambda_vec(nf)) > Ham_Lambda_Max ) Ham_Lambda_Max =  Abs(Ham_Lambda_vec(nf))
@@ -401,7 +404,7 @@
            this(nf)%N_Phi =  N_Phi_vec(nf)
            this(nf)%Phi_X =  Phi_X_vec(nf)
            this(nf)%Phi_Y =  Phi_Y_vec(nf)
-           this(nf)%Bulk =   Bulk_vec(nf)
+           this(nf)%Bulk =   Bulk
         enddo
         
         ! Set Checkerboard
@@ -431,15 +434,16 @@
 !     
 !--------------------------------------------------------------------      
       Subroutine Set_Default_hopping_parameters_Bilayer_square(this,Ham_T1_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, &
-           &                                                   Phi_X_vec, Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+           &                                                   Phi_X_vec, Phi_Y_vec, Bulk,  N_Phi_vec, N_FL,&
            &                                                   List, Invlist, Latt, Latt_unit )
  
         Implicit none
         
         type  (Hopping_Matrix_type), allocatable            :: this(:)
-        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T1_vec(:), Ham_T2_vec(:), Ham_Tperp_vec(:), Ham_Chem_vec(:), Phi_x_vec(:), Phi_y_vec(:)
-        Integer, Intent(IN)                   :: N_Phi_vec(:), N_FL
-        Logical, Intent(IN)                   :: Bulk_vec(:)
+        Real (Kind=Kind(0.d0)), Intent(IN),dimension(:)  :: Ham_T1_vec, Ham_T2_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_x_vec, Phi_y_vec
+        Integer, Intent(IN),dimension(:)                 :: N_Phi_vec
+        Logical, Intent(IN)                   :: Bulk
+        Integer, Intent(IN)                   :: N_FL
         Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
         Type(Lattice),  Intent(in)            :: Latt
         Type(Unit_cell),Intent(in)            :: Latt_unit
@@ -527,7 +531,7 @@
            this(nf)%N_Phi =  N_Phi_vec(nf)
            this(nf)%Phi_X =  Phi_X_vec(nf)
            this(nf)%Phi_Y =  Phi_Y_vec(nf)
-           this(nf)%Bulk =   Bulk_vec(nf)
+           this(nf)%Bulk =   Bulk
         enddo
 
         ! Set Checkerboard
@@ -638,15 +642,16 @@
 !     
 !--------------------------------------------------------------------      
       Subroutine Set_Default_hopping_parameters_Bilayer_honeycomb(this,Ham_T1_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, &
-           &                                                      Phi_X_vec, Phi_Y_vec, Bulk_vec, N_Phi_vec, N_FL,&
+           &                                                      Phi_X_vec, Phi_Y_vec, Bulk, N_Phi_vec, N_FL,&
            &                                                      List, Invlist, Latt, Latt_unit)
  
         Implicit none
         
         type (Hopping_Matrix_type), allocatable           :: this(:)
-        Real (Kind=Kind(0.d0)), Intent(IN)    :: Ham_T1_vec(:), Ham_T2_vec(:), Ham_Tperp_vec(:), Ham_Chem_vec(:), Phi_x_vec(:), Phi_y_vec(:)
-        Integer, Intent(IN)                   :: N_Phi_vec(:), N_FL
-        Logical, Intent(IN)                   :: Bulk_vec(:)
+        Real (Kind=Kind(0.d0)), Intent(IN),dimension(:)  :: Ham_T1_vec, Ham_T2_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_x_vec, Phi_y_vec
+        Integer, Intent(IN),dimension(:)                 :: N_Phi_vec
+        Integer, Intent(IN)                   :: N_FL
+        Logical, Intent(IN)                   :: Bulk
         Integer, Intent(IN), Dimension(:,:)   :: List, Invlist
         Type(Lattice),  Intent(in)            :: Latt
         Type(Unit_cell),Intent(in)            :: Latt_unit
@@ -751,7 +756,7 @@
            this(nf)%N_Phi =  N_Phi_vec(nf)
            this(nf)%Phi_X =  Phi_X_vec(nf)
            this(nf)%Phi_Y =  Phi_Y_vec(nf)
-           this(nf)%Bulk =   Bulk_vec(nf)
+           this(nf)%Bulk =   Bulk
            
         enddo
         
@@ -904,9 +909,9 @@
         ! Clean
         Deallocate( L_FAM_C, List_Fam_C, Prop_Fam_C, List_Fam_tmp )
 
-        !Write(6,*)  this(1)%N_FAM
-        !Write(6,*)  L_FAM
-        !Write(6,*)  Prop_Fam
+        Write(6,*)  this(1)%N_FAM
+        Write(6,*)  this(1)%L_FAM
+        Write(6,*)  this(1)%Prop_Fam
         
       end Subroutine Symmetrize_Families
       
@@ -948,11 +953,14 @@
         If ( .not. Checkerboard) then
            allocate(Op_T(1,N_FL))
            do nf = 1,N_FL
+              Write(6,*)
               Call Op_make(Op_T(1,nf),Ndim)   ! This is too restrictive for the  Kondo type models. The hopping only occurs on one  subsystem. 
               N_Phi     = this(nf)%N_Phi
               Phi_X     = this(nf)%Phi_X  
               Phi_Y     = this(nf)%Phi_Y 
-              Bulk      = this(nf)%Bulk 
+              Bulk      = this(nf)%Bulk
+              !Write(6,*) N_Phi, Phi_X,Phi_Y, Bulk
+              !Write(6,*) This(nf)%list
               DO I = 1, Latt%N
                  do Nb = 1, this(nf)%N_bonds
                     no_I = this(nf)%list(Nb,1)
@@ -987,8 +995,8 @@
               endif
               Op_T(1,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
               Call Op_set(Op_T(1,nf))
-              !Do I = 1,Size(Op_T(nc,n)%E,1)
-              !   Write(6,*) Op_T(nc,n)%E(I)
+              !Do I = 1,Size(Op_T(1,nf)%E,1)
+              !   Write(6,*) Op_T(1,nf)%E(I)
               !Enddo
            Enddo
         Elseif (Checkerboard) then
