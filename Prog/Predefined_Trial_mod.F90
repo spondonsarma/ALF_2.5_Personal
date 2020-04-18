@@ -131,6 +131,12 @@
         Integer :: N, nf, I, I1, I2, nc, nc1, IK_u, I_u, J1, lp, J, N_Phi
         Logical :: Test=.false. ,  Bulk =.true. 
         Complex (Kind=Kind(0.d0)) :: Z_norm
+
+        Real (Kind=Kind(0.d0) ), allocatable :: Ham_T_vec(:), Ham_Tperp_vec(:), Ham_Chem_vec(:), Phi_X_vec(:), Phi_Y_vec(:),&
+               &                                Ham_T2_vec(:)
+        Logical, allocatable ::   Bulk_vec(:)
+        Integer, allocatable ::   N_Phi_vec(:)
+
         
         
         Allocate(WF_L(N_FL),WF_R(N_FL))
@@ -140,16 +146,35 @@
         enddo
 
 
+        
+        Allocate (Ham_T_vec(N_FL), Ham_T2_vec(N_FL), Ham_Tperp_vec(N_FL), Ham_Chem_vec(N_FL), Phi_X_vec(N_FL), Phi_Y_vec(N_FL),&
+             &                                  Bulk_vec(N_FL),  N_Phi_vec(N_FL) )
+
 
         Checkerboard  = .false.
         Kekule_Trial  = .false.
         Symm          = .false.
-        N_Phi = 0
-        Phi_X = 0.d0
-        Bulk  = .false.
+        
+
+        N_Phi    = 0
+        Phi_X    = 0.d0
+        Phi_X    = 0.d0
+        Bulk     = .false.
+        Ham_T    = 1.d0
+        Ham_T2   = 0.d0
+        Ham_Tperp_vec  = Ham_Tperp
         Ham_Chem = 0.d0
         Dtau     = 1.d0
-
+        
+        N_Phi_vec      = N_Phi
+        Phi_X_vec      = Phi_X
+        Phi_Y_vec      = Phi_Y
+        Bulk_vec       = Bulk
+        Ham_T_vec      = Ham_T
+        Ham_Tperp_vec  = Ham_Tperp
+        Ham_T2_vec     = Ham_T2
+        Ham_Chem_vec   = Ham_Chem
+        
 
         Select case (Lattice_type)
            
@@ -275,34 +300,38 @@
               Enddo
            endif
         Case ("Square")
-           Ham_T = 1.d0
-           Phi_X    = 0.01
-           Call  Set_Default_hopping_parameters_square(Hopping_Matrix_tmp,Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
+           Ham_T_vec    = 1.d0
+           Phi_X_vec    = 0.01
+           Call  Set_Default_hopping_parameters_square(Hopping_Matrix_tmp,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+                &                                      Bulk_vec,  N_Phi_vec, N_FL, &
                   &                                       List, Invlist, Latt, Latt_unit )
         Case ("N_leg_ladder")
-           Ham_T     = 1.d0
-           Ham_Tperp = 1.d0
-           Phi_X     = 0.01
-           Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix_tmp, Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                &                                       List, Invlist, Latt, Latt_unit )
+           Ham_T_vec     = 1.d0
+           Ham_Tperp_vec = 1.d0
+           Phi_X_vec     = 0.01
+           Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix_tmp, Ham_T_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, &
+                &                                            Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL, &
+                &                                            List, Invlist, Latt, Latt_unit )
            !Case ("Honeycomb")
            !   Ham_Lambda = 0.d0
            !   Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix_tmp, Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
            !        &                                       List, Invlist, Latt, Latt_unit )
         Case ("Bilayer_square")
-           Ham_T     = 1.d0
-           Ham_T2    = 0.d0
-           Ham_Tperp = 1.d0
-           Phi_X     = 0.00
-           Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit )
+           Ham_T_vec     = 1.d0
+           Ham_T2_vec    = 0.d0
+           Ham_Tperp_vec = 1.d0
+           Phi_X_vec     = 0.00
+           Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix_tmp,Ham_T_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, &
+                &                                              Phi_X_vec, Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+                &                                              List, Invlist, Latt, Latt_unit )
         Case ("Bilayer_honeycomb")
-           Ham_T     = 1.d0
-           Ham_T2    = 0.d0
-           Ham_Tperp = 1.d0
-           Phi_X     = 0.00
-           Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix_tmp,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                &                                       List, Invlist, Latt, Latt_unit )
+           Ham_T_vec     = 1.d0
+           Ham_T2_vec    = 0.d0
+           Ham_Tperp_vec = 1.d0
+           Phi_X_vec     = 0.00
+           Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix_tmp,Ham_T_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, &
+                &                                                 Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+                &                                                 List, Invlist, Latt, Latt_unit )
            
         case default
            Write(6,*) 'No predefined trial wave function '
@@ -362,6 +391,8 @@
         enddo
         Deallocate (OP_tmp)
         Call Predefined_hoppings_clear(Hopping_Matrix_tmp)
+
+        Deallocate (Ham_T_vec, Ham_Tperp_vec, Ham_T2_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec,  Bulk_vec,  N_Phi_vec )
 
       end Subroutine Predefined_TrialWaveFunction
 

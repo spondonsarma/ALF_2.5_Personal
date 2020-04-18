@@ -589,29 +589,49 @@
           
           Implicit none
 
-          Real (Kind=Kind(0.d0) ) ::  Ham_Lambda
+          Real (Kind=Kind(0.d0) ) ::  Ham_Lambda = 0.d0
+
+          Real (Kind=Kind(0.d0) ), allocatable :: Ham_T_vec(:), Ham_Tperp_vec(:), Ham_Chem_vec(:), Phi_X_vec(:), Phi_Y_vec(:),&
+               &                                  Ham_T2_vec(:),  Ham_Lambda_vec(:)
+          Logical, allocatable ::   Bulk_vec(:)
+          Integer, allocatable ::   N_Phi_vec(:)
 
           ! Use predefined stuctures or set your own hopping
           Integer :: n,nth
 
+          Allocate (Ham_T_vec(N_FL), Ham_T2_vec(N_FL), Ham_Tperp_vec(N_FL), Ham_Chem_vec(N_FL), Phi_X_vec(N_FL), Phi_Y_vec(N_FL),&
+               &                                  Bulk_vec(N_FL),  N_Phi_vec(N_FL), Ham_Lambda_vec(N_FL) )
+
+          ! Here we consider no N_FL  dependence of the hopping parameters.
+          Ham_T_vec      = Ham_T
+          Ham_Tperp_vec  = Ham_Tperp
+          Ham_Chem_vec   = Ham_Chem
+          Phi_X_vec      = Phi_X
+          Phi_Y_vec      = Phi_Y
+          Bulk_vec       = Bulk
+          Ham_T2_vec     = Ham_T2
+          Ham_Lambda_vec = Ham_Lambda
+          
           Select case (Lattice_type)
           Case ("Square")
-             Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit )
+             Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+                  &                                      Bulk_vec, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
           Case ("N_leg_ladder")
-             Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix, Ham_T, Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit )
+             Call  Set_Default_hopping_parameters_n_leg_ladder(Hopping_Matrix, Ham_T_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, &
+                  &                                            Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
           Case ("Honeycomb")
              Ham_Lambda = 0.d0
-             Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix, Ham_T, Ham_Lambda, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit )
+             Call  Set_Default_hopping_parameters_honeycomb(Hopping_Matrix, Ham_T_vec, Ham_Lambda_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+                  &                                         Bulk_vec,  N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
           Case ("Bilayer_square")
-             Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit )
+             Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix,Ham_T_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, &
+                  &                                              Phi_X_vec, Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+                  &                                              List, Invlist, Latt, Latt_unit )
 
           Case ("Bilayer_honeycomb")
-             Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix,Ham_T,Ham_T2,Ham_Tperp, Ham_Chem, Phi_X, Phi_Y, Bulk,  N_Phi, N_FL,&
-                  &                                       List, Invlist, Latt, Latt_unit )
+             Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix,Ham_T_vec,Ham_T2_vec,Ham_Tperp_vec, Ham_Chem_vec, &
+                  &                                                 Phi_X_vec, Phi_Y_vec, Bulk_vec,  N_Phi_vec, N_FL,&
+                  &                                                 List, Invlist, Latt, Latt_unit )
 
           end Select
           
@@ -620,9 +640,6 @@
           !Call Predefined_Hopping(Lattice_type, Ndim, List,Invlist, Latt, Latt_unit, &
           !     &                      Dtau, Ham_T, Ham_Chem,  Phi_X, Phi_Y, Bulk, N_Phi,   &
           !      &                      N_FL,  Checkerboard, Symm, OP_T )
-          
-          
-          
           !Do Nth = 1,1
           !   Do n = 1, size(OP_T(1,1)%E)
           !      Write(31,"(I4,2x,F14.7)") n_Phi, OP_T(1,1)%E(n) 
@@ -632,6 +649,9 @@
           !   Deallocate (OP_T)
           !Enddo
           !Stop
+          
+          Deallocate (Ham_T_vec, Ham_T2_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+               &                                  Bulk_vec,  N_Phi_vec,  Ham_Lambda_vec )
           
         end Subroutine Ham_Hop
 !--------------------------------------------------------------------
