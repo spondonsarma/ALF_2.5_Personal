@@ -712,7 +712,7 @@
               nc = nc + 1
               this(nf)%T(nc)    = cmplx(-Ham_Tperp_vec(nf),0.d0,kind(0.d0))
               this(nf)%List(nc,1) =  1
-              this(nf)%List(nc,2) =  3
+              this(nf)%List(nc,2) =  3 
               this(nf)%List(nc,3) =  0
               this(nf)%List(nc,4) =  0
 

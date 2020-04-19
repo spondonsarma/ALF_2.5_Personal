@@ -155,12 +155,13 @@
         Symm          = .false.
         
 
-        N_Phi    = 0
-        Phi_X    = 0.d0
-        Phi_Y    = 0.d0
-        Bulk     = .false.
-        Ham_T    = 1.d0
-        Ham_T2   = 0.d0
+        N_Phi       = 0
+        Phi_X       = 0.d0
+        Phi_Y       = 0.d0
+        Bulk        = .false.
+        Ham_T       = 1.d0
+        Ham_T2      = 0.d0
+        Ham_Tperp   = 0.d0
         Ham_Tperp_vec  = Ham_Tperp
         Ham_Chem = 0.d0
         Dtau     = 1.d0
@@ -302,7 +303,7 @@
            Phi_X_vec    = 0.01
            Call  Set_Default_hopping_parameters_square(Hopping_Matrix_tmp,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
                 &                                      Bulk,  N_Phi_vec, N_FL, &
-                  &                                       List, Invlist, Latt, Latt_unit )
+                  &                                    List, Invlist, Latt, Latt_unit )
         Case ("N_leg_ladder")
            Ham_T_vec     = 1.d0
            Ham_Tperp_vec = 1.d0
