@@ -72,12 +72,9 @@
          real (Kind=Kind(0.d0)) :: Phi_X, Phi_Y
 
 
-
-
          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, Phi_y, Symm, Bulk, N_Phi
 
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
-
 
 
          Checkerboard = .false.
