@@ -61,13 +61,15 @@
          Real (Kind=Kind(0.d0)) :: Pi, a1_p(2), a2_p(2), L1_p(2), L2_p(2), del_p(2)
          Real (Kind=Kind(0.d0)), allocatable :: AutoCorr(:),En(:)
 
-         Integer             :: L1, L2, I, N_auto, N_SUN
-         Character (len=64)  :: Model, Lattice_type
-         Type (Lattice)      :: Latt
-         Character (len=64)  :: File_out
-         Logical             :: Checkerboard	 , Symm
+         Integer                :: L1, L2, I, N_auto, N_SUN
+         Character (len=64)     :: Model, Lattice_type
+         Type (Lattice)         :: Latt
+         Character (len=64)     :: File_out
+         Logical                :: Checkerboard	 , Symm
+         Real (Kind=Kind(0.d0)) :: XB_X, Phi_X
 
-         NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard, Symm
+         NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, XB_X, Symm
+
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
 
 
