@@ -37,7 +37,6 @@ operator  which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN}.
 %$N_{\mathrm{fl}} = 1$,  $M_V = N_{\text{unit-cell}} $,  $U_{k} =  -\frac{U}{N_{\mathrm{col}}}$,  $V_{x y}^{(ks)} =  \delta_{x,y} \delta_{x,k}$, and $\alpha_{ks} = -\frac{1}{2}$; and which is defined in the subroutine \texttt{Predefined\_Int\_U\_SUN} by a single operator:
 
 \begin{lstlisting}[style=fortran]
-
 Op%P(1)   = i
 Op%O(1,1) = cmplx(1.d0,  0.d0, kind(0.D0))
 Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
@@ -61,7 +60,6 @@ which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by settin
 $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN} =1 $,  $M_V =  N_{\text{unit-cell}} $,  $U_{k} = \frac{U}{2}$, 
 $V_{x y}^{(i, s=1)} =  \delta_{x,y} \delta_{x,i}  $,  $V_{x y}^{(i, s=2)} =  - \delta_{x,y} \delta_{x,i}  $, and $\alpha_{is}   = 0  $; and which is defined in the subroutine \texttt{Predefined\_Int\_U\_MZ} by two operators:
 \begin{lstlisting}[style=fortran]
-
 Op_up%P(1)   = I
 Op_up%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
 Op_up%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
@@ -86,7 +84,6 @@ The interaction term of the generalized t-V model, given by
 \end{align} 
 is coded in the subroutine \texttt{Predefined\_Int\_V\_SUN} by a single symmetric operator:
 \begin{lstlisting}[style=fortran]
-
 Op%P(1)   = I
 Op%P(2)   = J
 Op%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
@@ -108,7 +105,6 @@ The interaction between the Ising and a fermion degree of freedom, given by
 \end{align} 
 where $\xi$ determines the coupling strength, is implemented in the subroutine \texttt{Predefined\_Int\_Ising\_SUN}:
 \begin{lstlisting}[style=fortran]
-
 Op%P(1)   = I
 Op%P(2)   = J
 Op%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
@@ -161,7 +157,6 @@ Here  we use periodic boundary conditions such that  $\overline{\vec{i} - \vec{j
 
 The LRC interaction is implemented in the subroutine \texttt{Predefined\_Int\_LRC}:
 \begin{lstlisting}[style=fortran]
-
 Op%P(1)   = I
 Op%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
 Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
@@ -183,7 +178,6 @@ which, if particle fluctuations are frozen on the $i$ and $j$ sites, then $(S^{z
 
 The implementation of the interaction in \texttt{Predefined\_Int\_Jz} defines two operators:
 \begin{lstlisting}[style=fortran]
-
 Op_up%P(1)   = I
 Op_up%P(2)   = J
 Op_up%O(1,1) = cmplx(1.d0,              0.d0, kind(0.D0))

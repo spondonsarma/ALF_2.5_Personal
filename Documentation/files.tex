@@ -42,7 +42,6 @@ The parameter file \path{Start/parameters} has the following form --
 using as an example  the $SU(2)$-symmetric Hubbard model on a square lattice (see Sec.~\ref{sec:walk1} for a detailed walkthrough):
 %
 \begin{lstlisting}[style=fortran]
-
 !===============================================================================
 !  Variables for the Hubb program
 !-------------------------------------------------------------------------------
@@ -113,7 +112,6 @@ N_Cov   = 0               ! If set to 1 covariance will be computed
 
 The program allows for a number of different  updating schemes.  If no other variables are specified in the \texttt{VAR\_QMC} name space, then the program will run in its default mode, namely the sequential single spin-flip mode.   The additional, optional variables in   \texttt{VAR\_QMC}   include the following: 
 \begin{lstlisting}[style=fortran]
-
 &VAR_QMC                 ! Variables for the QMC run 
 Propose_S0      = .true. ! Proposes single spin flip moves with probability exp(-S0) 
 Global_moves    = .true. ! Allows for global moves in space and time 
@@ -132,7 +130,6 @@ Note that if \texttt{Nt\_sequential\_start}  and \texttt{Nt\_sequential\_end}  a
 
 If the program is compiled with the parallel tempering flag, then the additional name space \texttt{VAR\_TEMP} has to be included in the parameter file.
 \begin{lstlisting}[style=fortran,escapechar=\%]
-
 &VAR_TEMP                      ! Variables for parallel tempering
 N_exchange_steps      = 6      ! Number of exchange moves %[see Eq.~\eqref{eq:exchangestep}]%
 N_Tempering_frequency = 10     ! The frequency in units of sweeps at which the
@@ -147,7 +144,6 @@ Tempering_calc_det    = .true. ! Specifies whether the fermion weight has to be 
 
 Additionally, in order for the maximum entropy code, described in Sec.~\ref{sec:maxent}, to be used, the namelist \texttt{VAR\_Max\_Stoch} should also be defined:
 \begin{lstlisting}[style=fortran]
-
 &VAR_Max_Stoch               ! Variables for Stochastic Maximum entropy
 Ngamma     = 400             ! # of Dirac delta-functions for parametrization
 Om_st      = 0               ! Frequency range lower bound
