@@ -91,12 +91,12 @@
 
         Implicit none
 
-        Type  (Hopping_Matrix_type), allocatable        :: this(:)
+        Type  (Hopping_Matrix_type)        :: this(:)
         Integer :: n
         do n = 1, size(This,1)
            deallocate (this(n)%T,this(n)%T_loc,this(n)%list)
-           deallocate (this(n)%L_Fam, this(n)%List_Fam, this(n)%Multiplicity, this(n)%Prop_Fam )
         enddo
+        deallocate (this(1)%L_Fam, this(1)%List_Fam, this(1)%Multiplicity, this(1)%Prop_Fam )
       end Subroutine Predefined_hoppings_clear
 !--------------------------------------------------------------------
 !> @author 
@@ -171,7 +171,7 @@
               this(nf)%N_Phi =  N_Phi_vec(nf)
               this(nf)%Phi_X =  Phi_X_vec(nf)
               this(nf)%Phi_Y =  Phi_Y_vec(nf)
-              this(nf)%Bulk =   Bulk
+              this(nf)%Bulk  =  Bulk
            enddo
 
            !Set Checkerboard
