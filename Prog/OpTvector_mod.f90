@@ -32,15 +32,41 @@
 
 module OpTvector_mod
     implicit none
-    
-    type OpTbase ! Dummy data for now
-        double, dimension(5,5) :: data
+
+    ! Base for defining the interface
+    type, abstract :: OpTbase
+    contains
+    procedure(multabs), deferred :: mult
     end type optbase
+
+    abstract interface
+      subroutine multabs(this, arg)
+         import OpTbase
+         class(OpTbase), intent(in) :: this
+         Complex(kind=kind(0.d0)), intent(inout) :: arg
+      end subroutine
+    end interface
+
+    type, extends(OpTbase) :: RealOpT
+        Real(kind=kind(0.d0)) :: mat
+    contains
+        procedure :: mult => RealOpT_mult
+    end type RealOpT
+
+    type, extends(OpTbase) :: CmplxOpT
+        Complex(kind=kind(0.d0)) :: mat
+    contains
+        procedure :: mult => CmplxOpT_mult
+    end type CmplxOpT
+
+    type :: OpTBasePtrWrapper
+        class(optbase), pointer :: dat
+    end type
 
     type :: OpTvector
         integer :: avamem ! amount of available space
         integer :: tail ! last index
-        OpTbase, allocatable, dimension(:) :: data
+        type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
     contains
         procedure :: init => OpTvector_init
         procedure :: dealloc => OpTvector_dealloc
@@ -50,12 +76,24 @@ module OpTvector_mod
         procedure :: length => OpTvector_length
         ! FIXME: do we need insert?
     end type OpTvector
-    
+
 contains
+
+    subroutine RealOpT_mult(this, arg)
+        class(RealOpT), intent(in) :: this
+        Complex(kind=kind(0.d0)), intent(inout) :: arg
+        arg = arg * this%mat
+    end subroutine
+
+    subroutine CmplxOpT_mult(this, arg)
+        class(CmplxOpT), intent(in) :: this
+        Complex(kind=kind(0.d0)), intent(inout) :: arg
+        arg = arg * this%mat
+    end subroutine
 
 subroutine OpTvector_init(this)
     class(OpTvector) :: this
-    OpTbase :: temp
+    type(OpTbasePtrWrapper) :: temp
     this%tail = 1
     this%avamem = 4096/(STORAGE_SIZE(temp)/8) ! allocate a page of memory ! Note STORAGE_SIZE: F2008, SIZEOF: GCC Extension
     allocate(this%data(this%avamem))
@@ -68,8 +106,8 @@ end subroutine
 
 subroutine OpTvector_pushback(this, itm)
     class(OpTvector) :: this
-    OpTbase, intent(in) :: itm
-    OpTbase, allocatable, dimension(:) :: temp
+    type(OpTbasePtrWrapper), intent(in) :: itm
+    type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
     if (this%tail == this%avamem) then ! check if this still works the same as for plain ints.
         ! reallocate the memory
@@ -89,13 +127,13 @@ end subroutine
 subroutine OpTvector_at(this, pos, itm)
     class(OpTvector) :: this
     integer, intent(in) :: pos
-    OpTbase, intent(out) :: itm
+    type(OpTbasePtrWrapper), intent(out) :: itm
     itm = this%data(pos)
 end subroutine
 
 subroutine OpTvector_back(this, itm)
     class(OpTvector) :: this
-    OpTbase, intent(out) :: itm
+    type(OpTbasePtrWrapper), intent(out) :: itm
     itm = this%data(this%tail-1)
 end subroutine
 
