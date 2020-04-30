@@ -33,7 +33,7 @@ set pointsize 1.5
 set xrange [0.0:20] 
 set ylabel "$ |G(r=0,\\tau)| $"
 set xlabel "$ \\tau $"
-set title "$L=6,  U/t=2$, $\\beta t = 40 $ "
+set title "Honeycomb, $L=6,  U/t=2$, $\\beta t = 40 $ "
 #set x2label " $ \\frac{1}{2 \\theta t + \\beta t} $ "
 plot "HoneycombFT_Beta40_Dtau0.2/Green_R0/g_R0" u 1:(abs($2)):3 w e lc rgb col8  lt 1 pt 5  t "Sym N Check Y, $\\Delta \\tau = 0.2 $" ,\
      "HoneycombFT_Beta40_Dtau0.1/Green_R0/g_R0" u 1:(abs($2)):3 w e lc rgb col7  lt 1 pt 7  t "Sym N Check Y, $\\Delta \\tau = 0.1 $", \

@@ -1,4 +1,4 @@
-set size 0.8,0.8
+set size 1.1,0.8
 set terminal epslatex color standalone
 set output "Dtau.tex"
 set key center top
@@ -33,7 +33,7 @@ set xtics 0.0, 0.01, 0.04
 set xrange [0.0:0.2*0.2] 
 set ylabel "$ \\langle \\hat{H}  \\rangle $"
 set xlabel "$ (\\Delta  \\tau t)^{2} $"
-set title "$L=6,  U/t=4$, $\\beta t = 5 $ "
+set title "Square, $L=6,  U/t=4$, $\\beta t = 5 $ "
 #set x2label " $ \\frac{1}{2 \\theta t + \\beta t} $ "
 plot "NoSymNoCheck/Ener.dat" u ($1*$1):2:3 w e lc rgb col8 lt 1 pt 5  t "Sym N Check N", \
      "NoSymCheck/Ener.dat"   u ($1*$1):2:3 w e lc rgb col7 lt 1 pt 7  t "Sym N Check Y", \
