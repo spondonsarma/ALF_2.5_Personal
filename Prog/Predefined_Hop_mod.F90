@@ -73,7 +73,7 @@
          Integer                  , pointer :: L_Fam(:),  List_Fam(:,:,:), Multiplicity(:)
          Real    (Kind=Kind(0.d0)), pointer :: Prop_Fam(:)
 
-      end type Hopping_Matrix_Type
+      End type Hopping_Matrix_Type
 
       
       
