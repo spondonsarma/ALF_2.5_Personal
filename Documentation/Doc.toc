@@ -57,12 +57,12 @@
 \contentsline {subsubsection}{\numberline {7.1.5}Bilayer Square lattice}{44}{subsubsection.7.1.5}% 
 \contentsline {subsubsection}{\numberline {7.1.6}Bilayer Honeycomb lattice}{44}{subsubsection.7.1.6}% 
 \contentsline {subsection}{\numberline {7.2}Setting up the hopping matrix}{44}{subsection.7.2}% 
-\contentsline {subsubsection}{\numberline {7.2.1}Generic hopping matrix elements}{45}{subsubsection.7.2.1}% 
+\contentsline {subsubsection}{\numberline {7.2.1}Generic hopping matrices}{45}{subsubsection.7.2.1}% 
 \contentsline {subsubsection}{\numberline {7.2.2}Usage: the \texttt {Hopping\_Matrix\_type}}{46}{subsubsection.7.2.2}% 
-\contentsline {subsubsection}{\numberline {7.2.3}Predefined hopping matrices}{47}{subsubsection.7.2.3}% 
+\contentsline {subsubsection}{\numberline {7.2.3}Predefined hopping matrices}{46}{subsubsection.7.2.3}% 
 \contentsline {subsection}{\numberline {7.3}Interaction vertices}{48}{subsection.7.3}% 
 \contentsline {subsubsection}{\numberline {7.3.1}The $SU(N)$ Hubbard interaction}{48}{subsubsection.7.3.1}% 
-\contentsline {subsubsection}{\numberline {7.3.2}The $M_z$-Hubbard interaction}{48}{subsubsection.7.3.2}% 
+\contentsline {subsubsection}{\numberline {7.3.2}The $M_z$-Hubbard interaction}{49}{subsubsection.7.3.2}% 
 \contentsline {subsubsection}{\numberline {7.3.3}The $SU(N)$ $V$-interaction}{49}{subsubsection.7.3.3}% 
 \contentsline {subsubsection}{\numberline {7.3.4}The Fermion-Ising coupling}{49}{subsubsection.7.3.4}% 
 \contentsline {subsubsection}{\numberline {7.3.5}The long-Range Coulomb repulsion}{50}{subsubsection.7.3.5}% 
