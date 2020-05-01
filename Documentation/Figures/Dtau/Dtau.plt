@@ -1,4 +1,4 @@
-set size 1.1,0.8
+set size 1.1,0.9
 set terminal epslatex color standalone
 set output "Dtau.tex"
 set key center top
