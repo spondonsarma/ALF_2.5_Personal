@@ -33,7 +33,8 @@
 \hypersetup{linkcolor={blue!80!black},citecolor={blue!80!black},urlcolor={blue!99!black}}
 \usepackage{float} 
 \usepackage{placeins} 
-
+\usepackage{makeidx}
+%\usepackage[xindy]{imakeidx}
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
 
@@ -113,9 +114,11 @@
 \newcommand*{\blue}{\textcolor{blue}}
 \newcommand{\mycomment}[1]{{\color{red} #1}}
 \newcommand{\FAcomment}[1]{{\color{red} #1}}
+\newcommand{\ve}[1]{\boldsymbol{#1}}
 
 \renewcommand{\Re}{\operatorname{Re}}
 \renewcommand{\Im}{\operatorname{Im}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
 
 \makeindex
 \begin{document}
@@ -171,6 +174,7 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{./prXsty} 
 \bibliography{./fassaad,./doc}
+\printindex
 \addcontentsline{toc}{section}{License}
 \input{license}
 

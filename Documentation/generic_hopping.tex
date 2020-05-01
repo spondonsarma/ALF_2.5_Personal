@@ -8,19 +8,12 @@
 %-----------------------------------------------------------------------------------
 \subsection{ Setting up the hopping matrix }
 
-The module \texttt{Predefined\_Hopping}   provides a set of generic Hopping Hamiltonians.    For each  predefined lattice type 
-\texttt{Square}, \texttt{Honeycomb}, \texttt{N\_leg\_ladder},  \texttt{Bilayer\_honeycomb},  \texttt{Bilayer\_square},
-    this routine sets  up the nearest  neighbor hopping matrix with twisted boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by 
-\texttt{Phi\_1}  and \texttt{Phi\_2}  respectively.  If the flag  \texttt{bulk=.true.}   then   the twist will be implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist will be imposed at the boundary.   The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.   All above phase factors  can be flavor dependent.  
+The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify a  hopping matrix on a  multi-orbital   Bravais lattice.  The only  assumption that we will make is  translation symmetry.   We   allow  for twisted  boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by  \texttt{Phi\_1}  and \texttt{Phi\_2}  respectively.  If the flag  \texttt{bulk=.true.}   then   the twist will be implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist will be imposed at the boundary. The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.   All above phase factors  can be flavor dependent.     The checkerboard decomposition, can also be specified in this module.      All information, including the checkerboard decomposition is specified in the  \path{Hopping_Matrix_type}   type (see Sec. \ref{Hopping_Matrix_type.sec}) from which  the array of  operator type \path{OP_T},   accounting for the single particle propagation in one time step,  as well as the Kinetic energy can be derived.    
 
-Lattice specific information for the checkerboard  decomposition is   equally   provided such that for each aforementioned lattice type,  symmetric and asymmetric  checkerboard decompositions  are available.    
-
-\subsubsection{Generic hopping matrix elements}\label{sec:generic_hopping}
+\subsubsection{Generic hopping matrices}\label{sec:generic_hopping}
 %-----------------------------------------------------------------------------------
 
-
-Here we compute the hopping matrix element  between two sites of a given lattice  in the presence of twisted boundary conditions and  orbital magnetic field. 
-The generic Hopping Hamiltonian will read: 
+The generic Hopping Hamiltonian  reads: 
 \begin{equation}
 	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}^{(s)}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
 \end{equation}
@@ -46,7 +39,7 @@ that
 \begin{equation}
 	 \frac{\vec{B} \cdot \left( \vec{a} \times \vec{b}  \right) }{\Phi_0 } = N_{\Phi}   
 \end{equation}
-with  $N_\Phi $ an integer  The variable \texttt{N\_Phi},   specified in the parameter file,   denotes the number of flux quanta piercing the lattice.    The variables \texttt{Phi\_1}  and   \texttt{Phi\_2} also   in the parameter file denote  the twists  -- in units of the flux quanta  --  along the $\vec{L}_1$ and  $\vec{L}_2$ directions.     There are gauge  equivalent ways to insert the  twist in the boundary conditions. In the above we  have inserted   twist as a boundary condition such  for example setting  \texttt{Phi\_1=0.5}  corresponds to anti-periodic boundary conditions along the $L_1$  axis.   Alternatively we  can  consider the 
+with  $N_\Phi $ an integer.  The variable \texttt{N\_Phi},   specified in the parameter file,   denotes the number of flux quanta piercing the lattice.    The variables \texttt{Phi\_1}  and   \texttt{Phi\_2} also   in the parameter file denote  the twists  -- in units of the flux quanta  --  along the $\vec{L}_1$ and  $\vec{L}_2$ directions.     There are gauge  equivalent ways to insert the  twist in the boundary conditions. In the above we  have inserted   twist as a boundary condition such  that for example setting  \texttt{Phi\_1=0.5}  corresponds to anti-periodic boundary conditions along the $L_1$  axis.   Alternatively we  can  consider the 
 Hamiltonian:
 \begin{equation}
 	   \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    \tilde{c}^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'} \left(  \vec{A}(\vec{l})  + \vec{A}_{\phi} \right)  d \vec{l}} \tilde{c}^{}_{(j,\delta'),s,\sigma }
@@ -60,34 +53,155 @@ Here
 	\vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
 \end{equation}
 and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  on inserting the twist angle. If \texttt{bulk=\.true\.}    then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
-The information for the phases,    is encoded in  the type \texttt{Hopping\_matrix\_type} 
+The above phase factors are computed  in the   module function: 
+\begin{lstlisting}[style=fortran]
+complex function Generic_hopping(i,no_i, n_1, n_2, no_j, N_Phi, Phi_1,Phi_2, Bulk, 
+                                                         Latt, Latt_Unit)
+\end{lstlisting}
+that  returns the  phase factor involved in the hopping of a hole from lattice site $ \ve{i} + \ve{\delta}_{\text{no}_i} $ to 
+$\ve{i} + n_1 \ve{a}_1 + n_1 \ve{a}_2+ \ve{\delta}_{\text{no}_j}  $.  Here  $\ve{\delta}_{\text{no}_i}$  is  the position of the $\text{no}_i$  orbital in the unit cell
+$\ve{i}$. 
+As  we will see below, the information for the phases,   is encoded in  the type \texttt{Hopping\_matrix\_type} 
 
 \noindent
 \textbf{The  Hopping matrix elements}. 
-To specify the hopping matrix  we  assume  only translation invariance.  The point group symmetry of the lattice can be broken.   In particular, we set, for each flavor  index:
+To specify the hopping matrix  we  assume  only translation invariance.  (The point group symmetry of the lattice can be broken).    That is, we assume that  for  each flavor index: 
 \begin{equation} 
-	 T_{(i,\delta), (i +  n_1\vec{a}_1  + n_2 \vec{a}_2,\delta')}^{(s)}   =   t^{(s)}_{\delta_1,\delta_2,n_1,n_2, s}
+	 T_{(\ve{i},\ve{\delta}), (\ve{i} +  n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}')}^{(s)}   =   T^{(s)}_{(\ve{0},\ve{\delta}),  (n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}') }
+\label{Hop.eq}	 
 \end{equation}
 The right  hand side of the above equation is given  the type  \texttt{Hopping\_matrix\_type}.
+
 
 
 \noindent
 \textbf{The checkerboard decomposition.}   Aside from the hopping phases and hopping matrix elements, the \texttt{Hopping\_matrix\_type} type, contains information  concerning the checkerboard   decomposition.  In Eq.~\ref{Checkerboard.Eq} we wrote the hopping Hamiltonian as:
 \begin{equation}
-	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}   
+	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}  
 \end{equation}
-with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.   This decomposition is carried out for the aforementioned set of lattices with nearest neighbor  hopping matrix elements.  This information is stored in  \texttt{Hopping\_matrix\_type}. In this data type  \texttt{N\_FAM}  corresponds to the number of sets  ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM}   corresponds to the number of bonds in the set,  and finally, 
+with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.    The checkerboard decomposition depends on the   lattice type as well as on the hopping matrix elements.   The required  information is stored in  \texttt{Hopping\_matrix\_type}. In this data type  \texttt{N\_FAM}  corresponds to the number of sets  ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM}   corresponds to the number of bonds in the set,  and finally, 
  \texttt{LIST\_FAM(1:N\_FAM, 1:max(L\_FAM(:)), 2)}    contains  information concerning the two legs of the bonds.    In the checkerboard decomposition, care has to be taken for local terms: each site  occurs multiple times in the list of bonds.    Since we have postulated translation symmetry,    a one-dimensional array, \texttt{Multiplicity},  of length  given by  the number of orbitals per unit cell suffices to  encode the required information.  
  Finally to be able to generate  the imaginary time step of length $\Delta \tau$  we  have to know   by which fraction of  $\Delta \tau$   we have to propagate each set.  This information is given in  the array  \texttt{Prop\_Fam}.  
  
 
-The  data in the \texttt{Hopping\_matrix\_type} type suffices to uniquely define the  unit step propagation    for the Kinetic energy, for the  any combinations of the  \texttt{Checkerboard} and  \texttt{Symm}  options (see Sec.~\ref{sec:trotter}).   This is carried out in the routine \texttt{Predefined\_Hoppings\_set\_OPT}. 
-Finally  \texttt{Hopping\_matrix\_type}     allows to compute the kinetic energy. This  task is carried out in  \texttt{Predefined\_Hoppings\_Compute\_Kin}.
 
 
-\subsubsection{Usage}
 
-Two steps. 
-a)  Set  \texttt{Hopping\_matrix\_type}  with predefined routines for the supported lattices   b) Set \texttt{OP\_T}  with  \texttt{Predefined\_Hoppings\_set\_OPT}.   
-{\color{red}FFA:  Jefferson, it would be nice if you would provide more detailed info on this. }
+\subsubsection{Usage: the  \texttt{Hopping\_Matrix\_type} }
+\label{Hopping_Matrix_type.sec} 
 
+
+We will assume that there are  \path{N_bonds}   hopping   matrix  elements  emanating  from  a  given unit  cell. For  each bond,  the array 
+\texttt{List}   contains the full  information to define the  RHS of Eq.~\eqref{Hop.eq}.    The hopping amplitudes are  stored in the  array  \texttt{T}  and the local potentials in the  array \texttt{T\_loc}   (See  Table~\ref{table:Hopping_matrix}).    The  \texttt{Hopping\_Matrix\_type}   type    also contains the information for the  checkerboard   decomposition.
+
+\begin{table}[h]
+    \begin{tabular}{@{} l l l @{}}\toprule
+    Variable & Type & Description \\\midrule
+     \texttt{N\_bonds}  &  Integer  &      Number of  hopping  matrix elements emanating from a unit cell   \\
+     \texttt{List(N\_bonds,4)}    & Integer &  List( $\bullet$,1) =   $\delta$ \\
+                                              &              &  List( $\bullet$,2) =   $\delta'$ \\
+                                              &              &  List( $\bullet$,3) =   $n_1$     \\
+                                              &              &  List( $\bullet$,4) =   $n_2$     \\ 
+     \texttt{T(N\_bonds)}          & Complex &   Hopping amplitude   \\
+     \texttt{T\_loc(Norb)}           & Complex &    Onsite  potentials (e.g.  Chemical potential, Zeeman field)   \\
+     \texttt{N\_Phi}                    & Integer     &  Number of  flux quanta piercing the lattice.   \\
+     \texttt{Phi\_X}                    &  Real        &   Twist in $\ve{a}_1$  direction.   \\
+     \texttt{Phi\_Y}                    &  Real        &   Twist in $\ve{a}_2$  direction.   \\
+     \texttt{Bulk}                        &   Logical   &   Twist as vector potential (T) or  boundary condition (F).
+        \\  \\
+      \texttt{N\_Fam}                &  Integer  &      Number of  sets, $N_T$, in Eq.~\eqref{Checkerboard.Eq}.   \\
+      \texttt{L\_Fam(N\_FAM)}  &  Integer &       Number of bonds per  set.   \\    
+      \texttt{List\_Fam(N\_FAM, L\_FAM, 2)}     &  Integer  &   List Fam($ \bullet,\bullet $, 1) =  Unit cell \\
+                                              &                        &          List Fam($\bullet,\bullet$ , 2) =   Bond number \\
+       \texttt{Multiplicity(Norb)} & Integer           &        Number of  times a  given orbital  occurs in the list of bonds  \\
+       \texttt{Prop\_Fam} &  Real            &         The fraction of $ \Delta \tau $   with which the set will be propagated   \                                
+        \\\bottomrule
+   \end{tabular}
+   \caption{Member variables of the \texttt{Hopping\_Matrix\_type}  type.   
+    \label{table:Hopping_matrix}}
+\end{table}
+
+The  data in the \texttt{Hopping\_matrix\_type} type suffices to uniquely define the  unit step propagation    for the Kinetic energy, and for  any combinations of the  \texttt{Checkerboard} and  \texttt{Symm}  options (see Sec.~\ref{sec:trotter}).   This is carried  by the call: 
+\begin{lstlisting}[style=fortran]
+Call Predefined_Hoppings_set_OPT(Hopping_Matrix,List,Invlist,Latt,  Latt_unit,  Dtau, 
+                             Checkerboard, Symm, OP_T )
+\end{lstlisting}
+in which  the  operator   array  \path{OP_T(*,N_FL )}   is  allocated and defined.    In the simplest  case, where no  checkerboard is  used, the  first dimension  is  unity. 
+
+The   data in  the \texttt{Hopping\_matrix\_type} type   equally  suffices to compute  the kinetic energy.  This is carried out in the routine:  \texttt{Predefined\_Hoppings\_Compute\_Kin}.
+
+
+
+
+\subsubsection{Predefined hopping  matrices}
+The  module provides hopping   and  checkerboard decompositions for   the predefined lattices.   
+ 
+ \noindent
+ \textbf{Square}.     The call:
+ \begin{lstlisting}[style=fortran]
+ Call Set_Default_hopping_parameters_square(Hopping_Matrix, T_vec, Chem_vec, Phi_X_vec,  
+          Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
+\end{lstlisting}
+defines  the  \path{Hopping_Matrix} (an array of length  \path{N_FL} of type  \path{Hopping_Matrix_type})    for the square  lattice: 
+\begin{equation}
+\hat{H}_T  =   \sum_{\ve{i}, \sigma, s}  \left( \left[ \sum_{ \ve{\delta} = \left\{ \ve{a}_1, \ve{a}_2\right\} }    - t^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{\delta}}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{\delta},s,\sigma} +  H.c.   \right]    -  \mu^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma} \hat{c}^{}_{\ve{i},s,\sigma}  \right) 
+\end{equation}
+The vectors  \path{T_vec, Chem_vec} of  length \texttt{N\_FL}    specify the hopping and the chemical potential   and the  vectors 
+\path{Phi_X_vec,  Phi_Y_vec, N_Phi_vec}  again of  length  \texttt{N\_FL}    define the vector potential. 
+
+\noindent
+ \textbf{Honeycomb}.     The call: 
+ \begin{lstlisting}[style=fortran]
+ Call Set_Default_hopping_parameters_honeycomb(Hopping_Matrix,T_vec, Chem_vec, 
+          Phi_X_vec, Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
+\end{lstlisting}
+defines  the  \path{Hopping_Matrix} (of type  \path{Hopping_Matrix_type})    for the  Honeycomb lattice: 
+\begin{equation}
+\hat{H}_T  =   \sum_{\ve{i}, \sigma, s}  \left( \left[ \sum_{ \ve{\delta} = \left\{ \ve{\delta}_1, \ve{\delta}_2, \ve{\delta}_3\right\} }    - t^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{\delta}}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{\delta},s,\sigma} +  H.c.  \right]      -  \mu^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma} \hat{c}^{}_{\ve{i},s,\sigma}  \right) 
+\end{equation}
+The vectors  \path{T_vec, Chem_vec} of  length \texttt{N\_FL}    specify the hopping and the chemical potential   and the  vectors 
+\path{Phi_X_vec,  Phi_Y_vec, N_Phi_vec}  again of  length  \texttt{N\_FL}    define the vector potential.    Here $\ve{i}$  runs over  sublattice  A,     
+$\ve{i} + \ve{\delta}$    over the three nearest neighbours of site $\ve{i}$
+
+
+\noindent
+\textbf{Square bilayer}.     The call:
+ \begin{lstlisting}[style=fortran]
+Call  Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix,T1_vec, T2_vec,Tperp_vec, 
+      Chem_vec,  Phi_X_vec, Phi_Y_vec, Bulk,  N_Phi_vec, N_FL,  List, Invlist, Latt, Latt_unit)
+\end{lstlisting}  
+defines  the  \path{Hopping_Matrix} (  a vector of length \path{N_FL}  and of type  \path{Hopping_Matrix_type})    for the  bilayer  square  lattice:                 
+\begin{eqnarray}
+\hat{H}_T  =  & &   \sum_{\ve{i}, \sigma, s,n } \left(    \left[  \sum_{ \ve{\delta} = \left\{ \ve{a}_1, \ve{a}_2\right\} }  - t_n^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{\delta}}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{\delta},s,\sigma,n} +  H.c. \right]       -  \mu^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n} \hat{c}^{}_{\ve{i},s,\sigma,n}  \right)  +  \nonumber \\
+      & &    \sum_{\ve{i}, \sigma, s } -  t_{\perp}^{(s)}  \left( \hat{c}^{\dagger}_{\ve{i},s,\sigma,1} \hat{c}^{}_{\ve{i},s,\sigma,2}    + H.c.  \right) 
+\end{eqnarray}
+Here, the additional  index  $n$  defines the   layer.  
+
+\noindent
+\textbf{Square honeycomb}.     The call:
+ \begin{lstlisting}[style=fortran]
+Call  Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix,T1_vec, T2_vec,Tperp_vec, 
+      Chem_vec,  Phi_X_vec, Phi_Y_vec, Bulk,  N_Phi_vec, N_FL,  List, Invlist, Latt, Latt_unit)
+\end{lstlisting}  
+defines  the  \path{Hopping_Matrix} (  a vector of length \path{N_FL}  and of type  \path{Hopping_Matrix_type})    for the  bilayer   honeycomb  lattice:                 
+\begin{eqnarray}
+\hat{H}_T  =  & &   \sum_{\ve{i}, \sigma, s,n } \left(    \left[  \sum_{ \delta = \left\{ \ve{\delta}_1, \ve{\delta}_2, \ve{\delta}_3 \right\} }  - t_n^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{\delta}}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{\delta},s,\sigma,n} +  H.c. \right]       -  \mu^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n} \hat{c}^{}_{\ve{i},s,\sigma,n}  \right)  +  \nonumber \\
+      & &    \sum_{\ve{i}, \sigma, s } -  t_{\perp}^{(s)}  \left( \hat{c}^{\dagger}_{\ve{i},s,\sigma,1} \hat{c}^{}_{\ve{i},s,\sigma,2}   +
+                   \hat{c}^{\dagger}_{\ve{i} + \ve{\delta}_1,s,\sigma,1} \hat{c}^{}_{\ve{i} + \ve{\delta}_1,s,\sigma,2}  + H.c.  \right) 
+\end{eqnarray}
+Here, the additional  index  $n$  defines the   layer.  
+
+
+\noindent
+\textbf{N leg ladder}.     The call:
+ \begin{lstlisting}[style=fortran]
+Call  Set_Default_hopping_parameters_n_lag_ladder(Hopping_Matrix,T_vec,Tperp_vec, 
+      Chem_vec,  Phi_X_vec, Phi_Y_vec, Bulk,  N_Phi_vec, N_FL,  List, Invlist, Latt, Latt_unit)
+\end{lstlisting}  
+defines  the  \path{Hopping_Matrix} (  a vector of length \path{N_FL}  and of type  \path{Hopping_Matrix_type})    for the   the  N leg ladder lattice:                 
+\begin{eqnarray}
+\hat{H}_T  =  & &   \sum_{\ve{i}, \sigma, s }  \sum_{n=1}^{\texttt{Norb}} \left(      - t^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{a}_1}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{a}_1,s,\sigma,n} +  H.c.       -  \mu^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma,n} \hat{c}^{}_{\ve{i},s,\sigma,n}  \right)  +  \nonumber \\
+      & &    \sum_{\ve{i}, \sigma, s } \sum_{n=1}^{\texttt{Norb}-1}  -  t_{\perp}^{(s)}  \left( 
+                   \hat{c}^{\dagger}_{\ve{i} + \ve{\delta}_1,s,\sigma,n}  e^{\frac{2 \pi i}{\Phi_0} \int_{(n-1)\ve{a}_2}^{(n)\ve{a}_2}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}    \hat{c}^{}_{\ve{i} + \ve{\delta}_1,s,\sigma,n+1}  + H.c.  \right) 
+\end{eqnarray}
+Here, the additional  index  $n$  defines  the orbital.  Note that this lattice  has open boundary conditions in the $\vec{a}_2$  direction. 
