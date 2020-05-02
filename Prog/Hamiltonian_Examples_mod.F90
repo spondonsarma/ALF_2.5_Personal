@@ -198,15 +198,17 @@
           ! Interaction                              -->  Model
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter. 
           
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, Phi_y, Symm, Bulk, N_Phi
+          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U,  Dtau, Beta, Theta, Projector, ham_T2, ham_U2, ham_Tperp 
+          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
+
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp 
           
-          NAMELIST /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change
 
-          NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi
 
-          NAMELIST /VAR_t_V/      Ham_T, ham_chem, ham_tV, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_t_V/      Ham_T, ham_chem, ham_tV
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
@@ -216,10 +218,15 @@
           N_SUN        = 1
           Checkerboard = .false.
           Symm         = .false.
+          Projector    = .false.
           Bulk         = .true. 
           Phi_X        = 0.d0
           Phi_Y        = 0.d0
           N_Phi        = 0
+          Ham_T2       = 0.d0
+          Ham_Tperp    = 0.d0
+          Ham_U2       = 0.d0
+
           
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
@@ -243,6 +250,7 @@
                 STOP
              END IF
              READ(5,NML=VAR_lattice)
+             READ(5,NML=VAR_Model_Generic)
  
 #ifdef MPI
           Endif
@@ -257,9 +265,15 @@
           CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
           CALL MPI_BCAST(Bulk        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
           CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Ltrot       ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Thtrot      ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+
 #endif
           
-          Call  Ham_Latt
+          Call  Ham_Latt 
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -284,12 +298,6 @@
 
 
           ! Default is finite temperature. 
-          Projector = .false.
-          Theta     = 0.d0
-          Thtrot    = 0
-          Ham_T2    = 0.d0
-          Ham_Tperp = 0.d0
-          Ham_U2    = 0.d0
           Select Case (Model)
           Case ("LRC")
              N_SUN = 2
@@ -321,16 +329,11 @@
              Endif   
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot         ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Thtrot        ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Projector     ,1,MPI_LOGICAL,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem      ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_alpha     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Percent_change,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Dtau          ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Beta          ,1,MPI_REAL8  ,0,Group_Comm,ierr)
 #endif
              
           Case ("Hubbard_Mz")
@@ -361,14 +364,9 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
@@ -402,14 +400,9 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
@@ -449,14 +442,9 @@
                 Stop
              Endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,Group_Comm,ierr)
@@ -489,14 +477,9 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(Ltrot    ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Thtrot   ,1,MPI_INTEGER,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Projector,1,MPI_LOGICAL,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_tV   ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
 #endif
           Case default 
              Write(6,*) "Model not yet implemented!"
