@@ -62,23 +62,19 @@
          Real (Kind=Kind(0.d0)) :: Pi, a1_p(2), a2_p(2), L1_p(2), L2_p(2), del_p(2)
          Real (Kind=Kind(0.d0)), allocatable :: AutoCorr(:),En(:)
 
-         Integer                :: L1, L2, I, N_auto, N_SUN, N_Phi, Ndim
+         Integer                :: L1, L2, I, N_auto, Ndim
          Character (len=64)     :: Model, Lattice_type
          Type (Lattice)         :: Latt
          Integer , Dimension(:,:), allocatable  :: List, Invlist
          Type(Unit_cell)        :: Latt_Unit
          Character (len=64)     :: File_out
-         Logical                :: Checkerboard	 , Symm, Bulk
-         real (Kind=Kind(0.d0)) :: Phi_X, Phi_Y
 
 
-         NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model,  Checkerboard, N_SUN, Phi_X, Phi_y, Symm, Bulk, N_Phi
+         NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
          NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
 
 
-         Checkerboard = .false.
-         N_SUN  = 1
          N_Back = 1
          N_auto = 0
          OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
