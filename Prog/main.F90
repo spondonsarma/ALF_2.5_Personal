@@ -250,7 +250,7 @@ Program Main
 #ifdef MPI
         If (  Irank == 0 ) then
 #endif
-           write (*,*) "ALF Copyright (C) 2016 - 2018 The ALF project contributors"
+           write (*,*) "ALF Copyright (C) 2016 - 2020 The ALF project contributors"
            write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
            write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
 #ifdef MPI
@@ -301,7 +301,6 @@ Program Main
         endif
         !  Default values of  measuring interval.
         if (Projector)  then
-           !
            if ( LOBS_ST == 0  ) then 
               LOBS_ST = Thtrot+1
            else

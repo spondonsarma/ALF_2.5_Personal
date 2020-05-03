@@ -158,7 +158,7 @@
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
-      Character (len=64),   private :: Model, Lattice_type
+      Character (len=64),   private :: Model, Lattice_type,  HS
       Logical,              private :: Checkerboard,  Bulk
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
@@ -200,11 +200,11 @@
           
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
-          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp 
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Hs
           
-          NAMELIST /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change
+          Namelist /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change
 
           NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi
 
@@ -270,6 +270,7 @@
           CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          
 
 #endif
           
@@ -336,9 +337,7 @@
              CALL MPI_BCAST(Percent_change,1,MPI_REAL8  ,0,Group_Comm,ierr)
 #endif
              
-          Case ("Hubbard_Mz")
-             N_FL  = 2
-             N_SUN = 1
+          Case ("Hubbard")
 #ifdef MPI
              If (Irank_g == 0 ) then
 #endif
@@ -355,6 +354,9 @@
                   Write(50,*) 'Beta          : ', Beta
                 endif
                 Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
+                If ( "HS" == "Mz" ) then
+                   N_FL=2
+                Endif
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
                 Write(50,*) 't             : ', Ham_T
@@ -364,48 +366,14 @@
              Endif
 #endif
 #ifdef MPI
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T2   ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U2   ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_Tperp,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(HS       ,64,MPI_CHARACTER, 0,Group_Comm,IERR)
              
-#endif
-          Case ("Hubbard_SU2")
-             N_FL = 1
-             N_SUN = 2
-#ifdef MPI
-             If (Irank_g == 0 ) then
-#endif
-                READ(5,NML=VAR_Hubbard)
-                Ltrot = nint(beta/dtau)
-                if (Projector) Thtrot = nint(theta/dtau)
-                Ltrot = Ltrot+2*Thtrot
-                if (Projector) then
-                   Write(50,*) 'Projective version'
-                   Write(50,*) 'Theta         : ', Theta
-                   Write(50,*) 'Tau_max       : ', beta
-                else
-                   Write(50,*) 'Finite temperture version'
-                   Write(50,*) 'Beta          : ', Beta
-                endif
-                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-                Write(50,*) 'N_SUN         : ', N_SUN
-                Write(50,*) 'N_FL          : ', N_FL
-                Write(50,*) 't             : ', Ham_T
-                Write(50,*) 'Ham_U         : ', Ham_U
-                Write(50,*) 'Ham_chem      : ', Ham_chem
-#ifdef MPI
-             Endif
-#endif
-#ifdef MPI
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U2   ,1,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_Tperp,1,MPI_REAL8  ,0,Group_Comm,ierr)
 #endif
           Case ("Hubbard_SU2_Ising")
              N_FL = 1
@@ -486,6 +454,10 @@
              Stop
           end Select
 
+          If (Model == "Hubbard" )  then
+             If (N_FL ==  2 ) Model = "Hubbard_Mz"
+             If (N_FL ==  1 ) Model = "Hubbard_SU2"
+          Endif
           Call  Ham_Hop
 
           
@@ -1456,7 +1428,7 @@
 !>  the initial field
 !> \endverbatim
 !--------------------------------------------------------------------
-      Subroutine  Hamiltonian_set_nsigma(Initial_field) 
+     Subroutine  Hamiltonian_set_nsigma(Initial_field) 
         Implicit none
 
         Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
