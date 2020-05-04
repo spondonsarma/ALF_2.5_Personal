@@ -486,26 +486,41 @@
           Use Predefined_Int
           Implicit none 
           
-          Integer :: nf, I, I1, I2,  nc, nc1,  J
+          Integer :: nf, I, I1, I2,  nc, nc1,  J, no
           Real (Kind=Kind(0.d0)) :: X
-
+          Real (Kind=Kind(0.d0)), allocatable :: Ham_U_vec(:)
           
+
+          Allocate (Ham_U_vec(Latt_unit%Norb))
+          Ham_U_vec(:)  = Ham_U
+          if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
+             Ham_U_vec(1) = Ham_U
+             Ham_U_vec(2) = Ham_U2
+          endif
           Select case (Model)
           Case ("Hubbard_SUN")  
              !Write(50,*) 'Model is ', Model
              Allocate(Op_V(Ndim,N_FL))
-             Do I = 1,Ndim
-                Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U  )
+             Do I1 = 1,Latt%N
+                do no = 1, Latt_unit%Norb
+                   I = invlist(I1,no)
+                   Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                Enddo
              Enddo
           Case ("Hubbard_Mz") 
              Allocate(Op_V(Ndim,N_FL))
-             do i  = 1, Ndim
-                Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U ) 
+             Do I1 = 1,Latt%N
+                do no = 1, Latt_unit%Norb
+                   I = invlist(I1,no)
+                   Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U_vec(no) ) 
+                enddo
              enddo
           case default
              Write(6,*) "Model not yet implemented!"
              Stop
           end Select
+
+          Deallocate (Ham_U_vec)
           
         end Subroutine Ham_V
 
