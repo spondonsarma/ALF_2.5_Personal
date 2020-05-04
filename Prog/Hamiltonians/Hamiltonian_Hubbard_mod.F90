@@ -444,7 +444,7 @@
           
           Integer :: N_part, nf
 #ifdef MPI
-          Integer        :: Isize, Irank, irank_g, isize_g, igroup
+          Integer        :: Isize, Irank, irank_g, isize_g, igroup, ierr
           Integer        :: STATUS(MPI_STATUS_SIZE)
 
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
