@@ -30,40 +30,15 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 
-module OpTvector_mod
+module DynamicMatrixArray_mod
+    Use ContainerElementBase
     implicit none
 
-    ! Base for defining the interface
-    type, abstract :: OpTbase
-    contains
-    procedure(multabs), deferred :: mult
-    end type optbase
-
-    abstract interface
-      subroutine multabs(this, arg)
-         import OpTbase
-         class(OpTbase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout) :: arg
-      end subroutine
-    end interface
-
-    type, extends(OpTbase) :: RealOpT
-        Real(kind=kind(0.d0)) :: mat
-    contains
-        procedure :: mult => RealOpT_mult
-    end type RealOpT
-
-    type, extends(OpTbase) :: CmplxOpT
-        Complex(kind=kind(0.d0)) :: mat
-    contains
-        procedure :: mult => CmplxOpT_mult
-    end type CmplxOpT
-
     type :: OpTBasePtrWrapper
-        class(optbase), pointer :: dat
+        class(ContainerElementBase), pointer :: dat
     end type
 
-    type :: OpTvector
+    type :: DynamicMatrixArray
         integer :: avamem ! amount of available space
         integer :: tail ! last index
         type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
@@ -75,37 +50,25 @@ module OpTvector_mod
         procedure :: back => OpTvector_back
         procedure :: length => OpTvector_length
         ! FIXME: do we need insert?
-    end type OpTvector
+    end type DynamicMatrixArray
 
 contains
 
-    subroutine RealOpT_mult(this, arg)
-        class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.d0)), intent(inout) :: arg
-        arg = arg * this%mat
-    end subroutine
-
-    subroutine CmplxOpT_mult(this, arg)
-        class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.d0)), intent(inout) :: arg
-        arg = arg * this%mat
-    end subroutine
-
-subroutine OpTvector_init(this)
-    class(OpTvector) :: this
+subroutine DynamicMatrixArray_init(this)
+    class(DynamicMatrixArray) :: this
     type(OpTbasePtrWrapper) :: temp
     this%tail = 1
     this%avamem = 4096/(STORAGE_SIZE(temp)/8) ! allocate a page of memory ! Note STORAGE_SIZE: F2008, SIZEOF: GCC Extension
     allocate(this%data(this%avamem))
-end subroutine OpTvector_init
+end subroutine DynamicMatrixArray_init
 
-subroutine OpTvector_dealloc(this)
-    class(OpTvector) :: this
+subroutine DynamicMatrixArray_dealloc(this)
+    class(DynamicMatrixArray) :: this
     deallocate(this%data)
 end subroutine
 
-subroutine OpTvector_pushback(this, itm)
-    class(OpTvector) :: this
+subroutine DynamicMatrixArray_pushback(this, itm)
+    class(DynamicMatrixArray) :: this
     type(OpTbasePtrWrapper), intent(in) :: itm
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
@@ -124,23 +87,23 @@ subroutine OpTvector_pushback(this, itm)
     this%tail = this%tail + 1
 end subroutine
 
-subroutine OpTvector_at(this, pos, itm)
-    class(OpTvector) :: this
+subroutine DynamicMatrixArray_at(this, pos, itm)
+    class(DynamicMatrixArray) :: this
     integer, intent(in) :: pos
     type(OpTbasePtrWrapper), intent(out) :: itm
     itm = this%data(pos)
 end subroutine
 
-subroutine OpTvector_back(this, itm)
-    class(OpTvector) :: this
+subroutine DynamicMatrixArray_back(this, itm)
+    class(DynamicMatrixArray) :: this
     type(OpTbasePtrWrapper), intent(out) :: itm
     itm = this%data(this%tail-1)
 end subroutine
 
-function OpTvector_length(this) result(l)
-    class(OpTvector) :: this
+function DynamicMatrixArray_length(this) result(l)
+    class(DynamicMatrixArray) :: this
     integer :: l
     l = this%tail-1
 end function
 
-end module OpTvector_mod
+end module DynamicMatrixArray_mod
