@@ -225,7 +225,7 @@
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
 #endif
-             File_Para = "Parameters"
+             File_Para = "parameters"
              File_info = "info"
 #if defined(TEMPERING) 
              write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
