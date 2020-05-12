@@ -280,8 +280,17 @@
           CALL MPI_BCAST(HS          ,64, MPI_CHARACTER, 0,Group_Comm,IERR)
 #endif
 
-          
+          ! Setup the Bravais lattice
           Call  Ham_Latt
+          
+          ! Setup the hopping / single-particle part
+          Call  Ham_Hop
+          
+          ! Setup the trival wave function, in case of a projector approach
+          if (Projector)   Call Ham_Trial(File_info)
+          
+          ! Setup the interaction.
+          call Ham_V
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -335,12 +344,6 @@
              endif
              If (N_FL ==  1 ) Model = "Hubbard_SUN"
           Endif
-          Call  Ham_Hop
-          
-          if (Projector)   Call Ham_Trial(File_info)
-          !  Setup the interaction.
-          
-          call Ham_V
           
 
         end Subroutine Ham_Set
