@@ -465,10 +465,6 @@
 #ifdef MPI
           If (Irank_g == 0) then
 #endif
-             File_info = "info"
-#if defined(TEMPERING)
-             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
-#endif
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
              Do nf = 1,N_FL
                 Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
