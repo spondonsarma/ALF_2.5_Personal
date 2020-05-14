@@ -248,7 +248,7 @@
              Ltrot = nint(beta/dtau)
              if (Projector) Thtrot = nint(theta/dtau)
              Ltrot = Ltrot+2*Thtrot
-             If ( "HS" == "Mz" ) then
+             If ( HS == "Mz" ) then
                 N_FL = 2
              Endif
           
