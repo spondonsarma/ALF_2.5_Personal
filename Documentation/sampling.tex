@@ -6,7 +6,7 @@
 % For the licensing details of the documentation see license.CCBYSA.
 %
 %------------------------------------------------------------
-\subsection{Monte Carlo sampling}\label{sec:sampling}
+\section{Monte Carlo sampling}\label{sec:sampling}
 %------------------------------------------------------------
 %
 Error estimates in Monte Carlo simulations are based on the central limit theorem~\cite{Negele} and can be delicate. This theorem requires independent 
@@ -38,7 +38,7 @@ An example where this information is necessary is the  calculation of mass gaps 
 
 %
 %--------------------------------------------------------------
-\subsubsection{The Jackknife resampling method}\label{sec:jack}
+\subsection{The Jackknife resampling method}\label{sec:jack}
 %--------------------------------------------------------------
 %
 For each observable $\hat{A}, \hat{B},\hat{C} \cdots$ the Monte Carlo program computes a data set of $N_{\text{Bin}}$ (ideally) independent values where for each observable the measurements belong to the same  statistical distribution.  In the general case, we would like to evaluate a function of expectation values, $f(\langle \hat{A} \rangle, \langle \hat{B} \rangle, \langle \hat{C} \rangle  \cdots)$ --
@@ -72,7 +72,7 @@ In case of $f=\langle\hat A\rangle$, the results (\ref{eqn:jack_mean}) and (\ref
 
 %
 %--------------------------------------------------------------------------
-\subsubsection{An explicit example of error estimation}\label{sec:autocorr}
+\subsection{An explicit example of error estimation}\label{sec:autocorr}
 %---------------------------------------------------------------------------
 %
 In the following we use one of our examples, the Hubbard model on a square lattice in the $M_z$ Hubbard-Stratonovich decoupling (see Sec.~\ref{sec:walk1.1}), to show explicitly how to estimate errors.  We will show as well that the  autocorrelation time is dependent upon the  choice of the observable.  In fact, different observables within the same run can have different autocorrelation times and, of course, this time scale depends on the  parameter choice.  Hence, the user has to check  autocorrelations of individual observables for each simulation!  Typical regions of the phase diagram that require special attention are critical points  where length scales diverge.  
