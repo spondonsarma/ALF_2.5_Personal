@@ -10,39 +10,19 @@
 \subsubsection{Langevin dynamics}
 %------------------------------------------------------------
 
-Neglecting the  systematic error origination from the finite imaginary time step, the general from of the action reads:
-\begin{equation}
-   Z  =   \sum_{C}   e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
-    e^{ N_{\mathrm{col}}\sum\limits_{s=1}^{N_{\mathrm{fl}}} \sum\limits_{k=1}^{M_V} \sum\limits_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{-\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} }  e^{ - S^{F}(C) }   \equiv \sum_{C} e^{-S(C)}
+When the model includes continuous real fields $\pmb{s} \equiv \left\{s_{k,\tau} \right\}$ the option \texttt{Langevin} is available. If set to \texttt{.true.}, Langevin dynamics is used for the updating scheme. It  corresponds to a  stochastic differential equation   for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
+\begin{equation}\label{eqn:langevin}
+   \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \frac{\partial S(C) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl } \ve{\eta}(\tl).
 \end{equation}
-where the fermionic part is  given by
+Here,  $  \ve{\eta}(\tl)  $   are  independent Gaussian  stochastic variables  satisfying:
 \begin{equation}
-e^{ - S^{F}(C) }  =  \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  \mathds{1} + 
-     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
-    \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
-     \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}} 
-     \right) \right]^{N_{\mathrm{col}}} .
-\end{equation} 
-To formulate both the Langevin dynamics as well as the Hybrid Monte Carlo, we will need  to estimate the fermion forces: 
-\begin{equation}
-	\frac { \partial S^F(C)}{\partial s_{k,\tau} }.
-\end{equation}
-The routine  \texttt{Langevin\_update} in the module \texttt{Langevin\_update\_mod.F90}   computes  thees forces  for a  general model and passes  them into a user defined routine in the Hamiltonian file  \texttt{ Ham\_Langevin\_update}  where the Langevin update is carried out.    Clearly, in this context 
-$ s_{k,\tau}$  is a real valued quantity. 
-
-Langevin dynamics  corresponds to a  stochastic differential equation   for the fields  $\pmb{s} \equiv \left\{s_{k,\tau} \right\}$. They acquire a Langevin time $\tl$  and satisfy the stochastic differential equation
-\begin{equation}
-   \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \frac{\partial S(C) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl } \ve{\eta}.
-\end{equation}
-Here, $  \ve{\eta}  $   are  independent Gaussian  stochastic variables  satisfying:
-\begin{equation}
-        \langle  \eta_{k,\tau} \rangle_{\eta}  = 0   \text{  and  }    \langle  \eta_{k,\tau}  \eta_{k',\tau'} \rangle_{\eta}  = \delta_{k,k'} \delta_{\tau,\tau'}
+        \langle  \eta_{k,\tau}(\tl) \rangle_{\eta}  = 0   \text{  and  }    \langle  \eta_{k,\tau}(\tl)  \eta_{k',\tau'}(\tl') \rangle_{\eta}  = \delta_{k,k'} \delta_{\tau,\tau'} \delta_{\tl,\tl'}
 \end{equation}
 We refer the reader to  Ref.~\cite{Gardiner}   for a more in depth introduction to stochastic differential equations.
-To see that the above  indeed produced the desired probability distribution in the long Langevin time limit, we can transform the Langevin equation  to the corresponding Fokker-Plank one.  Let
+To see that the above  indeed produces the desired probability distribution in the long Langevin time limit, we can transform the Langevin equation  to the corresponding Fokker-Plank one.  Let
 $P(\ve{s}, \tl) $ be the distribution of fields at Langevin time $\tl$. Then,
 \begin{equation}
-        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - \frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl } \pmb{\eta}  \right]    \right) \rangle_{\eta}
+        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - \frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl } \pmb{\eta}(\tl)  \right]    \right) \rangle_{\eta}
 \end{equation}
 where $\delta$ corresponds to the $L_{trot} M_I $  dimensional Dirac $\delta$-function.   Taylor expanding  up to order $\delta \tl$  and averaging over the stochastic variable yields:
 \begin{eqnarray}
@@ -56,26 +36,65 @@ Partial integration  and taking the limit of infinitesimal time steps   gives th
 \begin{equation}
          \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl)  =  \frac{\partial  }{\partial    \ve{s} }  \left( P( \ve{s}, \tl)  \frac{\partial S(\ve{s}) }{\partial     \ve{s} }   +
           \frac{\partial P(\ve{s},\tl) }{\partial     \ve{s} }
-         \right)
+         \right) .
 \end{equation}
 The stationary,  $ \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl) =0$,  normalizable,  solution to the above equation corresponds to the desired probability distribution:
 \begin{equation}
           P(\ve{s}) =  \frac{ e^{ - S(\ve{s}) } }   {   \int D \ve{s}  e^{ - S(\ve{s}) } }.
 \end{equation}
-As mentioned above, Langevin dynamics will work well  provided that  the forces show  no  singularities.     The great advantage of such an updating scheme is that there is no rejection and  that all  fields are updated at each step.  The following points that highlight potential issues with Langevin dynamics are in order.
-\begin{itemize}
-\item   Langevin dynamics will be carried out at a finite  Langevin time step and thereby we have introduced a further source of systematic error.
-\item   The factor $\sqrt{2 \delta \tl} $   multiplying the stochastic variable makes the  noise dominant  on short time scales.  On these times scales  Langevin dynamics essentially  corresponds to a random walk. This has the advantage that one can circumvent potential barriers, but  may render the updating scheme less  efficient than the hybrid molecular  dynamics approach.
-\end{itemize}
-In the code, we have adopted a  variable time step strategy. This is important since   the determinant has zeros and the forces  are unbounded.    The user   provides an upper bound to the force, \texttt{Max\_Force},  and  if the maximal force in a configuration \texttt{Max\_Force\_Conf}, is large than \texttt{Max\_Force} the time step  is rescaled as 
+To formulate  the Langevin dynamics, we will need  to estimate the forces:
+\begin{equation}
+	\frac { \partial S(C)}{\partial s_{k,\tau} } =\frac { \partial S_{0,I}(C)}{\partial s_{k,\tau} } +  \frac { \partial S^F(C)}{\partial s_{k,\tau} }
+\end{equation}
+with the fermionic part of the action 
+\begin{equation}
+S^F(C) = - \ln{ \left\{
+  \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  \mathds{1} + 
+     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
+ \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
+     \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}} 
+     \right) \right]^{N_{\mathrm{col}}} \right\}} .
+\end{equation} 
+The forces need to bounded, for Langevin dynamics to work well. Otherwise the results, produced by the code, lose their reliability. 
+
+One possible source of divergencies is the determinant in the fermionic action. If it has zeros, the forces get unbounded.  To circumvent this problem at least partially, we have adopted a  variable time step strategy in the code.  The user   provides an upper bound to the fermion force, \texttt{Max\_Force},  and  if the maximal force in a configuration \texttt{Max\_Force\_Conf}, is larger than \texttt{Max\_Force} the time step  is rescaled as 
 \begin{equation}
      \tilde{\delta \tl}   =  \frac{ \texttt{Max\_Force} *  \delta \tl }{\texttt{Max\_Force\_Conf}}.
 \end{equation}
 With the adaptive time  step,  averages are computed as: 
 \begin{equation}
-   \langle \hat{O} \rangle = \frac{ \sum_n (\delta \tl )_n \langle \langle \hat{O} \rangle   \rangle_{(C_n)}} {\sum_n (\delta \tl )_n } 
+   \langle \hat{O} \rangle = \frac{ \sum_n (  \tilde{\delta \tl}  )_n \langle \langle \hat{O} \rangle   \rangle_{(C_n)}} {\sum_n (  \tilde{\delta \tl}  )_n } 
 \end{equation}
 
+To use Langevin dynamics the user has to provide the Langevin time step \texttt{Delta\_tau\_Langevin} and the maximal force \texttt{Max\_Force} in the \texttt{parameter} file. The routine  \texttt{Langevin\_update} in the module \texttt{Langevin\_update\_mod.F90}   computes the fermion forces  for a  general model
+\begin{equation}
+ \frac { \partial S^F(C)}{\partial s_{k,\tau} } 
+ 	= \Delta \tau {N_{\mathrm{col}}} \sum\limits_{s=1}^{N_{\mathrm{fl}}} \Tr{\left[ \bm{I}^{(ks)}\left(\mathds{1} - \bm{G}^{(s)}(k,\tau) \right) \right]} .
+\end{equation}
+Here we introduced a Green function, that depends on the time slice $\tau$  and the interaction term $k$, to which the corresponding field $s_{k,\tau}$ belongs 
+\begin{equation}
+G_{x,y}^{(s)}(k,\tau) = \frac{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau) \hat{c}_{x,s}^{\phantom\dagger} \hat{c}_{y,s}^{\dagger} \hat{U}_{(s)}^{>}(k,\tau) \right]} }
+{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau)\hat{U}_{(s)}^{>}(k,\tau) \right]}}.
+\end{equation}
+The following definitions were used
+\begin{align}
+ \hat{U}_{(s)}^{<}(k',\tau') &= \prod_{\tau=\tau'+1}^{L_{\text{Trotter}}}  \left( \hat{U}_{(s)}(\tau) \right)
+  \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau'} \hat{c}_{x,s}^{\dagger} V_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
+\prod_{k=k'+1}^{M_I} e^{-\Delta\tau s_{k,\tau'} \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}, \\
+ \hat{U}_{(s)}^{>}(k',\tau') &= \prod_{k=1}^{k'} e^{-\Delta \tau s_{k,\tau'}  \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
+  \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{c}_{x,s}^{\dagger} T_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} 
+  \prod_{\tau=1}^{\tau'-1}  \left( \hat{U}_{(s)}(\tau) \right), \\
+  \hat{U}_{(s)}(\tau) &= \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau} \hat{c}_{x,s}^{\dagger} V_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} 
+  \prod_{k=1}^{M_I} e^{-\Delta\tau s_{k,\tau} \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
+    \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{c}_{x,s}^{\dagger} T_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} .
+\end{align}
+ The fermion forces are passed into the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. After a run the mean and maximal force encountered during the run are printed out in the info file. 
+
+As mentioned above, Langevin dynamics will work well  provided that  the forces show  no  singularities.     The great advantage of such an updating scheme is that there is no rejection and  that all  fields are updated at each step.  The following points that highlight potential issues with Langevin dynamics are in order.
+\begin{itemize}
+\item   Langevin dynamics will be carried out at a finite  Langevin time step and thereby we have introduced a further source of systematic error.
+\item   The factor $\sqrt{2 \delta \tl} $   multiplying the stochastic variable makes the  noise dominant  on short time scales.  On these times scales  Langevin dynamics essentially  corresponds to a random walk. This has the advantage that one can circumvent potential barriers, but  may render the updating scheme less  efficient than the hybrid molecular  dynamics approach.
+\end{itemize}
 
 We have tested the code for a 6-site Hubbard chain at half-filling  at $U/t = 4$,  $\beta t = 4$    and with periodic boundary conditions.   One can show that for this choice of boundary conditions the   forces are not bounded 
 and to make sure that the program does not   crash we have  set \texttt{Max\_Force = 1.5}  
@@ -105,5 +124,3 @@ Controlling Langevin dynamics when the action has logarithmic divergences is a c
             \end{center}
         \caption{\label{Langevin.fig}   Total energy for the 6-sites Hubbard chain at $U/t=4$, $\beta t = 4$ and with open boundary conditions.   Here one can show that the determinant is always positive such that  no   singularities occur in the action, and consequently the Langevin dynamics works very well.  The data point at $\delta \tl =0$ stems from running the  discrete  field code with coupling  of the field to the z-component of the magnetization.  The extrapolated value of the energy reads  $-2.87104   \pm 0.001144$ and the reference result from the discrete code is $  -2.871124   \pm  0.000389 $.  Throughout the runs the maximal force was always less than the threshold of 1.5.   }
 \end{figure}
-
-
