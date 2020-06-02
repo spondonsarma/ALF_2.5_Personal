@@ -1,4 +1,4 @@
-% Copyright (c) 2016, 2017 The ALF project.
+% Copyright (c) 2016-2020 The ALF project.
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
@@ -10,7 +10,7 @@
 \subsubsection{Langevin dynamics}
 %------------------------------------------------------------
 
-When the model includes continuous real fields $\pmb{s} \equiv \left\{s_{k,\tau} \right\}$ the option \texttt{Langevin} is available. If set to \texttt{.true.}, Langevin dynamics is used for the updating scheme. It  corresponds to a  stochastic differential equation   for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
+When the model includes continuous real fields $\vec{s} \equiv \left\{s_{k,\tau} \right\}$ the option \texttt{Langevin} is available. If set to \texttt{.true.}, Langevin dynamics is used for the updating scheme. It  corresponds to a  stochastic differential equation   for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
 \begin{equation}\label{eqn:langevin}
    \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \frac{\partial S(C) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl } \ve{\eta}(\tl).
 \end{equation}
@@ -22,16 +22,16 @@ We refer the reader to  Ref.~\cite{Gardiner}   for a more in depth introduction 
 To see that the above  indeed produces the desired probability distribution in the long Langevin time limit, we can transform the Langevin equation  to the corresponding Fokker-Plank one.  Let
 $P(\ve{s}, \tl) $ be the distribution of fields at Langevin time $\tl$. Then,
 \begin{equation}
-        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - \frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl } \pmb{\eta}(\tl)  \right]    \right) \rangle_{\eta}
+        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - \frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl } \vec{\eta}(\tl)  \right]    \right) \rangle_{\eta}
 \end{equation}
 where $\delta$ corresponds to the $L_{trot} M_I $  dimensional Dirac $\delta$-function.   Taylor expanding  up to order $\delta \tl$  and averaging over the stochastic variable yields:
-\begin{eqnarray}
-P(\ve{s}, \tl  + \delta \tl ) & &     = \int D\ve{s'}  P  (\ve{s}', \tl  )   \times  \\  & &  \left(   \delta \left(  \ve{s}' - \ve{s}   \right)
+\begin{align}
+P(\ve{s}, \tl  + \delta \tl ) &  = \int D\ve{s'}  P  (\ve{s}', \tl  )   \times \left(   \delta \left(  \ve{s}' - \ve{s}   \right)
 - \frac{\partial S(\ve{s'}) }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s'} } \delta \left(  \ve{s}' - \ve{s} \right)  \delta \tl   +
    \frac{\partial  }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s}' }  \delta \left(  \ve{s}' - \ve{s}\right)    \delta \tl
 \right)  \nonumber   \\
-  &&   + {\cal O}  \left(  \delta \tl^2 \right) \nonumber.
-\end{eqnarray}
+  &  + {\cal O}  \left(  \delta \tl^2 \right).
+\end{align}
 Partial integration  and taking the limit of infinitesimal time steps   gives the Fokker-Plank equation
 \begin{equation}
          \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl)  =  \frac{\partial  }{\partial    \ve{s} }  \left( P( \ve{s}, \tl)  \frac{\partial S(\ve{s}) }{\partial     \ve{s} }   +
