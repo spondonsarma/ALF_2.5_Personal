@@ -74,9 +74,9 @@ In order to use Langevin dynamics the user also has to provide the Langevin time
 Here we introduce a Green function that depends on the time slice $\tau$  and the interaction term $k$ to which the corresponding field $s_{k,\tau}$ belongs:
 \begin{equation}
 G_{x,y}^{(s)}(k,\tau) = \frac{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau) \hat{c}_{x,s}^{\phantom\dagger} \hat{c}_{y,s}^{\dagger} \hat{U}_{(s)}^{>}(k,\tau) \right]} }
-{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau)\hat{U}_{(s)}^{>}(k,\tau) \right]}}.
+{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau)\hat{U}_{(s)}^{>}(k,\tau) \right]}},
 \end{equation}
-The following definitions are used
+where the following definitions are used
 \begin{align}
  \hat{U}_{(s)}^{<}(k',\tau') &= \prod_{\tau=\tau'+1}^{L_{\text{Trotter}}}  \left( \hat{U}_{(s)}(\tau) \right)
   \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau'} \hat{c}_{x,s}^{\dagger} V_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
@@ -88,7 +88,8 @@ The following definitions are used
   \prod_{k=1}^{M_I} e^{-\Delta\tau s_{k,\tau} \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
     \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{c}_{x,s}^{\dagger} T_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} .
 \end{align}
- The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file. 
+\red{[What about giving an example of how this general expression looks like for a simple system?]}\\
+The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file. 
 
 The great advantage the Langevin updating scheme is the absence of update rejection, meaning that all fields are updated at each step. As mentioned above, the price we pay for using Langevin dynamics is ensuring that forces show no singularities, and two other potential issues should be highlighted:
 \begin{itemize}

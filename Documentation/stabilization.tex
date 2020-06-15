@@ -16,20 +16,19 @@
 \subsubsection{ Asymmetric  Trotter decomposition }
 In practice, many applications are carried out at finite  imaginary time steps,  and it is important to  understand the consequences of the Trotter error.   How does it scales with system size and  what  symmetries  does it  breaks?   In particular, if  one is investigating a critical  point, then one should understand  if the potential symmetry breaking  associated  with the Trotter decomposition   generates  relevant operators. 
 
-To at best describe the workings of the ALF  code,  we divide the Hamiltonian into  hopping terms  $\hat{\mathcal{H}}_{T}$  and into interaction terms  
+To at best describe the workings of the ALF  code,  we divide the Hamiltonian into  hopping terms  $\hat{\mathcal{H}}_{T}$  and interaction terms  
 $\hat{\mathcal{H}}_{V} +  \hat{\mathcal{H}}_{I}   +   \hat{\mathcal{H}}_{0,I} $.       Let 
 \begin{equation}
 \label{Checkerboard.Eq}
 	\hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)}  \equiv \sum_{i=1}^{N_T} \hat{T}_{i} 
 \end{equation}
 Here the decomposition follows the rule  that if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  As an 
-example, we can mention the checkerboard decomposition.   For the square lattice we can decouple the nearest neighbor hopping  into $N_T=4$ groups,  each group consisting  sum  of two site hopping processes.    This type of checkerboard decomposition is activated for a set  of predefined lattices provided that the flag 
-\index{\texttt{Checkerboard}} \texttt{Checkerboard}   is activated.     
+example, we can mention the checkerboard decomposition.   For the square lattice we can decouple the nearest neighbor hopping  into $N_T=4$ groups,  each group consisting of two site hopping processes.    This type of checkerboard decomposition is activated for a set  of predefined lattices by setting the flag \index{\texttt{Checkerboard}} \texttt{Checkerboard} to \texttt{.true.}     
 We will carry out the same decomposition for the interaction: 
 \begin{equation}
 	\hat{\mathcal{H}}_{V}  +  \hat{\mathcal{H}}_{I}   +   \hat{\mathcal{H}}_{0,I}   = \sum_{i=1}^{N_I}  \hat{O}_{i}
 \end{equation}
-where $\hat{O}_{i}$  contains a sum of commuting terms.  For instance, for the Hubbard model,   the  above reduces to 
+where each $\hat{O}_{i}$  contains a set of commuting terms.  For instance, for the Hubbard model,   the  above reduces to 
 $U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow } \hat{n}_{\vec{i},\downarrow }  $    such the $N_T = 1$ and   $ \hat{O}_{1} = U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow } \hat{n}_{\vec{i},\downarrow }   $. 
 
 The default   Trotter decomposition in the ALF code is  based on the equation: 
@@ -54,13 +53,13 @@ The full propagation   then reads
   =  e^{-\beta  \hat{H}  }  - 
 	 \int_0^{\beta}  d \tau  e^{-(\beta-\tau )\hat{H}} \hat{\lambda}_1  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^2 ).
 \end{equation}
-The last step follows from time dependent perturbation theory. 
+The last step follows from time-dependent perturbation theory. 
 The following comments are in order:
 \begin{itemize}
-\item    The error is anti-hermitian  since $\hat{\lambda}_1^{\dagger} = - \hat{\lambda}_1 $.  This has for consequence that if all the operators as well as  the quantity one is measuring are all  simultaneously real representable,  then   the prefactor of the linear in $\Delta  \tau$ error vanishes since it ultimately corresponds to computing the trace of a  anti-symmetric matrix. This \textit{lucky}   cancelation was put forward in  Ref.~\cite{Fye86}.   Hence, under this assumption which is certainly valid for the Hubbard model considered in Fig.~\ref{Trotter.fig}   the systematic error is of order $\Delta \tau^2$. 
-\item   The biggest drawback  of the above decomposition is that  the imaginary time propagation is not hermitian.   This can lead to acausal  features in imaginary time   correlation functions \cite{Beyl_thesis}. { \color{red} Is Stefan's Beyl PhD thesis citable?}.   To be more precise, the eigenvalues of  
-$  H_{\text{Approx}} = - \frac{1}{\beta} \log  U_{\text{Approx}}$   need not be real such that imaginary time displaced correlation functions can  have oscillatory behavior as a function of imaginary time.   
-This is shown in  Fig.~\ref{Trotter.fig} (a)  that plots the  absolute value of local time displaced Green function for  the Honeycomb lattice at $U/t=2$.  Sign changes of this quantity   involve zeros  that, on the considered log-scale,  correspond to negative divergences.     As we will see now,  this issue can be solved by considering a symmetric  Trotter decomposition. 
+\item    The error is anti-Hermitian  since $\hat{\lambda}_1^{\dagger} = - \hat{\lambda}_1 $.  This has for consequence that if all the operators as well as  the quantity being measured are all  simultaneously real representable,  then   the prefactor of the linear in $\Delta  \tau$ error vanishes since it ultimately corresponds to computing the trace of a  anti-symmetric matrix. This \textit{lucky}   cancellation was put forward in  Ref.~\cite{Fye86}.   Hence, under this assumption -- which is certainly valid for the Hubbard model considered in Fig.~\ref{Trotter.fig} -- the systematic error is of order $\Delta \tau^2$. 
+\item  The biggest drawback  of the above decomposition is that  the imaginary-time propagation is not Hermitian.   This can lead to acausal  features in imaginary-time correlation functions \cite{Beyl_thesis}. To be more precise, the eigenvalues of  
+$  H_{\text{Approx}} = - \frac{1}{\beta} \log  U_{\text{Approx}}$   need not be real such that imaginary-time displaced correlation functions can  have oscillatory behavior as a function of imaginary time.   
+This is shown in  Fig.~\ref{Trotter.fig} (a)  that plots the  absolute value of local time-displaced Green function for  the Honeycomb lattice at $U/t=2$.  Sign changes of this quantity   involve zeros  that, on the considered log-scale,  correspond to negative divergences.     As we will see now,  this issue can be solved by considering a symmetric  Trotter decomposition. 
  % One  should also note that  the  prefactor of the $\Delta \tau^2$ error is rather big (see Fig.~\ref{Trotter.fig})(b)  in comparison to higher order approximations that we  will %discuss below. 
 \end{itemize}
 
