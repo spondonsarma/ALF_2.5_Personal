@@ -1,4 +1,4 @@
-set size 1.1,0.9
+set size 1.1,1.0
 set terminal epslatex color standalone
 set output "Dtau.tex"
 set key center top
@@ -25,8 +25,8 @@ col8='#084594'
 
 
 set multiplot
-#set key at graph 0.5,-0.5
-set key   bottom left 
+set key at graph 0.22,0.27
+#set key bottom left 
 set pointsize 1.5
 set xtics 0.0, 0.01, 0.04
 #set yrange [-80.5:-79.5]

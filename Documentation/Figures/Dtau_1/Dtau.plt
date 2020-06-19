@@ -1,4 +1,4 @@
-set size 1.1,0.9
+set size 1.1,1.0
 set terminal epslatex color standalone
 set output "Dtau_1.tex"
 
@@ -24,12 +24,16 @@ col8='#084594'
 
 
 set multiplot
-set key at graph 0.62,0.28
-#set key   bottom left 
+#set key at graph 0.62,0.28
+set key at graph 0.57,0.27
+#set key  bottom left 
 set logscale y
+#set format y "$%.0t\\cdot10^{%+1T}$"
+set format y "$10^{%+1T}$"
 set pointsize 1.5
 #set xtics 0.0, 0.01, 0.04
 #set yrange [-80.5:-79.5]
+set yrange [5*10e-8:1]
 set xrange [0.0:20] 
 set ylabel "$ |G(r=0,\\tau)| $"
 set xlabel "$ \\tau $"
