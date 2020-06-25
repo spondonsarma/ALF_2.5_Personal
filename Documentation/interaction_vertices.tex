@@ -6,7 +6,7 @@
 % For the licensing details of the documentation see license.CCBYSA.
 %
 %-----------------------------------------------------------------------------------
-\subsection{Interaction vertices} \label{sec:interaction_vertices}
+\subsection{Predefined interaction vertices} \label{sec:interaction_vertices}
 %-----------------------------------------------------------------------------------
 
 In its most general form, an interaction Hamiltonian expressed in terms of sums of perfect squares can be written, as presented in Section~\ref{sec:intro}, as a sum of $M_V$ vertices: %Eq.~\eqref{eqn:general_ham_v}:
@@ -24,7 +24,7 @@ which are encoded in one or more variables of type \texttt{Operator}, described 
 The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction vertices $\hat{\mathcal{H}}_V^{(k)}$, as detailed in the remaining of this section, where we drop the superscript $(k)$ when unambiguous.
 
 
-\subsubsection{The $SU(N)$ Hubbard interaction}
+\subsubsection{$SU(N)$ Hubbard interaction}
 
 The $SU(N)$ Hubbard interaction on a given site $i$ is given by 
 \begin{align}
@@ -54,7 +54,7 @@ Op%type   = 2
 To relate to  Eq.~\eqref{eqn:general_ham_v} we have,   $V_{x y}^{(is)} =  \delta_{x,y} \delta_{x,i}$, $\alpha_{is} = -\frac{1}{2}$ and $U_{k} =  \frac{U}{N_{\mathrm{col}}}$.   Here  the flavor index, $s$,  plays no role. 
 
 
-\subsubsection{The $M_z$-Hubbard interaction}
+\subsubsection{$M_z$-Hubbard interaction}
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Int_U_MZ( OP_up, Op_do, I, DTAU, U )
@@ -85,7 +85,7 @@ Op_do%type   = 2
 \end{lstlisting}
 
 
-\subsubsection{The $SU(N)$ $V$-interaction}
+\subsubsection{$SU(N)$ $V$-interaction}
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Int_V_SUN( OP, I, J, N_SUN, DTAU, V )
@@ -109,7 +109,7 @@ Op%type   = 2
 \end{lstlisting}
 
 
-\subsubsection{The Fermion-Ising coupling}
+\subsubsection{Fermion-Ising coupling}
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Int_Ising_SUN( OP, I, J, DTAU, XI )
@@ -135,7 +135,7 @@ Op%type   = 1
 
 
 
-\subsubsection{The long-Range Coulomb repulsion}
+\subsubsection{Long-Range Coulomb repulsion}
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Int_LRC( OP, I, DTAU )
@@ -188,7 +188,7 @@ Op%type   = 3
 \end{lstlisting}
 
 
-\subsubsection{The $J_z$-$J_z$ interaction}
+\subsubsection{$J_z$-$J_z$ interaction}
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Int_Jz( OP_up, Op_do, I, J, DTAU, Jz )

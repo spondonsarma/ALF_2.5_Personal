@@ -1,4 +1,4 @@
-% Copyright (c) 2016-2019 The ALF project.
+% Copyright (c) 2016-2020 The ALF project.
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
@@ -27,10 +27,10 @@ In order to use the projective version of the code, the model's namespace in the
 Note that time-displaced correlation functions  are computed for a $\tau$ ranging from $0$ to $\beta$.  The implicit assumption  in this formulation is that  the projection  parameter  \texttt{Theta}  suffices to reach the ground state.    Since the  computational time scales linearly with  \texttt{Theta}   large projections parameters are computationally not expensive. 
 
 
-\subsection{ Specification of the trial wave function }
+\subsection{Specification of the trial wave function} \label{sec:trial_wave_function}
 
-For each flavor, one needs to specify a left and a right trial wave function. In the ALF, they are assumed to be the ground state of single-particle trial Hamiltonians $\hat{H}_{T, L/R}$ and hence correspond to a single Slater determinant each. More specifically, we consider a single-particle Hamiltonian with the same symmetries (color and flavor) as the original Hamiltonian: 
-\begin{equation}
+For each flavor, one needs to specify a left and a right trial wave function. In the ALF, they are assumed to be the ground state of single-particle trial Hamiltonians $\hat{H}_{T, L/R}$ and hence correspond to a single Slater determinant each. More specifically, we consider a single-particle Hamiltonian with the same symmetries (color and flavor) as the original Hamiltonian:
+\begin{equation} \label{eq:trial_wave_function}
 \hat{H}_{T,L/R} = 
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
 \sum\limits_{s=1}^{N_{\mathrm{fl}}}
