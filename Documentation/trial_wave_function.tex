@@ -6,6 +6,25 @@
 
 % !TEX root = doc.tex
 
-\subsection{Predefined trial wave functions}
+\subsection{Predefined trial wave functions} \label{sec:predefined_trial_wave_function}
 
-stub
+When using the projective algorithm (see Sec.~\ref{sec:defT0}), trial wave functions must be specified.
+%These are stored in variables of the \texttt{WaveFunction} type.
+%, which includes the routine \path{WF_overlap(WF_L, WF_R, Z_norm)} for normalizing the right trial wave function, such that $\langle \Psi_{T,L} | \Psi_{T,R} \rangle = 1$.
+The ALF package provides a set of trial wave functions, corresponding to the solution of the non-interacting tight binding Hamiltonian on one of the predefined lattices, namely:
+\begin{itemize}
+	\item Square
+	\item Honeycomb
+	\item N-leg ladder
+	\item Bilayer square
+	\item Bilayer honeycomb
+\end{itemize}
+
+The wave functions $|\Psi_{T,L/R}\rangle$=\texttt{WF\_L/R} are returned by the call:
+
+\begin{lstlisting}[style=fortran]
+Call Predefined_TrialWaveFunction(Lattice_type, Ndim, List, Invlist, Latt, Latt_unit, N_part,
+                             N_FL, WF_L, WF_R)
+\end{lstlisting}
+
+Twisted boundary conditions (\texttt{Phi\_X\_vec=0.01}) are implemented so as to generate non-degenerate trial wave functions. 

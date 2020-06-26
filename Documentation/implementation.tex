@@ -329,7 +329,7 @@ In the above,   the unspecified dimensions of  the structure factor can refer  t
 
 
 %--------------------------------------------------------------------------------------------
-\subsubsection{Setting up the hopping matrix: the \texttt{Hopping\_Matrix\_type}}
+\subsubsection{Setting up the hopping matrix: the \texttt{Hopping\_Matrix\_type}}\label{sec:hopping_type}
 %--------------------------------------------------------------------------------------------
 
 The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify a  hopping matrix on a  multi-orbital   Bravais lattice.  The only  assumption that we make is  translation symmetry.   We   allow  for twisted  boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by  \texttt{Phi\_1}  and \texttt{Phi\_2}  respectively.  If the flag  \texttt{bulk=.true.}   then   the twist will be implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist will be imposed at the boundary. The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.  All phase factors mentioned above can be flavor dependent.   The checkerboard decomposition can also be specified in this module.      All information, including the checkerboard decomposition is specified in the  \path{Hopping_Matrix_type}   type (see Sec. \ref{Hopping_Matrix_type.sec}) from which  the array of  operator type \path{OP_T},   accounting for the single particle propagation in one time step,  as well as the Kinetic energy can be derived.    
