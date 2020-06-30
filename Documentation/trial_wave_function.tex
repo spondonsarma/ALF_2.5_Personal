@@ -11,20 +11,107 @@
 When using the projective algorithm (see Sec.~\ref{sec:defT0}), trial wave functions must be specified.
 %These are stored in variables of the \texttt{WaveFunction} type.
 %, which includes the routine \path{WF_overlap(WF_L, WF_R, Z_norm)} for normalizing the right trial wave function, such that $\langle \Psi_{T,L} | \Psi_{T,R} \rangle = 1$.
-The ALF package provides a set of trial wave functions, corresponding to the solution of the non-interacting tight binding Hamiltonian on one of the predefined lattices, namely:
-\begin{itemize}
-	\item Square
-	\item Honeycomb
-	\item N-leg ladder
-	\item Bilayer square
-	\item Bilayer honeycomb
-\end{itemize}
-
-The wave functions $|\Psi_{T,L/R}\rangle$=\texttt{WF\_L/R} are returned by the call:
+The ALF package provides a set of predefined trial wave functions $|\Psi_{T,L/R}\rangle$=\texttt{WF\_L/R}, returned by the call:
 
 \begin{lstlisting}[style=fortran]
 Call Predefined_TrialWaveFunction(Lattice_type, Ndim, List, Invlist, Latt, Latt_unit, N_part,
-                             N_FL, WF_L, WF_R)
+                                  N_FL, WF_L, WF_R)
+\end{lstlisting}
+Twisted boundary conditions (\texttt{Phi\_X\_vec=0.01}) are implemented for some lattices so as to generate a non-degenerate trial wave function.
+
+The predefined trial wave functions correspond to the solution of the non-interacting tight binding Hamiltonian on each of the predefined lattices. These solutions are the ground states of the predefined hopping matrices (Sec.~\ref{sec:predefined_hopping}) with default parameters, for each lattice, as follows.
+
+\subsubsection{Square}
+
+Parameter values for the predefined trial wave function on the square lattice:
+\begin{lstlisting}[style=fortran]
+Checkerboard  = .false.
+Symm          = .false.
+Bulk          = .false.
+N_Phi_vec     = 0
+Phi_X_vec     = 0.01d0
+Phi_Y_vec     = 0.d0
+Ham_T_vec     = 1.d0
+Ham_Chem_vec  = 0.d0
+Dtau          = 1.d0
+\end{lstlisting}
+%Ham_T2_vec    = 0.d0
+%Ham_Tperp_vec = 0.d0
+
+
+\subsubsection{Honeycomb}
+
+\red{[JSEP: I'm not sure how to best describe the definition of the trial wave function for the honeycomb, since it doesn't use the Predefined Hopping module.\\
+	  Also, do we want to mention the \texttt{Kekule\_Trial} option?]}\\
+Parameter values for the predefined trial wave function on the Honeycomb lattice:
+\begin{lstlisting}[style=fortran,escapechar=\#]
+Checkerboard  = .false.
+Symm          = .false.
+Bulk          = .false.
+Kekule_Trial  = .false. #\red{(include?)}#
+N_Phi_vec     = 0
+Phi_X_vec     = 0.d0
+Phi_Y_vec     = 0.d0
+Ham_T_vec     = 1.d0
+Ham_Tperp_vec = 0.d0
+Ham_Chem_vec  = 0.d0
+Dtau          = 1.d0
+delta         = 0.01d0
+\end{lstlisting}
+%Ham_T2_vec    = 0.d0
+
+
+\subsubsection{N-leg ladder}
+
+Parameter values for the predefined trial wave function on the N-leg ladder lattice:
+\begin{lstlisting}[style=fortran]
+Checkerboard  = .false.
+Symm          = .false.
+Bulk          = .false.
+N_Phi_vec     = 0
+Phi_X_vec     = 0.01d0
+Phi_Y_vec     = 0.d0
+Ham_T_vec     = 1.d0
+Ham_Tperp_vec = 1.d0
+Ham_Chem_vec  = 0.d0
+Dtau          = 1.d0
+\end{lstlisting}
+%Ham_T2_vec    = 0.d0
+
+
+\subsubsection{Bilayer square}
+
+Parameter values for the predefined trial wave function on the bilayer square lattice:
+\begin{lstlisting}[style=fortran]
+Checkerboard  = .false.
+Symm          = .false.
+Bulk          = .false.
+N_Phi_vec     = 0
+Phi_X_vec     = 0.d0
+Phi_Y_vec     = 0.d0
+Ham_T_vec     = 1.d0
+Ham_T2_vec    = 0.d0
+Ham_Tperp_vec = 1.d0
+Ham_Chem_vec  = 0.d0
+Dtau          = 1.d0
 \end{lstlisting}
 
-Twisted boundary conditions (\texttt{Phi\_X\_vec=0.01}) are implemented so as to generate non-degenerate trial wave functions. 
+
+\subsubsection{Bilayer honeycomb}
+
+Parameter values for the predefined trial wave function on the bilayer honeycomb lattice:
+\begin{lstlisting}[style=fortran]
+
+Checkerboard  = .false.
+Symm          = .false.
+Bulk          = .false.
+N_Phi_vec     = 0
+Phi_X_vec     = 0.d0
+Phi_Y_vec     = 0.d0
+Ham_T_vec     = 1.d0
+Ham_T2_vec    = 0.d0
+Ham_Tperp_vec = 1.d0
+Ham_Chem_vec  = 0.d0
+Dtau          = 1.d0
+\end{lstlisting}
+
