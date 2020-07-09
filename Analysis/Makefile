@@ -17,7 +17,7 @@ cov_tau_ph.F90 : cov_tau.F90
 	$(ALF_FC) -o $@ $*.o $(OBJS1) $(ALF_LIB)
 
 tidy:
-	rm -f $(OBJS) $(OBJS1) $(MODS) cov_tau_ph.F90  Predefined_Latt_mod.F90
+	rm -f $(OBJS) $(OBJS1) $(MODS) cov_tau_ph.F90
 
 clean: tidy
 	rm -f $(BINS)
