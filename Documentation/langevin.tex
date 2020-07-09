@@ -72,24 +72,25 @@ In order to use Langevin dynamics the user also has to provide the Langevin time
  	= \Delta \tau {N_{\mathrm{col}}} \sum\limits_{s=1}^{N_{\mathrm{fl}}} \Tr{\left[ \bm{I}^{(ks)}\left(\mathds{1} - \bm{G}^{(s)}(k,\tau) \right) \right]} .
 \end{equation}
 Here we introduce a Green function that depends on the time slice $\tau$  and the interaction term $k$ to which the corresponding field $s_{k,\tau}$ belongs:
-\begin{equation}
+\begin{equation}\label{eqn:green_langevin}
 G_{x,y}^{(s)}(k,\tau) = \frac{\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau) \hat{c}_{x,s}^{\phantom\dagger} \hat{c}_{y,s}^{\dagger} \hat{U}_{(s)}^{>}(k,\tau) \right]} }
 {\Tr{\left[ \hat{U}_{(s)}^{<}(k,\tau)\hat{U}_{(s)}^{>}(k,\tau) \right]}},
 \end{equation}
 where the following definitions are used
 \begin{align}
  \hat{U}_{(s)}^{<}(k',\tau') &= \prod_{\tau=\tau'+1}^{L_{\text{Trotter}}}  \left( \hat{U}_{(s)}(\tau) \right)
-  \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau'} \hat{c}_{x,s}^{\dagger} V_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
-\prod_{k=k'+1}^{M_I} e^{-\Delta\tau s_{k,\tau'} \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}, \\
- \hat{U}_{(s)}^{>}(k',\tau') &= \prod_{k=1}^{k'} e^{-\Delta \tau s_{k,\tau'}  \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
-  \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{c}_{x,s}^{\dagger} T_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} 
+  \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau'} \hat{\vec{c}}_{s}^{\dagger} \bm{V}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}}
+\prod_{k=k'+1}^{M_I} e^{-\Delta\tau s_{k,\tau'} \hat{\vec{c}}_{s}^{\dagger} \bm{I}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}}, \\
+ \hat{U}_{(s)}^{>}(k',\tau') &= \prod_{k=1}^{k'} e^{-\Delta \tau s_{k,\tau'}  \hat{\vec{c}}_{s}^{\dagger} \bm{I}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}}
+  \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{\vec{c}}_{s}^{\dagger} \bm{T}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}} 
   \prod_{\tau=1}^{\tau'-1}  \left( \hat{U}_{(s)}(\tau) \right), \\
-  \hat{U}_{(s)}(\tau) &= \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau} \hat{c}_{x,s}^{\dagger} V_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} 
-  \prod_{k=1}^{M_I} e^{-\Delta\tau s_{k,\tau} \hat{c}_{x,s}^{\dagger} I_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}}
-    \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{c}_{x,s}^{\dagger} T_{x,y}^{(k,s)} \hat{c}_{y,s}^{\phantom\dagger}} .
+  \hat{U}_{(s)}(\tau) &= \prod_{k=1}^{M_V} e^{\sqrt{-\Delta\tau U_k}  \eta_{k,\tau} \hat{\vec{c}}_{s}^{\dagger} \bm{V}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}} 
+  \prod_{k=1}^{M_I} e^{-\Delta\tau s_{k,\tau} \hat{\vec{c}}_{s}^{\dagger} \bm{I}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}}
+    \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{\vec{c}}_{s}^{\dagger} \bm{T}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}} .
 \end{align}
 \red{[What about giving an example of how this general expression looks like for a simple system?]}\\
-The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file. 
+The vector $\hat{\vec{c}}_s^{\dagger}$ contains all fermionic operators $\hat{c}_{x,s}^{\dagger}$ of flavor $s$.
+The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file.
 
 The great advantage the Langevin updating scheme is the absence of update rejection, meaning that all fields are updated at each step. As mentioned above, the price we pay for using Langevin dynamics is ensuring that forces show no singularities, and two other potential issues should be highlighted:
 \begin{itemize}
@@ -97,7 +98,28 @@ The great advantage the Langevin updating scheme is the absence of update reject
 \item   The factor $\sqrt{2 \delta \tl} $   multiplying the stochastic variable makes the  noise dominant  on short time scales.  On these time scales  Langevin dynamics essentially  corresponds to a random walk. This has the advantage of allowing one to circumvent potential barriers, but may render the updating scheme less efficient than the hybrid molecular dynamics approach.
 \end{itemize}
 
-We have tested the code for a 6-site Hubbard chain at half-filling  at $U/t = 4$,  $\beta t = 4$    and with periodic boundary conditions.   One can show that for this choice of boundary conditions the   forces are not bounded 
+We have tested the code for a 6-site Hubbard chain at half-filling  at $U/t = 4$,  $\beta t = 4$.
+The Hubbard interaction can also be decoupled using a continuous HS transformation, where we introduce a real auxiliary field $s_{i,\tau}$ for every lattice site $i$ and time slice $\tau$. When the HS fields are coupled to the $z$-component of the magnetization (see Sec.~\ref{sec:walk1.1}), the partition function can be written as
+\begin{align}
+Z &= \int \left( \prod_{\tau=1}^{L_{\text{Trotter}}} \prod_{i=1}^{N_{\text{unit-cell}} } \frac{d s_{i,\tau}}{\sqrt{2 \pi}} e^{-\frac{1}{2} s_{i,\tau}^2 } \right) \times \nonumber \\
+ &\quad \prod_{s=\uparrow, \downarrow} \det \left(  \mathds{1} + \prod_{\tau=1}^{L_{\mathrm{Trotter}}}    \prod_{i=1}^{N_{\text{unit-cell}}} \left( e^{-\sqrt{\Delta \tau U}s_{i,\tau} \bm{V}^{(is)}} \right) e^{-\Delta \tau \bm{T}} \right) + \mathcal{O}(\Delta\tau^{2}).
+\end{align}
+The flavor dependent interaction matrices have only one non-vanishing entry $V_{x,y}^{(i,s=\uparrow)}=\delta_{x,y}\delta_{x,i}$ and $V_{x,y}^{(i,s=\downarrow)}=-\delta_{x,y}\delta_{x,i}$ respectively. 
+The forces of the Hubbard model are given by:
+\begin{equation}
+\frac { \partial S(C)}{\partial s_{i,\tau} } = s_{i,\tau} - \sqrt{\Delta \tau U} \sum\limits_{s=\uparrow, \downarrow} \Tr{\left[ \bm{V}^{(is)}\left(\mathds{1} - \bm{G}^{(s)}(i,\tau) \right) \right]} ,
+\end{equation}
+where the Green function is defined by eq.~(\ref{eqn:green_langevin}) with
+\begin{align}
+ \hat{U}_{(s)}^{<}(i',\tau') &= \prod_{\tau=\tau'+1}^{L_{\text{Trotter}}}  \left( \hat{U}_{(s)}(\tau) \right)
+\prod_{i=i'+1}^{N_{\text{unit-cell}} } e^{-\sqrt{\Delta\tau U}  s_{i,\tau'} \hat{\vec{c}}_{s}^{\dagger} \bm{V}^{(is)} \hat{\vec{c}}_{s}^{\phantom\dagger}}, \\
+ \hat{U}_{(s)}^{>}(i',\tau') &= \prod_{i=1}^{i'}\left( e^{-\sqrt{\Delta\tau U}  s_{i,\tau'} \hat{\vec{c}}_{s}^{\dagger} \bm{V}^{(is)} \hat{\vec{c}}_{s}^{\phantom\dagger}} \right)
+    e^{-\Delta\tau  \hat{\vec{c}}_{s}^{\dagger} \bm{T} \hat{\vec{c}}_{s}^{\phantom\dagger}} 
+  \prod_{\tau=1}^{\tau'-1}  \left( \hat{U}_{(s)}(\tau) \right), \\
+  \hat{U}_{(s)}(\tau) &=  \prod_{i=1}^{N_{\text{unit-cell}} } \left(e^{-\sqrt{\Delta\tau U}  s_{i,\tau} \hat{\vec{c}}_{s}^{\dagger} \bm{V}^{(is)} \hat{\vec{c}}_{s}^{\phantom\dagger}} \right)
+   e^{-\Delta\tau  \hat{\vec{c}}_{s}^{\dagger} \bm{T} \hat{\vec{c}}_{s}^{\phantom\dagger}} .
+\end{align}
+One can show that for periodic boundary conditions the   forces are not bounded 
 and to make sure that the program does not   crash we have  set \texttt{Max\_Force = 1.5}.\\
 The discrete variable code gives
 \begin{equation}
