@@ -9,9 +9,6 @@ all: $(OBJS1) $(BINS)
 cov_tau_ph.F90 : cov_tau.F90
 	cpp -w -P -DPartHole cov_tau.F90 -o cov_tau_ph.F90
 
-Predefined_Latt_mod.F90 : ../Prog/Predefined_Latt_mod.F90
-	cp ../Prog/Predefined_Latt_mod.F90 .
-
 %.o: %.F90
 	$(ALF_FC) -c $*.F90 $(ALF_FLAGS_ANA) 
 
