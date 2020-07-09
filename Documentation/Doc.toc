@@ -20,95 +20,94 @@
 \contentsline {subsubsection}{\numberline {2.3.3}The \texttt {Symm} flag}{18}{subsubsection.2.3.3}% 
 \contentsline {subsection}{\numberline {2.4}Stabilization - a peculiarity of the BSS algorithm}{18}{subsection.2.4}% 
 \contentsline {section}{\numberline {3}Monte Carlo sampling}{20}{section.3}% 
-\contentsline {subsection}{\numberline {3.1}The Jackknife resampling method}{20}{subsection.3.1}% 
-\contentsline {subsection}{\numberline {3.2}An explicit example of error estimation}{21}{subsection.3.2}% 
-\contentsline {subsection}{\numberline {3.3}Pseudo code description}{22}{subsection.3.3}% 
-\contentsline {section}{\numberline {4}Auxiliary Field Quantum Monte Carlo: projective algorithm}{23}{section.4}% 
-\contentsline {subsection}{\numberline {4.1}Specification of the trial wave function}{24}{subsection.4.1}% 
+\contentsline {subsection}{\numberline {3.1}The Jackknife resampling method}{21}{subsection.3.1}% 
+\contentsline {subsection}{\numberline {3.2}An explicit example of error estimation}{22}{subsection.3.2}% 
+\contentsline {subsection}{\numberline {3.3}Pseudo code description}{23}{subsection.3.3}% 
+\contentsline {section}{\numberline {4}Auxiliary Field Quantum Monte Carlo: projective algorithm}{24}{section.4}% 
+\contentsline {subsection}{\numberline {4.1}Specification of the trial wave function}{25}{subsection.4.1}% 
 \contentsline {subsection}{\numberline {4.2}Some technical aspects of the projective code.}{25}{subsection.4.2}% 
-\contentsline {subsection}{\numberline {4.3}Comparison of finite and projective codes.}{25}{subsection.4.3}% 
-\contentsline {section}{\numberline {5}Maximum Entropy}{25}{section.5}% 
-\contentsline {subsection}{\numberline {5.1}General setup}{27}{subsection.5.1}% 
+\contentsline {subsection}{\numberline {4.3}Comparison of finite and projective codes.}{26}{subsection.4.3}% 
+\contentsline {section}{\numberline {5}Maximum Entropy}{26}{section.5}% 
+\contentsline {subsection}{\numberline {5.1}General setup}{26}{subsection.5.1}% 
 \contentsline {subsection}{\numberline {5.2}Single-particle quantities}{28}{subsection.5.2}% 
-\contentsline {subsection}{\numberline {5.3}Particle-hole quantities}{28}{subsection.5.3}% 
-\contentsline {subsection}{\numberline {5.4}Particle-Particle quantities}{29}{subsection.5.4}% 
-\contentsline {subsection}{\numberline {5.5}Zero-temperature, projective code}{29}{subsection.5.5}% 
+\contentsline {subsection}{\numberline {5.3}Particle-hole quantities}{29}{subsection.5.3}% 
+\contentsline {subsection}{\numberline {5.4}Particle-Particle quantities}{30}{subsection.5.4}% 
+\contentsline {subsection}{\numberline {5.5}Zero-temperature, projective code}{30}{subsection.5.5}% 
 \contentsline {section}{\numberline {6}Data Structures and Input/Output}{30}{section.6}% 
 \contentsline {subsection}{\numberline {6.1}Implementation of the Hamiltonian and the lattice}{30}{subsection.6.1}% 
 \contentsline {subsubsection}{\numberline {6.1.1}The \texttt {Operator} type}{31}{subsubsection.6.1.1}% 
-\contentsline {subsubsection}{\numberline {6.1.2}Specification of the model}{31}{subsubsection.6.1.2}% 
+\contentsline {subsubsection}{\numberline {6.1.2}Specification of the model}{32}{subsubsection.6.1.2}% 
 \contentsline {subsubsection}{\numberline {6.1.3}Handling of the fields: the \texttt {Fields} type}{33}{subsubsection.6.1.3}% 
 \contentsline {subsubsection}{\numberline {6.1.4}The \texttt {Lattice} and \texttt {Unit\_cell} types}{33}{subsubsection.6.1.4}% 
-\contentsline {subsection}{\numberline {6.2}The observable types \texttt {Obser\_Vec} and \texttt {Obser\_Latt}}{35}{subsection.6.2}% 
-\contentsline {subsubsection}{\numberline {6.2.1}Scalar observables}{35}{subsubsection.6.2.1}% 
-\contentsline {subsubsection}{\numberline {6.2.2}Equal-time and time-displaced correlation functions}{36}{subsubsection.6.2.2}% 
-\contentsline {subsection}{\numberline {6.3}File structure}{36}{subsection.6.3}% 
-\contentsline {subsubsection}{\numberline {6.3.1}Input files}{37}{subsubsection.6.3.1}% 
-\contentsline {subsubsection}{\numberline {6.3.2}Output files -- observables}{39}{subsubsection.6.3.2}% 
-\contentsline {section}{\numberline {7}Using the Code}{40}{section.7}% 
-\contentsline {subsection}{\numberline {7.1}Compiling and running}{40}{subsection.7.1}% 
-\contentsline {subsection}{\numberline {7.2}Error analysis}{41}{subsection.7.2}% 
-\contentsline {subsection}{\numberline {7.3}Performance \& parameter optimization}{43}{subsection.7.3}% 
-\contentsline {section}{\numberline {8}Predefined Structures}{43}{section.8}% 
-\contentsline {subsection}{\numberline {8.1}Predefined lattices}{44}{subsection.8.1}% 
-\contentsline {subsubsection}{\numberline {8.1.1}Square lattice}{45}{subsubsection.8.1.1}% 
-\contentsline {subsubsection}{\numberline {8.1.2}Honeycomb lattice}{45}{subsubsection.8.1.2}% 
-\contentsline {subsubsection}{\numberline {8.1.3}$\pi $-Flux lattice (deprecated)}{46}{subsubsection.8.1.3}% 
-\contentsline {subsubsection}{\numberline {8.1.4}$N$-leg Ladder lattice}{46}{subsubsection.8.1.4}% 
-\contentsline {subsubsection}{\numberline {8.1.5}Bilayer Square lattice}{46}{subsubsection.8.1.5}% 
-\contentsline {subsubsection}{\numberline {8.1.6}Bilayer Honeycomb lattice}{46}{subsubsection.8.1.6}% 
-\contentsline {subsection}{\numberline {8.2}Setting up the hopping matrix}{47}{subsection.8.2}% 
-\contentsline {subsubsection}{\numberline {8.2.1}Generic hopping matrices}{47}{subsubsection.8.2.1}% 
-\contentsline {subsubsection}{\numberline {8.2.2}Usage: the \texttt {Hopping\_Matrix\_type}}{48}{subsubsection.8.2.2}% 
-\contentsline {subsubsection}{\numberline {8.2.3}Predefined hopping matrices}{49}{subsubsection.8.2.3}% 
-\contentsline {subsection}{\numberline {8.3}Interaction vertices}{50}{subsection.8.3}% 
-\contentsline {subsubsection}{\numberline {8.3.1}The $SU(N)$ Hubbard interaction}{51}{subsubsection.8.3.1}% 
-\contentsline {subsubsection}{\numberline {8.3.2}The $M_z$-Hubbard interaction}{51}{subsubsection.8.3.2}% 
-\contentsline {subsubsection}{\numberline {8.3.3}The $SU(N)$ $V$-interaction}{51}{subsubsection.8.3.3}% 
-\contentsline {subsubsection}{\numberline {8.3.4}The Fermion-Ising coupling}{52}{subsubsection.8.3.4}% 
-\contentsline {subsubsection}{\numberline {8.3.5}The long-Range Coulomb repulsion}{52}{subsubsection.8.3.5}% 
-\contentsline {subsubsection}{\numberline {8.3.6}The $J_z$-$J_z$ interaction}{53}{subsubsection.8.3.6}% 
-\contentsline {subsection}{\numberline {8.4}Template}{53}{subsection.8.4}% 
-\contentsline {section}{\numberline {9}Examples}{54}{section.9}% 
-\contentsline {subsection}{\numberline {9.1}The $SU(2)$-Hubbard model on a square lattice}{54}{subsection.9.1}% 
-\contentsline {subsubsection}{\numberline {9.1.1}Setting the Hamiltonian: \texttt {Ham\_set}}{54}{subsubsection.9.1.1}% 
-\contentsline {paragraph}{\numberline {9.1.1.1}The lattice: \texttt {Call Ham\_latt}}{55}{paragraph.9.1.1.1}% 
-\contentsline {paragraph}{\numberline {9.1.1.2}The hopping term: \texttt {Call Ham\_hop}}{55}{paragraph.9.1.1.2}% 
-\contentsline {paragraph}{\numberline {9.1.1.3}The interaction term: \texttt {Call Ham\_V}}{55}{paragraph.9.1.1.3}% 
-\contentsline {subsubsection}{\numberline {9.1.2}Observables}{55}{subsubsection.9.1.2}% 
-\contentsline {paragraph}{\numberline {9.1.2.1}Allocating space for the observables: \texttt {Call Alloc\_obs(Ltau) }}{55}{paragraph.9.1.2.1}% 
-\contentsline {paragraph}{\numberline {9.1.2.2}Measuring equal-time observables: \texttt {Obser(GR,Phase,Ntau)}}{56}{paragraph.9.1.2.2}% 
-\contentsline {paragraph}{\numberline {9.1.2.3}Measuring time displaced observables: \texttt {ObserT(NT, GT0,G0T,G00,GTT, PHASE) }}{57}{paragraph.9.1.2.3}% 
-\contentsline {subsubsection}{\numberline {9.1.3}Numerical precision}{57}{subsubsection.9.1.3}% 
-\contentsline {subsection}{\numberline {9.2}The $M_z$-Hubbard model on a square lattice}{58}{subsection.9.2}% 
-\contentsline {subsubsection}{\numberline {9.2.1}The interaction term: \texttt {Call Ham\_V}}{58}{subsubsection.9.2.1}% 
-\contentsline {subsubsection}{\numberline {9.2.2}The measurements: \texttt {Call Obser, Call ObserT}}{58}{subsubsection.9.2.2}% 
-\contentsline {subsubsection}{\numberline {9.2.3}Numerical precision}{58}{subsubsection.9.2.3}% 
-\contentsline {subsection}{\numberline {9.3}The $SU(2)$-Hubbard model on the honeycomb lattice}{58}{subsection.9.3}% 
-\contentsline {subsubsection}{\numberline {9.3.1}Working with multi-orbital unit cells: \texttt {Call Ham\_Latt}}{58}{subsubsection.9.3.1}% 
-\contentsline {subsubsection}{\numberline {9.3.2}The hopping term: \texttt {Call Ham\_Hop}}{59}{subsubsection.9.3.2}% 
-\contentsline {subsubsection}{\numberline {9.3.3}Observables: \texttt {Call Obser}, \texttt {Call ObserT}}{59}{subsubsection.9.3.3}% 
-\contentsline {subsection}{\numberline {9.4}The $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}{59}{subsection.9.4}% 
-\contentsline {subsubsection}{\numberline {9.4.1}The Ising term.}{59}{subsubsection.9.4.1}% 
-\contentsline {subsubsection}{\numberline {9.4.2}The interaction term: \texttt {Call Ham\_V}}{60}{subsubsection.9.4.2}% 
-\contentsline {subsubsection}{\numberline {9.4.3}The function \texttt {Real (Kind=8) function S0(n,nt)}}{60}{subsubsection.9.4.3}% 
-\contentsline {section}{\numberline {10}Miscellaneous}{61}{section.10}% 
-\contentsline {subsection}{\numberline {10.1}Other models}{61}{subsection.10.1}% 
-\contentsline {subsubsection}{\numberline {10.1.1}Kondo lattice model}{61}{subsubsection.10.1.1}% 
-\contentsline {subsubsection}{\numberline {10.1.2}$SU(N)$ Hubbard-Heisenberg models}{62}{subsubsection.10.1.2}% 
-\contentsline {subsubsection}{\numberline {10.1.3}Hubbard model in the canonical ensemble}{62}{subsubsection.10.1.3}% 
-\contentsline {subsubsection}{\numberline {10.1.4}$Z_2$ slave spin formualtion of the Hubbard model}{63}{subsubsection.10.1.4}% 
-\contentsline {subsubsection}{\numberline {10.1.5}$Z_2$ gauge theory coupled to $Z_2$ matter.}{65}{subsubsection.10.1.5}% 
-\contentsline {subsubsection}{\numberline {10.1.6}Generalized t-V model}{65}{subsubsection.10.1.6}% 
-\contentsline {subsubsection}{\numberline {10.1.7}Long range Coulomb}{65}{subsubsection.10.1.7}% 
-\contentsline {subsection}{\numberline {10.2}Model Classes}{66}{subsection.10.2}% 
-\contentsline {subsubsection}{\numberline {10.2.1}Hubbard models \texttt {tU\_mod.F90}}{66}{subsubsection.10.2.1}% 
-\contentsline {subsubsection}{\numberline {10.2.2}Hubbard models \texttt {tV\_mod.F90}}{66}{subsubsection.10.2.2}% 
-\contentsline {subsubsection}{\numberline {10.2.3}Hubbard models \texttt {LRC\_mod.F90}}{66}{subsubsection.10.2.3}% 
-\contentsline {subsubsection}{\numberline {10.2.4}Hubbard models \texttt {Z2\_mod.F90}}{66}{subsubsection.10.2.4}% 
-\contentsline {subsubsection}{\numberline {10.2.5}Hubbard models \texttt {Kondo\_mod.F90}}{66}{subsubsection.10.2.5}% 
-\contentsline {subsection}{\numberline {10.3}Performance, memory requirements and parallelization}{67}{subsection.10.3}% 
-\contentsline {section}{\numberline {11}Conclusions and Future Directions}{68}{section.11}% 
-\contentsline {section}{Acknowledgments}{68}{section.11}% 
-\contentsline {section}{References}{69}{section*.8}% 
-\contentsline {section}{License}{72}{section*.9}% 
+\contentsline {subsubsection}{\numberline {6.1.5}Setting up the hopping matrix: the \texttt {Hopping\_Matrix\_type}}{35}{subsubsection.6.1.5}% 
+\contentsline {subsection}{\numberline {6.2}The observable types \texttt {Obser\_Vec} and \texttt {Obser\_Latt}}{38}{subsection.6.2}% 
+\contentsline {subsubsection}{\numberline {6.2.1}Scalar observables}{38}{subsubsection.6.2.1}% 
+\contentsline {subsubsection}{\numberline {6.2.2}Equal-time and time-displaced correlation functions}{39}{subsubsection.6.2.2}% 
+\contentsline {subsection}{\numberline {6.3}File structure}{39}{subsection.6.3}% 
+\contentsline {subsubsection}{\numberline {6.3.1}Input files}{40}{subsubsection.6.3.1}% 
+\contentsline {subsubsection}{\numberline {6.3.2}Output files -- observables}{42}{subsubsection.6.3.2}% 
+\contentsline {section}{\numberline {7}Using the Code}{43}{section.7}% 
+\contentsline {subsection}{\numberline {7.1}Compiling and running}{43}{subsection.7.1}% 
+\contentsline {subsection}{\numberline {7.2}Error analysis}{44}{subsection.7.2}% 
+\contentsline {subsection}{\numberline {7.3}Performance \& parameter optimization}{46}{subsection.7.3}% 
+\contentsline {section}{\numberline {8}Predefined Structures}{46}{section.8}% 
+\contentsline {subsection}{\numberline {8.1}Predefined lattices}{47}{subsection.8.1}% 
+\contentsline {subsubsection}{\numberline {8.1.1}Square lattice}{48}{subsubsection.8.1.1}% 
+\contentsline {subsubsection}{\numberline {8.1.2}Honeycomb lattice}{48}{subsubsection.8.1.2}% 
+\contentsline {subsubsection}{\numberline {8.1.3}$\pi $-Flux lattice (deprecated)}{49}{subsubsection.8.1.3}% 
+\contentsline {subsubsection}{\numberline {8.1.4}$N$-leg Ladder lattice}{49}{subsubsection.8.1.4}% 
+\contentsline {subsubsection}{\numberline {8.1.5}Bilayer Square lattice}{49}{subsubsection.8.1.5}% 
+\contentsline {subsubsection}{\numberline {8.1.6}Bilayer Honeycomb lattice}{49}{subsubsection.8.1.6}% 
+\contentsline {subsection}{\numberline {8.2}Predefined hopping matrices}{50}{subsection.8.2}% 
+\contentsline {subsection}{\numberline {8.3}Predefined interaction vertices}{51}{subsection.8.3}% 
+\contentsline {subsubsection}{\numberline {8.3.1}$SU(N)$ Hubbard interaction}{51}{subsubsection.8.3.1}% 
+\contentsline {subsubsection}{\numberline {8.3.2}$M_z$-Hubbard interaction}{52}{subsubsection.8.3.2}% 
+\contentsline {subsubsection}{\numberline {8.3.3}$SU(N)$ $V$-interaction}{52}{subsubsection.8.3.3}% 
+\contentsline {subsubsection}{\numberline {8.3.4}Fermion-Ising coupling}{53}{subsubsection.8.3.4}% 
+\contentsline {subsubsection}{\numberline {8.3.5}Long-Range Coulomb repulsion}{53}{subsubsection.8.3.5}% 
+\contentsline {subsubsection}{\numberline {8.3.6}$J_z$-$J_z$ interaction}{54}{subsubsection.8.3.6}% 
+\contentsline {subsection}{\numberline {8.4}Predefined trial wave functions}{54}{subsection.8.4}% 
+\contentsline {subsection}{\numberline {8.5}Template}{54}{subsection.8.5}% 
+\contentsline {section}{\numberline {9}Examples}{55}{section.9}% 
+\contentsline {subsection}{\numberline {9.1}The $SU(2)$-Hubbard model on a square lattice}{55}{subsection.9.1}% 
+\contentsline {subsubsection}{\numberline {9.1.1}Setting the Hamiltonian: \texttt {Ham\_set}}{55}{subsubsection.9.1.1}% 
+\contentsline {paragraph}{\numberline {9.1.1.1}The lattice: \texttt {Call Ham\_latt}}{56}{paragraph.9.1.1.1}% 
+\contentsline {paragraph}{\numberline {9.1.1.2}The hopping term: \texttt {Call Ham\_hop}}{56}{paragraph.9.1.1.2}% 
+\contentsline {paragraph}{\numberline {9.1.1.3}The interaction term: \texttt {Call Ham\_V}}{56}{paragraph.9.1.1.3}% 
+\contentsline {subsubsection}{\numberline {9.1.2}Observables}{56}{subsubsection.9.1.2}% 
+\contentsline {paragraph}{\numberline {9.1.2.1}Allocating space for the observables: \texttt {Call Alloc\_obs(Ltau) }}{56}{paragraph.9.1.2.1}% 
+\contentsline {paragraph}{\numberline {9.1.2.2}Measuring equal-time observables: \texttt {Obser(GR,Phase,Ntau)}}{57}{paragraph.9.1.2.2}% 
+\contentsline {paragraph}{\numberline {9.1.2.3}Measuring time displaced observables: \texttt {ObserT(NT, GT0,G0T,G00,GTT, PHASE) }}{58}{paragraph.9.1.2.3}% 
+\contentsline {subsubsection}{\numberline {9.1.3}Numerical precision}{58}{subsubsection.9.1.3}% 
+\contentsline {subsection}{\numberline {9.2}The $M_z$-Hubbard model on a square lattice}{59}{subsection.9.2}% 
+\contentsline {subsubsection}{\numberline {9.2.1}The interaction term: \texttt {Call Ham\_V}}{59}{subsubsection.9.2.1}% 
+\contentsline {subsubsection}{\numberline {9.2.2}The measurements: \texttt {Call Obser, Call ObserT}}{59}{subsubsection.9.2.2}% 
+\contentsline {subsubsection}{\numberline {9.2.3}Numerical precision}{59}{subsubsection.9.2.3}% 
+\contentsline {subsection}{\numberline {9.3}The $SU(2)$-Hubbard model on the honeycomb lattice}{59}{subsection.9.3}% 
+\contentsline {subsubsection}{\numberline {9.3.1}Working with multi-orbital unit cells: \texttt {Call Ham\_Latt}}{59}{subsubsection.9.3.1}% 
+\contentsline {subsubsection}{\numberline {9.3.2}The hopping term: \texttt {Call Ham\_Hop}}{60}{subsubsection.9.3.2}% 
+\contentsline {subsubsection}{\numberline {9.3.3}Observables: \texttt {Call Obser}, \texttt {Call ObserT}}{60}{subsubsection.9.3.3}% 
+\contentsline {subsection}{\numberline {9.4}The $SU(2)$-Hubbard model on a square lattice coupled to a transverse Ising field}{60}{subsection.9.4}% 
+\contentsline {subsubsection}{\numberline {9.4.1}The Ising term.}{60}{subsubsection.9.4.1}% 
+\contentsline {subsubsection}{\numberline {9.4.2}The interaction term: \texttt {Call Ham\_V}}{61}{subsubsection.9.4.2}% 
+\contentsline {subsubsection}{\numberline {9.4.3}The function \texttt {Real (Kind=8) function S0(n,nt)}}{61}{subsubsection.9.4.3}% 
+\contentsline {section}{\numberline {10}Miscellaneous}{62}{section.10}% 
+\contentsline {subsection}{\numberline {10.1}Other models}{62}{subsection.10.1}% 
+\contentsline {subsubsection}{\numberline {10.1.1}Kondo lattice model}{62}{subsubsection.10.1.1}% 
+\contentsline {subsubsection}{\numberline {10.1.2}$SU(N)$ Hubbard-Heisenberg models}{63}{subsubsection.10.1.2}% 
+\contentsline {subsubsection}{\numberline {10.1.3}Hubbard model in the canonical ensemble}{63}{subsubsection.10.1.3}% 
+\contentsline {subsubsection}{\numberline {10.1.4}$Z_2$ slave spin formualtion of the Hubbard model}{64}{subsubsection.10.1.4}% 
+\contentsline {subsubsection}{\numberline {10.1.5}$Z_2$ gauge theory coupled to $Z_2$ matter.}{66}{subsubsection.10.1.5}% 
+\contentsline {subsubsection}{\numberline {10.1.6}Generalized t-V model}{66}{subsubsection.10.1.6}% 
+\contentsline {subsubsection}{\numberline {10.1.7}Long range Coulomb}{66}{subsubsection.10.1.7}% 
+\contentsline {subsection}{\numberline {10.2}Model Classes}{67}{subsection.10.2}% 
+\contentsline {subsubsection}{\numberline {10.2.1}Hubbard models \texttt {tU\_mod.F90}}{67}{subsubsection.10.2.1}% 
+\contentsline {subsubsection}{\numberline {10.2.2}Hubbard models \texttt {tV\_mod.F90}}{67}{subsubsection.10.2.2}% 
+\contentsline {subsubsection}{\numberline {10.2.3}Hubbard models \texttt {LRC\_mod.F90}}{67}{subsubsection.10.2.3}% 
+\contentsline {subsubsection}{\numberline {10.2.4}Hubbard models \texttt {Z2\_mod.F90}}{67}{subsubsection.10.2.4}% 
+\contentsline {subsubsection}{\numberline {10.2.5}Hubbard models \texttt {Kondo\_mod.F90}}{67}{subsubsection.10.2.5}% 
+\contentsline {subsection}{\numberline {10.3}Performance, memory requirements and parallelization}{68}{subsection.10.3}% 
+\contentsline {section}{\numberline {11}Conclusions and Future Directions}{69}{section.11}% 
+\contentsline {section}{Acknowledgments}{69}{section.11}% 
+\contentsline {section}{References}{70}{section*.15}% 
+\contentsline {section}{License}{73}{section*.16}% 
