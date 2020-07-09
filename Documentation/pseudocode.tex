@@ -14,7 +14,7 @@
 Set the Hamiltonian and the lattice:\\
 \textbf{Call} ham\_set\\
 Read in an auxiliary-field configuration or generate it randomly:\\
-\textbf{Call} confin\\
+\textbf{Call} field\%in\\
 
 This loop fills the storage needed for the first actual Monte Carlo sweep:\\
 \textbf{Do} \texttt{ntau} from  \texttt{ltrot} to \texttt{1}\\
@@ -30,7 +30,7 @@ Loop over bins: \\
 \hspace*{1em} \textbf{Do} \texttt{nsw} from  \texttt{1} to \texttt{nsweep}  \\
 \hspace*{2em} Upward sweep:\\
 \hspace*{2em} \textbf{Do} \texttt{ntau} from \texttt{1} to \texttt{ltrot}\\      
-\hspace*{3em} Propagate the Green function from time \texttt{ntau $-$ 1} to \texttt{ntau}, and compute a new\\
+\hspace*{3em} Propagate the Green function from time \texttt{ntau$-$1} to \texttt{ntau}, and compute a new\\
 \hspace*{3em} estimate (using sequential update scheme) of the Green function at \texttt{ntau}: \\
 \hspace*{3em} \textbf{Call} wrapgrup\\
          
@@ -63,9 +63,9 @@ Loop over bins: \\
 \hspace*{1em} \textbf{Enddo} (loop over sweeps)\\
     
 \hspace*{1em} Calculate measurement averages for current bin and write them to disk:\\
-\hspace*{1em} \textbf{call} pr\_obs\\
+\hspace*{1em} \textbf{Call} pr\_obs\\
 \hspace*{1em} Write auxiliary-field configuration to disk: \\
-\hspace*{1em} \textbf{call} confout\\
+\hspace*{1em} \textbf{Call} field\%out\\
 \textbf{Enddo} (loop over bins)\\
 % 
 % Write the \texttt{info} file to disk:\\
