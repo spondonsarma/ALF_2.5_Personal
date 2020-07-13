@@ -1,11 +1,6 @@
 #!/bin/sh
 STABCONFIGURATION=""
-# STABCONFIGURATION=${STABCONFIGURATION}" -DQRREF"
-
-PROGRAMMCONFIGURATION="-DMPI"
-INTELCOMPILER="mpiifort"
-GNUCOMPILER="mpifort"
-MPICOMP=1
+# STABCONFIGURATION="${STABCONFIGURATION} -DQRREF"
 
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
@@ -32,6 +27,7 @@ NC='\033[0m' # No Color
 
 while [ "$#" -gt "0" ]; do
   ARG="$(echo "$1" | tr '[:lower:]' '[:upper:]')"
+  shift 1
   case "$ARG" in
     STAB1|STAB2|STAB3|LOG)
       if [ "$stabv" = "1" ]; then
@@ -39,7 +35,6 @@ while [ "$#" -gt "0" ]; do
       fi
       STAB="$ARG"
       stabv="1"
-      shift 1
     ;;
     NOMPI|MPI|TEMPERING|SERIAL)
       if [ "$modev" = "1" ]; then
@@ -47,7 +42,6 @@ while [ "$#" -gt "0" ]; do
       fi
       MODE="$ARG"
       modev="1"
-      shift 1
     ;;
     *)
       if [ "$Machinev" = "1" ]; then
@@ -55,11 +49,9 @@ while [ "$#" -gt "0" ]; do
       fi
       MACHINE="$ARG"
       Machinev="1"
-      shift 1
     ;;
   esac
 done
-
 
 printf "\n"
 
@@ -136,9 +128,9 @@ case $MACHINE in
     F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
     if [ "$MPICOMP" -eq "0" ]; then
-    f90="gfortran"
+    ALF_FC="gfortran"
     else
-    f90="$mpif90"
+    ALF_FC="$mpif90"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
   ;;
@@ -150,7 +142,7 @@ case $MACHINE in
     # F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
 
-    f90="$GNUCOMPILER"
+    ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
   ;;
 
@@ -162,7 +154,7 @@ case $MACHINE in
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    f90="mpiifort"
+    ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="$MKL_LIB"
   ;;
 
@@ -177,7 +169,7 @@ case $MACHINE in
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    f90="mpiifort"
+    ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="$MKL_LIB"
   ;;
 
@@ -189,7 +181,7 @@ case $MACHINE in
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    f90="mpiifort"
+    ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="-mkl"
   ;;
 
@@ -197,7 +189,7 @@ case $MACHINE in
   INTEL)
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    f90="$INTELCOMPILER"
+    ALF_FC="$INTELCOMPILER"
     LIB_BLAS_LAPACK="-mkl"
   ;;
 
@@ -205,16 +197,19 @@ case $MACHINE in
   GNU)
     F90OPTFLAGS="$GNUOPTFLAGS"
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
-    f90="$GNUCOMPILER"
+    ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
   ;;
 
   #PGI
   PGI)
     if [ "$MPICOMP" -eq "0" ]; then
-    f90="pgfortran"
+      ALF_FC="pgfortran"
     else
-    f90="$(dirname "$(dirname "$(command -v pgfortran)")")/mpi/openmpi/bin/mpifort"
+      ALF_FC="mpifort"
+      printf "\n${RED}   !! Compiler set to 'mpifort' !!\n"
+      printf "If this is not your PGI MPI compiler you have to set it manually through:\n"
+      printf "    'export ALF_FC=<mpicompiler>'${NC}\n"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas"
     F90OPTFLAGS="-Mpreprocess -O3 -mp"
@@ -249,20 +244,20 @@ case $MACHINE in
     F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
     F90USEFULFLAGS=""
 
-    f90=gfortran
+    ALF_FC="gfortran"
     LIB_BLAS_LAPACK="-llapack -lblas"
   ;;
 esac
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
-Libs="$(pwd)/Libraries"
+Libs="$PWD/Libraries"
 ALF_INC="-I${Libs}/Modules"
 ALF_LIB="${Libs}/Modules/modules_90.a ${Libs}/libqrref/libqrref.a ${LIB_BLAS_LAPACK}"
 export ALF_LIB
 
 export ALF_DIR="$PWD"
-export ALF_FC=$f90
+export ALF_FC
 
 if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
   printf "\n"
