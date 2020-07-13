@@ -88,7 +88,6 @@ where the following definitions are used
   \prod_{k=1}^{M_I} e^{-\Delta\tau s_{k,\tau} \hat{\vec{c}}_{s}^{\dagger} \bm{I}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}}
     \prod_{k=1}^{M_T}   e^{-\Delta\tau  \hat{\vec{c}}_{s}^{\dagger} \bm{T}^{(ks)} \hat{\vec{c}}_{s}^{\phantom\dagger}} .
 \end{align}
-\red{[What about giving an example of how this general expression looks like for a simple system?]}\\
 The vector $\hat{\vec{c}}_s^{\dagger}$ contains all fermionic operators $\hat{c}_{x,s}^{\dagger}$ of flavor $s$.
 The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file.
 
