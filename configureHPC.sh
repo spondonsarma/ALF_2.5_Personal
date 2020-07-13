@@ -64,201 +64,194 @@ done
 printf "\n"
 
 case $MODE in
-NOMPI|SERIAL)
-printf "serial job.\n"
-PROGRAMMCONFIGURATION=""
-INTELCOMPILER="ifort"
-GNUCOMPILER="gfortran"
-MPICOMP=0
-;;
+  NOMPI|SERIAL)
+    printf "serial job.\n"
+    PROGRAMMCONFIGURATION=""
+    INTELCOMPILER="ifort"
+    GNUCOMPILER="gfortran"
+    MPICOMP=0
+  ;;
 
-TEMPERING)
-printf "Activating parallel tempering.\n"
-printf "This requires also MPI parallization which is set as well.\n"
-PROGRAMMCONFIGURATION="-DMPI -DTEMPERING"
-INTELCOMPILER="mpiifort"
-GNUCOMPILER="mpifort"
-MPICOMP=1
-;;
+  TEMPERING)
+    printf "Activating parallel tempering.\n"
+    printf "This requires also MPI parallization which is set as well.\n"
+    PROGRAMMCONFIGURATION="-DMPI -DTEMPERING"
+    INTELCOMPILER="mpiifort"
+    GNUCOMPILER="mpifort"
+    MPICOMP=1
+  ;;
 
-MPI)
-printf "Activating MPI parallization.\n"
-PROGRAMMCONFIGURATION="-DMPI"
-INTELCOMPILER="mpiifort"
-GNUCOMPILER="mpifort"
-MPICOMP=1
-;;
+  MPI)
+    printf "Activating MPI parallization.\n"
+    PROGRAMMCONFIGURATION="-DMPI"
+    INTELCOMPILER="mpiifort"
+    GNUCOMPILER="mpifort"
+    MPICOMP=1
+  ;;
 
-*)
-printf "Activating ${RED}MPI parallization (default)${NC}.\n"
-printf "To turn MPI off, pass noMPI as the second argument.\n"
-printf "To turn on parallel tempering, pass Tempering as the second argument.\n"
-PROGRAMMCONFIGURATION="-DMPI"
-INTELCOMPILER="mpiifort"
-GNUCOMPILER="mpifort"
-MPICOMP=1
-;;
-
+  *)
+    printf "Activating ${RED}MPI parallization (default)${NC}.\n"
+    printf "To turn MPI off, pass noMPI as the second argument.\n"
+    printf "To turn on parallel tempering, pass Tempering as the second argument.\n"
+    PROGRAMMCONFIGURATION="-DMPI"
+    INTELCOMPILER="mpiifort"
+    GNUCOMPILER="mpifort"
+    MPICOMP=1
+  ;;
 esac
 
 printf "\n"
 
 case $STAB in
+  STAB1)
+    STABCONFIGURATION="${STABCONFIGURATION} -DSTAB1"
+    printf "Using older stabilization with UDV decompositions\n"
+  ;;
 
-STAB1)
-STABCONFIGURATION="${STABCONFIGURATION} -DSTAB1"
-printf "Using older stabilization with UDV decompositions\n"
-;;
+  STAB2)
+    STABCONFIGURATION="${STABCONFIGURATION} -DSTAB2"
+    printf "Using older stabilization with UDV decompositions and additional normalizations\n"
+  ;;
 
-STAB2)
-STABCONFIGURATION="${STABCONFIGURATION} -DSTAB2"
-printf "Using older stabilization with UDV decompositions and additional normalizations\n"
-;;
+  STAB3)
+    STABCONFIGURATION="${STABCONFIGURATION} -DSTAB3"
+    printf "Using newest stabilization which seperates large and small scales\n"
+  ;;
 
-STAB3)
-STABCONFIGURATION="${STABCONFIGURATION} -DSTAB3"
-printf "Using newest stabilization which seperates large and small scales\n"
-;;
+  LOG)
+    STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
+    printf "Using log storage for internal scales\n"
+  ;;
 
-LOG)
-STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
-printf "Using log storage for internal scales\n"
-;;
-
-*)
-printf "Using ${RED}default stabilization${NC}\n"
-printf "Possible alternative options are STAB1, STAB2, STAB3 and LOG\n"
-;;
-
+  *)
+    printf "Using ${RED}default stabilization${NC}\n"
+    printf "Possible alternative options are STAB1, STAB2, STAB3 and LOG\n"
+  ;;
 esac
 
 case $MACHINE in
+  #Fakhers MacBook
+  FAKHERSMAC)
+    # F90OPTFLAGS=$GNUOPTFLAGS
+    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
+    F90USEFULFLAGS="$GNUUSEFULFLAGS"
+    if [ "$MPICOMP" -eq "0" ]; then
+    f90="gfortran"
+    else
+    f90="$mpif90"
+    fi
+    LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+  ;;
 
-#Fakhers MacBook
-FAKHERSMAC)
+  #Development
+  DEVEL|DEVELOPMENT)
+    # F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -g -fbacktrace "
+    # F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
+    F90USEFULFLAGS="$GNUUSEFULFLAGS"
 
-# F90OPTFLAGS=$GNUOPTFLAGS
-F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -fcheck=all -g -fbacktrace"
-F90USEFULFLAGS="$GNUUSEFULFLAGS"
-if [ "$MPICOMP" -eq "0" ]; then
-f90="gfortran"
-else
-f90="$mpif90"
-fi
-LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-;;
+    f90="$GNUCOMPILER"
+    LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+  ;;
 
-#Development
-DEVEL|DEVELOPMENT)
+  #LRZ enviroment
+  SUPERMUC)
+    module switch mpi.ibm  mpi.intel/2018
+    module switch intel intel/18.0
+    module switch mkl mkl/2018
 
-# F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
-F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -g -fbacktrace "
-# F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
-F90USEFULFLAGS="$GNUUSEFULFLAGS"
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    f90="mpiifort"
+    LIB_BLAS_LAPACK="$MKL_LIB"
+  ;;
 
-f90="$GNUCOMPILER"
-LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-;;
+  #LRZ enviroment
+  SUPERMUC-NG|NG)
+    #module switch mpi.intel  mpi.intel/2018
+    #module switch intel intel/18.0
+    #module switch mkl mkl/2018
+    module load  mpi.intel
+    module load intel
+    module load mkl
 
-#LRZ enviroment
-SUPERMUC)
-module switch mpi.ibm  mpi.intel/2018
-module switch intel intel/18.0
-module switch mkl mkl/2018
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    f90="mpiifort"
+    LIB_BLAS_LAPACK="$MKL_LIB"
+  ;;
 
-F90OPTFLAGS="$INTELOPTFLAGS"
-F90USEFULFLAGS="$INTELUSEFULFLAGS"
-f90="mpiifort"
-LIB_BLAS_LAPACK="$MKL_LIB"
-;;
+  #JUWELS enviroment
+  JUWELS)
+    module load Intel
+    module load IntelMPI
+    module load imkl
 
-#LRZ enviroment
-SUPERMUC-NG|NG)
-#module switch mpi.intel  mpi.intel/2018
-#module switch intel intel/18.0
-#module switch mkl mkl/2018
-module load  mpi.intel
-module load intel
-module load mkl
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    f90="mpiifort"
+    LIB_BLAS_LAPACK="-mkl"
+  ;;
 
-F90OPTFLAGS="$INTELOPTFLAGS"
-F90USEFULFLAGS="$INTELUSEFULFLAGS"
-f90="mpiifort"
-LIB_BLAS_LAPACK="$MKL_LIB"
-;;
+  #Intel (as Hybrid code)
+  INTEL)
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    f90="$INTELCOMPILER"
+    LIB_BLAS_LAPACK="-mkl"
+  ;;
 
-#JUWELS enviroment
-JUWELS)
-module load Intel
-module load IntelMPI
-module load imkl
+  #GNU (as Hybrid code)
+  GNU)
+    F90OPTFLAGS="$GNUOPTFLAGS"
+    F90USEFULFLAGS="$GNUUSEFULFLAGS"
+    f90="$GNUCOMPILER"
+    LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+  ;;
 
-F90OPTFLAGS="$INTELOPTFLAGS"
-F90USEFULFLAGS="$INTELUSEFULFLAGS"
-f90="mpiifort"
-LIB_BLAS_LAPACK="-mkl"
-;;
+  #PGI
+  PGI)
+    if [ "$MPICOMP" -eq "0" ]; then
+    f90="pgfortran"
+    else
+    f90="$(dirname "$(dirname "$(command -v pgfortran)")")/mpi/openmpi/bin/mpifort"
+    fi
+    LIB_BLAS_LAPACK="-llapack -lblas"
+    F90OPTFLAGS="-Mpreprocess -O3 -mp"
+    F90USEFULFLAGS="-Minform=inform"
+  ;;
 
-#Intel (as Hybrid code)
-INTEL)
-F90OPTFLAGS="$INTELOPTFLAGS"
-F90USEFULFLAGS="$INTELUSEFULFLAGS"
-f90="$INTELCOMPILER"
-LIB_BLAS_LAPACK="-mkl"
-;;
+  #Default (unknown machine)
+  *)
+    printf "\n"
+    printf "${RED}   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!${NC}\n"
+    printf "${RED}   !!               UNKNOW MACHINE               !!${NC}\n"
+    printf "${RED}   !!         IGNORING PARALLEL SETTINGS         !!${NC}\n"
+    printf "${RED}   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!${NC}\n"
+    printf "\n"
+    printf "Activating fallback option with gfortran for SERIAL JOB.\n"
+    printf "\n"
+    printf "usage 'source configureHPC.sh MACHINE MODE STAB'\n"
+    printf "\n"
+    printf "Please choose one of the following machines:\n"
+    printf " * SuperMUC\n"
+    printf " * SuperMUC-NG\n"
+    printf " * JUWELS\n"
+    printf " * Devel\n"
+    printf " * Intel\n"
+    printf " * GNU\n"
+    printf " * FakhersMAC\n"
+    printf "Possible modes are MPI (default), noMPI and Tempering\n"
+    printf "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)\n"
+    printf "and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)\n"
 
-#GNU (as Hybrid code)
-GNU)
-F90OPTFLAGS="$GNUOPTFLAGS"
-F90USEFULFLAGS="$GNUUSEFULFLAGS"
-f90="$GNUCOMPILER"
-LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-;;
+    PROGRAMMCONFIGURATION=""
+    F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
+    F90USEFULFLAGS=""
 
-#PGI
-PGI)
-if [ "$MPICOMP" -eq "0" ]; then
-f90="pgfortran"
-else
-f90="$(dirname "$(dirname "$(command -v pgfortran)")")/mpi/openmpi/bin/mpifort"
-fi
-LIB_BLAS_LAPACK="-llapack -lblas"
-F90OPTFLAGS="-Mpreprocess -O3 -mp"
-F90USEFULFLAGS="-Minform=inform"
-;;
-
-#Default (unknown machine)
-*)
-printf "\n"
-printf "${RED}   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!${NC}\n"
-printf "${RED}   !!               UNKNOW MACHINE               !!${NC}\n"
-printf "${RED}   !!         IGNORING PARALLEL SETTINGS         !!${NC}\n"
-printf "${RED}   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!${NC}\n"
-printf "\n"
-printf "Activating fallback option with gfortran for SERIAL JOB.\n"
-printf "\n"
-printf "usage 'source configureHPC.sh MACHINE MODE STAB'\n"
-printf "\n"
-printf "Please choose one of the following machines:\n"
-printf " * SuperMUC\n"
-printf " * SuperMUC-NG\n"
-printf " * JUWELS\n"
-printf " * Devel\n"
-printf " * Intel\n"
-printf " * GNU\n"
-printf " * FakhersMAC\n"
-printf "Possible modes are MPI (default), noMPI and Tempering\n"
-printf "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)\n"
-printf "and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)\n"
-
-PROGRAMMCONFIGURATION=""
-F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
-F90USEFULFLAGS=""
-
-f90=gfortran
-LIB_BLAS_LAPACK="-llapack -lblas"
-;;
-
+    f90=gfortran
+    LIB_BLAS_LAPACK="-llapack -lblas"
+  ;;
 esac
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
@@ -271,7 +264,7 @@ export ALF_LIB
 export ALF_DIR="$PWD"
 export ALF_FC=$f90
 
-if [ ! -z ${ALF_FLAGS_EXT+x} ]; then
+if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
   printf "\n"
   printf "Appending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
 fi
