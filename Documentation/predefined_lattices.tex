@@ -12,6 +12,21 @@
 
 The types \texttt{Lattice} and \texttt{Unit\_cell}, described in Section~\ref{sec:latt}, allow us to define arbitrary one- and two-dimensional Bravais lattices. The subroutine \texttt{Predefined\_Latt} provides some of the most common lattices, as described bellow.
 
+
+\begin{figure}
+        \begin{center}
+                \includegraphics[width=.3\textwidth]{Figures/Square.pdf}
+                \includegraphics[width=.3\textwidth]{Figures/Square_bilayer.pdf} 
+                \includegraphics[width=.3\textwidth]{Figures/N-Leg-Lad.pdf} \\
+                 \includegraphics[width=.4\textwidth]{Figures/Honeycomb.pdf} 
+ 		\includegraphics[width=.4\textwidth]{Figures/Honeycomb_bilayer.pdf}
+				
+                \caption{}
+                \label{fig_predefined_lattices}
+        \end{center}
+\end{figure}
+
+
 The subroutine is called as:
 \begin{lstlisting}[style=fortran]
 Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
