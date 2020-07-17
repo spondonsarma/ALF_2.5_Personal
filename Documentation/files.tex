@@ -50,7 +50,7 @@ using as an example  the Mz-Hubbard model on a square lattice (see Sec.~\ref{sec
 L1           = 6            ! Length in direction a_1
 L2           = 6            ! Length in direction a_2
 Lattice_type = "Square"     ! Sets a_1 = (1,0), a_2=(0,1), Norb=1, N_coord=2
-Model        = "Hubbard"    ! Sets Nf=1, N_sun=2. HS field couples to the density
+Model        = "Hubbard"    ! Sets the Hubbard model, to be specified in &VAR_Hubbard
 /
 
 &VAR_Model_Generic         !! Common model parameters
@@ -128,13 +128,13 @@ Tolerance  = 0.1d0          ! Data points for which the relative error exceeds t
 /
 
 &VAR_Hubbard               !! Variables for the specific model
-HS      = "Mz"             ! If uncommented, sets the M_z-Hubbard model: Nf=2, N_sun=1, 
+HS        = "Mz"            ! If uncommented, sets the M_z-Hubbard model: Nf=2, N_sun=1, 
                             ! HS field couples to the z-component of magnetization
-ham_T    = 1.d0             ! Hopping parameter
-ham_chem = 0.d0             ! Chemical potential
-ham_U    = 4.d0             ! Hubbard interaction
-ham_T2   = 1.d0             ! For bilayer systems
-ham_U2   = 4.d0             ! For bilayer systems
+ham_T     = 1.d0            ! Hopping parameter
+ham_chem  = 0.d0            ! Chemical potential
+ham_U     = 4.d0            ! Hubbard interaction
+ham_T2    = 1.d0            ! For bilayer systems
+ham_U2    = 4.d0            ! For bilayer systems
 ham_Tperp = 1.d0            ! For bilayer systems
 /
                
