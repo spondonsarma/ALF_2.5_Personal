@@ -260,8 +260,7 @@ export ALF_DIR="$PWD"
 export ALF_FC
 
 if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
-  printf "\n"
-  printf "Appending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
+  printf "\nAppending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
 fi
 
 ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
@@ -273,6 +272,5 @@ export ALF_FLAGS_MODULES
 export ALF_FLAGS_ANA
 export ALF_FLAGS_PROG
 
-printf "\n"
-printf "To compile your program use:    'make TARGET'\n"
-printf "\n"
+printf "\nTo compile your program use:    'make TARGET'\n\n"
+env | grep '^ALF_' > enviroment
