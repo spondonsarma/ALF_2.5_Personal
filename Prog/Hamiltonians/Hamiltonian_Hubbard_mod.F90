@@ -249,8 +249,11 @@
              if (Projector) Thtrot = nint(theta/dtau)
              Ltrot = Ltrot+2*Thtrot
              If ( HS == "Mz" ) then
-                N_FL = 2
-             Endif
+                N_FL  = 2
+                N_SUN = 1
+             else
+                N_FL  = 1
+             endif
           
 #ifdef MPI
           Endif
@@ -332,18 +335,6 @@
 #ifdef MPI
           Endif
 #endif
-
-          If (Model == "Hubbard" )  then
-             If (N_FL ==  2 ) then
-                Model = "Hubbard_Mz"
-                IF (N_SUN .ne. 1 ) then
-                   Write(6,*) "N_FL = 2 normally comes with N_SUN = 1"
-                   Write(6,*) "Check that this is really what you want before proceeding"
-                   stop
-                endif
-             endif
-             If (N_FL ==  1 ) Model = "Hubbard_SUN"
-          Endif
           
 
         end Subroutine Ham_Set
@@ -500,17 +491,7 @@
              Ham_U_vec(1) = Ham_U
              Ham_U_vec(2) = Ham_U2
           endif
-          Select case (Model)
-          Case ("Hubbard_SUN")  
-             !Write(50,*) 'Model is ', Model
-             Allocate(Op_V(Ndim,N_FL))
-             Do I1 = 1,Latt%N
-                do no = 1, Latt_unit%Norb
-                   I = invlist(I1,no)
-                   Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
-                Enddo
-             Enddo
-          Case ("Hubbard_Mz") 
+          If (HS == "Mz")  Then
              Allocate(Op_V(Ndim,N_FL))
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
@@ -518,11 +499,16 @@
                    Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U_vec(no) ) 
                 enddo
              enddo
-          case default
-             Write(6,*) "Model not yet implemented!"
-             Stop
-          end Select
-
+          else
+             Allocate(Op_V(Ndim,N_FL))
+             Do I1 = 1,Latt%N
+                do no = 1, Latt_unit%Norb
+                   I = invlist(I1,no)
+                   Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                Enddo
+             Enddo
+          Endif
+          
           Deallocate (Ham_U_vec)
           
         end Subroutine Ham_V
@@ -565,7 +551,7 @@
           enddo
           
           ! Equal time correlators
-          If (Model ==  "Hubbard_Mz") Then
+          If (HS ==  "Mz") Then
              Allocate ( Obs_eq(5) )
              Do I = 1,Size(Obs_eq,1)
                 select case (I)
@@ -712,14 +698,14 @@
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( Model == "Hubbard_SUN" ) then
-             dec = 1
+          If ( HS == "Mz" ) then
+             dec = 2
              Do I = 1,Ndim
                 ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
              Enddo
              Zpot = Zpot*ham_U
-          elseif (Model == "Hubbard_Mz") then
-             dec = 2
+          else
+             dec = 1
              Do I = 1,Ndim
                 ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
              Enddo
@@ -740,7 +726,7 @@
           Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zpot)*ZP*ZS
 
           ! Standard two-point correlations
-          If (Model == "Hubbard_Mz" ) then
+          If ( HS  == "Mz" ) then
              Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
              Call Predefined_Obs_eq_SpinMz_measure ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2),Obs_eq(3),Obs_eq(4) )
              Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(5) )
@@ -796,7 +782,7 @@
 
           ! Standard two-point correlations
 
-          If (Model  == "Hubbard_Mz" ) then
+          If (HS  == "Mz" ) then
              Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
              Call Predefined_Obs_tau_SpinMz_measure ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2),&
                   &                                   Obs_tau(3), Obs_tau(4) )
