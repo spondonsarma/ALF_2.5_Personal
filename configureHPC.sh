@@ -274,3 +274,4 @@ export ALF_FLAGS_PROG
 
 printf "\nTo compile your program use:    'make TARGET'\n\n"
 env | grep '^ALF_' > enviroment
+printenv > enviroment
