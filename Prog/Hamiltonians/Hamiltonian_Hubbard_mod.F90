@@ -289,8 +289,6 @@
           ! Setup the hopping / single-particle part
           Call  Ham_Hop
           
-          ! Setup the trival wave function, in case of a projector approach
-          if (Projector)   Call Ham_Trial(File_info)
           
           ! Setup the interaction.
           call Ham_V
@@ -335,6 +333,8 @@
 #ifdef MPI
           Endif
 #endif
+          ! Setup the trival wave function, in case of a projector approach
+          if (Projector)   Call Ham_Trial(File_info)
           
 
         end Subroutine Ham_Set
