@@ -157,8 +157,8 @@
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
-      Character (len=64),   private :: Model, Lattice_type,  HS
-      Logical,              private :: Checkerboard,  Bulk
+      Character (len=64),   private :: Model, Lattice_type
+      Logical,              private :: Checkerboard,  Bulk, Mz
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
 
@@ -197,7 +197,7 @@
 
           NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Hs
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Mz
           
 
 #ifdef MPI
@@ -248,10 +248,10 @@
              Ltrot = nint(beta/dtau)
              if (Projector) Thtrot = nint(theta/dtau)
              Ltrot = Ltrot+2*Thtrot
-             If ( HS == "Mz" ) then
+             If ( Mz ) then
                 N_FL  = 2
                 if (mod(N_SUN,2) .ne. 0 ) then
-                   Write(6,*) 'N_SUN   has to be even  if HS = "Mz"'
+                   Write(6,*) 'N_SUN has to be even if Mz = True '
                    stop
                 endif
                 N_SUN = N_SUN / 2
@@ -284,7 +284,7 @@
           CALL MPI_BCAST(ham_T2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_U2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_Tperp   ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(HS          ,64, MPI_CHARACTER, 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Mz          ,1,  MPI_LOGICAL  , 0,Group_Comm,IERR)
 #endif
 
           ! Setup the Bravais lattice
@@ -312,7 +312,7 @@
              Else
                 Write(50,*) 'Twist as boundary condition'
              endif
-             If ( HS == "Mz" )  then
+             If ( Mz )  then
                 Write(50,*) 'HS  couples to z-component of spin'
              else
                 Write(50,*) 'HS  couples to density'
@@ -328,7 +328,7 @@
                 Write(50,*) 'Beta          : ', Beta
              endif
              Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-             if ( HS == "Mz" )  then
+             if ( Mz )  then
                 Write(50,*) 'N_SUN         : ', 2*N_SUN
              else
                 Write(50,*) 'N_SUN         : ',   N_SUN
@@ -499,7 +499,7 @@
              Ham_U_vec(1) = Ham_U
              Ham_U_vec(2) = Ham_U2
           endif
-          If (HS == "Mz")  Then
+          If ( Mz )  Then
              Allocate(Op_V(Ndim,N_FL))
              Ham_U_vec = Ham_U_vec/real(N_SUN,kind(0.d0))
              Do I1 = 1,Latt%N
@@ -560,7 +560,7 @@
           enddo
           
           ! Equal time correlators
-          If (HS ==  "Mz") Then
+          If ( Mz ) Then
              Allocate ( Obs_eq(5) )
              Do I = 1,Size(Obs_eq,1)
                 select case (I)
@@ -707,7 +707,7 @@
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( HS == "Mz" ) then
+          If ( Mz  ) then
              dec = 2
              Do I = 1,Ndim
                 ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
@@ -735,7 +735,7 @@
           Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zpot)*ZP*ZS
 
           ! Standard two-point correlations
-          If ( HS  == "Mz" ) then
+          If ( Mz ) then
              Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
              Call Predefined_Obs_eq_SpinMz_measure ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2),Obs_eq(3),Obs_eq(4) )
              Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(5) )
@@ -791,7 +791,7 @@
 
           ! Standard two-point correlations
 
-          If (HS  == "Mz" ) then
+          If ( Mz ) then
              Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
              Call Predefined_Obs_tau_SpinMz_measure ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2),&
                   &                                   Obs_tau(3), Obs_tau(4) )

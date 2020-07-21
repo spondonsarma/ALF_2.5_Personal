@@ -158,8 +158,8 @@
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
-      Character (len=64),   private :: Model, Lattice_type,  HS
-      Logical,              private :: Checkerboard,  Bulk
+      Character (len=64),   private :: Model, Lattice_type 
+      Logical,              private :: Checkerboard,  Bulk,  Mz
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
 
@@ -202,7 +202,7 @@
 
           NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
 
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Hs
+          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Mz
           
           Namelist /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change
 
@@ -355,7 +355,7 @@
                   Write(50,*) 'Beta          : ', Beta
                 endif
                 Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-                If ( HS == "Mz" ) then
+                If ( Mz ) then
                    N_FL  = 2
                    N_SUN = 1
                 Else
@@ -372,13 +372,13 @@
 #ifdef MPI
              CALL MPI_BCAST(N_SUN    ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
              CALL MPI_BCAST(N_FL     ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T2   ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U2   ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_Tperp,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
-             CALL MPI_BCAST(HS       ,64,MPI_CHARACTER, 0,Group_Comm,IERR)
+             CALL MPI_BCAST(ham_T    ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_chem ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U    ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T2   ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_U2   ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_Tperp,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(Mz       ,1 ,MPI_LOGICAL ,   0,Group_Comm,IERR)
              
 #endif
           Case ("Hubbard_SU2_Ising")
@@ -461,7 +461,7 @@
           end Select
 
           If (Model == "Hubbard" )  then
-             If (HS == "Mz" )  then
+             If ( Mz )  then
                 Model = "Hubbard_Mz"
              else
                 Model = "Hubbard_SU2"
