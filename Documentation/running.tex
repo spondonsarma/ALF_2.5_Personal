@@ -14,9 +14,9 @@ In this section we describe the steps for compiling and running the code, and de
 \label{sec:compilation}
 %-------------------------------------------------------------------------------------
 
-The necessary environment variables and the directives for compiling the code are set by the script \texttt{configureHPC.sh}:
+The necessary environment variables and the directives for compiling the code are set by the script \texttt{configure.sh}:
 \begin{lstlisting}[style=bash]
-source configureHPC.sh [MACHINE] [MODE] [STAB]
+source configure.sh [MACHINE] [MODE] [STAB]
 \end{lstlisting}
 If run with no arguments, it lists the available options and sets a generic, serial GNU compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined machine configurations and parallelization modes available, as well as the options for stabilization schemes for the matrix multiplications (see Sec.~\ref{sec:stable}) are shown Table~\ref{table:configureHPC}. The stabilization scheme choice, in particular, is critical for performance and is discussed further in Sec.~\ref{sec:optimize}.
 
@@ -45,7 +45,7 @@ If run with no arguments, it lists the available options and sets a generic, ser
 			\texttt{STAB3}  &  Newest stabilization, additionally separates large and small scales (\emph{default}).\\
 			\texttt{LOG}  &  Log storage for internal scales, increases accessible ranges.\\\bottomrule
 		\end{tabular}
-		\caption{Available arguments for the script \texttt{configureHPC.sh}, called before compilation of the package: predefined machines, parallelization modes, and stabilization schemes (see also Sec.~\ref{sec:optimize}).} \label{table:configureHPC}
+		\caption{Available arguments for the script \texttt{configure.sh}, called before compilation of the package: predefined machines, parallelization modes, and stabilization schemes (see also Sec.~\ref{sec:optimize}).} \label{table:configureHPC}
 	\end{center}
 \end{table}
 
@@ -55,10 +55,10 @@ make
 \end{lstlisting}
 Related directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
 
-A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configureHPC.sh} sets environment variables as described above.):
+A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configure.sh} sets environment variables as described above.):
 \begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]
 
-source configureHPC.sh Devel serial
+source configure.sh Devel serial
 gfortran -v
 make lib
 make ana
@@ -103,7 +103,7 @@ To perform an error analysis based on the Jackknife resampling method~\cite{efro
 \end{lstlisting}
 In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
 
-Note that the error analysis script requires the presence of the environment variable \texttt{ALF\_DIR}, which stores the package's path and can be set by running \texttt{source configureHPC.sh}. The files taken by \texttt{analysis.sh} as input, as well as its output files are listed in Table~\ref{table:analysis_files}.
+Note that the error analysis script requires the presence of the environment variable \texttt{ALF\_DIR}, which stores the package's path and can be set by running \texttt{source configure.sh}. The files taken by \texttt{analysis.sh} as input, as well as its output files are listed in Table~\ref{table:analysis_files}.
 
 \begin{table}[h]
 	\begin{center}
@@ -221,7 +221,7 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 
 In particular, for the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Notice that results are very likely to change
 %significantly
-depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configureHPC.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}. The performance of the package is further discussed in Sec.~\ref{sec:performance}.
+depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configure.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}. The performance of the package is further discussed in Sec.~\ref{sec:performance}.
 
 
 
