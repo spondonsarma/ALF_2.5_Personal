@@ -250,7 +250,11 @@
              Ltrot = Ltrot+2*Thtrot
              If ( HS == "Mz" ) then
                 N_FL  = 2
-                N_SUN = 1
+                if (mod(N_SUN,2) .ne. 0 ) then
+                   Write(6,*) 'N_SUN   has to be even  if HS = "Mz"'
+                   stop
+                endif
+                N_SUN = N_SUN / 2
              else
                 N_FL  = 1
              endif
@@ -324,7 +328,11 @@
                 Write(50,*) 'Beta          : ', Beta
              endif
              Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-             Write(50,*) 'N_SUN         : ', N_SUN
+             if ( HS == "Mz" )  then
+                Write(50,*) 'N_SUN         : ', 2*N_SUN
+             else
+                Write(50,*) 'N_SUN         : ',   N_SUN
+             endif
              Write(50,*) 'N_FL          : ', N_FL
              Write(50,*) 't             : ', Ham_T
              Write(50,*) 'Ham_U         : ', Ham_U
@@ -493,6 +501,7 @@
           endif
           If (HS == "Mz")  Then
              Allocate(Op_V(Ndim,N_FL))
+             Ham_U_vec = Ham_U_vec/real(N_SUN,kind(0.d0))
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
                    I = invlist(I1,no)
