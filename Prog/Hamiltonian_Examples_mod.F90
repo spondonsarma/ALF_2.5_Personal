@@ -257,6 +257,7 @@
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(N_FL        ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(N_Phi       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Phi_Y       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
@@ -355,8 +356,10 @@
                 endif
                 Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 If ( HS == "Mz" ) then
-                   N_FL=2
+                   N_FL  = 2
                    N_SUN = 1
+                Else
+                   N_FL=1
                 Endif
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
