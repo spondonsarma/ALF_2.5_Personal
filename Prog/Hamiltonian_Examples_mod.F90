@@ -257,6 +257,7 @@
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+          CALL MPI_BCAST(N_FL        ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(N_Phi       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
           CALL MPI_BCAST(Phi_Y       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
@@ -354,8 +355,9 @@
                   Write(50,*) 'Beta          : ', Beta
                 endif
                 Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-                If ( "HS" == "Mz" ) then
-                   N_FL=2
+                If ( HS == "Mz" ) then
+                   N_FL  = 2
+                   N_SUN = 1
                 Endif
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
@@ -366,6 +368,8 @@
              Endif
 #endif
 #ifdef MPI
+             CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
+             CALL MPI_BCAST(N_FL        ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_T    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U    ,1 ,MPI_REAL8  ,0,Group_Comm,ierr)
@@ -455,8 +459,11 @@
           end Select
 
           If (Model == "Hubbard" )  then
-             If (N_FL ==  2 ) Model = "Hubbard_Mz"
-             If (N_FL ==  1 ) Model = "Hubbard_SU2"
+             If (HS == "Mz" )  then
+                Model = "Hubbard_Mz"
+             else
+                Model = "Hubbard_SU2"
+             endif
           Endif
           Call  Ham_Hop
 
