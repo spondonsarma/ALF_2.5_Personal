@@ -251,7 +251,12 @@
              END IF
              READ(5,NML=VAR_lattice)
              READ(5,NML=VAR_Model_Generic)
- 
+             Ltrot = nint(beta/dtau)
+             Thtrot = 0
+             if (Projector) Thtrot = nint(theta/dtau)
+             Ltrot = Ltrot+2*Thtrot
+             
+             
 #ifdef MPI
           Endif
           CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
@@ -293,6 +298,15 @@
              endif
              Write(50,*) 'Checkerboard  : ', Checkerboard
              Write(50,*) 'Symm. decomp  : ', Symm
+             if (Projector) then
+                Write(50,*) 'Projective version'
+                Write(50,*) 'Theta         : ', Theta
+                Write(50,*) 'Tau_max       : ', beta
+             else
+                Write(50,*) 'Finite temperture version'
+                Write(50,*) 'Beta          : ', Beta
+             endif
+             Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
 #ifdef MPI
           Endif
 #endif
@@ -308,18 +322,6 @@
              If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_LRC)
-                Ltrot = nint(beta/dtau)
-                if (Projector) Thtrot = nint(theta/dtau)
-                Ltrot = Ltrot+2*Thtrot
-                if (Projector) then
-                  Write(50,*) 'Projective version'
-                  Write(50,*) 'Theta         : ', Theta
-                  Write(50,*) 'Tau_max       : ', beta
-                else
-                  Write(50,*) 'Finite temperture version'
-                  Write(50,*) 'Beta          : ', Beta
-                endif
-                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
                 Write(50,*) 't             : ', Ham_T
@@ -343,18 +345,6 @@
              If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_Hubbard)
-                Ltrot = nint(beta/dtau)
-                if (Projector) Thtrot = nint(theta/dtau)
-                Ltrot = Ltrot+2*Thtrot
-                if (Projector) then
-                  Write(50,*) 'Projective version'
-                  Write(50,*) 'Theta         : ', Theta
-                  Write(50,*) 'Tau_max       : ', beta
-                else
-                  Write(50,*) 'Finite temperture version'
-                  Write(50,*) 'Beta          : ', Beta
-                endif
-                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 If ( Mz ) then
                    N_FL  = 2
                    N_SUN = 1
@@ -366,6 +356,7 @@
                 Write(50,*) 't             : ', Ham_T
                 Write(50,*) 'Ham_U         : ', Ham_U
                 Write(50,*) 'Ham_chem      : ', Ham_chem
+                Write(50,*) 'Mz            : ', Mz
 #ifdef MPI
              Endif
 #endif
@@ -388,18 +379,6 @@
              If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_Ising)
-                Ltrot = nint(beta/dtau)
-                if (Projector) Thtrot = nint(theta/dtau)
-                Ltrot = Ltrot+2*Thtrot
-                if (Projector) then
-                  Write(50,*) 'Projective version'
-                  Write(50,*) 'Theta         : ', Theta
-                  Write(50,*) 'Tau_max       : ', beta
-                else
-                  Write(50,*) 'Finite temperture version'
-                  Write(50,*) 'Beta          : ', Beta
-                endif
-                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
                 Write(50,*) 't             : ', Ham_T
@@ -430,18 +409,6 @@
              If (Irank_g == 0 ) then
 #endif
                 READ(5,NML=VAR_t_V )
-                Ltrot = nint(beta/dtau)
-                if (Projector) Thtrot = nint(theta/dtau)
-                Ltrot = Ltrot+2*Thtrot
-                if (Projector) then
-                  Write(50,*) 'Projective version'
-                  Write(50,*) 'Theta         : ', Theta
-                  Write(50,*) 'Tau_max       : ', beta
-                else
-                  Write(50,*) 'Finite temperture version'
-                  Write(50,*) 'Beta          : ', Beta
-                endif
-                Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
                 Write(50,*) 't             : ', Ham_T
