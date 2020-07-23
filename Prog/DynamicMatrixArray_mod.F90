@@ -31,7 +31,7 @@
 
 
 module DynamicMatrixArray_mod
-    Use ContainerElementBase
+    Use ContainerElementBase_mod
     implicit none
 
     type :: OpTBasePtrWrapper
@@ -43,12 +43,12 @@ module DynamicMatrixArray_mod
         integer :: tail ! last index
         type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
     contains
-        procedure :: init => OpTvector_init
-        procedure :: dealloc => OpTvector_dealloc
-        procedure :: pushback => OpTvector_pushback
-        procedure :: at => OpTvector_at
-        procedure :: back => OpTvector_back
-        procedure :: length => OpTvector_length
+        procedure :: init => DynamicMatrixArray_init
+        procedure :: dealloc => DynamicMatrixArray_dealloc
+        procedure :: pushback => DynamicMatrixArray_pushback
+        procedure :: at => DynamicMatrixArray_at
+        procedure :: back => DynamicMatrixArray_back
+        procedure :: length => DynamicMatrixArray_length
         ! FIXME: do we need insert?
     end type DynamicMatrixArray
 
