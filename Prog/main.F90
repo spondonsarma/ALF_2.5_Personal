@@ -199,7 +199,6 @@ Program Main
 
         ! For tests
         Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
-        Logical :: Log
 
         ! For the truncation of the program:
         logical                   :: prog_truncation
@@ -293,11 +292,16 @@ Program Main
 #endif
         Call Fields_init()
         Call Ham_set
-        log=.false.
         if(Projector) then
-           if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) log=.true.
+           if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
+              write(error_unit,*) "Projector is selected but there are no trial wave functions!"
+              error stop 1
+           endif
            do nf=1,N_fl
-              if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) log=.true.
+              if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) then
+                 write(error_unit,*) "Projector is selected but there are no trial wave functions!"
+                 error stop 1
+              endif
            enddo
         endif
         !  Default values of  measuring interval.
@@ -379,7 +383,6 @@ Program Main
         if ( Irank_g == 0 ) then
 #endif
            Open (Unit = 50,file=file1,status="unknown",position="append")
-           if(log) Write(50,*) "Projector is selected by there are no trial wave functions!"
            Write(50,*) 'Sweeps                              : ', Nsweep
            If ( abs(CPU_MAX) < ZERO ) then
               Write(50,*) 'Bins                                : ', NBin
@@ -437,7 +440,6 @@ Program Main
 #if defined(MPI)
         endif
 #endif
-        if (log) stop
 
 
 
