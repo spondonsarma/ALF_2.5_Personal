@@ -20,14 +20,14 @@ stages:
     - gfortran -v
     - make all
 
-.build_template_pgi: &build_definition_pgi
-  stage: build
-  <<: *exemptfiles_definition
-  script:
-    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
-    - pgfortran --version
-    - . configure.sh PGI serial
-    - make all
+#.build_template_pgi: &build_definition_pgi
+#  stage: build
+#  <<: *exemptfiles_definition
+#  script:
+#    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+#    - pgfortran --version
+#    - . configure.sh PGI serial
+#    - make all
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
@@ -86,9 +86,9 @@ GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Jessie-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
-  <<: *build_definition_pgi
+#GQMCT_Jessie-PGI:
+#  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
+#  <<: *build_definition_pgi
 
 GQMCT_Ubuntu_Trusty:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
@@ -149,20 +149,20 @@ GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Jessie-PGI_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-pgi1710
-  stage: warnconv
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
-  script:
-    - export PATH="/opt/pgi/linux86-64/2017/bin:$PATH"
-    - pgfortran --version
-    - . configure.sh PGI serial
-    - make all
+#GQMCT_Jessie-PGI_conv:
+#  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-pgi1710
+#  stage: warnconv
+#  except:
+#    changes:
+#      - .gitignore
+#      - CITATION
+#      - README.md
+#      - license.*
+#  script:
+#    - export PATH="/opt/pgi/linux86-64/2017/bin:$PATH"
+#    - pgfortran --version
+#    - . configure.sh PGI serial
+#    - make all
 
 GQMCT_Jessie_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
@@ -204,29 +204,29 @@ GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *test_definition
 
-GQMCT_Jessie-PGI_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
-  stage: test
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
-  script:
-    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
-    - pgfortran --version
-    - . configure.sh PGI serial
-    - make lib
-    - make ana
-    - make Examples
-    - cd testsuite
-    - cmake -E make_directory tests
-    - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -L/opt/pgi/linux86-64/2016/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="/opt/pgi/linux86-64/2016/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="/opt/pgi/linux86-64/2016/lib/liblapack.a" -DBLAS_LIBRARIES="/opt/pgi/linux86-64/2016/lib/libblas.a" ..
-    - cmake --build . --target all --config Release
-    - ctest -VV -O log.txt
-    - cat log.txt | grep "tests passed" | cut -d " " -f 1
+#GQMCT_Jessie-PGI_tests:
+#  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
+#  stage: test
+#  except:
+#    changes:
+#      - .gitignore
+#      - CITATION
+#      - README.md
+#      - license.*
+#  script:
+#    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+#    - pgfortran --version
+#    - . configure.sh PGI serial
+#    - make lib
+#    - make ana
+#    - make Examples
+#    - cd testsuite
+#    - cmake -E make_directory tests
+#    - cd tests
+#    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -L/opt/pgi/linux86-64/2016/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="/opt/pgi/linux86-64/2016/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="/opt/pgi/linux86-64/2016/lib/liblapack.a" -DBLAS_LIBRARIES="/opt/pgi/linux86-64/2016/lib/libblas.a" ..
+#    - cmake --build . --target all --config Release
+#    - ctest -VV -O log.txt
+#    - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
 GQMCT_Stretch_valgrind:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
