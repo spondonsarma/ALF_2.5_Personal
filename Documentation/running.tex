@@ -83,10 +83,12 @@ To run serially the simulation for a given model, for instance one of the Hubbar
 \begin{lstlisting}[style=bash]
 ./Prog/Examples.out
 \end{lstlisting}
-In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a GNU-compiled Kondo model (Sec.~\ref{sec:kondo}) can be run in parallel by issuing   {\color{red}  This cannot really be, since somewhere you have to  specify the number of  mpi  process.    I think that it would be good to use the standards defined by pyALF. }
-\begin{lstlisting}[style=bash]
+In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a GNU-compiled Kondo model (Sec.~\ref{sec:kondo}) can be run in parallel by issuing  
+  \begin{lstlisting}[style=bash]
 orterun ./Prog/Kondo_Honey.out
 \end{lstlisting}
+
+{\color{red}   @Jefferson. This cannot really be, since somewhere you have to  specify the number of  mpi  process.    I think that it would be good to use the standards defined by pyALF. }
 
 To restart the code using the configuration from a previous simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files, before calling the ALF executable.
 
