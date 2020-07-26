@@ -83,7 +83,7 @@ To run serially the simulation for a given model, for instance one of the Hubbar
 \begin{lstlisting}[style=bash]
 ./Prog/Examples.out
 \end{lstlisting}
-In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a GNU-compiled Kondo model (Sec.~\ref{sec:kondo}) can be run in parallel by issuing
+In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a GNU-compiled Kondo model (Sec.~\ref{sec:kondo}) can be run in parallel by issuing   {\color{red}  This cannot really be, since somewhere you have to  specify the number of  mpi  process.    I think that it would be good to use the standards defined by pyALF. }
 \begin{lstlisting}[style=bash]
 orterun ./Prog/Kondo_Honey.out
 \end{lstlisting}
@@ -204,13 +204,13 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 		\begin{tabular}{@{} p{0.18\linewidth} p{0.75\linewidth} @{}}\toprule
 			Element & Suggestion  \\ \midrule
 			\texttt{Precision Green}, \texttt{Precision Phase}  &  \multirow{2}{*}{should be found to be \emph{small}, of order $< 10^{-8}$ (see Sec.~\ref{sec:stable}).}\\
-			\texttt{beta} & should typically be set \emph{large} enough. \\
+			\texttt{theta} &  should be \emph{large} enough to guarantee convergence to ground state. \\
 			\texttt{dtau} & should be set \emph{small} enough to limit Trotter errors.\\
-			\texttt{N\_wrap} & should be set \emph{small} enough to keep \texttt{Precision}s small .\\
-			\texttt{N\_sweep} & should be set \emph{large} enough for measurements to be stable to further increases.\\
-			\texttt{n\_skip} & should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time). \\
-			\texttt{N\_bin} & should be set \emph{large} enough to provide good statistics (recommended minimum: $\sim 10^2$; note: there are \texttt{N\_bin} bins per MPI process). \\
-			\texttt{N\_rebin} & can be set to 1 when \texttt{N\_sweep} is large enough; otherwise, and for testing, larger values can be used.\\
+			\texttt{Nwrap} & should be set \emph{small} enough to keep \texttt{Precision}s small .\\
+			\texttt{Nsweep} & should be set \emph{large} enough for bins to be of the order of the auto-correlation time.\\
+			\texttt{Nbin} & should be set \emph{large} enough to provide good statistics (recommended minimum: $\sim 10^2$; note: there are \texttt{Nbin} bins per MPI process). \\
+			\texttt{nskip} & should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time). \\
+			\texttt{Nrebin} & can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used.\\
 			Stabilization scheme & use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}). \\
 			Parallelism & for some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell. \\\bottomrule
 		\end{tabular}
