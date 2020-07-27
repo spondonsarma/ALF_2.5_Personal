@@ -186,7 +186,7 @@ Do s = 1, N_fl
    Enddo
 Enddo
 \end{lstlisting}
-with \texttt{N\_part = Ndim/2}.
+with \texttt{N\_part = Ndim/2}.     The  variable \texttt{DEGEN}   belonging to the \texttt{WAVEFUNCTION}  type  is given by  \texttt{DEGEN}$=\epsilon_{N_{\mathrm{Part}} +1 } - \epsilon_{N_{\mathrm{Part}}  }$.   This quantitiy should be greater than zero  for non-degenerate    trial wave functions. 
 
 %------------------------------------------------------------
 \subsection{Observables}
@@ -262,15 +262,19 @@ An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \
 Obs_scal(2)%N     = Obs_scal(2)%N + 1
 Obs_scal(2)%Ave_sign = Obs_scal(2)%Ave_sign + Real(ZS,kind(0.d0))
 Do i = 1,Ndim
-   Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))**2 * Ham_U * ZS * ZP
+   Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
 Enddo
 \end{lstlisting} 
 Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
 
 Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
-	 \langle n_{\vec{i},\alpha}   n_{\vec{j},\beta} \rangle   -  \langle n_{\vec{i},\alpha} \rangle  \langle    n_{\vec{j},\beta}  \rangle \;.
+	 \langle \hat{n}_{\vec{i}}   \hat{n}_{\vec{j}} \rangle   -  \langle \hat{n}_{\ve{i} }\rangle  \langle    \hat{n}_{\ve{j}}  \rangle \;.
 \end{equation} 
+with
+\begin{equation}
+	 \hat{n}_{\vec{i}}  =   \sum_{\sigma} \hat{c}^{\dagger}_{\ve{i},\sigma} \hat{c}^{\phantom\dagger}_{\ve{i},\sigma} 
+\end{equation}
 For the calculation of such quantities, it is convenient to  define: 
 \begin{equation}
 \label{GRC.eq}
@@ -282,21 +286,16 @@ In the program code, the calculation of the equal-time density-density correlati
 Obs_eq(4)%N = Obs_eq(4)%N + 1           ! Even if it is redundant, each observable  
                                         ! carries its own counter and sign.
 Obs_eq(4)%Ave_sign = Obs_eq(4)%Ave_sign + Real(ZS,kind(0.d0))  
-Do I1 = 1,Ndim
-   I    = List(I1,1)                    ! = I1  (The Hubbard model  on the square
-   no_I = List(I1,2)                    ! = 1   lattice has one orbital per unit-cell)
-   Do J1 = 1,Ndim                       
-      J    = List(J1,1)
-      no_J = List(J1,2)
+Do I = 1,Ndim
+   Do J = 1,Ndim                       
       imj = latt%imj(I,J)
-      Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + &
-                     &     (    GRC(I1,I1,1) * GRC(J1,J1,1) * N_SUN * N_SUN      + &
-                     &          GRC(I1,J1,1) * GR(I1,J1,1) * N_SUN   ) * ZP * ZS 
+      Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1) + &
+                     &     ( (GRC(I,I,1)+GRC(I,I,2)) * (GRC(J,J,1)+GRC(J,J,2))       + &
+                     &        GRC(I,J,1)*GR(I,J,1)   +  GRC(I,J,2)*GR(I,J,2)  ) * ZP * ZS 
    Enddo
-   Obs_eq(4)%Obs_Latt0(no_I) = Obs_eq(4)%Obs_Latt0(no_I) + GRC(I1,I1,1) * N_SUN*ZP*ZS
+   Obs_eq(4)%Obs_Latt0(1) = Obs_eq(4)%Obs_Latt0(1) + (GRC(I,I,1)+GRC(I,I,2))*ZP*ZS
 Enddo
 \end{lstlisting} 
-Note that we consider the  square lattice of the single site Hubbard model as a special case of a multiorbital problem as described in Sec.~\ref{sec:multi-orbital}
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
@@ -316,10 +315,11 @@ This subroutine is called by the main program at the beginning of each sweep, pr
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
 are thereby given by: 
-\begin{equation}
-	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   = - 2 \; \texttt{G0T(J1,I1,1) } \texttt{GT0(I1,J1,1) } \;.
-\end{equation}
-Note that the above holds for the $SU(2)$ HS transformation discussed in this chapter. 
+\begin{eqnarray}
+	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   =  
+	     & &  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) *     \nonumber \\  
+	 -  & &  \; \texttt{G0T(J,I,1) } \texttt{GT0(I,J,1) } \;  -  \texttt{G0T(J,I,2) } \texttt{GT0(I,J,2) } \;
+\end{eqnarray}
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
