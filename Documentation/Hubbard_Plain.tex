@@ -101,7 +101,7 @@ Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
 \end{lstlisting}
 
 %------------------------------------------------------------
-\subsection{The hopping term: \texttt{Call Ham\_hop}}
+\subsection{The hopping: \texttt{Call Ham\_hop}}
 %------------------------------------------------------------
 
 The hopping matrix is implemented as follows. 
@@ -135,7 +135,7 @@ Note that although a checkerboard decomposition is not  used here,  it can be im
 
 
 %------------------------------------------------------------
-\subsection{The interaction term: \texttt{Call Ham\_V}}
+\subsection{The interaction: \texttt{Call Ham\_V}}
 %------------------------------------------------------------
 To implement  the interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 2$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
@@ -323,57 +323,19 @@ are thereby given by:
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
-\subsection{Numerical precision}\label{sec:prec_charge}
-%-------------------------------------------------------------------------------------
-The directory \path{Examples/Hubbard_SU2_Square}  contains an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$. 
-Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}:
-\begin{alltt}
-Precision Green  Mean, Max :    1.2918865817224671E-014   4.0983018995027644E-011
-Precision Phase, Max       :    5.0272908791449966E-012
-Precision tau    Mean, Max :    8.4596701790588625E-015   3.5033530012121281E-011
-\end{alltt}
-showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
-A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order one. 
-
-
-%-------------------------------------------------------------------------------------
-\subsection{The $M_z$-Hubbard model on a square lattice}\label{sec:walk1.1}
+\subsection{Numerical precision}\label{sec:prec_spin}
 %-------------------------------------------------------------------------------------
 
-%-------------------------------------------------------------------------------------
-\subsubsection{The interaction term: \texttt{Call Ham\_V} } 
-%-------------------------------------------------------------------------------------
-
-\red{Superseded by Predefined Structures.}
-
-%-------------------------------------------------------------------------------------
- \subsubsection{The  measurements: \texttt{Call Obser, Call  ObserT} } 
-%-------------------------------------------------------------------------------------
-
- Since  the spin up and spin down Green functions differ  for a given HS configuration,  the Wick decomposition will take a different form. In particular, the  equal-time spin-spin correlation functions 
- $ 4 \langle \langle \hat{S}^{z}_{\vec{i}}   \hat{S}^{z}_{\vec{j}} \rangle \rangle   $  calculated in the subroutine  \texttt{Obser}  will take the form: 
-  \begin{align}
-   4 \langle \langle \hat{S}^{z}_{x}   \hat{S}^{z}_{y} \rangle \rangle   =   &  \texttt{  GRC(x,y,1) * GR(x,y,1) + GRC(x,y,2) * GR(x,y,2) + }  \nonumber \\ 
- & \texttt{   (GRC(x,x,2) - GRC(x,x,1))*(GRC(y,y,2) - GRC(y,y,1))}  \nonumber
-  \end{align}
-Here,  \texttt{GRC}  is defined in Eq.~\ref{GRC.eq}.  Equivalent changes will have to be carried out for other equal-time and time displaced observables. 
-  
-Apart from these modifications, the program  will run in exactly the same manner as for the $SU(2)$ case. 
-    
-  
-%-------------------------------------------------------------------------------------
-\subsubsection{Numerical precision}\label{sec:prec_spin}
-%-------------------------------------------------------------------------------------
-The directory \path{Examples/Hubbard_Mz_Square}  contains an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$. 
-Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}:
+Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}. 
+For a   \textit{short} simulation on a $4 \times 4$  lattice at $U/t=4$ and $\beta t = 10$  we obtain
  \begin{alltt}
 Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
 Precision Phase, Max       :    0.0000000000000000     
 Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
 \end{alltt}
+showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
+A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order one. 
 
-This is still an excellent precision but nevertheless choosing a 
- HS field which couples to the z-component of the magnetization apparently leads to numerical results that are 
-a couple of order of magnitudes less precise than a HS decomposition coupling to the charge (compare with Sec.~\ref{sec:prec_charge}).
+
 
     
