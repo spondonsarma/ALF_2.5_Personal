@@ -261,3 +261,16 @@ create_doc:
   script:
     - cd Documentation
     - latexmk -pdf doc.tex
+
+create_doxygen:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-clang
+  stage: build
+  artifacts:
+    expire_in: 120 days
+    paths:
+      - doxygen/*
+      - Images/*
+  script:
+      - apt-get update && apt install -y doxygen graphviz
+      - doxygen doxygen/Doxyfile
+
