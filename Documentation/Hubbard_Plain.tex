@@ -85,7 +85,7 @@ which specify the model.  The  routine \texttt{Ham\_set}  will first  read the p
 The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:input}.
 
 %------------------------------------------------------------
-\subsubsection{The lattice:   \texttt{Call Ham\_latt} }
+\subsection{The lattice:   \texttt{Call Ham\_latt} }
 %------------------------------------------------------------
 
 For the square lattice  the routine reads:
@@ -101,7 +101,7 @@ Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
 \end{lstlisting}
 
 %------------------------------------------------------------
-\subsubsection{The hopping term: \texttt{Call Ham\_hop}}
+\subsection{The hopping term: \texttt{Call Ham\_hop}}
 %------------------------------------------------------------
 
 The hopping matrix is implemented as follows. 
@@ -126,7 +126,6 @@ DO I = 1, Latt%N
    Op_T(1,1)%O(Iy, I ) = cmplx(-Ham_T,   0.d0,kind(0.D0))
    Op_T(1,1)%O(I  ,I ) = cmplx(-Ham_chem,0.d0,kind(0.D0))
 ENDDO
-Call Op_set(Op_T(1,1))
 \end{lstlisting}
 Here, the integer function \texttt{  j=  Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
 Note that periodic boundary conditions are 
@@ -136,7 +135,7 @@ Note that although a checkerboard decomposition is not  used here,  it can be im
 
 
 %------------------------------------------------------------
-\paragraph{The interaction term: \texttt{Call Ham\_V}}
+\subsection{The interaction term: \texttt{Call Ham\_V}}
 %------------------------------------------------------------
 To implement  the interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 2$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
@@ -167,21 +166,39 @@ Enddo
 In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors. 
 
 %------------------------------------------------------------
-\subsubsection{The trial wave function: \texttt{Call Ham\_Trial}}
+\subsection{The trial wave function: \texttt{Call Ham\_Trial}}
 %------------------------------------------------------------
+As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here will  use the same left and right   flavor independent trial  wave functions  that correspond to the ground state of: 
+\begin{equation}
+   \hat{H}_T    = - t \sum_{\ve{i}} \left[  \left( 1 + (-1)^{i_x + i_y}  \delta \right)  \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_x}  +  
+   							 \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_y}    + H.c.  \right]   \equiv   \sum_{\ve{i},\ve{j}}  \hat{c}^{\dagger}_{\ve{i}}   h_{\ve{i},\ve{j}}  \hat{c}^{\phantom\dagger}_{\ve{i}} 
+\end{equation}
+For the half-filled case, the  dimerization $\delta  = 0^{+} $  opens up a gap at  half-filling,   thus generating the desired  non-degenerate  trial wave function  that has the same symmetries (particle-hole  for instance) as  the   trial  Hamiltonian.
 
+Diagonalization  of  $ h_{\ve{i},\ve{j}}$,      $U^{\dagger} h  U  = \mathrm{Diag} \left(   \epsilon_1, \cdots, \epsilon_{N_{\mathrm{dim}}} \right) $     with  $\epsilon_i  <  \epsilon_j $  for $i < j$, allows us  to define the  trial wave function.  In particular, for the Half-filled case, we set 
+\begin{lstlisting}[style=fortran]
+Do s = 1, N_fl
+   Do x = 1,Ndim
+      Do n = 1, N_part
+         WF_L(s)%P(x,n)  = U_{x,n}
+         WF_R(s)%P(x,n)  = U_{x,n}
+      Enddo
+   Enddo
+Enddo
+\end{lstlisting}
+with \texttt{N\_part = Ndim/2}.
 
 %------------------------------------------------------------
-\subsubsection{Observables}
+\subsection{Observables}
 %------------------------------------------------------------
 
 At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal-time correlation functions. 
 If \texttt{Ltau=1} the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again  provided by the user and handles  imaginary-time displaced correlation functions. 
 
-The user will have to  implement the  observables  they  want to compute. Here  we  will describe how to  proceed. 
+The users will have to  implement the  observables  they   want  to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here  we  will describe how to  proceed. 
 
 %------------------------------------------------------------------------------------
-\paragraph{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
+\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
 %-------------------------------------------------------------------------------------
 
 For  four scalar  or vector observables,  the user will have to  declare the following: 
@@ -229,7 +246,7 @@ enddo
  \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
-\paragraph{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}}
+\subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}}
 %-------------------------------------------------------------------------------------
 
 The equal-time  Green function,
@@ -283,7 +300,7 @@ Note that we consider the  square lattice of the single site Hubbard model as a 
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\paragraph{Measuring time displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
+\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
 %-------------------------------------------------------------------------------------
 %
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
@@ -306,7 +323,7 @@ Note that the above holds for the $SU(2)$ HS transformation discussed in this ch
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Numerical precision}\label{sec:prec_charge}
+\subsection{Numerical precision}\label{sec:prec_charge}
 %-------------------------------------------------------------------------------------
 The directory \path{Examples/Hubbard_SU2_Square}  contains an example simulation of the $4 \times 4$ Hubbard model at $U/t=4$ and $\beta t = 10$. 
 Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}:
