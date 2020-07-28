@@ -198,7 +198,7 @@ As shown in Ref.~\cite{Assaad08_rev}, scales can be omitted in the ground state 
 
 Numerical stabilization of the code is a delicate procedure that has been pioneered in Ref.~\cite{White89}  for the finite-temperature algorithm and in Refs.~\cite{Sugiyama86,Sorella89} for the zero-temperature, projective algorithm.
 It is important to be aware of the fragility of the numerical stabilization and that there is no guarantee that it will work for a given model. It is therefore crucial to always check the file \texttt{info}, which, apart from runtime data, contains important information concerning the stability of the code, in particular \texttt{Precision Green}.
-If the numerical stabilization fails, one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file, which will however also impact performance -- see Table.~\ref{table:tips} for further optimization tips for the Monte Carlo algorithm (Sec.~\ref{sec:sampling}). Typical values for the numerical precision ALF can achieve can be found in the examples in Sec.~\ref{sec:ex} (see Sec.~\ref{sec:prec_charge} and \ref{sec:prec_spin}).
+If the numerical stabilization fails, one possible measure is to reduce the value of the parameter \texttt{Nwrap} in the parameter file, which will however also impact performance -- see Table.~\ref{table:tips} for further optimization tips for the Monte Carlo algorithm (Sec.~\ref{sec:sampling}). Typical values for the numerical precision ALF can achieve can be found in Sec.~\ref{sec:hubbard}.
 
 \begin{table}[h!]
 	\begin{center}
@@ -209,7 +209,7 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 			\texttt{dtau} & should be set \emph{small} enough to limit Trotter errors.\\
 			\texttt{Nwrap} & should be set \emph{small} enough to keep \texttt{Precision}s small .\\
 			\texttt{Nsweep} & should be set \emph{large} enough for bins to be of the order of the auto-correlation time.\\
-			\texttt{Nbin} & should be set \emph{large} enough to provide good statistics. \\
+			\texttt{Nbin} & should be set \emph{large} enough to provide desired statistics. \\
 			\texttt{nskip} & should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time). \\
 			\texttt{Nrebin} & can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used.\\
 			Stabilization scheme & use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}). \\

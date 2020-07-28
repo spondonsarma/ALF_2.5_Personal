@@ -6,7 +6,7 @@
 
 % !TEX root = doc.tex
 
-At this point, we have introduced all the necessary  data structures   to implement a specific model.  In this section, we will show how to implement the Hubbard model  by specifying the lattice, the hopping, the interaction, the trial wave function  (if  required), and  observables.  In this section we will  show how to do this for  the  \textit{plain vanilla}  Hubbard model  written as: 
+All the necessary data structures necessary to implement a specific model have been introduced in the previous sections. Here we show how to implement the Hubbard model  by specifying the lattice, the hopping, the interaction, the trial wave function  (if  required), and  observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
 \begin{equation}
 \label{eqn_hubbard_Mz}
 \mathcal{H}=
@@ -90,13 +90,13 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 
 For the square lattice  the routine reads:
 \begin{lstlisting}[style=fortran]
-Latt_Unit%N_coord   = 2
-Latt_Unit%Norb      = 1
+Latt_Unit%N_coord        = 2
+Latt_Unit%Norb           = 1
 Latt_Unit%Orb_pos_p(1,:) = 0.d0
-a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-L1_p    =  dble(L1)*a1_p
-L2_p    =  dble(L2)*a2_p
+a1_p(1) = 1.0  ; a1_p(2) = 0.d0
+a2_p(1) = 0.0  ; a2_p(2) = 1.d0
+L1_p    = dble(L1)*a1_p
+L2_p    = dble(L2)*a2_p
 Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
 \end{lstlisting}
 
@@ -259,7 +259,7 @@ Here,   $x$ and $y$ label  both unit cell as well as the orbital within the unit
 
 An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow}   \hat{n}_{\vec{i},\downarrow}  \rangle $ reads 
 \begin{lstlisting}[style=fortran]
-Obs_scal(2)%N     = Obs_scal(2)%N + 1
+Obs_scal(2)%N        = Obs_scal(2)%N + 1
 Obs_scal(2)%Ave_sign = Obs_scal(2)%Ave_sign + Real(ZS,kind(0.d0))
 Do i = 1,Ndim
    Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
@@ -315,11 +315,11 @@ This subroutine is called by the main program at the beginning of each sweep, pr
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
 are thereby given by: 
-\begin{eqnarray}
-	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   =  
-	     & &  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) *     \nonumber \\  
-	 -  & &  \; \texttt{G0T(J,I,1) } \texttt{GT0(I,J,1) } \;  -  \texttt{G0T(J,I,2) } \texttt{GT0(I,J,2) } \;
-\end{eqnarray}
+\begin{align}
+	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   &=  
+	      ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) *     \nonumber \\  
+	 & -   \; \texttt{G0T(J,I,1)} \texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)} \texttt{GT0(I,J,2)}
+\end{align}
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------

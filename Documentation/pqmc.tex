@@ -47,13 +47,13 @@ where
 \begin{equation}
 	U^{\dagger,(s, L/R)}h^{(s, L/R)}  U^{(s, L/R)}   = \mathrm{Diag} \left(   \epsilon_1^{(s, L/R)}, \cdots, \epsilon_{N_{\mathrm{dim}}}^{(s, L/R)} \right).
 \end{equation}
-The trial wave function is hence  completely defined by the set of orthogonal vectors  $ U^{(s, L/R)}_{x,n}  $    for  $ n $ ranging from  $ 1 $ to  the number of particles   in each flavor sector,  $N_{\mathrm{part},s}$.    This information  is stored in the \texttt{WaveFunction}   type defined in the module \texttt{WaveFunction\_mod}.    Note  that  owing to the SU(N$_{\mathrm{col}}$) symmetry the color index is not necessary to define  the trial wave function.  The user will have to specify the trial wave function in the following way:
-\begin{lstlisting}[style=fortran]
+The trial wave function is hence  completely defined by the set of orthogonal vectors  $ U^{(s, L/R)}_{x,n} $  for  $ n $ ranging from  $ 1 $ to  the number of particles   in each flavor sector, $N_{\mathrm{part},s}$.  This information  is stored in the \texttt{WaveFunction}  type defined in the module \texttt{WaveFunction\_mod} (see Sec.~\ref{sec:wave_function}).  Note that, owing to the SU(N$_{\mathrm{col}}$) symmetry, the color index is not necessary to define  the trial wave function.  The user will have to specify the trial wave function in the following way:
+\begin{lstlisting}[style=fortran,escapechar=\#]
 Do s = 1, N_fl
    Do x = 1,Ndim
       Do n = 1, N_part(s)
-         WF_L(s)%P(x,n)  = U^{(s, L)}_{x,n}
-         WF_R(s)%P(x,n)  = U^{(s, R)}_{x,n}
+         WF_L(s)%P(x,n)  = #  $U${\tiny $^{(s, L)}_{x,n}$}  #
+         WF_R(s)%P(x,n)  = #  $U${\tiny $^{(s, L)}_{x,n}$}  #
       Enddo
    Enddo
 Enddo
