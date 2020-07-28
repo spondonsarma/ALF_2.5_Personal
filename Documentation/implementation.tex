@@ -440,6 +440,22 @@ the routine \texttt{Print\_bin\_Latt}  attaches the suffix \emph{\_eq} to \textt
 
 \subsection{The \texttt{WaveFunction} type} \label{sec:wave_function}
 
+The projective algorithm (Sec.~\ref{sec:defT0}) requires a pair of trial wave functions,  $| \Psi_{T,L/R} \rangle $, for which there is the dedicated  \texttt{WaveFunction} type, defined in the module \texttt{WaveFunction\_mod} as described in Table~\ref{table:wavefunction}.
+%
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{@{} p{0.13\columnwidth} p{0.1\columnwidth} p{0.71\columnwidth}  @{}}\toprule
+			Variable               &  Type     &  Description \\\midrule
+			\texttt{WF\%P(:,:)}    &  Complex  &  P is an $\texttt{Ndim}\times\texttt{N\_part}$ matrix, where \texttt{N\_part} is the number of particles.\\
+			\texttt{WF\%Degen}     &  Real     &  It stores the energy difference between the last occupied and fist un-occupied single particle state and can be used for checking for degeneracy.\\\bottomrule
+		\end{tabular}
+		\caption{Components of a variable of type \texttt{WaveFunction} named \texttt{WF}.}
+		\label{table:wavefunction}
+	\end{center}
+\end{table}
+%
+
+The module \texttt{WaveFunction\_mod} also includes the routine \path{WF_overlap(WF_L, WF_R, Z_norm)} for normalizing the right trial wave function \path{WF_R} by the factor \path{Z_norm}, such that $\langle \Psi_{T,L} | \Psi_{T,R} \rangle = 1$.
 
 
 

@@ -9,8 +9,7 @@
 \subsection{Predefined trial wave functions} \label{sec:predefined_trial_wave_function}
 
 When using the projective algorithm (see Sec.~\ref{sec:defT0}), trial wave functions must be specified.
-%These are stored in variables of the \texttt{WaveFunction} type.
-%, which includes the routine \path{WF_overlap(WF_L, WF_R, Z_norm)} for normalizing the right trial wave function, such that $\langle \Psi_{T,L} | \Psi_{T,R} \rangle = 1$.
+These are stored in variables of the \texttt{WaveFunction} type (Sec.~\ref{sec:wave_function}).
 The ALF package provides a set of predefined trial wave functions $|\Psi_{T,L/R}\rangle$=\texttt{WF\_L/R}, returned by the call:
 
 \begin{lstlisting}[style=fortran]
