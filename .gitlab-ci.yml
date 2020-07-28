@@ -24,7 +24,7 @@ stages:
   stage: build
   <<: *exemptfiles_definition
   script:
-    - export PATH="/opt/pgi/linux86-64/2016/bin:$PATH"
+    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
     - pgfortran --version
     - . configure.sh PGI serial
     - make all
@@ -86,8 +86,8 @@ GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Jessie-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
+GQMCT_Buster-PGI:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
   <<: *build_definition_pgi
 
 GQMCT_Ubuntu_Trusty:
@@ -149,8 +149,8 @@ GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Jessie-PGI_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-pgi1710
+GQMCT_Buster-PGI_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
   stage: warnconv
   except:
     changes:
@@ -159,7 +159,7 @@ GQMCT_Jessie-PGI_conv:
       - README.md
       - license.*
   script:
-    - export PATH="/opt/pgi/linux86-64/2017/bin:$PATH"
+    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
     - pgfortran --version
     - . configure.sh PGI serial
     - make all
