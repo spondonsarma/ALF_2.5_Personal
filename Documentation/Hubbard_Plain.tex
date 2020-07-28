@@ -6,7 +6,7 @@
 
 % !TEX root = doc.tex
 
-All the necessary data structures necessary to implement a specific model have been introduced in the previous sections. Here we show how to implement the Hubbard model  by specifying the lattice, the hopping, the interaction, the trial wave function  (if  required), and  observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
+All the necessary data structures necessary to implement a given model have been introduced in the previous sections. Here we show how to implement the Hubbard model  by specifying the lattice, the hopping, the interaction, the trial wave function  (if  required), and  observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
 \begin{equation}
 \label{eqn_hubbard_Mz}
 \mathcal{H}=
@@ -33,8 +33,8 @@ $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,
  \end{equation}
  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
- The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labelling spin up and spin down  degrees of freedom.     We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
-The code that we will describe below  can be found in the  directory \path{Prog/Hamiltonians/Hamiltonian_plain_vanilla_hubbard_mod.F90}.   Editing this module  may be a good starting point to implement a new model   Hamitonian. 
+ The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless, the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labeling spin up and spin down  degrees of freedom.     We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+The code that we describe below  can be found in the module \path{Prog/Hamiltonians/Hamiltonian_plain_vanilla_hubbard_mod.F90}.   Editing this file may be a good starting point to implement a new model Hamiltonian. 
 
 %To implement a Hamiltonian, the user has to provide  a module   which  specifies the lattice, the model, as well as the observables  they wish to compute. 
 %In this section, we describe the module 
@@ -97,7 +97,7 @@ a1_p(1) = 1.0  ; a1_p(2) = 0.d0
 a2_p(1) = 0.0  ; a2_p(2) = 1.d0
 L1_p    = dble(L1)*a1_p
 L2_p    = dble(L2)*a2_p
-Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
 \end{lstlisting}
 
 %------------------------------------------------------------
@@ -120,11 +120,11 @@ We set the hopping matrix  with
 DO I = 1, Latt%N
    Ix = Latt%nnlist(I,1,0)
    Iy = Latt%nnlist(I,0,1)
-   Op_T(1,1)%O(I  ,Ix) = cmplx(-Ham_T,   0.d0,kind(0.D0))
-   Op_T(1,1)%O(Ix,I  ) = cmplx(-Ham_T,   0.d0,kind(0.D0))
-   Op_T(1,1)%O(I  ,Iy) = cmplx(-Ham_T,   0.d0,kind(0.D0))
-   Op_T(1,1)%O(Iy, I ) = cmplx(-Ham_T,   0.d0,kind(0.D0))
-   Op_T(1,1)%O(I  ,I ) = cmplx(-Ham_chem,0.d0,kind(0.D0))
+   Op_T(1,1)%O(I,  Ix) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+   Op_T(1,1)%O(Ix, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+   Op_T(1,1)%O(I,  Iy) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+   Op_T(1,1)%O(Iy, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+   Op_T(1,1)%O(I,  I ) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
 ENDDO
 \end{lstlisting}
 Here, the integer function \texttt{  j=  Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
@@ -144,16 +144,16 @@ We set the dimension for the interaction term to  $N=1$, and  allocate and initi
 Allocate(Op_V(Ndim,N_FL))
 do nf = 1,N_FL
    do i  = 1, Ndim
-      Call Op_make(Op_V(i,nf),1)
+      Call Op_make(Op_V(i,nf), 1)
    enddo
 enddo
 Do nf = 1,N_FL
    nc = 0
    X = 1.d0
-   if (nf == 2) X = -1.d0
+   if (nf == 2)  X = -1.d0
    Do i = 1,Ndim
       nc = nc + 1
-      Op_V(nc,nf)%P(1) = I
+      Op_V(nc,nf)%P(1)   = I
       Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
       Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
       Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
@@ -168,34 +168,34 @@ In the above, one will see explicitly that  there is a sign   difference between
 %------------------------------------------------------------
 \subsection{The trial wave function: \texttt{Call Ham\_Trial}}
 %------------------------------------------------------------
-As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here will  use the same left and right   flavor independent trial  wave functions  that correspond to the ground state of: 
+As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here we will  use the same left and right  flavor-independent trial wave functions that correspond to the ground state of: 
 \begin{equation}
    \hat{H}_T    = - t \sum_{\ve{i}} \left[  \left( 1 + (-1)^{i_x + i_y}  \delta \right)  \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_x}  +  
-   							 \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_y}    + H.c.  \right]   \equiv   \sum_{\ve{i},\ve{j}}  \hat{c}^{\dagger}_{\ve{i}}   h_{\ve{i},\ve{j}}  \hat{c}^{\phantom\dagger}_{\ve{i}} 
+   							 \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_y}    + H.c.  \right]   \equiv   \sum_{\ve{i},\ve{j}}  \hat{c}^{\dagger}_{\ve{i}}   h_{\ve{i},\ve{j}}  \hat{c}^{\phantom\dagger}_{\ve{i}}.
 \end{equation}
 For the half-filled case, the  dimerization $\delta  = 0^{+} $  opens up a gap at  half-filling,   thus generating the desired  non-degenerate  trial wave function  that has the same symmetries (particle-hole  for instance) as  the   trial  Hamiltonian.
 
-Diagonalization  of  $ h_{\ve{i},\ve{j}}$,      $U^{\dagger} h  U  = \mathrm{Diag} \left(   \epsilon_1, \cdots, \epsilon_{N_{\mathrm{dim}}} \right) $     with  $\epsilon_i  <  \epsilon_j $  for $i < j$, allows us  to define the  trial wave function.  In particular, for the Half-filled case, we set 
-\begin{lstlisting}[style=fortran]
+Diagonalization  of  $ h_{\ve{i},\ve{j}}$,      $U^{\dagger} h  U  = \mathrm{Diag} \left(   \epsilon_1, \cdots, \epsilon_{N_{\mathrm{dim}}} \right) $     with  $\epsilon_i  <  \epsilon_j $  for $i < j$, allows us  to define the  trial wave function.  In particular, for the half-filled case, we set 
+\begin{lstlisting}[style=fortran,escapechar=\#]
 Do s = 1, N_fl
    Do x = 1,Ndim
       Do n = 1, N_part
-         WF_L(s)%P(x,n)  = U_{x,n}
-         WF_R(s)%P(x,n)  = U_{x,n}
+         WF_L(s)%P(x,n)  = # $U_{x,n}$ #
+         WF_R(s)%P(x,n)  = # $U_{x,n}$ #
       Enddo
    Enddo
 Enddo
 \end{lstlisting}
-with \texttt{N\_part = Ndim/2}.     The  variable \texttt{DEGEN}   belonging to the \texttt{WAVEFUNCTION}  type  is given by  \texttt{DEGEN}$=\epsilon_{N_{\mathrm{Part}} +1 } - \epsilon_{N_{\mathrm{Part}}  }$.   This quantitiy should be greater than zero  for non-degenerate    trial wave functions. 
+with \texttt{N\_part = Ndim/2}.     The  variable \texttt{Degen}   belonging to the \texttt{WaveFunction}  type  is given by  \texttt{Degen}$=\epsilon_{N_{\mathrm{Part}} +1 } - \epsilon_{N_{\mathrm{Part}}  }$.   This quantity should be greater than zero  for non-degenerate trial wave functions. 
 
 %------------------------------------------------------------
 \subsection{Observables}
 %------------------------------------------------------------
 
-At this point, all the information   for the simulation to  start has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal-time correlation functions. 
+At this point, all the information for starting the simulation has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal-time correlation functions. 
 If \texttt{Ltau=1} the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again  provided by the user and handles  imaginary-time displaced correlation functions. 
 
-The users will have to  implement the  observables  they   want  to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here  we  will describe how to  proceed. 
+The users have to implement the observables they want to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here  we  will describe how to  proceed. 
 
 %------------------------------------------------------------------------------------
 \subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
@@ -217,7 +217,7 @@ Do I = 1,Size(Obs_scal,1)
    case default
       Write(6,*) ' Error in Alloc_obs '  
    end select
-   Call Obser_Vec_make(Obs_scal(I),N,Filename)
+   Call Obser_Vec_make(Obs_scal(I), N, Filename)
 enddo
 \end{lstlisting}
 Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the $x$- and $y$-components of the kinetic energy for example.  
@@ -239,7 +239,7 @@ Do I = 1,Size(Obs_eq,1)
       Write(6,*) ' Error in Alloc_obs '  
    end select
    Nt = 1
-   Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+   Call Obser_Latt_make(Obs_eq(I), Ns, Nt, No, Filename)
 enddo
 \end{lstlisting} 
  For the Hubbard model \texttt{Norb = 1} and for   equal-time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal-time correlation functions will be used, albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
@@ -269,11 +269,11 @@ Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{
 
 Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
-	 \langle \hat{n}_{\vec{i}}   \hat{n}_{\vec{j}} \rangle   -  \langle \hat{n}_{\ve{i} }\rangle  \langle    \hat{n}_{\ve{j}}  \rangle \;.
+	 \langle \hat{n}_{\vec{i}}   \hat{n}_{\vec{j}} \rangle   -  \langle \hat{n}_{\ve{i} }\rangle  \langle    \hat{n}_{\ve{j}}  \rangle,
 \end{equation} 
 with
 \begin{equation}
-	 \hat{n}_{\vec{i}}  =   \sum_{\sigma} \hat{c}^{\dagger}_{\ve{i},\sigma} \hat{c}^{\phantom\dagger}_{\ve{i},\sigma} 
+	 \hat{n}_{\vec{i}}  =   \sum_{\sigma} \hat{c}^{\dagger}_{\ve{i},\sigma} \hat{c}^{\phantom\dagger}_{\ve{i},\sigma}.
 \end{equation}
 For the calculation of such quantities, it is convenient to  define: 
 \begin{equation}
@@ -299,7 +299,7 @@ Enddo
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }}
+\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT,  GT0, G0T, G00, GTT, PHASE) }}
 %-------------------------------------------------------------------------------------
 %
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
@@ -309,17 +309,25 @@ This subroutine is called by the main program at the beginning of each sweep, pr
 \texttt{G0T(x,y,s) }   &=  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle =
     \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    \\
   \texttt{G00(x,y,s) }  &=    \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle     \\
-    \texttt{GTT(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    
+    \texttt{GTT(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle.
 \end{aligned}
 \end{align}
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
 are thereby given by: 
 \begin{align}
-	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   &=  
-	      ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) *     \nonumber \\  
-	 & -   \; \texttt{G0T(J,I,1)} \texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)} \texttt{GT0(I,J,2)}
+	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle
+	& =  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) *     \nonumber \\  
+	& -   \; \texttt{G0T(J,I,1)} \texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)} \texttt{GT0(I,J,2)}
 \end{align}
+
+\red{JSEP: I'd change the equation above to (delete 2nd "*" and change last "-" to "+"):}
+\begin{align}
+4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle
+& =  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} ) \nonumber \\  
+& -   \; \texttt{G0T(J,I,1)} \texttt{GT0(I,J,1)}  +  \texttt{G0T(J,I,2)} \texttt{GT0(I,J,2)}
+\end{align}
+
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
@@ -333,8 +341,8 @@ Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-00
 Precision Phase, Max       :    0.0000000000000000     
 Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
 \end{alltt}
-showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time displaced  Green functions \cite{Assaad08_rev}.
-A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable  simulation since the Green function  is of order one. 
+showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.
+A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable simulation since the Green function  is of order one. 
 
 
 
