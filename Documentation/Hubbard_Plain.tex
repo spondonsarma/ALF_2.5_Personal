@@ -246,7 +246,7 @@ enddo
  \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}}
+\subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}} \label{sec:EqualTimeobs}
 %-------------------------------------------------------------------------------------
 
 The equal-time  Green function,
@@ -299,7 +299,7 @@ Enddo
 At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT,  GT0, G0T, G00, GTT, PHASE) }}
+\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT, GT0, G0T, G00, GTT, PHASE)} }  \label{sec:TimeDispObs}
 %-------------------------------------------------------------------------------------
 %
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:

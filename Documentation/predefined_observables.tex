@@ -9,3 +9,106 @@
 \subsection{Predefined observables} \label{sec:predefined_observales}
 %-----------------------------------------------------------------------------------
 
+The types \texttt{Obser\_Vec} and \texttt{Obser\_Latt} described in Section~\ref{sec:obs} handles arrays of scalar observables and correlation functions with lattice symmetry respectively. The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described bellow.
+
+The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.
+%
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{@{} p{0.21\columnwidth}  p{0.1\columnwidth} p{0.06\columnwidth} p{0.55\columnwidth}  @{}}
+			\toprule
+			Argument                      & Type       & Role   & Description \\
+			\midrule
+			\texttt{Latt}                 & Lattice    & Input  & lattice as a variable of type \texttt{Lattice}, see Sec.~\ref{sec:latt}\\
+			\texttt{Latt\_Unit}           & Unit\_cell & Input  & unit cell as a variable of type \texttt{Unit\_cell}, see Sec.~\ref{sec:latt}\\
+			\texttt{List}                 & Integer    & Input  & for every site index $\texttt{I}$, stores the corresponding lattice position, \texttt{List(I,1)}, and the (local) orbital index, \texttt{List(I,2)}\\
+			\texttt{NT}                   & Integer    & Input  & imaginary time\\
+			\texttt{GR(Ndim,Ndim,N\_FL)}  & Complex    & Input  & equal-time Green function $\texttt{GR(i,j,s)}  = \langle c^{\phantom{\dagger}}_{i,s} c^{\dagger}_{j,s}  \rangle$\\
+			\texttt{GRC(Ndim,Ndim,N\_FL)} & Complex    & Input  & $\texttt{GRC(i,j,s)}  = \langle c^{\dagger}_{i,s} c^{\phantom{\dagger}}_{j,s}  \rangle  =  \delta_{i,j} - \texttt{GR(j,i,s)}$\\
+			\texttt{GT0(Ndim,Ndim,N\_FL)} & Complex    & Input  & time-displaced Green function $\langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{i,s}(\tau) \hat{c}^{\dagger}_{j,s}(0) \rangle \rangle$\\
+			\texttt{G0T(Ndim,Ndim,N\_FL)} & Complex    & Input  & time-displaced Green function $\langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{i,s}(0) \hat{c}^{\dagger}_{j,s}(\tau) \rangle \rangle $\\
+			\texttt{G00(Ndim,Ndim,N\_FL)} & Complex    & Input  & time-displaced Green function $\langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{i,s}(0) \hat{c}^{\dagger}_{j,s}(0) \rangle \rangle $\\
+			\texttt{GTT(Ndim,Ndim,N\_FL)} & Complex    & Input  & time-displaced Green function $\langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{i,s}(\tau) \hat{c}^{\dagger}_{j,s}(\tau) \rangle \rangle $\\
+			\texttt{N\_SUN}               & Integer    & Input  & number of fermion \emph{colors} $N_{\mathrm{col}}$\\
+			\texttt{ZS}                   & Complex    & Input  & $\texttt{ZS} = \text{sign}(C)$, see Sec.~\ref{sec:obs}\\
+			\texttt{ZP}                   & Complex    & Input  & $\texttt{ZP} = e^{-S(C)}/\Re \left[e^{-S(C)} \right]$, see Sec.~\ref{sec:obs}\\
+			\texttt{Obs}                  & Obser\_Latt& Output & one or more measurement result\\
+			\bottomrule
+		\end{tabular}
+		\caption{Arguments taken by the subroutines in the module \texttt{Predefined\_Obs}. Note that a given method makes use of only a subset of this list, as specified in their calls described bellow.}		\label{table:predefined_obs}
+	\end{center}
+\end{table}
+
+
+\subsubsection{$SU(N)$ spin-spin correlations}
+
+A measurement of $SU(N)$ spin-spin correlations can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call Predefined_Obs_eq_SpinSUN_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  Obs)
+\end{lstlisting}
+
+If \texttt{N\_FL = 1} then  this routine returns
+\begin{align}
+\texttt{Obs} = \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \left\langle c^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle,
+\end{align}
+where $T^a$ are the generators of $SU(N)$ satisfying the normalization condition:  $\Tr [ T^a  T^b ]= \delta_{a,b}/2$. Note that for $SU(N)$ symmetry:
+\begin{align}
+\sum_{a=1}{N^2 - 1 }  \left\langle c^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
+\end{align}
+
+\subsubsection{Spin-$XY$ correlations}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call Predefined_Obs_eq_SpinMz_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  ObsZ, ObsXY, ObsXYZ)
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
+
+\subsubsection{}
+
+A measurement of  can be obtained by:
+
+\begin{lstlisting}[style=fortran]
+Call 
+\end{lstlisting}
