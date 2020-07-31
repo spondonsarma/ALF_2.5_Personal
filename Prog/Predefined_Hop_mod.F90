@@ -106,6 +106,42 @@
 !> ALF-project
 !>
 !> @brief 
+!>  Checks if the Hopping is
+!>  zero     -->  inquire = 0
+!>  diagonal -->  inquire = 1
+!>  full     -->  inquore = 2
+!     
+!--------------------------------------------------------------------      
+      Integer function  inquire(this, Latt_unit)
+
+        Implicit none 
+        Type  (Hopping_Matrix_type), Intent(In)  :: this
+        Type(Unit_cell),Intent(in)               :: Latt_unit
+
+        Real (Kind=Kind(0.d0)) :: Xmax, Zero, X 
+        Integer :: nc
+
+        Zero =  1.D-10
+        Xmax =  0.d0
+        do nc = 1, Latt_unit%Norb
+           X = sqrt(Real(this%T_Loc(nc)*conjg(this%T_Loc(nc)),kind(0.d0))) 
+           If ( X  > Zero )   Xmax =  X
+        enddo
+
+        If ( Xmax < Zero  .and.  this%N_bonds  == 0 )  then
+           inquire = 0
+        elseif ( Xmax > Zero  .and.  this%N_bonds  == 0 )  then
+           inquire = 1
+        else
+           inquire = 2
+        endif
+        
+      end function inquire
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!>
+!> @brief 
 !> Default hopping for the square lattice.  Ham_T is the nearest neighbour hopping and Ham_Chem the chemical potention.
 !> 
 !     
@@ -139,7 +175,6 @@
            Deallocate ( Ham_T_perp_vec ) 
         else
            Allocate( this(N_FL) )
-
            
            Ham_T_max = 0.d0
            Do nf = 1,N_FL
@@ -178,34 +213,36 @@
            enddo
 
            !Set Checkerboard
-           this(1)%N_FAM  = 4
-           Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
-           this(1)%L_FAM  = Latt%N/2
-           this(1)%Prop_Fam= 1.d0
-           Allocate (this(1)%List_Fam(this(1)%N_FAM,this(1)%L_Fam(1),2))
-           this(1)%Multiplicity = 4
-           this(1)%L_FAM  = 0
-           do I = 1,Latt%N
-              if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
-                 Nf = 1
-                 this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I ! Unit cell
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 1 ! The bond (See above)
-                 Nf = 2
-                 this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 2 
-              else
-                 Nf = 3
-                 this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 1  
-                 Nf = 4
-                 this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
-                 this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 2  
-              endif
-           enddo
+           if ( Ham_T_max   > Zero ) then
+              this(1)%N_FAM  = 4
+              Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
+              this(1)%L_FAM  = Latt%N/2
+              this(1)%Prop_Fam= 1.d0
+              Allocate (this(1)%List_Fam(this(1)%N_FAM,this(1)%L_Fam(1),2))
+              this(1)%Multiplicity = 4
+              this(1)%L_FAM  = 0
+              do I = 1,Latt%N
+                 if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
+                    Nf = 1
+                    this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I ! Unit cell
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 1 ! The bond (See above)
+                    Nf = 2
+                    this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 2 
+                 else
+                    Nf = 3
+                    this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 1  
+                    Nf = 4
+                    this(1)%L_Fam(Nf) = this(1)%L_Fam(Nf) + 1
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),1) = I
+                    this(1)%List_Fam(Nf,this(1)%L_Fam(Nf),2) = 2  
+                 endif
+              enddo
+           endif
         endif
       end Subroutine Set_Default_hopping_parameters_square
 
@@ -952,6 +989,7 @@
         N_FL =  size(this,1)
         !Write(6,*)  'N_FL ', N_FL
         Ndim =  Latt%N * Latt_Unit%Norb
+        
         
         If ( .not. Checkerboard) then
            allocate(Op_T(1,N_FL))
