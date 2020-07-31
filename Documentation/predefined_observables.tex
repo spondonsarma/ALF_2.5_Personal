@@ -58,6 +58,7 @@ where $T^a$ are the generators of $SU(N)$ satisfying the normalization condition
 \sum_{a=1}{N^2 - 1 }  \left\langle c^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
 \end{align}
 
+
 \subsubsection{Equal-time spin correlations}
 
 A measurement of the equal-time spin correlations can be obtained by:
@@ -75,13 +76,19 @@ If \texttt{N\_FL=2} and \texttt{N\_SUN=1}, then the routine returns:
 \end{align}
 
 
-\subsubsection{}
+\subsubsection{Equal-time Green function}
 
-A measurement of  can be obtained by:
+A measurement of the qual-time Green function can be obtained by:
 
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_eq_Green_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs)
 \end{lstlisting}
+
+Which returns:
+\begin{align}
+\texttt{Obs} = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}} \langle  c^{\dagger}_{i,\sigma,s} c_{j,\sigma,s} \rangle
+\end{align}
+
 
 \subsubsection{}
 
