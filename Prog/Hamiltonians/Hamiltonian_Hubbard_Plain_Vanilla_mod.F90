@@ -222,6 +222,10 @@
              END IF
              READ(5,NML=VAR_lattice)
              N_part =  L1*L2/2
+             If (L1 == 1) then
+                Write(6,*) 'For  one-dimensional lattices set L2=1'
+                stop
+             endif
              READ(5,NML=VAR_Hubbard_Plain_Vanilla)
              CLOSE(5)
 
@@ -622,12 +626,16 @@
           Zkin = Zkin* dble(N_SUN)
           Do I = 1,Latt%N
              Ix = Latt%nnlist(I,1,0)
-             Iy = Latt%nnlist(I,0,1)
              Zkin = Zkin  + GRC(I,Ix,1)  + GRC(Ix,I,1)  &
-                  &       + GRC(I,Iy,1)  + GRC(Iy,I,1)  &
-                  &       + GRC(I,Ix,2)  + GRC(Ix,I,2)  &
-                  &       + GRC(I,Iy,2)  + GRC(Iy,I,2)  
+                  &       + GRC(I,Ix,2)  + GRC(Ix,I,2)
           Enddo
+          If (L2 > 1) then
+             Do I = 1,Latt%N
+                Iy = Latt%nnlist(I,0,1)
+                Zkin = Zkin + GRC(I,Iy,2)  + GRC(Iy,I,2)   &
+                     &      + GRC(I,Iy,1)  + GRC(Iy,I,1)  
+             Enddo
+          Endif
           Zkin = Zkin*cmplx(-Ham_T,0.d0,Kind(0.d0)) 
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
