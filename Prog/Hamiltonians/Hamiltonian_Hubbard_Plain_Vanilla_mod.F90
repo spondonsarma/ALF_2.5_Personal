@@ -745,11 +745,11 @@
                      &   (cmplx(2.d0,0.d0,kind(0.d0)) -  G00(J,J,1) - G00(J,J,2) )   &
                      &   -G0T(J,I,1) * GT0(I,J,1)  -  G0T(J,I,2) * GT0(I,J,2) 
 
-                Obs_tau(1)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,1,1,1) + (GT0(I,J,1) + GT0(I,J,2))*ZP*ZS
-                Obs_tau(2)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,1,1,1) +  ZZ  *ZP*ZS
-                Obs_tau(3)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,1,1,1) +  ZXY *ZP*ZS
-                Obs_tau(4)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,1,1,1) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
-                Obs_tau(5)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(5)%Obs_Latt(imj,1,1,1) +  ZDen * ZP * ZS 
+                Obs_tau(1)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,NT+1,1,1) + (GT0(I,J,1) + GT0(I,J,2))*ZP*ZS
+                Obs_tau(2)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,NT+1,1,1) +  ZZ  *ZP*ZS
+                Obs_tau(3)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(3)%Obs_Latt(imj,NT+1,1,1) +  ZXY *ZP*ZS
+                Obs_tau(4)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(4)%Obs_Latt(imj,NT+1,1,1) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
+                Obs_tau(5)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(5)%Obs_Latt(imj,NT+1,1,1) +  ZDen * ZP * ZS 
 
                 
              enddo
