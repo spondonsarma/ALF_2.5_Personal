@@ -117,25 +117,30 @@
         Implicit none 
         Type  (Hopping_Matrix_type), Intent(In)  :: this(:)
 
-        Real (Kind=Kind(0.d0)) :: Xmax, Zero, X 
+        Real (Kind=Kind(0.d0)) :: Xmax_loc, Xmax_hop, Zero, X 
         Integer :: nc, nf
 
-        Zero =  1.D-10
-        Xmax =  0.d0
+        Zero     =  1.D-10
+        Xmax_loc =  0.d0
+        Xmax_hop =  0.d0
         
-        do nc = 1, size(this(1)%T_Loc,1)
-           do nf = 1,size(this,1)
+        do nf = 1,size(this,1)
+           do nc = 1, size(this(1)%T_Loc,1)
               X = sqrt(Real(this(nf)%T_Loc(nc)*conjg(this(nf)%T_Loc(nc)),kind(0.d0))) 
-              If ( X  > Zero )   Xmax =  X
+              If ( X  > Xmax_loc)   Xmax_loc =  X
+           enddo
+           do nc = 1,this(1)%N_bonds
+              X = sqrt( Real(this(nf)%T(nc)*conjg( this(nf)%T(nc)),kind(0.d0) )  )
+              If ( X  > Xmax_hop )   Xmax_hop =  X
            enddo
         enddo
 
-        If (     Xmax < Zero  .and.  this(1)%N_bonds  == 0 )  then
-           inquire_hop = 0 !  Zero
-        elseif ( Xmax > Zero  .and.  this(1)%N_bonds  == 0 )  then
-           inquire_hop = 1 !  Diagnal
+        If (     Xmax_loc < Zero  .and.  Xmax_hop < Zero )  then
+           inquire_hop = 0     !  Zero
+        elseif ( Xmax_loc > Zero  .and.  Xmax_hop < Zero )  then
+           inquire_hop = 1     !  Diagonal
         else
-           inquire_hop = 2 !  Full
+           inquire_hop = 2     !  Full
         endif
         
       end function inquire_hop
@@ -1009,9 +1014,9 @@
               do n = 1,ndim
                  Call Op_make(Op_T(n,nf),1)
                  Op_T(n,nf)%P(1)   = n
-                 Op_T(n,nf)%O(1,1) = this(nf)%T_Loc(list(n,2))
-                 Op_T(n,nf)%g      = 0.d0 
-                 Op_T(n,nf)%alpha  = cmplx(0.d0,0.d0, kind(0.D0))
+                 Op_T(n,nf)%O(1,1) =  this(nf)%T_Loc(list(n,2))
+                 Op_T(n,nf)%g      = -Dtau
+                 Op_T(n,nf)%alpha  =  cmplx(0.d0,0.d0, kind(0.D0))
                  Call Op_set(Op_T(n,nf))
               enddo
            enddo
@@ -1054,11 +1059,7 @@
                  Do I = 1,Ndim
                     Op_T(1,nf)%P(i) = i 
                  Enddo
-                 if ( this(nf)%N_bonds == 0 ) then 
-                    Op_T(1,nf)%g = 0.d0
-                 else
-                    Op_T(1,nf)%g = -Dtau
-                 endif
+                 Op_T(1,nf)%g = -Dtau
                  Op_T(1,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
                  Call Op_set(Op_T(1,nf))
                  !Do I = 1,Size(Op_T(1,nf)%E,1)
