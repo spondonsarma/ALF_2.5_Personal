@@ -90,16 +90,13 @@ The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:
 
 For the square lattice  the routine reads:
 \begin{lstlisting}[style=fortran]
-Latt_Unit%N_coord        = 2
-Latt_Unit%Norb           = 1
-Latt_Unit%Orb_pos_p(1,:) = 0.d0
 a1_p(1) = 1.0  ; a1_p(2) = 0.d0
 a2_p(1) = 0.0  ; a2_p(2) = 1.d0
 L1_p    = dble(L1)*a1_p
 L2_p    = dble(L2)*a2_p
 Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
 \end{lstlisting}
-
+The routine also sets the  number of single particle states per flavor and color:  \texttt{Ndim=Latt\%N}.     Note  that for unit cells with \texttt{Norb}   orbitals,  \texttt{Ndim=Latt\%N*Norb}. 
 %------------------------------------------------------------
 \subsection{The hopping: \texttt{Call Ham\_hop}}
 %------------------------------------------------------------
@@ -107,30 +104,37 @@ Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
 The hopping matrix is implemented as follows. 
 We allocate an array of dimension $1\times 1$ of type operator  called \texttt{Op\_T} and set the  dimension for the hopping  matrix to $N=N_{\mathrm{dim}}$. One  allocates and initializes this type by a single call to the subroutine \texttt{Op\_make}: 
 \begin{lstlisting}[style=fortran]
-call Op_make(Op_T(1,1),Ndim)
+call Op_make(Op_T(1,N_FL),Ndim)
 \end{lstlisting}
 Since the hopping  does not  break down into small blocks, we have ${\bm P}=\mathds{1}$   and  
 \begin{lstlisting}[style=fortran]
-Do i= 1,Ndim
-  Op_T(1,1)%P(i) = i
+Do nf = 1, N_FL
+  Do i = 1,Ndim
+     Op_T(1,nf)%P(i) = i
+  Enddo
 Enddo
 \end{lstlisting}
 We set the hopping matrix  with 
 \begin{lstlisting}[style=fortran]
-DO I = 1, Latt%N
-   Ix = Latt%nnlist(I,1,0)
-   Iy = Latt%nnlist(I,0,1)
-   Op_T(1,1)%O(I,  Ix) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-   Op_T(1,1)%O(Ix, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-   Op_T(1,1)%O(I,  Iy) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-   Op_T(1,1)%O(Iy, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-   Op_T(1,1)%O(I,  I ) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-ENDDO
+Do nf = 1, N_FL
+   Do I = 1, Latt%N
+      Ix = Latt%nnlist(I,1,0)
+      Iy = Latt%nnlist(I,0,1)
+      Op_T(1,nf)%O(I,  Ix) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+      Op_T(1,nf)%O(Ix, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+      Op_T(1,nf)%O(I,  Iy) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+      Op_T(1,nf)%O(Iy, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+      Op_T(1,nf)%O(I,  I ) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
+   Enddo
+   Op_T(1,nf)%g     = -Dtau
+   Op_T(1,nf)%alpha = cmplx(0.d0,0.d0, kind(0.D0))
+   Call Op_set(Op_T(1,nf))
+Enddo
 \end{lstlisting}
 Here, the integer function \texttt{  j=  Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
 Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
-To completely define the hopping  we further set: \texttt{Op\_T(1,1)\%g = -Dtau }, \texttt{Op\_T(1,1)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,1))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,1))\%type}  is not  required. 
+To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type}  is not  required. 
 Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices.  
 
 
@@ -148,17 +152,16 @@ do nf = 1,N_FL
    enddo
 enddo
 Do nf = 1,N_FL
-   nc = 0
    X = 1.d0
    if (nf == 2)  X = -1.d0
    Do i = 1,Ndim
       nc = nc + 1
-      Op_V(nc,nf)%P(1)   = I
-      Op_V(nc,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
-      Op_V(nc,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
-      Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
-      Op_V(nc,nf)%type   = 2
-      Call Op_set( Op_V(nc,nf) )
+      Op_V(i,nf)%P(1)   = I
+      Op_V(i,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
+      Op_V(i,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
+      Op_V(i,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
+      Op_V(i,nf)%type   = 2
+      Call Op_set( Op_V(i,nf) )
    Enddo
 Enddo
 
@@ -171,7 +174,7 @@ In the above, one will see explicitly that  there is a sign   difference between
 As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here we will  use the same left and right  flavor-independent trial wave functions that correspond to the ground state of: 
 \begin{equation}
    \hat{H}_T    = - t \sum_{\ve{i}} \left[  \left( 1 + (-1)^{i_x + i_y}  \delta \right)  \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_x}  +  
-   							 \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_y}    + H.c.  \right]   \equiv   \sum_{\ve{i},\ve{j}}  \hat{c}^{\dagger}_{\ve{i}}   h_{\ve{i},\ve{j}}  \hat{c}^{\phantom\dagger}_{\ve{i}}.
+   							\left(1 - \delta \right)  \hat{c}^{\dagger}_{\ve{i}}   \hat{c}^{\phantom\dagger}_{\ve{i} +\ve{a}_y}    + H.c.  \right]   \equiv   \sum_{\ve{i},\ve{j}}  \hat{c}^{\dagger}_{\ve{i}}   h_{\ve{i},\ve{j}}  \hat{c}^{\phantom\dagger}_{\ve{i}}.
 \end{equation}
 For the half-filled case, the  dimerization $\delta  = 0^{+} $  opens up a gap at  half-filling,   thus generating the desired  non-degenerate  trial wave function  that has the same symmetries (particle-hole  for instance) as  the   trial  Hamiltonian.
 
@@ -337,6 +340,45 @@ Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-00
 showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.
 A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable simulation since the Green function  is of order one. 
 
+\subsubsection{Tests}
 
+To test the code, one can carry out   high precision  simulations.  
+To  compile and run the code, it is convenient to use \texttt{pyALF}: 
+\begin{lstlisting}[style=fortran]
+python3 Run.py -R --alfdir   $HOME/ALF  --machine Intel --mpi MPI --n_mpi 12   
+                 --ham_name_R  Hubbard_Plain_Vanilla
+\end{lstlisting}
 
-    
+\paragraph{One dimensional case} 
+
+For the four site Hubbard model  we can use the parameter set:
+ \begin{lstlisting}[style=fortran]
+{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 1, "Nsweep": 2000,  
+"NBin": 40, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05,  "Projector": true}
+\end{lstlisting}
+yields a total energy of 
+\begin{equation*}
+       \langle  \hat{H}   \rangle = 2.106818     \pm   0.003318
+\end{equation*}
+and the exact result is  
+\begin{equation*}
+\langle  \hat{H}   \rangle_{\texttt{Exact}}    = -2.100396
+\end{equation*}
+
+\paragraph{Two dimensional case}  
+For the two-dimensional case, 
+\begin{lstlisting}[style=fortran]
+{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 4, "Nsweep": 2000,  
+"NBin": 25, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05,  "Projector": true}
+\end{lstlisting}
+we obtain, \\
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+                  &   QMC  & Exact  \\ \hline
+Total energy & -13.618   $\pm $  0.002 &  -13.6224  \\ \hline
+ $\ve{Q}=(\pi,\pi)$ spin correlations &  3.630     $ \pm $   0.006     & 3.64 \\ 
+ \hline 
+\end{tabular}
+ \end{center}
+ The exact results stem from Ref.~\cite{Parola91}     and the slight discrepancies from the exact results can be  assigned to the finite value of $\Delta \tau$.  Note that all the simulations were carried out with the default value of the Hubbard interaction, $U/t =4$. 

@@ -261,6 +261,13 @@ Z. Bai, C. Lee, R.-C. Li, and S. Xu, Linear Algebra and its Applications
 \bibitem{vanderSluis1969}
 A. van~der Sluis, Numerische Mathematik \textbf{ 14},  14  (1969).
 
+\bibitem{Feldbach00}
+M. Feldbacher and F.~F. Assaad, Phys. Rev. B \textbf{ 63},  073105  (2001).
+
+\bibitem{Ixert14}
+D. Ixert, F.~F. Assaad, and K.~P. Schmidt, Phys. Rev. B \textbf{ 90},  195133
+  (2014).
+
 \bibitem{Negele}
 J.~W. Negele and H. Orland, {\em Quantum Many body systems}, {\em Frontiers in
   physics} (Addison-Wesley, Redwood City, Calif. u.a., 1988).
@@ -289,16 +296,6 @@ S. Chakravarty, B.~I. Halperin, and D.~R. Nelson, Phys. Rev. Lett. \textbf{
 \bibitem{Thompson2010}
 M.~B. {Thompson}, ArXiv e-prints  (2010).
 
-\bibitem{Feldbach00}
-M. Feldbacher and F.~F. Assaad, Phys. Rev. B \textbf{ 63},  073105  (2001).
-
-\bibitem{Ixert14}
-D. Ixert, F.~F. Assaad, and K.~P. Schmidt, Phys. Rev. B \textbf{ 90},  195133
-  (2014).
-
-\bibitem{Beach04a}
-K.~S.~D. {Beach}, eprint arXiv:cond-mat/0403055  (2004).
-
 \bibitem{Milat04}
 I. Milat, F. Assaad, and M. Sigrist, Eur. Phys. J. B \textbf{ 38},  571
   (2004), http://xxx.lanl.gov/cond-mat/0312450.
@@ -306,6 +303,26 @@ I. Milat, F. Assaad, and M. Sigrist, Eur. Phys. J. B \textbf{ 38},  571
 \bibitem{Bercx09}
 M. Bercx, T.~C. Lang, and F.~F. Assaad, Phys. Rev. B \textbf{ 80},  045412
   (2009).
+
+\bibitem{Parola91}
+A. Parola, S. Sorella, M. Parrinello, and E. Tosatti, Phys. Rev. B \textbf{
+  43},  6190  (1991).
+
+\bibitem{Beach04a}
+K.~S.~D. {Beach}, eprint arXiv:cond-mat/0403055  (2004).
+
+\bibitem{Assaad14}
+F.~F. Assaad, Nat Phys \textbf{ 10},  905  (2014).
+
+\bibitem{Xu16a}
+X.~Y. Xu, Y. Qi, J. Liu, L. Fu, and Z.~Y. Meng, arXiv:1612.03804  (2016).
+
+\bibitem{Ulybyshev2013}
+M.~V. Ulybyshev, P.~V. Buividovich, M.~I. Katsnelson, and M.~I. Polikarpov,
+  Phys. Rev. Lett. \textbf{ 111},  056801  (2013).
+
+\bibitem{Brower12}
+R. Brower, C. Rebbi, and D. Schaich, PoS(Lattice 2011)056 (arXiv:1204.5424)  .
 
 \bibitem{Xu16}
 X.~Y. {Xu}, K.~S.~D. {Beach}, K. {Sun}, F.~F. {Assaad}, and Z.~Y. {Meng},
@@ -333,19 +350,6 @@ M. Hohenadler and F.~F. Assaad, Phys. Rev. B \textbf{ 100},  125133  (2019).
 \bibitem{Gazit19}
 S. {Gazit}, F.~F. {Assaad}, and S. {Sachdev}, arXiv:1906.11250
   arXiv:1906.11250  (2019).
-
-\bibitem{Assaad14}
-F.~F. Assaad, Nat Phys \textbf{ 10},  905  (2014).
-
-\bibitem{Xu16a}
-X.~Y. Xu, Y. Qi, J. Liu, L. Fu, and Z.~Y. Meng, arXiv:1612.03804  (2016).
-
-\bibitem{Ulybyshev2013}
-M.~V. Ulybyshev, P.~V. Buividovich, M.~I. Katsnelson, and M.~I. Polikarpov,
-  Phys. Rev. Lett. \textbf{ 111},  056801  (2013).
-
-\bibitem{Brower12}
-R. Brower, C. Rebbi, and D. Schaich, PoS(Lattice 2011)056 (arXiv:1204.5424)  .
 
 \bibitem{Jureca16}
 {J\"ulich Supercomputing Centre}, Journal of large-scale research facilities
