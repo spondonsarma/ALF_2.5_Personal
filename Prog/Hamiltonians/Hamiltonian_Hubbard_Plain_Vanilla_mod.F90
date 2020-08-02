@@ -268,6 +268,8 @@
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model 
              Write(50,*) 'Lattice is    : ', Lattice_type
+             Write(50,*) 'L1            : ', L1
+             Write(50,*) 'L2            : ', L2
              Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Symm. decomp  : ', Symm
              if (Projector) then
@@ -336,11 +338,13 @@
              Call Op_make(Op_T(1,nf),Ndim)
              Do I = 1,Latt%N
                 Ix = Latt%nnlist(I,1,0)
-                Iy = Latt%nnlist(I,0,1)
                 Op_T(1,nf)%O(I,  Ix) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                 Op_T(1,nf)%O(Ix, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                Op_T(1,nf)%O(I,  Iy) = cmplx(-Ham_T,    0.d0, kind(0.D0))
-                Op_T(1,nf)%O(Iy, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                If ( L2 > 1 ) then
+                   Iy = Latt%nnlist(I,0,1)
+                   Op_T(1,nf)%O(I,  Iy) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                   Op_T(1,nf)%O(Iy, I ) = cmplx(-Ham_T,    0.d0, kind(0.D0))
+                endif
                 Op_T(1,nf)%O(I,  I ) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
                 Op_T(1,nf)%P(i) = i 
              Enddo
@@ -394,11 +398,13 @@
           H0 = 0.d0; U0 = 0.d0;  E0=0.d0
           Do I = 1,Latt%N
              Ix = Latt%nnlist(I,1,0)
-             Iy = Latt%nnlist(I,0,1)
              H0(I,  Ix) = -Ham_T*(1.d0   +   Delta*cos(Pi*real(Latt%list(I,1) + Latt%list(I,2),Kind(0.d0))))
              H0(Ix, I ) = -Ham_T*(1.d0   +   Delta*cos(Pi*real(Latt%list(I,1) + Latt%list(I,2),Kind(0.d0))))
-             H0(I,  Iy) = -Ham_T *(1.d0  -   Delta)
-             H0(Iy, I ) = -Ham_T *(1.d0  -   Delta)
+             If (L2  > 1 ) Then
+                Iy = Latt%nnlist(I,0,1)
+                H0(I,  Iy) = -Ham_T *(1.d0  -   Delta)
+                H0(Iy, I ) = -Ham_T *(1.d0  -   Delta)
+             Endif
           Enddo
           Call  Diag(H0,U0,E0)
 !!$          Do I = 1,Ndim
@@ -414,7 +420,7 @@
              WF_L(nf)%Degen = E0(N_part+1) - E0(N_part)
              WF_R(nf)%Degen = E0(N_part+1) - E0(N_part)
           enddo
-
+          
           
 #ifdef MPI
           If (Irank_g == 0) then
