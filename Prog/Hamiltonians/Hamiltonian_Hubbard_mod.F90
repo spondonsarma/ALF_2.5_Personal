@@ -488,32 +488,46 @@
           Use Predefined_Int
           Implicit none 
           
-          Integer :: nf, I, I1, I2,  nc, nc1,  J, no
-          Real (Kind=Kind(0.d0)) :: X
+          Integer :: nf, I, I1, I2,  nc,  J, no,  N_ops 
+          Real (Kind=Kind(0.d0)) :: X,  Zero = 1.D-10
           Real (Kind=Kind(0.d0)), allocatable :: Ham_U_vec(:)
           
 
           Allocate (Ham_U_vec(Latt_unit%Norb))
-          Ham_U_vec(:)  = Ham_U
+          
+          N_ops = 0
           if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
              Ham_U_vec(1) = Ham_U
              Ham_U_vec(2) = Ham_U2
+             If (abs(Ham_U ) > Zero ) N_ops = N_ops + Latt%N*Latt_unit%Norb/2
+             If (abs(Ham_U2) > Zero ) N_ops = N_ops + Latt%N*Latt_unit%Norb/2
+          else
+             Ham_U_vec(:)  = Ham_U
+             If (abs(Ham_U ) > Zero ) N_ops = N_ops + Latt%N*Latt_unit%Norb
           endif
           If ( Mz )  Then
-             Allocate(Op_V(Ndim,N_FL))
+             Allocate(Op_V(N_ops,N_FL))
              Ham_U_vec = Ham_U_vec/real(N_SUN,kind(0.d0))
+             nc = 0
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
                    I = invlist(I1,no)
-                   Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U_vec(no) ) 
+                   if (abs(Ham_U_vec(no)) > Zero ) then
+                      nc = nc + 1
+                      Call Predefined_Int_U_MZ ( OP_V(nc,1), OP_V(nc,2), I,  DTAU, Ham_U_vec(no) )
+                   endif
                 enddo
              enddo
           else
              Allocate(Op_V(Ndim,N_FL))
+             nc = 0
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
                    I = invlist(I1,no)
-                   Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                   if (abs(Ham_U_vec(no)) > Zero ) then
+                      nc = nc + 1
+                      Call Predefined_Int_U_SUN(  OP_V(nc,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                   endif
                 Enddo
              Enddo
           Endif
@@ -710,10 +724,10 @@
           dec = 1
           If ( Mz  ) dec = 2
           Do I = 1,Latt%N
-             do no = 1,Latt_unit%Norb
-                I1 = Invlist(I,1)
-                if (no == 1)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
-                if (no == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
+             do no_I = 1,Latt_unit%Norb
+                I1 = Invlist(I,no_I)
+                if (no_I == 1)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
+                if (no_I == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
              enddo
           Enddo
           
