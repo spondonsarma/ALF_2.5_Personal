@@ -12,14 +12,14 @@
 \begin{table}[h]
 	\begin{center}
 	\begin{tabular}{@{} l l @{}}\toprule
-   	Directory & Description \\\midrule
-   	\path{Prog/} & Main program and subroutines.  \\
-   	\path{Libraries/} & Collection of mathematical routines. \\  
-  	\path{Analysis/} & Routines for error analysis. \\
-  	\path{Scripts_and_Parameters_files/}   & Helper scripts and the \path{Start/} directory, which contains \\ 
-  	                                      & the files required to start a run. \\
-  	\path{Documentation/} & This documentation.\\
-  	\path{testsuite/} & A suite for automatic testing various parts of the code.\\\bottomrule
+   	Directory                             & Description \\\midrule
+   	\path{Prog/}                          & Main program and subroutines  \\
+   	\path{Libraries/}                     & Collection of mathematical routines \\  
+  	\path{Analysis/}                      & Routines for error analysis \\
+  	\path{Scripts_and_Parameters_files/}  & Helper scripts and the \path{Start/} directory, which contains \\ 
+  	                                      & the files required to start a run \\
+  	\path{Documentation/}                 & This documentation\\
+  	\path{testsuite/}                     & A suite for automatic testing various parts of the code\\ \bottomrule
   	\hline
 	\end{tabular}
    	\caption{Overview of the directories included in the ALF package.\label{table:files}}
@@ -234,16 +234,13 @@ If the program is not compiled with the parallel tempering flag, then the \textt
 %
 \begin{table}[h]
 	\begin{center}
-   \begin{tabular}{@{} l l @{}}\toprule
-   File & Description \\\midrule
-   \path{info} & After completion of the simulation, this file documents the parameters of\\
-   & the model, as well as the QMC run and simulation metrics (precision,\\
-   & acceptance rate, wallclock time).\\
-   \path{X_scal} & Results of equal-time measurements of scalar observables. \\
-   & The placeholder \path{X} stands for the observables \path{Kin}, \path{Pot}, \path{Part}, and \path{Ener}. \\
-   \path{Y_eq, Y_tau} & Results of equal-time and time-displaced measurements of correlation\\
-   & functions. The placeholder \path{Y} stands for \path{Green}, \path{SpinZ}, \path{SpinXY}, and \path{Den}. \\   
-   \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and Ising configuration. \\\bottomrule
+   \begin{tabular}{@{} p{0.26\columnwidth}p{0.7\columnwidth} @{}}\toprule
+   File               & Description \\\midrule
+   \path{info}        & After completion of the simulation, this file documents the parameters of the model, as well as the QMC run and simulation metrics (precision, acceptance rate, wallclock time)\\
+   \path{X_scal}      & Results of equal-time measurements of scalar observables \\
+   & The placeholder \path{X} stands for the observables \path{Kin}, \path{Pot}, \path{Part}, and \path{Ener} \\
+   \path{Y_eq, Y_tau} & Results of equal-time and time-displaced measurements of correlation functions. The placeholder \path{Y} stands for \path{Green}, \path{SpinZ}, \path{SpinXY}, and \path{Den} \\   
+   \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and Ising configuration \\\bottomrule
    \end{tabular}
    \caption{Overview of the standard output files. See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{center}

@@ -7,7 +7,7 @@
 % !TEX root = doc.tex
 
 
-In this section we describe the steps for compiling and running the code, and describe how to search for optimal parameter values as well as how to perform the error analysis of the data.
+In this section we describe the steps for compiling and running the code from the shell, and describe how to search for optimal parameter values as well as how to perform the error analysis of the data. A python interface, \textbf{pyALF}, is also available and can be found, together with tutorials, at \url{https://git.physik.uni-wuerzburg.de/ALF/pyALF}.
 
 %-------------------------------------------------------------------------------------
 \subsection{Compiling and running}
@@ -110,11 +110,11 @@ Note that the error analysis script requires the presence of the environment var
 	\begin{center}
 	\begin{tabular}{@{} p{0.15\linewidth} p{0.8\linewidth} @{}}\toprule
 		Program & Description \\\midrule
-		\texttt{cov\_scal.F90}  &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_scal} are read in, and  the corresponding files with suffix \texttt{\_scalJ} are produced. They  contain the  result of the Jackknife rebinning analysis  (see Sec.~\ref{sec:sampling}).  \\
-		\texttt{cov\_eq.F90}    &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_eq} are read in, and the corresponding files with suffix  \texttt{\_eqJR}  and  \texttt{\_eqJK}  are produced. They  correspond to correlation functions in real and Fourier space, respectively.  \\
-		\texttt{cov\_tau.F90}   &  In combination with the script \texttt{analysis.sh}, the bin files  \texttt{X\_tau} are read in, and the directories  \texttt{X\_kx\_ky} are produced  for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
-		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  (see Sec.~\ref{sec:input}). Also, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated.  \\                         
-		\texttt{cov\_tau\_ph.F90} & At compilation time  the file \texttt{cov\_tau\_ph.F90} is generated, and  should be used to compute particle-hole, imaginary-time correlation functions such as Spin and Charge. Here we use the fact that these  correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.  
+		\texttt{cov\_scal.F90}  &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_scal} are read in, and  the corresponding files with suffix \texttt{\_scalJ} are produced. They  contain the  result of the Jackknife rebinning analysis  (see Sec.~\ref{sec:sampling})  \\
+		\texttt{cov\_eq.F90}    &  In combination with the script \texttt{analysis.sh}, the bin files with suffix \texttt{\_eq} are read in, and the corresponding files with suffix  \texttt{\_eqJR}  and  \texttt{\_eqJK}  are produced. They  correspond to correlation functions in real and Fourier space, respectively  \\
+		\texttt{cov\_tau.F90}   &  In combination with the script \texttt{analysis.sh}, the bin files  \texttt{X\_tau} are read in, and the directories  \texttt{X\_kx\_ky} are produced  for all \texttt{kx} and \texttt{ky} greater or equal to zero \\
+		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file  (see Sec.~\ref{sec:input}). Also, a directory  \texttt{X\_R0}  for the local  time displaced  correlation function is generated  \\                         
+		\texttt{cov\_tau\_ph.F90} & At compilation time  the file \texttt{cov\_tau\_ph.F90} is generated, and  should be used to compute particle-hole, imaginary-time correlation functions such as Spin and Charge. Here we use the fact that these  correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$  
 		\\\bottomrule
 	\end{tabular}
 	\caption{ Overview of analysis programs that are called within the script \texttt{analysis.sh}. \label{table:analysis_programs}}
@@ -133,14 +133,14 @@ If the autocorrelation time  is smaller than the effective bin size, the error s
 		\begin{tabular}{@{} p{0.2\linewidth} p{0.75\linewidth} @{}}\toprule
 		File & Description  \\ \midrule
 		Input &  \\\midrule %\cmidrule{1-1}
-		\texttt{parameters}  &  Includes error analysis variables \texttt{n\_skip}, \texttt{N\_rebin}, and \texttt{N\_Cov} (see Sec.~\ref{sec:input}). \\
-		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}). \vspace{5pt} \\
+		\texttt{parameters}  &  Includes error analysis variables \texttt{n\_skip}, \texttt{N\_rebin}, and \texttt{N\_Cov} (see Sec.~\ref{sec:input}) \\
+		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \vspace{5pt} \\
 
 		Output &  \\\midrule
-		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}.\\
-		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, or \texttt{Den}. The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively.\\
-		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\
-		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}.\\\bottomrule
+		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}\\
+		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, or \texttt{Den}. The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively\\
+		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}\\
+		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}\\\bottomrule
 	\end{tabular}
 	\caption{ Standard input and output files of the error analysis script \texttt{analysis.sh}. \label{table:analysis_files}}
 \end{center}
@@ -204,16 +204,16 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 	\begin{center}
 		\begin{tabular}{@{} p{0.18\linewidth} p{0.75\linewidth} @{}}\toprule
 			Element & Suggestion  \\ \midrule
-			\texttt{Precision Green}, \texttt{Precision Phase}  &  \multirow{2}{*}{Should be found to be \emph{small}, of order $< 10^{-8}$ (see Sec.~\ref{sec:stable}).}\\
-			\texttt{theta}       & Should be \emph{large} enough to guarantee convergence to ground state. \\
-			\texttt{dtau}        & Should be set \emph{small} enough to limit Trotter errors.\\
-			\texttt{Nwrap}       & Should be set \emph{small} enough to keep \texttt{Precision}s small .\\
-			\texttt{Nsweep}      & Should be set \emph{large} enough for bins to be of the order of the auto-correlation time.\\
-			\texttt{Nbin}        & Should be set \emph{large} enough to provide desired statistics. \\
-			\texttt{nskip}       & Should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time). \\
-			\texttt{Nrebin}      & Can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used.\\
-			Stabilization scheme & Use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}). \\
-			Parallelism          & For some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell. \\\bottomrule
+			\texttt{Precision Green}, \texttt{Precision Phase}  &  \multirow{2}{*}{Should be found to be \emph{small}, of order $< 10^{-8}$ (see Sec.~\ref{sec:stable})}\\
+			\texttt{theta}       & Should be \emph{large} enough to guarantee convergence to ground state \\
+			\texttt{dtau}        & Should be set \emph{small} enough to limit Trotter errors\\
+			\texttt{Nwrap}       & Should be set \emph{small} enough to keep \texttt{Precision}s small\\
+			\texttt{Nsweep}      & Should be set \emph{large} enough for bins to be of the order of the auto-correlation time\\
+			\texttt{Nbin}        & Should be set \emph{large} enough to provide desired statistics \\
+			\texttt{nskip}       & Should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time) \\
+			\texttt{Nrebin}      & Can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used\\
+			Stabilization scheme & Use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}) \\
+			Parallelism          & For some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell \\\bottomrule
 		\end{tabular}
 		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \label{table:tips}}
 	\end{center}
