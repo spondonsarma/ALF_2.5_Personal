@@ -7,13 +7,13 @@ INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo 
 INTELOPTFLAGS="-cpp -O3 "
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
-INTELUSEFULFLAGS="-std03"
+INTELUSEFULFLAGS="-std08"
 
 # default optimization flags for GNU compiler
 GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 # uncomment the next line if you want to use additional openmp parallelization
 GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
-GNUUSEFULFLAGS="-std=f2003"
+GNUUSEFULFLAGS="-std=f2008"
 
 MACHINE=""
 Machinev=0
