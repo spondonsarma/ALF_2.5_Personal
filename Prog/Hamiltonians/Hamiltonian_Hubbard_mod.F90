@@ -707,19 +707,16 @@
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( Mz  ) then
-             dec = 2
-             Do I = 1,Ndim
-                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
-             Enddo
-             Zpot = Zpot*ham_U
-          else
-             dec = 1
-             Do I = 1,Ndim
-                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
-             Enddo
-             Zpot = Zpot*ham_U
-          Endif
+          dec = 1
+          If ( Mz  ) dec = 2
+          Do I = 1,Latt%N
+             do no = 1,Latt_unit%Norb
+                I1 = Invlist(I,1)
+                if (no == 1)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
+                if (no == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
+             enddo
+          Enddo
+          
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
