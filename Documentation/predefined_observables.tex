@@ -22,7 +22,7 @@ The predefined measurements methods take as input Green functions \texttt{GR}, \
 			\texttt{Latt}                 & Lattice    & Input  & Lattice as a variable of type \texttt{Lattice}, see Sec.~\ref{sec:latt}\\
 			\texttt{Latt\_Unit}           & Unit\_cell & Input  & Unit cell as a variable of type \texttt{Unit\_cell}, see Sec.~\ref{sec:latt}\\
 			\texttt{List(Ndim,2)}         & Integer    & Input  & For every site index $\texttt{I}$, stores the corresponding lattice position, \texttt{List(I,1)}, and the (local) orbital index, \texttt{List(I,2)}\\
-			\texttt{NT}                   & Integer    & Input  & Imaginary time\\
+			\texttt{NT}                   & Integer    & Input  & Imaginary time $\tau$\\
 			\texttt{GR(Ndim,Ndim,N\_FL)}  & Complex    & Input  & Equal-time Green function $\texttt{GR(i,j,s)}  = \langle c^{\phantom{\dagger}}_{i,s} c^{\dagger}_{j,s}  \rangle$\\
 			\texttt{GRC(Ndim,Ndim,N\_FL)} & Complex    & Input  & $\texttt{GRC(i,j,s)}  = \langle c^{\dagger}_{i,s} c^{\phantom{\dagger}}_{j,s}  \rangle  =  \delta_{i,j} - \texttt{GR(j,i,s)}$\\
 			\texttt{GT0(Ndim,Ndim,N\_FL)} & Complex    & Input  & Time-displaced Green function $\langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{i,s}(\tau) \hat{c}^{\dagger}_{j,s}(0) \rangle \rangle$\\
@@ -43,7 +43,6 @@ The predefined measurements methods take as input Green functions \texttt{GR}, \
 \subsubsection{Equal-time $SU(N)$ spin-spin correlations}
 
 A measurement of $SU(N)$ spin-spin correlations can be obtained by:
-
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_eq_SpinSUN_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
@@ -55,19 +54,17 @@ If \texttt{N\_FL = 1} then  this routine returns
 \end{align}
 where $T^a$ are the generators of $SU(N)$ satisfying the normalization condition:  $\Tr [ T^a  T^b ]= \delta_{a,b}/2$. Note that for $SU(N)$ symmetry:
 \begin{align}
-\sum_{a=1}{N^2 - 1 }  \left\langle c^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
+\sum_{a=1}^{N^2 - 1 }  \left\langle c^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
 \end{align}
 
 
 \subsubsection{Equal-time spin correlations}
 
 A measurement of the equal-time spin correlations can be obtained by:
-
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_eq_SpinMz_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,
                                       ObsZ, ObsXY, ObsXYZ)
 \end{lstlisting}
-
 If \texttt{N\_FL=2} and \texttt{N\_SUN=1}, then the routine returns:
 \begin{align}
 \texttt{ObsZ}   &=  4 \langle c^{\dagger}_i S^z c_i  c^{\dagger}_j S^z  c_j\rangle \\  
@@ -78,54 +75,83 @@ If \texttt{N\_FL=2} and \texttt{N\_SUN=1}, then the routine returns:
 
 \subsubsection{Equal-time Green function}
 
-A measurement of the qual-time Green function can be obtained by:
-
+A measurement of the equal-time Green function can be obtained by:
 \begin{lstlisting}[style=fortran]
-Call Predefined_Obs_eq_Green_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs)
+Call Predefined_Obs_eq_Green_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
 
 Which returns:
 \begin{align}
-\texttt{Obs} = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}} \langle  c^{\dagger}_{i,\sigma,s} c_{j,\sigma,s} \rangle
+\texttt{Obs} = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}} \langle  c^{\dagger}_{i,\sigma,s} c_{j,\sigma,s} \rangle.
 \end{align}
 
 
-\subsubsection{}
+\subsubsection{Equal-time density-density correlations}
 
-A measurement of  can be obtained by:
-
+A measurement of equal-time density-density correlations can be obtained by:
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_eq_Den_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
+Which returns:
+\begin{align}
+\texttt{Obs} = \langle N_i  N_j \rangle - \langle N_i\rangle  \langle N_j\rangle,
+\end{align}
+where
+\begin{align}
+N_i = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}}  c^{\dagger}_{i,\sigma,s} c_{i,\sigma,s}.
+\end{align}
 
-\subsubsection{}
 
-A measurement of  can be obtained by:
+\subsubsection{Time-displaced Green function}
 
+A measurement of the time-displaced Green function can be obtained by:
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_tau_Green_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT, 
+                                      N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
+Which returns:
+\begin{align}
+\texttt{Obs} = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{nf}} \langle  c^{\dagger}_{i,\sigma,s}(\tau) c_{j,\sigma,s} \rangle.
+\end{align}
 
-\subsubsection{}
 
-A measurement of  can be obtained by:
+\subsubsection{Time-displaced $SU(N)$ spin-spin correlations}
 
+A measurement of time-displaced spin-spin correlations for $SU(N)$ models ($N_\text{fl} = 1$) can be obtained by:
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_tau_SpinSUN_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT, 
+                                        N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
+Which returns:
+\begin{align}
+\texttt{Obs} = \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle c^{\dagger}_i(\tau) T^a c_i(\tau)  c^{\dagger}_j T^a  c_j\rangle,
+\end{align}
+where $T^a$ are the generators of $SU(N)$.
 
-\subsubsection{}
 
-A measurement of  can be obtained by:
+\subsubsection{Time-displaced spin correlations}
 
+A measurement of time-displaced spin-spin correlations for $M\!z$ models ($N_\text{fl} = 2, N_\text{col} = 1$)  is returned by:
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_tau_SpinMz_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT,
+                                       N_SUN, ZS, ZP,  ObsZ, ObsXY, ObsXYZ)
 \end{lstlisting}
+Which calculates the following observables:
+\begin{align}
+\texttt{ObsZ}   &= 4\langle c^{\dagger}_i(\tau) S^z c_i(\tau)  c^{\dagger}_j S^z  c_j\rangle\\
+\texttt{ObsXY}  &= 2 \left(\langle c^{\dagger}_i(\tau) S^x c_i(\tau) c^{\dagger}_j S^x c_j\rangle  +  \langle c^{\dagger}_i(\tau) S^y c_i(\tau)  c^{\dagger}_j S^y c_j\rangle \right)\\
+\texttt{ObsXYZ} &= \frac{2\cdot\texttt{ObsXY} + \texttt{ObsZ}}{3}.
+\end{align}
 
-\subsubsection{}
 
-A measurement of  can be obtained by:
+\subsubsection{Time-displaced density-density correlations}
 
+A measurement of time-displaced density-density correlations for general $SU(N)$ models is given by:
 \begin{lstlisting}[style=fortran]
-Call 
+Call Predefined_Obs_tau_Den_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT,
+                                    N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
+Which returns:
+\begin{align}
+\texttt{Obs} = \langle N_i(\tau) N_j\rangle - \langle N_i\rangle  \langle N_j\rangle.
+\end{align}
