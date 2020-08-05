@@ -478,6 +478,7 @@
           Integer                           :: I, J, I1, J1, no_I, no_J, nf
           Integer                           :: n_1, n_2, Nb, n_f,l_f, n_l, N, nc
           Complex(Kind=Kind(0.d0))          :: Z 
+          real(Kind=Kind(0.d0))             :: Zero =  1.0E-6
 
           Allocate (Ham_V_vec(N_FL), Ham_V2_vec(N_FL), Ham_Vperp_vec(N_FL), Ham_Chem_vec(N_FL), Phi_X_vec(N_FL), Phi_Y_vec(N_FL),&
                &                                   N_Phi_vec(N_FL), Ham_Lambda_vec(N_FL) )
@@ -491,18 +492,7 @@
           Phi_Y_vec      = Phi_Y
           Ham_Lambda_vec = 0.0d0
           N_Phi_vec      = N_Phi
-          
-          
-          if ( ham_V == 0.0d0) then
-            write(*,*) "IGNORING ALL INTERACTIONS !!!"
-            allocate(Op_V(1,N_FL))
-            do nf = 1,N_FL
-                ! Fake hubbard interaction of weight 0.0
-                Call Predefined_Int_U_SUN(  OP_V(1,nf), 1, N_SUN, DTAU, 0.0d0  )
-            enddo
-            return
-          endif
-          
+                    
           !Use predefined hoppings to manage the bonds since the interaction of the tV model is exactly on the hopping bonds
           Select case (Lattice_type)
           Case ("Square")
@@ -527,6 +517,23 @@
           end Select
           
           
+          N = 0
+          do n_f = 1,Bond_Matrix(1)%N_FAM
+              N = N +  Bond_Matrix(1)%L_Fam(n_f)
+          enddo          
+          if ( N==0 ) then
+            ! It is a noninteracting model and then there is no need to setup the interaction apart from one vertex per flavor
+            ! for internal memory consistency (the code will always access the first vertex OP_V(1,:) hence it has to be allocated)
+            ! any vertex with zero coupling strength will do, ie, the hubbard interaction with U=0
+            allocate(Op_V(1,N_FL))
+            do nf = 1,N_FL
+                ! Fake hubbard interaction of weight 0.0 (last argument in the following call)
+                Call Predefined_Int_U_SUN(  OP_V(1,nf), 1, N_SUN, DTAU, 0.0d0  )
+            enddo
+            write(*,*) "No interaction present"
+            return
+          endif
+          
           If (Symm) Call Symmetrize_families(Bond_Matrix)
           N = 0
           do n_f = 1,Bond_Matrix(1)%N_FAM
@@ -535,9 +542,11 @@
           
           allocate(Op_V(N,N_FL))
           do nf = 1,N_FL
-              N_Phi     = Bond_Matrix(nf)%N_Phi
-              Phi_X     = Bond_Matrix(nf)%Phi_X  
-              Phi_Y     = Bond_Matrix(nf)%Phi_Y 
+!               (not needed since we can directly access the Hamiltonian member, 
+!               otherwise we risk overwriting stuff) 
+!               N_Phi     = Bond_Matrix(nf)%N_Phi
+!               Phi_X     = Bond_Matrix(nf)%Phi_X  
+!               Phi_Y     = Bond_Matrix(nf)%Phi_Y 
 !               Bulk      = Bond_Matrix(nf)%Bulk 
               do nc = 1, Size(Op_V,1)
                   Call Op_make(Op_V(nc,nf),2)
@@ -679,9 +688,9 @@
           Integer, INTENT(IN)          :: Ntau
           
           !Local 
-          Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZZ, ZXY
-          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J,n
+          Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK, Zn, weight, delta
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZZ, ZXY, tmp
+          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J,n, nf2, k, k1, l, l1
           Real    (Kind=Kind(0.d0)) :: X
           
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -711,8 +720,41 @@
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 
+          Zn=cmplx(dble(N_sun),0.d0,kind(0.d0))
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          !! TODO
+          Do nf = 1,N_FL
+             Do n = 1,size(OP_V,1)
+                weight=-Op_V(n,nf)%g**2 /dtau
+                Do J = 1,Op_V(n,nf)%N
+                   J1 = Op_V(n,nf)%P(J)
+                   DO I = 1,Op_V(n,nf)%N
+                      if (abs(Op_V(n,nf)%O(i,j)) >= 0.00001) then
+                      I1 = Op_V(n,nf)%P(I)
+                      ZPot  = ZPot  + N_FL*2.d0*Zn*Op_V(n,nf)%alpha*weight*Op_V(n,nf)%O(i,j)*GRC(I1,J1,nf)
+                      
+                      Do nf2 = 1,N_FL
+                        Delta=0.d0
+                        if (nf==nf2) Delta=1.d0
+                        Do K = 1,Op_V(n,nf)%N
+                          K1 = Op_V(n,nf)%P(K)
+                          DO L = 1,Op_V(n,nf)%N
+                            if (abs(Op_V(n,nf)%O(k,l)) >= 0.00001) then
+                            L1 = Op_V(n,nf)%P(L)
+                            tmp =  (   delta*GRC(I1,L1,nf) * GR (J1,K1,nf)      +  &
+                                  &    Zn * GRC(I1,J1,nf) * GRC(K1,L1,nf2)         )
+                            ZPot  = ZPot  + weight*Op_V(n,nf)%O(i,j)*Op_V(n,nf)%O(k,l)*tmp
+                            endif
+                          Enddo
+                        ENddo
+                      enddo
+                      endif
+                   Enddo
+                ENddo
+!                 if ( .not. Projector) 
+                ZPot  = ZPot  + N_FL*weight*(Op_V(n,nf)%alpha**2)*Zn
+             Enddo
+          Enddo
+          Zpot=Zn*Zpot
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
