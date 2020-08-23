@@ -71,6 +71,35 @@ Would be nice to discuss this point.}
 
 This would include the $SU(N)$  $t-V$ models on various lattices.  The defining property of this set of Hamiltonians would be the enlarged O(2N) symmetry.  Again  this   module should support our standard bipartite lattices. 
 
+The parameter space for this model class  reads: 
+
+\begin{lstlisting}[style=fortran,escapechar=\#,breaklines=true]
+&VAR_Hubbard               !! Variables for the Hubbard class
+ham_T     = 1.d0            ! Hopping parameter
+ham_chem  = 0.d0            ! Chemical potential
+ham_V     = 4.d0            ! Hubbard interaction
+ham_T2    = 1.d0            ! For bilayer systems
+ham_V2    = 4.d0            ! For bilayer systems
+ham_Tperp = 1.d0            ! For bilayer systems
+ham_Vperp = 1.d0            ! For bilayer systems
+/
+
+\end{lstlisting}
+In the above   \texttt{ham\_T} and \texttt{ham\_T2} and \texttt{ham\_Tperp}   correspond to the hopping in the first and second layers respectively and  \texttt{ham\_Tperp}   is to the interlayer hopping.   The interaction term has an orbital index, 
+\texttt{ham\_V}  for the first and  \texttt{ham\_V2}  for the second layers,  and \texttt{ham\_Vperp} for interlayer coupling.  Finally   \texttt{ham\_chem}  corresponds to the chemical potential. Let us define the operator
+\begin{eqnarray}
+\hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle} & = &  \sum_{\sigma =1}^{N}    c^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
+	\vec{A}(\ve{l})  d \ve{l}} c^{}_{(\ve{j},\ve{\delta}'),\sigma} 
++ \textrm{H.c.} \,.
+\end{eqnarray}
+The model is then defined as follows:
+\begin{eqnarray}
+\hat{H}= & & \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}   T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}
++ \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \frac{V_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}}{N} \left(  \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \right)^2  \nonumber \\
+& & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } \,.
+\end{eqnarray}
+The  generic hopping is taken from Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.    $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1 \cdots N$  and encodes  the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian.  $\mu$ corresponds to the chemical potential  and is relevant only for the finite temperature code. 
+
 \subsection{  SU(N) Kondo lattice models  \texttt{Kondo\_mod.F90}}
 
 
