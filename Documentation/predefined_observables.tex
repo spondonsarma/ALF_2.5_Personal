@@ -42,7 +42,7 @@ The predefined measurements methods take as input Green functions \texttt{GR}, \
 
 
 \subsubsection{Equal-time $SU(N)$ spin-spin correlations}
-
+\label{SU_N_equal_time.sec}
 A measurement of $SU(N)$ spin-spin correlations can be obtained by:
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_eq_SpinSUN_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP,  Obs)
@@ -153,22 +153,24 @@ Call Predefined_Obs_tau_Green_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00,
 \end{lstlisting}
 Which returns:
 \begin{align}
-\texttt{Obs} = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}} \langle  c^{\dagger}_{i,\sigma,s}(\tau) c_{j,\sigma,s} \rangle.
+\texttt{Obs}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} )  = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}} \langle \langle  \hat{c}^{\dagger}_{\ve{i},n_{\ve{i}},  \sigma,s}(\tau) \hat{c}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}},\sigma,s} \rangle \rangle_{C}
 \end{align}
 
 
 \subsubsection{Time-displaced $SU(N)$ spin-spin correlations}
+
 
 A measurement of time-displaced spin-spin correlations for $SU(N)$ models ($N_\text{fl} = 1$) can be obtained by:
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_tau_SpinSUN_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT, 
                                         N_SUN, ZS, ZP,  Obs)
 \end{lstlisting}
-Which returns:
+
 \begin{align}
-\texttt{Obs} = \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle c^{\dagger}_i(\tau) T^a c_i(\tau)  c^{\dagger}_j T^a  c_j\rangle,
+\texttt{Obs}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} )= \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  \;
+    \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}    \rangle  \rangle_{C}
 \end{align}
-where $T^a$ are the generators of $SU(N)$.
+where $T^a$ are the generators of $SU(N)$ (see Sec.~\ref{SU_N_equal_time.sec}  for more details) 
 
 
 \subsubsection{Time-displaced spin correlations}
