@@ -60,12 +60,26 @@ with
 \begin{equation*}
  \hat{n}^f_i  = \sum_{\sigma=1}^{N} \hat{f}_{i,\sigma}^{\dagger} \hat{f}_{i,\sigma}^{\phantom\dagger}.
 \end{equation*}
-It is very important to note that 
+It is  important to note that 
 \begin{equation}
-	\langle[   \hat{H}_{QMC},  \left( \hat{n}^f_i -  \frac{N}{2} \right)^2  \rangle]    = 0  
+	\left[   \hat{H}_{QMC},  \left( \hat{n}^f_i -  \frac{N}{2} \right)^2  \right]    = 0  
 \end{equation}
-such that the  constraint is implemented very efficiently.  In fact, for the finite temperature code  at inverse temperature $\beta$,  the unphysical Hilbert space   is suppressed by a  
-factor  $e^{-\beta U} $. 
+such that the  constraint is implemented  efficiently.  In fact, for the finite temperature code  at inverse temperature $\beta$,  the unphysical Hilbert space   is suppressed by a  
+factor  $e^{-\beta U_f} $. 
+
+
+The parameter space for this model class  reads: 
+
+\begin{lstlisting}[style=fortran,escapechar=\#,breaklines=true]
+&VAR_Kondo                 !! Variables for the Kondo  class
+ham_T     = 1.d0            ! Hopping parameter
+ham_chem  = 0.d0            ! Chemical potential
+ham_U     = 0.d0            ! Hubbard interaction  on  c-orbitals Uc
+ham_U2    = 2.d0            ! Hubbard interaction  on  f-orbials  Uf
+ham_JK    = 2.d0            ! Kondo Coupling  J
+/
+\end{lstlisting}
+
 
 
 
