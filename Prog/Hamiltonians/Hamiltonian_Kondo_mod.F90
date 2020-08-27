@@ -154,7 +154,7 @@
       Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
       real (Kind=Kind(0.d0)),        private :: ham_U2, ham_JK
-      real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
+      real (Kind=Kind(0.d0)),        private :: Phi_Y , Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
@@ -200,7 +200,7 @@
           NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_U, ham_U2, ham_JK
           
 
-#ifdef MPI
+#Ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
