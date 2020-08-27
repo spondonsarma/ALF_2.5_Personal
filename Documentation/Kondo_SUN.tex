@@ -35,17 +35,21 @@ Some  rewriting has to be carried out so as to implement  the model.   First, we
 \begin{equation*}
 	\sum_{a} T^{a}_{\alpha,\beta} T^{a}_{\alpha',\beta'} = \frac{1}{2} \left(  \delta_{\alpha,\beta'}  \delta_{\alpha',\beta} - \frac{1}{N} \delta_{\alpha,\beta} \delta_{\alpha', \beta'} \right), 
 \end{equation*}
-to  show that up to a constant: 
-\begin{equation}
-	 \frac{2 J}{N} \sum_{i, a=1  }^{N^2 -1}  \hat{T}^{a,c}_{i}  \hat{T}^{a,f}_{i}  =   - \frac{J}{2N} \sum_{i}  \left( 
-                \hat{D}^{\dagger}_{i} \hat{D}^{\phantom\dagger}_{i}   +    \hat{D}^{\phantom\dagger}_{i} \hat{D}^{\dagger}_{i}    \right)    
-                =   -  \frac{J}{4N}    \left[ \left(   \hat{D}^{\dagger}_{i}  + \hat{D}^{\phantom\dagger}_{i}    \right)^{2}  + 
-                                                       \left(  i\hat{D}^{\dagger}_{i}  - i  \hat{D}^{\phantom\dagger}_{i}    \right)^2  \right]
- \end{equation}
-with, 
+to  show that:
+\begin{align}
+	 \frac{2 J}{N} \sum_{i, a=1  }^{N^2 -1}  \hat{T}^{a,c}_{i}  \hat{T}^{a,f}_{i}   = &   - \frac{J}{2N} \sum_{i}  \left( 
+                \hat{D}^{\dagger}_{i} \hat{D}^{\phantom\dagger}_{i}   +    \hat{D}^{\phantom\dagger}_{i} \hat{D}^{\dagger}_{i}    \right)    + \frac{J}{N}   \left(   \frac{\hat{n}^{c}_i}{2}  + \frac{\hat{n}^{f}_i}{2} -  \frac{\hat{n}^{c}_i \hat{n}^{f}_i}{N}   \right) \nonumber 
+ \end{align}
+with
 \begin{equation*}
-	   \hat{D}^{\dagger}_{\ve{i}}   =  \sum_{\sigma=1}^{N} \hat{c}^{\dagger}_{\ve{i},\sigma}  \hat{f}^{\phantom\dagger}_{\ve{i},\sigma}.
+	   \hat{D}^{\dagger}_{\ve{i}}   =  \sum_{\sigma=1}^{N} \hat{c}^{\dagger}_{\ve{i},\sigma}  \hat{f}^{\phantom\dagger}_{\ve{i},\sigma}   \text{  and  }   \hat{n}^{f}_i =   \sum_{\sigma=1}^{N}    \hat{f}^{\dagger}_{i,\sigma}   \hat{f}^{\phantom\dagger}_{i,\sigma}.
 \end{equation*}
+Constraining the  equation to the physical space, $\hat{n}^{f}_i = N/2 $.
+\begin{align}
+	 \frac{2 J}{N} \sum_{i, a=1  }^{N^2 -1}  \hat{T}^{a,c}_{i}  \hat{T}^{a,f}_{i}   =     -  \frac{J}{4N}    \left[ \left(   \hat{D}^{\dagger}_{i}  + \hat{D}^{\phantom\dagger}_{i}    \right)^{2}  + 
+                                                       \left(  i\hat{D}^{\dagger}_{i}  - i  \hat{D}^{\phantom\dagger}_{i}    \right)^2  \right] + \frac{J}{4}  
+ \end{align}
+
 The  prefect square form  complies with the standards of the ALF.      We still have to impose the constraint. To do so, we first relax it and add a Hubbard  U-term on  the f-orbitals.    With this addition, the Hamiltonian we simulate reads: 
 
 \begin{align}
