@@ -8,7 +8,7 @@
 
 \section{  Model Classes }
 
-The ALF  library comes with five model classes. a) SU(N) Hubbard models, (b)  O(2N) t-V models, (c)   Kondo models, (d)    Models with long ranged coulomb and (e)  Generic $Z_2$ lattice gauges theories couples to $Z_2$ matter  and fermions.   Below we will 
+The ALF  library comes with five model classes. a) SU(N) Hubbard models, (b)  O(2N) t-V models, (c)   Kondo models, (d)    Models with long ranged coulomb and (e)  Generic $Z_2$ lattice gauges theories coupled to $Z_2$ matter  and fermions.   Below we will 
 detail the functioning of these classes.  
 
 
@@ -35,7 +35,7 @@ SU(N)   symmetry Hubbard model.
 \begin{eqnarray}
 \hat{H}= & & \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N}  T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    c^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
      \vec{A}(\ve{l})  d \ve{l}} c^{}_{(\ve{j},\ve{\delta}'),\sigma} 
-+ \sum_{\vec{i}} \sum_{\delta}   \frac{U_\delta}{N} \left(\sum_{\sigma=1}^{N}  \left[   \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } 
++ \sum_{\vec{i}} \sum_{\delta}   \frac{U_{\ve{\delta}} }{N} \left(\sum_{\sigma=1}^{N}  \left[   \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } 
     \hat{c}^{\phantom\dagger}_{(\vec{i}, \ve{\delta}),\sigma }  - 1/2  \right] \right)^2  \nonumber \\
     & & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } 
 \end{eqnarray}
@@ -101,6 +101,9 @@ The model is then defined as follows:
 The  generic hopping is taken from Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.    $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1 \cdots N$  and encodes  the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian.  $\mu$ corresponds to the chemical potential  and is relevant only for the finite temperature code. 
 
 \subsection{  SU(N) Kondo lattice models  \texttt{Kondo\_mod.F90}}
+
+\input{Kondo_SUN}
+
 
 
 \subsection{  Models with long range Coulomb interactions  \texttt{LRC\_mod.F90}}

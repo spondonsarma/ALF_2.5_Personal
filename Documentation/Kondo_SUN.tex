@@ -1,0 +1,71 @@
+% Copyright (c) 2016 2017 The ALF project.
+% This is a part of the ALF project documentation.
+% The ALF project documentation by the ALF contributors is licensed
+% under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% For the licensing details of the documentation see license.CCBYSA.
+% !TEX root = Model_classes.tex 
+
+
+The Kondo lattice model we consider reads is an SU(N) generalization of the SU(2) Kondo-model   discussed in \cite{Capponi00,Assaad99a}.   Let 
+$T^{a}$ be the  $N^2 -1  $ generators of SU($N$)   that  satisfy the normalization condition: 
+\begin{equation}
+	\text{Tr}  \left[ T^{a} T^{b} \right]   = \frac{1}{2}\delta_{a,b}.
+\label{Normalization_condition.eq}
+\end{equation}
+For the SU(2) case $T^{a}$  corresponds to the $T  = \frac{1}{2} \ve{\sigma}$ with $\ve{\sigma}$   a vector of the three Pauli spin matrices.      The   Hamiltonian is defined on bilayer  square or honeycomb lattices, with  hopping restricted to the  first layer  (i.e  conduction orbitals $\ve{c}^{\dagger}_{i}  )$   and  spins, f-orbitals, on the second layer. 
+\begin{equation}
+	\hat{H}     =   - t  \sum_{\langle i,j \rangle}    \sum_{\sigma=1}^{N}  \left(  \hat{c}^{\dagger}_{i,\sigma}  e^{\frac{2\pi i}{\Phi_0}  \int_{i}^{j} \ve{A}\cdot d \ve{l}}\hat{c}^{\phantom\dagger}_{j,\sigma}   + H.c.  \right)  - \mu \sum_{i,\sigma} \hat{c}^{\dagger}_{i,\sigma}  \hat{c}^{\phantom\dagger}_{i,\sigma} 
+	+    \frac{U_c}{N}  \sum_{i}   \left( \hat{n}^c_i -  \frac{N}{2} \right)^2  
+         +  \frac{2 J}{N} \sum_{i, a=1  }^{N^2 -1}  \hat{T}^{a,c}_{i}  \hat{T}^{a,f}_{i}. 
+\label{Kondo_SUN_Ham.eq}
+\end{equation}
+In the above,  $i$ is a super-index  accounting for the unit cell and orbital,
+\begin{equation}
+	 \hat{T}^{a,c}_{i}   =   \sum_{\sigma,\sigma'=1}^{N} \hat{c}^{\dagger}_{i,\sigma}T^{a}_{\sigma,\sigma'}  \hat{\ve{c}}^{\phantom\dagger}_{i,\sigma'}, \; \; 
+	  \hat{T}^{a,f}_{i}   = \sum_{\sigma,\sigma'=1}^{N} \hat{f}^{\dagger}_{i,\sigma} T^{a}_{\sigma,\sigma'}  \hat{f}^{\phantom\dagger}_{i,\sigma'},  
+	  \text{   and  }   \hat{n}^c_i  = \sum_{\sigma=1}^{N} \hat{c}_{i,\sigma}^{\dagger} \hat{c}_{i,\sigma}^{\phantom\dagger} 
+\end{equation}
+Finally, the constraint, 
+\begin{equation}
+   \sum_{\sigma=1}^{N}  \hat{f}^{\dagger}_{i,\sigma}   \hat{f}^{\phantom\dagger}_{i,\sigma}     = \frac{N}{2}
+\end{equation}
+holds.
+
+Some  rewriting has to be carried out so as to implement  the model.   First, we  use the  relation:
+\begin{equation*}
+	\sum_{a} T^{a}_{\alpha,\beta} T^{a}_{\alpha',\beta'} = \frac{1}{2} \left(  \delta_{\alpha,\beta'}  \delta_{\alpha',\beta} - \frac{1}{N} \delta_{\alpha,\beta} \delta_{\alpha', \beta'} \right), 
+\end{equation*}
+to  show that up to a constant: 
+\begin{equation}
+	 \frac{2 J}{N} \sum_{i, a=1  }^{N^2 -1}  \hat{T}^{a,c}_{i}  \hat{T}^{a,f}_{i}  =   - \frac{J}{2N} \sum_{i}  \left( 
+                \hat{D}^{\dagger}_{i} \hat{D}^{\phantom\dagger}_{i}   +    \hat{D}^{\phantom\dagger}_{i} \hat{D}^{\dagger}_{i}    \right)    
+                =   -  \frac{J}{4N}    \left[ \left(   \hat{D}^{\dagger}_{i}  + \hat{D}^{\phantom\dagger}_{i}    \right)^{2}  + 
+                                                       \left(  i\hat{D}^{\dagger}_{i}  - i  \hat{D}^{\phantom\dagger}_{i}    \right)^2  \right]
+ \end{equation}
+with, 
+\begin{equation*}
+	   \hat{D}^{\dagger}_{\ve{i}}   =  \sum_{\sigma=1}^{N} \hat{c}^{\dagger}_{\ve{i},\sigma}  \hat{f}^{\phantom\dagger}_{\ve{i},\sigma}.
+\end{equation*}
+The  prefect square form  complies with the standards of the ALF.      We still have to impose the constraint. To do so, we first relax it and add a Hubbard  U-term on  the f-orbitals.    With this addition, the Hamiltonian we simulate reads: 
+
+\begin{align}
+	\hat{H}_{QMC}      =  &   - t  \sum_{\langle i,j \rangle}    \sum_{\sigma=1}^{N}  \left(  \hat{c}^{\dagger}_{i,\sigma}  e^{\frac{2\pi i}{\Phi_0}  \int_{i}^{j} \ve{A}\cdot d \ve{l}}\hat{c}^{\phantom\dagger}_{j,\sigma}   + H.c.  \right)  - \mu \sum_{i,\sigma} \hat{c}^{\dagger}_{i,\sigma}  \hat{c}^{\phantom\dagger}_{i,\sigma} 
+	+    \frac{U_c}{N}  \sum_{i}   \left( \hat{n}^c_i -  \frac{N}{2} \right)^2   \nonumber \\
+          & -  \frac{J}{4N}    \left[ \left(   \hat{D}^{\dagger}_{i}  + \hat{D}^{\phantom\dagger}_{i}    \right)^{2}  + 
+                                                       \left(  i\hat{D}^{\dagger}_{i}  - i  \hat{D}^{\phantom\dagger}_{i}    \right)^2  \right]  
+       +    \frac{U_f}{N}  \sum_{i}   \left( \hat{n}^f_i -  \frac{N}{2} \right)^2,   
+\label{Kondo_SUN_Ham_QMC.eq}
+\end{align}
+with 
+\begin{equation*}
+ \hat{n}^f_i  = \sum_{\sigma=1}^{N} \hat{f}_{i,\sigma}^{\dagger} \hat{f}_{i,\sigma}^{\phantom\dagger}.
+\end{equation*}
+It is very important to note that 
+\begin{equation}
+	\langle[   \hat{H}_{QMC},  \left( \hat{n}^f_i -  \frac{N}{2} \right)^2  \rangle]    = 0  
+\end{equation}
+such that the  constraint is implemented very efficiently.  In fact, for the finite temperature code  at inverse temperature $\beta$,  the unphysical Hilbert space   is suppressed by a  
+factor  $e^{-\beta U} $. 
+
+
+

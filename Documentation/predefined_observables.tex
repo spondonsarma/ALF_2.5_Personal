@@ -136,10 +136,11 @@ Call Predefined_Obs_eq_Den_measure(Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, Z
 \end{lstlisting}
 Which returns:
 \begin{align}
-\texttt{Obs}(\ve{i}-\ve{j}, n_{\ve{i}}, n_{\ve{j}}) = \langle\hat{ N}_{\ve{i},n_{\ve{i}}}  \hat{N}_{\ve{j},n_{\ve{j}}}\rangle - \langle \hat{N}_{\ve{i},n_{\ve{i}}} \rangle  \langle \hat{N}_{\ve{j},n_{\ve{j}}}\rangle,
+\texttt{Obs}(\ve{i}-\ve{j}, n_{\ve{i}}, n_{\ve{j}}) = \langle  \langle\hat{ N}_{\ve{i},n_{\ve{i}}}  \hat{N}_{\ve{j},n_{\ve{j}}}\rangle - \langle \hat{N}_{\ve{i},n_{\ve{i}}} \rangle  \langle \hat{N}_{\ve{j},n_{\ve{j}}}\rangle \rangle_C,
 \end{align}
 where
 \begin{align}
+\label{Density_op.eq}
 \hat{N}_{\ve{i},n_{\ve{i}}}  = \sum_{\sigma=1}^{N_\text{col}} \sum_{s=1}^{N_\text{fl}}  \hat{c}^{\dagger}_{\ve{i},n_{\ve{i}},\sigma,s} \hat{c}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}},\sigma,s}.
 \end{align}
 
@@ -170,7 +171,7 @@ Call Predefined_Obs_tau_SpinSUN_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G0
 \texttt{Obs}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} )= \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  \;
     \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}    \rangle  \rangle_{C}
 \end{align}
-where $T^a$ are the generators of $SU(N)$ (see Sec.~\ref{SU_N_equal_time.sec}  for more details) 
+where $T^a$ are the generators of $SU(N)$ (see Sec.~\ref{SU_N_equal_time.sec}  for more details).
 
 
 \subsubsection{Time-displaced spin correlations}
@@ -181,11 +182,14 @@ Call Predefined_Obs_tau_SpinMz_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00
                                        N_SUN, ZS, ZP,  ObsZ, ObsXY, ObsXYZ)
 \end{lstlisting}
 Which calculates the following observables:
-\begin{align}
-\texttt{ObsZ}   &= 4\langle c^{\dagger}_i(\tau) S^z c_i(\tau)  c^{\dagger}_j S^z  c_j\rangle\\
-\texttt{ObsXY}  &= 2 \left(\langle c^{\dagger}_i(\tau) S^x c_i(\tau) c^{\dagger}_j S^x c_j\rangle  +  \langle c^{\dagger}_i(\tau) S^y c_i(\tau)  c^{\dagger}_j S^y c_j\rangle \right)\\
-\texttt{ObsXYZ} &= \frac{2\cdot\texttt{ObsXY} + \texttt{ObsZ}}{3}.
-\end{align}
+\begin{eqnarray}
+\texttt{ObsZ}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) &= & 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }(\tau)   \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  -   {\color{red} 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } \rangle \rangle_{C}  \langle \langle \  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  } \nonumber \\  
+\texttt{ObsXY} (\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) &= & 
+  2 \left( \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) S^x \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } (\tau)  \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^x  
+\ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  +
+\langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) S^y \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }(\tau)   \;  \ve{c}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^y  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  \right)  \nonumber \\
+\texttt{ObsXYZ} &= & \frac{2\cdot\texttt{ObsXY} + \texttt{ObsZ}}{3}.
+\end{eqnarray}
 
 
 \subsubsection{Time-displaced density-density correlations}
@@ -197,5 +201,6 @@ Call Predefined_Obs_tau_Den_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, G
 \end{lstlisting}
 Which returns:
 \begin{align}
-\texttt{Obs} = \langle N_i(\tau) N_j\rangle - \langle N_i\rangle  \langle N_j\rangle.
-\end{align}
+\texttt{Obs}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) = \langle  \langle \hat{ N}_{\ve{i},n_{\ve{i}}} (\tau)  \hat{N}_{\ve{j},n_{\ve{j}}}\rangle - \langle \hat{N}_{\ve{i},n_{\ve{i}}} \rangle  \langle \hat{N}_{\ve{j},n_{\ve{j}}}\rangle \rangle_C.
+ \end{align}
+ The density operator is defined in Eq.~\ref{Density_op.eq}.
