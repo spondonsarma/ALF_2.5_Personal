@@ -128,7 +128,7 @@
       Use Fields_mod
       Use Predefined_Hoppings
       Use LRC_Mod
-
+      use iso_fortran_env, only: output_unit, error_unit
       
       Implicit none
 
@@ -154,7 +154,7 @@
       Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
       real (Kind=Kind(0.d0)),        private :: ham_U2, ham_JK
-      real (Kind=Kind(0.d0)),        private :: Phi_Y , Phi_X
+      real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
@@ -200,7 +200,7 @@
           NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_U, ham_U2, ham_JK
           
 
-#Ifdef MPI
+#ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
@@ -237,13 +237,13 @@
 #endif
              OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
              IF (ierr /= 0) THEN
-                WRITE(*,*) 'unable to open <parameters>',ierr
-                STOP
+                WRITE(error_unit,*) 'unable to open <parameters>',ierr
+                error stop 1
              END IF
              READ(5,NML=VAR_lattice)
              If ( .not. ( Lattice_type == "Bilayer_square" .or.  Lattice_type == "Bilayer_honeycomb") ) then
-                Write(6,*) "The Kondo Hamiltonian is only defined for bilayer lattices"
-                stop
+                Write(error_unit,*) "The Kondo Hamiltonian is only defined for bilayer lattices"
+                error stop 1
              endif
              READ(5,NML=VAR_Model_Generic)
              READ(5,NML=VAR_Kondo)
@@ -280,8 +280,8 @@
 #endif
 
           IF ( N_FL > 1 ) then
-             Write(6,*) 'For the Kondo systems, N_FL has  to be equal to unity'
-             Stop
+             Write(error_unit,*) 'For the Kondo systems, N_FL has  to be equal to unity'
+             error stop 1 
           Endif
           ! Setup the Bravais lattice
           Call  Ham_Latt

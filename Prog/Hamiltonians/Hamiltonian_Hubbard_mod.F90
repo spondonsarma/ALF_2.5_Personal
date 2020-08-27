@@ -487,17 +487,10 @@
         Subroutine Ham_V
 
           Use Predefined_Int
-<<<<<<< HEAD
           Implicit none 
           
           Integer :: nf, I, I1, I2,  nc,  J, no,  N_ops 
           Real (Kind=Kind(0.d0)) :: X,  Zero = 1.D-10
-=======
-          Implicit none
-
-          Integer :: nf, I, I1, I2,  nc, nc1,  J, no
-          Real (Kind=Kind(0.d0)) :: X
->>>>>>> master
           Real (Kind=Kind(0.d0)), allocatable :: Ham_U_vec(:)
 
 
@@ -520,14 +513,10 @@
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
                    I = invlist(I1,no)
-<<<<<<< HEAD
                    if (abs(Ham_U_vec(no)) > Zero ) then
                       nc = nc + 1
                       Call Predefined_Int_U_MZ ( OP_V(nc,1), OP_V(nc,2), I,  DTAU, Ham_U_vec(no) )
                    endif
-=======
-                   Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U_vec(no) )
->>>>>>> master
                 enddo
              enddo
           else
