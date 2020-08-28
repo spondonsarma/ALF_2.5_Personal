@@ -12,10 +12,10 @@ All the necessary data structures necessary to implement a given model have been
 \mathcal{H}=
 - t 
 \sum\limits_{\langle \ve{i}, \ve{j} \rangle,  \sigma={\uparrow,\downarrow}} 
-  \left(  c^{\dagger}_{\ve{i}, \sigma} c^{\phantom\dagger}_{\ve{j},\sigma}  + H.c. \right) 
+  \left(  \hat{c}^{\dagger}_{\ve{i}, \sigma} \hat{c}^{\phantom\dagger}_{\ve{j},\sigma}  + H.c. \right) 
 - \frac{U}{2}\sum\limits_{\ve{i}}\left[
-c^{\dagger}_{\ve{i}, \uparrow} c^{\phantom\dagger}_{\ve{i}, \uparrow}  -   c^{\dagger}_{\ve{i}, \downarrow} c^{\phantom\dagger}_{\ve{i}, \downarrow}  \right]^{2}   
--  \mu \sum_{\ve{i},\sigma } c^{\dagger}_{\ve{i}, \sigma}  c^{\phantom\dagger}_{\ve{i},\sigma}. 
+\hat{c}^{\dagger}_{\ve{i}, \uparrow} \hat{c}^{\phantom\dagger}_{\ve{i}, \uparrow}  -   \hat{c}^{\dagger}_{\ve{i}, \downarrow} \hat{c}^{\phantom\dagger}_{\ve{i}, \downarrow}  \right]^{2}   
+-  \mu \sum_{\ve{i},\sigma } \hat{c}^{\dagger}_{\ve{i}, \sigma}  \hat{c}^{\phantom\dagger}_{\ve{i},\sigma}. 
 \end{equation} 
 Here $ \langle \ve{i}, \ve{j} \rangle $    denotes nearest neighbors. 
 We can make contact with the general form of the Hamiltonian  (see Eq.~\ref{eqn:general_ham}) by setting: 
@@ -254,7 +254,7 @@ enddo
 
 The equal-time  Green function,
 \begin{equation}
-	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle c^{\phantom{\dagger}}_{x,\sigma} c^{\dagger}_{y,\sigma}  \rangle,
+	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle \hat{c}^{\phantom{\dagger}}_{x,\sigma} \hat{c}^{\dagger}_{y,\sigma}  \rangle,
 \end{equation}
 the  phase factor \texttt{phase} [Eq.~(\ref{eqn:phase})], and time slice \texttt{Ntau}   are provided by the main program.  
 
@@ -347,9 +347,9 @@ The  executable \texttt{Plain\_}
 
 To test the code, one can carry out   high precision  simulations.  
 To  compile and run the code, it is convenient to use \texttt{pyALF}: 
-\begin{lstlisting}[style=fortran]
-python3 Run.py -R --alfdir   $HOME/ALF  --machine Intel --mpi MPI --n_mpi 12   
-                 --ham_name_R  Hubbard_Plain_Vanilla
+\begin{lstlisting}[style=bash]
+python3 Run.py -R --alfdir   $HOME/ALF  --machine Intel --mpi MPI --n_mpi 12 \
+                --ham_name_R  Hubbard_Plain_Vanilla
 \end{lstlisting}
 
 \paragraph{One dimensional case} 

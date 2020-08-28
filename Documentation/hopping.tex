@@ -18,12 +18,12 @@ The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify 
 
 The generic Hopping Hamiltonian  reads: 
 \begin{equation}
-\hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    c^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}^{(s)}(\vec{l})  d \vec{l}} c^{}_{(j,\delta'),s,\sigma }
+\hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    \hat{c}^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'}  \vec{A}^{(s)}(\vec{l})  d \vec{l}} \hat{c}^{}_{(j,\delta'),s,\sigma }
 \label{generic_hopping.eq}
 \end{equation}
 with boundary conditions 
 \begin{equation}
-c^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i^{(s)}}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi^{(s)}_{L_i} ( i + \delta ) } \, c^{\dagger}_{(i,\delta) ,s,\sigma }.
+\hat{c}^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i^{(s)}}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi^{(s)}_{L_i} ( i + \delta ) } \, \hat{c}^{\dagger}_{(i,\delta) ,s,\sigma }.
 \label{generic_boundary.eq}
 \end{equation}
 Both the twist and  vector  potential can have a flavor dependency. For now onwards we will  mostly omit the flavor index ${s}$.\\
@@ -83,7 +83,7 @@ The right  hand side of the above equation is given  the type  \texttt{Hopping\_
 \begin{equation}
 \hat{\mathcal{H}}_{T}     = \sum_{i=1}^{N_T} \sum_{k \in \mathcal{S}^{T}_i} \hat{T}^{(k)},  
 \end{equation}
-with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \left[ \hat{T}^{(k)} , \hat{T}^{(k')} \right] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.    The checkerboard decomposition depends on the   lattice type, as well as on the hopping matrix elements.   The required  information is stored in  \texttt{Hopping\_matrix\_type}. In this data type,  \texttt{N\_FAM}  corresponds to the number of sets  (or families) ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM)}   corresponds to the number of bonds in the set,  and finally,  \texttt{LIST\_FAM(1:N\_FAM, 1:max(L\_FAM(:)), 2)}    contains  information concerning the two legs of the bonds.    In the checkerboard decomposition, care has to be taken for local terms: each site  occurs multiple times in the list of bonds.    Since we have postulated translation symmetry,    a one-dimensional array, \texttt{Multiplicity},  of length  given by  the number of orbitals per unit cell suffices to  encode the required information.  
+with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \big[ \hat{T}^{(k)} , \hat{T}^{(k')} \big] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.    The checkerboard decomposition depends on the   lattice type, as well as on the hopping matrix elements.   The required  information is stored in  \texttt{Hopping\_matrix\_type}. In this data type,  \texttt{N\_FAM}  corresponds to the number of sets  (or families) ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM)}   corresponds to the number of bonds in the set,  and finally,  \texttt{LIST\_FAM(1:N\_FAM, 1:max(L\_FAM(:)), 2)}    contains  information concerning the two legs of the bonds.    In the checkerboard decomposition, care has to be taken for local terms: each site  occurs multiple times in the list of bonds.    Since we have postulated translation symmetry,    a one-dimensional array, \texttt{Multiplicity},  of length  given by  the number of orbitals per unit cell suffices to  encode the required information.  
 Finally, to be able to generate  the imaginary time step of length $\Delta \tau$  we  have to know   by which fraction of  $\Delta \tau$   we have to propagate each set.  This information is given in  the array  \texttt{Prop\_Fam}.  
 
 As an  example we can consider the three leg ladder lattice of Figure \ref{fig_predefined_lattices}(c).   Here the number of sets (or families) \texttt{N\_FAM}  is equal to four  corresponding to the red, green, black and blue  bonds.  As apparent,  bonds in a given set do not have common legs such that hopping instances on the bonds of a given set commute.     For this three leg ladder  it is apparent that the  second orbital in a unit cell appears  in each set or family. It hence has a multiplicity of four. On the other hand, the top and bottom orbitals have a multiplicity of 3 since they appear in only three of the four sets. 

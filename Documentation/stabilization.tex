@@ -89,17 +89,20 @@ and
   \underbrace{\frac{\Delta \tau ^3}{96}  \sum_{j=1}^{N_T-1} \left[ 2\hat{T}_j + \hat{T}^{>}_j, \left[\hat{T}^{>}_{j}, \hat{T}_j \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{T}}    + \mathcal{O}\left(  \Delta  \tau^5 \right) 
 \end{equation}
 we can derive  a  closed equation  for  the free energy density:
-\begin{eqnarray}
-f_{\text{Approx} }  =    
-   -\frac{1}{\beta V } \log \text{Tr } & & \left[   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
+\begin{align}
+f_{\text{Approx} }  &=  
+\begin{aligned}[t]
+   -\frac{1}{\beta V } \log \Tr &\left[ \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)     \right. \nonumber \\   
-      & & \left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
+   &\left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
      \left( \prod_{i=N_O-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)   \nonumber  \\
-     & & \left.   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
+   &\left.   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)   
-   \right]^{L_{\text{Trotter}}}     \nonumber  \\ 
-   = & &  f    - \frac{1}{V}   \langle \hat{\lambda}_{TO} + \hat{\lambda}_{O} + 2 \hat{\lambda}_{T} \rangle  + \mathcal{O}( \Delta \tau ^5). 
-\end{eqnarray}
+   \right]^{L_{\text{Trotter}}}  \nonumber 
+\end{aligned}\\
+   &= f    - \frac{1}{V}   \langle \hat{\lambda}_{TO} + \hat{\lambda}_{O} + 2 \hat{\lambda}_{T} \rangle  + \mathcal{O}( \Delta \tau ^5).
+\end{align}
+
 The following comments are in order:
 \begin{itemize}
 \item   The approximate imaginary-time propagation from which the $f_{\text{Approx} } $ is derived is Hermitian.  Hence no spurious effects in imaginary-time correlation functions are to be expected.  This is explicitly shown in Fig.~\ref{Trotter.fig}(a).

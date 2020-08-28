@@ -32,7 +32,7 @@ The $SU(N)$ Hubbard interaction on a given site $i$ is given by
 \hat{\mathcal{H}}_{V,i} =
 + \frac{U}{N_{\mathrm{col}}}\left[
 \sum\limits_{\sigma=1}^{N_{\mathrm{col}}}
-\left(  c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{i\sigma}  -1/2 \right) \right]^{2}.
+\left(  \hat{c}^{\dagger}_{i \sigma} \hat{c}^{\phantom\dagger}_{i\sigma}  -1/2 \right) \right]^{2}.
 \end{align} 
 Assuming that no other term in the Hamiltonian breaks the $SU(N) $ color symmetry, then this interaction term conveniently corresponds to  a single operator, obtained by calling, for each of the $N_{\mathrm{dim}}$ sites $i$:
 \begin{lstlisting}[style=fortran]
@@ -64,7 +64,7 @@ The $M_z$-Hubbard interaction is given by
 \begin{align}
 %\label{eqn_hubbard_Mz}
 \hat{\mathcal{H}}_{V} = - \frac{U}{2}\sum\limits_{i}\left[
-c^{\dagger}_{i \uparrow} c^{\phantom\dagger}_{i \uparrow}  -   c^{\dagger}_{i \downarrow} c^{\phantom\dagger}_{i \downarrow}  \right]^{2},
+\hat{c}^{\dagger}_{i \uparrow} \hat{c}^{\phantom\dagger}_{i \uparrow}  -   \hat{c}^{\dagger}_{i \downarrow} \hat{c}^{\phantom\dagger}_{i \downarrow}  \right]^{2},
 \end{align} 
 which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by setting: 
 $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN} =1 $,  $M_V =  N_{\text{unit-cell}} $,  $U_{k} = \frac{U}{2}$, 
@@ -94,7 +94,7 @@ Call Predefined_Int_V_SUN( OP, I, J, N_SUN, DTAU, V )
 The interaction term of the generalized t-V model, given by 
 \begin{align}
 \hat{\mathcal{H}}_{V,i,j} =
--\frac{V}{N_\mathrm{col}}\left[ \sum_{\sigma=1}^{N_\mathrm{col}}\left( c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{j \sigma} + c^{\dagger}_{j \sigma} c^{\phantom\dagger}_{i \sigma} \right) \right]^2,
+-\frac{V}{N_\mathrm{col}}\left[ \sum_{\sigma=1}^{N_\mathrm{col}}\left( \hat{c}^{\dagger}_{i \sigma} \hat{c}^{\phantom\dagger}_{j \sigma} + \hat{c}^{\dagger}_{j \sigma} \hat{c}^{\phantom\dagger}_{i \sigma} \right) \right]^2,
 \end{align} 
 is coded in the subroutine \texttt{Predefined\_Int\_V\_SUN} by a single symmetric operator:
 \begin{lstlisting}[style=fortran]
@@ -119,7 +119,7 @@ The interaction between the Ising and a fermion degree of freedom, given by
 \begin{align}
 %\label{eqn_hubbard_sun_Ising}
 \hat{\mathcal{H}}_{V,i,j} =
-\hat{Z}_{i,j} \xi  \sum_{\sigma=1}^{N_\mathrm{col}}\left( c^{\dagger}_{i \sigma} c^{\phantom\dagger}_{j \sigma} + c^{\dagger}_{j \sigma} c^{\phantom\dagger}_{i \sigma} \right),
+\hat{Z}_{i,j} \xi  \sum_{\sigma=1}^{N_\mathrm{col}}\left( \hat{c}^{\dagger}_{i \sigma} \hat{c}^{\phantom\dagger}_{j \sigma} + \hat{c}^{\dagger}_{j \sigma} \hat{c}^{\phantom\dagger}_{i \sigma} \right),
 \end{align} 
 where $\xi$ determines the coupling strength, is implemented in the subroutine \texttt{Predefined\_Int\_Ising\_SUN}:
 \begin{lstlisting}[style=fortran]

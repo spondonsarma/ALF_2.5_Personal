@@ -33,8 +33,8 @@ In the above   \texttt{ham\_T} and \texttt{ham\_T2}   correspond to the hopping 
  \texttt{ham\_U}  for the first and  \texttt{ham\_U2}   for the second layers.  Finally   \texttt{ham\_chem}  corresponds to the chemical potential.     If  the flag \texttt{Mz} is set to \texttt{.False.},   then the code will simulate the  following 
 SU(N)   symmetry Hubbard model. 
 \begin{eqnarray}
-\hat{H}= & & \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N}  T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    c^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
-     \vec{A}(\ve{l})  d \ve{l}} c^{}_{(\ve{j},\ve{\delta}'),\sigma} 
+\hat{H}= & & \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N}  T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{c}^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
+     \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{(\ve{j},\ve{\delta}'),\sigma} 
 + \sum_{\vec{i}} \sum_{\delta}   \frac{U_{\ve{\delta}} }{N} \left(\sum_{\sigma=1}^{N}  \left[   \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } 
     \hat{c}^{\phantom\dagger}_{(\vec{i}, \ve{\delta}),\sigma }  - 1/2  \right] \right)^2  \nonumber \\
     & & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } 
@@ -43,14 +43,14 @@ The  generic hopping is taken fron Eq.~\ref{generic_hopping.eq}   with appropria
 
 If the variable \texttt{Mz} is set to \texttt{.True.}, then the code    will require  \texttt{N\_SUN}  to be even and will simulate the following Hamiltonian. 
 
-\begin{eqnarray}
-\hat{H}= & & \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N/2}  \sum_{s=1,2} T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    c^{\dagger}_{(\ve{i},\ve{\delta}), \sigma,s }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
-     \vec{A}(\ve{l})  d \ve{l}} c^{}_{(\ve{j},\ve{\delta}'),\sigma,s}     \nonumber   \\
-    & & - \sum_{\vec{i}} \sum_{\delta}   \frac{U_\delta}{N} \left(\sum_{\sigma=1}^{N/2}  \left[   \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma, 2} 
+\begin{align}
+\hat{H} =& \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N/2}  \sum_{s=1,2} T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{c}^{\dagger}_{(\ve{i},\ve{\delta}), \sigma,s }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
+     \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{(\ve{j},\ve{\delta}'),\sigma,s}     \nonumber   \\
+    &- \sum_{\vec{i}} \sum_{\delta}   \frac{U_\delta}{N} \left(\sum_{\sigma=1}^{N/2}  \left[   \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma, 2} 
     \hat{c}^{\phantom\dagger}_{(\vec{i}, \ve{\delta}),\sigma,2 }  -  \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma, 1} 
     \hat{c}^{\phantom\dagger}_{(\vec{i}, \ve{\delta}),\sigma,1} \right] \right)^2  \nonumber \\
-    & & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N/2}  \sum_{s=1,2}\hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma, s} \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma, s} 
-\end{eqnarray}
+    & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N/2}  \sum_{s=1,2}\hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma, s} \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma, s}.
+\end{align}
 In this case, the flavor index \texttt{N\_FL}   takes the value 2. Cleary at $N=2$, both modes  correspond  to the Hubbard model.  For $N$  even and $N > 2$  the models differ.  In particular  in the latter  Hamiltonian the U(N) symmetry is broken down to  U(N/2) $\otimes $U(N/2).  
 
 Since this model class  works for all predefined lattices  (see Fig.~\ref{fig_predefined_lattices})  is includes the SU(N) periodic Anderson model on   the square and Honeycomb lattices.     Finally,  we note that the executable for this class is given by \texttt{Hubbard.out}
@@ -87,17 +87,17 @@ ham_Vperp = 1.d0            ! For bilayer systems
 \end{lstlisting}
 In the above   \texttt{ham\_T} and \texttt{ham\_T2} and \texttt{ham\_Tperp}   correspond to the hopping in the first and second layers respectively and  \texttt{ham\_Tperp}   is to the interlayer hopping.   The interaction term has an orbital index, 
 \texttt{ham\_V}  for the first and  \texttt{ham\_V2}  for the second layers,  and \texttt{ham\_Vperp} for interlayer coupling.  Finally   \texttt{ham\_chem}  corresponds to the chemical potential. Let us define the operator
-\begin{eqnarray}
-\hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle} & = &  \sum_{\sigma =1}^{N}    c^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
-	\vec{A}(\ve{l})  d \ve{l}} c^{}_{(\ve{j},\ve{\delta}'),\sigma} 
-+ \textrm{H.c.} \,.
-\end{eqnarray}
+\begin{equation}
+\hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle} =  \sum_{\sigma =1}^{N}    \hat{c}^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
+	\vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{(\ve{j},\ve{\delta}'),\sigma} 
++ \textrm{H.c.}
+\end{equation}
 The model is then defined as follows:
-\begin{eqnarray}
-\hat{H}= & & \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}   T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}
+\begin{align}
+\hat{H}= & \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}   T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}
 + \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \frac{V_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}}{N} \left(  \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \right)^2  \nonumber \\
-& & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } \,.
-\end{eqnarray}
+& - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } \,.
+\end{align}
 The  generic hopping is taken from Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.    $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1 \cdots N$  and encodes  the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian.  $\mu$ corresponds to the chemical potential  and is relevant only for the finite temperature code. 
 
 \subsection{  SU(N) Kondo lattice models  \texttt{Kondo\_mod.F90}}
