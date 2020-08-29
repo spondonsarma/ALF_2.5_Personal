@@ -10,7 +10,8 @@ from py_alf import Simulation            # Interface with ALF
 import numpy as np                       # Numerical library
 sims = []                                # Vector of Simulation instances
 #for Ham_Uf in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
-for Ham_Uf in [1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0]:           # Values of Uf
+#for Ham_Uf in [1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0]:           # Values of Uf
+for Ham_Uf in [0.1]:
     print(Ham_Uf)
     sim_dict = {"Model": "Kondo", 
                 "Lattice_type": "Bilayer_square", 
@@ -32,7 +33,7 @@ Con = np.empty((len(sims), 2))          # Matrix for storing energy values
 Uf  = np.empty((len(sims),))           # Matrix for Dtau values, for plotting
 for i, sim in enumerate(sims):
     print (sim.sim_dir)
-    sim.run()
+    #sim.run()
     print (sim.sim_dir)
     sim.analysis() 
     Uf[i] = sim.sim_dict['Ham_Uf']                             # Store Uf value
