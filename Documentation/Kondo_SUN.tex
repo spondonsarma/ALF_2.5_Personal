@@ -27,7 +27,7 @@ In the above,  $i$ is a super-index  accounting for the unit cell and orbital,
 \end{equation}
 Finally, the constraint, 
 \begin{equation}
-   \sum_{\sigma=1}^{N}  \hat{f}^{\dagger}_{i,\sigma}   \hat{f}^{\phantom\dagger}_{i,\sigma}     = \frac{N}{2}
+   \sum_{\sigma=1}^{N}  \hat{f}^{\dagger}_{i,\sigma}   \hat{f}^{\phantom\dagger}_{i,\sigma}  \equiv  \hat{n}^{f}_i = \frac{N}{2}
 \end{equation}
 holds.
 
@@ -42,7 +42,7 @@ to  show that  in the unconstrained Hilbert space,
  \end{align}
 with
 \begin{equation*}
-	   \hat{D}^{\dagger}_{i}   =  \sum_{\sigma=1}^{N} \hat{c}^{\dagger}_{i,\sigma}  \hat{f}^{\phantom\dagger}_{i,\sigma}   \text{  and  }   \hat{n}^{f}_i =   \sum_{\sigma=1}^{N}    \hat{f}^{\dagger}_{i,\sigma}   \hat{f}^{\phantom\dagger}_{i,\sigma}.
+	   \hat{D}^{\dagger}_{i}   =  \sum_{\sigma=1}^{N} \hat{c}^{\dagger}_{i,\sigma}  \hat{f}^{\phantom\dagger}_{i,\sigma}.
 \end{equation*}
 In the constrained Hilbert space, $\hat{n}^{f}_i = N/2 $, the above gives:
 \begin{align}
@@ -124,10 +124,15 @@ The parameter space for this model class  reads:
 &VAR_Kondo                 !! Variables for the Kondo  class
 ham_T     = 1.d0            ! Hopping parameter
 ham_chem  = 0.d0            ! Chemical potential
-ham_U     = 0.d0            ! Hubbard interaction  on  c-orbitals Uc
-ham_U2    = 2.d0            ! Hubbard interaction  on  f-orbials  Uf
+ham_Uc    = 0.d0            ! Hubbard interaction  on  c-orbitals Uc
+ham_Uf    = 2.d0            ! Hubbard interaction  on  f-orbials  Uf
 ham_JK    = 2.d0            ! Kondo Coupling  J
 /
 \end{lstlisting}
 
+Aside from the usual observables  we have included  the scalar observable \texttt{Constraint\_scal}    that measures 
+\begin{equation}
+	\left<    \sum_{i}   \left( \hat{n}_i^f - \frac{N}{2} \right)^2 \right>
+\end{equation}
+$U_f$   has to be chosen large enough  such that  the above quantity vanishes within statistical uncertainty. 
 

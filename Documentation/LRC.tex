@@ -1,28 +1,27 @@
-% Copyright (c) 2016-2019 The ALF project.
+% Copyright (c) 2016-2020 The ALF project.
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
-% !TEX root = doc.tex
+% !TEX root = Model_classes.tex 
 
-\subsubsection{Long range Coulomb}
-
-The model we consider here reads: 
+The model we consider  here is  defined  for \texttt{N\_FL=1},  arbitrary values of \texttt{N\_SUN}  and  supports all the predefined lattices.  It  reads: 
 \begin{equation}
-	\hat{H}  = -t \sum_{\vec{i},\vec{j},\sigma=1}^{N}   \hat{c}^{\dagger}_{\vec{i},\sigma}  T_{\vec{i},\vec{j}} \hat{c}^{}_{\vec{j},\sigma}   +     
-	\frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{\vec{i}} -  \frac{N}{2}  \right)  V_{\vec{i},\vec{j}} \left(  \hat{n}_{\vec{j}} -  \frac{N}{2}  \right), \; \; 
-	\text{ with }  \hat{n}_{\vec{i}} = \sum_{\sigma=1}^{N}  \hat{c}^{\dagger}_{\vec{i},\sigma}  \hat{c}^{}_{\vec{i},\sigma}.
+\hat{H}=  \sum_{i,j}  \sum_{\sigma =1}^{N}  T_{i, j}    \hat{c}^{\dagger}_{i, \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i}^{j}  
+     \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{j,\sigma}   -
+     \frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{i} -  \frac{N}{2}  \right)  V_{i,j} \left(  \hat{n}_{j} -  \frac{N}{2}  \right)
+      - \mu \sum_{i}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{i,\sigma } \hat{c}^{\phantom\dagger}_{i,\sigma}
 \end{equation}
-The interaction is specified in the following way: 
+In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are super-indices encoding the unit-cell and orbital.   For simplicity, the interaction is specified with two  parameters, $U$ and $\alpha$ that monitor the  strength of the onsite interaction and the magnitude of the Coulomb tail  respectively.  
 \begin{equation}
-	V_{\vec{i}, \vec{j}}   =   U \left\{
+	V_{i, j}     \equiv = V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )   U \left\{
 	\begin{array}{ll}  
-	1          &   \text{ if } \vec{i} - \vec{j}    = 0 \\
-	\frac{\alpha   \;   d_\mathrm{min}}{ |   \vec{i} - \vec{j} | } &     \text{ otherwise }
+	1          &   \text{ if }  i = j    \\
+	\frac{\alpha   \;   d_\mathrm{min}}{  {  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}   } &     \text{ otherwise }
 	\end{array}
 \right.
 \end{equation}
-Here $d_\mathrm{min}$ is the minimal distance between two orbitals.     The code uses the following  HS decomposition:
+Here $d_\mathrm{min}$ is the minimal distance between two orbitals.  Since  we use periodic boundary conditions   $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.    The code uses the following  HS decomposition:
 \begin{equation}
 e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) } 
 \end{equation}
@@ -38,6 +37,6 @@ The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \ve
 \begin{equation}
 	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_\mathrm{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
 \end{equation}
-Here  we use periodic boundary conditions such that  $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.
+
 
 
