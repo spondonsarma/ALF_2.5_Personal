@@ -252,7 +252,8 @@ C.~W. Gardiner, {\em Handbook of Stochastic Methods} (Springer, ADDRESS, 1985).
 S. Beyl, Doctoral thesis, Universit{\"a}t W{\"u}rzburg, 2020.
 
 \bibitem{WangZ20}
-Z. Wang, M.~P. Zaletel, R.~S.~K. Mong, and F.~F. Assaad, arXiv:2003.08368  .
+Z. Wang, R.~S.~K. Mong, and F.~F. Zaletel, Michael P. and.~Assaad, arXiv:20****
+   .
 
 \bibitem{Bai2011}
 Z. Bai, C. Lee, R.-C. Li, and S. Xu, Linear Algebra and its Applications
@@ -308,6 +309,14 @@ M. Bercx, T.~C. Lang, and F.~F. Assaad, Phys. Rev. B \textbf{ 80},  045412
 A. Parola, S. Sorella, M. Parrinello, and E. Tosatti, Phys. Rev. B \textbf{
   43},  6190  (1991).
 
+\bibitem{Raczkowski20}
+M. Raczkowski and F.~F. Assaad, Phys. Rev. Research \textbf{ 2},  013276
+  (2020).
+
+\bibitem{Beach04}
+K.~S.~D. Beach, P.~A. Lee, and P. Monthoux, Phys. Rev. Lett. \textbf{ 92},
+  026401  (2004).
+
 \bibitem{Beach04a}
 K.~S.~D. {Beach}, eprint arXiv:cond-mat/0403055  (2004).
 
@@ -327,14 +336,6 @@ R. Brower, C. Rebbi, and D. Schaich, PoS(Lattice 2011)056 (arXiv:1204.5424)  .
 \bibitem{Xu16}
 X.~Y. {Xu}, K.~S.~D. {Beach}, K. {Sun}, F.~F. {Assaad}, and Z.~Y. {Meng},
   ArXiv:1602.07150  (2016).
-
-\bibitem{Beach04}
-K.~S.~D. Beach, P.~A. Lee, and P. Monthoux, Phys. Rev. Lett. \textbf{ 92},
-  026401  (2004).
-
-\bibitem{SatoT17_1}
-T. Sato, F.~F. Assaad, and T. Grover, Phys. Rev. Lett. \textbf{ 120},  107201
-  (2018).
 
 \bibitem{Li15}
 Z.-X. Li, Y.-F. Jiang, and H. Yao, New Journal of Physics \textbf{ 17},  085003
