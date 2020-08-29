@@ -152,8 +152,8 @@
       Type (Unit_cell),     private :: Latt_unit
       Integer,              private :: L1, L2
       Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
-      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
-      real (Kind=Kind(0.d0)),        private :: ham_U2, ham_JK
+      real (Kind=Kind(0.d0)),        private :: ham_T , ham_Uc,  Ham_chem
+      real (Kind=Kind(0.d0)),        private :: ham_Uf, ham_JK
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
@@ -197,7 +197,7 @@
 
           NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
 
-          NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_U, ham_U2, ham_JK
+          NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_Uc, ham_Uf, ham_JK
           
 
 #ifdef MPI
@@ -214,7 +214,8 @@
           Phi_X        = 0.d0
           Phi_Y        = 0.d0
           N_Phi        = 0
-          Ham_U2       = 0.d0
+          Ham_Uf       = 0.d0
+          Ham_Uc       = 0.d0
           Ham_JK       = 0.d0
 
           
@@ -274,8 +275,8 @@
           CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_chem    ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_U       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_U2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(ham_Uc      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(ham_Uf      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_JK      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
 #endif
 
@@ -322,8 +323,8 @@
              Write(50,*) 'N_SUN         : ',   N_SUN
              Write(50,*) 'N_FL          : ', N_FL
              Write(50,*) 't             : ', Ham_T
-             Write(50,*) 'Ham_U         : ', Ham_U
-             Write(50,*) 'Ham_U2        : ', Ham_U2
+             Write(50,*) 'Ham_Uc        : ', Ham_Uc
+             Write(50,*) 'Ham_Uf        : ', Ham_Uf
              Write(50,*) 'Ham_JK        : ', Ham_JK
              Write(50,*) 'Ham_chem      : ', Ham_chem
              Close(50) 
@@ -473,8 +474,8 @@
           
 
           N_ops = 0
-          if (abs(Ham_U)  > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
-          if (abs(Ham_U2) > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
+          if (abs(Ham_Uc)  > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
+          if (abs(Ham_Uf) > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
           if (abs(Ham_JK) > Zero ) Then
              if (N_SUN == 2 ) then
                 N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
@@ -486,21 +487,21 @@
           Endif
           Allocate(Op_V(N_ops,N_FL))
           nc = 0
-          if ( abs(Ham_U)  > Zero ) then
+          if ( abs(Ham_Uc)  > Zero ) then
              Do I = 1,Latt%N
                 do no = 1, Latt_unit%Norb/2
                    I1 = invlist(I,no)
                    nc = nc + 1
-                   Call Predefined_Int_U_SUN(  OP_V(nc,1), I1, N_SUN, DTAU, Ham_U )
+                   Call Predefined_Int_U_SUN(  OP_V(nc,1), I1, N_SUN, DTAU, Ham_Uc )
                 enddo
              Enddo
           Endif
-          if ( abs(Ham_U2)  > Zero ) then
+          if ( abs(Ham_Uf)  > Zero ) then
              Do I = 1,Latt%N
                 do no =  Latt_unit%Norb/2 + 1, Latt_unit%Norb
                    I1 = invlist(I,no)
                    nc = nc + 1
-                   Call Predefined_Int_U_SUN(  OP_V(nc,1), I1, N_SUN, DTAU, Ham_U2 )
+                   Call Predefined_Int_U_SUN(  OP_V(nc,1), I1, N_SUN, DTAU, Ham_Uf )
                 enddo
              Enddo
           Endif
@@ -551,7 +552,7 @@
 
           Norb = Latt_unit%Norb
           ! Scalar observables
-          Allocate ( Obs_scal(4) )
+          Allocate ( Obs_scal(5) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
@@ -562,6 +563,8 @@
                 N = 1;   Filename ="Part"
              case (4)
                 N = 1;   Filename ="Ener"
+             case (5)
+                N = 1;   Filename ="Constraint"
              case default
                 Write(6,*) ' Error in Alloc_obs '  
              end select
@@ -639,8 +642,8 @@
           
           !Local 
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
-          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, ZPot, Z, ZP,ZS, ZZ, ZXY
-          Integer :: I,J, imj, nf, dec, I1, J1, no_I, no_J,n
+          Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, Zhubc, ZCon, ZJ, Z, ZP,ZS, ZZ, ZXY
+          Integer :: I,J, no, n, I_c,I_f, nf
           Real    (Kind=Kind(0.d0)) :: X
           
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -670,11 +673,29 @@
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin *ZP* ZS
 
 
-          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          Do I = 1,Ndim
-             ZPot = ZPot + Grc(i,i,1) * Grc(i,i, 1)
+          Z     = cmplx(real(N_SUN,kind(0.d0)),0.d0,Kind(0.d0))
+          ZHubc = cmplx(0.d0, 0.d0, kind(0.D0))
+          Do I = 1,Latt%N
+             Do no = 1, Latt_unit%Norb/2
+                I_c = invlist(I,no)
+                ZHubc =  ZHubc +  Z*( GRC(I_c,I_c,1) - 0.5d0)**2 +  GRC(I_c,I_c,1)* GR(I_c,I_c,1)
+             Enddo
           Enddo
-          Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
+          Zhubc = Ham_Uc*Zhubc
+
+          ZJ  = cmplx(0.d0, 0.d0, kind(0.D0))
+          Do I = 1,Latt%N
+             Do no = 1, Latt_unit%Norb/2
+                I_c  = invlist(I,no                   )
+                I_f  = invlist(I,no + Latt_unit%Norb/2)
+                ZJ = ZJ +  Z*2.d0*GRC(I_c,I_f,1)* GRC(I_f,I_c,1) +  GRC(I_c,I_c,1)* GR(I_f,I_f,1) + &
+                     &     GR(I_c,I_c,1)* GRC(I_f,I_f,1) 
+             Enddo
+          Enddo
+          ZJ = -Ham_JK*ZJ/2.d0 +  Real(Latt%N* Latt_unit%Norb/8,kind(0.d0))*Ham_JK
+
+          
+          Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + ( Zhubc + ZJ )*ZP*ZS
 
 
           Zrho = cmplx(0.d0,0.d0, kind(0.D0))
@@ -686,8 +707,19 @@
           Zrho = Zrho* dble(N_SUN)
           Obs_scal(3)%Obs_vec(1)  =    Obs_scal(3)%Obs_vec(1) + Zrho * ZP*ZS
 
-          Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zpot)*ZP*ZS
+          Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zhubc + ZJ )*ZP*ZS
 
+          
+          ZCon = cmplx(0.d0, 0.d0, kind(0.D0))
+          Do I = 1,Latt%N
+             Do no = Latt_unit%Norb/2 +1 , Latt_unit%Norb
+                I_f = invlist(I,no)
+                ZCon =  ZCon +  Z*( GRC(I_f,I_f,1) - 0.5d0)**2 +  GRC(I_f,I_f,1)* GR(I_f,I_f,1)
+             Enddo
+          Enddo
+          Obs_scal(5)%Obs_vec(1)  =    Obs_scal(5)%Obs_vec(1) + ZCon*ZP*ZS
+
+          
           ! Standard two-point correlations
           Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
           Call Predefined_Obs_eq_SpinSUN_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2) )
