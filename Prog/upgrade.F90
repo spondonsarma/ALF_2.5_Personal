@@ -260,7 +260,7 @@
                     grarr = gr(:, Op_V(n_op,nf)%P(1:op_dim_nf), nf)
                     beta  = 0.d0
                     alpha = 1.D0
-                    CALL ZGEMM('N', 'N', NDim, Op_Dim, Op_Dim, alpha, grarr, Ndim, Zarr, op_dim_nf, beta, xp_v, Ndim)
+                    CALL ZGEMM('N', 'N', NDim, op_dim_nf, op_dim_nf, alpha, grarr, Ndim, Zarr, op_dim_nf, beta, xp_v, Ndim)
                     Deallocate(Zarr, grarr)
                     beta  = cmplx ( 1.0d0, 0.0d0, kind(0.D0))
                     alpha = -1.D0
