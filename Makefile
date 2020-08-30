@@ -1,4 +1,4 @@
-.PHONY : all lib ana Examples Z2_Slave Z2_Matter Hub_Can Kondo  Hubbard  Hubbard_Plain_Vanilla
+.PHONY : all lib ana Examples Z2_Slave Z2_Matter Hub_Can Kondo Hubbard tV Hubbard_Plain_Vanilla
 
 all: lib ana
 	cd Prog && $(MAKE) all
@@ -13,6 +13,8 @@ Hubbard: lib
 	cd Prog && $(MAKE) Hubbard
 Hubbard_Plain_Vanilla: lib
 	cd Prog && $(MAKE) Hubbard_Plain_Vanilla
+tV: lib
+	cd Prog && $(MAKE) tV
 Kondo: lib
 	cd Prog && $(MAKE) Kondo
 Z2_Slave: lib
@@ -40,4 +42,4 @@ tidyprog:
 help:
 	@echo "The following are some of the valid targets of this Makefile"
 	@echo "lib, ana, clean, cleanall, cleanprog, cleanlib, cleanana"
-	@echo "Examples, Z2_Slave, Z2_Matter, Hub_Can, Kondo,  Hubbard"
+	@echo "Examples, Z2_Slave, Z2_Matter, Hub_Can, Kondo,  Hubbard, Hubbard_Plain_Vanilla, tV"
