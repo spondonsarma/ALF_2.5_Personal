@@ -1334,7 +1334,7 @@
 
         ! Arguments
         Integer, intent(in) :: N
-        Complex(Kind=Kind(0.d0)), intent(inout), allocatable :: mat(:,:)
+        Complex(Kind=Kind(0.d0)), intent(inout) :: mat(:,:)
 
         integer :: i, info
         integer :: ipiv(N)
