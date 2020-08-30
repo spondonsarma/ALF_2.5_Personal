@@ -272,10 +272,11 @@
           CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_chem    ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_U       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(ham_V       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_T2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_U2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(ham_V2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_Tperp   ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(ham_Vperp   ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
 #endif
 
           ! Setup the Bravais lattice
