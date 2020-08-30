@@ -144,38 +144,20 @@ Call Predefined_Int_LRC( OP, I, DTAU )
 The Long-Range Coulomb (LRC) interaction can be written as
 \begin{align}
 \hat{\mathcal{H}}_{V} =
-\frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{\vec{i}} -  \frac{N}{2}  \right)  V_{\vec{i},\vec{j}} \left(  \hat{n}_{\vec{j}} -  \frac{N}{2}  \right), 
+\frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{i} -  \frac{N}{2}  \right)  V_{i,j} \left(  \hat{n}_{j} -  \frac{N}{2}  \right), 
 \end{align} 
 where
 \begin{align}
-\hat{n}_{\vec{i}} = \sum_{\sigma=1}^{N}  \hat{c}^{\dagger}_{\vec{i},\sigma}  \hat{c}^{}_{\vec{i},\sigma}
+\hat{n}_{i} = \sum_{\sigma=1}^{N}  \hat{c}^{\dagger}_{i,\sigma}  \hat{c}^{}_{i,\sigma}
 \end{align} 
-and
-\begin{equation}
-V_{\vec{i}, \vec{j}}   =   U \left\{
-\begin{array}{ll}  
-1          &   \text{ if } \vec{i} - \vec{j}    = 0 \\
-\frac{\alpha   \;   d_\mathrm{min}}{ |   \vec{i} - \vec{j} | } &     \text{ otherwise }
-\end{array}
-\right. .
-\end{equation}
-Here $d_\mathrm{min}$ is the minimal distance between two orbitals.     The code uses the following  HS decomposition:
-\begin{equation}
-e^{-\Delta \tau \hat{H}_{V,k} }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) }.
-\end{equation}
+and  $i$ corresponds to a super-index labelling  the unit cell and orbital. 
 
-The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    The definition of  the Coulomb repulsion is as follows. 
-A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
-\begin{lstlisting}[style=fortran]
-X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:) 
-+   Latt_unit%Orb_pos_p(no_j,:)
-\end{lstlisting}
-or in more compact notation $ \vec{i}  + \vec{\delta}_i $.   By definition \texttt{Latt\_unit\%Orb\_pos\_p(1,:)=0}.
-The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \vec{j}  + \vec{\delta}_j $   reads: 
+
+  The code uses the following  HS decomposition:
 \begin{equation}
-V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_\mathrm{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}.
+e^{-\Delta \tau \hat{H}_{V,k} }  =  \int \prod_{\vec{i}} d \phi_{i}   e^{ - \frac{N \Delta \tau} {4} \phi_{i} V^{-1}_{i,j}  \phi_{j} - \sum_{i}  i \Delta \tau \phi_i \left( \hat{n}_{i} - \frac{N}{2} \right) }.
 \end{equation}
-Here  we use periodic boundary conditions such that  $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.
+The above holds only provided that the matrix $V$ is positive definite and the implementation follows Ref.~\cite{Hohenadler14}.   
 
 The LRC interaction is implemented in the subroutine \texttt{Predefined\_Int\_LRC}:
 \begin{lstlisting}[style=fortran]
@@ -184,7 +166,6 @@ Op%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
 Op%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
 Op%g      = cmplx(0.d0  ,DTAU, kind(0.D0)) 
 Op%type   = 3
-
 \end{lstlisting}
 
 

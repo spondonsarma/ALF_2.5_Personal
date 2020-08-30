@@ -9,12 +9,12 @@ The model we consider  here is  defined  for \texttt{N\_FL=1},  arbitrary values
 \begin{equation}
 \hat{H}=  \sum_{i,j}  \sum_{\sigma =1}^{N}  T_{i, j}    \hat{c}^{\dagger}_{i, \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i}^{j}  
      \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{j,\sigma}   -
-     \frac{1} { N } \sum_{\vec{i},\vec{j}}  \left(  \hat{n}_{i} -  \frac{N}{2}  \right)  V_{i,j} \left(  \hat{n}_{j} -  \frac{N}{2}  \right)
+     \frac{1} { N } \sum_{i,j}  \left(  \hat{n}_{i} -  \frac{N}{2}  \right)  V_{i,j} \left(  \hat{n}_{j} -  \frac{N}{2}  \right)
       - \mu \sum_{i}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{i,\sigma } \hat{c}^{\phantom\dagger}_{i,\sigma}
 \end{equation}
-In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are super-indices encoding the unit-cell and orbital.   For simplicity, the interaction is specified with two  parameters, $U$ and $\alpha$ that monitor the  strength of the onsite interaction and the magnitude of the Coulomb tail  respectively.  
+In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are super-indices encoding the unit-cell and orbital.   For simplicity, the interaction is specified by  two  parameters, $U$ and $\alpha$ that monitor the  strength of the onsite interaction and the magnitude of the Coulomb tail  respectively.  
 \begin{equation}
-	V_{i, j}     \equiv = V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )   U \left\{
+	V_{i, j}     \equiv V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =   U \left\{
 	\begin{array}{ll}  
 	1          &   \text{ if }  i = j    \\
 	\frac{\alpha   \;   d_\mathrm{min}}{  {  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}   } &     \text{ otherwise }
@@ -23,20 +23,22 @@ In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are sup
 \end{equation}
 Here $d_\mathrm{min}$ is the minimal distance between two orbitals.  Since  we use periodic boundary conditions   $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.    The code uses the following  HS decomposition:
 \begin{equation}
-e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{\vec{i}} d \phi_{\vec{i}}   e^{ - \frac{N \Delta \tau} {4} \phi_{\pmb{i}} V^{-1}_{\pmb{i},\pmb{j}}  \phi_{\pmb{j}} - \sum_{\pmb{i}}  i \Delta \tau \phi_i \left( n_{i} - \frac{N}{2} \right) } 
+e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{i} d \phi_{i}   e^{ - \frac{N \Delta \tau} {4} \phi_{i} V^{-1}_{i,j}  \phi_{j} - \sum_{i}  i \Delta \tau \phi_i \left( \hat{n}_{i} - \frac{N}{2} \right) } 
 \end{equation}
 
-The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    The definition of  the Coulomb repulsion is as follows. 
-A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
-\begin{lstlisting}[style=fortran]
-X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:) 
-          +   Latt_unit%Orb_pos_p(no_j,:)
-\end{lstlisting}
-or in more compact notation $ \vec{i}  + \vec{\delta}_i $.   By definition \texttt{Latt\_unit\%Orb\_pos\_p(1,:)=0}.
-The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \vec{j}  + \vec{\delta}_j $   reads: 
-\begin{equation}
-	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_\mathrm{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
-\end{equation}
+In the above,   $\Phi_i $ is a  real  variable.  The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    Importantly,  we note that $V$ has to be  positive definite.  
+
+% The definition of  the Coulomb repulsion is as follows. 
+%A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
+%\begin{lstlisting}[style=fortran]
+%X_p(:) = Latt%list(I,1)*latt%a1_p(:)  + Latt%list(I,2)*latt%a2_p(:) 
+%          +   Latt_unit%Orb_pos_p(no_j,:)
+%\end{lstlisting}
+%or in more compact notation $ \vec{i}  + \vec{\delta}_i $.   By definition \texttt{Latt\_unit\%Orb\_pos\_p(1,:)=0}.
+%The Coulomb repulsion between points   $ \vec{i}  + \vec{\delta}_i $   and $ \vec{j}  + \vec{\delta}_j $   reads: 
+%\begin{equation}
+%	V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =  \frac{U d_\mathrm{min} \alpha}{  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}  
+%\end{equation}
 
 
 
