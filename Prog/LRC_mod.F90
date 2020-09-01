@@ -111,7 +111,46 @@
         LRC_V_int = V_int(I,J)
 
       end function LRC_V_int
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Returns the  smallest ditance  betweem to points on a torus. 
+!>
+!> @details
+!>
+!-------------------------------------------------------------------
+      Subroutine  Minimal_Distance(X1_p, X_p, L1_p, L2_p)
 
+        Implicit none
+
+        Real (Kind=Kind(0.d0)),  Intent(IN)  :: X_p(:), L1_p(:), L2_p(:)
+        Real (Kind=Kind(0.d0)),  Intent(OUT) :: X1_p(:)
+        
+        !Local
+        Integer :: n1, n2,  n1_min, n2_min
+        Real (Kind=Kind(0.d0)) :: X1_norm, X_norm_min
+
+        n1_min = 0
+        n2_min = 0
+        X_norm_min = Xnorm(X_p)
+        do n1 = -3,3
+           do n2 = -3,3
+              X1_p(:) = X_p(:) + real(n1,kind(0.d0))*L1_p(:) + real(n2,kind(0.d0))*L2_p(:)
+              X1_Norm = Xnorm(X1_p)
+              If ( X1_Norm < X_norm_min) then
+                 n1_min = n1
+                 n2_min = n2
+                 X_Norm_min = X1_norm 
+              endif
+           enddo
+        enddo
+        
+        X1_p(:) = X_p(:) + real(n1_min,kind(0.d0))*L1_p(:) + real(n2_min,kind(0.d0))*L2_p(:)
+        !Write(6,*)  X_p, X1_p
+        
+      end Subroutine Minimal_Distance
 
 
 !--------------------------------------------------------------------
@@ -160,22 +199,29 @@
         Open (Unit = 25,file="Coulomb_Rep",status="unknown")
 
 
-        I0=1
-        Iu  = I0
-        no_I= 1
-        I = Invlist(Iu,no_I)
-        Do Ju = 1, Latt%N
-           do no_J = 1,Latt_unit%Norb
-              J    = invlist(Ju,no_J)
-              ImJ  = Latt%imj(Iu,Ju)
-              X_p(:) = dble(Latt%list(ImJ,1))*latt%a1_p(:)  +  dble(Latt%list(ImJ,2))*latt%a2_p(:) + &
-                   &   Latt_unit%Orb_pos_p(no_i,:)  -  Latt_unit%Orb_pos_p(no_j,:)
-              Write(25,"(F16.8,2x,F16.8)") sqrt(X_p(1)**2 + X_p(2)**2), V_int(I,J)
-           enddo
+        Do Iu = 1, Latt%N
+           Do no_I = 1,Latt_unit%Norb
+              
+              I = Invlist(Iu,no_I)
+              Do Ju = 1, Latt%N
+                 do no_J = 1,Latt_unit%Norb
+                    J    = invlist(Ju,no_J)
+                    ImJ  = Latt%imj(Iu,Ju)
+                    X_p(:) = dble(Latt%list(Iu,1))*latt%a1_p(:)  +  dble(Latt%list(Iu,2))*latt%a2_p(:) + &
+                         &   Latt_unit%Orb_pos_p(no_i,:)   - &
+                         &   dble(Latt%list(Ju,1))*latt%a1_p(:)  -  dble(Latt%list(Ju,2))*latt%a2_p(:) - &
+                         &   Latt_unit%Orb_pos_p(no_j,:)
+                    Call  Minimal_distance(X0_p,X_p,Latt%L1_p, Latt%L2_p)
+                    Write(25,"(F16.8,2x,F16.8)") xnorm(x0_p), V_int(I,J)
+                 enddo
+              Enddo
+              Write(25,*)
+              Write(25,*)
+           Enddo
         Enddo
-        Do J = 1,Latt%N * Latt_unit%Norb
-           Write(25,*) E_int(J)
-        Enddo
+        !Do J = 1,Latt%N * Latt_unit%Norb
+        !   Write(25,*) E_int(J)
+        !Enddo
         Close(25)
 
       end Subroutine LRC_Print
@@ -232,11 +278,11 @@
         !Local
         Integer ::   I,J,no_i,no_j, n, m, no, imj, Latt_dim 
         Real (Kind=Kind(0.d0)) ::d1, X, X_min, Xmean,Xmax, Xmax1
-        Real (Kind=Kind(0.d0)), allocatable :: M_Tmp(:,:), M_Tmp1(:,:), X_p(:), X0_p(:), A1_p(:), A2_p(:)
+        Real (Kind=Kind(0.d0)), allocatable :: M_Tmp(:,:), M_Tmp1(:,:), X_p(:), X0_p(:), X1_p(:), A1_p(:), A2_p(:)
         Logical :: L_test=.true.
 
         Latt_dim = Size(Latt_unit%Orb_pos_p,2)
-        Allocate ( X_p(Latt_dim), X0_p(Latt_dim), A1_p(Latt_dim), A2_p(Latt_dim) )
+        Allocate ( X_p(Latt_dim), X0_p(Latt_dim), X1_p(Latt_dim), A1_p(Latt_dim), A2_p(Latt_dim) )
         A1_p = 0.d0; A2_p = 0.d0
         do I = 1,  Size(Latt%a1_p,1)
            A1_p(I) = Latt%a1_p(I)
@@ -274,14 +320,20 @@
         Do i = 1, Latt%N
            do j = 1, Latt%N
               !Write(6,*) I,J
-              imj = Latt%imj(i,j)
-              X0_p = dble(Latt%list(imj,1))*A1_p + dble(Latt%list(imj,2))*A2_p
+              !imj = Latt%imj(i,j)
+              !X0_p = dble(Latt%list(imj,1))*A1_p + dble(Latt%list(imj,2))*A2_p
+              X0_p = dble(Latt%list(i,1))*A1_p + dble(Latt%list(i,2))*A2_p - &
+                   & dble(Latt%list(j,1))*A1_p - dble(Latt%list(j,2))*A2_p
               do no_i = 1,Latt_unit%Norb
                  do no_j = 1,Latt_unit%Norb
                     n = invlist(i,no_i)
                     m = invlist(j,no_j)
                     X_p(:) = X0_p(:) +  Latt_unit%Orb_pos_p(no_i,:) - Latt_unit%Orb_pos_p(no_j,:)
-                    V_int(n,m) = V_int(n,m) + LRC_V_func(X_p,Uhub,alpha,d1)
+                    Call Minimal_Distance( X1_p, X_p, Latt%L1_p, Latt%L2_p )
+                    !X_p(:) = -X_p(:) 
+                    !Call Minimal_Distance( X1_p, X_p, Latt%L1_p, Latt%L2_p )
+                    !Write(6,*)
+                    V_int(n,m) =   LRC_V_func(X1_p,Uhub,alpha,d1)
                     !Write(25,*) Xnrom(X_p), LRC_V_func(X_p,UHub,alpha,d1)
                  enddo
               enddo
