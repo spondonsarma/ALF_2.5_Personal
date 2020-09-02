@@ -4,7 +4,7 @@ OBJS= Hamiltonians/LRC_mod.o control_mod.o Fields_mod.o Operator_mod.o WaveFunct
       Predefined_Int_mod.o Predefined_Obs_mod.o Predefined_Latt_mod.o Predefined_Hop_mod.o  Predefined_Trial_mod.o \
       $(HAMILTONIAN) QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
       Global_mod.o Wrapgr_mod.o tau_m_mod.o tau_p_mod.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
-MODS= control.mod fields_mod.mod global_mod.mod hop_mod.mod Hamiltonians/lrc_mod.mod observables.mod \
+MODS= control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observables.mod \
       operator_mod.mod predefined_int.mod predefined_lattices.mod predefined_obs.mod \
       predefined_hoppings.mod  predefined_trial.mod qdrp_mod.mod tau_m_mod.mod tau_p_mod.mod \
       udv_state_mod.mod udv_wrap_mod.mod wavefunction_mod.mod wrapgr_mod.mod hamiltonian.mod
