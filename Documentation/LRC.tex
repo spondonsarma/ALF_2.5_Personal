@@ -17,17 +17,38 @@ In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are sup
 	V_{i, j}     \equiv V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =   U \left\{
 	\begin{array}{ll}  
 	1          &   \text{ if }  i = j    \\
-	\frac{\alpha   \;   d_\mathrm{min}}{  {  |  \overline{\vec{i} - \vec{j}} + \vec{\delta}_i - \vec{\delta}_j  |}   } &     \text{ otherwise }
+	\frac{\alpha   \;   d_\mathrm{min}}{  {  || \vec{i} - \vec{j} + \vec{\delta}_i - \vec{\delta}_j  ||}   } &     \text{ otherwise }
 	\end{array}
 \right.
 \end{equation}
-Here $d_\mathrm{min}$ is the minimal distance between two orbitals.  Since  we use periodic boundary conditions   $\overline{\vec{i} - \vec{j}}$  is an element of the real space lattice. Note that this is encoded in the array \texttt{Latt\%imj(I,J)}.    The code uses the following  HS decomposition:
+Here $d_\mathrm{min}$ is the minimal distance between two orbitals.      On a  torus, some care  has be taken in  defining the distance. Let the lattice size be given by the vectors $\ve{L}_1$  and  $\ve{L}_2$  (see Sec.~\ref{sec:predefined_lattices}).  Then 
+\begin{equation}
+	|| \ve{i} || = \min_{n_1,n_2 \in \mathbb{Z} }  | \ve{i} - n_1 \ve{L}_1 -  n_2 \ve{L}_2 | 
+\end{equation}
+ The code uses the following  HS decomposition:
 \begin{equation}
 e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{i} d \phi_{i}   e^{ - \frac{N \Delta \tau} {4} \phi_{i} V^{-1}_{i,j}  \phi_{j} - \sum_{i}  i \Delta \tau \phi_i \left( \hat{n}_{i} - \frac{N}{2} \right) } 
 \end{equation}
+{\color{red}   There is a constant to be fixed in the above equation}
 
-In the above,   $\Phi_i $ is a  real  variable.  The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.    Importantly,  we note that $V$ has to be  positive definite.  
 
+In the above,   $\Phi_i $ is a  real  variable.  $V$ is symmetric, and importantly has to be  positive definite  for Gaussian integration to be justified.   
+The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.     We work in a basis where  $V$   is diagonal: 
+\begin{equation}
+	\text{ Diag}  \left( \lambda_1, \cdots ,\lambda_{\texttt{Ndim}} \right)    =  O^{T} V O 
+\end{equation}
+ with $O^T O = 1$  and define:
+ \begin{equation}
+ 	  \eta_{i}^{\phantom\dagger}   =  \sum_{j} O^{T}_{i,j} \phi_{j}^{\phantom\dagger}.
+ \end{equation}
+ \red{Todo \\ 
+ 1) Provide a minimal description of the updating scheme  \\
+ 2) Namespace \\
+ 3) Testing: \\
+ $ 4 \times 4 $ lattice at $ \beta t = 5$ and $U/t = 4$    \texttt{Hamiltonian\_Hubbard\_mod.F90}    gives $ E = -13.188896      \pm  0.001698 $  and
+  \texttt{Hamiltonian\_LRC\_mod.F90}  $ E =  -13.198512    \pm  0.040029 $.   Hubbard uses  \texttt{Mz = True} \\
+  4) Provide the Python file for this   comparison. } 
+  
 % The definition of  the Coulomb repulsion is as follows. 
 %A general lattice site  \texttt{I,n}   where \texttt{I: 1...Latt\%N} is the unit cell and \texttt{ n = 1 ...Latt\_unit\%NORB}  the orbital  is given by: 
 %\begin{lstlisting}[style=fortran]
