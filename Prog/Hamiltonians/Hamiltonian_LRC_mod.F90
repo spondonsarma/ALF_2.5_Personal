@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2019 The ALF project
+!  Copyright (C) 2016 - 2020 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -202,14 +202,8 @@
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
           NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
-
-          NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Mz
-
+          
           Namelist /VAR_LRC/      ham_T, ham_T2, ham_Tperp, ham_chem, ham_U, ham_alpha, Percent_change
-
-          Namelist /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi
-
-          NAMELIST /VAR_t_V/      Ham_T, ham_chem, ham_tV
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
@@ -317,7 +311,6 @@
           ! Default is finite temperature.
           Select Case (Model)
           Case ("LRC")
-             N_SUN = 2
              N_FL  = 1
 #ifdef MPI
              If (Irank_g == 0 ) then
@@ -326,6 +319,13 @@
                 Write(50,*) 'N_SUN         : ', N_SUN
                 Write(50,*) 'N_FL          : ', N_FL
                 Write(50,*) 't             : ', Ham_T
+                If (Lattice_type =="Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb")  then
+                   Write(50,*) 't2            : ', Ham_T2
+                   Write(50,*) 'tperp         : ', Ham_Tperp
+                endif
+                If (Lattice_type =="N_leg_ladder")  then
+                   Write(50,*) 'tperp         : ', Ham_Tperp
+                endif
                 Write(50,*) 'Ham_U         : ', Ham_U
                 Write(50,*) 'Ham_alpha     : ', Ham_alpha
                 Write(50,*) 'Percent_change: ', Percent_change
@@ -335,106 +335,20 @@
 #endif
 #ifdef MPI
              CALL MPI_BCAST(ham_T         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_T2        ,1,MPI_REAL8  ,0,Group_Comm,ierr)
+             CALL MPI_BCAST(ham_Tperp     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_chem      ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_U         ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(ham_alpha     ,1,MPI_REAL8  ,0,Group_Comm,ierr)
              CALL MPI_BCAST(Percent_change,1,MPI_REAL8  ,0,Group_Comm,ierr)
-#endif
 
-          Case ("Hubbard")
-#ifdef MPI
-             If (Irank_g == 0 ) then
-#endif
-                READ(5,NML=VAR_Hubbard)
-                If ( Mz ) then
-                   N_FL  = 2
-                   N_SUN = 1
-                Else
-                   N_FL=1
-                Endif
-                Write(50,*) 'N_SUN         : ', N_SUN
-                Write(50,*) 'N_FL          : ', N_FL
-                Write(50,*) 't             : ', Ham_T
-                Write(50,*) 'Ham_U         : ', Ham_U
-                Write(50,*) 'Ham_chem      : ', Ham_chem
-                Write(50,*) 'Mz            : ', Mz
-#ifdef MPI
-             Endif
-#endif
-#ifdef MPI
-             CALL MPI_BCAST(N_SUN    ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(N_FL     ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T    ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U    ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_T2   ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U2   ,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_Tperp,1 ,MPI_REAL8   ,   0,Group_Comm,ierr)
-             CALL MPI_BCAST(Mz       ,1 ,MPI_LOGICAL ,   0,Group_Comm,IERR)
 
 #endif
-          Case ("Hubbard_SU2_Ising")
-             N_FL = 1
-             N_SUN = 2
-#ifdef MPI
-             If (Irank_g == 0 ) then
-#endif
-                READ(5,NML=VAR_Ising)
-                Write(50,*) 'N_SUN         : ', N_SUN
-                Write(50,*) 'N_FL          : ', N_FL
-                Write(50,*) 't             : ', Ham_T
-                Write(50,*) 'Ham_U         : ', Ham_U
-                Write(50,*) 'Ham_chem      : ', Ham_chem
-                Write(50,*) 'Ham_xi        : ', Ham_xi
-                Write(50,*) 'Ham_J         : ', Ham_J
-                Write(50,*) 'Ham_h         : ', Ham_h
-#ifdef MPI
-             Endif
-#endif
-             If ( Lattice_type == "Honeycomb" .or. Lattice_type == "Pi_Flux" ) then
-                Write(error_unit,*) "Hubbard_SU2_Ising is only implemented for a square lattice"
-                error stop 1
-             Endif
-#ifdef MPI
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Ham_xi   ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,Group_Comm,ierr)
-#endif
-             Call Setup_Ising_action
-          Case ("t_V")
-             N_FL  = 1
-#ifdef MPI
-             If (Irank_g == 0 ) then
-#endif
-                READ(5,NML=VAR_t_V )
-                Write(50,*) 'N_SUN         : ', N_SUN
-                Write(50,*) 'N_FL          : ', N_FL
-                Write(50,*) 't             : ', Ham_T
-                Write(50,*) 'Ham_chem      : ', Ham_chem
-                Write(50,*) 'Ham_tV         : ', Ham_tV
-#ifdef MPI
-             Endif
-#endif
-#ifdef MPI
-             CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
-             CALL MPI_BCAST(ham_tV   ,1,MPI_REAL8,0,Group_Comm,ierr)
-#endif
-          Case default
-             Write(error_unit,*) "Model not yet implemented!"
+          case default
+             WRITE(error_unit,*) 'Wrong Hamiltonian',ierr
              error stop 1
           end Select
-
-          If (Model == "Hubbard" )  then
-             If ( Mz )  then
-                Model = "Hubbard_Mz"
-             else
-                Model = "Hubbard_SU2"
-             endif
-          Endif
+          
           Call  Ham_Hop
 
 
@@ -477,20 +391,18 @@
 !           endif
 ! #endif
 
-          If (Model == "LRC" ) Then
-             Call LRC_Set_VIJ(Latt, Latt_unit, Ham_U, Ham_alpha, list, invlist)
+          Call LRC_Set_VIJ(Latt, Latt_unit, Ham_U, Ham_alpha, list, invlist)
 #ifdef MPI
-             If (Irank_g == 0 )  then
+          If (Irank_g == 0 )  then
 #endif
-                Call LRC_Print(Latt, Latt_unit, list, invlist)
+             Call LRC_Print(Latt, Latt_unit, list, invlist)
 #ifdef MPI
-             Endif
+          Endif
 #endif
 
-          Endif
 
           call Ham_V
-
+          
 
         end Subroutine Ham_Set
 
@@ -619,98 +531,13 @@
           Use Predefined_Int
           Implicit none
 
-          Integer :: nf, I, I1, I2,  nc, nc1,  J, no
-          Real (Kind=Kind(0.d0)) :: X
-          Real (Kind=Kind(0.d0)), allocatable :: Ham_U_vec(:)
+          Integer :: I 
 
-
-          Allocate (Ham_U_vec(Latt_unit%Norb))
-          Ham_U_vec(:)  = Ham_U
-          if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
-             Ham_U_vec(1) = Ham_U
-             Ham_U_vec(2) = Ham_U2
-          endif
-
-
-          Select case (Model)
-          Case ("LRC")
-             Allocate(Op_V(Ndim,N_FL))
-             nc = 0
-             Do i = 1,Ndim
-                nc = nc + 1
-                Call Predefined_Int_LRC( OP_V(nc,1), I, DTAU  )
-             Enddo
-          Case ("Hubbard_SU2")
-             !Write(50,*) 'Model is ', Model
-             Allocate(Op_V(Ndim,N_FL))
-             Do I1 = 1,Latt%N
-                do no = 1, Latt_unit%Norb
-                   I = invlist(I1,no)
-                   Call Predefined_Int_U_SUN(  OP_V(I,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
-                enddo
-             enddo
-          Case ("Hubbard_Mz")
-             Allocate(Op_V(Ndim,N_FL))
-             Do I1 = 1,Latt%N
-                do no = 1, Latt_unit%Norb
-                    I = invlist(I1,no)
-                    Call Predefined_Int_U_MZ ( OP_V(I,1), OP_V(I,2), I,  DTAU, Ham_U_vec(no) )
-                 enddo
-              enddo
-           Case ("Hubbard_SU2_Ising")
-              Allocate(Op_V(3*Ndim,N_FL))
-
-             Do nc = 1,Ndim*Latt_unit%N_coord   ! Runs over bonds.  Coordination number = 2.
-                ! For the square lattice Ndim = Latt%N
-                I1 = L_bond_inv(nc,1)
-                I2 = I1
-                if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
-                if ( L_bond_inv(nc,2)  == 2 ) I2 = Latt%nnlist(I1,0,1)
-                Call Predefined_Int_Ising_SUN( OP_V(nc,1), I1, I2, DTAU, Ham_xi )
-             Enddo
-
-             Do i = 1,Ndim
-                nc1 = Latt_unit%N_coord*Ndim + i
-                Call Predefined_Int_U_SUN(  OP_V(nc1,1), I, N_SUN, DTAU, Ham_U  )
-             Enddo
-          case ("t_V")
-             Allocate(Op_V(Latt_unit%N_coord*Latt%N,1))
-             select case (Lattice_type)
-             case ("Square")
-                !Write(6,*) "N_coord, Latt%N", N_coord, Latt%N, Dtau, ham_tV
-                nc = 0
-                do I = 1,Latt%N
-                   I1 = I
-                   do nc1 = 1,Latt_unit%N_coord
-                      nc = nc + 1
-                      if (nc1 == 1 )  I2 = latt%nnlist(I,1,0)
-                      if (nc1 == 2 )  I2 = latt%nnlist(I,0,1)
-                      Call Predefined_Int_V_SUN( OP_V(nc,1), I1, I2, N_SUN, DTAU, Ham_tV )
-                   Enddo
-                Enddo
-             case ("Pi_Flux")
-                nc = 0
-                do I = 1,Latt%N
-                   I1 = Invlist(I,1)
-                   do nc1 = 1,Latt_unit%N_coord
-                      nc = nc + 1
-                      If (nc1 == 1 )  I2 = invlist(I,2)
-                      If (nc1 == 2 )  I2 = invlist(Latt%nnlist(I,0, 1),2)
-                      If (nc1 == 3 )  I2 = invlist(Latt%nnlist(I,-1,1),2)
-                      If (nc1 == 4 )  I2 = invlist(Latt%nnlist(I,-1,0),2)
-                      Call Predefined_Int_V_SUN( OP_V(nc,1), I1, I2, N_SUN, DTAU, Ham_tV )
-                   Enddo
-                Enddo
-             case default
-                Write(error_unit,*) "Lattice for t-V  not implemented"
-                error stop 1
-             End select
-          case default
-             Write(error_unit,*) "Model not yet implemented!"
-             error stop 1
-          end Select
-
-          Deallocate (Ham_U_vec)
+          Allocate(Op_V(Ndim,N_FL))
+          
+          Do I = 1,Ndim
+             Call Predefined_Int_LRC( OP_V(I,1), I, DTAU  )
+          Enddo
 
         end Subroutine Ham_V
 
@@ -737,107 +564,9 @@
           Integer :: nt1,I
           !Write(6,*) "Hi1"
 
-          S0 = 1.d0
-          If ( Op_V(n,1)%type == 1 ) then
-             do i = 1,4
-                S0 = S0*DW_Ising_space(nsigma%i(n,nt)*nsigma%i(Ising_nnlist(n,i),nt))
-             enddo
-             nt1 = nt +1
-             if (nt1 > Ltrot) nt1 = 1
-             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
-             nt1 = nt - 1
-             if (nt1 < 1  ) nt1 = Ltrot
-             S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
-             If (S0 < 0.d0) Write(6,*) 'S0 : ', S0
-          endif
-
-          If (model == "LRC" ) then
-             !Write(6,*) "Hi2"
-             S0 = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
-          Endif
+          S0 = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
 
         end function S0
-!--------------------------------------------------------------------
-!> @author
-!> ALF Collaboration
-!>
-!> @brief
-!> Setup  bonds and median lattice.
-!> @details
-!> Note that the median lattice on which the Ising bond fields are defined could be defined generally in
-!> the predefined lattice subroutine.
-!--------------------------------------------------------------------
-
-        Subroutine Setup_Ising_action
-
-          ! This subroutine sets up lists and arrays so as to enable an
-          ! an efficient calculation of  S0(n,nt)
-
-          Integer :: nc, nth, n, n1, n2, n3, n4, I, I1, n_orientation
-          Real (Kind=Kind(0.d0)) :: X_p(2)
-
-          ! Setup list of bonds for the square lattice.
-          Allocate (L_Bond(Latt%N,2),  L_bond_inv(Latt%N*Latt_unit%N_coord,2) )
-
-          nc = 0
-          do nth = 1,2*Latt_unit%N_coord
-             Do n1= 1, L1/2
-                Do n2 = 1,L2
-                   nc = nc + 1
-                   n_orientation = 1
-                   I1 = 1
-                   If (nth == 1 ) then
-                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 1
-                   elseif (nth == 2) then
-                      X_p = dble(2*n1)*latt%a1_p + dble(n2)*latt%a2_p  + latt%a1_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 1
-                   elseif (nth == 3) then
-                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 2
-                   elseif (nth == 4) then
-                      X_p = dble(n2)*latt%a1_p + dble(2*n1)*latt%a2_p  + latt%a2_p
-                      I1 = Inv_R(X_p,Latt)
-                      n_orientation = 2
-                   endif
-                   L_bond(I1,n_orientation) = nc
-                   L_bond_inv(nc,1) = I1
-                   L_bond_inv(nc,2) = n_orientation
-                   ! The bond is given by  I1, I1 + a_(n_orientation).
-                Enddo
-             Enddo
-          Enddo
-          ! Setup the nearest neigbour lists for the Ising spins.
-          allocate(Ising_nnlist(2*Latt%N,4))
-          do I  = 1,Latt%N
-             n  = L_bond(I,1)
-             n1 = L_bond(Latt%nnlist(I, 1, 0),2)
-             n2 = L_bond(Latt%nnlist(I, 0, 0),2)
-             n3 = L_bond(Latt%nnlist(I, 0,-1),2)
-             n4 = L_bond(Latt%nnlist(I, 1,-1),2)
-             Ising_nnlist(n,1) = n1
-             Ising_nnlist(n,2) = n2
-             Ising_nnlist(n,3) = n3
-             Ising_nnlist(n,4) = n4
-             n  = L_bond(I,2)
-             n1 = L_bond(Latt%nnlist(I, 0, 1),1)
-             n2 = L_bond(Latt%nnlist(I,-1, 1),1)
-             n3 = L_bond(Latt%nnlist(I,-1, 0),1)
-             n4 = L_bond(Latt%nnlist(I, 0, 0),1)
-             Ising_nnlist(n,1) = n1
-             Ising_nnlist(n,2) = n2
-             Ising_nnlist(n,3) = n3
-             Ising_nnlist(n,4) = n4
-          enddo
-          DW_Ising_tau  ( 1) = tanh(Dtau*Ham_h)
-          DW_Ising_tau  (-1) = 1.D0/DW_Ising_tau(1)
-          DW_Ising_Space( 1) = exp(-2.d0*Dtau*Ham_J)
-          DW_Ising_Space(-1) = exp( 2.d0*Dtau*Ham_J)
-
-        End Subroutine Setup_Ising_action
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -873,87 +602,41 @@
              end select
              Call Obser_Vec_make(Obs_scal(I),N,Filename)
           enddo
-
+          
           ! Equal time correlators
-          If (Model ==  "Hubbard_Mz") Then
-             Allocate ( Obs_eq(5) )
-             Do I = 1,Size(Obs_eq,1)
-                select case (I)
-                case (1)
-                   Ns = Latt%N;  No = Norb;  Filename ="Green"
-                case (2)
-                   Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
-                case (3)
-                   Ns = Latt%N;  No = Norb;  Filename ="SpinXY"
-                case (4)
-                   Ns = Latt%N;  No = Norb;  Filename ="SpinT"
-                case (5)
-                   Ns = Latt%N;  No = Norb;  Filename ="Den"
-                case default
-                   Write(6,*) ' Error in Alloc_obs '
-                end select
-                Nt = 1
-                Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
-             enddo
-
-             If (Ltau == 1) then
-                ! Equal time correlators
-                Allocate ( Obs_tau(5) )
-                Do I = 1,Size(Obs_tau,1)
-                   select case (I)
-                   case (1)
-                      Ns = Latt%N; No = Norb;  Filename ="Green"
-                   case (2)
-                      Ns = Latt%N; No = Norb;  Filename ="SpinZ"
-                   case (3)
-                      Ns = Latt%N; No = Norb;  Filename ="SpinXY"
-                   case (4)
-                      Ns = Latt%N; No = Norb;  Filename ="SpinT"
-                   case (5)
-                      Ns = Latt%N; No = Norb;  Filename ="Den"
-                   case default
-                      Write(6,*) ' Error in Alloc_obs '
-                   end select
-                   Nt = Ltrot+1-2*Thtrot
-                   Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
-                enddo
-             endif
-          else
+          Allocate ( Obs_eq(3) )
+          Do I = 1,Size(Obs_eq,1)
+             select case (I)
+             case (1)
+                Ns = Latt%N;  No = Norb;  Filename ="Green"
+             case (2)
+                Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
+             case (3)
+                Ns = Latt%N;  No = Norb;  Filename ="Den"
+             case default
+                Write(6,*) ' Error in Alloc_obs '
+             end select
+             Nt = 1
+             Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+          enddo
+          
+          If (Ltau == 1) then
              ! Equal time correlators
-             Allocate ( Obs_eq(3) )
-             Do I = 1,Size(Obs_eq,1)
+             Allocate ( Obs_tau(3) )
+             Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
-                   Ns = Latt%N;  No = Norb;  Filename ="Green"
+                   Ns = Latt%N; No = Norb;  Filename ="Green"
                 case (2)
-                   Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
+                   Ns = Latt%N; No = Norb;  Filename ="SpinZ"
                 case (3)
-                   Ns = Latt%N;  No = Norb;  Filename ="Den"
+                   Ns = Latt%N; No = Norb;  Filename ="Den"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
-                Nt = 1
-                Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+                Nt = Ltrot+1-2*Thtrot
+                Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
              enddo
-
-             If (Ltau == 1) then
-                ! Equal time correlators
-                Allocate ( Obs_tau(3) )
-                Do I = 1,Size(Obs_tau,1)
-                   select case (I)
-                   case (1)
-                      Ns = Latt%N; No = Norb;  Filename ="Green"
-                   case (2)
-                      Ns = Latt%N; No = Norb;  Filename ="SpinZ"
-                   case (3)
-                      Ns = Latt%N; No = Norb;  Filename ="Den"
-                   case default
-                      Write(6,*) ' Error in Alloc_obs '
-                   end select
-                   Nt = Ltrot+1-2*Thtrot
-                   Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
-                enddo
-             endif
           endif
 
         End Subroutine Alloc_obs
@@ -987,21 +670,6 @@
           Real (Kind=Kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
           Type (Fields),  Intent(IN)  :: nsigma_old
 
-          ! Local
-          Integer :: N_op, N_tau, n1,n2, n
-
-          T0_Proposal_ratio  = 1.d0
-          size_clust         = 3.d0
-
-          nsigma%f = nsigma_old%f
-          nsigma%t = nsigma_old%t
-          N_op  = size(nsigma_old%f,1)
-          N_tau = size(nsigma_old%f,2)
-          Do n  = 1, Nint(size_clust)
-             n1 = nranf(N_op)
-             n2 = nranf(N_tau)
-             nsigma%f(n1,n2) = nsigma_old%flip(n1,n2)
-          enddo
 
         End Subroutine Global_move
 !--------------------------------------------------------------------
@@ -1027,66 +695,8 @@
           Type (Fields),  INTENT(IN) :: nsigma_old
 
           ! Local
-          Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m
-
 
           Delta_S0_global = 1.d0
-          If ( Model == "Hubbard_SU2_Ising" ) then
-             nc_F = 0
-             nc_J = 0
-             nc_h_p = 0
-             nc_h_m = 0
-             Do I = 1,Latt%N
-                n1  = L_bond(I,1)
-                n2  = L_bond(Latt%nnlist(I,1,0),2)
-                n3  = L_bond(Latt%nnlist(I,0,1),1)
-                n4  = L_bond(I,2)
-                do nt = 1,Ltrot
-                   nt1 = nt +1
-                   if (nt == Ltrot) nt1 = 1
-                   if (nsigma%i(n1,nt) == nsigma%i(n1,nt1) ) then
-                      nc_h_p = nc_h_p + 1
-                   else
-                      nc_h_m = nc_h_m + 1
-                   endif
-                   if (nsigma_old%i(n1,nt) == nsigma_old%i(n1,nt1) ) then
-                      nc_h_p = nc_h_p - 1
-                   else
-                      nc_h_m = nc_h_m - 1
-                   endif
-
-                   if (nsigma%i(n4,nt) == nsigma%i(n4,nt1) ) then
-                      nc_h_p = nc_h_p + 1
-                   else
-                      nc_h_m = nc_h_m + 1
-                   endif
-                   if (nsigma_old%i(n4,nt) == nsigma_old%i(n4,nt1) ) then
-                      nc_h_p = nc_h_p - 1
-                   else
-                      nc_h_m = nc_h_m - 1
-                   endif
-
-                   nc_F = nc_F + nsigma%i    (n1,nt)*nsigma%i    (n2,nt)*nsigma%i    (n3,nt)*nsigma%i  (n4,nt)  &
-                        &      - nsigma_old%i(n1,nt)*nsigma_old%i(n2,nt)*nsigma_old%i(n3,nt)*nsigma_old%i(n4,nt)
-
-                   nc_J = nc_J + nsigma%i(n1,nt)*nsigma%i(n2,nt) + &
-                        &        nsigma%i(n2,nt)*nsigma%i(n3,nt) + &
-                        &        nsigma%i(n3,nt)*nsigma%i(n4,nt) + &
-                        &        nsigma%i(n4,nt)*nsigma%i(n1,nt) - &
-                        &        nsigma_old%i(n1,nt)*nsigma_old%i(n2,nt) - &
-                        &        nsigma_old%i(n2,nt)*nsigma_old%i(n3,nt) - &
-                        &        nsigma_old%i(n3,nt)*nsigma_old%i(n4,nt) - &
-                        &        nsigma_old%i(n4,nt)*nsigma_old%i(n1,nt)
-
-                enddo
-             enddo
-             !             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
-             !                  &            exp( -Dtau*(Ham_F*real(nc_F,kind(0.d0)) -  Ham_J*real(nc_J,kind(0.d0))))
-             ! No flux in example code. May want to include it.
-             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
-                  &            exp( Dtau* Ham_J*real(nc_J,kind(0.d0)))
-             !Write(6,*) Delta_S0_global
-          endif
 
 
         end Function Delta_S0_global
@@ -1155,27 +765,13 @@
 
 
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-          If ( Model == "Hubbard_SU2" .or. Model == "Hubbard_SU2_Ising" ) then
-             dec = 1
-             Do I = 1,Ndim
-                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
+          Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
+          Do I = 1,Ndim
+             ZPot = ZPot +    LRC_V_int(I,I)* Grc(i,i, 1)* Grc(i,i,1)
+             Do J = I+1,Ndim
+                ZPot = ZPot + Z*LRC_V_int(I,J)*(Z *  Grc(i,i, 1)* Grc(j,j,1)  + Grc(i,j,1)*Gr(i,j,1) )
              Enddo
-             Zpot = Zpot*ham_U
-          elseif (Model == "Hubbard_Mz") then
-             dec = 2
-             Do I = 1,Ndim
-                ZPot = ZPot + Grc(i,i,1) * Grc(i,i, dec)
-             Enddo
-             Zpot = Zpot*ham_U
-          elseif (Model == "LRC") then
-             Z =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
-             Do I = 1,Ndim
-                ZPot = ZPot +    LRC_V_int(I,I)* Grc(i,i, 1)* Grc(i,i,1)
-                Do J = I+1,Ndim
-                   ZPot = ZPot + Z*LRC_V_int(I,J)*(Z *  Grc(i,i, 1)* Grc(j,j,1)  + Grc(i,j,1)*Gr(i,j,1) )
-                Enddo
-             Enddo
-          Endif
+          Enddo
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
@@ -1191,16 +787,10 @@
           Obs_scal(4)%Obs_vec(1)  =    Obs_scal(4)%Obs_vec(1) + (Zkin + Zpot)*ZP*ZS
 
           ! Standard two-point correlations
-          If (Model == "Hubbard_Mz" ) then
-             Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
-             Call Predefined_Obs_eq_SpinMz_measure ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2),Obs_eq(3),Obs_eq(4) )
-             Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(5) )
-          else
-             Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
-             Call Predefined_Obs_eq_SpinSUN_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2) )
-             Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(3) )
-          endif
-
+          Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
+          Call Predefined_Obs_eq_SpinSUN_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2) )
+          Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(3) )
+          
 
         end Subroutine Obser
 !--------------------------------------------------------------------
@@ -1247,16 +837,9 @@
 
           ! Standard two-point correlations
 
-          If (Model  == "Hubbard_Mz" ) then
-             Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
-             Call Predefined_Obs_tau_SpinMz_measure ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2),&
-                  &                                   Obs_tau(3), Obs_tau(4) )
-             Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(5) )
-          Else
-             Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
-             Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
-             Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
-          endif
+          Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
+          Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
+          Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
         end Subroutine OBSERT
 !--------------------------------------------------------------------
@@ -1374,37 +957,16 @@
           Integer :: n_op, n, ns
           Real (Kind=Kind(0.d0)) :: T0_proposal
 
-          If (Model == "LRC" ) then
-             Call LRC_draw_field(Percent_change, Dtau, nsigma%f(:,ntau), Flip_value,N_SUN)
-             Do n = 1,Ndim
-                Flip_list(n) = n
-                !Write(6,*) Flip_value(n), nsigma%f(n,ntau)
-             Enddo
-             !Write(6,*)
-             Flip_length    = Ndim
-             ! T0_Proposal_ration exactly cancels S0_ratio
-             T0_Proposal_ratio = 1.d0
-             S0_ratio          = 1.d0
-          else
-             Flip_length = nranf(4)
-             do n = 1,flip_length
-                n_op = nranf(size(OP_V,1))
-                Flip_list(n)  = n_op
-                Flip_value(n) = nsigma%flip(n_op,ntau)
-                If ( OP_V(n_op,1)%type == 1 ) then
-                   S0_ratio          =   S0(n_op,ntau,Flip_value(n))
-                   T0_Proposal       =  1.d0 - 1.d0/(1.d0+S0_ratio) ! No move prob
-                   If ( T0_Proposal > Ranf_wrap() ) then
-                      T0_Proposal_ratio =  1.d0 / S0_ratio
-                   else
-                      T0_Proposal_ratio = 0.d0
-                   endif
-                else
-                   T0_Proposal_ratio = 1.d0
-                   S0_ratio          = 1.d0
-                endif
-             Enddo
-          endif
+          Call LRC_draw_field(Percent_change, Dtau, nsigma%f(:,ntau), Flip_value,N_SUN)
+          Do n = 1,Ndim
+             Flip_list(n) = n
+             !Write(6,*) Flip_value(n), nsigma%f(n,ntau)
+          Enddo
+          !Write(6,*)
+          Flip_length    = Ndim
+          ! T0_Proposal_ration exactly cancels S0_ratio
+          T0_Proposal_ratio = 1.d0
+          S0_ratio          = 1.d0
 
         end Subroutine Global_move_tau
 

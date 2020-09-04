@@ -1,4 +1,4 @@
-.PHONY : all lib ana Examples Z2_Slave Z2_Matter Hub_Can Kondo Hubbard tV Hubbard_Plain_Vanilla
+.PHONY : all lib ana Examples Z2_Slave Z2_Matter Hub_Can Kondo Hubbard tV Hubbard_Plain_Vanilla LRC
 
 all: lib ana
 	cd Prog && $(MAKE) all
@@ -17,6 +17,8 @@ tV: lib
 	cd Prog && $(MAKE) tV
 Kondo: lib
 	cd Prog && $(MAKE) Kondo
+LRC: lib
+	cd Prog && $(MAKE) LRC
 Z2_Slave: lib
 	cd Prog && $(MAKE) Z2_Slave
 Z2_Matter: lib
