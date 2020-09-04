@@ -8,11 +8,12 @@
 The model we consider  here is  defined  for \texttt{N\_FL=1},  arbitrary values of \texttt{N\_SUN}  and  supports all the predefined lattices.  It  reads: 
 \begin{equation}
 \hat{H}=  \sum_{i,j}  \sum_{\sigma =1}^{N}  T_{i, j}    \hat{c}^{\dagger}_{i, \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i}^{j}  
-     \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{j,\sigma}   -
+     \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{j,\sigma}   +
      \frac{1} { N } \sum_{i,j}  \left(  \hat{n}_{i} -  \frac{N}{2}  \right)  V_{i,j} \left(  \hat{n}_{j} -  \frac{N}{2}  \right)
-      - \mu \sum_{i}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{i,\sigma } \hat{c}^{\phantom\dagger}_{i,\sigma}
+      - \mu \sum_{i} \hat{n}_{i} 
 \end{equation}
-In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are super-indices encoding the unit-cell and orbital.   For simplicity, the interaction is specified by  two  parameters, $U$ and $\alpha$ that monitor the  strength of the onsite interaction and the magnitude of the Coulomb tail  respectively.  
+In the above,  $i = (\ve{i}, \delta_i) $  and $j = (\ve{j}, \delta_j) $  are super-indices encoding the unit-cell and orbital and 
+$  \hat{n}_{i} = \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{i,\sigma } \hat{c}^{\phantom\dagger}_{i,\sigma} $ For simplicity, the interaction is specified by  two  parameters, $U$ and $\alpha$ that monitor the  strength of the onsite interaction and the magnitude of the Coulomb tail  respectively.  
 \begin{equation}
 	V_{i, j}     \equiv V(\vec{i}  + \vec{\delta}_i ,  \vec{j}  + \vec{\delta}_j  )  =   U \left\{
 	\begin{array}{ll}  
@@ -25,15 +26,22 @@ Here $d_\mathrm{min}$ is the minimal distance between two orbitals.      On a  t
 \begin{equation}
 	|| \ve{i} || = \min_{n_1,n_2 \in \mathbb{Z} }  | \ve{i} - n_1 \ve{L}_1 -  n_2 \ve{L}_2 | 
 \end{equation}
- The code uses the following  HS decomposition:
+The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.  We use  the following  HS decomposition:
 \begin{equation}
-e^{-\Delta \tau \hat{H}_V }  =  \int \prod_{i} d \phi_{i}   e^{ - \frac{N \Delta \tau} {4} \phi_{i} V^{-1}_{i,j}  \phi_{j} - \sum_{i}  i \Delta \tau \phi_i \left( \hat{n}_{i} - \frac{N}{2} \right) } 
+e^{-\Delta \tau \hat{H}_V }  \propto \int \prod_{i} d \phi_{i}   e^{ - \frac{N \Delta \tau} {4} \sum_{i,j} \phi_{i} V^{-1}_{i,j}  \phi_{j} - \sum_{i}  i \Delta \tau \phi_i \left( \hat{n}_{i} - \frac{N}{2} \right) } 
 \end{equation}
-{\color{red}   There is a constant to be fixed in the above equation}
-
-
-In the above,   $\Phi_i $ is a  real  variable.  $V$ is symmetric, and importantly has to be  positive definite  for Gaussian integration to be justified.   
-The implementation follows Ref.~\cite{Hohenadler14}  but now supports various lattice geometries.     We work in a basis where  $V$   is diagonal: 
+where $\Phi_i $ is a  real  variable, $V$ is symmetric, and importantly has to be  positive definite  for the Gaussian integration to be defined. 
+The partition function  reads:
+\begin{equation}
+	Z \propto \int \prod_{i} d \phi_{i, \tau} \overbrace{e^{ - \frac{N \Delta \tau} {4} \sum_{i,j} \phi_{i,\tau} V^{-1}_{i,j}  \phi_{j,\tau}} }^{W_B(\phi)}\underbrace{\text{Tr} \left[   \prod_{\tau}   
+	 e^{-\Delta \tau \hat{H}_T}  e^{- \sum_{i}  i \Delta \tau \phi_{i,\tau} \left( \hat{n}_{i} - \frac{N}{2} \right) }\right]}_{W_F(\phi)}.
+\end{equation}
+such that the weight splits into a bosonic and fermionic part. 
+ 
+%In the above, the field has acquired time index. 
+%{\color{red}   There is a constant to be fixed in the above equation}
+ 
+For the update, it is convenient to  work in a basis where  $V$   is diagonal: 
 \begin{equation}
 	\text{ Diag}  \left( \lambda_1, \cdots ,\lambda_{\texttt{Ndim}} \right)    =  O^{T} V O 
 \end{equation}
@@ -41,6 +49,25 @@ The implementation follows Ref.~\cite{Hohenadler14}  but now supports various la
  \begin{equation}
  	  \eta_{i}^{\phantom\dagger}   =  \sum_{j} O^{T}_{i,j} \phi_{j}^{\phantom\dagger}.
  \end{equation}
+ On a given time slice we propose a  new field configuration with the probability: 
+ \begin{equation}
+ 	T^{0} ( \ve{\eta}  \rightarrow \ve{\eta'} ) =   \prod_{i} \left[  P P_B(\eta'_i)  + (1-P) \delta( \eta_i - \eta'_{i})   \right] 
+ \end{equation}
+ where 
+ \begin{equation}
+ 	 P_B(\eta_i)   \propto e^{ - \frac{N \Delta \tau} {4 \lambda_i}  \eta_{i}^2 }
+ \end{equation}
+$ P \in \left[0,1 \right] $ and $\delta $  the Dirac $\delta$-function.      Using the Metropolis-Hasting  algorithm,   we accept a  move according to the probability: 
+\begin{equation}
+here
+\end{equation}
+
+
+ That is,  we  carry out  simple sampling of the field with probability $P$  and leave the field unchanged with probability 
+$(1-P)$.  $P$ is a free parameter that   does not change the final result but that allows to adjust the acceptance.  
+
+
+
  \red{Todo \\ 
  1) Provide a minimal description of the updating scheme  \\
  2) Namespace \\
