@@ -3,27 +3,119 @@
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
-% !TEX root = doc.tex
-\subsubsection{$Z_2$ gauge theory coupled to $Z_2$ matter.   }
+% !TEX root = Model_classes.tex 
 \label{Z2.Sec}
 The Hamiltonian we will consider here reads
 \begin{align}
-	\hat{H} =& -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}
+	\hat{H} =& -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{\sigma}^z_{\langle \vec{i}, \vec{j} \rangle}
 	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
-	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{X}_{\langle \vec{i}, \vec{j} \rangle }  +
-	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{Z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
-	& + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\pmb{i}}  \hat{Z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\pmb{j}}   
-	      -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\pmb{i}}   \hat{\tau}^z_{\pmb{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)
+	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{\sigma}^{x}_{\langle \vec{i}, \vec{j} \rangle }  +
+	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
+	& + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\tau}^z_{\pmb{i}}  \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle} \hat{\tau}^z_{\pmb{j}}   
+	      -  h \sum_{ \vec{i} } \hat{\tau}^x_{\vec{i}}   - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\tau}^z_{\pmb{i}}   \hat{\tau}^z_{\pmb{j}}  \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right) + \frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2 
 \end{align}  
-Here the  $\hat{\Psi}^{\dagger}_{\vec{i},\sigma}$  creates an orthogonal fermion with $Z_2$ and  and electric charges.    
-The implementation of this Hamiltonian can be found in the file \texttt{Hamiltonian\_Z2\_Matter\_mod.F90}.
- For this Hamiltonian, the the $Z_2$ local conservation law reads: 
+The model is defined on a square lattice, and describers fermions, 
+\begin{align}
+ \left\{ \hat{\Psi}^{\dagger}_{\vec{i},\sigma},  \hat{\Psi}^{\phantom\dagger}_{\vec{j},\sigma'} \right\}  = \delta_{\vec{i},\vec{j}} \delta_{\sigma,\sigma'}, \;  
+\left\{ \hat{\Psi}^{\phantom\dagger}_{\vec{i},\sigma},  \hat{\Psi}^{\phantom\dagger}_{\vec{j},\sigma'} \right\}  =  0,  
+\end{align}
+coupled to  bond gauge fields 
+\begin{align}
+\hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}  = 
+\begin{bmatrix}
+1 & 0 \\
+0 & -1 
+\end{bmatrix},  
+\hat{\sigma}^x_{\langle \vec{i}, \vec{j} \rangle}  = 
+\begin{bmatrix}
+0 & 1 \\
+1 & 0 
+\end{bmatrix},   
+\left\{ \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle} , \hat{\sigma}^x_{\langle \vec{i}', \vec{j}'  \rangle} \right\}  =  2 \left( 1 -  \delta_{\langle \vec{i}, \vec{j}  \rangle, \langle \vec{i}', \vec{j}'  \rangle } \right) 
+\hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}  \hat{\sigma}^x_{\langle \vec{i}', \vec{j}'  \rangle}
+\end{align}
+and  $Z_2$ matter fields:
+\begin{align}
+ \hat{\tau}_{\ve{i}}^{z} = 
+\begin{bmatrix}
+1 & 0 \\
+0 & -1 
+\end{bmatrix},  
+\hat{\tau}^{x}_{\vec{i} }  = 
+\begin{bmatrix}
+0 & 1 \\
+1 & 0 
+\end{bmatrix}, 
+\left\{ \hat{\tau}^{z}_{ \vec{i} } , \hat{\tau}^x_{\vec{i}'} \right\}  =  2 \left( 1 -  \delta_{ \vec{i}, \vec{i}' } \right) 
+\hat{\tau}^{z}_{ \vec{i} }  \hat{\tau}^x_{ \vec{i}' }.
+\end{align}
+ Fermions,  gauge fields and $Z_2$ matter fields commute with each other. 
+ 
+ Importantly,  the model has a local  $Z_2$ symmetry. Consider:
 \begin{equation}
-	\hat{Q}_{\vec{i}} =  (-1)^{\sum_{\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   } 
-	\;  \hat{\tau}^{x}_{\vec{i}}  \; \hat{X}_{\vec{i},\vec{i} +  \vec{a}_x} \hat{X}_{\vec{i},\vec{i} -  \vec{a}_x} \hat{X}_{\vec{i},\vec{i} +  \vec{a}_y} \hat{X}_{\vec{i}}.
+	\hat{Q}_{\vec{i}} =  (-1)^{\sum_{\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}   } 
+	\;  \hat{\tau}^{x}_{\vec{i}}  \; \hat{\sigma}^{x}_{\vec{i},\vec{i} +  \vec{a}_x} \hat{\sigma}^{x}_{\vec{i},\vec{i} -  \vec{a}_x} \hat{\sigma}^{x}_{\vec{i},\vec{i} +  \vec{a}_y} \hat{\sigma}^{x}_{\vec{i}}.
 \end{equation} 
+One can  then show that  $\hat{Q}_{\vec{i}}^2 = 1 $ and that
+\begin{equation}
+	\left[   \hat{Q}_{\vec{i}}, \hat{H}  \right]  = 0. 
+\end{equation} 
+The above allows us to assign $Z_2$  charges to the operators.   Since $ \left\{ \hat{Q}_{\vec{i}},   \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \right\} =    0 $ we can assign a $Z_2$ to the fermions.  Equivalently 
+$\hat{\tau}^{z}_{\ve{i}}$   has a $Z_2$ charge and $\hat{\sigma}^{z}_{\vec{i},\vec{j}} $   carries  $Z_2$ charges at it's ends.   
+ Since the total fermion number is conserved,   we can equally assign an electric charge to the  fermions.  
 
-The Hamiltonian was investigated in Ref.~\cite{Gazit19}.   Here is a todo list. 
+ Finally, since  the model has an SU(N) color symmetry.  In fact, at zero chemical potential and $U=0$,    the symmetry is enhanced to O(2N) \cite{Assaad16}.
+Aspect of this Hamiltonian were investigated in Ref.~\cite{Assaad16,Gazit16,Gazit18,Gazit19,Hohenadler18,Hohenadler19}  and we refer  the interested user these papers for a discussion of the phases and phase transitions supported by the model.  
+
+\subsubsection*{ QMC implementation } 
+
+The key point to implement the model,  is to  define a new bond variable: 
+\begin{equation}
+	\hat{\mu}^{z}_{ \langle  \ve{i}, \ve{j}  \rangle }  =  \hat{\tau}^{z}_{ \ve{i}}\hat{\tau}^{z}_{\ve{j}  }. 
+\end{equation}  
+By construction, the $\hat{\mu}^{z}_{ \langle  \ve{i}, \ve{j}  \rangle } $ bond variables   have a zero flux constraint:
+\begin{equation}
+	\hat{\mu}^{z}_{ \langle  \ve{i}, \ve{i} + \ve{a}_x  \rangle }  \hat{ \mu}^{z}_{ \langle  \ve{i} + \ve{a}_x, \ve{i} + \ve{a}_x  + \ve{a}_y \rangle } 
+	\hat{\mu}^{z}_{ \langle  \ve{i} + \ve{a}_x + \ve{a}_y, \ve{i} +  \ve{a}_y \rangle } \hat{\mu}^{z}_{ \langle  \ve{i} + \ve{a}_y, \ve{i}  \rangle }  = 1. 
+\label{zero_flux.eq}
+\end{equation} 
+The sole knowledge of the  bond variables   $ \left\{ \mu^{z}_{ \langle  \ve{i}, \ve{j} \rangle }  \right\} $ ,   satisfying the above constraint, allows one to determine the  matter fields $ \left\{ \tau^{z}_{\ve{i}} \right\} $ 
+only up to a global sign.    This sign is fixed by  keeping track of a single  matter field,   say  $\tau^{z}_{\ve{i}  = \ve{0}} $,
+
+The model  can then be written as:
+\begin{align}
+	\hat{H} =& -  t_{Z_2} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{\sigma}^z_{\langle \vec{i}, \vec{j} \rangle}
+	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
+	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{\sigma}^{x}_{\langle \vec{i}, \vec{j} \rangle }  +
+	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
+	& + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\mu}^z_{ \langle \pmb{i}, \ve{j} \rangle }  \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}    
+	      -  h \sum_{ \vec{i} } \hat{\mu}^{x}_{\ve{i},\ve{i} + \ve{a}_x } \hat{\mu}^{x}_{\ve{i} + \ve{a}_x, \ve{i} + \ve{a}_x + \ve{a}_y }   \hat{\mu}^{x}_{\ve{i} + \ve{a}_x + \ve{a}_y, \ve{i} + \ve{a}_y  }
+	         \hat{\mu}^{x}_{\ve{i} + \ve{a}_y, \ve{i}  }	  \\      
+	&        - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\mu}^z_{\pmb{i},\ve{j}}    \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right) + \frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2 
+\end{align}  
+subject to the constraint of Eq.~\ref{zero_flux.eq}.  
+Note that $\left\{ \hat{\mu}^{z}_{\langle \vec{i}, \vec{j} \rangle} , \hat{\mu}^x_{\langle \vec{i}', \vec{j}'  \rangle} \right\}  =  2 \left( 1 -  \delta_{\langle \vec{i}, \vec{j}  \rangle, \langle \vec{i}', \vec{j}'  \rangle } \right) 
+\hat{\mu}^{z}_{\langle \vec{i}, \vec{j} \rangle}  \hat{\mu}^x_{\langle \vec{i}', \vec{j}'  \rangle} $    such that applying $\hat{\mu}^x_{\langle \vec{i}', \vec{j}'  \rangle}$  on an eigenstate of  $\hat{\mu}^{z}_{\langle \vec{i}, \vec{j} \rangle}$  flips the 
+field. 
+
+To formulate the Monte Carlo, we work in a basis in which  $\hat{\mu}^{z}_{ \langle  \ve{i}, \ve{j} \rangle }$,  $ \hat{\tau}^{z}_{   \ve{0} } $  and  $ \hat{\sigma}^{z}_{ \langle  \ve{i}, \ve{j} \rangle }$    are diagonal: 
+\begin{align}
+	  \hat{\mu}^{z}_{ \langle  \ve{i}, \ve{j} \rangle } | \sigma, \mu, \tau_0 \rangle  &=  \mu_{ \langle  \ve{i}, \ve{j} \rangle } | \sigma, \mu, \tau_0 \rangle     \\
+	 \hat{\sigma}^{z}_{ \langle  \ve{i}, \ve{j} \rangle } | \sigma, \mu, \tau_0 \rangle & =  \sigma_{ \langle  \ve{i}, \ve{j} \rangle } | \sigma, \mu, \tau_0 \rangle     \\
+	  \hat{\tau}^{z}_{   \ve{0} } | \sigma, \mu, \tau_0 \rangle  &=  \tau_{  \ve{0} } | \sigma, \mu, \tau_0 \rangle   
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+ 
 \begin{itemize}
 \item  Include an attractive $U$-term. This breaks the O(4) symmetry down to SU(2)$\times$SU(2)   and selects the $\hat{Q}_{\vec{i}} =1 $ sector.   Note that a repulsive U should  can also be included and should produce equivalent results under particle-hole symmetry.
 \item  Include dynamics, so as to study the dynamics of the OSM to  FL* phase. Note that the FL* phase will ultimately be unstable to the AFM* phase, but the energy scale is expected to be extremely small at small U.  
