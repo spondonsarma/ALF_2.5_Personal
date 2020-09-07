@@ -137,7 +137,7 @@ and
          \\
          & +\frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2. 
  \end{align*}
-In the above, $  | \underline{s}_{L_\tau+1}  \rangle  = | \underline{s}_{1}  \rangle   $ and a further  HS transformation of the Hubbard term (see Sec.~\ref{Hubbard_SUN_HS.eq})  the model is readily implemented in the ALF.    Including this HS field, $l$,  yields  the configuration space: 
+In the above, $  | \underline{s}_{L_\tau+1}  \rangle  = | \underline{s}_{1}  \rangle   $ and a further  HS transformation of the Hubbard term (see Sec.~\ref{Hubbard_SUN_HS.eq})  the model is readily implemented in the ALF.    Including this HS field, $l$,  (see Eq.~\ref{HS_squares}) yields  the configuration space: 
 \begin{equation}
 	C = \left(  \left\{  \mu_{ \langle  \ve{i}, \ve{j} \rangle,\tau }  \right\},  \left\{  \sigma_{ \langle  \ve{i}, \ve{j} \rangle, \tau }  \right\},    \left\{ \tau_{\ve{0},\tau}    \right\},  \left\{ l_{\ve{i}, \tau}  \right\}  \right) 
 \end{equation} 
@@ -148,7 +148,7 @@ $ \mu_{\vec{i},\vec{i} +  \vec{a}_x} \rightarrow - \mu_{\vec{i},\vec{i} +  \vec{
 $ \mu_{\vec{i},\vec{i} +  \vec{a}_y} \rightarrow - \mu_{\vec{i},\vec{i} +  \vec{a}_y} $ and $ \mu_{\vec{i},\vec{i} -  \vec{a}_y} \rightarrow - \mu_{\vec{i},\vec{i} -  \vec{a}_y} $.  One can carry out such moves by using the global move in real space option presented in Sec.~\ref{sec:global_space} and \ref{sec:input}.
 
 
-\subsubsection{A test case: $Z_2$ slave spin formulation of the Hubbard model }
+\subsubsection{A test case: $Z_2$ slave spin formulation of the  SU(2)  Hubbard model }
 In this subsection, we  demonstrate that the code can be used to  simulate the attractive Hubbard model in the  $Z_2$-slave spin formulation \cite{Ruegg10}:
 \begin{equation}
         \hat{H} = -t \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }\hat{c}^{\dagger}_{\vec{i},\sigma} \hat{c}^{\phantom{\dagger}}_{\vec{j},\sigma}   -  U  \sum_i
@@ -166,15 +166,19 @@ has to be impose locally. Since $\left(  \tau^{x}_{\vec{i}}\right)^2 = 1 $ it is
  \begin{equation}
         \hat{Q}_{\vec{i}} = \tau^{x}_{\vec{i}}  (-1)^{\sum_{\sigma}\hat{\Psi}^{\dagger}_{\vec{i},\sigma}  \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  }   = 1.
  \end{equation}
- In the  $Z_2$ slave spin representation the Hubbard model now reads:
+ Using 
  \begin{equation}
-         \hat{H}_{Z_2}= -t \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }  \hat{\tau}^{z}_{\vec{i}}  \hat{\tau}^{z}_{\vec{j}} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   -  \frac{U}{4}  \sum_{\vec{i}}  \hat{\tau}^{x}_{\vec{i}}
+ 	(-1)^{\sum_{\sigma}\hat{\Psi}^{\dagger}_{\vec{i},\sigma}  \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  }    = \prod_{\sigma} ( 1 - 2 \hat{\Psi}^{\dagger}_{\vec{i},\sigma}  \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma} ) =  4\prod_{\sigma} ( \hat{c}^{\dagger}_{\vec{i},\sigma}  \hat{c}^{\phantom{\dagger}}_{\vec{i},\sigma}  - 1/2 ),
  \end{equation}
- and  one will readily see that the constraint will commute with Hamiltonian:
+ the  $Z_2$ slave spin representation of  the Hubbard model now reads:
+ \begin{equation}
+         \hat{H}_{Z_2}= -t \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }  \hat{\tau}^{z}_{\vec{i}}  \hat{\tau}^{z}_{\vec{j}} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   -  \frac{U}{4}  \sum_{\vec{i}}  \hat{\tau}^{x}_{\vec{i}}.
+ \end{equation}
+ Importantly, the constraint  commutes with Hamiltonian:
  \begin{equation}
         \left[ \hat{H}_{Z_2}, \hat{Q}_{\vec{i}} \right] = 0.
  \end{equation}
- One can foresee that the constraint will be dynamically imposed  and that at  $T=0$ on a finite lattice both models should give the same results.
+Hence  one can foresee that the constraint will be dynamically imposed (we expect a finite temperature Ising phase  transitions  below which $\hat{Q}_{\ve{i}} $  orders) and that at  $T=0$ on a finite lattice both models should give the same results.
 
 
 A test run for the $8\times 8 $ lattice at $U/t = 4$ and $\beta t = 40$ gives:
