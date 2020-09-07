@@ -27,13 +27,13 @@
       Integer              :: Thtrot
       Logical              :: Projector
       Integer              :: Group_Comm
-      Logical              :: Symm
+      Logical              :: Symm = .False. 
 
 
 !>    Privat variables
       Type (Lattice),        private :: Latt
       Integer,               private :: L1, L2
-      real (Kind=Kind(0.d0)),private :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2
+      real (Kind=Kind(0.d0)),private :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2, Ham_U
       real (Kind=Kind(0.d0)),private :: Dtau, Beta
       Character (len=64),    private :: Model, Lattice_type
       Logical,               private :: One_dimensional
@@ -72,7 +72,7 @@
 
 
           NAMELIST /VAR_Z2_Matter/ ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h, &
-               &                   Dtau, Beta, ham_TZ2
+               &                   Dtau, Beta, ham_TZ2, Ham_U
 
 
 #ifdef MPI
@@ -146,6 +146,7 @@
           CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,Group_Comm,ierr)
           CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
+          CALL MPI_BCAST(Ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
 #endif
 #endif
 
@@ -180,6 +181,7 @@
               Write(50,*) 'g_Z2          : ', Ham_g
               Write(50,*) 'Ham_chem      : ', Ham_chem
               Write(50,*) 'K_Gauge       : ', Ham_K
+              Write(50,*) 'Ham_U         : ', Ham_U
               close(50)
 #if defined(MPI) && !defined(TEMPERING)
            endif
