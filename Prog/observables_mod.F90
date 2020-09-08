@@ -130,7 +130,8 @@
            Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2)
            Complex (Kind=Kind(0.d0))              :: Sign_bin
-           Character (len=64)            :: File_pr,  File_suff
+           Character (len=64) :: File_pr,  File_suff, File_aux
+           logical            :: File_exists
 #ifdef MPI
            Complex (Kind=Kind(0.D0)), allocatable :: Tmp1(:)
            Complex (Kind=Kind(0.d0)) :: Z
@@ -184,8 +185,26 @@
            If (Irank_g == 0 ) then
 #endif
 #if defined(TEMPERING)
-              write(File_pr ,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Latt),trim(File_suff )
+              write(File_pr ,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Latt),trim(File_suff)
 #endif
+              write(File_aux, '(A,A)') trim(File_pr), "_info"
+              !inquire(file=File_aux, exist=File_exists)
+              !if (.not.File_exists) then
+                 11 format(A20, ': ', I0)
+                 12 format(A20, ': ', F6.4)
+                 13 format(A20, ': ', F6.4, ', ', F6.4)
+                 !open(10, file=File_aux, status='new')
+                 open(10, file=File_aux)
+                 write(10, 11) 'Number of orbitals', Norb
+                 write(10, 11) 'Unit cells', Latt%N
+                 write(10, 11) 'Ntau', Ntau
+                 write(10, 12) 'dtau', dtau
+                 write(10, 13) 'L1', Latt%L1_p
+                 write(10, 13) 'L2', Latt%L2_p
+                 write(10, 13) 'a1', Latt%a1_p
+                 write(10, 13) 'a2', Latt%a2_p
+                 close(10)
+              !endif
 
               do nt = 1,Ntau
                  do no = 1,Norb
