@@ -89,7 +89,7 @@
 !> \verbatim
 !>  Number of global moves per  sequential sweep.
 !>  Default: N_Global=0
-!> \endverbatim
+!> \endverbatim/
 !> @param Global_tau_moves Logical
 !> \verbatim
 !>  If true, global moves on a given time slice will be carried out
@@ -335,9 +335,11 @@ Program Main
            Nt_sequential_start = 1
            Nt_sequential_end   = Size(OP_V,1)
            N_Global_tau        = 0
+        else
+           !  Gives the possibility to set parameters in the Hamiltonian file 
+           Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
         endif
-        Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
-
+        
         N_op = Size(OP_V,1)
         call nsigma%make(N_op, Ltrot)
         Do n = 1,N_op

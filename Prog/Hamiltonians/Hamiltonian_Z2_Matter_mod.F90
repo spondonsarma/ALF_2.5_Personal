@@ -1,3 +1,45 @@
+!  Copyright (C) 2016 - 2020 The ALF project
+!
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+!
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+!
+!     You should have received a copy of the GNU General Public License
+!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de
+!
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+!
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!>
+!> @brief
+!> This module defines the  Hamiltonian and observables  for the Z2 lattice gauge model coupled to
+!> fermionic and Z2 matter.
+!--------------------------------------------------------------------
+
+
     Module Hamiltonian
 
       Use Operator_mod
@@ -9,6 +51,7 @@
       Use Matrix
       Use Observables
       Use Fields_mod
+      Use Predefined_Hoppings
       use iso_fortran_env, only: output_unit, error_unit
 
 
@@ -32,12 +75,12 @@
 
 !>    Privat variables
       Type (Lattice),        private :: Latt
+      Type (Unit_cell),      private :: Latt_unit
       Integer,               private :: L1, L2
       real (Kind=Kind(0.d0)),private :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2, Ham_U
       real (Kind=Kind(0.d0)),private :: Dtau, Beta
       Character (len=64),    private :: Model, Lattice_type
       Logical,               private :: One_dimensional
-      Integer,               private :: N_coord, Norb
       Integer, allocatable,  private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
 
@@ -189,121 +232,91 @@
            call Ham_V
 
          end Subroutine Ham_Set
-!=============================================================================
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the  Lattice
+!--------------------------------------------------------------------
         Subroutine Ham_Latt
+
+          Use Predefined_Lattices
+
           Implicit none
-          !Set the lattice
-
-          Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
-          Integer :: I, nc, no
-
-          If ( Lattice_type =="Square" ) then
-             Norb = 1
-             N_coord   = 2
-             One_dimensional = .false.
-             a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-             a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-             L1_p    =  dble(L1)*a1_p
-             L2_p    =  dble(L2)*a2_p
-             Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-             If ( L1 == 1 .or. L2 == 1 ) then
-                One_dimensional = .true.
-                N_coord   = 1
-                If (L1 == 1 ) then
-                   Write(error_unit,*) 'Ham_Latt: For one dimensional systems set  L2 = 1 '
-                   error stop 1
-                endif
-             endif
-          else
-             Write(error_unit,*) "Ham_Latt: Lattice not yet implemented!"
+          ! Use predefined stuctures or set your own lattice.
+          If ( L1 == 1 .or. L2 == 1 ) then
+             Write(error_unit,*) 'Ham_Latt: One dimensional systems are not included '
              error stop 1
           endif
+          Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
 
-
-          ! This is for the orbital structure.
-          Ndim = Latt%N*Norb
-          Allocate (List(Ndim,2), Invlist(Latt%N,Norb))
-          nc = 0
-          Do I = 1,Latt%N
-             Do no = 1,Norb
-                ! For the Honeycomb lattice no = 1,2 corresponds to the A,and B sublattices.
-                nc = nc + 1
-                List(nc,1) = I
-                List(nc,2) = no
-                Invlist(I,no) = nc
-             Enddo
-          Enddo
-
+          
         end Subroutine Ham_Latt
 
-!===================================================================================
-        Subroutine Ham_hop
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the Hopping
+!--------------------------------------------------------------------
+        Subroutine Ham_Hop
+
           Implicit none
 
-          !Setup the hopping
-          !Per flavor, the  hopping is given by:
-          !  e^{-dtau H_t}  =    Prod_{n=1}^{Ncheck} e^{-dtau_n H_{n,t}}
 
-          Integer :: I, I1, J1, I2, n, Ncheck,nc, nc1, no
+          Type (Hopping_Matrix_type), Allocatable :: Hopping_Matrix(:)
 
-          Ncheck = 1
-          allocate(Op_T(Ncheck,N_FL))
-          do n = 1,N_FL
-             Do nc = 1,Ncheck
-                Call Op_make(Op_T(nc,n),Ndim)
-                If ( Lattice_type =="Square" ) then
-                   If (One_dimensional ) then
-                      DO I = 1, Latt%N
-                         I1 = Latt%nnlist(I, 1, 0)
-                         Op_T(nc,n)%O(I,I1) = cmplx(0.d0, 0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I1,I) = cmplx(0.d0, 0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                      ENDDO
-                   else
-                      DO I = 1, Latt%N
-                         I1 = Latt%nnlist(I,1,0)
-                         I2 = Latt%nnlist(I,0,1)
-                         Op_T(nc,n)%O(I,I1) = cmplx(0.d0,    0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I1,I) = cmplx(0.d0,    0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I,I2) = cmplx(0.d0,    0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I2,I) = cmplx(0.d0,    0.d0, kind(0.D0))
-                         Op_T(nc,n)%O(I ,I) = cmplx(-Ham_chem, 0.d0, kind(0.D0))
-                      ENDDO
-                   endif
-                endif
+          Real (Kind=Kind(0.d0) ), allocatable :: Ham_T_vec(:), Ham_Tperp_vec(:), Ham_Chem_vec(:), Phi_X_vec(:),&
+               &                                  Phi_Y_vec(:),  Ham_T2_vec(:),  Ham_Lambda_vec(:)
+          Integer, allocatable ::   N_Phi_vec(:)
 
-                Do I = 1,Ndim
-                   Op_T(nc,n)%P(i) = i
-                Enddo
-                if ( abs(Ham_chem) < 1.E-6 ) then
-                   Op_T(nc,n)%g = 0.d0
-                else
-                   Op_T(nc,n)%g = -Dtau
-                endif
-                Op_T(nc,n)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
-                Call Op_set(Op_T(nc,n))
-             enddo
-          enddo
-        end Subroutine Ham_hop
+          Logical ::  Bulk = .False.,  Checkerboard = .False.
+          
+          Allocate (Ham_T_vec(N_FL), Ham_T2_vec(N_FL), Ham_Tperp_vec(N_FL), Ham_Chem_vec(N_FL), &
+               &    Phi_X_vec(N_FL), Phi_Y_vec(N_FL), N_Phi_vec(N_FL), Ham_Lambda_vec(N_FL) )
 
-!===================================================================================
+          ! Here we consider no N_FL  dependence of the hopping parameters.
+          Ham_T_vec      = 0.d0
+          Ham_Tperp_vec  = 0.d0
+          Ham_Chem_vec   = Ham_Chem
+          Phi_X_vec      = 0.d0
+          Phi_Y_vec      = 0.d0
+          Ham_T2_vec     = 0.d0
+          Ham_Lambda_vec = 0.d0
+          N_Phi_vec      = 0.d0
+
+          Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+               &                                      Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
+          Call  Predefined_Hoppings_set_OPT(Hopping_Matrix,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
+          
+          Deallocate (Ham_T_vec, Ham_T2_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
+               &                                   N_Phi_vec,  Ham_Lambda_vec )
+
+
+        end Subroutine Ham_Hop
+!--------------------------------------------------------------------
+        
+
         Subroutine Ham_V
 
           Implicit none
 
           Integer :: nf, I, I1, I2,  nc, nc1,  J, N_Bond_type
           Real (Kind=Kind(0.d0)) :: X
-
+          
           If  ( Model == "Z2_Matter" ) then
-             Allocate(Op_V(2*N_coord*Ndim +1, N_FL))
+             Allocate(Op_V(2*Latt_unit%N_coord*Ndim +1, N_FL))
              do nf = 1,N_FL
-                do i  =  1, 2*N_coord*Ndim
+                do i  =  1, 2*Latt_unit%N_coord*Ndim
                    call Op_make(Op_V(i,nf),2)
                 enddo
-                call Op_make(Op_V(2*N_coord*Ndim + 1 ,nf),1 )
+                call Op_make(Op_V(2*Latt_unit%N_coord*Ndim + 1 ,nf),1 )
                 ! This is for the reference spin on lattice site I = Latt%N
              enddo
-             Do nc = 1,2*Ndim*N_coord   ! Runs over bonds.  Coordination number = 2.
+             Do nc = 1,2*Ndim*Latt_unit%N_coord   ! Runs over bonds.  Coordination number = 2.
                 ! For the square lattice Ndim = Latt%N
                 I1 = L_bond_inv(nc,1)
                 if ( L_bond_inv(nc,2)  == 1 ) I2 = Latt%nnlist(I1,1,0)
@@ -322,7 +335,7 @@
                 Call Op_set( Op_V(nc,1) )
              Enddo
              I1 = Latt%N
-             nc = 2*Ndim*N_coord  +  1
+             nc = 2*Ndim*Latt_unit%N_coord  +  1
              Op_V(nc,1)%P(1)   = I1
              Op_V(nc,1)%O(1,1) = cmplx(1.d0,0.d0, kind(0.D0))
              Op_V(nc,1)%g      = cmplx(0.d0,0.d0, kind(0.D0))
@@ -437,8 +450,8 @@
           Real  (Kind = Kind(0.d0)) ::  S0_Matter, T0_Proposal
 
           ! Write(6,*) 'In GLob_move', m,direction,ntau, size(Flip_list,1), Size(Flip_value,1), Flip_list(1)
-          ! Ising from n_op = 1,N_coord*Ndim
-          ! Hubbard from n_op = N_coord*Ndim +1, Size(OP_V,1) = N_coord*Ndim +  Ndim
+          ! Ising from n_op = 1,Latt_unit%N_coord*Ndim
+          ! Hubbard from n_op = Latt_unit%N_coord*Ndim +1, Size(OP_V,1) = Latt_unit%N_coord*Ndim +  Ndim
           ! Write(6,*) 'Global_move_tau ' , S0(Flip_list(1),ntau)
 
           Allocate (Isigma1(Latt%N), Isigma2(Latt%N), Isigma3(Latt%N) )
@@ -474,7 +487,7 @@
           If ( I == Latt%N )   then
              Flip_length   = 5
              n             = 5
-             n_op          = 2*N_coord*Ndim + 1
+             n_op          = 2*Latt_unit%N_coord*Ndim + 1
              Flip_list(n)  = n_op
              Flip_value(n) = nsigma%flip(n_op,ntau)
           endif
@@ -605,7 +618,7 @@
           Real (Kind=Kind(0.d0)) :: X_p(2)
 
           ! Setup list of bonds for the square lattice.
-          Allocate ( L_Bond(Latt%N,2,2),  L_bond_inv(2*Latt%N*N_coord,3) )
+          Allocate ( L_Bond(Latt%N,2,2),  L_bond_inv(2*Latt%N*Latt_unit%N_coord,3) )
           nc = 0
           Do N_Bond_type = 1,2  ! Two types of bonds for gauge Fields (N_Bond_Type = 1) and Matter fields (N_Bond_type = 2)
              DO I = 1,Latt%N
@@ -699,17 +712,17 @@
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
-                Ns = Latt%N;  No = Norb;  Filename ="Green"
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Green"
              case (2)
-                Ns = Latt%N;  No = Norb;  Filename ="SpinZ"
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="SpinZ"
              case (3)
-                Ns = Latt%N;  No = Norb;  Filename ="SpinXY"
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="SpinXY"
              case (4)
-                Ns = Latt%N;  No = Norb;  Filename ="Den"
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Den"
              case (5)
-                Ns = Latt%N;  No = Norb;  Filename ="GreenZ2"
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="GreenZ2"
              case (6)
-                Ns = Latt%N;  No = N_coord;  Filename ="Kin"
+                Ns = Latt%N;  No = Latt_unit%N_coord;  Filename ="Kin"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -723,13 +736,13 @@
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
-                   Ns = Latt%N; No = Norb;  Filename ="Green"
+                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="Green"
                 case (2)
-                   Ns = Latt%N; No = Norb;  Filename ="SpinZ"
+                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="SpinZ"
                 case (3)
-                   Ns = Latt%N; No = Norb;  Filename ="SpinXY"
+                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="SpinXY"
                 case (4)
-                   Ns = Latt%N; No = Norb;  Filename ="Den"
+                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="Den"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
@@ -973,7 +986,7 @@
           ENDDO
 
           Do I = 1,Latt%N
-             do no = 1,N_coord
+             do no = 1,Latt_unit%N_coord
                 select  case(no)
                 case(1)
                    I1 = Latt%nnlist(I,1,0)
@@ -982,8 +995,8 @@
                 end select
                 Do J = 1,Latt%N
                    imj = latt%imj(I,J)
-                   do no1 = 1,N_coord
-                      if ( no1 == 1) J1 = Latt%nnlist(J,1,0)
+                   do no1 = 1,Latt_unit%N_coord
+                      J1 = Latt%nnlist(J,1,0)
                       if ( no1 == 2) J1 = Latt%nnlist(J,0,1)
 
                       ! Kin-Kin
@@ -1144,15 +1157,21 @@
         ! Local
         Integer :: I,nc, I1, nt, n_orientation
         Integer, allocatable::  Isigma(:), Isigma1(:)
+        Integer :: Iseed(1) 
 
-        Allocate  (Initial_field(2*N_coord*Latt%N +1, Ltrot) )
+        Allocate  (Initial_field(2*Latt_unit%N_coord*Latt%N +1, Ltrot) )
         allocate  (Isigma(Latt%N), Isigma1(Latt%N) )
+
+        ! Do not forget to initialize the random number generator
+        Iseed(1) = 0
+        Call Ranset(Iseed)
+        
         Do nt = 1,Ltrot
            Do I = 1,Latt%N
               Isigma(I) = 1
               if ( ranf_wrap()  > 0.5D0 ) Isigma(I)  = -1
            enddo
-           Initial_field(2*N_coord*Latt%N +1,nt) = real(Isigma(Latt%N), kind(0.d0))
+           Initial_field(2*Latt_unit%N_coord*Latt%N +1,nt) = real(Isigma(Latt%N), kind(0.d0))
            Do I = 1,Latt%N
               Do n_orientation = 1,2
                  nc = L_bond(I,n_orientation,2)
@@ -1161,7 +1180,7 @@
                  Initial_field(nc,nt) = real(Isigma(I)*Isigma(I1), kind(0.d0))
               enddo
            Enddo
-           Initial_field(2*N_coord*Latt%N +1,nt)      = real(Isigma(Latt%N), kind(0.d0))
+           Initial_field(2*Latt_unit%N_coord*Latt%N +1,nt)      = real(Isigma(Latt%N), kind(0.d0))
            Do I = 1, Latt%N
               if (mod( Latt%list(i,1) + latt%list(i,2), 2 ) == 0 ) then
                  Initial_field(L_bond(I,1,1),nt) =  1.d0
@@ -1206,7 +1225,7 @@
         Integer :: I, I1, nx, ny
 
 
-        Isigma(Latt%N) = nsigma%i( 2*N_coord*Ndim + 1, nt )
+        Isigma(Latt%N) = nsigma%i( 2*Latt_unit%N_coord*Ndim + 1, nt )
         I = Latt%N
         do nx = 1,L1
            do ny = 1,L2
@@ -1313,7 +1332,7 @@
         Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
 
         Nt_sequential_start = 1
-        Nt_sequential_end   = N_coord*Latt%N
+        Nt_sequential_end   = Latt_unit%N_coord*Latt%N
         N_Global_tau        = Latt%N/4
 
       end Subroutine Overide_global_tau_sampling_parameters
