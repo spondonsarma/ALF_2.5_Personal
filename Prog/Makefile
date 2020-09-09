@@ -23,7 +23,7 @@ all:
 	(make tidy Z2_Matter)
 	(make tidy Hub_Can)
 	(make tidy Kondo)
-	(make tidy Kondo_KN)
+	#(make tidy Kondo_KN)
 
 Examples:
 	./Git_config.sh
