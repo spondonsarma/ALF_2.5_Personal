@@ -201,13 +201,13 @@
               write(File_pr ,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Latt),trim(File_suff)
 #endif
               write(File_aux, '(A,A)') trim(File_pr), "_info"
-              !inquire(file=File_aux, exist=File_exists)
-              !if (.not.File_exists) then
+              inquire(file=File_aux, exist=File_exists)
+              if (.not.File_exists) then
                  11 format(A20, ': ', I0)
                  12 format(A20, ': ', F6.4)
                  13 format(A20, ': ', F6.4, ', ', F6.4)
-                 !open(10, file=File_aux, status='new')
-                 open(10, file=File_aux)
+                 open(10, file=File_aux, status='new')
+                 !open(10, file=File_aux)
                  write(10, '(A20, ": ", A, A)') 'Observable', trim(Obs%File_Latt), trim(File_suff)
                  write(10, '(A20, ": ", A2)') 'Channel', Obs%Channel
                  write(10, 11) 'Ntau', Ntau
@@ -226,7 +226,7 @@
                     write(10, 13) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
                  enddo
                  close(10)
-              !endif
+              endif
 
               do nt = 1,Ntau
                  do no = 1,Norb
