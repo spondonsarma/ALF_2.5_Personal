@@ -924,8 +924,9 @@
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
           Integer, Intent(In) :: Ltau
-          Integer    ::  i, N, Ns,Nt,No, Norb
+          Integer    ::  i, N, Nt
           Character (len=64) ::  Filename
+          Character (len=2)  ::  Channel
 
 
           ! Scalar observables
@@ -948,14 +949,15 @@
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
-                Ns = Latt%N;  No = 1;  Filename ="Spin"
+                Filename = "Spin"
              case (2)
-                Ns = Latt%N;  No = 1;  Filename ="Den"
+                Filename = "Den"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
              Nt = 1
-             Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+             Channel = '--'
+             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
           enddo
 
           If (Ltau == 1) then
@@ -964,14 +966,15 @@
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
-                   Ns = Latt%N; No = 1;  Filename ="Spin"
+                   Channel = 'PH'; Filename = "Spin"
                 case (2)
-                   Ns = Latt%N; No = 1;  Filename ="Den"
+                   Channel = 'PH'; Filename = "Den"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
                 Nt = Ltrot+1-2*Thtrot
-                Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
+                If(Projector) Channel = 'T0'
+                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
              enddo
           endif
         End Subroutine Alloc_obs
@@ -1238,11 +1241,11 @@
              Call  Print_bin_Vec(Obs_scal(I),Group_Comm)
           enddo
           Do I = 1,Size(Obs_eq,1)
-             Call  Print_bin_Latt(Obs_eq(I),Latt,dtau,Group_Comm)
+             Call  Print_bin_Latt(Obs_eq(I),dtau,Group_Comm)
           enddo
           If (Ltau  == 1 ) then
              Do I = 1,Size(Obs_tau,1)
-                Call  Print_bin_Latt(Obs_tau(I),Latt,dtau,Group_Comm)
+                Call  Print_bin_Latt(Obs_tau(I),dtau,Group_Comm)
              enddo
           endif
 
