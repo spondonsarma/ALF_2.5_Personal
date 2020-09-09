@@ -203,27 +203,29 @@
               write(File_aux, '(A,A)') trim(File_pr), "_info"
               inquire(file=File_aux, exist=File_exists)
               if (.not.File_exists) then
-                 11 format(A20, ': ', I0)
-                 12 format(A20, ': ', F6.4)
-                 13 format(A20, ': ', F6.4, ', ', F6.4)
+                 11 format(A20, ': ', A)
+                 12 format(A20, ': ', I0)
+                 13 format(A20, ': ', F6.4)
+                 14 format(A20, ': ', F8.4, ', ', F8.4)
                  open(10, file=File_aux, status='new')
                  !open(10, file=File_aux)
-                 write(10, '(A20, ": ", A, A)') 'Observable', trim(Obs%File_Latt), trim(File_suff)
-                 write(10, '(A20, ": ", A2)') 'Channel', Obs%Channel
-                 write(10, 11) 'Ntau', Ntau
-                 write(10, 12) 'dtau', dtau
+                 write(tmp_str, '(A, A)') trim(Obs%File_Latt), trim(File_suff)
+                 write(10, 11) 'Observable', trim(tmp_str)
+                 write(10, 11) 'Channel', trim(Obs%Channel)
+                 write(10, 12) 'Ntau', Ntau
+                 write(10, 13) 'dtau', dtau
                  write(10, '(A)') '       ====== Bravais Lattice ======'
-                 write(10, 11) 'Unit cells', Obs%Latt%N
-                 write(10, 13) 'L1', Obs%Latt%L1_p
-                 write(10, 13) 'L2', Obs%Latt%L2_p
-                 write(10, 13) 'a1', Obs%Latt%a1_p
-                 write(10, 13) 'a2', Obs%Latt%a2_p
+                 write(10, 12) 'Unit cells', Obs%Latt%N
+                 write(10, 14) 'L1', Obs%Latt%L1_p
+                 write(10, 14) 'L2', Obs%Latt%L2_p
+                 write(10, 14) 'a1', Obs%Latt%a1_p
+                 write(10, 14) 'a2', Obs%Latt%a2_p
                  write(10, '(A)') '       ========= Unit cell ========='
-                 write(10, 11) 'Coordination number', Obs%Latt_unit%N_coord
-                 write(10, 11) 'Number of orbitals', Norb
+                 write(10, 12) 'Coordination number', Obs%Latt_unit%N_coord
+                 write(10, 12) 'Number of orbitals', Norb
                  do no = 1, Norb
                     write(tmp_str, '("Orbital ",I0)') no
-                    write(10, 13) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
+                    write(10, 14) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
                  enddo
                  close(10)
               endif
