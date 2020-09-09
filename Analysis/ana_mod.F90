@@ -1,40 +1,40 @@
 !  Copyright (C) 2019 The ALF project
-! 
+!
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
 !     the Free Software Foundation, either version 3 of the License, or
 !     (at your option) any later version.
-! 
+!
 !     The ALF project is distributed in the hope that it will be useful,
 !     but WITHOUT ANY WARRANTY; without even the implied warranty of
 !     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 !     GNU General Public License for more details.
-! 
+!
 !     You should have received a copy of the GNU General Public License
 !     along with Foobar.  If not, see http://www.gnu.org/licenses/.
-!     
+!
 !     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
-!     
+!
 !     - It is our hope that this program makes a contribution to the scientific community. Being
 !       part of that community we feel that it is reasonable to require you to give an attribution
 !       back to the original authors if you have benefitted from this program.
 !       Guidelines for a proper citation can be found on the project's homepage
 !       http://alf.physik.uni-wuerzburg.de .
-!       
+!
 !     - We require the preservation of the above copyright notice and this license in all original files.
-!     
-!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain
 !       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
-! 
+!
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-   module ana_mod 
+   module ana_mod
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> Collection of routines for postprocessing the Monte Carlo bins
 !
 !--------------------------------------------------------------------
@@ -47,19 +47,19 @@
 
    Subroutine read_vec(file, sgn, bins)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Reads in bins of scalar observables from file
-!> 
+!>
 !> @param [IN] file Character(len=64)
 !> \verbatim
 !>  Name of file that gets read in
 !> \endverbatim
 !> @param [OUT] sgn Real(:)
 !> \verbatimam
-!>  Sign of bins 
+!>  Sign of bins
 !> \endverbatim
 !> @param [OUT] bins Complex(:,:)
 !> \verbatim
@@ -70,56 +70,56 @@
       Character (len=64), intent(in) :: file
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins(:,:)
-      
-      Integer :: N, N1, I, Nobs, Nbins
+
+      Integer :: N, N1, I, Nobs, Nbins, stat
       Real    (Kind=Kind(0.d0)) :: X
-      Complex (Kind=Kind(0.d0)), Allocatable  :: Tmp(:)
-      
-      
-      Open (Unit=10, File=file, status="unknown")
-      Read(10,*) NOBS
+      Complex (Kind=Kind(0.d0)), Allocatable  :: tmp(:)
+
+
+      open(Unit=10, File=file, status="old", action='read')
+      read(10,*) NOBS
       NOBS = NOBS-1
-      allocate (Tmp(NOBS) )
+      allocate(tmp(NOBS))
       rewind(10)
+
       Nbins = 0
       do
-         read(10,*,End=10) N,  (Tmp(I), I=1,size(Tmp,1)), X
+         read(10, *, iostat=stat)
+         if (stat /= 0) exit
          Nbins = Nbins + 1
       enddo
-10    continue
-      Close(10) 
-      
-      ALLOCATE(bins(NOBS,Nbins))
-      ALLOCATE(sgn(Nbins))
+      rewind(10)
 
-      OPEN (UNIT=20, FILE=file, STATUS='old')
-      DO N = 1,Nbins
-         READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)),X 
-         
+      allocate(bins(NOBS,Nbins))
+      allocate(sgn(Nbins))
+
+      do N = 1,Nbins
+         read(10,*) N1, (tmp(I), I=1,size(Tmp,1)),X
+
          bins(:,N) = Tmp(:)
          sgn(N)  = X
-      ENDDO
-      CLOSE(20)
+      enddo
+      close(10)
       deallocate(tmp)
    End Subroutine read_vec
 
 !==============================================================================
 
-   Subroutine read_latt(file, sgn, bins, bins0, Latt, dtau)
+   Subroutine read_latt(file, sgn, bins, bins0, Latt, Latt_unit, dtau, Channel)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Reads in bins of lattice-type observables (both equal time and timedisplaced) from file
-!> 
+!>
 !> @param [IN] file Character(len=64)
 !> \verbatim
 !>  Name of file that gets read in
 !> \endverbatim
 !> @param [OUT] sgn Real(:)
 !> \verbatimam
-!>  Sign of bins 
+!>  Sign of bins
 !> \endverbatim
 !> @param [OUT] bins Complex(:,:,:,:,:)
 !> \verbatim
@@ -127,9 +127,14 @@
 !> @param [OUT] bins0 Complex(:,:)
 !> \verbatim
 !>  Monte Carlo bins of background
+!> \endverbatim
 !> @param [OUT] Latt Type(Lattice)
 !> \verbatim
 !>  Bravais lattice
+!> \endverbatim
+!> @param [OUT] Latt_unit Type(Unit_cell)
+!> \verbatim
+!>  Unit cell
 !> \endverbatim
 !> @param [OUT] dtau Real
 !> \verbatim
@@ -139,91 +144,75 @@
       Implicit none
       Character (len=64), intent(in) :: file
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins(:,:,:,:,:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins0(:,:)
-      Type (Lattice), intent(out)    :: Latt
-      Real    (Kind=Kind(0.d0)), intent(out) :: dtau
+      Complex (Kind=Kind(0.d0)), pointer    , intent(out) :: bins(:,:,:,:,:)
+      Complex (Kind=Kind(0.d0)), pointer    , intent(out) :: bins0(:,:)
+      Type (Lattice)                        , intent(out) :: Latt
+      Type (Unit_cell)                      , intent(out) :: Latt_unit
+      Real    (Kind=Kind(0.d0))             , intent(out) :: dtau
+      Character (len=2)                     , intent(out) :: Channel
 
-      Integer :: no, no1, n, nt, nb, Ntau, Nunit, Nbins, Norb!, LT
-      Real    (Kind=Kind(0.d0)):: X, Y !, dt
+      Character (len=64) :: file_aux, str_temp1, str_temp2
+      Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
+      Integer :: no, no1, n, nt, nb, Ntau, Ndim, Nbins, Norb, stat
+      Real    (Kind=Kind(0.d0)) :: X, Y
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
-      Real    (Kind=Kind(0.d0))              :: x_p(2)
+      Real    (Kind=Kind(0.d0)) :: x_p(2), a1_p(2), a2_p(2), L1_p(2), L2_p(2)
       Complex (Kind=Kind(0.d0)) :: Z
-      Real    (Kind=Kind(0.d0)), allocatable :: a1_p(:), a2_p(:), L1_p(:), L2_p(:)
-      
-      Integer :: ndim 
-      
-      Integer             :: L1, L2, N_SUN, Model_vers, ierr
-      Character (len=64)  :: Model, Lattice_type
-      Logical             :: Checkerboard, Symm
-      NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model, N_SUN, Checkerboard, Symm, Model_vers
-      
-      
-      ! Read in lattice
-      open ( Unit=10, File=file, status="unknown" )
-      read(10,*,ERR=100) X, Norb, Nunit, Ntau, dtau, ndim
-      rewind(10)
-      allocate( a1_p(ndim), a2_p(ndim), L1_p(ndim), L2_p(ndim) )
-      read(10,*) X, Norb, Nunit, Ntau, dtau, ndim, L1_p, L2_p, a1_p, a2_p
-      close(10)
-      goto 120 
-      
-  100 continue
-      Ntau = 1
-      dtau = -1.d0
-      rewind(10)
-      Read(10,*,ERR=110) X, Norb, Nunit, Ntau, dtau
-  110 continue
-      rewind(10)
-      Read(10,*) X, Norb, Nunit
-      Close(10)
-      
-      allocate( a1_p(2), a2_p(2), L1_p(2), L2_p(2) )
-      OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read')
-      READ(5,NML=VAR_lattice)
-      CLOSE(5)
-      If ( Lattice_type =="BipartiteSquare" ) then
-         a1_p(1) =  1.D0/sqrt(2.D0)  ; a1_p(2) =  1.D0/sqrt(2.D0)
-         a2_p(1) =  1.D0/sqrt(2.D0)  ; a2_p(2) = -1.D0/sqrt(2.D0)
-         L1_p    =  dble(L1)*a1_p
-         L2_p    =  dble(L2)*a2_p
-      elseif ( Lattice_type =="Square" ) then
-         a1_p(1) =  1.0  ; a1_p(2) =  0.d0
-         a2_p(1) =  0.0  ; a2_p(2) =  1.d0
-         L1_p    =  dble(L1)*a1_p
-         L2_p    =  dble(L2)*a2_p
-      elseif ( Lattice_type=="Honeycomb" ) then
-         a1_p(1) =  1.d0   ; a1_p(2) =  0.d0
-         a2_p(1) =  0.5d0  ; a2_p(2) =  sqrt(3.d0)/2.d0
-         L1_p    =  dble(L1) * a1_p
-         L2_p    =  dble(L2) * a2_p
-      elseif ( Lattice_type == "Pi_Flux" ) then 
-         a1_p(1) =  1.D0   ; a1_p(2) =   1.d0
-         a2_p(1) =  1.D0   ; a2_p(2) =  -1.d0
-         !del_p   =  (a2_p - 0.5*a1_p ) * 2.0/3.0
-         L1_p    =  dble(L1) * (a1_p - a2_p)/2.d0
-         L2_p    =  dble(L2) * (a1_p + a2_p)/2.d0
-      else
-         Stop "Lattice not yet implemented!"
-      endif
-      
-  120 continue
-      Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-      deallocate( a1_p, a2_p, L1_p, L2_p )
+      logical            :: file_exists
 
-      ! Determine the number of bins. 
-      Open ( Unit=10, File=file, status="unknown" )
+      Integer             :: L1, L2
+      Character (len=64)  :: Model, Lattice_type
+      NAMELIST /VAR_Lattice/ L1, L2, Lattice_type, Model
+
+      write(file_aux, '(A,A)') trim(file), "_info"
+      inquire(file=file_aux, exist=file_exists)
+      if(file_exists) then
+        open(Unit=10, File=file_aux, status="old", action='read')
+        11 format(A22, A)
+        12 format(A22, I0)
+        13 format(A22, F6.4)
+        14 format(A22, F8.4, ', ', F8.4)
+        read(10, *)
+        read(10, 11) str_temp1, Channel
+        read(10, 12) str_temp1, Ntau
+        read(10, 13) str_temp1, dtau
+        read(10, *)
+        read(10, 12) str_temp1, Latt%N
+        read(10, 14) str_temp1, L1_p(1), str_temp2, L1_p(2)
+        read(10, 14) str_temp1, L2_p(1), str_temp2, L2_p(2)
+        read(10, 14) str_temp1, a1_p(1), str_temp2, a1_p(2)
+        read(10, 14) str_temp1, a2_p(1), str_temp2, a2_p(2)
+        read(10, *)
+        read(10, 11) str_temp1, Latt_unit%N_coord
+        read(10, 11) str_temp1, Norb
+        Latt_unit%Norb = Norb
+        allocate(Latt_unit%Orb_pos_p(Norb,1))
+        do no = 1, Norb
+          read(10, 14) str_temp1, Latt_unit%Orb_pos_p(no,1), str_temp2, Latt_unit%Orb_pos_p(no,2)
+        enddo
+        close(10)
+        Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
+      else
+        open(Unit=10, File='parameters', status="old", action='read')
+        read(10, NML=VAR_lattice)
+        close(10)
+        Call Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
+      endif
+
+      ! Determine the number of bins.
+      open(Unit=10, File=file, status="old", action='read')
       nbins = 0
       do
-         Read(10,*,End=10)
-         Do no = 1,Norb
+         read(10, *, iostat=stat)
+         if (stat /= 0) exit
+         Do no = 1, Norb
             Read(10,*)
          enddo
-         do n = 1,Nunit
+         do n = 1, Ndim
             Read(10,*)
-            do nt = 1,Ntau
-               do no = 1,Norb
-                  do no1 = 1,Norb
+            do nt = 1, Ntau
+               do no = 1, Norb
+                  do no1 = 1, Norb
                      read(10,*)
                   enddo
                enddo
@@ -231,23 +220,22 @@
          enddo
          nbins = nbins + 1
       enddo
-   10 continue
-      Close(10)
-      
+      rewind(10)
+
       ! Allocate  space
-      Allocate ( bins(Nunit,Ntau,Norb,Norb,Nbins), sgn(Nbins), Xk_p(2,Nunit), bins0(Norb,Nbins))
-      
-      Open ( Unit=10, File=file, status="unknown" ) 
+      Allocate(bins(Ndim, Ntau, Norb, Norb, Nbins))
+      Allocate(sgn(Nbins), Xk_p(2, Ndim), bins0(Norb, Nbins))
+
       do nb = 1, nbins
-         Read(10,*,End=10) sgn(nb)
+         Read(10,*) sgn(nb)
          Do no = 1,Norb
             Read(10,*) bins0(no,nb)
          Enddo
-         do n = 1,Nunit
+         do n = 1, Ndim
             Read(10,*) Xk_p(1,n), Xk_p(2,n)
-            do nt = 1,Ntau
-               do no = 1,norb
-                  do no1 = 1,Norb
+            do nt = 1, Ntau
+               do no = 1, norb
+                  do no1 = 1, Norb
                      read(10,*) bins(n,nt,no,no1,nb)
                   enddo
                enddo
@@ -255,48 +243,48 @@
          enddo
       enddo
       close(10)
-      
-      do n = 1,Nunit
-         x_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p  
+
+      do n = 1, Ndim
+         x_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          x   = (x_p(1)-Xk_p(1,n))**2 + (x_p(2)-Xk_p(2,n))**2
          if ( x > 0.00001 ) then
             print*, "Error in read_latt: momenta do not fit", x, x_p, Xk_p(1,n)
             stop
          endif
       enddo
-   
+
    End Subroutine read_latt
 
 !==============================================================================
 
    Subroutine jack(func, data, N_skip, N_rebin, best, err)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Performs jackknife error Analysis
-!> 
+!>
 !-------------------------------------------------------------------
       Implicit none
-      
+
       Complex (Kind=Kind(0.d0)), External                :: func
       Complex (Kind=Kind(0.d0)), intent(in)              :: data(:,:)
       Integer, intent(in)                                :: N_skip, N_rebin
-      
+
       Complex (Kind=Kind(0.d0)), intent(out) :: best, err
-      
+
       Complex (Kind=Kind(0.d0)), allocatable :: data_r(:,:), j(:), X(:), X2(:)
       Real (Kind=Kind(0.d0)), allocatable :: Rhelp(:)
       real (Kind=Kind(0.d0)) :: XM, XERR
       Integer :: Nobs, Nbins, Nbins_r
       Integer :: N_r, N1, N
-  
-  
+
+
       Nobs  = size(data,1)
       Nbins = size(data,2)
-  
-      ! Skipping and Rebinning 
+
+      ! Skipping and Rebinning
       Nbins_r = (Nbins-N_skip)/N_rebin
       Allocate( data_r(Nobs,Nbins_r), X(Nobs) )
       N = N_skip
@@ -308,7 +296,7 @@
          enddo
          data_r(:,N_r) = X(:)/dble(N_rebin)
       enddo
-  
+
       ! Creating jackknife bins
       Allocate( j(Nbins_r), X2(Nobs) )
       X(:) = cmplx(0.D0,0.d0,kind(0.d0))
@@ -319,7 +307,7 @@
          X2(:) = (X(:) - data_r(:,N))/dble(Nbins_r-1)
          j(N) = func(X2)
       enddo
-  
+
       ! Calculate standard deviation of jackknife bins
       Allocate (Rhelp(Nbins_r))
       do N = 1, Nbins_r
@@ -335,40 +323,40 @@
       call errcalc(Rhelp, xm, xerr)
       best =  best + cmplx( 0.d0, xm, kind(0.D0)   )
       err  =  err  + cmplx( 0.d0, xerr, kind(0.D0) )
-      
+
       err = err * dble(Nbins_r)
-      
+
       deallocate( data_r, X, j, X2, Rhelp )
-  
+
    End Subroutine jack
 
 !==============================================================================
 
    subroutine auto(func, data, N_skip, res)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Calculates autocorrelation
 !-------------------------------------------------------------------
       implicit none
-      
+
       complex (Kind=Kind(0.d0)), External   :: func
       complex (Kind=Kind(0.d0)), intent(in) :: data(:,:)
       Integer, intent(in)                   :: N_skip
-      
+
       Real (Kind=Kind(0.d0)), intent(inout) :: res(:)
-      
+
       Integer                :: N_obs, N_bins, N_auto, ntau, nt
       complex (Kind=Kind(0.d0)), allocatable :: data1(:), data2(:)
       complex (Kind=Kind(0.d0)) :: mean, X1, X2
-      
+
       N_obs  = size(data,1)
       N_bins = size(data,2) - N_skip
       N_auto = size(res)
       allocate( data1(N_obs), data2(N_obs) )
-      
+
       do ntau = 1, N_auto
          X1 = 0.0
          X2 = 0.0
@@ -379,20 +367,20 @@
          enddo
          mean = mean / dble(N_bins - ntau)
          mean = func(mean)
-         
+
          do nt = 1, N_bins - ntau
             data1(:) = data(:,nt+N_skip)
             data2(:) = data(:,nt+N_skip+ntau)
-            X1 = X1 + (func(data1)-mean)*(func(data2)-mean) 
+            X1 = X1 + (func(data1)-mean)*(func(data2)-mean)
             X2 = X2 + (func(data1)-mean)*(func(data1)-mean)
          enddo
       !     X1 = X1 / dble(N_bins - ntau)
       !     X2 = X2 / dble(N_bins - ntau)
-                  
+
          Res(ntau) = dble( X1/X2 )
       enddo
-      
-   
+
+
    end subroutine auto
 
 !==============================================================================
@@ -400,12 +388,12 @@
 
    subroutine Cov_tau(file, PartHole)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> Analysis of imaginary time displaced  correlation functions.
-!> 
+!>
 !> @param [IN] file Character(len=64)
 !> \verbatim
 !>  Name of file that gets read in
@@ -415,23 +403,25 @@
 !>  If true, it is assumed that observable is symmetric in imaginary time around tau = beta/2
 !> \endverbatim
 !
-!--------------------------------------------------------------------        
+!--------------------------------------------------------------------
 
       Implicit none
       Character (len=64), intent(in) :: file
       Logical           , intent(in) :: PartHole
-      
+
       Character (len=64) :: name_obs
       Real    (Kind=Kind(0.d0)), allocatable :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer :: Bins_raw(:,:,:,:,:), Bins0_raw(:,:)
       Type (Lattice)   :: Latt
-      real    (Kind=Kind(0.d0)):: dtau
+      Type (Unit_cell) :: Latt_unit
+      real (Kind=Kind(0.d0)) :: dtau
+      Character (len=2)      :: Channel
       Integer :: i
 
       i = len(trim(file)) - 4
       name_obs = file(:i)
-      
-      call read_latt(file, sgn, bins_raw, bins0_raw, Latt, dtau)
+
+      call read_latt(file, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
       call ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau, PartHole)
 
    end subroutine Cov_tau
@@ -447,7 +437,7 @@
       Type (Lattice), intent(in)    :: Latt
       Real    (Kind=Kind(0.d0)), intent(in) :: dtau
       Logical, intent(in) :: PartHole
-      
+
       Character (len=64) :: File_out, command
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
@@ -461,9 +451,9 @@
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
-      
+
       NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
-      
+
       N_Back = 1
       N_auto = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
@@ -473,12 +463,12 @@
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
-      
+
       Nbins = size(bins_raw,5)
       Norb  = size(bins_raw,3)
       LT    = size(bins_raw,2)
       Nunit = Latt%N
-      
+
       Write(6,*) "# of bins: ", Nbins
       nbins  = Nbins - n_skip
       Write(6,*) "Effective # of bins: ", Nbins/N_rebin
@@ -489,22 +479,22 @@
       if (PartHole .and. mod(Lt-1,2) == 0 ) then
          Lt_eff = (Lt -1 ) /2   + 1
       elseif (PartHole) then
-         Lt_eff = Lt/2 
+         Lt_eff = Lt/2
       else
          Lt_eff = Lt
       endif
-      
+
       ! Allocate  space
       Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
             &     V_help(Lt_eff,Nbins))
       Allocate ( Bins_chi(Nunit,Nbins) )
       Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
-   
+
       do n = 1,Nunit
-         xk_p(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p  
+         xk_p(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
       enddo
-      
+
       ! Do timedisplaced k-resolved ===============================
       do nb = 1, nbins
          Phase (nb) = sgn(nb+n_skip)
@@ -526,7 +516,7 @@
             enddo
          enddo
       enddo
-      
+
       do n = 1,Nunit
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
             call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
@@ -550,8 +540,8 @@
             close(10)
          endif
       enddo
-      
-      
+
+
       ! Do timedisplaced r=0 ===============================
       V_help = cmplx(0.d0,0.d0,kind(0.d0))
       do n = 1,Nunit
@@ -581,8 +571,8 @@
          Enddo
       Endif
       close(10)
-      
-      
+
+
       ! Do susceptibilities ===============================
       do nb = 1, nbins
          do n = 1,Nunit
@@ -598,7 +588,7 @@
                enddo
             enddo
             if (PartHole) Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
-            Bins_chi(N,nb) = Z 
+            Bins_chi(N,nb) = Z
          enddo
       enddo
       write(File_out,'(A,"_tauJK")') trim(name_obs)
@@ -611,42 +601,44 @@
                &   Xk_p(1,n), Xk_p(2,n), dble(ZMean), dble(ZERR), aimag(ZMean), aimag(ZERR)
       enddo
       Close(33)
-      
-      
+
+
       ! Deallocate space ===============================
       Deallocate ( bins, Phase,PhaseI, Xk_p, V_help)
       Deallocate ( Bins_chi, Xmean, Xcov )
-      
+
    end Subroutine ana_tau
 
 !==============================================================================
-   
+
    subroutine Cov_eq(file)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> Analysis program for equal time observables.
-!> 
+!>
 !
 !--------------------------------------------------------------------
 
       Implicit none
       Character (len=64), intent(in) :: file
-      
+
       Real    (Kind=Kind(0.d0)), allocatable :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer :: Bins_raw(:,:,:,:,:), Bins0_raw(:,:)
       Type (Lattice)   :: Latt
-      Real    (Kind=Kind(0.d0)) :: dtau
-      
-      call read_latt(file, sgn, bins_raw, bins0_raw, Latt, dtau)
+      Type (Unit_cell) :: Latt_unit
+      Real (Kind=Kind(0.d0)) :: dtau
+      Character (len=2)      :: Channel
+
+      call read_latt(file, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
       call ana_eq(file, sgn, bins_raw, bins0_raw, Latt)
-   
+
    end subroutine Cov_eq
 
 !==============================================================================
-   
+
    Subroutine ana_eq(name, sgn, bins_raw, bins0_raw, Latt)
       Implicit none
       Character (len=64), intent(in) :: name
@@ -654,7 +646,7 @@
       Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins_raw(:,:,:,:,:)
       Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins0_raw(:,:)
       Type (Lattice), intent(in)    :: Latt
-      
+
       Character (len=64)  :: File_out
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
       Integer :: Nbins, Norb, Nunit
@@ -670,7 +662,7 @@
       Real (Kind=Kind(0.d0)) :: Xm,Xe
 
       NAMELIST /VAR_errors/   N_skip, N_rebin, N_Cov, N_Back, N_auto
-         
+
       N_Back = 1
       N_auto = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
@@ -680,11 +672,11 @@
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
-      
+
       Nbins = size(bins_raw,5)
       Norb  = size(bins_raw,3)
       Nunit = Latt%N
-      
+
       Write(6,*) "# of bins: ", Nbins
       Nbins  = Nbins - n_skip
       Write(6,*) "Effective # of bins: ", Nbins/N_rebin
@@ -702,13 +694,13 @@
             bins_r(n,nb)%el = cmplx(0.d0,0.d0,kind(0.d0))
             bins  (n,nb)%el = cmplx(0.d0,0.d0,kind(0.d0))
          Enddo
-      Enddo 
-         
+      Enddo
+
       allocate( Xk_p_s(2, Latt%N) )
       do n = 1,Latt%N
             Xk_p_s(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
       enddo
-      
+
       Bins0 = cmplx(0.d0,0.d0,kind(0.d0))
       do nb = 1, nbins + n_skip
          if (nb > n_skip ) then
@@ -736,11 +728,11 @@
          endif
       enddo
       N_auto=min(N_auto,Nbins/3)
-      
+
 
       Call Fourier_K_to_R(bins,bins_r,Latt)
 
-      ! Setup symmetries for square lattice. 
+      ! Setup symmetries for square lattice.
 #ifdef test
       do n = 1,Nunit
          n1 = n
@@ -757,8 +749,8 @@
       write(File_out,'(A,A)') trim(name), "JR"
       Open (Unit=34,File=File_out ,status="unknown")
       Do n = 1,Nunit
-         Xk_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p 
-         Xr_p = dble(Latt%list (n,1))*Latt%a1_p + dble(Latt%list (n,2))*Latt%a2_p 
+         Xk_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
+         Xr_p = dble(Latt%list (n,1))*Latt%a1_p + dble(Latt%list (n,2))*Latt%a2_p
          Write(33,"(F12.6,2x,F12.6)")  Xk_p(1), Xk_p(2)
          Write(34,"(F12.6,2x,F12.6)")  Xr_p(1), Xr_p(2)
          Do no = 1,Norb
@@ -766,13 +758,13 @@
                do nb = 1,Nbins
                   V_help(nb) = bins  (n,nb)%el(no,no1)
                enddo
-               call ERRCALCJ( V_help, Phase,XMean, XERR, N_rebin ) 
+               call ERRCALCJ( V_help, Phase,XMean, XERR, N_rebin )
                Write(33,"(I3,2x,I3,2x,F16.8,2x,F16.8,2x,F16.8,2x,F16.8)") &
                      &  no,no1, dble(XMean), dble(XERR), aimag(XMean), aimag(XERR)
                do nb = 1,Nbins
                   V_help(nb) = bins_r(n,nb)%el(no,no1)
                enddo
-               call ERRCALCJ( V_help,Phase, XMean_r, XERR_r, N_rebin ) 
+               call ERRCALCJ( V_help,Phase, XMean_r, XERR_r, N_rebin )
                Write(34,"(I3,2x,I3,2x,F16.8,2x,F16.8,2x,F16.8,2x,F16.8)") &
                      &  no,no1, dble(XMean_r), dble(XERR_r), aimag(XMean_r), aimag(XERR_r)
             enddo
@@ -781,7 +773,7 @@
 
       Close(33)
       Close(34)
-      
+
       if(N_auto>0) then
       ALLOCATE(AutoCorr(N_auto))
       ALLOCATE(EN(Nbins))
@@ -808,29 +800,29 @@
       enddo
       DEALLOCATE(AutoCorr)
       endif
-      
+
    end Subroutine ana_eq
 
 
    subroutine Cov_vec(file)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> Analysis program for scalar observables
 !
 !--------------------------------------------------------------------
-        
+
       Implicit none
       Character (len=64), intent(in) :: file
 
       Real    (Kind=Kind(0.d0)), allocatable :: sgn_raw(:)
       Complex (Kind=Kind(0.d0)), pointer     :: Bins_raw(:,:)
-        
+
       call read_vec(file, sgn_raw, bins_raw)
       call ana_vec(file, sgn_raw, bins_raw)
-      
+
    END subroutine Cov_vec
 
 !==============================================================================
@@ -846,14 +838,14 @@
 
       Complex (Kind=Kind(0.d0)), Allocatable  :: Bins(:,:)
       REAL    (Kind=Kind(0.d0)), Allocatable  :: AutoCorr(:)
-      Integer :: Nobs 
+      Integer :: Nobs
       Integer :: Nbins, Nbins_eff, I, IOBS, N_Back
       Integer :: N,N1
 
       Integer :: N_skip, N_rebin, N_Cov, ierr, N_auto
       Character (len=64) :: File_out
       NAMELIST /VAR_errors/   N_skip, N_rebin, N_Cov, N_Back, N_auto
-      
+
       !New Stuff for Autocorrelation
       Integer :: tau, tau_max, Nbins_eff2
       REAL(Kind=Kind(0.d0)), DIMENSION(:)  , ALLOCATABLE :: vec, vec_err
@@ -866,7 +858,7 @@
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
-        
+
       Nobs  = size(bins_raw, 1)
       Nbins = size(bins_raw, 2)
 
@@ -877,15 +869,15 @@
       if(Nbins_eff/N_rebin < 2) then
          stop "Effective # of bins smaller than 2. Analysis impossible!"
       endif
-        
+
       ! Allocate  space
       Allocate ( Bins(Nobs,Nbins_eff), sgn(Nbins_eff) )
-      
+
       do i =1,Nbins_eff
          Bins(:,i) = Bins_raw(:,i+n_skip)
          sgn(i) = sgn_raw(i+n_skip)
       enddo
-         
+
       write(File_out,'(A,A)') trim(name), "J"
       OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
       WRITE(21,*) 'Effective number of bins, and bins: ', Nbins_eff/N_rebin, Nbins
@@ -904,7 +896,7 @@
       CLOSE(21)
 2001    FORMAT('OBS : ', I4,4x,F12.6,2X, F12.6)
 !2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
-        
+
       if(N_auto>0) then
          ALLOCATE(AutoCorr(N_auto))
          DO IOBS = 1,NOBS
@@ -924,6 +916,6 @@
       endif
 
       DEALLOCATE (EN,vec,vec_err,sgn_raw,sgn,Bins_raw,Bins)
-      
+
    END subroutine ana_vec
 end module ana_mod

@@ -1,5 +1,5 @@
 .PHONY : all tidy clean
-BINS=cov_eq.out cov_scal.out cov_tau.out cov_tau_ph.out Max_SAC.out ana.out repack_latt.out
+BINS=cov_eq.out cov_scal.out cov_tau.out cov_tau_ph.out Max_SAC.out ana.out #repack_latt.out
 
 all: $(OBJS1) $(BINS)
 
