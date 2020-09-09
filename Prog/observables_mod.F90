@@ -79,18 +79,20 @@
 
        Contains
 
-         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit)
+         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel)
            Implicit none
-           Type (Obser_Latt), intent(INOUT) :: Obs
-           Integer, Intent(IN)             :: Nt
-           Character (len=64), Intent(IN)  :: Filename
-           Type (Lattice),   Intent(IN), target :: Latt
-           Type (Unit_cell), Intent(IN), target :: Latt_unit
+           Type (Obser_Latt),  intent(INOUT)      :: Obs
+           Integer,            Intent(IN)         :: Nt
+           Character (len=64), Intent(IN)         :: Filename
+           Type (Lattice),     Intent(IN), target :: Latt
+           Type (Unit_cell),   Intent(IN), target :: Latt_unit
+           Character (len=2),  Intent(IN)         :: Channel
            Allocate (Obs%Obs_Latt(Latt%N, Nt, Latt_unit%Norb, Latt_unit%Norb))
            Allocate (Obs%Obs_Latt0(Latt_unit%Norb))
            Obs%File_Latt = Filename
            Obs%Latt => Latt
            Obs%Latt_unit => Latt_unit
+           Obs%Channel = Channel
          end subroutine Obser_Latt_make
 !--------------------------------------------------------------------
 
@@ -206,21 +208,23 @@
                  13 format(A20, ': ', F6.4, ', ', F6.4)
                  !open(10, file=File_aux, status='new')
                  open(10, file=File_aux)
-                 write(10, 11) 'Number of orbitals', Norb
-                 write(10, 11) 'Unit cells', Obs%Latt%N
+                 write(10, '(A20, ": ", A, A)') 'Observable', trim(Obs%File_Latt), trim(File_suff)
+                 write(10, '(A20, ": ", A2)') 'Channel', Obs%Channel
                  write(10, 11) 'Ntau', Ntau
                  write(10, 12) 'dtau', dtau
+                 write(10, '(A)') '       ====== Bravais Lattice ======'
+                 write(10, 11) 'Unit cells', Obs%Latt%N
                  write(10, 13) 'L1', Obs%Latt%L1_p
                  write(10, 13) 'L2', Obs%Latt%L2_p
                  write(10, 13) 'a1', Obs%Latt%a1_p
                  write(10, 13) 'a2', Obs%Latt%a2_p
-                 !if (present(Latt_unit) ) then
-                    write(10, 11) 'Coordination number', Obs%Latt_unit%N_coord
-                    do no = 1, Norb
-                       write(tmp_str, '("Orbital ",I0)') no
-                       write(10, 13) tmp_str, Obs%Latt_unit%Orb_pos_p(no,:)
-                    enddo
-                 !endif
+                 write(10, '(A)') '       ========= Unit cell ========='
+                 write(10, 11) 'Coordination number', Obs%Latt_unit%N_coord
+                 write(10, 11) 'Number of orbitals', Norb
+                 do no = 1, Norb
+                    write(tmp_str, '("Orbital ",I0)') no
+                    write(10, 13) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
+                 enddo
                  close(10)
               !endif
 
