@@ -286,7 +286,7 @@
           Phi_Y_vec      = 0.d0
           Ham_T2_vec     = 0.d0
           Ham_Lambda_vec = 0.d0
-          N_Phi_vec      = 0.d0
+          N_Phi_vec      = 0
 
           Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
                &                                      Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
