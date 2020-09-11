@@ -342,15 +342,19 @@ A stable code  should produce results where the mean difference is smaller than 
 
 \subsubsection{Running the code and testing}
 
-The  executable \texttt{Hubbard\_Plain\_Vanilla.out}
+To test the code, one can carry out high precision simulations. After compilation, the executable \texttt{Hubbard\_Plain\_Vanilla.out} is found in the directory \texttt{\$ALF\_DIR/Prog/} and can be run from any directory containing the files \texttt{parameters} and \texttt{seeds} (See Sec.~\ref{sec:files}).
 
-
-To test the code, one can carry out   high precision  simulations.  
-To  compile and run the code, it is convenient to use \texttt{pyALF}: \red{[Should we declare Run.py legacy, and substitute it by dedicated python scripts?]}
-\begin{lstlisting}[style=bash]
-python3 Run.py -R --alfdir   $HOME/ALF  --machine Intel --mpi MPI --n_mpi 12 \
-                --ham_name_R  Hubbard_Plain_Vanilla
+Alternatively, it may be convenient to use \texttt{pyALF} to compile and run the code. In this case, the simulation parameters assigned non-default values can be set in the \texttt{Sims} such as: 
+\begin{lstlisting}[style=fortran]
+{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 4, "Nsweep": 2000,  
+"NBin": 40, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05}
 \end{lstlisting}
+The simulation can then be run using the script \texttt{Run.py}:
+\begin{lstlisting}[style=bash]
+python3 Run.py -R --alfdir $ALF_DIR --machine GNU --mpi MPI --n_mpi 4 \
+               --ham_name_R  Hubbard_Plain_Vanilla
+\end{lstlisting}
+\red{[Should we declare Run.py legacy, and substitute it by dedicated python scripts?]}
 
 \paragraph{One dimensional case} 
 

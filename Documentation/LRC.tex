@@ -84,14 +84,14 @@ Since a local change on  a single time slice in the $\eta$ basis corresponds to 
 The name space for this model class  reads: 
 
 \begin{lstlisting}[style=fortran,escapechar=\#,breaklines=true]
-&VAR_LRC                !! Variables for the  Long Range Coulomb class
-ham_T          = 1.0    !   Specifies the hopping and chemical potential
-ham_T2         = 1.0    !   
-ham_Tperp      = 1.0    ! 
-ham_chem       = 1.0    ! 
-ham_U          = 4.0    !   Specifies the interaction
-ham_alpha      = 0.1    !
-Percent_change = 0.1    !   Parameter P 
+&VAR_LRC                   !! Variables for the  Long Range Coulomb class
+ham_T          = 1.0       ! Specifies the hopping and chemical potential
+ham_T2         = 1.0       ! For bilayer systems
+ham_Tperp      = 1.0       ! For bilayer systems
+ham_chem       = 1.0       ! Chemical potential
+ham_U          = 4.0       ! On-site interaction
+ham_alpha      = 0.1       ! Coulomb tail magnitude
+Percent_change = 0.1       ! Parameter P 
 /
 \end{lstlisting}
 

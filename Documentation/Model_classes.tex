@@ -12,7 +12,7 @@ The ALF  library comes with five model classes. a) SU(N) Hubbard models, (b)  O(
 detail the functioning of these classes.  
 
 
-\subsection{ SU(N) Hubbard models   \texttt{Hamiltonian\_Hubbard\_mod.F90}}
+\subsection{ SU(N) Hubbard models   \texttt{Hamiltonian\_Hubbard\_mod.F90}} \label{sec:hubbard}
 
 The parameter space for this model class  reads: 
 
@@ -66,15 +66,14 @@ Since this model class  works for all predefined lattices  (see Fig.~\ref{fig_pr
 Would be nice to discuss this point.}
 
 
-
-\subsection{  O(2N)  t-V models  \texttt{tV\_mod.F90}}
+\subsection{O(2N)  t-V models  \texttt{tV\_mod.F90}}
 
 This would include the $SU(N)$  $t-V$ models on various lattices.  The defining property of this set of Hamiltonians would be the enlarged O(2N) symmetry.  Again  this   module should support our standard bipartite lattices. 
 
 The parameter space for this model class  reads: 
 
 \begin{lstlisting}[style=fortran,escapechar=\#,breaklines=true]
-&VAR_Hubbard               !! Variables for the Hubbard class
+&VAR_tV                    !! Variables for the t-V class
 ham_T     = 1.d0            ! Hopping parameter
 ham_chem  = 0.d0            ! Chemical potential
 ham_V     = 4.d0            ! Hubbard interaction
