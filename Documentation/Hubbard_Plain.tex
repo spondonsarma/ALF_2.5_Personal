@@ -342,11 +342,11 @@ A stable code  should produce results where the mean difference is smaller than 
 
 \subsubsection{Running the code and testing}
 
-The  executable \texttt{Plain\_}
+The  executable \texttt{Hubbard\_Plain\_Vanilla.out}
 
 
 To test the code, one can carry out   high precision  simulations.  
-To  compile and run the code, it is convenient to use \texttt{pyALF}: 
+To  compile and run the code, it is convenient to use \texttt{pyALF}: \red{[Should we declare Run.py legacy, and substitute it by dedicated python scripts?]}
 \begin{lstlisting}[style=bash]
 python3 Run.py -R --alfdir   $HOME/ALF  --machine Intel --mpi MPI --n_mpi 12 \
                 --ham_name_R  Hubbard_Plain_Vanilla
