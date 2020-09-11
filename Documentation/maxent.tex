@@ -91,7 +91,7 @@ Finally the sum rule reads
 Using the \texttt{Max\_Sac.F90}  with \texttt{Channel="P"}   will  load the above kernel in the MaxEnt library.  Note that in this case the back  transformation is set to unity.  
 Note that for each  configuration of fields we have $ \langle  \langle \hat{c}^{\phantom\dagger}_{k} (\tau=0)  \hat{c}^{\dagger}_{k} (0)   \rangle  \rangle_{C} +   
 \langle \langle \hat{c}^{\phantom\dagger}_{k} (\tau=\beta)  \hat{c}^{\dagger}_{k} (0)   \rangle \rangle_{C} = 
-\langle \langle \big\{ \hat{c}^{\phantom\dagger}_{k},   \hat{c}^{\dagger}_{k}    \big\} \rangle \rangle_{C}   = 1$, hence, if both  the $\tau=0$ anf $\tau=\beta$ data points are included, the covariance matrix will have a zero eigenvalue and the $\chi^{2}$ measure is not defined. Therefore, for the particle channel the program omits the $\tau=\beta$ data point. There are special  particle-hole symmetric  cases where the $\tau=0$ data point shows no  fluctuations -- in such cases the code omits the $\tau=0$ data point as well.
+\langle \langle \big\{ \hat{c}^{\phantom\dagger}_{k},   \hat{c}^{\dagger}_{k}    \big\} \rangle \rangle_{C}   = 1$, hence, if both  the $\tau=0$ and $\tau=\beta$ data points are included, the covariance matrix will have a zero eigenvalue and the $\chi^{2}$ measure is not defined. Therefore, for the particle channel the program omits the $\tau=\beta$ data point. There are special  particle-hole symmetric  cases where the $\tau=0$ data point shows no  fluctuations -- in such cases the code omits the $\tau=0$ data point as well.
 
 \subsection{Particle-hole quantities }
 
