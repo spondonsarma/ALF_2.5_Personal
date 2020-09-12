@@ -124,11 +124,13 @@ The following comments are in order:
 \caption{Analysis of  Trotter systematic error.
         Left:    We consider a $6 \times 6$ Hubbard model on the Honeycomb lattice, $U/t=2$, half-band filling,  inverse temperature $\beta t =40$,  and we have used an HS transformation that couples to  the density.    The figure plots the  local-time displaced Green function.
         Right: Here we consider the $6\times 6$ Hubbard model at $U/t=4$, half-band filling,  inverse temperature $\beta t =5$, and we have used the HS transformation that couples to the $z$-component of spin.  We provide data for the four combinations of  the logical variables \texttt{Symm}  and \texttt{Checkerboard}, where  \texttt{Symm=.true.}  (\texttt{.false.})  indicates a symmetric  (asymmetric) Trotter decomposition has been used, and  \texttt{Checkerboard=.true.}  (\texttt{.false.})   that the checkerboard decomposition for the hopping matrix has (not) been used.
-        The large deviations between different choices of \texttt{Symm} are $\sim [T, H]$ as detailed in \cite{goth2020}.
+        The large deviations between different choices of \texttt{Symm} are here $\sim [T, [T,H]]$ as detailed in \cite{goth2020}.
   }
         \label{Trotter.fig}
 \end{figure}
 
+Alternative symmetric second order methods as well as the issues with decompositions of higher order 
+have been detailed in \cite{goth2020}.
 
 \subsubsection{ The \texttt{Symm} flag } 
 

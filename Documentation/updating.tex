@@ -127,7 +127,7 @@ Exchange Monte Carlo \cite{Hukushima96}, or parallel tempering \cite{Greyer91}, 
 Let $h$ be a parameter which one can vary without  altering the configuration space $ \{C  \}  $ and let us assume that for some values of $h$ one encounters sampling problems.   For example, in the realm of spin glasses, $h$  could correspond to the  inverse temperature.  Here at high temperatures the phase space is easily sampled, but at low temperatures  simulations get stuck in local minima. For quantum systems, $h$ could   trigger a quantum phase transition where  sampling issues are encountered, for example, in the ordered phase and not in the disordered one.   As its name suggests, parallel tempering  carries out in parallel simulations at consecutive  values of  $h$:  $h_1, h_2,  \cdots h_n$, with  $h_{1} < h_2 < \cdots < h_n$.  One will sample the extended ensemble: \begin{equation}
 	P(\left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right] ) =  \frac{W(h_1,C_1) W(h_2,C_2) \cdots   W(h_n,C_n) } {\sum_{C_1, C_2, \cdots, C_n} W( h_1,C_1) W( h_2,C_2) \cdots   W(h_n,C_n)}
 \end{equation}
-where $W(h,C)$ corresponds   to the weight  for  for a given value of $h$ and configuration C. 
+where $W(h,C)$ corresponds to the weight for a given value of $h$ and configuration C. 
 Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$ independent runs.
 However, parallel tempering  includes the following   exchange step:
 \begin{equation} \label{eq:exchangestep}
@@ -158,7 +158,7 @@ The above equation becomes transparent  for  classical systems  with $ S(h,C) = 
 \begin{equation}
 	\Delta h       \simeq  2 h \frac{  \sqrt{C} } { C    + h \langle H \rangle_h},  \text{   with  } C = h^2    \langle \left(  H -  \langle H   \rangle_h \right)^2 \rangle_h .
 \end{equation} 
-Several comments are in order.
+Several comments are in order:
 \begin{itemize}
 \item[i)] Let us identify $h$ with the inverse temperature  such that $C$ corresponds to the specific heat. This quantity is extensive,  as well as the energy, such that $ \Delta h \simeq 1/{\sqrt{N}} $ where $N$ is the system size.
 \item[ii)] In the proximity of a phase transition the specific heat can diverge, and $h$ must be chosen with particular care.

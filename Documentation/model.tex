@@ -39,7 +39,8 @@ such that  the  basic CT-AUX equation \cite{Rombouts98}
 \end{equation}
 holds.
 The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation it turns out that the multi-grid method \cite{Rost12,Rost13,Bluemer08}  is an efficient  scheme to   extrapolate to  small imaginary-time steps so as to  eliminate the Trotter systematic error if required.
-\item  Having isolated the two-body term,  we use  the   discrete HS transformation \cite{Motome97,Assaad97}:
+\item  Having isolated the two-body term, we apply Gau\ss{}-Hermite quadrature \cite{goth2020} to the 
+continuous HS transform and obtain the discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
         e^{\Delta \tau  \lambda  \hat{A}^2 } =

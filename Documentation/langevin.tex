@@ -10,13 +10,13 @@
 \subsubsection{Langevin dynamics}
 %------------------------------------------------------------
 
-For models that includes continuous real fields $\vec{s} \equiv \left\{s_{k,\tau} \right\}$ there is the option of using Langevin dynamics for the updating scheme, by setting  the variable \texttt{Langevin} to \texttt{.true.}. This corresponds to a  stochastic differential equation for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
+For models that include continuous real fields $\vec{s} \equiv \left\{s_{k,\tau} \right\}$ there is the option of using Langevin dynamics for the updating scheme, by setting  the variable \texttt{Langevin} to \texttt{.true.}. This corresponds to a  stochastic differential equation for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
 \begin{equation}\label{eqn:langevin}
    \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \frac{\partial S(C) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl } \ve{\eta}(\tl).
 \end{equation}
 Here,  $  \ve{\eta}(\tl)  $   are  independent Gaussian  stochastic variables  satisfying:
 \begin{equation}
-        \langle  \eta_{k,\tau}(\tl) \rangle_{\eta}  = 0   \text{  and  }    \langle  \eta_{k,\tau}(\tl)  \eta_{k',\tau'}(\tl') \rangle_{\eta}  = \delta_{k,k'} \delta_{\tau,\tau'} \delta_{\tl,\tl'}
+        \langle  \eta_{k,\tau}(\tl) \rangle_{\eta}  = 0   \text{  and  }    \langle  \eta_{k,\tau}(\tl)  \eta_{k',\tau'}(\tl') \rangle_{\eta}  = \delta_{k,k'} \delta_{\tau,\tau'} \delta_{\tl,\tl'}.
 \end{equation}
 We refer the reader to  Ref.~\cite{Gardiner}   for a more in depth introduction to stochastic differential equations.
 To see that the above  indeed produces the desired probability distribution in the long Langevin time limit, we can transform the Langevin equation into the corresponding Fokker-Plank one.  Let
@@ -91,7 +91,7 @@ where the following definitions are used
 The vector $\hat{\vec{c}}_s^{\dagger}$ contains all fermionic operators $\hat{c}_{x,s}^{\dagger}$ of flavor $s$.
 The fermion forces are passed to the routine \texttt{Ham\_Langevin\_update} in the Hamiltonian file, where the user has to define the update rule for the fields according to Eq.~(\ref{eqn:langevin}). During each sweep all fields are updated and the Langevin time is incremented by $\delta \tl$. All updates are accepted to ensure ergodicity. At the end of a run, the mean and maximal forces encountered during the run are printed out in the info file.
 
-The great advantage the Langevin updating scheme is the absence of update rejection, meaning that all fields are updated at each step. As mentioned above, the price we pay for using Langevin dynamics is ensuring that forces show no singularities, and two other potential issues should be highlighted:
+The great advantage of the Langevin updating scheme is the absence of update rejection, meaning that all fields are updated at each step. As mentioned above, the price we pay for using Langevin dynamics is ensuring that forces show no singularities, and two other potential issues should be highlighted:
 \begin{itemize}
 \item   Langevin dynamics will be carried out at a finite  Langevin time step, thereby introducing a further source of systematic error.
 \item   The factor $\sqrt{2 \delta \tl} $   multiplying the stochastic variable makes the  noise dominant  on short time scales.  On these time scales  Langevin dynamics essentially  corresponds to a random walk. This has the advantage of allowing one to circumvent potential barriers, but may render the updating scheme less efficient than the hybrid molecular dynamics approach.
