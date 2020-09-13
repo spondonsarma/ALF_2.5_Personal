@@ -116,7 +116,7 @@
 
 
           NAMELIST /VAR_Z2_Matter/ ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h, &
-               &                   Dtau, Beta, ham_TZ2, Ham_U
+               &                   Dtau, Beta, ham_TZ2, Ham_U,  N_SUN 
 
 
 #ifdef MPI
@@ -799,7 +799,7 @@
           DW_Ising_Matter( 1) = exp( 2.d0*Dtau*Ham_J)
           DW_Ising_Matter(-1) = exp(-2.d0*Dtau*Ham_J)
           DW_Matter_tau = 1.d0
-          If (Ham_g > Zero ) then
+          If (Ham_h > Zero ) then
              DW_Matter_tau  ( 1) = tanh(Dtau*Ham_h)
              DW_Matter_tau  (-1) = 1.D0/DW_Matter_tau(1)
           endif
@@ -933,7 +933,7 @@
              Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
           Enddo
 
-          If ( abs(Ham_T) > 0 ) then
+          If ( abs(Ham_T) > Zero ) then
              ntau1 = ntau + 1
              If (ntau == Ltrot)  ntau1 = 1
              Allocate ( Isigma(Latt%N), Isigma1(Latt%N) )
@@ -979,7 +979,7 @@
 
           Zrho = cmplx(0.d0,0.d0, kind(0.D0))
           Do nf = 1,N_FL
-             Do I = 1,Ndim
+             Do I = 1,Latt%N
                 Zrho = Zrho + Grc(i,i,nf)
              enddo
           enddo
