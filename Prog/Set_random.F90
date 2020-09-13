@@ -65,7 +65,6 @@
         
 #if defined(MPI)       
        IF (IRANK == 0) THEN
-          WRITE(6,*) 'No initial configuration'
           OPEN(UNIT=5,FILE=File_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
           IF (IERR /= 0) THEN
              WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
