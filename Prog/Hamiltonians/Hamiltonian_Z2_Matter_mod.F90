@@ -815,30 +815,17 @@
           Character (len=64) ::  Filename
 
           ! Scalar observables
-          Allocate ( Obs_scal(10) )
+          Allocate ( Obs_scal(4) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
-                N = 1;   Filename ="Kin"
-             case (2)
-                N = 1;   Filename ="Pot"
-             case (3)
                 N = 1;   Filename ="Part"
-             case (4)
-                N = 1;   Filename ="Ener"
-             case (5)
+             case (2)
                 N = 2;   Filename ="Flux"
-             case (6)
+             case (3)
                 N = 2;   Filename ="X"
-             case (7)
-                N = L1/2
-                If (L2 > L1 ) N = L2/2; Filename ="Wilson"
-             case (8)
-                N = L1/2 + L2/2;        Filename ="Vison"
-             case (9)
-                N = 1;        Filename ="KinZ2"
-             case (10)
-                N = 1;        Filename ="J"
+             case (4)
+                N = 1;   Filename ="Constraint"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -847,7 +834,7 @@
 
 
           ! Equal time correlators
-          Allocate ( Obs_eq(6) )
+          Allocate ( Obs_eq(4) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
@@ -855,13 +842,9 @@
              case (2)
                 Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="SpinZ"
              case (3)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="SpinXY"
-             case (4)
                 Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Den"
-             case (5)
+             case (4)
                 Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="GreenZ2"
-             case (6)
-                Ns = Latt%N;  No = Latt_unit%N_coord;  Filename ="Kin"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -941,41 +924,18 @@
              Call Hamiltonian_set_Z2_matter(Isigma ,ntau )
              Call Hamiltonian_set_Z2_matter(Isigma1,ntau1)
              
-             Zkin_Mat = cmplx(0.d0, 0.d0, kind(0.D0))
-             Do nf = 1,N_FL
-                Do I = 1,Latt%N
-                   I1 = latt%nnlist(I,1,0)
-                   I2 = latt%nnlist(I,0,1)
-                   Z1 = cmplx(real(Isigma(I)*Isigma(I1), kind(0.d0)), 0.d0,kind(0.d0))
-                   Z2 = cmplx(real(Isigma(I)*Isigma(I2), kind(0.d0)), 0.d0,kind(0.d0))
-                   Zkin_mat = Zkin_mat + Z1 * ( GRC(I,I1,1) + GRC(I1,I,1) ) + &
-                        &                Z2 * ( GRC(I,I2,1) + GRC(I2,I,1) )
-                Enddo
-             Enddo
-             Zkin_mat = Zkin_mat * dble(N_SUN) * Ham_T
-             Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zkin_mat *ZP* ZS
-             
-
-             ZPot_mat = cmplx(0.d0, 0.d0, kind(0.D0))
-             X_ave = 0.d0
-             Do I = 1,Latt%N
-                X_ave = X_ave + DW_Ising_tau( Isigma(I)*Isigma1(I) )
-             Enddo
-             Zpot_mat = cmplx(-X_ave*Ham_h,0.d0,kind(0.d0))
-             Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot_mat * ZP*ZS
-
              iFlux_tot = 0
              Do I = 1, Ndim
                 iFlux_tot = iFlux_tot + iFlux(I,Ntau,2)
              Enddo
-             Obs_scal(5)%Obs_vec(2)  =   Obs_scal(5)%Obs_vec(2) + cmplx(dble(iFlux_tot),0.d0,kind(0.d0))*ZP*ZS
+             Obs_scal(2)%Obs_vec(2)  =   Obs_scal(2)%Obs_vec(2) + cmplx(dble(iFlux_tot),0.d0,kind(0.d0))*ZP*ZS
 
              X_ave = 0.d0
              Do I = 1,Latt%N
                 X_ave = X_ave + DW_Matter_tau( Isigma(I)*Isigma1(I) )
              Enddo
-             Obs_scal(6)%Obs_vec(2)  =  Obs_scal(6)%Obs_vec(2) + cmplx(X_ave,0.d0,kind(0.d0)) * ZP*ZS
-             
+             Obs_scal(3)%Obs_vec(2)  =  Obs_scal(3)%Obs_vec(2) + cmplx(X_ave,0.d0,kind(0.d0)) * ZP*ZS
+
           endif
 
           Zrho = cmplx(0.d0,0.d0, kind(0.D0))
@@ -985,7 +945,7 @@
              enddo
           enddo
           Zrho = Zrho* dble(N_SUN)
-          Obs_scal(3)%Obs_vec(1)  =    Obs_scal(3)%Obs_vec(1) + Zrho * ZP*ZS
+          Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zrho * ZP*ZS
 
           
           If ( abs(Ham_TZ2) > Zero ) then
@@ -993,7 +953,8 @@
              Do I = 1, Ndim
                 iFlux_tot = iFlux_tot + iFlux(I,Ntau,1)
              Enddo
-             Obs_scal(5)%Obs_vec(1)  =   Obs_scal(5)%Obs_vec(1) + cmplx(dble(iFlux_tot),0.d0,kind(0.d0))*ZP*ZS
+             Obs_scal(2)%Obs_vec(1)  =   Obs_scal(2)%Obs_vec(1) + cmplx(dble(iFlux_tot),0.d0,kind(0.d0))*ZP*ZS
+             
              ntau1 = ntau + 1
              If (ntau == Ltrot)  ntau1 = 1
              X_ave = 0.d0
@@ -1002,63 +963,8 @@
                    X_ave = X_ave + DW_Ising_tau( nsigma%i(Field_list(I,no,1),ntau)*nsigma%i(Field_list(I,no,1),ntau1) )
                 Enddo
              Enddo
-             Obs_scal(6)%Obs_vec(1)  =  Obs_scal(6)%Obs_vec(1) + cmplx(X_ave,0.d0,kind(0.d0)) * ZP*ZS
+             Obs_scal(3)%Obs_vec(1)  =  Obs_scal(3)%Obs_vec(1) + cmplx(X_ave,0.d0,kind(0.d0)) * ZP*ZS
              
-             Do I = 1,Latt%N
-                do L_Wilson = 1,Size(Obs_scal(7)%Obs_vec,1)
-                   X  = 1.d0
-                   I1 = I
-                   I2 = I
-                   Do n = 1,L_Wilson
-                      X = X *nsigma%i(Field_list(I1,1,1),ntau)
-                      I1 = Latt%nnlist(I1,1,0)
-                      X = X *nsigma%i(Field_list(I2,2,1),ntau)
-                      I2 = Latt%nnlist(I2,0,1)
-                   enddo
-                   Do n = 1,L_Wilson
-                      X = X *nsigma%i(Field_list(I1,2,1),ntau)
-                      I1 = Latt%nnlist(I1,0,1)
-                      X = X* nsigma%i(Field_list(I2,1,1),ntau)
-                      I2 = Latt%nnlist(I2,1,0)
-                   enddo
-                   Obs_scal(7)%Obs_vec(L_Wilson) = Obs_scal(7)%Obs_vec(L_Wilson) + cmplx(X,0.d0,kind(0.d0)) *  ZP * ZS
-                enddo
-             Enddo
-             
-             Do I = 1, Latt%N
-                I1 = I
-                X  = 1.d0
-                DO L_Vison = 1,L1/2
-                   X = X*DW_Ising_tau( nsigma%i(Field_list(I1 ,2,1),ntau)*nsigma%i(Field_list(I1 ,2,1),ntau1) )
-                   Obs_scal(8)%Obs_vec(L_Vison) =   Obs_scal(8)%Obs_vec(L_Vison) + cmplx(X,0.d0,kind(0.d0)) * ZP * ZS
-                   I1 = Latt%nnlist(I1,1,0)
-                Enddo
-                I1 = Latt%nnlist(I1,0,1)
-                DO L_Vison = L1/2 + 1, L1/2 + L2/2
-                   X = X*DW_Ising_tau( nsigma%i(Field_list(I1,1,1),ntau)*nsigma%i(Field_list(I1 ,1,1),ntau1) )
-                   Obs_scal(8)%Obs_vec(L_Vison) =   Obs_scal(8)%Obs_vec(L_Vison) + cmplx(X,0.d0,kind(0.d0)) * ZP * ZS
-                   I1 = Latt%nnlist(I1,0,1)
-                Enddo
-             Enddo
-             
-             Z  = cmplx(0.d0,0.d0,kind(0.d0))
-             Do I = 1, Latt%N
-                I1 = latt%nnlist(I,1,0)
-                I2 = latt%nnlist(I,0,1)
-                Z = Z   + cmplx(Real( nsigma%i(Field_list(I,1,1),ntau),kind(0.d0)),0.d0,kind(0.d0)) * ( GRC(I,I1,1) + GRC(I1,I,1) )  &
-                     &  + cmplx(Real( nsigma%i(Field_list(I,2,1),ntau),kind(0.d0)),0.d0,kind(0.d0)) * ( GRC(I,I2,1) + GRC(I2,I,1) )
-             enddo
-             Obs_scal (9)%Obs_vec(1) = Obs_scal(9 )%Obs_vec(1)  + Z*cmplx(Ham_TZ2*dble(N_SUN),0.d0,kind(0.d0))*ZP*ZS
-             If (Abs(Ham_T) > Zero) then
-                X  = 0.d0
-                Do I = 1, Latt%N
-                   I1 = latt%nnlist(I,1,0)
-                   I2 = latt%nnlist(I,0,1)
-                   X = X   +  Real( nsigma%i(Field_list(I,1,1),ntau)* Isigma(I)*Isigma(I1), kind=kind(0.d0) ) + &
-                        &     Real( nsigma%i(Field_list(I,2,1),ntau)* Isigma(I)*Isigma(I2), kind=kind(0.d0) )
-                enddo
-                Obs_scal(10)%Obs_vec(1) = Obs_scal(10)%Obs_vec(1)  + cmplx(X*Ham_J  ,0.d0,kind(0.d0))*ZP*ZS
-             endif
           Endif
              
 
@@ -1069,7 +975,7 @@
                 Z    =  ( cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I,I,1) )**(N_SUN)
                 ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)),0.d0,kind(0.d0) ) * Z
              Enddo
-             Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
+             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
           elseif (Abs(Ham_TZ2) > Zero  .and. Abs(Ham_T) < Zero ) Then
              ZQ = cmplx(0.d0,0.d0,kind(0.d0))
              DO I = 1,Latt%N
@@ -1078,7 +984,7 @@
                      &        nsigma%i(Field_list(I,2,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,0,-1),2,1),ntau) , Kind(0.d0))
                 ZQ   = ZQ    + cmplx(X,0.d0,kind(0.d0) ) * Z
              Enddo
-             Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
+             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
           else
              ZQ = cmplx(0.d0,0.d0,kind(0.d0))
              DO I = 1,Latt%N
@@ -1087,7 +993,7 @@
                      &        nsigma%i(Field_list(I,2,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,0,-1),2,1),ntau) , Kind(0.d0))
                 ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)) * X ,0.d0,kind(0.d0) ) * Z
              Enddo
-             Obs_scal(6)%Obs_vec(1) = Obs_scal(6)%Obs_vec(1)  + ZQ * ZP*ZS
+             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
           endif
              
 
@@ -1115,22 +1021,24 @@
           Do I1 = 1,Latt%N
              Do J1 = 1,Latt%N
                 imj = latt%imj(I1,J1)
-                ! Green_Z2
-                Obs_eq(5)%Obs_Latt(imj,1,1,1) =  Obs_eq(5)%Obs_Latt(imj,1,1,1) + &
-                     &               Z * GRC(I1,J1,1) *  ZP*ZS
-
                 ! SpinZ
                 Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) + &
                      &               Z * GRC(I1,J1,1) * GR(I1,J1,1) * ZP*ZS
+
                 ! Den
-                Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1)  +  &
+                Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1)  +  &
                      &     (    GRC(I1,I1,1) * GRC(J1,J1,1) *Z     + &
                      &          GRC(I1,J1,1) * GR(I1,J1,1 )          &
                      &                                     ) * Z* ZP*ZS
 
+                ! Green_Z2
+                Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1) + &
+                     &               Z * GRC(I1,J1,1) *  ZP*ZS
+
+
 
              enddo
-             Obs_eq(4)%Obs_Latt0(1) =  Obs_eq(4)%Obs_Latt0(1) +  Z * GRC(I1,I1,1) * ZP * ZS
+             Obs_eq(3)%Obs_Latt0(1) =  Obs_eq(3)%Obs_Latt0(1) +  Z * GRC(I1,I1,1) * ZP * ZS
           ENDDO
           
           
