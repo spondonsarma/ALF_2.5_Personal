@@ -199,6 +199,7 @@
           CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
           CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
           CALL MPI_BCAST(Ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
+          CALL MPI_BCAST(N_SUN    ,1,MPI_INTEGER,0,Group_Comm,ierr)
 #endif
 #endif
 
