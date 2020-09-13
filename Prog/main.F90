@@ -157,7 +157,10 @@ Program Main
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
-
+           Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
+             Character (LEN=64), Intent(IN) :: File_seeds
+             Integer,  Intent(out) :: SEED_IN
+           end Subroutine Set_Random_number_Generator
         end Interface
 
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
@@ -348,7 +351,7 @@ Program Main
         Enddo
         File_seeds="seeds"
         Call Set_Random_number_Generator(File_seeds,Seed_in)
-        !Write(6,*) Seed_in
+        Write(6,*) Seed_in
                
         Call Hamiltonian_set_nsigma(Initial_field)
 

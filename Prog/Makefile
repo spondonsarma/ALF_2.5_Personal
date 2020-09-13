@@ -1,6 +1,6 @@
 .PHONY : Compile tidy clean Examples Z2_Slave Z2_Matter Hub_Can Kondo Hubbard tV Hubbard_Plain_Vanilla LRC
 
-OBJS= Hamiltonians/LRC_mod.o control_mod.o Fields_mod.o Operator_mod.o WaveFunction_mod.o observables_mod.o \
+OBJS= Hamiltonians/LRC_mod.o  Set_random.o control_mod.o Fields_mod.o Operator_mod.o WaveFunction_mod.o observables_mod.o \
       Predefined_Int_mod.o Predefined_Obs_mod.o Predefined_Latt_mod.o Predefined_Hop_mod.o  Predefined_Trial_mod.o \
       $(HAMILTONIAN) QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
       Global_mod.o Wrapgr_mod.o tau_m_mod.o tau_p_mod.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
