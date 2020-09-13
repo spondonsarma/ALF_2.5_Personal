@@ -168,7 +168,8 @@ Program Main
         Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
         Integer :: NTAU, NTAU1
         Real(Kind=Kind(0.d0)) :: CPU_MAX
-        Character (len=64) :: file1
+        Character (len=64) :: file1, File_seeds
+        Integer :: Seed_in
         Real (Kind=Kind(0.d0)) , allocatable, dimension(:,:) :: Initial_field
 
         ! Space for choosing sampling scheme
@@ -345,7 +346,13 @@ Program Main
         Do n = 1,N_op
            nsigma%t(n)  = OP_V(n,1)%type
         Enddo
+        File_seeds="seeds"
+        Call Set_Random_number_Generator(File_seeds,Seed_in)
+        !Write(6,*) Seed_in
+               
         Call Hamiltonian_set_nsigma(Initial_field)
+
+        
         if (allocated(Initial_field)) then
            Call nsigma%in(Group_Comm,Initial_field)
            deallocate(Initial_field)
