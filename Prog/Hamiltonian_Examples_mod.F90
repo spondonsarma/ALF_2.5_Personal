@@ -156,7 +156,7 @@
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem, Ham_h, Ham_J, Ham_xi,  Ham_tV
       real (Kind=Kind(0.d0)),        private :: ham_T2, ham_U2, ham_Tperp !  For Bilayers
       real (Kind=Kind(0.d0)),        private :: ham_alpha, Percent_change
-      real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
+      Real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Character (len=64),   private :: Model, Lattice_type
@@ -205,9 +205,9 @@
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Mz
 
-          Namelist /VAR_LRC/      ham_T, ham_chem, ham_U, ham_alpha, Percent_change
+          Namelist /VAR_LRC/      ham_T, ham_T2, ham_Tperp, ham_chem, ham_U, ham_alpha, Percent_change
 
-          NAMELIST /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi
+          Namelist /VAR_Ising/    ham_T, ham_chem, ham_U, Ham_h, Ham_J, Ham_xi
 
           NAMELIST /VAR_t_V/      Ham_T, ham_chem, ham_tV
 
@@ -1449,6 +1449,13 @@
 
         Implicit none
         Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+
+        If ( Model  == "LRC" )  then
+           Nt_sequential_start = 1
+           Nt_sequential_end   = 0
+           N_Global_tau   = Nint(1.d0/Percent_change) 
+        endif
+        
       end Subroutine Overide_global_tau_sampling_parameters
 
       end Module Hamiltonian

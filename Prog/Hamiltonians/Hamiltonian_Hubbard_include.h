@@ -223,7 +223,6 @@
 !>  Size of cluster that will be flipped.
 !> \endverbatim
 !-------------------------------------------------------------------
-        ! Functions for Global moves.  These move are not implemented in this example.
         Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
           
           Implicit none

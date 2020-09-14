@@ -920,6 +920,7 @@
         ! Symmetrize
         ! Find the longest family.
         n_l_max = 0
+        n_f_max = 0
         do n = 1, N_FAM_C
            if (L_FAM_C(n) > n_l_max ) then
               n_l_max = L_FAM_C(n)

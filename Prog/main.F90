@@ -89,7 +89,7 @@
 !> \verbatim
 !>  Number of global moves per  sequential sweep.
 !>  Default: N_Global=0
-!> \endverbatim
+!> \endverbatim/
 !> @param Global_tau_moves Logical
 !> \verbatim
 !>  If true, global moves on a given time slice will be carried out
@@ -157,7 +157,10 @@ Program Main
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
-
+           Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
+             Character (LEN=64), Intent(IN) :: File_seeds
+             Integer,  Intent(out) :: SEED_IN
+           end Subroutine Set_Random_number_Generator
         end Interface
 
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
@@ -168,7 +171,8 @@ Program Main
         Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
         Integer :: NTAU, NTAU1
         Real(Kind=Kind(0.d0)) :: CPU_MAX
-        Character (len=64) :: file1
+        Character (len=64) :: file1, File_seeds
+        Integer :: Seed_in
         Real (Kind=Kind(0.d0)) , allocatable, dimension(:,:) :: Initial_field
 
         ! Space for choosing sampling scheme
@@ -335,15 +339,23 @@ Program Main
            Nt_sequential_start = 1
            Nt_sequential_end   = Size(OP_V,1)
            N_Global_tau        = 0
+        else
+           !  Gives the possibility to set parameters in the Hamiltonian file 
+           Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
         endif
-        Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
-
+        
         N_op = Size(OP_V,1)
         call nsigma%make(N_op, Ltrot)
         Do n = 1,N_op
            nsigma%t(n)  = OP_V(n,1)%type
         Enddo
+        File_seeds="seeds"
+        Call Set_Random_number_Generator(File_seeds,Seed_in)
+        Write(6,*) Seed_in
+               
         Call Hamiltonian_set_nsigma(Initial_field)
+
+        
         if (allocated(Initial_field)) then
            Call nsigma%in(Group_Comm,Initial_field)
            deallocate(Initial_field)
