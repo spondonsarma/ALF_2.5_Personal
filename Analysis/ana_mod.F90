@@ -38,6 +38,7 @@
 !> Collection of routines for postprocessing the Monte Carlo bins
 !
 !--------------------------------------------------------------------
+      use iso_fortran_env, only: output_unit, error_unit
       Use Errors
       Use MyMats
       Use Matrix
@@ -169,9 +170,10 @@
       if(file_exists) then
         open(Unit=10, File=file_aux, status="old", action='read')
         11 format(A22, A)
-        12 format(A22, I0)
-        13 format(A22, F6.4)
-        14 format(A22, F8.4, ', ', F8.4)
+        12 format(A22, I10)
+        13 format(A22, ES24.17)
+        14 format(A22, ES24.17, A2, ES24.17)
+        15 format(A22, A2, I10)
         read(10, *)
         read(10, 11) str_temp1, Channel
         read(10, 12) str_temp1, Ntau
@@ -183,20 +185,29 @@
         read(10, 14) str_temp1, a1_p(1), str_temp2, a1_p(2)
         read(10, 14) str_temp1, a2_p(1), str_temp2, a2_p(2)
         read(10, *)
-        read(10, 11) str_temp1, Latt_unit%N_coord
-        read(10, 11) str_temp1, Norb
+        read(10, 15) str_temp1, str_temp2, Latt_unit%N_coord
+        read(10, 15) str_temp1, str_temp2, Norb
         Latt_unit%Norb = Norb
-        allocate(Latt_unit%Orb_pos_p(Norb,1))
+        allocate(Latt_unit%Orb_pos_p(Norb, 2))
         do no = 1, Norb
           read(10, 14) str_temp1, Latt_unit%Orb_pos_p(no,1), str_temp2, Latt_unit%Orb_pos_p(no,2)
         enddo
         close(10)
         Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
+        Ndim = Latt%N
       else
         open(Unit=10, File='parameters', status="old", action='read')
         read(10, NML=VAR_lattice)
         close(10)
         Call Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
+        open(Unit=10, File=file, status="old", action='read')
+        Read(10, *, iostat=stat) X, Norb, Ndim, Ntau, dtau
+        if (stat /= 0) then
+           Ntau = 1
+           dtau = -1.d0
+           Read(10, *) X, Norb, Ndim
+        endif
+        close(10)
       endif
 
       ! Determine the number of bins.
@@ -248,8 +259,8 @@
          x_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          x   = (x_p(1)-Xk_p(1,n))**2 + (x_p(2)-Xk_p(2,n))**2
          if ( x > 0.00001 ) then
-            print*, "Error in read_latt: momenta do not fit", x, x_p, Xk_p(1,n)
-            stop
+            Write(error_unit,*) "Error in read_latt: momenta do not fit", x, x_p, Xk_p(1,n)
+            error stop
          endif
       enddo
 
@@ -458,8 +469,8 @@
       N_auto = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
-         WRITE(*,*) 'unable to open <parameters>',ierr
-         STOP
+         Write(error_unit,*) 'unable to open <parameters>',ierr
+         error stop 1
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
@@ -469,11 +480,12 @@
       LT    = size(bins_raw,2)
       Nunit = Latt%N
 
-      Write(6,*) "# of bins: ", Nbins
+      Write(6, '(A22, I0)') "# of bins: ", Nbins
       nbins  = Nbins - n_skip
-      Write(6,*) "Effective # of bins: ", Nbins/N_rebin
+      Write(6, '(A22, I0)') "Effective # of bins: ", Nbins/N_rebin
       if(Nbins/N_rebin < 2) then
-         stop "Effective # of bins smaller than 2. Analysis impossible!"
+         Write(error_unit,*) "Effective # of bins smaller than 2. Analysis impossible!"
+         error stop 1
       endif
 
       if (PartHole .and. mod(Lt-1,2) == 0 ) then
@@ -525,7 +537,7 @@
             write(command, '("mkdir -p ",A,"_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             CALL EXECUTE_COMMAND_LINE(command)
             Open (Unit=10,File=File_out,status="unknown")
-            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
+            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb
             do nt = 1, LT_eff
                Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                      & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
@@ -558,7 +570,7 @@
       write(command, '("mkdir -p ",A,"_R0")') trim(name_obs)
       CALL EXECUTE_COMMAND_LINE(command)
       Open (Unit=10,File=File_out,status="unknown")
-      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau
+      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb
       do nt = 1, LT_eff
          Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
@@ -667,8 +679,8 @@
       N_auto = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
-         WRITE(*,*) 'unable to open <parameters>',ierr
-         STOP
+         Write(error_unit,*) 'unable to open <parameters>',ierr
+         error stop 1
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
@@ -677,12 +689,13 @@
       Norb  = size(bins_raw,3)
       Nunit = Latt%N
 
-      Write(6,*) "# of bins: ", Nbins
+      Write(6, '(A22, I0)') "# of bins: ", Nbins
       Nbins  = Nbins - n_skip
-      Write(6,*) "Effective # of bins: ", Nbins/N_rebin
+      Write(6, '(A22, I0)') "Effective # of bins: ", Nbins/N_rebin
       N_auto=min(N_auto,Nbins/3)
       if(Nbins/N_rebin < 2) then
-         stop "Effective # of bins smaller than 2. Analysis impossible!"
+         Write(error_unit,*) "Effective # of bins smaller than 2. Analysis impossible!"
+         error stop 1
       endif
 
       ! Allocate  space
@@ -853,8 +866,8 @@
       N_auto=0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
-         WRITE(*,*) 'unable to open <parameters>',ierr
-         STOP
+         Write(error_unit,*) 'unable to open <parameters>',ierr
+         error stop 1
       END IF
       READ(5,NML=VAR_errors)
       CLOSE(5)
@@ -862,12 +875,13 @@
       Nobs  = size(bins_raw, 1)
       Nbins = size(bins_raw, 2)
 
-      Write(6,*) "# of bins: ", Nbins
+      Write(6, '(A22, I0)') "# of bins: ", Nbins
       Nbins_eff  = Nbins - n_skip
-      Write(6,*) "Effective # of bins: ", Nbins_eff/N_rebin
+      Write(6, '(A22, I0)') "Effective # of bins: ", Nbins_eff/N_rebin
       N_auto=min(N_auto,Nbins_eff/3)
       if(Nbins_eff/N_rebin < 2) then
-         stop "Effective # of bins smaller than 2. Analysis impossible!"
+         Write(error_unit,*) "Effective # of bins smaller than 2. Analysis impossible!"
+         error stop 1
       endif
 
       ! Allocate  space

@@ -162,8 +162,8 @@
            Ns    = Size(Obs%Obs_Latt,1)
            Ntau  = Size(Obs%Obs_Latt,2)
            Norb  = Size(Obs%Obs_Latt,3)
-           if ( .not. (Obs%Latt%N  == Ns ) ) then
-              Write(error_unit,*) 'Error in Print_bin'
+           if ( .not. (Obs%Latt%N == Ns ) ) then
+              Write(error_unit,*) 'Error in Print_bin_Latt'
               error stop 1
            endif
            If (Ntau == 1) then
@@ -204,9 +204,9 @@
               inquire(file=File_aux, exist=File_exists)
               if (.not.File_exists) then
                  11 format(A20, ': ', A)
-                 12 format(A20, ': ', I0)
-                 13 format(A20, ': ', F6.4)
-                 14 format(A20, ': ', F8.4, ', ', F8.4)
+                 12 format(A20, ': ', I10)
+                 13 format(A20, ': ', ES24.17)
+                 14 format(A20, ': ', ES24.17, ', ', ES24.17)
                  open(10, file=File_aux, status='new')
                  !open(10, file=File_aux)
                  write(tmp_str, '(A, A)') trim(Obs%File_Latt), trim(File_suff)
