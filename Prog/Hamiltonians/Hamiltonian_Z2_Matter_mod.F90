@@ -100,6 +100,14 @@
     contains
 
 
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets the Hamiltonian.  Called by main.
+!--------------------------------------------------------------------
       Subroutine Ham_Set
 
 
@@ -464,10 +472,6 @@
           
         end function S0
 
-!===================================================================================
-        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
-             &                     Flip_list, Flip_length,Flip_value,ntau)
-
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -486,8 +490,11 @@
 !> S0_ratio          = e^( S_0(sigma_new) ) / e^( S_0(sigma) )
 !> T0_Proposal_ratio = T0( sigma_new -> sigma ) /  T0( sigma -> sigma_new)
 !> The move will be carried out with prbablity  T0 ( sigma -> sigma_new ).   If T0 ( sigma -> sigma_new ) > Ranf
-!>  then T0_Proposal_ratio  will be initialized. Otherwise the latter quantity is set to zero.
+!> then T0_Proposal_ratio  will be initialized. Otherwise the latter quantity is set to zero.
 !--------------------------------------------------------------------
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
+             &                     Flip_list, Flip_length,Flip_value,ntau)
+
 
           Implicit none
           Real (Kind= kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio, S0_ratio
@@ -591,8 +598,31 @@
 !!$          endif
 
         end Subroutine Global_move_tau
-!===================================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Global moves
+!> 
+!> @details
+!>  This routine generates a 
+!>  global update  and returns the propability T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)
+!> @param [IN] nsigma_old,  Type(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma.
+!> \endverbatim
+!> @param [OUT]  T0_Proposal_ratio Real
+!> \verbatimam
+!>  T0_Proposal_ratio  =  T0( sigma_new -> sigma_old ) /  T0( sigma_old -> sigma_new)  
+!> \endverbatim
+!> @param [OUT]  Size_clust Real
+!> \verbatim
+!>  Size of cluster that will be flipped.
+!> \endverbatim
+!-------------------------------------------------------------------
         Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
+
           !>  The input is the field nsigma declared in this module. This routine generates a
           !>  global update with  and returns the propability
           !>  T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)
@@ -605,7 +635,20 @@
 
 
         End Subroutine Global_move
-!===================================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Computes the ratio exp(S0(new))/exp(S0(old))
+!> 
+!> @details
+!> This function computes the ratio \verbatim  e^{-S0(nsigma)}/e^{-S0(nsigma_old)} \endverbatim
+!> @param [IN] nsigma_old,  Type(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma.
+!> \endverbatim
+!-------------------------------------------------------------------
         Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
 
           !>  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
@@ -806,7 +849,16 @@
           endif
 
         End Subroutine Setup_Ising_action_and_field_list
-!===================================================================================
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Specifiy the equal time and time displaced observables
+!> @details
+!--------------------------------------------------------------------
+
         Subroutine  Alloc_obs(Ltau)
 
           Implicit none
@@ -874,8 +926,26 @@
           endif
 
         end Subroutine Alloc_obs
-
-!========================================================================
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Computes equal time observables
+!> @details
+!> @param [IN] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!> @param [IN] Phase   Complex
+!> \verbatim
+!>  Phase
+!> \endverbatim
+!> @param [IN] Ntau Integer
+!> \verbatim
+!>  Time slice
+!> \endverbatim
+!--------------------------------------------------------------------
         Subroutine Obser(GR,Phase,Ntau)
 
 
@@ -1123,7 +1193,13 @@
           Endif
 
         end Subroutine OBSERT
-!==========================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Prints out the bins.  No need to change this routine.
+!-------------------------------------------------------------------
         Subroutine  Pr_obs(LTAU)
 
           Implicit none
@@ -1147,7 +1223,15 @@
           endif
 
         end Subroutine Pr_obs
-!===================================================================================
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Initializes observables to zero before each bins.  No need to change
+!> this routine.
+!-------------------------------------------------------------------
         Subroutine  Init_obs(Ltau)
 
           Implicit none
@@ -1172,7 +1256,14 @@
 
         end Subroutine Init_obs
 
-!===================================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> Returns the flux on a plaquette. I is the left-bottom corner. 
+!>
+!--------------------------------------------------------------------
 
       Integer Function  iFlux(I,nt,nb_type)
 
@@ -1193,7 +1284,20 @@
 
       end Function iFlux
 
-!===================================================================================
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief
+!> The user can set the initial field.
+!>
+!> @details
+!> @param[OUT] Initial_field Real(:,:)
+!> \verbatim
+!>  Upon entry Initial_field is not allocated. If alloacted then it will contain the
+!>  the initial field
+!> \endverbatim
+!--------------------------------------------------------------------
       Subroutine  Hamiltonian_set_nsigma(Initial_field)
 
         ! The user can set the initial configuration
@@ -1276,7 +1380,8 @@
 !> ALF Collaboration
 !>
 !> @brief
-!> Given the the HS fields nsigma  the  routine computes the site matter fields.
+!> Given the the HS fields nsigma  (mu^{z}_{i,j}, tau^z_{i=Latt%N}) the routine computes
+!> the site matter fields tau^{z}_i
 !> 
 !> @details
 !--------------------------------------------------------------------    
@@ -1311,78 +1416,6 @@
 
       end Subroutine Hamiltonian_set_Z2_matter
 
-!===================================================================================
-      Subroutine Hamiltonian_Print(Ntau)
-
-        Integer, Intent(IN) :: Ntau
-
-        Integer, allocatable :: Isigma(:)
-        Integer :: I, Ix, Iy
-
-        allocate (Isigma(Latt%N))
-
-        Call Hamiltonian_set_Z2_matter(Isigma,ntau)
-
-        Write(6,*)'-----'
-        I = 1
-        Do Iy = 1,L2
-           Do Ix = 1,L1
-              Write(6,"(I2,1x)", advance='no')  Isigma(I)
-              I = Latt%nnlist(I,1,0)
-           enddo
-           Write(6,*)
-           I = Latt%nnlist(I,0,1)
-        enddo
-
-        deallocate (Isigma)
-      End Subroutine Hamiltonian_Print
-!!$!===================================================================================
-!!$
-!!$      Subroutine Print_fluxes
-!!$
-!!$
-!!$#if defined (MPI) || defined(TEMPERING)
-!!$        use  mpi
-!!$#endif
-!!$
-!!$        Implicit none
-!!$
-!!$
-!!$        ! Local
-!!$        Integer :: I,nt,ix, iy, n
-!!$        Character (len=64) :: File1
-!!$
-!!$
-!!$#ifdef MPI
-!!$        Integer        :: Isize, Irank, IERR, igroup, irank_g, isize_g
-!!$        Integer        :: STATUS(MPI_STATUS_SIZE)
-!!$        CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-!!$        CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-!!$        call MPI_Comm_rank(Group_Comm, irank_g, ierr)
-!!$        call MPI_Comm_size(Group_Comm, isize_g, ierr)
-!!$        igroup           = irank/isize_g
-!!$#endif
-!!$
-!!$#if defined(TEMPERING)
-!!$        write(File1,'(A,I0,A)') "Temp_",igroup,"/Fluxes"
-!!$#else
-!!$        File1="Fluxes"
-!!$#endif
-!!$
-!!$        Open (Unit=10,File=File1, status="unknown")
-!!$        Do nt = 1,Ltrot
-!!$           Do i  = 1,Ndim
-!!$              n = iFlux(I,nt,2)
-!!$              if (n == -1 ) then
-!!$                 ix = Latt%list(i,1)
-!!$                 iy = Latt%list(i,2)
-!!$                 Write(10,'(I4,2x,I4,2x,I4)')   IX, IY, NT
-!!$              endif
-!!$           Enddo
-!!$        enddo
-!!$        close(10)
-!!$
-!!$      end Subroutine Print_fluxes
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -1408,36 +1441,5 @@
         if (abs(Ham_T) > Zero )  N_Global_tau        = Latt%N/4
 
       end Subroutine Overide_global_tau_sampling_parameters
-!===================================================================================
-!!$      Subroutine Test_Hamiltonian
-!!$
-!!$        Implicit none
-!!$
-!!$        Integer :: n,  nc, n_op, nt
-!!$        Integer, allocatable :: nsigma_old(:,:)
-!!$        Real (Kind=kind(0.d0)) :: X, X1, size_clust
-!!$
-!!$        n = size(Op_V,1)
-!!$        allocate (nsigma_old(n,Ltrot))
-!!$        do nc = 1,100
-!!$           !nt  = nranf(Ltrot)
-!!$           !n_op= nranf(n)
-!!$           !if ( OP_V(n_op,1)%type == 1 ) then
-!!$           !   X = S0(n_op,nt)
-!!$           !   nsigma_old = nsigma
-!!$           !   nsigma(n_op,nt) = -nsigma(n_op,nt)
-!!$           !   X1 = Delta_S0_global(Nsigma_old)
-!!$           !   Write(6,*) nc, X, X1
-!!$           !endif
-!!$           nsigma_old = nsigma
-!!$           Call Global_move(X,nsigma_old,size_clust)
-!!$           X1 = Delta_S0_global(Nsigma_old)
-!!$           Write(6,*) nc, X, X1
-!!$        enddo
-!!$        deallocate (nsigma_old)
-!!$
-!!$        stop
-!!$
-!!$      end Subroutine Test_Hamiltonian
 
       end Module Hamiltonian
