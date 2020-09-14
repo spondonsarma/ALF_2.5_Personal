@@ -11,9 +11,9 @@ where
 
 Here Z denotes an Ising spin variable with predefined dynamics. If your model can be written in this form then it will be amenable to the ALF. 
 
-## Doxygen ##
+<!--## Doxygen ##
 
-You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen_Docu/ALF/html/index.html)  formated documentation. (Work in progress)  
+You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen_Docu/ALF/html/index.html)  formated documentation. (Work in progress)  -->
 
 ## PREREQUISITES ##
 
@@ -23,15 +23,15 @@ Compiler: gfortran  or ifort
 
 
 ## CONFIGURATION FOR COMPILATION ##
-**setenv.sh**   sets the default set of envorinment variables.  Do not change  this since this default set of  environment variables is required for the tests to run adequaltely.
+<!--**setenv.sh**   sets the default set of envorinment variables.  Do not change  this since this default set of  environment variables is required for the tests to run adequaltely.-->
 
-**configureHPC.sh**  It is recommended to use this script to set the environment variables. Type ./configureHPC.sh to  browse through a list of options.
+**configure.sh**  It is recommended to use this script to set the environment variables. Type ./configure.sh to  browse through a list of options.
 
 Once you have run the configuration script, change directory to Libraries, and to Analysis  and run the Makefiles there. In the Prog directory then type make examples.   The other programs are being updated to comply with the new version of the code.  
 
 ## FILES AND DIRECTORIES ##
 
-**Libraries**    Libraries. Once that the environment is set in the file set_env.sh  the Libraries can be compiled with the **make** command. 
+**Libraries**    Libraries. Once that the environment is set in the file configure.sh  the Libraries can be compiled with the **make** command. 
 
 **Prog**   Main program and subroutines.  
 
@@ -42,7 +42,10 @@ Once you have run the configuration script, change directory to Libraries, and t
 **Examples** This directory provides a set of short example runs.  
 
 **Documentation**  We have included in the file  [doc.pdf](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/-/jobs/artifacts/master/raw/Documentation/doc.pdf?job=create_doc)   an extensive documentation. The development of the doucmentation will take place **only** in the documentation_new branch. In this branch you all have permission to push things so that we can keep on improving  things. 
- 
+
+## pyALF ##
+
+For ease of use, the  [pyALF](https://git.physik.uni-wuerzburg.de/ALF/pyALF) repository  provides a python interface to run the ALF-code
 
 ## TESTING ##
 
