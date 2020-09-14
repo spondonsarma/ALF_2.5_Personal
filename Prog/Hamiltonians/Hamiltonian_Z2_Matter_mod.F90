@@ -1022,13 +1022,18 @@
                         & (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(J1,J1,1)) +  &
                         &  cmplx(4.d0,0.d0,kind(0.d0)) * GRC(I1,J1,1)*GR(I1,J1,1)
                    Z1 = Z1**(N_SUN)
-                   ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1))*DW_Ising_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
+                   ZQ = cmplx(DW_Matter_tau( Isigma(I1)*Isigma1(I1))*DW_Matter_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
                    If ( I1 == J1 .and.  mod(N_SUN,2) == 0  )  ZQ = cmplx(1.d0,0.d0,kind(0.d0))
+                   If ( I1 == J1 .and.  mod(N_SUN,2) == 1  )  then
+                       Z1 = cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)
+                       Z1 = Z1**(N_SUN)
+                       ZQ = cmplx(DW_Matter_tau( Isigma(I1)*Isigma1(I1)),0.d0,kind(0.d0) )*Z1
+                   endif
                    Obs_eq(5)%Obs_Latt(imj,1,1,1) =  Obs_eq(5)%Obs_Latt(imj,1,1,1) + ZQ*ZP*ZS
                 Enddo
                 Z1 = cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)
                 Z1 = Z1**(N_SUN)
-                ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1)),0.d0,kind(0.d0) )*Z1
+                ZQ = cmplx(DW_Matter_tau( Isigma(I1)*Isigma1(I1)),0.d0,kind(0.d0) )*Z1
                 Obs_eq(5)%Obs_Latt0(1)  = Obs_eq(5)%Obs_Latt0(1) + ZQ*ZP*ZS
              Enddo
           elseif (Abs(Ham_TZ2) > Zero  .and. Abs(Ham_T) < Zero ) Then
