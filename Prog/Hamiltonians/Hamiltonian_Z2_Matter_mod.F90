@@ -815,7 +815,7 @@
           Character (len=64) ::  Filename
 
           ! Scalar observables
-          Allocate ( Obs_scal(4) )
+          Allocate ( Obs_scal(3) )
           Do I = 1,Size(Obs_scal,1)
              select case (I)
              case (1)
@@ -824,8 +824,6 @@
                 N = 2;   Filename ="Flux"
              case (3)
                 N = 2;   Filename ="X"
-             case (4)
-                N = 1;   Filename ="Constraint"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -834,7 +832,7 @@
 
 
           ! Equal time correlators
-          Allocate ( Obs_eq(4) )
+          Allocate ( Obs_eq(5) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
@@ -845,6 +843,8 @@
                 Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Den"
              case (4)
                 Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="GreenZ2"
+             case (5)
+                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Q"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -968,33 +968,6 @@
           Endif
              
 
-          !  Constraint
-          If (Abs(Ham_TZ2) < Zero  .and. Abs(Ham_T) > Zero ) Then
-             ZQ = cmplx(0.d0,0.d0,kind(0.d0))
-             DO I = 1,Latt%N
-                Z    =  ( cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I,I,1) )**(N_SUN)
-                ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)),0.d0,kind(0.d0) ) * Z
-             Enddo
-             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
-          elseif (Abs(Ham_TZ2) > Zero  .and. Abs(Ham_T) < Zero ) Then
-             ZQ = cmplx(0.d0,0.d0,kind(0.d0))
-             DO I = 1,Latt%N
-                Z    =  ( cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I,I,1) )**(N_SUN)
-                X    =  real( nsigma%i(Field_list(I,1,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,-1,0),1,1),ntau) *&
-                     &        nsigma%i(Field_list(I,2,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,0,-1),2,1),ntau) , Kind(0.d0))
-                ZQ   = ZQ    + cmplx(X,0.d0,kind(0.d0) ) * Z
-             Enddo
-             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
-          else
-             ZQ = cmplx(0.d0,0.d0,kind(0.d0))
-             DO I = 1,Latt%N
-                Z    =  ( cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I,I,1) )**(N_SUN)
-                X    =  real( nsigma%i(Field_list(I,1,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,-1,0),1,1),ntau) *             &
-                     &        nsigma%i(Field_list(I,2,1),ntau) * nsigma%i(Field_list(Latt%nnlist(I,0,-1),2,1),ntau) , Kind(0.d0))
-                ZQ   = ZQ    + cmplx(DW_Ising_tau( Isigma(I)*Isigma1(I)) * X ,0.d0,kind(0.d0) ) * Z
-             Enddo
-             Obs_scal(4)%Obs_vec(1) = Obs_scal(4)%Obs_vec(1)  + ZQ * ZP*ZS
-          endif
              
 
           ! Compute spin-spin, Green, and den-den correlation functions  !  This is general N_SUN, and  N_FL = 1
@@ -1035,12 +1008,29 @@
                 Obs_eq(4)%Obs_Latt(imj,1,1,1) =  Obs_eq(4)%Obs_Latt(imj,1,1,1) + &
                      &               Z * GRC(I1,J1,1) *  ZP*ZS
 
-
-
              enddo
              Obs_eq(3)%Obs_Latt0(1) =  Obs_eq(3)%Obs_Latt0(1) +  Z * GRC(I1,I1,1) * ZP * ZS
           ENDDO
-          
+
+
+          !  Constraint   
+          If (Abs(Ham_TZ2) < Zero  .and. Abs(Ham_T) > Zero ) Then
+             Do I1 = 1,Latt%N
+                Do J1 = 1,Latt%N
+                   imj = latt%imj(I1,J1)
+                   Z1 =   (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(I1,I1,1)) *  &
+                        & (cmplx(1.d0,0.d0,kind(0.d0)) - cmplx(2.d0,0.d0,kind(0.d0))*GRC(J1,J1,1)) +  &
+                        &  cmplx(4.d0,0.d0,kind(0.d0)) * GRC(I1,J1,1)*GR(I1,J1,1)
+                   Z1 = Z1**(N_SUN)
+                   ZQ = cmplx(DW_Ising_tau( Isigma(I1)*Isigma1(I1))*DW_Ising_tau( Isigma(J1)*Isigma1(J1)),0.d0,kind(0.d0) )*Z1
+                   If ( I1 == J1 .and.  mod(N_SUN,2) == 0  )  ZQ = cmplx(1.d0,0.d0,kind(0.d0))
+                   Obs_eq(6)%Obs_Latt(imj,1,1,1) =  Obs_eq(6)%Obs_Latt(imj,1,1,1) + ZQ*ZP*ZS
+                Enddo
+             Enddo
+          elseif (Abs(Ham_TZ2) > Zero  .and. Abs(Ham_T) < Zero ) Then
+          else
+          endif
+
           
           If (Abs(Ham_T) > Zero ) Deallocate ( Isigma, Isigma1 )
 
