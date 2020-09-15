@@ -71,7 +71,7 @@
          if ( i > 1 ) then
             if ( name(i:) == '_scal'  ) then
                print *, ''
-               print '(A,A)', "analyzing scalar observble ", name
+               print '(A,A)', "analyzing scalar observable ", name
                call Cov_vec(name)
             endif
          endif

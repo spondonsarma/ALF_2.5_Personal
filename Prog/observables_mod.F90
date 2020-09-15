@@ -205,7 +205,7 @@
               if (.not.File_exists) then
                  11 format(A20, ': ', A)
                  12 format(A20, ': ', I10)
-                 13 format(A20, ': ', *(ES25.17))
+                 13 format(A20, ': ', *(E26.17E3))
                  open(10, file=File_aux, status='new')
                  write(tmp_str, '(A, A)') trim(Obs%File_Latt), trim(File_suff)
                  write(10, 11) 'Observable', trim(tmp_str)

@@ -172,7 +172,7 @@
         open(Unit=10, File=file_aux, status="old", action='read')
         11 format(A22, A)
         12 format(A22, I10)
-        13 format(A22, *(ES25.17))
+        13 format(A22, *(E26.17E3))
         read(10, *)
         read(10, 11) str_temp1, Channel
         read(10, 12) str_temp1, Ntau
