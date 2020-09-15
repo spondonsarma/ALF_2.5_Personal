@@ -1,4 +1,4 @@
-% Copyright (c) 2016 The ALF project.
+% Copyright (c) 2016-2020 The ALF project.
 % This is the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
@@ -9,69 +9,130 @@
 \usepackage{graphicx}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{bbm}            
 \usepackage[fleqn]{amsmath} 
 \usepackage{amssymb}
 \usepackage{wasysym}
 \usepackage{color}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
 \usepackage{soul}
+\usepackage{multirow}
 \usepackage{xspace}
 \usepackage{bm}
 \usepackage{subfigure}
-\usepackage{tcolorbox}
 \usepackage{dsfont}
 \usepackage{footnote}
 \usepackage{alltt}
-\usepackage{xcolor}
-\usepackage{lmodern}
 \usepackage{listings}
 \usepackage{url}
 \usepackage{booktabs}
-\usepackage{hyperref} 
+\usepackage[breaklinks=true,colorlinks,pdfborder={0 0 0}]{hyperref} 
+\hypersetup{linkcolor={blue!80!black},citecolor={blue!80!black},urlcolor={blue!99!black}}
+\usepackage{float} 
+\usepackage{placeins} 
+\usepackage{makeidx}
+%\usepackage[xindy]{imakeidx}
+\usepackage[framemethod=default]{mdframed}
+\usepackage{showexpl}
 
-\lstset{language=Fortran,
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+            {-2.5ex\@plus -1ex \@minus -.25ex}%
+            {1.25ex \@plus .25ex}%
+            {\normalfont\normalsize\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{4} 
+\setcounter{tocdepth}{4}
+\definecolor{light-gray}{gray}{0.95}
+\definecolor{comment-color}{rgb}{0.8,0.1,0.1}
+\definecolor{keyword-color}{rgb}{0.3,0.3,1}
+
+\lstdefinestyle{fortran}{
+  language={[03]Fortran},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword-color},
+  commentstyle=\color{comment-color},
+  morecomment=[l]{!\ },% Otherwise it's a comment only with space after !
+  breakatwhitespace=false,
+  keepspaces=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  backgroundcolor=\color{light-gray},
+  frame=single,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt
+}
+
+\lstdefinestyle{fortran_pseudo_code}{
+  language={[03]Fortran},
   basicstyle=\ttfamily,
   keywordstyle=\color{red},
-  commentstyle=\color{blue},
+  commentstyle=\normalfont\color{black},
   morecomment=[l]{!\ }% Comment only with space after !
   breakatwhitespace=false,
   keepspaces=true,
   showstringspaces=false,
-  columns=flexible
+  columns=flexible,
+  backgroundcolor=\color{white},
+  frame=single,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt,
+  escapeinside={\!*}{*)},
 }
 
-\lstdefinestyle{custombash}{
-language=bash,
+\lstdefinestyle{bash}{
+  language=bash,
   basicstyle=\ttfamily,
-  keywordstyle=\color{red},
-  commentstyle=\color{blue},
+  keywordstyle=\color{keyword-color},
+  commentstyle=\color{comment-color},
   morecomment=[l]{\#\ }% Comment only with space after #
   breakatwhitespace=false,
   keepspaces=true,
   showstringspaces=false,
-  columns=flexible
+  columns=flexible,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt,
 }
 
 \def\Tr{\mathop{\mathrm{Tr}}}
 \def\Trf{\mathop{\mathrm{Tr}_{\mathrm{F}}}}
+\def\d{\mathrm{d}}
+\DeclareMathOperator{\sgn}{sgn}
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
+
+% % only for the scrartcl class:
 \setkomafont{author}{\large}
 \setkomafont{date}{\large}
+% \RedeclareSectionCommand[style=section,indent=0pt]{part}
+% \renewcommand*\partformat{\thepart\autodot\enskip}
 
-\newcommand{\mycomment}[1]{{\color{blue} #1}}
+\newcommand*{\red}{\textcolor{red}}
+\newcommand*{\blue}{\textcolor{blue}}
+\newcommand{\mycomment}[1]{{\color{red} #1}}
 \newcommand{\FAcomment}[1]{{\color{red} #1}}
+
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\ve}[1]{\boldsymbol{#1}}
+\newcommand{\tl}{t_{l}}
+\newcommand{\ts}{\underline{t}}
 
 \makeindex
 \begin{document}
 %---------------------------------------------------------------------------------------------------------
-\title{The \textit{ALF} (\textit{A}lgorithms for \textit{L}attice \textit{F}ermions) project release 0.5}
-\subtitle{Documentation for the  auxiliary field quantum Monte Carlo  code.}
-\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Fakher F. Assaad }
+\title{The \emph{ALF} (\emph{A}lgorithms for \emph{L}attice \emph{F}ermions) project release 2.0}
+
+\subtitle{Documentation for the  auxiliary-field quantum Monte Carlo code.}
+\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Jefferson S. E. Portela, \\   Jonas Schwab, Fakher F. Assaad }
 %---------------------------------------------------------------------------------------------------------
 \maketitle
 
-Copyright \textcopyright ~2016, The \textit{ALF} Project.\\
+Copyright \textcopyright ~2016--2020 The \textit{ALF} Project.\\
 This is the ALF Project Documentation by the ALF contributors.
 It is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 You are free to share and benefit from this documentation as long as this license is preserved
@@ -79,22 +140,49 @@ and proper attribution to the authors is given. For details see the ALF project
 homepage \url{alf.physik.uni-wuerzburg.de}.
 \tableofcontents
 \clearpage
+\section{Introduction}\label{sec:intro}
 \input{intro}
+\section{Auxiliary Field Quantum Monte Carlo: finite temperature}\label{sec:def}
 \input{model}
-\input{implementation}
 \input{updating}
+\input{langevin}
+\input{stabilization}
+\section{Auxiliary Field Quantum Monte Carlo: projective algorithm}\label{sec:defT0}
+\input{pqmc}
+\section{Monte Carlo sampling}\label{sec:sampling}
+\input{sampling}
+\input{pseudocode}
+\section{Data Structures and Input/Output}\label{sec:imp}
+\input{implementation}
 \input{files}
-\input{walkthrough_hubbard}
-\input{other_models}
-\input{analysis}
+\section{Using the Code}\label{sec:running}
 \input{running}
+\section{The plain vanilla Hubbard model on the square lattice} \label{sec:vanilla}
+\input{Hubbard_Plain}
+\section{Predefined Structures}\label{sec:predefined}
+\input{predefined}
+\input{Model_classes}
+\section{Maximum Entropy}\label{sec:maxent}
+\input{maxent}
 \input{performance}
+\section{Conclusions and Future Directions}\label{sec:con}
 \input{conclusion}
+%{\color{red} OLD STUFF} 
+%\section{Examples}\label{sec:ex}
+%\input{walkthrough_hubbard}
+%\section{Miscellaneous}\label{sec:misc}
+%\input{other_models}
+%\input{Z2_Slave}
+%\input{Z2_Matter}
+%\input{tV}
+
+
 \addcontentsline{toc}{section}{Acknowledgments}
 \input{acknowledgment}
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{./prXsty} 
-\bibliography{./fassaad}
+\bibliography{./fassaad,./doc}
+\printindex
 \addcontentsline{toc}{section}{License}
 \input{license}
 

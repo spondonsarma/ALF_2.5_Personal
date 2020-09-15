@@ -4,61 +4,48 @@ stages:
   - test
   - memleaks
 
+.exemptfiles_template: &exemptfiles_definition  # Hidden key that defines an anchor named 'exemptfiles_definition'
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
+
 .build_template: &build_definition
   stage: build
+  <<: *exemptfiles_definition
   script:
-    - . setenv.sh
-    - export f90="gfortran"
+    - . configure.sh GNU serial
     - gfortran -v
-    - cd Libraries
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - make Kondo_Honey
+    - make all
 
 .build_template_pgi: &build_definition_pgi
   stage: build
+  <<: *exemptfiles_definition
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - make Kondo_Honey
+    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
+    - pgfortran --version
+    - . configure.sh PGI serial
+    - make all
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
+  <<: *exemptfiles_definition
   script:
-    - . setenv.sh
-    - export f90="gfortran"
-    - export FL="$FL -Wconversion -Werror"
-    - cd Libraries
+    - . configure.sh Devel serial
     - gfortran -v
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - make Kondo_Honey
+    - make all
 
 .test_template: &test_definition
   stage: test
+  <<: *exemptfiles_definition
   script:
-    - . setenv.sh
-    - export f90="gfortran"
-    - cd Libraries
+    - . configure.sh Devel serial
     - gfortran -v
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - cd ..
+    - make lib
+    - make ana
+    - make Examples
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -67,28 +54,24 @@ stages:
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-GQMCT_Wheezy:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
-  <<: *build_definition
-
 GQMCT_Jessie:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *build_definition
 
 GQMCT_Stretch:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Wheezy_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+GQMCT_Buster:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *build_definition
 
 GQMCT_Jessie_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *build_definition
 
 GQMCT_Stretch_OpenBlas:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *build_definition
 
 GQMCT_CentOS:
@@ -103,16 +86,12 @@ GQMCT_OpenSuse-42.1:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Wheezy-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
-  <<: *build_definition_pgi
-
-GQMCT_Jessie-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi
+GQMCT_Buster-PGI:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
   <<: *build_definition_pgi
 
 GQMCT_Ubuntu_Trusty:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *build_definition
 
 GQMCT_Ubuntu_Xenial:
@@ -123,35 +102,39 @@ GQMCT_Ubuntu_Bionic:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *build_definition
 
-GQMCT_Jessie_MPI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack-fftw-scipy
+GQMCT_Stretch_MPI:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy
   stage: build
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
   script:
     - gfortran -v
-    - make f90='mpif90' PROGRAMCONFIGURATION='-DMPI -DTEMPERING' Hub_Ising
-
-GQMCT_Wheezy_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
-  <<: *warnconv_definition
+    - . configure.sh Devel Tempering
+    - export ALF_FC="mpif90"
+    - make all
 
 GQMCT_Jessie_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *warnconv_definition
 
 GQMCT_Stretch_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *warnconv_definition
 
-GQMCT_Wheezy_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+GQMCT_Buster_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *warnconv_definition
 
 GQMCT_Jessie_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_Stretch_OpenBlas_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *warnconv_definition
 
 GQMCT_CentOS_conv:
@@ -165,46 +148,40 @@ GQMCT_OpenSuse-13.2_conv:
 GQMCT_OpenSuse-42.1_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   <<: *warnconv_definition
-  
-GQMCT_Wheezy-PGI_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-pgi
+
+GQMCT_Buster-PGI_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
   stage: warnconv
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3 -Minform=inform"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess -Minform=inform"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - make Kondo_Honey
-  
-GQMCT_Wheezy_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-blas-lapack
-  <<: *test_definition
+    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
+    - pgfortran --version
+    - . configure.sh PGI serial
+    - make all
 
 GQMCT_Jessie_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Stretch_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *test_definition
 
-GQMCT_Wheezy_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-wheezy-gfortran-openblas-lapack
+GQMCT_Buster_tests:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Jessie_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
   <<: *test_definition
 
 GQMCT_Stretch_OpenBlas_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-stretch-gfortran-openblas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *test_definition
 
 GQMCT_CentOS_tests:
@@ -220,54 +197,79 @@ GQMCT_OpenSuse-42.1_tests:
   <<: *test_definition
 
 GQMCT_Ubuntu-trusty_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:trusty-gfortran-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
   <<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *test_definition
 
-GQMCT_Jessie-PGI_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-pgi-cmake
+GQMCT_Buster-PGI_tests:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910-cmake
   stage: test
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
   script:
-    - . setenv.sh
-    - export f90="/opt/pgi/linux86-64/2016/bin/pgfortran"
-    - export FL="-O3"
-    - export LIB_BLAS_LAPACK="-L/opt/pgi/linux86-64/2016/lib -llapack -lblas"
-    - export F90USEFULFLAGS="-Mpreprocess"
-    - cd Libraries
-    - /opt/pgi/linux86-64/16.10/bin/pgfortran --version
-    - make
-    - cd ..
-    - cd Prog
-    - make
-    - cd ..
+    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
+    - pgfortran --version
+    - . configure.sh PGI serial
+    - make lib
+    - make ana
+    - make Examples
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -L/opt/pgi/linux86-64/2016/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="/opt/pgi/linux86-64/2016/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="/opt/pgi/linux86-64/2016/lib/liblapack.a" -DBLAS_LIBRARIES="/opt/pgi/linux86-64/2016/lib/libblas.a" ..
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -L/opt/pgi/linux86-64/2019/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="/opt/pgi/linux86-64/2019/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="/opt/pgi/linux86-64/2019/lib/liblapack.a" -DBLAS_LIBRARIES="/opt/pgi/linux86-64/2019/lib/libblas.a" ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-GQMCT_jessie_valgrind:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:debian-jessie-blas-lapack-valgrind
+GQMCT_Stretch_valgrind:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
+  only:
+    changes:
+      - Prog/*.(f|F)90
+      - Libraries/Modules/*.(f|F)90
   script:
-      - . setenv.sh
-      - export f90="gfortran"
-      - export FL="${FL} -g"
-      - cd Libraries
+      - export ALF_FLAGS_EXT="-g"
+      - . configure.sh Devel serial
       - gfortran -v
-      - make
-      - cd ..
-      - cd Prog
-      - make SPT
-      - cp SPT.out ../Test_Runs/Test_SPT/Start/
-      - cd ../Test_Runs/Test_SPT/Start/
-      - valgrind --leak-check=full --log-file=vglog.txt ./SPT.out
+      - make lib
+      - make Examples
+      - cp Prog/Examples.out Examples/LRC_Test/Start
+      - cd Examples/LRC_Test/Start
+      - valgrind --leak-check=full --log-file=vglog.txt ./Examples.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 
+create_doc:
+  image: aergus/latex
+  stage: build
+  only:
+    changes:
+      - Documentation/*.tex
+      - Documentation/*.bib
+      - Documentation/Figures/*
+  artifacts:
+    paths:
+      - Documentation/doc.pdf
+  script:
+    - cd Documentation
+    - latexmk -pdf doc.tex
 
+create_doxygen:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-clang
+  stage: build
+  artifacts:
+    expire_in: 120 days
+    paths:
+      - doxygen/*
+      - Images/*
+  script:
+      - apt-get update && apt install -y doxygen graphviz
+      - doxygen doxygen/Doxyfile

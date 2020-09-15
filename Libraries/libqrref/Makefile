@@ -4,7 +4,7 @@ all: $(OBJS)
 	ar -r libqrref.a $(OBJS)
 
 %.o: %.f
-	$(FC) $(SUFFIX) $(FLAGS) -c $< 
+	$(ALF_FC) -c $(ALF_FLAGS_QRREF) $< 
 
 clean: 
-	rm -f $(OBJS)
+	rm -f $(OBJS) libqrref.a
