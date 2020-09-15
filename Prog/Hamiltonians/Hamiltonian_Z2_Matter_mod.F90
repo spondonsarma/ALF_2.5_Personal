@@ -905,7 +905,7 @@
              end select
              Nt = 1
              Channel = '--'
-             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
+             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
           enddo
 
           If (Ltau == 1) then
@@ -926,7 +926,7 @@
                 end select
                 Nt = Ltrot+1
                 If(Projector) Channel = 'T0'
-                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
+                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
           endif
 
@@ -1219,11 +1219,11 @@
              Call  Print_bin_Vec(Obs_scal(I),Group_Comm)
           enddo
           Do I = 1,Size(Obs_eq,1)
-             Call  Print_bin_Latt(Obs_eq(I),dtau,Group_Comm)
+             Call  Print_bin_Latt(Obs_eq(I),Group_Comm)
           enddo
           If (Ltau  == 1 ) then
              Do I = 1,Size(Obs_tau,1)
-                Call  Print_bin_Latt(Obs_tau(I),dtau,Group_Comm)
+                Call  Print_bin_Latt(Obs_tau(I),Group_Comm)
              enddo
           endif
 

@@ -62,7 +62,7 @@
 !>  For equal   time correlation functions, tau runs from 1,1
 !>  For unequal time correlation functions, tau runs from 1,Ltrot+1
           Integer            :: N                           ! Number of measurements
-          Real      (Kind=Kind(0.d0)) :: Ave_Sign                    ! Averarge sign
+          Real      (Kind=Kind(0.d0)) :: Ave_Sign, dtau              ! Averarge sign
           complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt (:,:,:,:) ! i-j, tau, norb, norb
           complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt0(:)       ! norb
           Character (len=64) :: File_Latt                   ! Name of file in which the bins will be written out
@@ -79,7 +79,7 @@
 
        Contains
 
-         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel)
+         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
            Implicit none
            Type (Obser_Latt),  intent(INOUT)      :: Obs
            Integer,            Intent(IN)         :: Nt
@@ -87,12 +87,14 @@
            Type (Lattice),     Intent(IN), target :: Latt
            Type (Unit_cell),   Intent(IN), target :: Latt_unit
            Character (len=2),  Intent(IN)         :: Channel
+           Real(Kind=Kind(0.d0)),  Intent(IN)     :: dtau
            Allocate (Obs%Obs_Latt(Latt%N, Nt, Latt_unit%Norb, Latt_unit%Norb))
            Allocate (Obs%Obs_Latt0(Latt_unit%Norb))
            Obs%File_Latt = Filename
            Obs%Latt => Latt
            Obs%Latt_unit => Latt_unit
            Obs%Channel = Channel
+           Obs%dtau = dtau
          end subroutine Obser_Latt_make
 !--------------------------------------------------------------------
 
@@ -127,7 +129,7 @@
 
 !--------------------------------------------------------------------
 
-         Subroutine  Print_bin_Latt(Obs, dtau, Group_Comm)
+         Subroutine  Print_bin_Latt(Obs, Group_Comm)
            Use Lattices_v3
 #ifdef MPI
            Use mpi
@@ -135,11 +137,10 @@
            Implicit none
 
            Type (Obser_Latt),        Intent(Inout)   :: Obs
-           Real (Kind=Kind(0.d0)),   Intent(In)      :: dtau
            Integer,                  Intent(In)      :: Group_Comm
 
            ! Local
-           Integer :: Ns,Nt, Norb, no, no1, I , Ntau
+           Integer :: Ns, Nt, no, no1, I, Ntau
            Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2)
            Complex (Kind=Kind(0.d0))              :: Sign_bin
@@ -161,7 +162,6 @@
 
            Ns    = Size(Obs%Obs_Latt,1)
            Ntau  = Size(Obs%Obs_Latt,2)
-           Norb  = Size(Obs%Obs_Latt,3)
            if ( .not. (Obs%Latt%N == Ns ) ) then
               Write(error_unit,*) 'Error in Print_bin_Latt'
               error stop 1
@@ -172,13 +172,13 @@
               File_suff = "_tau"
            endif
            write(File_pr, '(A,A)') trim(Obs%File_Latt), Trim(File_suff)
-           Allocate (Tmp(Ns,Ntau,Norb,Norb))
-           Obs%Obs_Latt  =   Obs%Obs_Latt /dble(Obs%N   )
-           Obs%Obs_Latt0 =   Obs%Obs_Latt0/dble(Obs%N*Ns*Ntau)
-           Obs%Ave_sign  =   Obs%Ave_Sign /dble(Obs%N   )
+           Allocate (Tmp(Ns, Ntau, Obs%Latt_unit%Norb, Obs%Latt_unit%Norb))
+           Obs%Obs_Latt  = Obs%Obs_Latt /dble(Obs%N   )
+           Obs%Obs_Latt0 = Obs%Obs_Latt0/dble(Obs%N*Ns*Ntau)
+           Obs%Ave_sign  = Obs%Ave_Sign /dble(Obs%N   )
 
 #if defined(MPI)
-           I = Ns*Ntau*Norb*Norb
+           I = Obs%Latt%N * Ntau * Obs%Latt_unit%Norb * Obs%Latt_unit%Norb
            Tmp = cmplx(0.d0, 0.d0, kind(0.D0))
            CALL MPI_REDUCE(Obs%Obs_Latt,Tmp,I,MPI_COMPLEX16,MPI_SUM, 0,Group_Comm,IERR)
            Obs%Obs_Latt = Tmp/DBLE(ISIZE_g)
@@ -188,8 +188,8 @@
            CALL MPI_REDUCE(Obs%Ave_sign,X,I,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
            Obs%Ave_sign = X/DBLE(ISIZE_g)
 
-           I = Norb
-           Allocate(Tmp1(Norb))
+           I = Obs%Latt_unit%Norb
+           Allocate(Tmp1(Obs%Latt_unit%Norb))
            Tmp1 = cmplx(0.d0,0.d0,kind(0.d0))
            CALL MPI_REDUCE(Obs%Obs_Latt0,Tmp1,I,MPI_COMPLEX16,MPI_SUM, 0,Group_Comm,IERR)
            Obs%Obs_Latt0 = Tmp1/DBLE(ISIZE_g)
@@ -213,7 +213,7 @@
                  write(10, 11) 'Observable', trim(tmp_str)
                  write(10, 11) 'Channel', trim(Obs%Channel)
                  write(10, 12) 'Ntau', Ntau
-                 write(10, 13) 'dtau', dtau
+                 write(10, 13) 'dtau', Obs%dtau
                  write(10, '(A)') '       ====== Bravais Lattice ======'
                  write(10, 12) 'Unit cells', Obs%Latt%N
                  write(10, 14) 'L1', Obs%Latt%L1_p
@@ -222,33 +222,32 @@
                  write(10, 14) 'a2', Obs%Latt%a2_p
                  write(10, '(A)') '       ========= Unit cell ========='
                  write(10, 12) 'Coordination number', Obs%Latt_unit%N_coord
-                 write(10, 12) 'Number of orbitals', Norb
-                 do no = 1, Norb
+                 write(10, 12) 'Number of orbitals', Obs%Latt_unit%Norb
+                 do no = 1, Obs%Latt_unit%Norb
                     write(tmp_str, '("Orbital ",I0)') no
                     write(10, 14) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
                  enddo
                  close(10)
               endif
 
-              do nt = 1,Ntau
-                 do no = 1,Norb
-                    do no1 = 1,Norb
+              do nt = 1, Ntau
+                 do no = 1, Obs%Latt_unit%Norb
+                    do no1 = 1, Obs%Latt_unit%Norb
                        Call Fourier_R_to_K(Obs%Obs_Latt(:,nt,no,no1), Tmp(:,nt,no,no1), Obs%Latt)
                     enddo
                  enddo
               enddo
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              Write(10,*) Obs%Ave_sign,Norb,Obs%Latt%N, Ntau, dtau, &
-                          & size(Obs%Latt%L1_p), Obs%Latt%L1_p(:), Obs%Latt%L2_p(:), Obs%Latt%a1_p(:), Obs%Latt%a2_p(:)
-              Do no = 1,Norb
+              Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N, Ntau, Obs%dtau
+              Do no = 1, Obs%Latt_unit%Norb
                  Write(10,*)  Obs%Obs_Latt0(no)
               enddo
-              do I = 1,Obs%Latt%N
+              do I = 1, Obs%Latt%N
                  x_p = dble(Obs%Latt%listk(i,1))*Obs%Latt%b1_p + dble(Obs%Latt%listk(i,2))*Obs%Latt%b2_p
                  Write(10,*) X_p(1), X_p(2)
-                 Do nt = 1,Ntau
-                    do no = 1,Norb
-                       do no1 = 1,Norb
+                 Do nt = 1, Ntau
+                    do no = 1, Obs%Latt_unit%Norb
+                       do no1 = 1, Obs%Latt_unit%Norb
                           Write(10,*) tmp(I,nt,no,no1)
                        enddo
                     enddo

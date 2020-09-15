@@ -894,7 +894,7 @@
                 end select
                 Nt = 1
                 Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
 
              If (Ltau == 1) then
@@ -917,7 +917,7 @@
                    end select
                    Nt = Ltrot+1-2*Thtrot
                    If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 enddo
              endif
           else
@@ -936,7 +936,7 @@
                 end select
                 Nt = 1
                 Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
 
              If (Ltau == 1) then
@@ -955,7 +955,7 @@
                    end select
                    Nt = Ltrot+1-2*Thtrot
                    If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 enddo
              endif
           endif
@@ -1284,11 +1284,11 @@
              Call  Print_bin_Vec(Obs_scal(I),Group_Comm)
           enddo
           Do I = 1,Size(Obs_eq,1)
-             Call  Print_bin_Latt(Obs_eq(I),dtau,Group_Comm)
+             Call  Print_bin_Latt(Obs_eq(I),Group_Comm)
           enddo
           If (Ltau  == 1 ) then
              Do I = 1,Size(Obs_tau,1)
-                Call  Print_bin_Latt(Obs_tau(I),dtau,Group_Comm)
+                Call  Print_bin_Latt(Obs_tau(I),Group_Comm)
              enddo
           endif
 
@@ -1453,9 +1453,9 @@
         If ( Model  == "LRC" )  then
            Nt_sequential_start = 1
            Nt_sequential_end   = 0
-           N_Global_tau   = Nint(1.d0/Percent_change) 
+           N_Global_tau   = Nint(1.d0/Percent_change)
         endif
-        
+
       end Subroutine Overide_global_tau_sampling_parameters
 
       end Module Hamiltonian

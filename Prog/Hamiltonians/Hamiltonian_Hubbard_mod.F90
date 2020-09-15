@@ -487,15 +487,15 @@
         Subroutine Ham_V
 
           Use Predefined_Int
-          Implicit none 
-          
-          Integer :: nf, I, I1, I2,  nc,  J, no,  N_ops 
+          Implicit none
+
+          Integer :: nf, I, I1, I2,  nc,  J, no,  N_ops
           Real (Kind=Kind(0.d0)) :: X,  Zero = 1.D-10
           Real (Kind=Kind(0.d0)), allocatable :: Ham_U_vec(:)
 
 
           Allocate (Ham_U_vec(Latt_unit%Norb))
-          
+
           N_ops = 0
           if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
              Ham_U_vec(1) = Ham_U
@@ -594,7 +594,7 @@
                 end select
                 Nt = 1
                 Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
 
              If (Ltau == 1) then
@@ -617,7 +617,7 @@
                    end select
                    Nt = Ltrot+1-2*Thtrot
                    If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 enddo
              endif
           else
@@ -636,7 +636,7 @@
                 end select
                 Nt = 1
                 Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel)
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
 
              If (Ltau == 1) then
@@ -655,7 +655,7 @@
                    end select
                    Nt = Ltrot+1-2*Thtrot
                    If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel)
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 enddo
              endif
           endif
@@ -735,7 +735,7 @@
                 if (no_I == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
              enddo
           Enddo
-          
+
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 
