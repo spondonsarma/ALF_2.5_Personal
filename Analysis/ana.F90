@@ -119,7 +119,7 @@
                   PartHole = .false.
                   print '(A,A)', "analyzing time displaced correlation ", name
                endif
-               call Cov_tau(name, PartHole)
+               call Cov_tau(name)
             endif
          endif
       enddo

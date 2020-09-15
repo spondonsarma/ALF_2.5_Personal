@@ -396,7 +396,7 @@
 !==============================================================================
 
 
-   subroutine Cov_tau(file, PartHole)
+   subroutine Cov_tau(file)
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -417,7 +417,6 @@
 
       Implicit none
       Character (len=64), intent(in) :: file
-      Logical           , intent(in) :: PartHole
 
       Character (len=64) :: name_obs
       Real    (Kind=Kind(0.d0)), allocatable :: sgn(:)
@@ -432,22 +431,24 @@
       name_obs = file(:i)
 
       call read_latt(file, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
-      call ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau, PartHole)
+      call ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
 
    end subroutine Cov_tau
 
 !==============================================================================
 
-   Subroutine ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, dtau, PartHole)
+   Subroutine ana_tau(name_obs, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
       Implicit none
       Character (len=64), intent(in) :: name_obs
       Real    (Kind=Kind(0.d0)), allocatable, intent(in) :: sgn(:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins_raw(:,:,:,:,:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins0_raw(:,:)
-      Type (Lattice), intent(in)    :: Latt
-      Real    (Kind=Kind(0.d0)), intent(in) :: dtau
-      Logical, intent(in) :: PartHole
+      Complex (Kind=Kind(0.d0)), pointer    , intent(in) :: Bins_raw(:,:,:,:,:)
+      Complex (Kind=Kind(0.d0)), pointer    , intent(in) :: Bins0_raw(:,:)
+      Type (Lattice)                        , intent(in) :: Latt
+      Type (Unit_cell)                      , intent(in) :: Latt_unit
+      Real    (Kind=Kind(0.d0))             , intent(in) :: dtau
+      Character (len=2)                     , intent(in) :: Channel
 
+      Logical :: PartHole
       Character (len=64) :: File_out, command
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
@@ -462,8 +463,11 @@
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
 
-      NAMELIST /VAR_errors/   n_skip, N_rebin, N_Cov, N_Back, N_auto
+      NAMELIST /VAR_errors/ n_skip, N_rebin, N_Cov, N_Back, N_auto
 
+      PartHole = .false.
+      if(Channel == 'PH') PartHole = .true.
+      
       N_Back = 1
       N_auto = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
@@ -535,8 +539,8 @@
             write(File_out,'(A,"_",F4.2,"_",F4.2,"/g_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n), Xk_p(1,n), Xk_p(2,n)
             write(command, '("mkdir -p ",A,"_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             CALL EXECUTE_COMMAND_LINE(command)
-            Open (Unit=10,File=File_out,status="unknown")
-            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb
+            Open (Unit=10, File=File_out, status="unknown")
+            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb, Channel
             do nt = 1, LT_eff
                Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                      & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
@@ -569,7 +573,7 @@
       write(command, '("mkdir -p ",A,"_R0")') trim(name_obs)
       CALL EXECUTE_COMMAND_LINE(command)
       Open (Unit=10,File=File_out,status="unknown")
-      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb
+      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb, Channel
       do nt = 1, LT_eff
          Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
