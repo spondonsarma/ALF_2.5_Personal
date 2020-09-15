@@ -535,10 +535,10 @@
              case (5)
                 Filename = "Den"
              case default
-                Write(6,*) ' Error in Alloc_obs '
+                Write(6,*) "Error in Alloc_obs"
              end select
              Nt = 1
-             Channel = '--'
+             Channel = "--"
              Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
           enddo
 

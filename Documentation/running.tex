@@ -100,14 +100,24 @@ To restart the code using the configuration from a previous simulation as a star
 %-------------------------------------------------------------------------------------
 %
 
-The ALF package includes a few bash scripts for performing simple error analysis and correlation function calculations, as listed in Table~\ref{table:analysis_programs}. 
-To perform an error analysis based on the Jackknife resampling method~\cite{efron1981} (Sec.~\ref{sec:jack}) of the Monte Carlo bins for all observables run
+The ALF package includes the analysis program \texttt{ana.out} for performing simple error analysis and correlation function calculations on the three observable types. To perform an error analysis based on the Jackknife resampling method~\cite{efron1981} (Sec.~\ref{sec:jack}) of the Monte Carlo bins for a list of observables run
 \begin{lstlisting}[style=bash]
-./analysis.sh
+/path/to/ALF/Analysis/ana.out <list of files>
 \end{lstlisting}
+or run
+\begin{lstlisting}[style=bash]
+/path/to/ALF/Analysis/ana.out *
+\end{lstlisting}
+for all observables.
+%
+%The ALF package includes a few bash scripts for performing simple error analysis and correlation function calculations, as listed in Table~\ref{table:analysis_programs}. 
+%To perform an error analysis based on the Jackknife resampling method~\cite{efron1981} (Sec.~\ref{sec:jack}) of the Monte Carlo bins for all observables run
+%\begin{lstlisting}[style=bash]
+%./analysis.sh
+%\end{lstlisting}
 In case that the parameter \path{N_auto} is set to a finite value the script will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
 
-Note that the error analysis script requires the presence of the environment variable \texttt{ALF\_DIR}, which stores the package's path and can be set by running \texttt{source configure.sh}. The files taken by \texttt{analysis.sh} as input, as well as its output files are listed in Table~\ref{table:analysis_files}.
+%Note that the error analysis script requires the presence of the environment variable \texttt{ALF\_DIR}, which stores the package's path and can be set by running \texttt{source configure.sh}. The files taken by \texttt{analysis.sh} as input, as well as its output files are listed in Table~\ref{table:analysis_files}.
 
 \begin{table}[h]
 	\begin{center}

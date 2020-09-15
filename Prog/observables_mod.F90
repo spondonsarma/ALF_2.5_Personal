@@ -61,13 +61,14 @@
 !>  Obs_Latt0(n) = < O_n>
 !>  For equal   time correlation functions, tau runs from 1,1
 !>  For unequal time correlation functions, tau runs from 1,Ltrot+1
-          Integer            :: N                           ! Number of measurements
-          Real      (Kind=Kind(0.d0)) :: Ave_Sign, dtau              ! Averarge sign
+          Integer            :: N                                    ! Number of measurements
+          Real      (Kind=Kind(0.d0)) :: Ave_Sign                    ! Averarge sign
           complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt (:,:,:,:) ! i-j, tau, norb, norb
           complex   (Kind=Kind(0.d0)), pointer :: Obs_Latt0(:)       ! norb
-          Character (len=64) :: File_Latt                   ! Name of file in which the bins will be written out
-          Type (Lattice),       pointer :: Latt
-          Type (Unit_cell),     pointer :: Latt_unit
+          Character (len=64) :: File_Latt                            ! Name of file in which the bins will be written out
+          Type (Lattice),       pointer :: Latt                      ! Pointer to Bravais lattice
+          Type (Unit_cell),     pointer :: Latt_unit                 ! Pointer to unit cell
+          Real      (Kind=Kind(0.d0))   :: dtau                      ! Imaginary time step
           Character (len=2)  :: Channel    ! Type of observable. Possible values:
                                            ! - T0: zero temperature
                                            ! - P:  finite temperature particle
@@ -79,15 +80,74 @@
 
        Contains
 
-         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
+         Subroutine Obser_Latt_make_eq(Obs, Filename, Latt, Latt_unit)
            Implicit none
-           Type (Obser_Latt),  intent(INOUT)      :: Obs
-           Integer,            Intent(IN)         :: Nt
-           Character (len=64), Intent(IN)         :: Filename
-           Type (Lattice),     Intent(IN), target :: Latt
-           Type (Unit_cell),   Intent(IN), target :: Latt_unit
-           Character (len=2),  Intent(IN)         :: Channel
-           Real(Kind=Kind(0.d0)),  Intent(IN)     :: dtau
+           Type(Obser_Latt),  Intent(INOUT)      :: Obs
+           Character(len=64), Intent(IN)         :: Filename
+           Type(Lattice),     Intent(IN), target :: Latt
+           Type(Unit_cell),   Intent(IN), target :: Latt_unit
+           
+           Integer               :: Nt
+           Character(len=2)      :: Channel
+           Real(Kind=Kind(0.d0)) :: dtau
+           
+           Nt = 1
+           Channel = '--'
+           dtau = -1.d0
+           
+           call Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
+         end subroutine Obser_Latt_make_eq
+
+         Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Create lattice type observable
+!>
+!> @details
+!> Create lattice type observable. Be aware that Latt and Latt_unit don't get copied 
+!> but linked, meaning changing them after making the observable still affects the
+!> observable.
+!>
+!> @param [INOUT] Obs, Type(Obser_Latt)
+!> \verbatim
+!>  Observable to define
+!> \endverbatim
+!> @param [IN] Nt, Integer
+!> \verbatim
+!>  Number of imaginary time points, set to 1 for equal time correlators.
+!> \endverbatim
+!> @param [IN] Filename, Character(len=64)
+!> \verbatim
+!>  Name of file in which the bins will be written out.
+!> \endverbatim
+!> @param [IN] Latt, Type(Lattice)
+!> \verbatim
+!>  Bravais lattice. Only gets linked, needs attribute target or pointer.
+!> \endverbatim
+!> @param [IN] Latt_unit, Type(Unit_cell)
+!> \verbatim
+!>  Unit cell. Only gets linked, needs attribute target or pointer.
+!> \endverbatim
+!> @param [IN] Channel, Character(len=2)
+!> \verbatim
+!>  MaxEnt channel. Only relevant for time displaced observables.
+!> \endverbatim
+!> @param [IN] dtau, Real(Kind=Kind(0.d0))
+!> \verbatim
+!>  Imaginary time step. Only relevant for time displaced observables.
+!> \endverbatim
+!-------------------------------------------------------------------
+           Implicit none
+           Type(Obser_Latt),  Intent(INOUT)      :: Obs
+           Integer,           Intent(IN)         :: Nt
+           Character(len=64), Intent(IN)         :: Filename
+           Type(Lattice),     Intent(IN), target :: Latt
+           Type(Unit_cell),   Intent(IN), target :: Latt_unit
+           Character(len=2),  Intent(IN)         :: Channel
+           Real(Kind=Kind(0.d0)),  Intent(IN)    :: dtau
            Allocate (Obs%Obs_Latt(Latt%N, Nt, Latt_unit%Norb, Latt_unit%Norb))
            Allocate (Obs%Obs_Latt0(Latt_unit%Norb))
            Obs%File_Latt = Filename
