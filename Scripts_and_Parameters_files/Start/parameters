@@ -102,7 +102,7 @@ ham_U     = 4.d0            ! Hubbard interaction
 Dtau      = 0.1d0           ! Thereby Ltrot=Beta/dtau
 Beta      = 5.d0            ! Inverse temperature
 Projector = .F.             ! Whether the projective algorithm is used
-Theta     = 10.d0d0         ! Projection parameter
+Theta     = 10.d0           ! Projection parameter
 Symm      = .T.             ! Whether symmetrization takes place
 /
 
