@@ -468,8 +468,11 @@
       PartHole = .false.
       if(Channel == 'PH') PartHole = .true.
       
+      N_skip = 1
+      N_rebin = 1
       N_Back = 1
       N_auto = 0
+      N_Cov  = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
          Write(error_unit,*) 'unable to open <parameters>',ierr
@@ -678,8 +681,11 @@
 
       NAMELIST /VAR_errors/   N_skip, N_rebin, N_Cov, N_Back, N_auto
 
+      N_skip = 1
+      N_rebin = 1
       N_Back = 1
       N_auto = 0
+      N_Cov  = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
          Write(error_unit,*) 'unable to open <parameters>',ierr
@@ -866,7 +872,11 @@
       Integer :: tau, tau_max, Nbins_eff2
       REAL(Kind=Kind(0.d0)), DIMENSION(:)  , ALLOCATABLE :: vec, vec_err
 
-      N_auto=0
+      N_skip = 1
+      N_rebin = 1
+      N_Back = 1
+      N_auto = 0
+      N_Cov  = 0
       OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
       IF (ierr /= 0) THEN
          Write(error_unit,*) 'unable to open <parameters>',ierr
