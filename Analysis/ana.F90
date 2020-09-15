@@ -54,26 +54,9 @@
       
       use ana_mod
       implicit none
-      Integer                         :: i, n, nargs, ierr, N_PartHole
+      Integer                         :: i, n, nargs
       Character (len=64)              :: name
-      Character (len=64), allocatable :: names(:), names_PH(:)
-      Logical                         :: PartHole
-
-      !NAMELIST /VAR_PH_N/     N_PartHole
-      NAMELIST /VAR_PH_names/ names_PH
-
-
-      N_PartHole = 100
-      OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-      IF (ierr /= 0) THEN
-         WRITE(*,*) 'unable to open <parameters>',ierr
-         STOP
-      END IF
-      !READ(5,NML=VAR_PH_N,IOSTAT=ierr)
-      !rewind(5)
-      allocate( names_PH(N_PartHole) )
-      READ(5,NML=VAR_PH_names,IOSTAT=ierr)
-      close(5)
+      Character (len=64), allocatable :: names(:)
       
       nargs = COMMAND_ARGUMENT_COUNT()
       allocate( names(nargs) )
@@ -112,18 +95,12 @@
          if ( i > 1 ) then
             if ( name(i:) == '_tau' ) then
                print *, ''
-               if ( any(names_PH == name) ) then
-                  PartHole = .true.
-                  print '(A,A)', "analyzing particle hole symmetric time displaced correlation ", name
-               else
-                  PartHole = .false.
-                  print '(A,A)', "analyzing time displaced correlation ", name
-               endif
+               print '(A,A)', "analyzing time displaced correlation ", name
                call Cov_tau(name)
             endif
          endif
       enddo
       
-      deallocate( names, names_PH )
+      deallocate( names )
       
    end Program ana
