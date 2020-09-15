@@ -42,7 +42,8 @@
       Use Errors
       Use MyMats
       Use Matrix
-      Use Lattices_v3
+      Use Lattices_v3, only: Unit_cell, Lattice, Make_lattice, Fourier_K_to_R
+      Use Predefined_Lattices, only: Predefined_Latt
 
    contains
 
@@ -152,7 +153,7 @@
       Real    (Kind=Kind(0.d0))             , intent(out) :: dtau
       Character (len=2)                     , intent(out) :: Channel
 
-      Character (len=64) :: file_aux, str_temp1, str_temp2
+      Character (len=64) :: file_aux, str_temp1
       Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       Integer :: no, no1, n, nt, nb, Ntau, Ndim, Nbins, stat, Ndim_unit
       Real    (Kind=Kind(0.d0)) :: X, Y
@@ -172,8 +173,6 @@
         11 format(A22, A)
         12 format(A22, I10)
         13 format(A22, *(ES25.17))
-        14 format(A22, ES24.17, A2, ES24.17)
-        15 format(A22, A2, I10)
         read(10, *)
         read(10, 11) str_temp1, Channel
         read(10, 12) str_temp1, Ntau
@@ -185,9 +184,9 @@
         read(10, 13) str_temp1, a1_p
         read(10, 13) str_temp1, a2_p
         read(10, *)
-        read(10, 15) str_temp1, str_temp2, Latt_unit%N_coord
-        read(10, 15) str_temp1, str_temp2, Latt_unit%Norb
-        read(10, 15) str_temp1, str_temp2, Ndim_unit
+        read(10, 12) str_temp1, Latt_unit%N_coord
+        read(10, 12) str_temp1, Latt_unit%Norb
+        read(10, 12) str_temp1, Ndim_unit
         allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb, Ndim_unit))
         do no = 1, Latt_unit%Norb
           read(10, 13) str_temp1, Latt_unit%Orb_pos_p(no,:)
