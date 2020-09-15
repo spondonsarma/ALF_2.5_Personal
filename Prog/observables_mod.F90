@@ -205,10 +205,8 @@
               if (.not.File_exists) then
                  11 format(A20, ': ', A)
                  12 format(A20, ': ', I10)
-                 13 format(A20, ': ', ES24.17)
-                 14 format(A20, ': ', ES24.17, ', ', ES24.17)
+                 13 format(A20, ': ', *(ES25.17))
                  open(10, file=File_aux, status='new')
-                 !open(10, file=File_aux)
                  write(tmp_str, '(A, A)') trim(Obs%File_Latt), trim(File_suff)
                  write(10, 11) 'Observable', trim(tmp_str)
                  write(10, 11) 'Channel', trim(Obs%Channel)
@@ -216,16 +214,17 @@
                  write(10, 13) 'dtau', Obs%dtau
                  write(10, '(A)') '       ====== Bravais Lattice ======'
                  write(10, 12) 'Unit cells', Obs%Latt%N
-                 write(10, 14) 'L1', Obs%Latt%L1_p
-                 write(10, 14) 'L2', Obs%Latt%L2_p
-                 write(10, 14) 'a1', Obs%Latt%a1_p
-                 write(10, 14) 'a2', Obs%Latt%a2_p
+                 write(10, 13) 'L1', Obs%Latt%L1_p
+                 write(10, 13) 'L2', Obs%Latt%L2_p
+                 write(10, 13) 'a1', Obs%Latt%a1_p
+                 write(10, 13) 'a2', Obs%Latt%a2_p
                  write(10, '(A)') '       ========= Unit cell ========='
                  write(10, 12) 'Coordination number', Obs%Latt_unit%N_coord
                  write(10, 12) 'Number of orbitals', Obs%Latt_unit%Norb
+                 write(10, 12) 'Ndim', size(Obs%Latt_unit%Orb_pos_p, 2)
                  do no = 1, Obs%Latt_unit%Norb
                     write(tmp_str, '("Orbital ",I0)') no
-                    write(10, 14) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
+                    write(10, 13) trim(tmp_str), Obs%Latt_unit%Orb_pos_p(no,:)
                  enddo
                  close(10)
               endif

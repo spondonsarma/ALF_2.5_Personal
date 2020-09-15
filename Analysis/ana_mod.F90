@@ -154,7 +154,7 @@
 
       Character (len=64) :: file_aux, str_temp1, str_temp2
       Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
-      Integer :: no, no1, n, nt, nb, Ntau, Ndim, Nbins, Norb, stat
+      Integer :: no, no1, n, nt, nb, Ntau, Ndim, Nbins, stat, Ndim_unit
       Real    (Kind=Kind(0.d0)) :: X, Y
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Real    (Kind=Kind(0.d0)) :: x_p(2), a1_p(2), a2_p(2), L1_p(2), L2_p(2)
@@ -171,7 +171,7 @@
         open(Unit=10, File=file_aux, status="old", action='read')
         11 format(A22, A)
         12 format(A22, I10)
-        13 format(A22, ES24.17)
+        13 format(A22, *(ES25.17))
         14 format(A22, ES24.17, A2, ES24.17)
         15 format(A22, A2, I10)
         read(10, *)
@@ -180,17 +180,17 @@
         read(10, 13) str_temp1, dtau
         read(10, *)
         read(10, 12) str_temp1, Latt%N
-        read(10, 14) str_temp1, L1_p(1), str_temp2, L1_p(2)
-        read(10, 14) str_temp1, L2_p(1), str_temp2, L2_p(2)
-        read(10, 14) str_temp1, a1_p(1), str_temp2, a1_p(2)
-        read(10, 14) str_temp1, a2_p(1), str_temp2, a2_p(2)
+        read(10, 13) str_temp1, L1_p
+        read(10, 13) str_temp1, L2_p
+        read(10, 13) str_temp1, a1_p
+        read(10, 13) str_temp1, a2_p
         read(10, *)
         read(10, 15) str_temp1, str_temp2, Latt_unit%N_coord
-        read(10, 15) str_temp1, str_temp2, Norb
-        Latt_unit%Norb = Norb
-        allocate(Latt_unit%Orb_pos_p(Norb, 2))
-        do no = 1, Norb
-          read(10, 14) str_temp1, Latt_unit%Orb_pos_p(no,1), str_temp2, Latt_unit%Orb_pos_p(no,2)
+        read(10, 15) str_temp1, str_temp2, Latt_unit%Norb
+        read(10, 15) str_temp1, str_temp2, Ndim_unit
+        allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb, Ndim_unit))
+        do no = 1, Latt_unit%Norb
+          read(10, 13) str_temp1, Latt_unit%Orb_pos_p(no,:)
         enddo
         close(10)
         Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
@@ -201,11 +201,11 @@
         close(10)
         Call Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
         open(Unit=10, File=file, status="old", action='read')
-        Read(10, *, iostat=stat) X, Norb, Ndim, Ntau, dtau
+        Read(10, *, iostat=stat) X, Latt_unit%Norb, Ndim, Ntau, dtau
         if (stat /= 0) then
            Ntau = 1
            dtau = -1.d0
-           Read(10, *) X, Norb, Ndim
+           Read(10, *) X, Latt_unit%Norb, Ndim
         endif
         close(10)
       endif
@@ -216,14 +216,14 @@
       do
          read(10, *, iostat=stat)
          if (stat /= 0) exit
-         Do no = 1, Norb
+         Do no = 1, Latt_unit%Norb
             Read(10,*)
          enddo
          do n = 1, Ndim
             Read(10,*)
             do nt = 1, Ntau
-               do no = 1, Norb
-                  do no1 = 1, Norb
+               do no = 1, Latt_unit%Norb
+                  do no1 = 1, Latt_unit%Norb
                      read(10,*)
                   enddo
                enddo
@@ -234,19 +234,19 @@
       rewind(10)
 
       ! Allocate  space
-      Allocate(bins(Ndim, Ntau, Norb, Norb, Nbins))
-      Allocate(sgn(Nbins), Xk_p(2, Ndim), bins0(Norb, Nbins))
+      Allocate(bins(Ndim, Ntau, Latt_unit%Norb, Latt_unit%Norb, Nbins))
+      Allocate(sgn(Nbins), Xk_p(2, Ndim), bins0(Latt_unit%Norb, Nbins))
 
       do nb = 1, nbins
          Read(10,*) sgn(nb)
-         Do no = 1,Norb
+         Do no = 1, Latt_unit%Norb
             Read(10,*) bins0(no,nb)
          Enddo
          do n = 1, Ndim
             Read(10,*) Xk_p(1,n), Xk_p(2,n)
             do nt = 1, Ntau
-               do no = 1, norb
-                  do no1 = 1, Norb
+               do no = 1, Latt_unit%Norb
+                  do no1 = 1, Latt_unit%Norb
                      read(10,*) bins(n,nt,no,no1,nb)
                   enddo
                enddo
