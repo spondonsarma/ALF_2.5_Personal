@@ -95,6 +95,17 @@ ham_U2    = 4.d0            ! For bilayer systems
 ham_Tperp = 1.d0            ! For bilayer systems
 /
 
+&VAR_Hubbard_Plain_Vanilla !! Variables for the specific model
+ham_T     = 1.d0            ! Hopping parameter
+ham_chem  = 0.d0            ! Chemical potential
+ham_U     = 4.d0            ! Hubbard interaction
+Dtau      = 0.1d0           ! Thereby Ltrot=Beta/dtau
+Beta      = 5.d0            ! Inverse temperature
+Projector = .F.             ! Whether the projective algorithm is used
+Theta     = 10.d0d0         ! Projection parameter
+Symm      = .T.             ! Whether symmetrization takes place
+/
+
 &VAR_tV                    !! Variables for the t-V class
 ham_T     = 1.d0            ! Hopping parameter
 ham_chem  = 0.d0            ! Chemical potential
