@@ -142,6 +142,10 @@
 !> \verbatim
 !>  Size of imaginary time step
 !> \endverbatim
+!> @param [OUT] file Character(len=2)
+!> \verbatim
+!>  MaxEnt Channel. Relevant for timedisplaced correlation.
+!> \endverbatim
 !-------------------------------------------------------------------
       Implicit none
       Character (len=64), intent(in) :: file
@@ -192,18 +196,18 @@
         enddo
         close(10)
         Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
-        Ndim = Latt%N
+        Ndim = Latt%N*Latt_Unit%Norb
       else
         open(Unit=10, File='parameters', status="old", action='read')
         read(10, NML=VAR_lattice)
         close(10)
         Call Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
         open(Unit=10, File=file, status="old", action='read')
-        Read(10, *, iostat=stat) X, Latt_unit%Norb, Ndim, Ntau, dtau
+        Read(10, *, iostat=stat) X, Latt_unit%Norb, Latt%N, Ntau, dtau
         if (stat /= 0) then
            Ntau = 1
            dtau = -1.d0
-           Read(10, *) X, Latt_unit%Norb, Ndim
+           Read(10, *) X, Latt_unit%Norb, Latt%N
         endif
         close(10)
       endif
@@ -217,7 +221,7 @@
          Do no = 1, Latt_unit%Norb
             Read(10,*)
          enddo
-         do n = 1, Ndim
+         do n = 1, Latt%N
             Read(10,*)
             do nt = 1, Ntau
                do no = 1, Latt_unit%Norb
@@ -232,15 +236,15 @@
       rewind(10)
 
       ! Allocate  space
-      Allocate(bins(Ndim, Ntau, Latt_unit%Norb, Latt_unit%Norb, Nbins))
-      Allocate(sgn(Nbins), Xk_p(2, Ndim), bins0(Latt_unit%Norb, Nbins))
+      Allocate(bins(Latt%N, Ntau, Latt_unit%Norb, Latt_unit%Norb, Nbins))
+      Allocate(sgn(Nbins), Xk_p(2, Latt%N), bins0(Latt_unit%Norb, Nbins))
 
       do nb = 1, nbins
          Read(10,*) sgn(nb)
          Do no = 1, Latt_unit%Norb
             Read(10,*) bins0(no,nb)
          Enddo
-         do n = 1, Ndim
+         do n = 1, Latt%N
             Read(10,*) Xk_p(1,n), Xk_p(2,n)
             do nt = 1, Ntau
                do no = 1, Latt_unit%Norb
@@ -253,7 +257,7 @@
       enddo
       close(10)
 
-      do n = 1, Ndim
+      do n = 1, Latt%N
          x_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          x   = (x_p(1)-Xk_p(1,n))**2 + (x_p(2)-Xk_p(2,n))**2
          if ( x > 0.00001 ) then
