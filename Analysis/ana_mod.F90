@@ -156,10 +156,9 @@
       Character (len=64) :: file_aux, str_temp1
       Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       Integer :: no, no1, n, nt, nb, Ntau, Ndim, Nbins, stat, Ndim_unit
-      Real    (Kind=Kind(0.d0)) :: X, Y
-      Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
-      Real    (Kind=Kind(0.d0)) :: x_p(2), a1_p(2), a2_p(2), L1_p(2), L2_p(2)
-      Complex (Kind=Kind(0.d0)) :: Z
+      Real(Kind=Kind(0.d0)) :: X
+      Real(Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
+      Real(Kind=Kind(0.d0)) :: x_p(2), a1_p(2), a2_p(2), L1_p(2), L2_p(2)
       logical            :: file_exists
 
       Integer             :: L1, L2
@@ -452,7 +451,7 @@
       Character (len=64) :: File_out, command
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
-      Integer :: Nbins, Norb, LT, Lt_eff, Nunit
+      Integer :: Nbins, LT, Lt_eff
       Integer :: nb, no, no1, n, nt, nt1, ierr
       Complex (Kind=Kind(0.d0)) :: Z, Zmean, Zerr
       Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
@@ -482,9 +481,7 @@
       CLOSE(5)
 
       Nbins = size(bins_raw,5)
-      Norb  = size(bins_raw,3)
       LT    = size(bins_raw,2)
-      Nunit = Latt%N
 
       Write(6, '(A22, I0)') "# of bins: ", Nbins
       nbins  = Nbins - n_skip
@@ -503,13 +500,13 @@
       endif
 
       ! Allocate  space
-      Allocate ( bins(Nunit,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Nunit), &
+      Allocate ( bins(Latt%N,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Latt%N), &
             &     V_help(Lt_eff,Nbins))
-      Allocate ( Bins_chi(Nunit,Nbins) )
+      Allocate ( Bins_chi(Latt%N,Nbins) )
       Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
 
-      do n = 1,Nunit
+      do n = 1,Latt%N
          xk_p(:,n) = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
       enddo
 
@@ -517,9 +514,9 @@
       do nb = 1, nbins
          Phase (nb) = sgn(nb+n_skip)
          PhaseI(nb) = cmplx(sgn(nb+n_skip),0.d0,Kind(0.d0))
-         do n = 1,Nunit
+         do n = 1,Latt%N
             do nt = 1,Lt_eff
-               do no = 1,Norb
+               do no = 1,Latt_unit%Norb
                   if (PartHole) then
                      bins(n,nt,nb) = bins(n,nt,nb) + ( bins_raw(n,nt,no,no,nb+n_skip) + bins_raw(n,Lt-nt+1,no,no,nb+n_skip) ) &
                                           & / cmplx(2.d0,0.d0,Kind(0.d0))
@@ -528,14 +525,14 @@
                   endif
                   if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
                      bins(n,nt,nb) = bins(n,nt,nb) - Bins0_raw(no,nb+n_skip)*Bins0_raw(no,nb+n_skip) &
-                                                     & *cmplx(dble(Nunit)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                                                     & *cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
                   endif
                enddo
             enddo
          enddo
       enddo
 
-      do n = 1,Nunit
+      do n = 1,Latt%N
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
             call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
             !write(File_out,'(A,"_",F4.2,"_",F4.2)')  trim(name_obs), Xk_p(1,n), Xk_p(2,n)
@@ -543,7 +540,7 @@
             write(command, '("mkdir -p ",A,"_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             CALL EXECUTE_COMMAND_LINE(command)
             Open (Unit=10, File=File_out, status="unknown")
-            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb, Channel
+            Write(10,*) Lt_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Latt_unit%Norb, Channel
             do nt = 1, LT_eff
                Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                      & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
@@ -562,21 +559,21 @@
 
       ! Do timedisplaced r=0 ===============================
       V_help = cmplx(0.d0,0.d0,kind(0.d0))
-      do n = 1,Nunit
+      do n = 1,Latt%N
          do nb = 1,nbins
             do nt = 1,LT_eff
                V_help(nt,nb) = V_help(nt,nb) + bins(n,nt,nb)
             enddo
          enddo
       enddo
-      V_help = V_help/dble(Nunit)
+      V_help = V_help/dble(Latt%N)
       call COV(V_help, phase, Xcov, Xmean, N_Rebin )
       !write(File_out,'(A,"_R0")') trim(name_obs)
       write(File_out,'(A,"_R0/g_R0")') trim(name_obs)
       write(command, '("mkdir -p ",A,"_R0")') trim(name_obs)
       CALL EXECUTE_COMMAND_LINE(command)
       Open (Unit=10,File=File_out,status="unknown")
-      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Norb, Channel
+      Write(10,*) LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Latt_unit%Norb, Channel
       do nt = 1, LT_eff
          Write(10,"(F14.7,2x,F16.8,2x,F16.8)") &
                & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
@@ -593,14 +590,14 @@
 
       ! Do susceptibilities ===============================
       do nb = 1, nbins
-         do n = 1,Nunit
+         do n = 1,Latt%N
             Z = cmplx(0.d0,0.d0,kind(0.d0))
             Do nt = 1,Lt_eff -1
-               do no = 1,Norb
-                  do no1 = 1,Norb
+               do no = 1,Latt_unit%Norb
+                  do no1 = 1,Latt_unit%Norb
                      Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins_raw(n,nt,no,no1,nb+n_skip) + bins_raw(n,nt+1,no,no1,nb+n_skip) )
                      if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
-                        z = z - Bins0_raw(no,nb+n_skip)*Bins0_raw(no1,nb+n_skip) * cmplx(dble(Nunit)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                        z = z - Bins0_raw(no,nb+n_skip)*Bins0_raw(no1,nb+n_skip) * cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
                      endif
                   enddo
                enddo
@@ -611,7 +608,7 @@
       enddo
       write(File_out,'(A,"_tauJK")') trim(name_obs)
       Open (Unit=33,File=File_out ,status="unknown")
-      Do n = 1,Nunit
+      Do n = 1,Latt%N
          call ERRCALCJ(Bins_chi(n,:), PhaseI, ZMean, ZERR, N_rebin )
          Zmean = Zmean*dtau
          Zerr = Zerr*dtau
@@ -651,23 +648,24 @@
       Character (len=2)      :: Channel
 
       call read_latt(file, sgn, bins_raw, bins0_raw, Latt, Latt_unit, dtau, Channel)
-      call ana_eq(file, sgn, bins_raw, bins0_raw, Latt)
+      call ana_eq(file, sgn, bins_raw, bins0_raw, Latt, Latt_unit)
 
    end subroutine Cov_eq
 
 !==============================================================================
 
-   Subroutine ana_eq(name, sgn, bins_raw, bins0_raw, Latt)
+   Subroutine ana_eq(name, sgn, bins_raw, bins0_raw, Latt, Latt_unit)
       Implicit none
-      Character (len=64), intent(in) :: name
+      Character (len=64)                    , intent(in) :: name
       Real    (Kind=Kind(0.d0)), allocatable, intent(in) :: sgn(:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins_raw(:,:,:,:,:)
-      Complex (Kind=Kind(0.d0)), pointer, intent(in) :: Bins0_raw(:,:)
-      Type (Lattice), intent(in)    :: Latt
+      Complex (Kind=Kind(0.d0)), pointer    , intent(in) :: Bins_raw(:,:,:,:,:)
+      Complex (Kind=Kind(0.d0)), pointer    , intent(in) :: Bins0_raw(:,:)
+      Type (Lattice)                        , intent(in) :: Latt
+      Type (Unit_cell)                      , intent(in) :: Latt_unit
 
-      Character (len=64)  :: File_out
+      Character (len=64) :: File_out
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
-      Integer :: Nbins, Norb, Nunit
+      Integer :: Nbins
       Integer :: i, n, nb, no, no1, ierr
       Type  (Mat_C), allocatable :: Bins (:,:), Bins_R(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Phase(:)
@@ -679,7 +677,7 @@
       Complex (Kind=Kind(0.d0)) :: Z, Xmean, Xerr, Xmean_r, Xerr_r
       Real (Kind=Kind(0.d0)) :: Xm,Xe
 
-      NAMELIST /VAR_errors/   N_skip, N_rebin, N_Cov, N_Back, N_auto
+      NAMELIST /VAR_errors/ N_skip, N_rebin, N_Cov, N_Back, N_auto
 
       N_skip = 1
       N_rebin = 1
@@ -695,8 +693,6 @@
       CLOSE(5)
 
       Nbins = size(bins_raw,5)
-      Norb  = size(bins_raw,3)
-      Nunit = Latt%N
 
       Write(6, '(A22, I0)') "# of bins: ", Nbins
       Nbins  = Nbins - n_skip
@@ -708,11 +704,12 @@
       endif
 
       ! Allocate  space
-      Allocate ( bins(Nunit,Nbins), bins_r(Nunit,Nbins), Phase(Nbins), V_help(Nbins), V_help_R(Nbins), Bins0(Nbins,Norb))
-      Do n = 1,Nunit
+      Allocate( bins(Latt%N,Nbins), bins_r(Latt%N,Nbins), Phase(Nbins) )
+      Allocate( V_help(Nbins), V_help_R(Nbins), Bins0(Nbins, Latt_unit%Norb) )
+      Do n = 1,Latt%N
          do nb = 1,nbins
-            Call Make_Mat(bins  (n,nb),Norb)
-            Call Make_Mat(bins_r(n,nb),Norb)
+            Call Make_Mat(bins  (n,nb), Latt_unit%Norb)
+            Call Make_Mat(bins_r(n,nb), Latt_unit%Norb)
             bins_r(n,nb)%el = cmplx(0.d0,0.d0,kind(0.d0))
             bins  (n,nb)%el = cmplx(0.d0,0.d0,kind(0.d0))
          Enddo
@@ -727,19 +724,19 @@
       do nb = 1, nbins + n_skip
          if (nb > n_skip ) then
             Phase(nb-n_skip) = cmplx(sgn(nb),0.d0,kind(0.d0))
-            Do no = 1,Norb
+            Do no = 1,Latt_unit%Norb
                if (N_Back == 1 ) Bins0(nb-n_skip,no) = Bins0_raw(no,nb)
             enddo
-            do n = 1,Nunit
-               do no = 1,norb
-                  do no1 = 1,Norb
+            do n = 1,Latt%N
+               do no = 1,Latt_unit%Norb
+                  do no1 = 1,Latt_unit%Norb
                      bins(n,nb-n_skip)%el(no,no1) = Bins_raw(n,1,no,no1,nb)
                   enddo
                enddo
                Xk_p(:) = Xk_p_s(:,n)
                if ( sqrt(Xk_p(1)**2 + Xk_p(2)**2) < 1.D-6 ) then
-                  do no = 1,norb
-                     do no1 = 1,Norb
+                  do no = 1,Latt_unit%Norb
+                     do no1 = 1,Latt_unit%Norb
                         bins(n,nb-n_skip)%el(no,no1)  =  bins(n,nb-n_skip)%el(no,no1) -  &
                               &        cmplx(dble(Latt%N),0.d0,kind(0.d0))*Bins0(nb-n_skip,no)*Bins0(nb-n_skip,no1) &
                               &        /Phase(nb-n_skip)
@@ -756,11 +753,11 @@
 
       ! Setup symmetries for square lattice.
 #ifdef test
-      do n = 1,Nunit
+      do n = 1,Latt%N
          n1 = n
          Write(6,*) Xk_p(1,n1), Xk_p(2,n1)
          do m = 1,4
-            n1 = Rot90(n1, Xk_p, Nunit)
+            n1 = Rot90(n1, Xk_p, Latt%N)
             Write(6,*) n1, Xk_p(1,n1), Xk_p(2,n1)
          enddo
          Write(6,*)
@@ -770,13 +767,13 @@
       Open (Unit=33,File=File_out ,status="unknown")
       write(File_out,'(A,A)') trim(name), "JR"
       Open (Unit=34,File=File_out ,status="unknown")
-      Do n = 1,Nunit
+      Do n = 1,Latt%N
          Xk_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          Xr_p = dble(Latt%list (n,1))*Latt%a1_p + dble(Latt%list (n,2))*Latt%a2_p
          Write(33,"(F12.6,2x,F12.6)")  Xk_p(1), Xk_p(2)
          Write(34,"(F12.6,2x,F12.6)")  Xr_p(1), Xr_p(2)
-         Do no = 1,Norb
-            do no1 = 1,Norb
+         Do no = 1,Latt_unit%Norb
+            do no1 = 1,Latt_unit%Norb
                do nb = 1,Nbins
                   V_help(nb) = bins  (n,nb)%el(no,no1)
                enddo
@@ -799,7 +796,7 @@
       if(N_auto>0) then
       ALLOCATE(AutoCorr(N_auto))
       ALLOCATE(EN(Nbins))
-      Do n = 1,Nunit
+      Do n = 1,Latt%N
          Xk_p = dble(Latt%listk(n,1))*Latt%b1_p + dble(Latt%listk(n,2))*Latt%b2_p
          if (Xk_p(1) >= -1.d-8 .and. XK_p(2) >= -1.d-8) then
             write(File_out,'(A,"_Auto_Tr_",F4.2,"_",F4.2)') trim(name), Xk_p(1), Xk_p(2)
@@ -807,7 +804,7 @@
             WRITE(21,*)
             do nb = 1,Nbins
                Z=0
-               do no = 1,Norb
+               do no = 1,Latt_unit%Norb
                   Z = Z+bins  (n,nb)%el(no,no)
                enddo
                En(nb)=dble(Z)
@@ -856,20 +853,18 @@
       Complex (Kind=Kind(0.d0)), pointer,     intent(inout) :: bins_raw(:,:)
 
       REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, sgn
-      REAL    (Kind=Kind(0.d0)) :: XM, XERR, X
+      REAL    (Kind=Kind(0.d0)) :: XM, XERR
 
       Complex (Kind=Kind(0.d0)), Allocatable  :: Bins(:,:)
       REAL    (Kind=Kind(0.d0)), Allocatable  :: AutoCorr(:)
       Integer :: Nobs
       Integer :: Nbins, Nbins_eff, I, IOBS, N_Back
-      Integer :: N,N1
 
       Integer :: N_skip, N_rebin, N_Cov, ierr, N_auto
       Character (len=64) :: File_out
       NAMELIST /VAR_errors/   N_skip, N_rebin, N_Cov, N_Back, N_auto
 
       !New Stuff for Autocorrelation
-      Integer :: tau, tau_max, Nbins_eff2
       REAL(Kind=Kind(0.d0)), DIMENSION(:)  , ALLOCATABLE :: vec, vec_err
 
       N_skip = 1
