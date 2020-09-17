@@ -46,7 +46,7 @@
       Contains
 !========================================================================
 
-        Subroutine Init_Entaglement_replicas(Group_Comm)
+        Subroutine Init_Entanglement_replicas(Group_Comm)
 #ifdef MPI
           Use mpi
 #endif
@@ -66,7 +66,7 @@
           group=Group_Comm
 #endif
           
-        end Subroutine Init_Entaglement_replicas
+        end Subroutine Init_Entanglement_replicas
           
 !========================================================================
         ! Calculation of the Renyi entanglement entropy
