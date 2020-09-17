@@ -221,10 +221,7 @@
          else
             read(10, *, iostat=stat) X, Latt_unit%Norb, Latt%N, Ntau, dtau
          endif
-         print*, 'nb', nbins, stat
-         print*, X, Latt_unit%Norb, Latt%N
          if (stat /= 0) exit
-         print*, 'nb', nbins, stat
          Do no = 1, Latt_unit%Norb
             Read(10,*)
          enddo
