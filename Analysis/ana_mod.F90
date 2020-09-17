@@ -216,8 +216,15 @@
       open(Unit=10, File=file, status="old", action='read')
       nbins = 0
       do
-         read(10, *, iostat=stat)
+         if(Ntau == 1) then
+            read(10, *, iostat=stat) X, Latt_unit%Norb, Latt%N
+         else
+            read(10, *, iostat=stat) X, Latt_unit%Norb, Latt%N, Ntau, dtau
+         endif
+         print*, 'nb', nbins, stat
+         print*, X, Latt_unit%Norb, Latt%N
          if (stat /= 0) exit
+         print*, 'nb', nbins, stat
          Do no = 1, Latt_unit%Norb
             Read(10,*)
          enddo
@@ -240,7 +247,11 @@
       Allocate(sgn(Nbins), Xk_p(2, Latt%N), bins0(Latt_unit%Norb, Nbins))
 
       do nb = 1, nbins
-         Read(10,*) sgn(nb)
+         if(Ntau == 1) then
+            read(10, *) sgn(nb), Latt_unit%Norb, Latt%N
+         else
+            read(10, *) sgn(nb), Latt_unit%Norb, Latt%N, Ntau, dtau
+         endif
          Do no = 1, Latt_unit%Norb
             Read(10,*) bins0(no,nb)
          Enddo

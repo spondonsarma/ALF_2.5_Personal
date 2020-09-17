@@ -296,8 +296,12 @@
                     enddo
                  enddo
               enddo
-              Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N, Ntau, Obs%dtau
+              Open(Unit=10, File=File_pr, status="unknown",  position="append")
+              If ( Ntau == 1 ) then
+                 Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N
+              else
+                 Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N, Ntau, Obs%dtau
+              endif
               Do no = 1, Obs%Latt_unit%Norb
                  Write(10,*)  Obs%Obs_Latt0(no)
               enddo
