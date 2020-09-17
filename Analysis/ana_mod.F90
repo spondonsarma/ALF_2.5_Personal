@@ -205,6 +205,7 @@
         open(Unit=10, File=file, status="old", action='read')
         Read(10, *, iostat=stat) X, Latt_unit%Norb, Latt%N, Ntau, dtau
         if (stat /= 0) then
+           rewind(10)
            Ntau = 1
            dtau = -1.d0
            Read(10, *) X, Latt_unit%Norb, Latt%N
