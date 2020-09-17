@@ -198,6 +198,7 @@
         Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
         Ndim = Latt%N*Latt_Unit%Norb
       else
+        Channel = '--'
         open(Unit=10, File='parameters', status="old", action='read')
         read(10, NML=VAR_lattice)
         close(10)
