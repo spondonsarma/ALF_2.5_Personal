@@ -123,7 +123,7 @@
 
           Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET
+          Complex (Kind=8) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half
           
           EXTERNAL ZGEMM
@@ -133,6 +133,8 @@
           N_FL_half = N_FL/2
           
           Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
 #ifdef MPI
           ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
@@ -165,8 +167,8 @@
               DO I = 1, Nsites
                   IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
               END DO
-              CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, CMPLX(2.D0,0.D0,KIND(0.D0)), GreenA(1:Nsites, 1:Nsites), &
-                  & Nsites, GreenA(1:Nsites, Nsites+1:2*Nsites), Nsites, CMPLX(1.D0,0.D0,KIND(0.D0)), IDA, Nsites)
+              CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, alpha, GreenA(1, 1), &
+                  & Nsites, GreenA(1, Nsites+1), Nsites, beta, IDA, Nsites)
               ! Compute determinant
               SELECT CASE(Nsites)
               CASE (1)
@@ -219,8 +221,8 @@
                 DO I = 1, Nsites
                     IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
                 END DO
-                CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, CMPLX(2.D0,0.D0,KIND(0.D0)), GreenA(1:Nsites, 1:Nsites), &
-                    & Nsites, GreenA(1:Nsites, Nsites+1:2*Nsites), Nsites, CMPLX(1.D0,0.D0,KIND(0.D0)), IDA, Nsites)
+                CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, alpha, GreenA(1, 1), &
+                    & Nsites, GreenA(1, Nsites+1), Nsites, beta, IDA, Nsites)
                 ! Compute determinant
                 SELECT CASE(Nsites)
                 CASE (1)
