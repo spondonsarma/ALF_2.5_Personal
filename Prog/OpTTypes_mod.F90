@@ -38,12 +38,14 @@ module OpTTypes_mod
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
     contains
         procedure :: simt => RealOpT_simt
+        procedure :: mult => RealOpT_mult
     end type RealOpT
 
     type, extends(ContainerElementBase) :: CmplxOpT
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat
     contains
         procedure :: simt => CmplxOpT_simt
+        procedure :: mult => CmplxOpT_mult
     end type CmplxOpT
 
 contains
@@ -53,8 +55,20 @@ contains
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
+    
+    subroutine RealOpT_mult(this, arg)
+        class(RealOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+
+    end subroutine
 
     subroutine CmplxOpT_simt(this, arg)
+        class(CmplxOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+    end subroutine
+    
+    subroutine CmplxOpT_mult(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
