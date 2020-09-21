@@ -268,7 +268,7 @@ The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to
 and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
 For imaginary-time displaced correlation functions, the formatting of the block is given by:
 \begin{alltt}
-<measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>
+<measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>  <Channel>
 do alpha = 1, N_orbital
     \(\langle\hat{O}\sb{\alpha}\rangle \)
 enddo
@@ -283,7 +283,7 @@ do i = 1, N_unit_cell
    enddo
 enddo
 \end{alltt}
-The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>} and \path{<dtau>}, which are then omitted.
+The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>}, \path{<dtau>} and \path{<Channel>}, which are then omitted.
 Using this structure for the bins as input, the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analysis routine (see Sec.~\ref{sec:analysis}).
 \end{itemize}
 
