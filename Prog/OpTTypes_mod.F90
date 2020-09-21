@@ -37,6 +37,7 @@ module OpTTypes_mod
     type, extends(ContainerElementBase) :: RealOpT
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
     contains
+        procedure :: init => RealOpT_init
         procedure :: simt => RealOpT_simt
         procedure :: rmult => RealOpT_rmult
         procedure :: lmult => RealOpT_lmult
@@ -45,12 +46,21 @@ module OpTTypes_mod
     type, extends(ContainerElementBase) :: CmplxOpT
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat
     contains
+        procedure :: init => CmplxOpT_init
         procedure :: simt => CmplxOpT_simt
         procedure :: rmult => CmplxOpT_rmult
         procedure :: lmult => CmplxOpT_lmult
     end type CmplxOpT
 
 contains
+
+    subroutine RealOpT_init(this, arg)
+        class(RealOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+
+    end subroutine
+    
     subroutine RealOpT_simt(this, arg)
         class(RealOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
@@ -67,6 +77,13 @@ contains
     
     subroutine RealOpT_lmult(this, arg)
         class(RealOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+
+    end subroutine
+    
+    subroutine CmplxOpT_init(this, arg)
+        class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
