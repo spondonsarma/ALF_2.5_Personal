@@ -38,14 +38,16 @@ module OpTTypes_mod
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
     contains
         procedure :: simt => RealOpT_simt
-        procedure :: mult => RealOpT_mult
+        procedure :: rmult => RealOpT_rmult
+        procedure :: lmult => RealOpT_lmult
     end type RealOpT
 
     type, extends(ContainerElementBase) :: CmplxOpT
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat
     contains
         procedure :: simt => CmplxOpT_simt
-        procedure :: mult => CmplxOpT_mult
+        procedure :: rmult => CmplxOpT_rmult
+        procedure :: lmult => CmplxOpT_lmult
     end type CmplxOpT
 
 contains
@@ -56,7 +58,14 @@ contains
 
     end subroutine
     
-    subroutine RealOpT_mult(this, arg)
+    subroutine RealOpT_rmult(this, arg)
+        class(RealOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+
+    end subroutine
+    
+    subroutine RealOpT_lmult(this, arg)
         class(RealOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
@@ -68,7 +77,12 @@ contains
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
     
-    subroutine CmplxOpT_mult(this, arg)
+    subroutine CmplxOpT_rmult(this, arg)
+        class(CmplxOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+    end subroutine
+    
+    subroutine CmplxOpT_lmult(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
