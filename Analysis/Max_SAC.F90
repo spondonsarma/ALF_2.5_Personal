@@ -1,4 +1,4 @@
-!  Copyright (C) 2016-2019 The ALF project
+!  Copyright (C) 2016-2020 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -42,9 +42,8 @@
 !--------------------------------------------------------------------
        Use MaxEnt_stoch_mod
 
+       use iso_fortran_env, only: output_unit, error_unit
        Implicit  None
-       !Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
-       !Implicit Integer (H-N)
 
        Interface
           Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance,  Ntau)
