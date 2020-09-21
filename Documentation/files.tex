@@ -119,8 +119,6 @@ NWarm      = 20             ! The Nwarm first bins will be ommitted
 N_alpha    = 14             ! Number of temperatures
 alpha_st   = 1.d0           ! Smallest inverse temperature increment for inverse
 R          = 1.2d0          ! temperature (see above) 
-Channel    = "P"            ! Options: zero temperature (T0), and finite temperature
-                            ! particle (P), particle-hole (PH), or particle-particle (PP)
 Checkpoint = .F.            ! Whether to produce dump files, allowing the simulation
                             ! to be resumed later on
 Tolerance  = 0.1d0          ! Data points for which the relative error exceeds the
@@ -215,10 +213,6 @@ If the program is not compiled with the parallel tempering flag, then the \textt
 %N_alpha    = 14              ! # of temperatures
 %alpha_st   = 1.d0            ! smallest inverse temperature
 %R          = 1.2d0           ! increment for inverse temperature (see above) 
-%Channel    = "P"             ! T0       : Zero temperature
-%                             ! P        : Finite temperarure particle 
-%                             ! PH       : Finite temperarure particle-hole
-%                             ! PP       : Finite temperarure particle-particle 
 %Checkpoint = .false.         !.true.    : dump files will be produced so as to be able
 %                             !            to restart the simulation
 %                             !.false.   : dump files will not be produced 
