@@ -188,6 +188,9 @@ F.~F. Assaad and T.~C. Lang, Phys. Rev. B \textbf{ 76},  035116  (2007).
 R.~T. Scalettar, D.~J. Scalapino, and R.~L. Sugar, Phys. Rev. B \textbf{ 34},
   7911  (1986).
 
+\bibitem{Beyl17}
+S. Beyl, F. Goth, and F.~F. Assaad, Phys. Rev. B \textbf{ 97},  085144  (2018).
+
 \bibitem{Durr08}
 S. D{\"u}rr, Z. Fodor, J. Frison, C. Hoelbling, R. Hoffmann, S.~D. Katz, S.
   Krieg, T. Kurth, L. Lellouch, T. Lippert, K.~K. Szabo, and G. Vulvert,
@@ -206,6 +209,12 @@ Y. Motome and M. Imada, Journal of the Physical Society of Japan \textbf{ 66},
 \bibitem{Assaad97}
 F.~F. Assaad, M. Imada, and D.~J. Scalapino, Phys. Rev. B \textbf{ 56},  15001
   (1997).
+
+\bibitem{Sandvik98}
+A. Sandvik, Phys. Rev. B \textbf{ 57},  10287  (1998).
+
+\bibitem{Beach04a}
+K.~S.~D. {Beach}, eprint arXiv:cond-mat/0403055  (2004).
 
 \bibitem{Fye86}
 R.~M. Fye, Phys. Rev. B \textbf{ 33},  6271  (1986).
@@ -341,21 +350,12 @@ M. Hohenadler and F.~F. Assaad, Phys. Rev. B \textbf{ 100},  125133  (2019).
 A. R\"uegg, S.~D. Huber, and M. Sigrist, Phys. Rev. B \textbf{ 81},  155118
   (2010).
 
-\bibitem{Beach04a}
-K.~S.~D. {Beach}, eprint arXiv:cond-mat/0403055  (2004).
-
 \bibitem{Assaad14}
 F.~F. Assaad, Nat Phys \textbf{ 10},  905  (2014).
 
-\bibitem{Xu16a}
-X.~Y. Xu, Y. Qi, J. Liu, L. Fu, and Z.~Y. Meng, arXiv:1612.03804  (2016).
-
-\bibitem{Ulybyshev2013}
-M.~V. Ulybyshev, P.~V. Buividovich, M.~I. Katsnelson, and M.~I. Polikarpov,
-  Phys. Rev. Lett. \textbf{ 111},  056801  (2013).
-
-\bibitem{Brower12}
-R. Brower, C. Rebbi, and D. Schaich, PoS(Lattice 2011)056 (arXiv:1204.5424)  .
+\bibitem{Rubtsov05}
+A.~N. Rubtsov, V.~V. Savkin, and A.~I. Lichtenstein, Phys. Rev. B \textbf{ 72},
+   035122  (2005).
 
 \bibitem{Jureca16}
 {J\"ulich Supercomputing Centre}, Journal of large-scale research facilities

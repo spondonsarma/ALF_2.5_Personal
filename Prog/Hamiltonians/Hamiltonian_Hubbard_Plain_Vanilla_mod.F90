@@ -151,7 +151,7 @@
       Type (Lattice),       private :: Latt
       Type (Unit_cell),     private :: Latt_unit
       Integer,              private :: L1, L2
-      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
+      real (Kind=Kind(0.d0)),        private :: Ham_T , ham_U,  Ham_chem
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
       Integer               ,        private :: N_part
       Character (len=64),   private :: Model, Lattice_type
@@ -187,9 +187,9 @@
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
 
-          NAMELIST /VAR_Hubbard_Plain_Vanilla/  ham_T, ham_chem, ham_U, Dtau, Beta, Projector, Theta, Symm, N_part
-
-
+          NAMELIST /VAR_Hubbard_Plain_Vanilla/  Ham_T, ham_chem, ham_U, Dtau, Beta, Projector, Theta, Symm, N_part
+          
+          
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
@@ -250,7 +250,7 @@
           CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_chem    ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_U       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
 #endif
