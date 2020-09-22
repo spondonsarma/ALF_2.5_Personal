@@ -341,45 +341,25 @@ Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-00
 showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.
 A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable simulation since the Green function  is of order one. 
 
-\subsubsection{Running the code and testing}
+\subsection{Running the code and testing}
 
 To test the code, one can carry out high precision simulations. After compilation, the executable \texttt{Hubbard\_Plain\_Vanilla.out} is found in the directory \texttt{\$ALF\_DIR/Prog/} and can be run from any directory containing the files \texttt{parameters} and \texttt{seeds} (See Sec.~\ref{sec:files}).
 
-Alternatively, it may be convenient to use \texttt{pyALF} to compile and run the code. In this case, the simulation parameters assigned non-default values can be set in the \texttt{Sims} such as: 
-\begin{lstlisting}[style=fortran]
-{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 4, "Nsweep": 2000,  
-"NBin": 40, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05}
-\end{lstlisting}
-The simulation can then be run using the script \texttt{Run.py}:
-\begin{lstlisting}[style=bash]
-python3 Run.py -R --alfdir $ALF_DIR --machine GNU --mpi MPI --n_mpi 4 \
-               --ham_name_R  Hubbard_Plain_Vanilla
-\end{lstlisting}
-\red{[Should we declare Run.py legacy, and substitute it by dedicated python scripts?]}
+Alternatively, it may be convenient to use \texttt{pyALF} to compile and run the code.  
 
 \paragraph{One dimensional case} 
 
-For the four site Hubbard model  we can use the parameter set:
- \begin{lstlisting}[style=fortran]
-{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 1, "Nsweep": 2000,  
-"NBin": 40, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05,  "Projector": true}
-\end{lstlisting}
-yields a total energy of 
+The \texttt{pyALF} python script   \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_Plain_Vanilla.py}{\texttt{Hubbard\_Plain\_Vanilla.py}}   runs the projective version of the code for the four site Hubbard model.   At $\theta t =10$, $\Delta \tau t = 0.05 $ with the symmetric Trotter  decomposition,  we obtain  after  40 bins of each 2000 sweeps  the  total energy:   
 \begin{equation*}
-       \langle  \hat{H}   \rangle = -2.106818     \pm   0.003318
-\end{equation*}
+       \langle  \hat{H}   \rangle = -2.103750  \pm      0.004825  
+ \end{equation*}
 and the exact result is  
 \begin{equation*}
 \langle  \hat{H}   \rangle_{\texttt{Exact}}    = -2.100396
 \end{equation*}
 
 \paragraph{Two dimensional case}  
-For the two-dimensional case, 
-\begin{lstlisting}[style=fortran]
-{"Model": "Hubbard_Plain_Vanilla", "Lattice_type": "Square", "L1": 4 , "L2": 4, "Nsweep": 2000,  
-"NBin": 25, "Beta": 1.0 , "Theta": 10.0, "Dtau": 0.05,  "Projector": true}
-\end{lstlisting}
-we obtain, \\
+For the two-dimensional case,   with similar parameters, we obtain, \\
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
