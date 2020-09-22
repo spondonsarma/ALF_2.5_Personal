@@ -229,7 +229,8 @@
              READ(5,NML=VAR_Hubbard_Plain_Vanilla)
              CLOSE(5)
 
-             Ltrot = nint(beta/dtau)
+             Ltrot  = nint(beta/dtau)
+             Thtrot = 0
              if (Projector) Thtrot = nint(theta/dtau)
              Ltrot = Ltrot+2*Thtrot
              N_SUN        = 1
