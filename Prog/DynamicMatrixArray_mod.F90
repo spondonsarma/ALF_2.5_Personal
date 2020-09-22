@@ -41,7 +41,7 @@ module DynamicMatrixArray_mod
     type :: DynamicMatrixArray
         integer :: avamem ! amount of available space
         integer :: tail ! last index
-        type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
+        Type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
     contains
         procedure :: init => DynamicMatrixArray_init
         procedure :: dealloc => DynamicMatrixArray_dealloc
@@ -90,14 +90,14 @@ end subroutine
 subroutine DynamicMatrixArray_at(this, pos, itm)
     class(DynamicMatrixArray) :: this
     integer, intent(in) :: pos
-    type(OpTbasePtrWrapper), intent(out) :: itm
-    itm = this%data(pos)
+    class(ContainerElementBase), intent(out), allocatable :: itm
+    itm = this%data(pos)%dat
 end subroutine
 
 subroutine DynamicMatrixArray_back(this, itm)
     class(DynamicMatrixArray) :: this
-    type(OpTbasePtrWrapper), intent(out) :: itm
-    itm = this%data(this%tail-1)
+    class(ContainerElementBase), intent(out), allocatable :: itm
+    itm = this%data(this%tail-1)%dat
 end subroutine
 
 function DynamicMatrixArray_length(this) result(l)

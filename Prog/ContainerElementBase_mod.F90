@@ -37,7 +37,7 @@ module ContainerElementBase_mod
     ! Base for defining the interface
     type, abstract :: ContainerElementBase
     contains
-    procedure(simtinterface), deferred :: simt
+    procedure(simtinterface),  deferred :: simt
     procedure(rmultinterface), deferred :: rmult
     procedure(lmultinterface), deferred :: lmult
     end type ContainerElementBase
