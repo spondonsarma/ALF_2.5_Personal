@@ -72,9 +72,10 @@ subroutine DynamicMatrixArray_pushback(this, itm)
     class(ContainerElementBase), intent(in) :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
+
     if (this%tail == this%avamem) then ! check if this still works the same as for plain ints.
         ! reallocate the memory
-        write (*,*) "not enough space!"
+        write (*,*) "not enough space -> growing."
         call MOVE_ALLOC(this%data, temp)
         allocate(this%data(2*this%avamem))
         do i = 1, this%avamem

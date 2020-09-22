@@ -36,6 +36,7 @@ module OpTTypes_mod
 
     type, extends(ContainerElementBase) :: RealOpT
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
+        Integer :: m, n
     contains
         procedure :: init => RealOpT_init
         procedure :: simt => RealOpT_simt
@@ -45,6 +46,7 @@ module OpTTypes_mod
 
     type, extends(ContainerElementBase) :: CmplxOpT
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat
+        Integer :: m, n
     contains
         procedure :: init => CmplxOpT_init
         procedure :: simt => CmplxOpT_simt
@@ -55,10 +57,16 @@ module OpTTypes_mod
 contains
 
     subroutine RealOpT_init(this, arg)
-        class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+        class(RealOpT) :: this
+        Real(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Integer :: i,j
+        this%mat = arg !copy argument to local storage
+        this%m = size(arg, 1)
+        this%n = size(arg, 2)
 
+!                 do i = 1, size(arg,1)
+! write (*,*) (this%mat(i,j), j = 1, size(arg,2) )
+! enddo
     end subroutine
     
     subroutine RealOpT_simt(this, arg)
@@ -71,8 +79,15 @@ contains
     subroutine RealOpT_rmult(this, arg)
         class(RealOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
-
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
+        Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
+        Integer :: i, j, sz1, sz2
+        
+        sz1 = size(arg, 1)
+        sz2 = size(arg, 2)
+        allocate(out(sz1, sz2), rwork(2*sz1*sz2))
+        call zlacrm(sz1, sz2, arg, sz1, this%mat, this%m, out, this%m, rwork) ! zlarcm assumes mat to be square
+        arg = out
     end subroutine
     
     subroutine RealOpT_lmult(this, arg)
@@ -83,9 +98,15 @@ contains
     end subroutine
     
     subroutine CmplxOpT_init(this, arg)
-        class(CmplxOpT), intent(in) :: this
+        class(CmplxOpT) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+        Integer :: i,j
+        this%mat = arg !copy argument to local storage
+!         do i = 1, size(arg,1)
+! write (*,*) (this%mat(i,j), j = 1, size(arg,2) )
+! enddo
+        this%m = size(arg, 1)
+        this%n = size(arg, 2)
 
     end subroutine
 
@@ -97,6 +118,17 @@ contains
     subroutine CmplxOpT_rmult(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
+        Complex(kind=kind(0.d0)) :: alpha, zero
+        Integer :: i, j, sz1, sz2
+        
+        alpha = 1.0
+        zero = 0
+        sz1 = size(arg, 1)
+        sz2 = size(arg, 2)
+        allocate(out(sz1, sz2))
+        call zhemm('R', 'U', sz1, sz2, alpha, arg, sz1, this%mat, this%m, zero, out, sz1)
+        arg = out
     end subroutine
     
     subroutine CmplxOpT_lmult(this, arg)
