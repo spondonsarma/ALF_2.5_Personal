@@ -24,31 +24,37 @@ call zlaset('A', nmax, nmax, zero, alpha, res, nmax)
 allocate(remat, cmplxmat)
 
 do i = 1, 5
+    ! create some complex dummy data
     call zlaset('A', nmax, nmax, zero, alpha, ctmp, nmax)
     do j = 1, nmax
     ctmp(j,j) = j
     enddo
 
+    !pushback
     call cmplxmat%init(ctmp)
     call vec%pushback(cmplxmat)
 
+    ! create some real dummy data
     call dlaset('A', nmax, nmax, zero, alpha, rtmp, nmax)
     do j = 1, nmax
     rtmp(j,j) = j
     enddo
+    ! push_back
     call remat%init(rtmp)
     call vec%pushback(remat)
 enddo
+! tidy up auxiliary structures
 deallocate(remat, cmplxmat)
 deallocate(ctmp, rtmp)
 
+! execute a loop over all stores objects
 do i= 1, 5
-call vec%at(i, dummy)
-call dummy%rmult(res)
-do k = 1, nmax
-write (*,*) (res(k,l), l = 1,nmax )
-enddo
-write (*,*) "============"
+    call vec%at(i, dummy) ! get object
+    call dummy%rmult(res) ! polymorphic dispatch to rmult
+    do k = 1, nmax
+    write (*,*) (res(k,l), l = 1,nmax )
+    enddo
+    write (*,*) "============"
 enddo
 
 do i = 1, nmax
