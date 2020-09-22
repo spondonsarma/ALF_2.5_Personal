@@ -88,6 +88,7 @@ contains
         allocate(out(sz1, sz2), rwork(2*sz1*sz2))
         call zlacrm(sz1, sz2, arg, sz1, this%mat, this%m, out, this%m, rwork) ! zlarcm assumes mat to be square
         arg = out
+        deallocate(out, rwork)
     end subroutine
     
     subroutine RealOpT_lmult(this, arg)
@@ -129,6 +130,7 @@ contains
         allocate(out(sz1, sz2))
         call zhemm('R', 'U', sz1, sz2, alpha, arg, sz1, this%mat, this%m, zero, out, sz1)
         arg = out
+        deallocate(out)
     end subroutine
     
     subroutine CmplxOpT_lmult(this, arg)

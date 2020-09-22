@@ -5,8 +5,8 @@ Use OpTTypes_mod
 implicit none
 
 Type(DynamicMatrixArray) :: vec
-Type(RealOpT), allocatable, dimension(:) :: remat
-Type(CmplxOpT), allocatable, dimension(:) :: cmplxmat
+Type(RealOpT), allocatable :: remat
+Type(CmplxOpT), allocatable:: cmplxmat
 class(ContainerElementBase), allocatable :: dummy
 Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: res, ctmp
 Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: rtmp
@@ -14,31 +14,35 @@ Complex(kind=kind(0.d0)) :: alpha, zero
 Integer :: i,j,k,l, nmax
 
 nmax = 5
-allocate (res(nmax, nmax), remat(16), cmplxmat(16), ctmp(nmax, nmax), rtmp(nmax, nmax))
+allocate (res(nmax, nmax), ctmp(nmax, nmax), rtmp(nmax, nmax))
 call vec%init()
 
 alpha = 1.0
 zero = 0.0
 call zlaset('A', nmax, nmax, zero, alpha, res, nmax)
 
-do i = 1, 16
+allocate(remat, cmplxmat)
+
+do i = 1, 5
     call zlaset('A', nmax, nmax, zero, alpha, ctmp, nmax)
     do j = 1, nmax
     ctmp(j,j) = j
     enddo
 
-    call cmplxmat(i)%init(ctmp)
-    call vec%pushback(cmplxmat(i))
+    call cmplxmat%init(ctmp)
+    call vec%pushback(cmplxmat)
 
     call dlaset('A', nmax, nmax, zero, alpha, rtmp, nmax)
     do j = 1, nmax
     rtmp(j,j) = j
     enddo
-    call remat(i)%init(rtmp)
-    call vec%pushback(remat(i))
+    call remat%init(rtmp)
+    call vec%pushback(remat)
 enddo
+deallocate(remat, cmplxmat)
+deallocate(ctmp, rtmp)
 
-do i= 1, 16
+do i= 1, 5
 call vec%at(i, dummy)
 call dummy%rmult(res)
 do k = 1, nmax
@@ -51,6 +55,11 @@ do i = 1, nmax
 write (*,*) (res(i,j), j = 1,nmax )
 enddo
 
-
+! tidy up
+do i = 1, vec%length()
+call vec%at(i, dummy)
+deallocate(dummy)
+enddo
 call vec%dealloc()
+deallocate(res)
 end program
