@@ -35,7 +35,7 @@ module DynamicMatrixArray_mod
     implicit none
 
     type :: OpTBasePtrWrapper
-        class(ContainerElementBase), pointer :: dat
+        class(ContainerElementBase), allocatable :: dat
     end type
 
     type :: DynamicMatrixArray
@@ -69,7 +69,7 @@ end subroutine
 
 subroutine DynamicMatrixArray_pushback(this, itm)
     class(DynamicMatrixArray) :: this
-    type(OpTbasePtrWrapper), intent(in) :: itm
+    class(ContainerElementBase), intent(in) :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
     if (this%tail == this%avamem) then ! check if this still works the same as for plain ints.
@@ -83,7 +83,7 @@ subroutine DynamicMatrixArray_pushback(this, itm)
         deallocate(temp)
         this%avamem = 2*this%avamem
     endif
-    this%data(this%tail) = itm
+    this%data(this%tail)%dat = itm
     this%tail = this%tail + 1
 end subroutine
 
