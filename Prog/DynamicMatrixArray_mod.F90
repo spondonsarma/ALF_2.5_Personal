@@ -29,6 +29,9 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+! helpful Fortran docs:
+! https://materials.prace-ri.eu/400/1/advFortranIntro.pdf
+! http://www.chem.helsinki.fi/~manninen/fortran2014/7_Object_oriented_features.pdf
 
 module DynamicMatrixArray_mod
     Use ContainerElementBase_mod

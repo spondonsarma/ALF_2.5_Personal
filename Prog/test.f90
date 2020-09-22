@@ -47,7 +47,7 @@ enddo
 deallocate(remat, cmplxmat)
 deallocate(ctmp, rtmp)
 
-! execute a loop over all stores objects
+! execute a loop over all stored objects
 do i= 1, 5
     call vec%at(i, dummy) ! get object
     call dummy%rmult(res) ! polymorphic dispatch to rmult
