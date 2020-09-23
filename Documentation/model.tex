@@ -43,11 +43,11 @@ The second issue is that in the continuous-time  approach it is hard to formulat
 continuous HS transform and obtain the discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
-        e^{\Delta \tau  \lambda  \hat{A}^2 } =
+        e^{\Delta \tau  \lambda  \hat{A}^2 } = \frac{1}{4}
         \sum_{ l = \pm 1, \pm 2}  \gamma(l)
 e^{ \sqrt{\Delta \tau \lambda }
        \eta(l)  \hat{A} }
-                + \mathcal{O} (\Delta \tau ^4)\;,
+                + \mathcal{O} \left(  (\Delta \tau \lambda)^4\right) \;,
 \end{equation}
 where the fields $\eta$ and $\gamma$ take the values:
 \begin{equation} \label{eta_gamma_fields}
@@ -57,7 +57,13 @@ where the fields $\eta$ and $\gamma$ take the values:
 \end{aligned}
 \end{equation}
 Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, this transformation is next to exact.
-\item $\hat{Z}_k$ can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$, in which case the Ising spins take the values $s_{k} = \pm 1$, or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi_k  |\phi\rangle $, with $\phi_k$ a real number.
+One can relate the expectation value of the field $\eta_l$ to the operator $\hat{A}$  by noting that:
+\begin{eqnarray} 
+    & &  \frac{1}{4} \sum_{l = \pm 1, \pm 2} \gamma_l e^{\sqrt{ \Delta \tau \lambda} \eta_l \hat{A}} \left( \frac{\eta_l}{-2 \sqrt{ \Delta \tau \lambda}  } \right)    =   e^{ \Delta \tau \lambda  \hat{A}^2}  \hat{A}  +   \mathcal{O}  \left( (\Delta \tau \lambda)^3\right)   \text{  and } \nonumber \\  
+     & &    \frac{1}{4} \sum_{l = \pm 1, \pm 2} \gamma_l e^{\sqrt{ \Delta \tau \lambda} \eta_l \hat{A}} \left( \frac{\eta_l^2 - 2}{4 \Delta \tau \lambda  } \right)    =   e^{ \Delta \tau \lambda  \hat{A}^2}  \hat{A}^2  +   \mathcal{O}  \left( (\Delta \tau \lambda)^2\right).
+\end{eqnarray}
+\item $\hat{Z}_k$ can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$, in which case the Ising spins take the values $s_{k} = \pm 1$, or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi_k  |\phi\rangle $, with $\phi_k$ a real number.  
+
 \item From the above it follows that the  Monte Carlo configuration space $C$  
 is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
 \begin{equation}
