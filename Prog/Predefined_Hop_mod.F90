@@ -886,7 +886,7 @@
 !> @brief
 !> Given the checkerbord decompostion
 !> the routine allocates and sets OP_T Set_Default_hopping_parameters_"Lattice" routine,
-!> this routine generates the data for the symmetric decompostion.
+!> this routine generates the data for the symmetric decomposition.
 !
 !--------------------------------------------------------------------
       Subroutine Symmetrize_Families(this)
