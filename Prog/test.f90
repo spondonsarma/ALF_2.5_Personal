@@ -49,7 +49,7 @@ deallocate(ctmp, rtmp)
 
 ! execute a loop over all stored objects
 do i= 1, 5
-    call vec%at(i, dummy) ! get object
+    dummy = vec%at(i) ! get object
     call dummy%rmult(res) ! polymorphic dispatch to rmult
     do k = 1, nmax
     write (*,*) (res(k,l), l = 1,nmax )
@@ -63,7 +63,7 @@ enddo
 
 ! tidy up
 do i = 1, vec%length()
-call vec%at(i, dummy)
+dummy = vec%at(i) ! Fortran doesn't want chaining here
 deallocate(dummy)
 enddo
 call vec%dealloc()

@@ -91,12 +91,23 @@ subroutine DynamicMatrixArray_pushback(this, itm)
     this%tail = this%tail + 1
 end subroutine
 
-subroutine DynamicMatrixArray_at(this, pos, itm)
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> return a pointer to the object stored at position i
+!>
+!> @param[in]  i the index
+!> @param[out] the content stored at the position i
+!
+!--------------------------------------------------------------------
+function DynamicMatrixArray_at(this, pos) result(itm)
     class(DynamicMatrixArray) :: this
     integer, intent(in) :: pos
-    class(ContainerElementBase), intent(out), allocatable :: itm
+    class(ContainerElementBase), allocatable :: itm
     itm = this%data(pos)%dat
-end subroutine
+end function
 
 subroutine DynamicMatrixArray_back(this, itm)
     class(DynamicMatrixArray) :: this
