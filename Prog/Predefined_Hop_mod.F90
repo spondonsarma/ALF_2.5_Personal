@@ -150,7 +150,8 @@
 !> ALF-project
 !>
 !> @brief
-!> Default hopping for the square lattice.  Ham_T is the nearest neighbour hopping and Ham_Chem the chemical potention.
+!> Default hopping for the square lattice.  Ham_T is the nearest
+!> neighbour hopping and Ham_Chem the chemical potential.
 !>
 !
 !--------------------------------------------------------------------
