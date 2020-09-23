@@ -54,15 +54,15 @@ In this case, the flavor index \texttt{N\_FL}   takes the value 2. Cleary at $N=
 
 Since this model class  works for all predefined lattices  (see Fig.~\ref{fig_predefined_lattices})  is includes the SU(N) periodic Anderson model on   the square and Honeycomb lattices.     Finally,  we note that the executable for this class is given by \texttt{Hubbard.out}
 
-{\color{red}  If we do a good job in the previous sections we actually do not need much more explanation for this.   We could also provide Juypyter notebooks to start a set of Hubbard  hamiltonians.  e.g.  
-\begin{itemize}
-\item   \texttt{Pam\_square.ipynb}            SU(N) Square lattice PAM 
-\item  \texttt{Pam\_honeycomb.ipynb}     SU(N) Honeycomb lattice lattice PAM 
-\item  \texttt{Bilayer\_Hubbard.ipynb}      SU(N) Hubbard model on bilayers.
-\item  \texttt{N\_leg\_ladder\_Hubbard.ipynb}   SU(N) n-leg-ladder  Hubbard
-\item ...
-\end{itemize} 
-Would be nice to discuss this point.}
+%{\color{red}  If we do a good job in the previous sections we actually do not need much more explanation for this.   We could also provide Juypyter notebooks to start a set of Hubbard  hamiltonians.  e.g.  
+%\begin{itemize}
+%\item   \texttt{Pam\_square.ipynb}            SU(N) Square lattice PAM 
+%\item  \texttt{Pam\_honeycomb.ipynb}     SU(N) Honeycomb lattice lattice PAM 
+%\item  \texttt{Bilayer\_Hubbard.ipynb}      SU(N) Hubbard model on bilayers.
+%\item  \texttt{N\_leg\_ladder\_Hubbard.ipynb}   SU(N) n-leg-ladder  Hubbard
+%\item ...
+%\end{itemize} 
+%Would be nice to discuss this point.}
 
 
 \subsection{O(2N)  t-V models  \texttt{tV\_mod.F90}}
@@ -96,7 +96,8 @@ The model is then defined as follows:
 + \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \frac{V_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}}{N} \left(  \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \right)^2  \nonumber \\
 & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } \,.
 \end{align}
-The  generic hopping is taken from Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.    $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1 \cdots N$  and encodes  the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian.  $\mu$ corresponds to the chemical potential  and is relevant only for the finite temperature code. 
+The  generic hopping is taken from Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.    $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1 \cdots N$  and encodes  the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian.  $\mu$ corresponds to the chemical potential  and is relevant only for the finite temperature code.      An example showing  how to run this model class can be found in the   pyALF based Jupyter notebook   
+\href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Notebooks/tV_model.ipynb}{\texttt{tV\_model.ipynb}}. 
 
 \subsection{  SU(N) Kondo lattice models  \texttt{Kondo\_mod.F90}}
 
