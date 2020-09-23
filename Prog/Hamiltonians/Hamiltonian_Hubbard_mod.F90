@@ -337,6 +337,9 @@
              Write(50,*) 'N_FL          : ', N_FL
              Write(50,*) 't             : ', Ham_T
              Write(50,*) 'Ham_U         : ', Ham_U
+             Write(50,*) 't2            : ', Ham_T2
+             Write(50,*) 'Ham_U2        : ', Ham_U2
+             Write(50,*) 'Ham_tperp     : ', Ham_tperp
              Write(50,*) 'Ham_chem      : ', Ham_chem
              Close(50)
 #ifdef MPI
@@ -520,7 +523,7 @@
                 enddo
              enddo
           else
-             Allocate(Op_V(Ndim,N_FL))
+             Allocate(Op_V(N_ops,N_FL))
              nc = 0
              Do I1 = 1,Latt%N
                 do no = 1, Latt_unit%Norb
