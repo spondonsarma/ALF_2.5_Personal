@@ -969,8 +969,8 @@
 !> ALF-project
 !>
 !> @brief
-!> Given the Hopping-martix, and if required the checkerboard decomposion  (i.e. private data of this module)
-!> the routine allocates and sets OP_T
+!> Given the Hopping-matrix, and if required the checkerboard decomposion (i.e. private data of this module)
+!> the routine allocates and sets OP_T.
 !
 !--------------------------------------------------------------------
       Subroutine Predefined_Hoppings_set_OPT(this,List,Invlist,Latt,  Latt_unit,  Dtau,Checkerboard, Symm,  OP_T )
@@ -1028,7 +1028,7 @@
               allocate(Op_T(1,N_FL))
               do nf = 1,N_FL
                  !Write(6,*)
-                 Call Op_make(Op_T(1,nf),Ndim)   ! This is too restrictive for the  Kondo type models. The hopping only occurs on one  subsystem.
+                 Call Op_make(Op_T(1,nf),Ndim)   ! This is too restrictive for the Kondo type models. The hopping only occurs on one subsystem.
                  N_Phi     = this(nf)%N_Phi
                  Phi_X     = this(nf)%Phi_X
                  Phi_Y     = this(nf)%Phi_Y
@@ -1120,7 +1120,7 @@
 !> ALF-project
 !>
 !> @brief
-!> The subroutine computes the kinietic energy  based on the generic form of the
+!> The subroutine computes the kinetic energy based on the generic form of the
 !> the hopping matrix.
 !>
 !--------------------------------------------------------------------
