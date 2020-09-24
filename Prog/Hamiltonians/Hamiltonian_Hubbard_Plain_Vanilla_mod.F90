@@ -325,6 +325,11 @@
           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
           Ndim = Latt%N
 
+          Latt_unit%N_orb = 1
+          Latt_unit%N_coord = 2
+          allocate(Latt_unit%Orb_pos_p(Latt_unit%N_orb,2))
+          Latt_unit%Orb_pos_p(1, :) = [1.d0, 1.d0]
+
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
 !> @author
