@@ -148,8 +148,8 @@
       Logical              :: Symm
 
 
-      Type (Lattice),       private :: Latt
-      Type (Unit_cell),     private :: Latt_unit
+      Type (Lattice),       private, Target  :: Latt
+      Type (Unit_cell),     private, Target  :: Latt_unit
       Integer,              private :: L1, L2
       Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_Uc,  Ham_chem

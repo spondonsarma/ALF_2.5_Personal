@@ -75,8 +75,8 @@
 
 
 !>    Privat variables
-      Type (Lattice),        private :: Latt
-      Type (Unit_cell),      private :: Latt_unit
+      Type (Lattice),        private, target :: Latt
+      Type (Unit_cell),      private, target :: Latt_unit
       Integer,               private :: L1, L2, N_part
       real (Kind=Kind(0.d0)),private :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2, Ham_U
       real (Kind=Kind(0.d0)),private :: Dtau, Beta, Theta
