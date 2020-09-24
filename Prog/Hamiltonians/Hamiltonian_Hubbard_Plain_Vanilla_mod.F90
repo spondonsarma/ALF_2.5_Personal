@@ -311,13 +311,15 @@
 
 
           Implicit none
-
           Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
-
+          
           If (Lattice_Type /=  "Square")  then
              Write(6,*) 'The plain vanilla Hubbard model is only defined for the square lattice'
              stop
           Endif
+          Latt_Unit%Norb      = 1
+          Allocate (Latt_unit%Orb_pos_p(1,2))
+          Latt_Unit%Orb_pos_p(1,:) = 0.d0
           a1_p(1) =  1.0  ; a1_p(2) =  0.d0
           a2_p(1) =  0.0  ; a2_p(2) =  1.d0
           L1_p    =  dble(L1)*a1_p
