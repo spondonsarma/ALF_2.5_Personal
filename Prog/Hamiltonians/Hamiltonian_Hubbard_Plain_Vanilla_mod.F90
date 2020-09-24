@@ -148,8 +148,8 @@
       Logical              :: Symm
 
 
-      Type (Lattice),       private :: Latt
-      Type (Unit_cell),     private :: Latt_unit
+      Type (Lattice),       private, target :: Latt
+      Type (Unit_cell),     private, target :: Latt_unit
       Integer,              private :: L1, L2
       real (Kind=Kind(0.d0)),        private :: Ham_T , ham_U,  Ham_chem
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
