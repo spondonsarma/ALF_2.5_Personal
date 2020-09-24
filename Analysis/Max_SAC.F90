@@ -66,7 +66,7 @@
 
 
        Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov
-       Integer                :: N_skip, N_rebin, Norb
+       Integer                :: N_skip, N_rebin, N_Back, N_auto, Norb
        Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
        Logical                :: Checkpoint
        Character (Len=2)      :: Channel
@@ -79,7 +79,7 @@
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
             &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance
 
-       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov
+       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
 
        open(unit=30,file='parameters',status='old',action='read', iostat=io_error)
        if (io_error.eq.0) then
