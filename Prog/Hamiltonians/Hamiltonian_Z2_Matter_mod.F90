@@ -1012,17 +1012,15 @@
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
-                Filename = "Green"
+                Filename ="Greenf"
              case (2)
-                Filename = "SpinZ"
+                Filename ="SpinZ"
              case (3)
-                Filename = "SpinXY"
+                Filename ="Den"
              case (4)
-                Filename = "Den"
+                Filename ="Green"
              case (5)
-                Filename = "GreenZ2"
-             case (6)
-                Filename = "Kin"
+                Filename ="Q"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -1387,8 +1385,6 @@
         ! Local
         Integer :: I,nc, I1, nt, n_orientation, N_ops
         Integer, allocatable::  Isigma(:), Isigma1(:)
-        Integer :: Iseed(1)
-
 
 
         N_ops = size(Field_list_inv,1)

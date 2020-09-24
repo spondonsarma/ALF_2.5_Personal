@@ -148,8 +148,8 @@
       Logical              :: Symm
 
 
-      Type (Lattice),       private :: Latt
-      Type (Unit_cell),     private :: Latt_unit
+      Type (Lattice),       private, target :: Latt
+      Type (Unit_cell),     private, target :: Latt_unit
       Integer,              private :: L1, L2
       Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
       real (Kind=Kind(0.d0)),        private :: ham_T , ham_V,  Ham_chem
@@ -247,6 +247,7 @@
              CLOSE(5)
 
              Ltrot = nint(beta/dtau)
+             Thtrot = 0
              if (Projector) Thtrot = nint(theta/dtau)
              Ltrot = Ltrot+2*Thtrot
              N_FL  = 1
@@ -315,7 +316,7 @@
                 Write(50,*) 'Beta          : ', Beta
              endif
              Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-             Write(50,*) 'N_SUN         : ',   N_SUN
+             Write(50,*) 'N_SUN         : ', N_SUN
              Write(50,*) 'N_FL          : ', N_FL
              Write(50,*) 't             : ', Ham_T
              Write(50,*) 'Ham_V         : ', Ham_V
@@ -523,64 +524,64 @@
               N = N +  Bond_Matrix(1)%L_Fam(n_f)
           enddo
           if ( N==0 ) then
-            ! It is a noninteracting model and then there is no need to setup the interaction apart from one vertex per flavor
-            ! for internal memory consistency (the code will always access the first vertex OP_V(1,:) hence it has to be allocated)
-            ! any vertex with zero coupling strength will do, ie, the hubbard interaction with U=0
-            allocate(Op_V(1,N_FL))
-            do nf = 1,N_FL
+             ! It is a noninteracting model and then there is no need to setup the interaction apart from one vertex per flavor
+             ! for internal memory consistency (the code will always access the first vertex OP_V(1,:) hence it has to be allocated)
+             ! any vertex with zero coupling strength will do, ie, the hubbard interaction with U=0
+             allocate(Op_V(1,N_FL))
+             do nf = 1,N_FL
                 ! Fake hubbard interaction of weight 0.0 (last argument in the following call)
                 Call Predefined_Int_U_SUN(  OP_V(1,nf), 1, N_SUN, DTAU, 0.0d0  )
-            enddo
-            write(*,*) "No interaction present"
-            return
+             enddo
+             write(*,*) "No interaction present"
+             return
           endif
-
+          
           If (Symm) Call Symmetrize_families(Bond_Matrix)
           N = 0
           do n_f = 1,Bond_Matrix(1)%N_FAM
-              N = N +  Bond_Matrix(1)%L_Fam(n_f)
+             N = N +  Bond_Matrix(1)%L_Fam(n_f)
           enddo
-
+          
           allocate(Op_V(N,N_FL))
           do nf = 1,N_FL
-!               (not needed since we can directly access the Hamiltonian member,
-!               otherwise we risk overwriting stuff)
-!               N_Phi     = Bond_Matrix(nf)%N_Phi
-!               Phi_X     = Bond_Matrix(nf)%Phi_X
-!               Phi_Y     = Bond_Matrix(nf)%Phi_Y
-!               Bulk      = Bond_Matrix(nf)%Bulk
-              do nc = 1, Size(Op_V,1)
-                  Call Op_make(Op_V(nc,nf),2)
-              enddo
-              nc = 0
-              Do n_f = 1, Bond_Matrix(1)%N_FAM
-                  Do l_f = 1, Bond_Matrix(1)%L_Fam(n_f)
-                  I  = Bond_Matrix(1)%List_Fam(n_f,l_f,1)
-                  nb = Bond_Matrix(1)%List_Fam(n_f,l_f,2)
-                  no_I = Bond_Matrix(nf)%list(Nb,1)
-                  no_J = Bond_Matrix(nf)%list(Nb,2)
-                  n_1  = Bond_Matrix(nf)%list(Nb,3)
-                  n_2  = Bond_Matrix(nf)%list(Nb,4)
-                  J    = Latt%nnlist(I,n_1,n_2)
-                  Z    = Generic_hopping(I,no_I, n_1, n_2, no_J, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
-                  I1   = Invlist(I,no_I)
-                  J1   = Invlist(J,no_J)
-                  nc = nc + 1
-                  Op_V(nc,nf)%P(1) = I1
-                  Op_V(nc,nf)%P(2) = J1
-                  Op_V(nc,nf)%O(1,2) = Z
-                  Op_V(nc,nf)%O(2,1) = Conjg(Z)
-                  Op_V(nc,nf)%g = Sqrt(-Dtau*Bond_Matrix(nf)%T(Nb)*Bond_Matrix(1)%Prop_Fam(n_f))
-                  Op_V(nc,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
-                  Op_V(nc,nf)%type=2
-                  Call Op_set(Op_V(nc,nf))
-                  enddo
-              enddo
+             !               (not needed since we can directly access the Hamiltonian member,
+             !               otherwise we risk overwriting stuff)
+             !               N_Phi     = Bond_Matrix(nf)%N_Phi
+             !               Phi_X     = Bond_Matrix(nf)%Phi_X
+             !               Phi_Y     = Bond_Matrix(nf)%Phi_Y
+             !               Bulk      = Bond_Matrix(nf)%Bulk
+             do nc = 1, Size(Op_V,1)
+                Call Op_make(Op_V(nc,nf),2)
+             enddo
+             nc = 0
+             Do n_f = 1, Bond_Matrix(1)%N_FAM
+                Do l_f = 1, Bond_Matrix(1)%L_Fam(n_f)
+                   I  = Bond_Matrix(1)%List_Fam(n_f,l_f,1)
+                   nb = Bond_Matrix(1)%List_Fam(n_f,l_f,2)
+                   no_I = Bond_Matrix(nf)%list(Nb,1)
+                   no_J = Bond_Matrix(nf)%list(Nb,2)
+                   n_1  = Bond_Matrix(nf)%list(Nb,3)
+                   n_2  = Bond_Matrix(nf)%list(Nb,4)
+                   J    = Latt%nnlist(I,n_1,n_2)
+                   Z    = Generic_hopping(I,no_I, n_1, n_2, no_J, N_Phi, Phi_x,Phi_y, Bulk, Latt, Latt_Unit)
+                   I1   = Invlist(I,no_I)
+                   J1   = Invlist(J,no_J)
+                   nc = nc + 1
+                   Op_V(nc,nf)%P(1) = I1
+                   Op_V(nc,nf)%P(2) = J1
+                   Op_V(nc,nf)%O(1,2) = Z
+                   Op_V(nc,nf)%O(2,1) = Conjg(Z)
+                   Op_V(nc,nf)%g = Sqrt(-Dtau*Bond_Matrix(nf)%T(Nb)*Bond_Matrix(1)%Prop_Fam(n_f))
+                   Op_V(nc,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
+                   Op_V(nc,nf)%type=2
+                   Call Op_set(Op_V(nc,nf))
+                enddo
+             enddo
           enddo
-
+          
           Deallocate (Ham_V_vec, Ham_V2_vec, Ham_Vperp_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
                &                                   N_Phi_vec,  Ham_Lambda_vec )
-
+          
         end Subroutine Ham_Vint
 
 

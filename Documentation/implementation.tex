@@ -6,10 +6,10 @@
 
 % !TEX root = doc.tex
 
-{\color{red}   We have to restructure this  section.   As it  stands it is a  chaos. We have to separate more clearly data structures, specification of the model, and  the Input output. }
+%{\color{red}   We have to restructure this  section.   As it  stands it is a  chaos. We have to separate more clearly data structures, specification of the model, and  the Input output. }
 
-\red{Also mention:}\\
-Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:hopping_type}, used for defining hopping matrices.
+%\red{Also mention:}\\
+%Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:hopping_type}, used for defining hopping matrices.
 
 
 %------------------------------------------------------------
@@ -18,6 +18,7 @@ Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:h
 %------------------------------------------------------------
 
 
+{\color{red}   This subsection has to be  rewritten the file \path{Hamiltonian_Examples_mod.F90} is legacy. }
 
 The module \path{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). This module can be found in the file \path{Hamiltonian_Examples_mod.F90}, which also contains a number of example Hamiltonians, lattices and observables.  The examples are described in Sec.~\ref{sec:ex}.
 In order to implement a user-defined model, only the module \path{Hamiltonian} has to be set up. Accordingly, this documentation focuses almost entirely  on this module and the subprograms it includes.
