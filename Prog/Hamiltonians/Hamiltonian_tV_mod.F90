@@ -486,9 +486,9 @@
                &                                   N_Phi_vec(N_FL), Ham_Lambda_vec(N_FL) )
 
           ! Here we consider no N_FL  dependence of the hopping parameters.
-          Ham_V_vec      = Ham_V
-          Ham_V2_vec     = Ham_V2
-          Ham_Vperp_vec  = Ham_Vperp
+          Ham_V_vec      = Ham_V/dble(N_SUN)
+          Ham_V2_vec     = Ham_V2/dble(N_SUN)
+          Ham_Vperp_vec  = Ham_Vperp/dble(N_SUN)
           Ham_Chem_vec   = 0.0d0
           Phi_X_vec      = Phi_X
           Phi_Y_vec      = Phi_Y
