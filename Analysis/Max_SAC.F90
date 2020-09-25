@@ -117,7 +117,7 @@
           Om_st = 0.d0
        endif
        Write(50, "('Covariance         :: ',I2)")  N_cov
-       Write(50, "('Checkpoint         :: ',L )")  Checkpoint
+       Write(50, "('Checkpoint         :: ',L1)")  Checkpoint
        Write(50, "('Om_st, Om_en       :: ',2x,F12.6,2x,F12.6)") Om_st, Om_en
        Write(50, "('Delta Om           :: ',2x,F12.6)")  (Om_en - Om_st)/real(Ndis,kind(0.d0))
        Write(50, "('Bins, Sweeps, Warm :: ',2x,I4,2x,I4,2x,I4)") NBins, NSweeps, Nwarm
