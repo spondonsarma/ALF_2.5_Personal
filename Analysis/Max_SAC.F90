@@ -221,9 +221,9 @@
 
        If ( .not.  Checkpoint ) then
           Command = "rm dump*"
-          Call System (Command)
+          Call EXECUTE_COMMAND_LINE(Command)
           Command = "ls"
-          Call System (Command)
+          Call EXECUTE_COMMAND_LINE(Command)
        endif
        Open (Unit=10,File="energies",status="unknown")
 
@@ -294,7 +294,7 @@
              Z = Z + A(nwp)/cmplx( om -  omp, delta, kind(0.d0))
           enddo
           Z = Z * dom
-          write(43,"('X'2x,F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
+          write(43,"('X',2x,F14.7,2x,F16.8,2x,F16.8)") xom(nw), dble(Z), -Aimag(Z)/pi
        enddo
        close(43)
 
