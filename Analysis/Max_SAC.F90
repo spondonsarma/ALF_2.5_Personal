@@ -1,4 +1,4 @@
-!  Copyright (C) 2016-2019 The ALF project
+!  Copyright (C) 2016-2020 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -42,9 +42,8 @@
 !--------------------------------------------------------------------
        Use MaxEnt_stoch_mod
 
+       use iso_fortran_env, only: output_unit, error_unit
        Implicit  None
-       !Implicit Real (Kind=Kind(0.d0)) (A-G,O-Z)
-       !Implicit Integer (H-N)
 
        Interface
           Subroutine  Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance,  Ntau)
@@ -67,7 +66,7 @@
 
 
        Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov
-       Integer                :: N_skip, N_rebin, Norb
+       Integer                :: N_skip, N_rebin, N_Back, N_auto, Norb
        Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
        Logical                :: Checkpoint
        Character (Len=2)      :: Channel
@@ -78,9 +77,9 @@
        Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
-            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Channel, Tolerance
+            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance
 
-       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov
+       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
 
        open(unit=30,file='parameters',status='old',action='read', iostat=io_error)
        if (io_error.eq.0) then
@@ -91,6 +90,25 @@
           error stop 1
        endif
        close(30)
+
+
+       open (unit=10,File="g_dat", status="unknown")
+       read(10,*)  ntau, nbin_qmc, Beta, Norb, Channel
+       Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
+       XCOV  = 0.d0
+       Do nt = 1,NTAU
+          read(10,*)  xtau(nt), xqmc(nt), err
+          xcov(nt,nt) = err*err
+       Enddo
+       if (N_cov.eq.1) then
+          do nt = 1,ntau
+             do nt1 = 1,ntau
+                read(10,*) xcov(nt,nt1)
+             enddo
+          enddo
+       endif
+       close(10)
+       dtau = Xtau(2) - Xtau(1)
 
        Open(unit=50,File='Info_MaxEnt',Status="unknown")
        write(50,*) 'Channel      :: ', Channel
@@ -108,25 +126,6 @@
           error stop 1
        Endif
        Write(50, "('N_Alpha, Alpha_st,R:: ',2x,I4,F12.6,2x,F12.6)") N_alpha, alpha_st, R
-
-
-       open (unit=10,File="g_dat", status="unknown")
-       read(10,*)  ntau, nbin_qmc, Beta, Norb
-       Allocate ( XCOV(NTAU,NTAU), XQMC(NTAU),XTAU(NTAU) )
-       XCOV  = 0.d0
-       Do nt = 1,NTAU
-          read(10,*)  xtau(nt), xqmc(nt), err
-          xcov(nt,nt) = err*err
-       Enddo
-       if (N_cov.eq.1) then
-          do nt = 1,ntau
-             do nt1 = 1,ntau
-                read(10,*) xcov(nt,nt1)
-             enddo
-          enddo
-       endif
-       close(10)
-       dtau = Xtau(2) - Xtau(1)
 
        Zero = 1.D-10
        pi = acos(-1.d0)

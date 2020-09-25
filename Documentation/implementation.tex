@@ -6,10 +6,10 @@
 
 % !TEX root = doc.tex
 
-{\color{red}   We have to restructure this  section.   As it  stands it is a  chaos. We have to separate more clearly data structures, specification of the model, and  the Input output. }
+%{\color{red}   We have to restructure this  section.   As it  stands it is a  chaos. We have to separate more clearly data structures, specification of the model, and  the Input output. }
 
-\red{Also mention:}\\
-Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:hopping_type}, used for defining hopping matrices.
+%\red{Also mention:}\\
+%Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:hopping_type}, used for defining hopping matrices.
 
 
 %------------------------------------------------------------
@@ -18,6 +18,7 @@ Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:h
 %------------------------------------------------------------
 
 
+{\color{red}   This subsection has to be  rewritten the file \path{Hamiltonian_Examples_mod.F90} is legacy. }
 
 The module \path{Hamiltonian} defines the model Hamiltonian, the lattice under consideration and the desired observables (Table~\ref{table:hamiltonian}). This module can be found in the file \path{Hamiltonian_Examples_mod.F90}, which also contains a number of example Hamiltonians, lattices and observables.  The examples are described in Sec.~\ref{sec:ex}.
 In order to implement a user-defined model, only the module \path{Hamiltonian} has to be set up. Accordingly, this documentation focuses almost entirely  on this module and the subprograms it includes.
@@ -410,9 +411,23 @@ where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ latti
 		\texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},$}        & Compl.      &    Cumul.  correl. funct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \vspace{-4pt} \\
 		\hfill \texttt{$\tau,\alpha,\beta$)} & & & \\
 		\texttt{Obs\%Obs\_latt0($\alpha$)}        & Compl.      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
-		\texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &\\\bottomrule
+		\texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &
+		\\
+		\texttt{Obs\%Latt} & Lattice & Bravais lattice [Tab.~\ref{table:lattice}] \\
+		& pointer
+		\\
+		\texttt{Obs\%Latt\_unit} & Unit\_cell & Unit cell [Tab.~\ref{table:unit_cell}] \\
+		& pointer
+		\\
+		\texttt{Obs\%dtau} & Real & Imaginary time step.
+		\\
+		\texttt{Obs\%Channel} & Char. & Channel for Maximum Entropy.
+		\\\bottomrule
 	\end{tabular}
-	\caption{Components of a variable of type \texttt{Obser\_latt} named \texttt{Obs}.}
+	\caption{Components of a variable of type \texttt{Obser\_latt} named \texttt{Obs}.
+	Be aware: When creating the observable with the subroutine \texttt{Obser\_Latt\_make},
+	\texttt{Latt} and \texttt{Latt\_unit} don't get copied but linked, meaning changing them after making the 
+	observable still affects the observable.}
 	\label{table:Obser_latt}
 \end{center}
 \end{table}

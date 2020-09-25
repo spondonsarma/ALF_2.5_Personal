@@ -2,7 +2,7 @@
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
-% For the licensing details of the documentation see license.CCBYSA.
+% For the licensing details of the documentation see license.CCBYSA
 
 % !TEX root = doc.tex
 %------------------------------------------------------------
@@ -95,6 +95,8 @@ n_skip  = 1                 ! Number of bins that to be skipped.
 N_rebin = 1                 ! Rebinning  
 N_Cov   = 0                 ! If set to 1 covariance computed for non-equal-time
                             ! correlation functions
+N_auto   = 0                ! If > 0  triggers  calculation of autocorrelation 
+N_Back   = 1                ! If set to 1, substract background in correlation functions
 /  
 
 &VAR_TEMP                  !! Variables for parallel tempering
@@ -119,8 +121,6 @@ NWarm      = 20             ! The Nwarm first bins will be ommitted
 N_alpha    = 14             ! Number of temperatures
 alpha_st   = 1.d0           ! Smallest inverse temperature increment for inverse
 R          = 1.2d0          ! temperature (see above) 
-Channel    = "P"            ! Options: zero temperature (T0), and finite temperature
-                            ! particle (P), particle-hole (PH), or particle-particle (PP)
 Checkpoint = .F.            ! Whether to produce dump files, allowing the simulation
                             ! to be resumed later on
 Tolerance  = 0.1d0          ! Data points for which the relative error exceeds the
@@ -215,10 +215,6 @@ If the program is not compiled with the parallel tempering flag, then the \textt
 %N_alpha    = 14              ! # of temperatures
 %alpha_st   = 1.d0            ! smallest inverse temperature
 %R          = 1.2d0           ! increment for inverse temperature (see above) 
-%Channel    = "P"             ! T0       : Zero temperature
-%                             ! P        : Finite temperarure particle 
-%                             ! PH       : Finite temperarure particle-hole
-%                             ! PP       : Finite temperarure particle-particle 
 %Checkpoint = .false.         !.true.    : dump files will be produced so as to be able
 %                             !            to restart the simulation
 %                             !.false.   : dump files will not be produced 
@@ -268,7 +264,7 @@ The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to
 and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
 For imaginary-time displaced correlation functions, the formatting of the block is given by:
 \begin{alltt}
-<measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>
+<measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>  <Channel>
 do alpha = 1, N_orbital
     \(\langle\hat{O}\sb{\alpha}\rangle \)
 enddo
@@ -283,7 +279,7 @@ do i = 1, N_unit_cell
    enddo
 enddo
 \end{alltt}
-The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>} and \path{<dtau>}, which are then omitted.
+The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>}, \path{<dtau>} and \path{<Channel>}, which are then omitted.
 Using this structure for the bins as input, the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analysis routine (see Sec.~\ref{sec:analysis}).
 \end{itemize}
 

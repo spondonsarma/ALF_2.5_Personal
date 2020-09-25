@@ -228,26 +228,38 @@ Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to 
 
 For equal-time correlation functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal-time Green functions. 
 \begin{lstlisting}[style=fortran]
-Allocate ( Obs_eq(4) )
+Allocate ( Obs_eq(5) )
 Do I = 1,Size(Obs_eq,1)
    select case (I)
    case (1)
-      Ns = Latt%N; No = 1;  Filename ="Green"
+      Filename = "Green"
    case (2)
-      Ns = Latt%N; No = 1;  Filename ="SpinZ"
+      Filename = "SpinZ"
    case (3)
-      Ns = Latt%N; No = 1;  Filename ="SpinXY"
+      Filename = "SpinXY"
    case (4)
-      Ns = Latt%N; No = 1;  Filename ="Den"
+      Filename = "SpinT"
+   case (5)
+      Filename = "Den"
    case default
-      Write(6,*) ' Error in Alloc_obs '  
+      Write(6,*) "Error in Alloc_obs"
    end select
-   Nt = 1
-   Call Obser_Latt_make(Obs_eq(I), Ns, Nt, No, Filename)
-enddo
+Nt = 1
+Channel = "--"
+Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
 \end{lstlisting} 
- For the Hubbard model \texttt{Norb = 1} and for   equal-time correlation functions   \texttt{Nt = 1}.       If  \texttt{Ltau = 1}  then the code will allocate space for  time displaced quantities.   The same structure as for  equal-time correlation functions will be used, albeit with  \texttt{Nt = Ltrot + 1}.  At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine 
- \texttt{Init\_obs(Ltau)}.   The user does not have to edit this routine. 
+Be aware that \texttt{Obser\_Latt\_make} does not copy the Bravais lattice \texttt{Latt} 
+and unit cell \texttt{Latt\_unit}, but links them through pointers to be more memory 
+efficient. One can have different lattices attached to different observables by declaring 
+additional instances of \texttt{Type(Lattice)} and \texttt{Type(Unit\_cell)}.
+ For equal-time correlation functions, we set \texttt{Nt = 1} and \texttt{Channel} does not have a meaning.
+
+If \texttt{Ltau = 1}, then the code will allocate space for time displaced quantities. The 
+same structure as for equal-time correlation functions will be used, albeit with 
+\texttt{Nt = Ltrot + 1} and the channel should be set. Whith \texttt{Channel="PH"}, the 
+analysis will assume the observable to be particle-hole symmetric. For more details on the meaning of this parameter, see Sec.~\ref{sec:maxent}.
+
+At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine \texttt{Init\_obs(Ltau)}. The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
 \subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}} \label{sec:EqualTimeobs}
