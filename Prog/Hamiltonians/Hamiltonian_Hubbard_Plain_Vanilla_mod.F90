@@ -330,7 +330,7 @@
           Latt_unit%Norb = 1
           Latt_unit%N_coord = 2
           allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
-          Latt_unit%Orb_pos_p(1, :) = [1.d0, 1.d0]
+          Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
 
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
