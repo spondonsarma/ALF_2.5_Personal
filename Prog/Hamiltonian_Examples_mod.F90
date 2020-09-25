@@ -128,9 +128,6 @@
       Use Fields_mod
       Use Predefined_Hoppings
       Use LRC_Mod
-      Use DynamicMatrixArray_mod
-      Use ContainerElementBase_mod
-      Use OpTTypes_mod
       use iso_fortran_env, only: output_unit, error_unit
 
 

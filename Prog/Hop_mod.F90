@@ -48,9 +48,13 @@
 
       Use Hamiltonian
       Use Random_wrap
+      Use DynamicMatrixArray_mod
+      Use ContainerElementBase_mod
+      Use OpTTypes_mod
       use iso_fortran_env, only: output_unit, error_unit
 
       ! Private variables
+      Type(DynamicMatrixArray), private :: vec
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T_1D2(:,:,:,:), Exp_T_M1_1D2(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
