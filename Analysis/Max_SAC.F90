@@ -117,7 +117,7 @@
           Om_st = 0.d0
        endif
        Write(50, "('Covariance         :: ',I2)")  N_cov
-       Write(50, "('Checkpoint         :: ',L )")  Checkpoint
+       Write(50, "('Checkpoint         :: ',L1)")  Checkpoint
        Write(50, "('Om_st, Om_en       :: ',2x,F12.6,2x,F12.6)") Om_st, Om_en
        Write(50, "('Delta Om           :: ',2x,F12.6)")  (Om_en - Om_st)/real(Ndis,kind(0.d0))
        Write(50, "('Bins, Sweeps, Warm :: ',2x,I4,2x,I4,2x,I4)") NBins, NSweeps, Nwarm
@@ -221,9 +221,9 @@
 
        If ( .not.  Checkpoint ) then
           Command = "rm dump*"
-          Call System (Command)
+          Call EXECUTE_COMMAND_LINE(Command)
           Command = "ls"
-          Call System (Command)
+          Call EXECUTE_COMMAND_LINE(Command)
        endif
        Open (Unit=10,File="energies",status="unknown")
 
@@ -294,7 +294,7 @@
              Z = Z + A(nwp)/cmplx( om -  omp, delta, kind(0.d0))
           enddo
           Z = Z * dom
-          write(43,"('X'2x,F14.7,2x,F16.8,2x,F16.8)" ) xom(nw), dble(Z), -Aimag(Z)/pi
+          write(43,"('X',2x,F14.7,2x,F16.8,2x,F16.8)") xom(nw), dble(Z), -Aimag(Z)/pi
        enddo
        close(43)
 
