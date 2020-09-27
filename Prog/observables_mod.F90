@@ -298,20 +298,20 @@
               enddo
               Open(Unit=10, File=File_pr, status="unknown",  position="append")
               If ( Ntau == 1 ) then
-                 Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N
+                 Write(10, '(E25.17E3, 1x, I10, 1x, I10)') Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N
               else
-                 Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N, Ntau, Obs%dtau
+                 Write(10, '(E25.17E3, 1x, I10, 1x, 3(I10))') Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N, Ntau, Obs%dtau
               endif
               Do no = 1, Obs%Latt_unit%Norb
-                 Write(10,*)  Obs%Obs_Latt0(no)
+                 Write(10, '("(", E25.17E3, ",", E25.17E3, ")")')  Obs%Obs_Latt0(no)
               enddo
               do I = 1, Obs%Latt%N
                  x_p = dble(Obs%Latt%listk(i,1))*Obs%Latt%b1_p + dble(Obs%Latt%listk(i,2))*Obs%Latt%b2_p
-                 Write(10,*) X_p(1), X_p(2)
+                 Write(10, '(E25.17E3, 1x, E25.17E3)') X_p(1), X_p(2)
                  Do nt = 1, Ntau
                     do no = 1, Obs%Latt_unit%Norb
                        do no1 = 1, Obs%Latt_unit%Norb
-                          Write(10,*) tmp(I,nt,no,no1)
+                          Write(10, '("(", E25.17E3, ",", E25.17E3, ")")') tmp(I,nt,no,no1)
                        enddo
                     enddo
                  enddo
@@ -375,7 +375,10 @@
               write(File_pr,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Vec),trim(File_suff)
 #endif
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
-              WRITE(10,*) size(Obs%Obs_vec,1)+1, (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Ave_sign
+              !WRITE(10,*) size(Obs%Obs_vec,1)+1, (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Ave_sign
+              write(10, '(I10, 1x)', advance='no') size(Obs%Obs_vec,1)+1
+              write(10, '(*("(",E25.17E3,",",E25.17E3,")"))', advance='no') size(Obs%Obs_vec,1)+1
+              write(10, '(1x, E25.17E3)') Obs%Ave_sign
               close(10)
 #if defined(MPI)
            endif
