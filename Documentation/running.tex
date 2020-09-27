@@ -124,7 +124,7 @@ The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, 
 		  The bin file \texttt{name}, which should have suffix \texttt{\_eq}, is read in, and the corresponding files with suffix \texttt{\_eqJR} and \texttt{\_eqJK} are produced. They  correspond to correlation functions in real and Fourier space, respectively. \\
 		\texttt{cov\_tau(name)}   &  
 		  The bin file \texttt{name}, which should have suffix \texttt{\_tau}, is read in, and the directories \texttt{X\_kx\_ky} are produced for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
-		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_kx\_ky}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file (see Sec.~\ref{sec:input}). Also, a directory \texttt{X\_R0} for the local time displaced correlation function is generated.  \\                         
+		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_dat}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file (see Sec.~\ref{sec:input}). Also, a directory \texttt{X\_R0} for the local time displaced correlation function is generated.  \\                         
 		& For particle-hole, imaginary-time correlation functions (\texttt{Channel="PH"}) such as Spin and Charge, we use the fact that these correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.
 		\\\bottomrule
 	\end{tabular}
@@ -198,7 +198,7 @@ The analysis output files listed in Table \ref{table:analysis_files} and are for
 
 %
 %-------------------------------------------------------------------------------------
-\subsection{Performance \& parameter optimization} \label{sec:optimize}
+\subsection{Parameter optimization} \label{sec:optimize}
 %-------------------------------------------------------------------------------------
 %
 

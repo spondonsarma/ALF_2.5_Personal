@@ -95,8 +95,16 @@ a2_p(1) = 0.0  ; a2_p(2) = 1.d0
 L1_p    = dble(L1)*a1_p
 L2_p    = dble(L2)*a2_p
 Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
+
+Latt_unit\%Norb = 1
+Latt_unit\%N_coord = 2
+allocate(Latt_unit\%Orb_pos_p(Latt_unit\%Norb,2))
+Latt_unit\%Orb_pos_p(1, :) = [0.d0, 0.d0]
+Ndim = Latt\%N*Latt_unit\%Norb
+
 \end{lstlisting}
-The routine also sets the  number of single particle states per flavor and color:  \texttt{Ndim=Latt\%N}.     Note  that for unit cells with \texttt{Norb}   orbitals,  \texttt{Ndim=Latt\%N*Norb}. 
+The routine also sets the  number of single particle states per flavor and color:  \texttt{Ndim=Latt\%N*Latt\_unit\%Norb}.    
+
 %------------------------------------------------------------
 \subsection{The hopping: \texttt{Call Ham\_hop}} \label{U_PV_Ham_hop}
 %------------------------------------------------------------
@@ -359,7 +367,7 @@ To test the code, one can carry out high precision simulations. After compilatio
 
 Alternatively, it may be convenient to use \texttt{pyALF} to compile and run the code.  
 
-\paragraph{One dimensional case} 
+\paragraph*{One dimensional case} 
 
 The \texttt{pyALF} python script   \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_Plain_Vanilla.py}{\texttt{Hubbard\_Plain\_Vanilla.py}}   runs the projective version of the code for the four site Hubbard model.   At $\theta t =10$, $\Delta \tau t = 0.05 $ with the symmetric Trotter  decomposition,  we obtain  after  40 bins of each 2000 sweeps  the  total energy:   
 \begin{equation*}
@@ -370,7 +378,7 @@ and the exact result is
 \langle  \hat{H}   \rangle_{\texttt{Exact}}    = -2.100396
 \end{equation*}
 
-\paragraph{Two dimensional case}  
+\paragraph*{Two dimensional case}  
 For the two-dimensional case,   with similar parameters, we obtain, \\
 \begin{center}
 \begin{tabular}{|c|c|c|}

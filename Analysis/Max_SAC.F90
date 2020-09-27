@@ -137,7 +137,7 @@
        Case ("PP")
           xmom1 = 2.d0* pi * xqmc(1)
        Case ("P")
-          xmom1 =  pi * real(norb,Kind(0.d0))
+          xmom1 =  pi * ( xqmc(1) + xqmc(ntau) )
           !  Remove the tau = beta point from the data since it is  correlated
           !  due to the sum rule with  the tau=0 data point. Also if the tau = 0
           !  data point has no fluctations (due to particle-hole symmetry for instance)

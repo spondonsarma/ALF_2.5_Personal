@@ -325,13 +325,14 @@
           L1_p    =  dble(L1)*a1_p
           L2_p    =  dble(L2)*a2_p
           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
-          Ndim = Latt%N
+         
 
-          Latt_unit%Norb = 1
+          Latt_unit%Norb    = 1
           Latt_unit%N_coord = 2
           allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
           Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
-
+          Ndim = Latt%N*Latt_unit%Norb
+          
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
 !> @author
