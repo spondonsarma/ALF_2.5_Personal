@@ -85,7 +85,7 @@ which specify the model.  The  routine \texttt{Ham\_set}  will first  read the p
 The parameters are read in from the file \texttt{parameters}, see Sec.~\ref{sec:input}.
 
 %------------------------------------------------------------
-\subsection{The lattice:   \texttt{Call Ham\_latt} }
+\subsection{The lattice:   \texttt{Call Ham\_latt} }  \label{U_PV_Ham_latt}
 %------------------------------------------------------------
 
 For the square lattice  the routine reads:
@@ -98,7 +98,7 @@ Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
 \end{lstlisting}
 The routine also sets the  number of single particle states per flavor and color:  \texttt{Ndim=Latt\%N}.     Note  that for unit cells with \texttt{Norb}   orbitals,  \texttt{Ndim=Latt\%N*Norb}. 
 %------------------------------------------------------------
-\subsection{The hopping: \texttt{Call Ham\_hop}}
+\subsection{The hopping: \texttt{Call Ham\_hop}} \label{U_PV_Ham_hop}
 %------------------------------------------------------------
 
 The hopping matrix is implemented as follows. 
@@ -139,7 +139,7 @@ Note that although a checkerboard decomposition is not  used here,  it can be im
 
 
 %------------------------------------------------------------
-\subsection{The interaction: \texttt{Call Ham\_V}}
+\subsection{The interaction: \texttt{Call Ham\_V}}\label{U_PV_Ham_V} 
 %------------------------------------------------------------
 To implement  the interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 2$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
@@ -169,7 +169,7 @@ Enddo
 In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors. 
 
 %------------------------------------------------------------
-\subsection{The trial wave function: \texttt{Call Ham\_Trial}}
+\subsection{The trial wave function: \texttt{Call Ham\_Trial}} \label{U_PV_Ham_Trial}
 %------------------------------------------------------------
 \label{Sec:Plain_vanilla_trial}
 As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here we will  use the same left and right  flavor-independent trial wave functions that correspond to the ground state of: 
