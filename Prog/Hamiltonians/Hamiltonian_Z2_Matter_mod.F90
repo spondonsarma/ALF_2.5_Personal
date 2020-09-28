@@ -71,12 +71,12 @@
       Integer              :: Thtrot
       Logical              :: Projector
       Integer              :: Group_Comm
-      Logical              :: Symm = .False. 
+      Logical              :: Symm = .False.
 
 
 !>    Privat variables
-      Type (Lattice),        private :: Latt
-      Type (Unit_cell),      private :: Latt_unit
+      Type (Lattice),        private, target :: Latt
+      Type (Unit_cell),      private, target :: Latt_unit
       Integer,               private :: L1, L2, N_part
       real (Kind=Kind(0.d0)),private :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2, Ham_U
       real (Kind=Kind(0.d0)),private :: Dtau, Beta, Theta
@@ -84,7 +84,7 @@
       Logical,               private :: One_dimensional
       Integer, allocatable,  private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       real (Kind=Kind(0.d0)),private :: Zero = 1.D-10
-      
+
 
 
       !>    Privat Observables
@@ -291,7 +291,7 @@
           endif
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
 
-          
+
         end Subroutine Ham_Latt
 
 !--------------------------------------------------------------------
@@ -313,7 +313,7 @@
           Integer, allocatable ::   N_Phi_vec(:)
 
           Logical ::  Bulk = .False.,  Checkerboard = .False.
-          
+
           Allocate (Ham_T_vec(N_FL), Ham_T2_vec(N_FL), Ham_Tperp_vec(N_FL), Ham_Chem_vec(N_FL), &
                &    Phi_X_vec(N_FL), Phi_Y_vec(N_FL), N_Phi_vec(N_FL), Ham_Lambda_vec(N_FL) )
 
@@ -330,14 +330,14 @@
           Call  Set_Default_hopping_parameters_square(Hopping_Matrix,Ham_T_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
                &                                      Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit )
           Call  Predefined_Hoppings_set_OPT(Hopping_Matrix,List,Invlist,Latt,  Latt_unit,  Dtau, Checkerboard, Symm, OP_T )
-          
+
           Deallocate (Ham_T_vec, Ham_T2_vec, Ham_Tperp_vec, Ham_Chem_vec, Phi_X_vec, Phi_Y_vec, &
                &                                   N_Phi_vec,  Ham_Lambda_vec )
 
 
         end Subroutine Ham_Hop
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
@@ -346,8 +346,8 @@
         Subroutine Ham_V
 
           Use Predefined_Int
-          Implicit none 
-        
+          Implicit none
+
           Integer :: nf, I, I1, I2,  nc, nc1,  J, N_Field_type, N_ops
           Real (Kind=Kind(0.d0)) :: X
 
@@ -362,14 +362,14 @@
              N_Field_type = Field_list_inv(nc,3)
              select case (N_Field_type)
              case (3 ) ! Hubbard
-                I = Field_list_inv(nc,1) 
+                I = Field_list_inv(nc,1)
                 do nf = 1,N_FL
                    Call Predefined_Int_U_SUN( OP_V(nc,nf), I, N_SUN, DTAU, Ham_U  )
                 enddo
              case (1 ) ! Z2_Gauge
                 I = Field_list_inv(nc,1)
                 select case ( Field_list_inv(nc,2) )
-                case (1) 
+                case (1)
                    I1 = Latt%nnlist(I,1,0)
                 case (2)
                    I1 = Latt%nnlist(I,0,1)
@@ -380,7 +380,7 @@
              case (2 ) ! Bond_Matter
                 I = Field_list_inv(nc,1)
                 select case ( Field_list_inv(nc,2) )
-                case (1) 
+                case (1)
                    I1 = Latt%nnlist(I,1,0)
                 case (2)
                    I1 = Latt%nnlist(I,0,1)
@@ -405,7 +405,7 @@
         end Subroutine Ham_V
 
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
@@ -572,7 +572,7 @@
 
           endif
 
-          
+
         end function S0
 
 !--------------------------------------------------------------------
@@ -720,14 +720,14 @@
 
         end Subroutine Global_move_tau
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Global moves
-!> 
+!>
 !> @details
-!>  This routine generates a 
+!>  This routine generates a
 !>  global update  and returns the propability T0_Proposal_ratio  =  T0( sigma_out-> sigma_in ) /  T0( sigma_in -> sigma_out)
 !> @param [IN] nsigma_old,  Type(Fields)
 !> \verbatim
@@ -735,7 +735,7 @@
 !> \endverbatim
 !> @param [OUT]  T0_Proposal_ratio Real
 !> \verbatimam
-!>  T0_Proposal_ratio  =  T0( sigma_new -> sigma_old ) /  T0( sigma_old -> sigma_new)  
+!>  T0_Proposal_ratio  =  T0( sigma_new -> sigma_old ) /  T0( sigma_old -> sigma_new)
 !> \endverbatim
 !> @param [OUT]  Size_clust Real
 !> \verbatim
@@ -757,12 +757,12 @@
 
         End Subroutine Global_move
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Computes the ratio exp(S0(new))/exp(S0(old))
-!> 
+!>
 !> @details
 !> This function computes the ratio \verbatim  e^{-S0(nsigma)}/e^{-S0(nsigma_old)} \endverbatim
 !> @param [IN] nsigma_old,  Type(Fields)
@@ -839,12 +839,12 @@
 !> ALF Collaboration
 !>
 !> @brief
-!> This routine sets storage to estimate Ising action as well as the list and types of fields (HS or Ising) 
+!> This routine sets storage to estimate Ising action as well as the list and types of fields (HS or Ising)
 !> so as to know if the field nsimg%i(nc,nt) corresponds to a HS field for the U term, an Ising gauge field,
 !> or a Z_2 matter field.
-!>  Field_list_inv(nc,1) = I              ! Postion on lattice 
-!>  Field_list_inv(nc,2) = n_orientation  ! Orientation 1=a_x, 2 = a_y , 3 = no-orientation for on-site interaction. 
-!>  Field_list_inv(nc,3) = Field_type     ! 1 = gauge Field, 2 = Bond matter field, 3 =  HS for Hubbard, 4 = Matter field at a given site. 
+!>  Field_list_inv(nc,1) = I              ! Postion on lattice
+!>  Field_list_inv(nc,2) = n_orientation  ! Orientation 1=a_x, 2 = a_y , 3 = no-orientation for on-site interaction.
+!>  Field_list_inv(nc,3) = Field_type     ! 1 = gauge Field, 2 = Bond matter field, 3 =  HS for Hubbard, 4 = Matter field at a given site.
 
 !--------------------------------------------------------------------
         Subroutine Setup_Ising_action_and_field_list
@@ -861,7 +861,7 @@
           If (Abs(Ham_U)   > Zero )   N_ops = N_ops + Latt%N                          !  Hubbard
           If (Abs(Ham_TZ2) > Zero )   N_ops = N_ops + Latt%N*Latt_unit%N_coord        !  Z2 gauge fields
           If (Abs(Ham_T  ) > Zero )   N_ops = N_ops + Latt%N*Latt_unit%N_coord + 1    !  Matter fields.
-          
+
           ! Setup list of bonds for the square lattice.
           Allocate ( Field_list(Latt%N,3,4),  Field_list_inv(N_ops,3) )
           nc = 0
@@ -984,8 +984,9 @@
 
           Implicit none
           Integer, Intent(In) :: Ltau
-          Integer    ::  i, N, Ns,Nt,No
+          Integer    ::  i, N, Nt
           Character (len=64) ::  Filename
+          Character (len=2)  ::  Channel
 
           ! Scalar observables
           Allocate ( Obs_scal(4) )
@@ -1011,20 +1012,21 @@
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Greenf"
+                Filename ="Greenf"
              case (2)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="SpinZ"
+                Filename ="SpinZ"
              case (3)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Den"
+                Filename ="Den"
              case (4)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Green"
+                Filename ="Green"
              case (5)
-                Ns = Latt%N;  No = Latt_unit%Norb;  Filename ="Q"
+                Filename ="Q"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
              Nt = 1
-             Call Obser_Latt_make(Obs_eq(I),Ns,Nt,No,Filename)
+             Channel = '--'
+             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
           enddo
 
           If (Ltau == 1) then
@@ -1033,16 +1035,17 @@
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
-                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="Green"
+                   Channel = 'P' ; Filename ="Green"
                 case (2)
-                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="SpinZ"
+                   Channel = 'PH'; Filename ="SpinZ"
                 case (3)
-                   Ns = Latt%N; No = Latt_unit%Norb;  Filename ="Den"
+                   Channel = 'PH'; Filename ="Den"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
                 Nt = Ltrot+1
-                Call Obser_Latt_make(Obs_tau(I),Ns,Nt,No,Filename)
+                If(Projector) Channel = 'T0'
+                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
              enddo
           endif
 
@@ -1139,7 +1142,7 @@
           Zrho = Zrho* dble(N_SUN)
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Zrho * ZP*ZS
 
-          
+
           If ( abs(Ham_TZ2) > Zero ) then
              iFlux_tot = 0
              Do I = 1, Ndim
@@ -1154,7 +1157,7 @@
                 Enddo
              Enddo
              Obs_scal(3)%Obs_vec(1)  =  Obs_scal(3)%Obs_vec(1) + cmplx(X_ave,0.d0,kind(0.d0)) * ZP*ZS
-             
+
           Endif
 
           ! Constraint. 
@@ -1214,27 +1217,27 @@
  
         end Subroutine Obser
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
-!> @brief 
+!> @brief
 !> Computes time displaced  observables
 !> @details
 !> @param [IN] NT, Integer
 !> \verbatim
 !>  Imaginary time
 !> \endverbatim
-!> @param [IN] GT0, GTT, G00, GTT,  Complex(:,:,:)  
+!> @param [IN] GT0, GTT, G00, GTT,  Complex(:,:,:)
 !> \verbatim
 !>  Green functions:
-!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )> 
-!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)> 
-!>  G00(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(0  )> 
-!>  GTT(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(tau)> 
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!>  G00(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(0  )>
+!>  GTT(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(tau)>
 !> \endverbatim
 !> @param [IN] Phase   Complex
 !> \verbatim
-!>  Phase  
+!>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
 
@@ -1267,10 +1270,10 @@
           
         end Subroutine OBSERT
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
-!> @brief 
+!> @brief
 !> Prints out the bins.  No need to change this routine.
 !-------------------------------------------------------------------
         Subroutine  Pr_obs(LTAU)
@@ -1287,21 +1290,21 @@
              Call  Print_bin_Vec(Obs_scal(I),Group_Comm)
           enddo
           Do I = 1,Size(Obs_eq,1)
-             Call  Print_bin_Latt(Obs_eq(I),Latt,dtau,Group_Comm)
+             Call  Print_bin_Latt(Obs_eq(I),Group_Comm)
           enddo
           If (Ltau  == 1 ) then
              Do I = 1,Size(Obs_tau,1)
-                Call  Print_bin_Latt(Obs_tau(I),Latt,dtau,Group_Comm)
+                Call  Print_bin_Latt(Obs_tau(I),Group_Comm)
              enddo
           endif
 
         end Subroutine Pr_obs
 
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
-!> @brief 
+!> @brief
 !> Initializes observables to zero before each bins.  No need to change
 !> this routine.
 !-------------------------------------------------------------------
@@ -1330,11 +1333,11 @@
         end Subroutine Init_obs
 
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
-!> Returns the flux on a plaquette. I is the left-bottom corner. 
+!> Returns the flux on a plaquette. I is the left-bottom corner.
 !>
 !--------------------------------------------------------------------
 
@@ -1358,7 +1361,7 @@
       end Function iFlux
 
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
@@ -1382,8 +1385,6 @@
         ! Local
         Integer :: I,nc, I1, nt, n_orientation, N_ops
         Integer, allocatable::  Isigma(:), Isigma1(:)
-        Integer :: Iseed(1) 
-
 
 
         N_ops = size(Field_list_inv,1)
@@ -1445,19 +1446,19 @@
 
         deallocate (Isigma, Isigma1)
 
-        
+
 
       end Subroutine Hamiltonian_set_nsigma
-!--------------------------------------------------------------------    
-!> @author 
+!--------------------------------------------------------------------
+!> @author
 !> ALF Collaboration
 !>
 !> @brief
 !> Given the the HS fields nsigma  (mu^{z}_{i,j}, tau^z_{i=Latt%N}) the routine computes
 !> the site matter fields tau^{z}_i
-!> 
+!>
 !> @details
-!--------------------------------------------------------------------    
+!--------------------------------------------------------------------
       Subroutine  Hamiltonian_set_Z2_matter(Isigma,nt)
 
         ! On input :  Link variables  nsigma(:,nt)
@@ -1504,7 +1505,7 @@
         Implicit none
         Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
 
-        
+
         Nt_sequential_start = 1
         Nt_sequential_end   = 0
         If (abs(Ham_U  ) > Zero ) Nt_sequential_end = Nt_sequential_end + Latt%N

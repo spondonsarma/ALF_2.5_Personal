@@ -161,12 +161,16 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 \input{Hubbard_Plain}
 \section{Predefined Structures}\label{sec:predefined}
 \input{predefined}
-\input{Model_classes} 
+\input{Model_classes}
 \section{Maximum Entropy}\label{sec:maxent}
 \input{maxent}
-\input{performance}
 \section{Conclusions and Future Directions}\label{sec:con}
 \input{conclusion}
+\addcontentsline{toc}{section}{Acknowledgments}
+\input{acknowledgment}
+\appendix
+\gdef\thesection{Appendix \Alph{section}}
+\input{performance}
 %{\color{red} OLD STUFF} 
 %\section{Examples}\label{sec:ex}
 %\input{walkthrough_hubbard}
@@ -177,8 +181,6 @@ homepage \url{alf.physik.uni-wuerzburg.de}.
 %\input{tV}
 
 
-\addcontentsline{toc}{section}{Acknowledgments}
-\input{acknowledgment}
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{./prXsty} 
 \bibliography{./fassaad,./doc}
