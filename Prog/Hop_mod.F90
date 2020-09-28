@@ -54,7 +54,7 @@
       use iso_fortran_env, only: output_unit, error_unit
 
       ! Private variables
-      Type(DynamicMatrixArray), private :: vec
+      Type(DynamicMatrixArray), private, allocatable :: vec(:) ! for now we have for simplicity for each flavour a vector
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T_1D2(:,:,:,:), Exp_T_M1_1D2(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
@@ -98,6 +98,8 @@
           Allocate ( Exp_T_M1    (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
           Allocate ( Exp_T_1D2   (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
           Allocate ( Exp_T_M1_1D2(Ndim_hop,Ndim_hop,Ncheck,N_FL) )
+          
+          allocate(vec(N_FL))
 
           Allocate ( V_Hlp(Ndim_hop,Ndim) )
           Allocate ( V_Hlp1(Ndim_hop,Ndim) )
@@ -107,6 +109,7 @@
           Exp_T = cmplx(0.d0, 0.d0, kind(0.D0))
           Exp_T_M1 = cmplx(0.d0, 0.d0, kind(0.D0))
           do nf = 1,N_FL
+             call vec(nf)%init()
              do nc = 1,Ncheck
                 g = Op_T(nc,nf)%g
                 Call  Op_exp(g,Op_T(nc,nf),Exp_T(:,:,nc,nf))

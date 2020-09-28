@@ -30,39 +30,34 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 
-module OpTTypes_mod
+module matTypes_mod
     use ContainerElementBase_mod
-    use Operator_mod
     implicit none
-    
-    type, extends(ContainerElementBase) :: RealOpT
-        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
-        Real(kind=kind(0.d0)) :: g
-        integer, pointer :: P
-        Integer :: m, n
-    contains
-        procedure :: init => RealOpT_init
-        procedure :: simt => RealOpT_simt
-        procedure :: rmult => RealOpT_rmult
-        procedure :: lmult => RealOpT_lmult
-    end type RealOpT
 
-    type, extends(ContainerElementBase) :: CmplxOpT
-        Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat, invmat
-        Complex(kind=kind(0.d0)) :: g
-        integer, pointer :: P
+    type, extends(ContainerElementBase) :: RealMat
+        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
         Integer :: m, n
     contains
-        procedure :: init => CmplxOpT_init
-        procedure :: simt => CmplxOpT_simt
-        procedure :: rmult => CmplxOpT_rmult
-        procedure :: lmult => CmplxOpT_lmult
-    end type CmplxOpT
+        procedure :: init => RealMat_init
+        procedure :: simt => RealMat_simt
+        procedure :: rmult => RealMat_rmult
+        procedure :: lmult => RealMat_lmult
+    end type RealMat
+
+    type, extends(ContainerElementBase) :: CmplxMat
+        Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat
+        Integer :: m, n
+    contains
+        procedure :: init => CmplxMat_init
+        procedure :: simt => CmplxMat_simt
+        procedure :: rmult => CmplxMat_rmult
+        procedure :: lmult => CmplxMat_lmult
+    end type CmplxMat
 
 contains
-    subroutine RealOpT_init(this, OpT)
-        class(RealOpT) :: this
-        Type(Operator), intent(in) :: OpT
+    subroutine RealMat_init(this, arg)
+        class(RealMat) :: this
+        Real(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Integer :: i,j
         this%mat = arg !copy argument to local storage
         this%m = size(arg, 1)
@@ -73,15 +68,15 @@ contains
 ! enddo
     end subroutine
     
-    subroutine RealOpT_simt(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealMat_simt(this, arg)
+        class(RealMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
     
-    subroutine RealOpT_rmult(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealMat_rmult(this, arg)
+        class(RealMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
@@ -95,46 +90,33 @@ contains
         deallocate(out, rwork)
     end subroutine
     
-    subroutine RealOpT_lmult(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealMat_lmult(this, arg)
+        class(RealMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
     
-    subroutine CmplxOpT_init(this, OpT)
-        class(CmplxOpT) :: this
-        Type(Operator), intent(in) :: OpT
-        Complex(kind=kind(0.D0)) :: g
-        Integer :: i, j, ndimhop
+    subroutine CmplxMat_init(this, arg)
+        class(CmplxMat) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Integer :: i,j
+        this%mat = arg !copy argument to local storage
 !         do i = 1, size(arg,1)
 ! write (*,*) (this%mat(i,j), j = 1, size(arg,2) )
 ! enddo
         this%m = size(arg, 1)
         this%n = size(arg, 2)
-        
-        ndimhop = Op_T%N
-        this%g = -Op_T%g
-        Call  Op_exp(this%g, Op_T, this%invmat)
-        this%g = Op_T%g
-        Call  Op_exp(this%g, Op_T, this%mat )
-        DO i = 1, Ndimhop
-            DO j = i, Ndimhop
-                this%mat(i, j) = (this%mat(i, j) + Conjg(this%mat(j, i)))/2.D0
-                this%invmat(i, j) = (this%invmat(i, j) + Conjg(this%invmat(j, i)))/2.D0
-            ENDDO
-        ENDDO
-        this%P = Op_T%P
 
     end subroutine
 
-    subroutine CmplxOpT_simt(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxMat_simt(this, arg)
+        class(CmplxMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
     
-    subroutine CmplxOpT_rmult(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxMat_rmult(this, arg)
+        class(CmplxMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Complex(kind=kind(0.d0)) :: alpha, zero
@@ -150,9 +132,9 @@ contains
         deallocate(out)
     end subroutine
     
-    subroutine CmplxOpT_lmult(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxMat_lmult(this, arg)
+        class(CmplxMat), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
-    
-end module OpTTypes_mod
+
+end module matTypes_mod
