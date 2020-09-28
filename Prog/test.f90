@@ -1,12 +1,12 @@
 program test
 Use DynamicMatrixArray_mod
 Use ContainerElementBase_mod
-Use OpTTypes_mod
+Use matTypes_mod
 implicit none
 
 Type(DynamicMatrixArray) :: vec
-Type(RealOpT), allocatable :: remat
-Type(CmplxOpT), allocatable:: cmplxmat
+Type(RealMat), allocatable :: remat
+Type(CmplxMat), allocatable:: complexmat
 class(ContainerElementBase), allocatable :: dummy
 Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: res, ctmp
 Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: rtmp
@@ -21,7 +21,7 @@ alpha = 1.0
 zero = 0.0
 call zlaset('A', nmax, nmax, zero, alpha, res, nmax)
 
-allocate(remat, cmplxmat)
+allocate(remat, complexmat)
 
 do i = 1, 5
     ! create some complex dummy data
@@ -31,8 +31,8 @@ do i = 1, 5
     enddo
 
     !pushback
-    call cmplxmat%init(ctmp)
-    call vec%pushback(cmplxmat)
+    call complexmat%init(ctmp)
+    call vec%pushback(complexmat)
 
     ! create some real dummy data
     call dlaset('A', nmax, nmax, zero, alpha, rtmp, nmax)
@@ -44,11 +44,11 @@ do i = 1, 5
     call vec%pushback(remat)
 enddo
 ! tidy up auxiliary structures
-deallocate(remat, cmplxmat)
+deallocate(remat, complexmat)
 deallocate(ctmp, rtmp)
 
 ! execute a loop over all stored objects
-do i= 1, 5
+do i= 1, 3
     dummy = vec%at(i) ! get object
     call dummy%rmult(res) ! polymorphic dispatch to rmult
     do k = 1, nmax

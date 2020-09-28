@@ -42,6 +42,8 @@ module matTypes_mod
         procedure :: simt => RealMat_simt
         procedure :: rmult => RealMat_rmult
         procedure :: lmult => RealMat_lmult
+        procedure :: rmultinv => RealMat_rmultinv
+        procedure :: lmultinv => RealMat_lmultinv
     end type RealMat
 
     type, extends(ContainerElementBase) :: CmplxMat
@@ -52,6 +54,8 @@ module matTypes_mod
         procedure :: simt => CmplxMat_simt
         procedure :: rmult => CmplxMat_rmult
         procedure :: lmult => CmplxMat_lmult
+        procedure :: rmultinv => CmplxMat_rmultinv
+        procedure :: lmultinv => CmplxMat_lmultinv
     end type CmplxMat
 
 contains
@@ -77,7 +81,7 @@ contains
     
     subroutine RealMat_rmult(this, arg)
         class(RealMat), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
         Integer :: i, j, sz1, sz2
@@ -90,9 +94,25 @@ contains
         deallocate(out, rwork)
     end subroutine
     
+    subroutine RealMat_rmultinv(this, arg)
+        class(RealMat), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
+        Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
+        Integer :: i, j, sz1, sz2
+        
+    end subroutine
+    
     subroutine RealMat_lmult(this, arg)
         class(RealMat), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
+
+    end subroutine
+
+    subroutine RealMat_lmultinv(this, arg)
+        class(RealMat), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
@@ -117,7 +137,7 @@ contains
     
     subroutine CmplxMat_rmult(this, arg)
         class(CmplxMat), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Complex(kind=kind(0.d0)) :: alpha, zero
         Integer :: i, j, sz1, sz2
@@ -132,9 +152,22 @@ contains
         deallocate(out)
     end subroutine
     
+    subroutine CmplxMat_rmultinv(this, arg)
+        class(CmplxMat), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
+        Complex(kind=kind(0.d0)) :: alpha, zero
+        Integer :: i, j, sz1, sz2
+        
+    end subroutine
+    
     subroutine CmplxMat_lmult(this, arg)
         class(CmplxMat), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
     end subroutine
 
+    subroutine CmplxMat_lmultinv(this, arg)
+        class(CmplxMat), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
+    end subroutine
 end module matTypes_mod
