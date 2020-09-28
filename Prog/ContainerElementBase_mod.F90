@@ -54,25 +54,25 @@ module ContainerElementBase_mod
       subroutine rmultinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout), allocatable, dimension(:,:) :: arg
+         Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
       
       subroutine lmultinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout), allocatable, dimension(:,:) :: arg
+         Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
       
       subroutine rmultinvinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout), allocatable, dimension(:,:) :: arg
+         Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
       
       subroutine lmultinvinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout), allocatable, dimension(:,:) :: arg
+         Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
     end interface
 

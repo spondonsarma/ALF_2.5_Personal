@@ -83,7 +83,7 @@ contains
     
     subroutine RealOpT_rmult(this, arg)
         class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
         Integer :: i, j, sz1, sz2
@@ -98,7 +98,7 @@ contains
     
     subroutine RealOpT_rmultinv(this, arg)
         class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
         Integer :: i, j, sz1, sz2
@@ -113,14 +113,14 @@ contains
     
     subroutine RealOpT_lmult(this, arg)
         class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
     
     subroutine RealOpT_lmultinv(this, arg)
         class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
 
     end subroutine
@@ -154,7 +154,7 @@ contains
     
     subroutine CmplxOpT_rmult(this, arg)
         class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: i, j, n1, n2
         
         ! taken from mmthl
@@ -167,7 +167,7 @@ contains
     
         subroutine CmplxOpT_rmultinv(this, arg)
         class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
         ! taken from mmthl_m1
@@ -180,7 +180,7 @@ contains
     
     subroutine CmplxOpT_lmult(this, arg)
         class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         integer :: n1, n2
         
         ! taken from mmthr
@@ -193,7 +193,7 @@ contains
 
     subroutine CmplxOpT_lmultinv(this, arg)
         class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         integer :: n1, n2
         n1 = size(arg,1)
         n2 = size(arg,2)
