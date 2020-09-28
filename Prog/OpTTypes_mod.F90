@@ -39,7 +39,7 @@ module OpTTypes_mod
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
         Real(kind=kind(0.d0)) :: g
         integer, pointer :: P
-        Integer :: m, n
+        Integer :: m, n, Ndim_hop
     contains
         procedure :: init => RealOpT_init
         procedure :: simt => RealOpT_simt
@@ -53,7 +53,7 @@ module OpTTypes_mod
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:):: mat, invmat
         Complex(kind=kind(0.d0)) :: g
         integer, pointer :: P
-        Integer :: m, n
+        Integer :: m, n, Ndim_hop
     contains
         procedure :: init => CmplxOpT_init
         procedure :: simt => CmplxOpT_simt
@@ -110,20 +110,20 @@ contains
         class(CmplxOpT) :: this
         Type(Operator), intent(in) :: OpT
         Complex(kind=kind(0.D0)) :: g
-        Integer :: i, j, ndimhop
+        Integer :: i, j
 !         do i = 1, size(arg,1)
 ! write (*,*) (this%mat(i,j), j = 1, size(arg,2) )
 ! enddo
         this%m = size(arg, 1)
         this%n = size(arg, 2)
         
-        ndimhop = Op_T%N
+        this%Ndim_hop = Op_T%N
         this%g = -Op_T%g
         Call  Op_exp(this%g, Op_T, this%invmat)
         this%g = Op_T%g
         Call  Op_exp(this%g, Op_T, this%mat )
-        DO i = 1, Ndimhop
-            DO j = i, Ndimhop
+        DO i = 1, this%Ndim_hop
+            DO j = i, this%Ndim_hop
                 this%mat(i, j) = (this%mat(i, j) + Conjg(this%mat(j, i)))/2.D0
                 this%invmat(i, j) = (this%invmat(i, j) + Conjg(this%invmat(j, i)))/2.D0
             ENDDO
@@ -141,25 +141,21 @@ contains
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
-        Complex(kind=kind(0.d0)) :: alpha, zero
-        Integer :: i, j, sz1, sz2
+        Integer :: i, j, n1, n2
         
-        alpha = 1.0
-        zero = 0
-        sz1 = size(arg, 1)
-        sz2 = size(arg, 2)
-        allocate(out(sz1, sz2))
-        call zhemm('R', 'U', sz1, sz2, alpha, arg, sz1, this%mat, this%m, zero, out, sz1)
-        arg = out
-        deallocate(out)
+        ! taken from mmthl
+        n1 = size(arg,1)
+        n2 = size(arg,2)
+        If ( this%g*conjg(this%g) ) > Zero ) then
+            call ZSLHEMM('R', 'U', this%Ndim_hop, n1, n2, mat, this%P, arg)
+        Endif
     end subroutine
     
         subroutine CmplxOpT_rmultinv(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
-        Complex(kind=kind(0.d0)) :: alpha, zero
-        Integer :: i, j, sz1, sz2
+        Integer :: i, j, n1, n2
         
         alpha = 1.0
         zero = 0
@@ -174,6 +170,13 @@ contains
     subroutine CmplxOpT_lmult(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        integer :: n1, n2
+        
+        n1 = size(arg,1)
+        n2 = size(arg,2)
+        If ( this%g*conjg(this%g) ) > Zero ) then
+            call ZSLHEMM('L', 'U', this%Ndim_hop, n1, n2, mat, this%P, arg)
+        Endif
     end subroutine
 
     subroutine CmplxOpT_lmultinv(this, arg)
