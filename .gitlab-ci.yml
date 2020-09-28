@@ -250,11 +250,6 @@ GQMCT_Stretch_valgrind:
 create_doc:
   image: aergus/latex
   stage: build
-  only:
-    changes:
-      - Documentation/*.tex
-      - Documentation/*.bib
-      - Documentation/Figures/*
   artifacts:
     paths:
       - Documentation/doc.pdf
