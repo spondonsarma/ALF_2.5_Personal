@@ -45,6 +45,8 @@ module OpTTypes_mod
         procedure :: simt => RealOpT_simt
         procedure :: rmult => RealOpT_rmult
         procedure :: lmult => RealOpT_lmult
+        procedure :: rmultinv => RealOpT_rmultinv
+        procedure :: lmultinv => RealOpT_lmultinv
     end type RealOpT
 
     type, extends(ContainerElementBase) :: CmplxOpT
@@ -57,6 +59,8 @@ module OpTTypes_mod
         procedure :: simt => CmplxOpT_simt
         procedure :: rmult => CmplxOpT_rmult
         procedure :: lmult => CmplxOpT_lmult
+        procedure :: rmultinv => CmplxOpT_rmultinv
+        procedure :: lmultinv => CmplxOpT_lmultinv
     end type CmplxOpT
 
 contains
@@ -150,7 +154,29 @@ contains
         deallocate(out)
     end subroutine
     
+        subroutine CmplxOpT_rmultinv(this, arg)
+        class(CmplxOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
+        Complex(kind=kind(0.d0)) :: alpha, zero
+        Integer :: i, j, sz1, sz2
+        
+        alpha = 1.0
+        zero = 0
+        sz1 = size(arg, 1)
+        sz2 = size(arg, 2)
+        allocate(out(sz1, sz2))
+        call zhemm('R', 'U', sz1, sz2, alpha, arg, sz1, this%mat, this%m, zero, out, sz1)
+        arg = out
+        deallocate(out)
+    end subroutine
+    
     subroutine CmplxOpT_lmult(this, arg)
+        class(CmplxOpT), intent(in) :: this
+        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+    end subroutine
+
+    subroutine CmplxOpT_lmultinv(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
