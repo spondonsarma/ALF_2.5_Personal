@@ -317,20 +317,18 @@
              Write(6,*) 'The plain vanilla Hubbard model is only defined for the square lattice'
              stop
           Endif
-          Latt_Unit%Norb      = 1
-          Allocate (Latt_unit%Orb_pos_p(1,2))
-          Latt_Unit%Orb_pos_p(1,:) = 0.d0
+          
+          Latt_unit%Norb    = 1
+          Latt_unit%N_coord = 2
+          allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
+          Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
+
           a1_p(1) =  1.0  ; a1_p(2) =  0.d0
           a2_p(1) =  0.0  ; a2_p(2) =  1.d0
           L1_p    =  dble(L1)*a1_p
           L2_p    =  dble(L2)*a2_p
           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
          
-
-          Latt_unit%Norb    = 1
-          Latt_unit%N_coord = 2
-          allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
-          Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
           Ndim = Latt%N*Latt_unit%Norb
           
         end Subroutine Ham_Latt
@@ -679,8 +677,9 @@
                 ZZ   = GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
                        (GRC(I,I,2) - GRC(I,I,1))*(GRC(J,J,2) - GRC(J,J,1))
 
-                ZDen = (GRC(I,I,1) + GRC(I,I,2)) * (GRC(I,I,1) + GRC(I,I,2)) + &
+                ZDen = (GRC(I,I,1) + GRC(I,I,2)) * (GRC(J,J,1) + GRC(J,J,2)) + &
                      &  GRC(I,J,1) * GR(I,J,1)   +  GRC(I,J,2) * GR(I,J,2)
+                
                 Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) + (GRC(I,J,1) + GRC(I,J,2))*ZP*ZS
                 Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) +  ZZ  *ZP*ZS
                 Obs_eq(3)%Obs_Latt(imj,1,1,1) =  Obs_eq(3)%Obs_Latt(imj,1,1,1) +  ZXY *ZP*ZS
