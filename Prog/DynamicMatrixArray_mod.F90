@@ -70,9 +70,10 @@ subroutine DynamicMatrixArray_dealloc(this)
     deallocate(this%data)
 end subroutine
 
+!itm gets deallocated in the process
 subroutine DynamicMatrixArray_pushback(this, itm)
     class(DynamicMatrixArray) :: this
-    class(ContainerElementBase), intent(in) :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
+    class(ContainerElementBase), intent(inout), allocatable :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
 
@@ -87,7 +88,8 @@ subroutine DynamicMatrixArray_pushback(this, itm)
         deallocate(temp)
         this%avamem = 2*this%avamem
     endif
-    this%data(this%tail)%dat = itm
+    call move_alloc(itm, this%data(this%tail)%dat)
+!    this%data(this%tail)%dat = itm
     this%tail = this%tail + 1
 end subroutine
 

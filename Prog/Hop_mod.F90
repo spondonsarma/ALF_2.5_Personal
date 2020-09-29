@@ -77,8 +77,9 @@
 
           Integer :: nc, nf, i,j
           Complex (Kind=Kind(0.d0)) :: g
-          Type(CmplxOpT), allocatable:: cmplxexp
-          Type(RealOpT), allocatable:: realexp
+          class(CmplxOpT), allocatable:: cmplxexp
+          class(RealOpT), allocatable:: realexp
+          class(ContainerElementBase), allocatable :: Dummy
 
 
           Ncheck = size(Op_T,1)
@@ -111,12 +112,14 @@
 
           Exp_T = cmplx(0.d0, 0.d0, kind(0.D0))
           Exp_T_M1 = cmplx(0.d0, 0.d0, kind(0.D0))
-          allocate(cmplxexp, realexp)
           do nf = 1,N_FL
              call vec(nf)%init()
              do nc = 1,Ncheck
+                write (*,*) nf, nc
+                allocate(cmplxexp)!, realexp)
                 call cmplxexp%init(Op_T(nc,nf))
-                call vec(nf)%pushback(cmplxexp)
+                call Move_alloc(cmplxexp, dummy)
+                call vec(nf)%pushback(dummy)
 
 !                 g = Op_T(nc,nf)%g
 !                 Call  Op_exp(g,Op_T(nc,nf),Exp_T(:,:,nc,nf))
@@ -134,10 +137,15 @@
 !                    ENDDO
 !                 ENDDO
              enddo
+!              do i = 1, vec(nf)%length()
+!              dummy = vec(nf)%at(i) ! get object
+!              call dummy%dump()
+!              write (*,*) "=========="
+!              enddo
           enddo
 
           Zero = 1.E-12
-          deallocate(cmplxexp, realexp)
+!          deallocate(cmplxexp, realexp)
         end subroutine Hop_mod_init
 
 !--------------------------------------------------------------------
@@ -157,7 +165,6 @@
 
 !           N1=size(In,1)
 !           N2=size(In,2)
-
           do nc =  Ncheck,1,-1
           dummy = vec(nf)%at(nc)
           call dummy%lmult(In)
@@ -207,9 +214,8 @@
 
 !           N1=size(In,1)
 !           N2=size(In,2)
-
           do nc =  1,Ncheck
-                    dummy = vec(nf)%at(nc)
+          dummy = vec(nf)%at(nc)
           call dummy%lmultinv(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
@@ -259,14 +265,16 @@
 
           !Local
           Integer :: nc, N1, N2
+          class(ContainerElementBase), allocatable :: dummy
 
           N1=size(In,1)
           N2=size(In,2)
-
           do nc =  1, Ncheck
-             If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
-             Endif
+                    dummy = vec(nf)%at(nc)
+          call dummy%lmult(In)
+!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
+!                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
+!              Endif
           Enddo
 
         end Subroutine Hop_mod_mmthlc

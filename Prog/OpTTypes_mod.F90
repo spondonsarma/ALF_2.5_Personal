@@ -36,7 +36,7 @@ module OpTTypes_mod
     implicit none
     
     type, extends(ContainerElementBase) :: RealOpT
-        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
+        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat
         Real(kind=kind(0.d0)) :: g, Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
@@ -48,6 +48,7 @@ module OpTTypes_mod
         procedure :: lmult => RealOpT_lmult
         procedure :: rmultinv => RealOpT_rmultinv
         procedure :: lmultinv => RealOpT_lmultinv
+        procedure :: dump => RealOpT_dump
     end type RealOpT
 
     type, extends(ContainerElementBase) :: CmplxOpT
@@ -63,6 +64,7 @@ module OpTTypes_mod
         procedure :: lmult => CmplxOpT_lmult
         procedure :: rmultinv => CmplxOpT_rmultinv
         procedure :: lmultinv => CmplxOpT_lmultinv
+        procedure :: dump => CmplxOpT_dump
     end type CmplxOpT
 
 contains
@@ -128,12 +130,14 @@ contains
     subroutine CmplxOpT_init(this, Op_T)
         class(CmplxOpT) :: this
         Type(Operator), intent(in) :: Op_T
-        Complex(kind=kind(0.D0)) :: g
         Integer :: i, j
         
         this%Zero = 1.E-12
         this%Ndim_hop = Op_T%N
         this%g = -Op_T%g
+!        if (allocated(this%mat) .and. allocated(this%invmat) ) then
+            allocate (this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop))
+!        endif
         Call  Op_exp(this%g, Op_T, this%invmat)
         this%g = Op_T%g
         Call  Op_exp(this%g, Op_T, this%mat )
@@ -143,7 +147,7 @@ contains
                 this%invmat(i, j) = (this%invmat(i, j) + Conjg(this%invmat(j, i)))/2.D0
             ENDDO
         ENDDO
-        this%P = Op_T%P
+        this%P => Op_T%P
 
     end subroutine
 
@@ -191,6 +195,34 @@ contains
         Endif
     end subroutine
 
+    subroutine CmplxOpT_dump(this)
+        class(CmplxOpT), intent(in) :: this
+        integer :: i,j
+
+        do i = 1, size(this%mat, 1)
+write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
+enddo
+write (*,*) "---------------"
+        do i = 1, size(this%mat, 1)
+write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
+enddo
+        
+    end subroutine
+
+    subroutine RealOpT_dump(this)
+        class(RealOpT), intent(in) :: this
+        integer :: i,j
+
+        do i = 1, size(this%mat, 1)
+write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
+enddo
+write (*,*) "---------------"
+        do i = 1, size(this%mat, 1)
+write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
+enddo
+        
+    end subroutine
+    
     subroutine CmplxOpT_lmultinv(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
