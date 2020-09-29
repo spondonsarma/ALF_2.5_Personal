@@ -121,13 +121,20 @@ contains
         class(CmplxMat) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Integer :: i,j
-        this%mat = arg !copy argument to local storage
 !         do i = 1, size(arg,1)
 ! write (*,*) (this%mat(i,j), j = 1, size(arg,2) )
 ! enddo
         this%m = size(arg, 1)
         this%n = size(arg, 2)
-
+        if (allocated(this%mat)) deallocate(this%mat)
+        allocate(this%mat(this%m, this%n))
+        do i = 1, this%m
+        do j = 1, this%n
+        this%mat(i, j) = arg(i, j)
+        enddo
+        enddo
+!        this%mat = arg !copy argument to local storage
+        
     end subroutine
 
     subroutine CmplxMat_simt(this, arg)

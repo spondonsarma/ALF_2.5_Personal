@@ -27,7 +27,7 @@ do i = 1, 5
     ! create some complex dummy data
     call zlaset('A', nmax, nmax, zero, alpha, ctmp, nmax)
     do j = 1, nmax
-    ctmp(j,j) = j
+    ctmp(j,j) = i
     enddo
 
     !pushback
@@ -37,7 +37,7 @@ do i = 1, 5
     ! create some real dummy data
     call dlaset('A', nmax, nmax, zero, alpha, rtmp, nmax)
     do j = 1, nmax
-    rtmp(j,j) = j
+    rtmp(j,j) = i+j
     enddo
     ! push_back
     call remat%init(rtmp)
@@ -48,11 +48,11 @@ deallocate(remat, complexmat)
 deallocate(ctmp, rtmp)
 
 ! execute a loop over all stored objects
-do i= 1, 3
+do i= 1, vec%length()
     dummy = vec%at(i) ! get object
     call dummy%rmult(res) ! polymorphic dispatch to rmult
     do k = 1, nmax
-    write (*,*) (res(k,l), l = 1,nmax )
+    write (*,*) (dble(res(k,l)), l = 1,nmax )
     enddo
     write (*,*) "============"
 enddo
