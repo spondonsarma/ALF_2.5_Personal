@@ -43,6 +43,7 @@ module ContainerElementBase_mod
     procedure(rmultinvinterface), deferred :: rmultinv
     procedure(lmultinvinterface), deferred :: lmultinv
     procedure(dump), deferred :: dump
+    procedure(dealloc), deferred :: dealloc
     end type ContainerElementBase
 
     abstract interface
@@ -79,6 +80,11 @@ module ContainerElementBase_mod
       subroutine dump(this)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
+      end subroutine
+      
+    subroutine dealloc(this)
+         import ContainerElementBase
+         class(ContainerElementBase), intent(inout) :: this
       end subroutine
     end interface
 end module ContainerElementBase_mod

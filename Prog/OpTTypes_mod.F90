@@ -44,6 +44,7 @@ module OpTTypes_mod
         
     contains
         procedure :: init => RealOpT_init
+        procedure :: dealloc => RealOpT_dealloc
         procedure :: simt => RealOpT_simt
         procedure :: rmult => RealOpT_rmult
         procedure :: lmult => RealOpT_lmult
@@ -61,6 +62,7 @@ module OpTTypes_mod
         Integer :: m, n, Ndim_hop
     contains
         procedure :: init => CmplxOpT_init
+        procedure :: dealloc => CmplxOpT_dealloc
         procedure :: simt => CmplxOpT_simt
         procedure :: rmult => CmplxOpT_rmult
         procedure :: lmult => CmplxOpT_lmult
@@ -84,7 +86,7 @@ contains
 
         Call  Op_exp(cg, Op_T, cinvmat)
         cg = Op_T%g
-        Call  Op_exp(cg, Op_T, cmat )
+        Call  Op_exp(cg, Op_T, cmat)
         ! copy over the data to the real storage
         this%mat = DBLE(cmat)
         this%invmat = DBLE(cinvmat)
@@ -97,6 +99,7 @@ contains
         ENDDO
         this%P => Op_T%P
         this%g = DBLE(Op_T%g)
+        deallocate(cmat, cinvmat)
     end subroutine
     
     subroutine RealOpT_simt(this, arg)
@@ -260,6 +263,18 @@ contains
         do i = 1, size(this%mat, 1)
         write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
         enddo
+    end subroutine
+    
+        subroutine CmplxOpT_dealloc(this)
+        class(CmplxOpT), intent(inout) :: this
+        
+        deallocate(this%mat, this%invmat)
+    end subroutine
+
+    subroutine RealOpT_dealloc(this)
+        class(RealOpT), intent(inout) :: this
+        
+        deallocate(this%mat, this%invmat)
     end subroutine
     
 end module OpTTypes_mod
