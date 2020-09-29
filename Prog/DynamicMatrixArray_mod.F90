@@ -105,16 +105,16 @@ end subroutine
 !
 !--------------------------------------------------------------------
 function DynamicMatrixArray_at(this, pos) result(itm)
-    class(DynamicMatrixArray) :: this
+    class(DynamicMatrixArray), intent(in) :: this
     integer, intent(in) :: pos
     class(ContainerElementBase), allocatable :: itm
-    itm = this%data(pos)%dat
+    allocate(itm, source=this%data(pos)%dat) ! improved backwards compatibility with this construct
 end function
 
 subroutine DynamicMatrixArray_back(this, itm)
-    class(DynamicMatrixArray) :: this
+    class(DynamicMatrixArray), intent(in) :: this
     class(ContainerElementBase), intent(out), allocatable :: itm
-    itm = this%data(this%tail-1)%dat
+    allocate(itm, source=this%data(this%tail-1)%dat) ! improved backwards compatibility with this construct
 end subroutine
 
 function DynamicMatrixArray_length(this) result(l)
