@@ -22,7 +22,7 @@ sim_dict = {"Model": "Hubbard",
             "Ham_T2"    : 0.0, 
             "ham_Tperp" : 0.0,  
             "Nsweep"    : 1000, 
-            "NBin"      : 1,
+            "NBin"      : 400,
             "Ltau"      : 1,
             "Mz"        : False,
             "NBins"     : 1000,# Maxent: Number of bins for Monte Carlo.

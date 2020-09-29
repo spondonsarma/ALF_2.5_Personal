@@ -1,7 +1,6 @@
 Name=(R_Om_st R_Om_en )
 
-#for File_sr in  "Green"  "SpinZ" "Den" ; do
-for File_sr in   "SpinZ"  ; do
+for File_sr in  "Green"  "SpinZ" "Den" ; do
 
 case $File_sr in
      "Green")
