@@ -115,10 +115,18 @@
           do nf = 1,N_FL
              call vec(nf)%init()
              do nc = 1,Ncheck
-                write (*,*) nf, nc
-                allocate(cmplxexp)!, realexp)
-                call cmplxexp%init(Op_T(nc,nf))
-                call Move_alloc(cmplxexp, dummy)
+             
+                if (Op_is_real(Op_T(nc,nf))) then
+                ! branch for real operators
+                    allocate(realexp)
+                    call realexp%init(Op_T(nc,nf))
+                    call Move_alloc(realexp, dummy) ! To satisfy fortran's type checking
+                else
+                ! branch for complex operators
+                    allocate(cmplxexp)
+                    call cmplxexp%init(Op_T(nc,nf))
+                    call Move_alloc(cmplxexp, dummy) ! To satisfy fortran's type checking
+                endif
                 call vec(nf)%pushback(dummy)
 
 !                 g = Op_T(nc,nf)%g
