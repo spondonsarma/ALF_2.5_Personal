@@ -175,8 +175,8 @@
 !           N2=size(In,2)
           do nc =  Ncheck,1,-1
 !          dummy = vec(nf)%at(nc)
-allocate(dummy, source = vec(nf)%at(nc))
-          call dummy%lmult(In)
+            allocate(dummy, source = vec(nf)%at(nc))
+            call dummy%lmult(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
@@ -224,9 +224,9 @@ allocate(dummy, source = vec(nf)%at(nc))
 !           N1=size(In,1)
 !           N2=size(In,2)
           do nc =  1,Ncheck
-          allocate(dummy, source = vec(nf)%at(nc))
+            allocate(dummy, source = vec(nf)%at(nc))
 !          dummy = vec(nf)%at(nc)
-          call dummy%lmultinv(In)
+            call dummy%lmultinv(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
@@ -253,9 +253,9 @@ allocate(dummy, source = vec(nf)%at(nc))
 !           N2=size(In,2)
 
           do nc =  1, Ncheck
-          allocate(dummy, source = vec(nf)%at(nc))
+            allocate(dummy, source = vec(nf)%at(nc))
 !                    dummy = vec(nf)%at(nc)
-          call dummy%rmult(In)
+            call dummy%rmult(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
@@ -281,9 +281,9 @@ allocate(dummy, source = vec(nf)%at(nc))
           N1=size(In,1)
           N2=size(In,2)
           do nc =  1, Ncheck
-          allocate(dummy, source = vec(nf)%at(nc))
+            allocate(dummy, source = vec(nf)%at(nc))
 !                    dummy = vec(nf)%at(nc)
-          call dummy%lmult(In)
+            call dummy%lmult(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
@@ -310,9 +310,9 @@ allocate(dummy, source = vec(nf)%at(nc))
 !           N2=size(In,2)
 
           do nc =  Ncheck,1,-1
-          allocate(dummy, source = vec(nf)%at(nc))
+            allocate(dummy, source = vec(nf)%at(nc))
 !                     dummy = vec(nf)%at(nc)
-          call dummy%rmultinv(In)
+            call dummy%rmultinv(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
