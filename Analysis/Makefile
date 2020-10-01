@@ -7,8 +7,11 @@ MODS=predefined_lattices.mod ana_mod.mod
 
 all: $(BINS)
 
-cov_tau_ph.F90 : cov_tau.F90
-	cpp -w -P -DPartHole cov_tau.F90 -o cov_tau_ph.F90
+Predefined_Latt_mod.o: ../Prog/Predefined_Latt_mod.F90
+			$(ALF_FC) -c -o $@ $(ALF_FLAGS_ANA) $<
+
+cov_tau_ph.o: cov_tau.F90
+	$(ALF_FC) -c -o $@ $(ALF_FLAGS_ANA) -DPartHole $<
 
 %.o: %.F90
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_ANA) $<
