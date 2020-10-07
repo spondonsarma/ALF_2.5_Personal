@@ -3,7 +3,7 @@
 OBJS= Hamiltonians/LRC_mod.o  Set_random.o control_mod.o Fields_mod.o Operator_mod.o WaveFunction_mod.o observables_mod.o \
       Predefined_Int_mod.o Predefined_Obs_mod.o Predefined_Latt_mod.o Predefined_Hop_mod.o  Predefined_Trial_mod.o \
       $(HAMILTONIAN) QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
-      Global_mod.o Wrapgr_mod.o tau_m_mod.o tau_p_mod.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o 
+      Global_mod.o Wrapgr_mod.o tau_m_mod.o tau_p_mod.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o
 MODS= control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observables.mod \
       operator_mod.mod predefined_int.mod predefined_lattices.mod predefined_obs.mod \
       predefined_hoppings.mod  predefined_trial.mod qdrp_mod.mod tau_m_mod.mod tau_p_mod.mod \
@@ -13,13 +13,16 @@ OHAM= Hamiltonians/Hamiltonian_Z2_Matter_mod.o \
 	Hamiltonians/Hamiltonian_Hubbard_mod.o \
 	Hamiltonians/Hamiltonian_Hubbard_Plain_Vanilla_mod.o \
 	Hamiltonians/Hamiltonian_tV_mod.o \
-      	Hamiltonians/Hamiltonian_LRC_mod.o
+  Hamiltonians/Hamiltonian_LRC_mod.o \
+	Hamiltonians/Hamiltonian_mod.o \
+	Hamiltonians/Hamiltonian_Hubbard_smod.o
 # Add your new Hamiltonian here by appending  Hamiltonians/Hamiltonian_My_New_Hamiltonian_mod.o to the above list.
 BINS= Z2_Matter.out Kondo.out KN_Kondo.out Hubbard.out Hubbard_Plain_Vanilla.out tV.out \
-      LRC.out
+      LRC.out ALF.out
 # Add your new Hamiltonian by appending My_New_Hamiltonian_mod.out to the above list
       
 all:
+	(make tidy program)
 	(make tidy Hubbard)
 	(make tidy Hubbard_Plain_Vanilla)
 	(make tidy tV)
@@ -32,6 +35,10 @@ all:
 #	./Git_config.sh
 #	(make Compile TARGET="My_New_Hamiltonian.out" HAMILTONIAN="My_New_Hamiltonian_mod.o")
 #Add you new Hamiltonian by uncommenting the above
+
+program:
+	./Git_config.sh
+	(make Compile TARGET="ALF.out" HAMILTONIAN="Hamiltonians/Hamiltonian_mod.o Hamiltonians/Hamiltonian_Hubbard_smod.o")
 
 Hubbard:
 	./Git_config.sh
@@ -66,7 +73,7 @@ Compile: $(OBJS)
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
-	rm -f $(OBJS) $(MODS) $(OHAM)
+	rm -f $(OBJS) $(MODS) $(OHAM) *.smod
 
 clean: tidy
 	rm -f $(BINS)
