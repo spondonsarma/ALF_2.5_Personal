@@ -1,5 +1,6 @@
 *.o
 *.mod
+*.smod
 *.out
 *.a
 Prog/git.h

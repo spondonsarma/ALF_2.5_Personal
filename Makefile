@@ -8,6 +8,8 @@ lib:
 	cd Libraries && $(MAKE)
 ana: lib
 	cd Analysis && $(MAKE)
+program: lib
+	cd Prog && $(MAKE) program
 Hubbard: lib
 	cd Prog && $(MAKE) Hubbard
 Hubbard_Plain_Vanilla: lib

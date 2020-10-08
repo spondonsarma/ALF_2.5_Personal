@@ -49,6 +49,7 @@ Module Global_mod
       Use Control
       Use Observables
       Use Fields_mod
+      Use Random_Wrap
       use iso_fortran_env, only: output_unit, error_unit
 
       Implicit none

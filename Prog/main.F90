@@ -124,6 +124,7 @@ Program Main
         Use UDV_State_mod
         Use Wrapgr_mod
         Use Fields_mod
+        Use WaveFunction_mod
         use iso_fortran_env, only: output_unit, error_unit
 #ifdef MPI
         Use mpi
@@ -340,7 +341,7 @@ Program Main
            Nt_sequential_end   = Size(OP_V,1)
            N_Global_tau        = 0
         else
-           !  Gives the possibility to set parameters in the Hamiltonian file 
+           !  Gives the possibility to set parameters in the Hamiltonian file
            Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
         endif
         

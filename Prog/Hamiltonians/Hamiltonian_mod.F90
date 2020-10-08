@@ -130,119 +130,47 @@
       use iso_fortran_env, only: output_unit, error_unit
       
     Implicit none
-      
-    Interface
-      module subroutine Ham_Set_hubbard()
-      end subroutine Ham_Set_hubbard
-
-      Subroutine  Alloc_obs(Ltau)
-        Implicit none
-        Integer, Intent(In) :: Ltau
-      End Subroutine Alloc_obs
-
-      subroutine Obser(GR,Phase,Ntau)
-        Implicit none
-        !Complex (kind=kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
-        Complex (kind=kind(0.d0)), INTENT(IN) :: GR(:,:,:)
-        Complex (kind=kind(0.d0)), Intent(IN) :: PHASE
-        Integer, INTENT(IN)          :: Ntau
-      end Subroutine Obser
     
-      Subroutine ObserT(NT, GT0, G0T, G00, GTT, PHASE)
-        Implicit none
-
-        Integer         , INTENT(IN) :: NT
-        !Complex (kind=kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL),
-        !G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
-        Complex (kind=kind(0.d0)), INTENT(IN) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:)
-        Complex (kind=kind(0.d0)), INTENT(IN) :: Phase
-      end Subroutine ObserT
+    private
+    public :: Ham_Set
       
-      Subroutine  Pr_obs(LTAU)
-        Implicit none
-        Integer,  Intent(In) ::  Ltau
-      end Subroutine Pr_obs
+      PROCEDURE(Alloc_obs_base), POINTER, public :: Alloc_obs
+      PROCEDURE(Obser_base), POINTER, public :: Obser
+      PROCEDURE(ObserT_base), POINTER, public :: ObserT
+      PROCEDURE(Pr_obs_base), POINTER, public :: Pr_obs
+      PROCEDURE(Init_obs_base), POINTER, public :: Init_obs
+      PROCEDURE(Global_move_tau_base), POINTER, public :: Global_move_tau
+      PROCEDURE(Hamiltonian_set_nsigma_base), POINTER, public :: Hamiltonian_set_nsigma
+      PROCEDURE(Overide_global_tau_sampling_parameters_base), POINTER, public :: Overide_global_tau_sampling_parameters
+      PROCEDURE(Global_move_base), POINTER, public :: Global_move
+      PROCEDURE(Delta_S0_global_base), POINTER, public :: Delta_S0_global
+      PROCEDURE(S0_base), POINTER, public :: S0
 
-      Subroutine  Init_obs(Ltau)
-        Implicit none
-        Integer, Intent(In) :: Ltau
-      end Subroutine Init_obs
-      
-      Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
-        &                     Flip_list, Flip_length,Flip_value,ntau)
-        Implicit none
-        Real (Kind = Kind(0.d0)),INTENT(OUT) :: T0_Proposal_ratio,  S0_ratio
-        Integer                , INTENT(OUT) :: Flip_list(:)
-        Real (Kind = Kind(0.d0)),INTENT(OUT) :: Flip_value(:)
-        Integer, INTENT(OUT) :: Flip_length
-        Integer, INTENT(IN)    :: ntau
-      end Subroutine Global_move_tau
+      Type (Operator),     dimension(:,:), allocatable, public :: Op_V
+      Type (Operator),     dimension(:,:), allocatable, public :: Op_T
+      Type (WaveFunction), dimension(:),   allocatable, public :: WF_L
+      Type (WaveFunction), dimension(:),   allocatable, public :: WF_R
+      Type (Fields), public        :: nsigma
+      Integer      , public        :: Ndim
+      Integer      , public        :: N_FL
+      Integer      , public        :: N_SUN
+      Integer      , public        :: Ltrot
+      Integer      , public        :: Thtrot
+      Logical      , public        :: Projector
+      Integer      , public        :: Group_Comm
+      Logical      , public        :: Symm
 
-      Subroutine  Hamiltonian_set_nsigma(Initial_field)
-        Implicit none
-        Real (kind=kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
-      end Subroutine Hamiltonian_set_nsigma
-      
-      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
-        Implicit none
-        Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
-      end Subroutine Overide_global_tau_sampling_parameters
-
-      function S0(n,nt,Hs_new)
-        Implicit none
-        Real(kind=kind(0.d0)) :: S0
-        Integer, Intent(IN) :: n
-        Integer, Intent(IN) :: nt
-        Real (kind=kind(0.d0)), Intent(In) :: Hs_new
-      end function S0
-      
-      Subroutine Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
-        Use Fields_mod
-        Implicit none
-        Real (kind=kind(0.d0)), intent(out) :: T0_Proposal_ratio, size_clust
-        Type (Fields),  Intent(IN)  :: nsigma_old
-      End Subroutine Global_move
-        
-      Function Delta_S0_global(Nsigma_old)
-        Use Fields_mod
-        Implicit none
-        Real(kind=kind(0.d0)) :: Delta_S0_global
-        Type (Fields),  INTENT(IN) :: nsigma_old
-      end Function Delta_S0_global
-    END Interface
-      
-      pointer :: Alloc_obs
-      pointer :: Obser
-      pointer :: ObserT
-      pointer :: Pr_obs
-      pointer :: Init_obs
-      pointer :: Global_move_tau
-      pointer :: Hamiltonian_set_nsigma
-      pointer :: Overide_global_tau_sampling_parameters
-      pointer :: Global_move
-      pointer :: Delta_S0_global
-      pointer :: S0
-
-
-      Type (Operator),     dimension(:,:), allocatable :: Op_V
-      Type (Operator),     dimension(:,:), allocatable :: Op_T
-      Type (WaveFunction), dimension(:),   allocatable :: WF_L
-      Type (WaveFunction), dimension(:),   allocatable :: WF_R
-      Type (Fields)        :: nsigma
-      Integer              :: Ndim
-      Integer              :: N_FL
-      Integer              :: N_SUN
-      Integer              :: Ltrot
-      Integer              :: Thtrot
-      Logical              :: Projector
-      Integer              :: Group_Comm
-      Logical              :: Symm
 
       !>    Privat Observables
-      Type (Obser_Vec ),  private, dimension(:), allocatable ::   Obs_scal
-      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
-      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
+      Type (Obser_Vec ), dimension(:), allocatable :: Obs_scal
+      Type (Obser_Latt), dimension(:), allocatable :: Obs_eq
+      Type (Obser_Latt), dimension(:), allocatable :: Obs_tau
 
+
+      interface
+        module subroutine Ham_Set_hubbard()
+        end subroutine Ham_Set_hubbard
+      end interface
     contains
 
     subroutine Ham_Set()
