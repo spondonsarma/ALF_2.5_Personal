@@ -13,9 +13,15 @@ OHAM= Hamiltonians/Hamiltonian_Z2_Matter_mod.o \
 	Hamiltonians/Hamiltonian_Hubbard_mod.o \
 	Hamiltonians/Hamiltonian_Hubbard_Plain_Vanilla_mod.o \
 	Hamiltonians/Hamiltonian_tV_mod.o \
-  Hamiltonians/Hamiltonian_LRC_mod.o \
-	Hamiltonians/Hamiltonian_mod.o \
-	Hamiltonians/Hamiltonian_Hubbard_smod.o
+	Hamiltonians/Hamiltonian_LRC_mod.o \
+	Hamiltonians/Hamiltonian_mod.o
+OHAM2= Hamiltonians/Hamiltonian_mod.o \
+	Hamiltonians/Hamiltonian_Hubbard_smod.o \
+	Hamiltonians/Hamiltonian_Hubbard_Plain_Vanilla_smod.o \
+	Hamiltonians/Hamiltonian_Kondo_smod.o \
+	Hamiltonians/Hamiltonian_LRC_smod.o \
+	Hamiltonians/Hamiltonian_tV_smod.o \
+	Hamiltonians/Hamiltonian_Z2_Matter_smod.o
 # Add your new Hamiltonian here by appending  Hamiltonians/Hamiltonian_My_New_Hamiltonian_mod.o to the above list.
 BINS= Z2_Matter.out Kondo.out KN_Kondo.out Hubbard.out Hubbard_Plain_Vanilla.out tV.out \
       LRC.out ALF.out
@@ -38,7 +44,7 @@ all:
 
 program:
 	./Git_config.sh
-	(make Compile TARGET="ALF.out" HAMILTONIAN="Hamiltonians/Hamiltonian_mod.o Hamiltonians/Hamiltonian_Hubbard_smod.o")
+	(make Compile TARGET="ALF.out" HAMILTONIAN="$(OHAM2)")
 
 Hubbard:
 	./Git_config.sh
@@ -73,7 +79,7 @@ Compile: $(OBJS)
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
-	rm -f $(OBJS) $(MODS) $(OHAM) *.smod
+	rm -f $(OBJS) $(MODS) $(OHAM) $(OHAM2) *.smod
 
 clean: tidy
 	rm -f $(BINS)
