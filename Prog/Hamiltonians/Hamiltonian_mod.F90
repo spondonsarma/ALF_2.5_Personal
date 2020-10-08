@@ -133,6 +133,9 @@
     
     private
     public :: Ham_Set
+#ifdef __PGI
+    public :: Obs_scal, Obs_eq, Obs_tau
+#endif
       
       PROCEDURE(Alloc_obs_base), POINTER, public :: Alloc_obs
       PROCEDURE(Obser_base), POINTER, public :: Obser
