@@ -163,20 +163,7 @@
       Type (Obser_Latt), dimension(:), allocatable :: Obs_tau
 
 
-      interface
-        module subroutine Ham_Set_hubbard()
-        end subroutine Ham_Set_hubbard
-        module subroutine Ham_Set_hubbard_Plain_Vanilla()
-        end subroutine Ham_Set_hubbard_Plain_Vanilla
-        module subroutine Ham_Set_Kondo()
-        end subroutine Ham_Set_Kondo
-        module subroutine Ham_Set_LRC()
-        end subroutine Ham_Set_LRC
-        module subroutine Ham_Set_tV()
-        end subroutine Ham_Set_tV
-        module subroutine Ham_Set_Z2_Matter()
-        end subroutine Ham_Set_Z2_Matter
-      end interface
+#include "Hamiltonians_interface.h"
     contains
 
     subroutine Ham_Set()
@@ -206,18 +193,7 @@
        CLOSE(5)
 
        Select Case (ham_name)
-       Case ('Hubbard')
-         call Ham_Set_hubbard()
-       Case ('Hubbard_Plain_Vanilla')
-         call Ham_Set_Hubbard_Plain_Vanilla()
-       Case ('Kondo')
-         call Ham_Set_Kondo()
-       Case ('LRC')
-         call Ham_Set_LRC()
-       Case ('tV')
-         call Ham_Set_tV()
-       Case ('Z2_Matter')
-         call Ham_Set_Z2_Matter()
+#include "Hamiltonians_case.h"
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           error stop 1
