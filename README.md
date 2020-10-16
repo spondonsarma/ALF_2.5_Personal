@@ -60,13 +60,10 @@ From the subfolder testsuite the tests can be run as follows
 
 
 ## LICENSE ##
-The various works that make up the ALF project are placed under licenses that put
-a strong emphasis on the attribution of the original authors and the sharing of the contained knowledge.
-To that end we have placed the ALF source code under the GPL version 3 license (see license.GPL and license.additional)
-and took the liberty as per GPLv3 section 7 to include additional terms that deal with the attribution
-of the original authors(see license.additional).
-The Documentation of the ALF project by the ALF contributors is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (see Documentation/license.CCBYSA)
-We mention that we link against parts of lapack which licensed under a BSD license(see license.BSD).
+The various works that make up the ALF project are placed under licenses that put a strong emphasis on the attribution of the original authors and the sharing of the contained knowledge.
+To that end we have placed the ALF source code under the GPL version 3 license and took the liberty as per GPLv3 section 7 to include additional terms that deal with the attribution
+of the original authors (see license.GPL and license.additional).
+The Documentation of the ALF project by the ALF contributors is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (see Documentation/license.CCBYSA). Note that we link against parts of lapack, which is licensed under a BSD license (see license.lapack).
 
 ## KNOWN ISSUES ##
 
