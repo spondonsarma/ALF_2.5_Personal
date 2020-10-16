@@ -8,6 +8,12 @@
 
 %\red{Summarize and change slightly -- or completely omit -- in order to reduce overlap with ALF 1.0 paper (unless this paper is to be published as a 2nd version of the first - especially since we'd prefer to have it self-contained).}//
 
+
+We start this section by deriving the detailed form of the partition function and outlining the computation of observables (Sec.~\ref{sec:part} - \ref{sec:reweight}). 
+Next, we present a number of update strategies, namely local updates, global updates, and parallel tempering (Sec.~\ref{sec:updating}). 
+We then discuss the Trotter error, both for symmetric and asymmetric decompositions (Sec.~\ref{sec:trotter}) and, finally, we describe the measures we have implemented to make the code numerically stable (Sec.~\ref{sec:stable}).
+%Finally, we discuss the autocorrelations and associated time scales during the Monte Carlo sampling process (Sec.~\ref{sec:sampling}). 
+
 %------------------------------------------------------------
 \subsection{Formulation of the method}  \label{sec:method}
 %------------------------------------------------------------
@@ -16,16 +22,9 @@ Our aim is to compute observables  for the general Hamiltonian  (\ref{eqn:genera
 We show below  how the grand-canonical partition function can be rewritten as 
 \begin{equation}
 Z = \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}
-= \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})
+= \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2}),
 \end{equation}
-and define the space of configurations  $C$.
-Note that the chemical potential term is already included in the definition of the one-body term ${\mathcal{\hat{H}}_{T}}$, see Eq. \eqref{eqn:general_ham_t}, of the general Hamiltonian.  
-
-The outline of this section is as follows. First, we derive the detailed form of the partition function and outline the computation of observables (Sec.~\ref{sec:part} - \ref{sec:reweight}). 
-Next, we present a number of update strategies, namely local updates, global updates, and parallel tempering (Sec.~\ref{sec:updating}). 
-We also describe the measures we have implemented to make the code numerically stable (Sec.~\ref{sec:stable}). Finally, we discuss the autocorrelations and associated time scales during the 
-Monte Carlo sampling process (Sec.~\ref{sec:sampling}). 
-
+and define the space of configurations  $C$. Note that the chemical potential term is already included in the definition of the one-body term ${\mathcal{\hat{H}}_{T}}$, see Eq. \eqref{eqn:general_ham_t}, of the general Hamiltonian.  
 The essential ingredients of the auxiliary-field quantum Monte Carlo implementation in the ALF package are the following:
 \begin{itemize}
 \item  We discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $. Generically this introduces a systematic Trotter error of $\mathcal{O}(\Delta \tau)^2$  \cite{Fye86}. 
