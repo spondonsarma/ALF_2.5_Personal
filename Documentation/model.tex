@@ -118,7 +118,6 @@ All in all, the partition function is given by:
      \right) \right]^{N_{\mathrm{col}}} + \mathcal{O}(\Delta\tau^{2}) \nonumber \\ 
      & \equiv  \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})\;.
 \end{align}
-\red{We should define $\alpha$.\\}
 In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{\mathrm{col}}$. 
 This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions are color independent, again for each given  configuration $C$.
 
@@ -227,9 +226,9 @@ The negative sign problem is still an issue because the average sign is a ratio 
 \begin{equation}
  \langle \text{sign} \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta},
 \end{equation}
-where $\Delta $ is intensive positive quantity and $N \beta$ denotes the  Euclidean volume.    In a Monte Carlo simulation the  error scales as $ 1/\sqrt{T_{CPU}} $   where $T_{CPU}$ corresponds to the computational  time.  Since the error on the  average sign has to be much smaller than the average sign itself,   one sees that:
+where $\Delta $ is intensive positive quantity and $N \beta$ denotes the  Euclidean volume.    In a Monte Carlo simulation the  error scales as $ 1/\sqrt{T_\text{CPU}} $   where $T_\text{CPU}$ corresponds to the computational  time.  Since the error on the  average sign has to be much smaller than the average sign itself,   one sees that:
 \begin{equation}
-	T_{CPU}  \gg e^{2 \Delta N \beta}.
+	T_\text{CPU}  \gg e^{2 \Delta N \beta}.
 \end{equation}   
 Two comments are in order. First, the presence of a sign problem invariably leads to an exponential increase of CPU time as a function of the Euclidean volume. And second,  $\Delta$ is formulation dependent.  
 For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard} has a much more severe sign problem than the formulation (also presented in Sec.~\ref{sec:hubbard}) where the HS field couples to the $z$-component of the magnetization. 
