@@ -285,7 +285,7 @@
           N2=size(In,2)
           do nc =  1, Ncheck
             allocate(dummy, source = vec(nf)%at(nc))
-                    dummy = vec(nf)%at(nc)
+!                    dummy = vec(nf)%at(nc)
             call dummy%lmult(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
