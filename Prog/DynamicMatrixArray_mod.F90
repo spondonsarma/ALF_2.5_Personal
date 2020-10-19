@@ -88,7 +88,6 @@ subroutine DynamicMatrixArray_pushback(this, itm)
         deallocate(temp)
         this%avamem = 2*this%avamem
     endif
-!    call move_alloc(itm, this%data(this%tail)%dat)
     this%data(this%tail)%dat => itm ! let the pointer point to the object
     this%tail = this%tail + 1
 end subroutine
@@ -108,14 +107,12 @@ function DynamicMatrixArray_at(this, pos) result(itm)
     class(DynamicMatrixArray), intent(in) :: this
     integer, intent(in) :: pos
     class(ContainerElementBase), pointer :: itm
-!    allocate(itm, source=this%data(pos)%dat) ! improved backwards compatibility with this construct
     itm => this%data(pos)%dat
 end function
 
 subroutine DynamicMatrixArray_back(this, itm)
     class(DynamicMatrixArray), intent(in) :: this
     class(ContainerElementBase), intent(out), pointer :: itm
-!    allocate(itm, source=this%data(this%tail-1)%dat) ! improved backwards compatibility with this construct
     itm => this%data(this%tail-1)%dat
 end subroutine
 

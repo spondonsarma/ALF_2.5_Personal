@@ -152,7 +152,6 @@
           enddo
 
           Zero = 1.E-12
-!          deallocate(cmplxexp, realexp)
         end subroutine Hop_mod_init
 
 !--------------------------------------------------------------------
@@ -167,19 +166,12 @@
           Integer, intent(IN) :: nf
 
           !Local
-          Integer :: nc, N1, N2
+          Integer :: nc
           class(ContainerElementBase), pointer :: dummy
 
-!           N1=size(In,1)
-!           N2=size(In,2)
           do nc =  Ncheck,1,-1
-          dummy => vec(nf)%at(nc)
-!            allocate(dummy, source = vec(nf)%at(nc))
+            dummy => vec(nf)%at(nc)
             call dummy%lmult(In)
-!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-!                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
-!              Endif
-!            deallocate(dummy)
           Enddo
         end Subroutine Hop_mod_mmthr
 
@@ -218,19 +210,12 @@
           Integer :: nf
 
           !Local
-          Integer :: nc , N1, N2
+          Integer :: nc
           class(ContainerElementBase), pointer :: dummy
 
-!           N1=size(In,1)
-!           N2=size(In,2)
           do nc =  1,Ncheck
-!            allocate(dummy, source = vec(nf)%at(nc))
-          dummy => vec(nf)%at(nc)
+            dummy => vec(nf)%at(nc)
             call dummy%lmultinv(In)
-!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-!                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
-!              Endif
-!            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthr_m1
@@ -247,20 +232,12 @@
           Integer :: nf
 
           !Local
-          Integer :: nc, N1, N2
+          Integer :: nc
           class(ContainerElementBase), pointer :: dummy
 
-!           N1=size(In,1)
-!           N2=size(In,2)
-
           do nc =  1, Ncheck
-!            allocate(dummy, source = vec(nf)%at(nc))
                 dummy => vec(nf)%at(nc)
             call dummy%rmult(In)
-!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-!                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
-!              Endif
-!            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthl
@@ -277,19 +254,12 @@
           Integer :: nf
 
           !Local
-          Integer :: nc, N1, N2
+          Integer :: nc
           class(ContainerElementBase), pointer :: dummy
 
-          N1=size(In,1)
-          N2=size(In,2)
           do nc =  1, Ncheck
-!            allocate(dummy, source = vec(nf)%at(nc))
             dummy => vec(nf)%at(nc)
             call dummy%lmult(In)
-!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-!                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
-!              Endif
-!            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthlc
@@ -306,20 +276,12 @@
           Integer :: nf
 
           !Local
-          Integer :: nc, N1, N2
+          Integer :: nc
           class(ContainerElementBase), pointer :: dummy
 
-!           N1=size(In,1)
-!           N2=size(In,2)
-
           do nc =  Ncheck,1,-1
-!            allocate(dummy, source = vec(nf)%at(nc))
             dummy => vec(nf)%at(nc)
             call dummy%rmultinv(In)
-!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-!                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
-!              Endif
-!            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthl_m1
