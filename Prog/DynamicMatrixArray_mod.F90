@@ -38,7 +38,7 @@ module DynamicMatrixArray_mod
     implicit none
 
     type :: OpTBasePtrWrapper
-        class(ContainerElementBase), allocatable :: dat
+        class(ContainerElementBase), pointer :: dat => null()
     end type
 
     type :: DynamicMatrixArray
@@ -73,7 +73,7 @@ end subroutine
 !itm gets deallocated in the process
 subroutine DynamicMatrixArray_pushback(this, itm)
     class(DynamicMatrixArray) :: this
-    class(ContainerElementBase), intent(inout), allocatable :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
+    class(ContainerElementBase), intent(in), target :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
 
@@ -88,8 +88,8 @@ subroutine DynamicMatrixArray_pushback(this, itm)
         deallocate(temp)
         this%avamem = 2*this%avamem
     endif
-    call move_alloc(itm, this%data(this%tail)%dat)
-!    this%data(this%tail)%dat = itm
+!    call move_alloc(itm, this%data(this%tail)%dat)
+    this%data(this%tail)%dat => itm ! let the pointer point to the object
     this%tail = this%tail + 1
 end subroutine
 
@@ -107,14 +107,16 @@ end subroutine
 function DynamicMatrixArray_at(this, pos) result(itm)
     class(DynamicMatrixArray), intent(in) :: this
     integer, intent(in) :: pos
-    class(ContainerElementBase), allocatable :: itm
-    allocate(itm, source=this%data(pos)%dat) ! improved backwards compatibility with this construct
+    class(ContainerElementBase), pointer :: itm
+!    allocate(itm, source=this%data(pos)%dat) ! improved backwards compatibility with this construct
+    itm => this%data(pos)%dat
 end function
 
 subroutine DynamicMatrixArray_back(this, itm)
     class(DynamicMatrixArray), intent(in) :: this
-    class(ContainerElementBase), intent(out), allocatable :: itm
-    allocate(itm, source=this%data(this%tail-1)%dat) ! improved backwards compatibility with this construct
+    class(ContainerElementBase), intent(out), pointer :: itm
+!    allocate(itm, source=this%data(this%tail-1)%dat) ! improved backwards compatibility with this construct
+    itm => this%data(this%tail-1)%dat
 end subroutine
 
 function DynamicMatrixArray_length(this) result(l)
