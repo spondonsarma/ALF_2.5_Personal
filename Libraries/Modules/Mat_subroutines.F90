@@ -1412,7 +1412,7 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
           END SELECT
 
         ELSE
-          write(error_unit,*) 'ZSLHEMM: Illegal argument for side: It is not one of [R,r,L,l] !'
+          write(error_unit,*) 'ZDSLSYMM: Illegal argument for side: It is not one of [R,r,L,l] !'
           error stop 1
         ENDIF
 
