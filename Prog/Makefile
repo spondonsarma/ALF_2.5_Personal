@@ -63,7 +63,7 @@ Compile: $(OBJS)
 
 .SUFFIXES: .F90 .f
 .f.o .F90.o:
-	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) -O0 -g $<
+	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
 	rm -f $(OBJS) $(MODS) $(OHAM)
