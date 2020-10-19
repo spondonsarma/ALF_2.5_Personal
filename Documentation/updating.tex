@@ -21,7 +21,7 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 		Updating schemes             &  Type            &  Description \\
 		\midrule
 %		Sequential Sweeps            &   Default        &  Unless overruled, the program carries out sequential, single spin-flip sweeps  \\ 
-		\texttt{Propose\_S0}         &  Logical         &  If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action. \\
+		\texttt{Propose\_S0}         &  Logical         &  If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
 		\texttt{Global\_tau\_moves}  &  Logical         &  Whether to carry out  global moves on a single time slice.
 		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{Nt\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
 		\texttt{Global\_moves}      &  Logical          &   If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
