@@ -180,6 +180,7 @@
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
+            deallocate(dummy)
           Enddo
         end Subroutine Hop_mod_mmthr
 
@@ -230,6 +231,7 @@
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
+            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthr_m1
@@ -259,6 +261,7 @@
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
+            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthl
@@ -282,11 +285,12 @@
           N2=size(In,2)
           do nc =  1, Ncheck
             allocate(dummy, source = vec(nf)%at(nc))
-!                    dummy = vec(nf)%at(nc)
+                    dummy = vec(nf)%at(nc)
             call dummy%lmult(In)
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
+            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthlc
@@ -316,6 +320,7 @@
 !              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
 !                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1(:,:,nc,nf),Op_T(nc,nf)%P,In)
 !              Endif
+            deallocate(dummy)
           Enddo
 
         end Subroutine Hop_mod_mmthl_m1
