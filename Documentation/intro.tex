@@ -133,7 +133,11 @@ In Sec.~\ref{sec:defT0},    we describe the projective version of the algorithm,
 One of the key challenges in  Monte Carlo methods is to  adequately evaluate the stochastic error.  In Sec.~\ref{sec:sampling}  we provide an explicit example  of how to correctly estimate the   error. 
 
 Section \ref{sec:imp} is devoted to the data structures that are needed to implement the model, as well as to the input and output file structure.   
-The data structure includes an \texttt{Operator} type to optimally work with sparse Hermitian matrices, a \texttt{Lattice} type  to define one- and two-dimensional Bravais lattices, a generic \texttt{Fields} type for the auxiliary fields, two \texttt{Observable} types to handle scalar observables (e.g., total energy) and equal-time or time-displaced two-point correlation functions (e.g., spin-spin correlations) and finally a \texttt{Wavefunction} type  to define the trial wave function in the projective code.    At the end of this section we comment on the file structure.
+The data structures include an \texttt{Operator} type to optimally work with sparse Hermitian matrices,
+a \texttt{Lattice} type  to define one- and two-dimensional Bravais lattices,
+a generic \texttt{Fields} type for the auxiliary fields,
+two \texttt{Observable} types to handle scalar observables (e.g., total energy) and equal-time or time-displaced two-point correlation functions (e.g., spin-spin correlations) and finally a \texttt{Wavefunction} type  to define the trial wave function in the projective code.
+At the end of this section we comment on the file structure.
 
 In Sec.~\ref{sec:running}   we provide details on running the code  using the shell.  As an alternative the user can download a separate project, \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF}{pyALF}   that provides a convenient python interface as well as  Jupyter  notebooks. 
 
