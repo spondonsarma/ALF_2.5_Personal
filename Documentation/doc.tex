@@ -1,8 +1,12 @@
+% !TeX document-id = {2fc16d90-fe07-4ec8-91d5-5acebdd2ee85}
+% !BIB TS-program = bibtex
+
 % Copyright (c) 2016-2020 The ALF project.
 % This is the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
+
 
 
 \documentclass[10pt,Arial]{scrartcl}
@@ -38,7 +42,7 @@
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
 \usepackage{etoolbox}
-\usepackage[toc,page]{appendix}
+\usepackage[page,title,toc]{appendix}
 %\usepackage[tocindentauto,tocgraduated]{tocstyle}
 %\usetocstyle{KOMAlike}
 
@@ -173,14 +177,17 @@ website \url{alf.physik.uni-wuerzburg.de}.
 \input{conclusion}
 \addcontentsline{toc}{section}{Acknowledgments}
 \input{acknowledgment}
-\addcontentsline{toc}{section}{Appendix}
-\appendix
+%%%%%%%%\addcontentsline{toc}{section}{Appendices}
+%%%%%%%%\appendix
 %\gdef\thesubsection{Appendix~\Alph{subsection}}
 \gdef\thesubsection{\Alph{subsection}}
-\makeatletter
+%\makeatletter
 %\addtocontents{toc}{\protect\patchcmd{\protect\l@section}{1.5em}{\widthof{\textbf{Appendix X\quad}}}{}{}}
-\makeatother
+%\makeatother
+\begin{appendices}
 \input{performance}
+\input{license}
+\end{appendices}
 
 %{\color{red} OLD STUFF} 
 %\section{Examples}\label{sec:ex}
@@ -195,7 +202,7 @@ website \url{alf.physik.uni-wuerzburg.de}.
 \bibliographystyle{./prXsty} 
 \bibliography{./fassaad,./doc}
 \printindex
-\addcontentsline{toc}{section}{License}
-\input{license}
+%\addcontentsline{toc}{section}{License}
+%\input{license}
 
 \end{document}
