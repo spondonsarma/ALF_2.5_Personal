@@ -671,8 +671,7 @@
 
           Implicit none
           
-          Complex (kind=kind(0.d0)), INTENT(IN) :: GR(:,:,:)
-          ! Complex (kind=kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
+          Complex (kind=kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
 
@@ -778,8 +777,7 @@
           Implicit none
 
           Integer         , INTENT(IN) :: NT
-          Complex (kind=kind(0.d0)), INTENT(IN) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:)
-          ! GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
+          Complex (kind=kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
 
           !Locals
