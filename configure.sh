@@ -4,7 +4,8 @@ STABCONFIGURATION=""
 
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
-INTELOPTFLAGS="-cpp -O3 "
+INTELOPTFLAGS="-cpp -O3"
+INTELOPTFLAGS="$INTELOPTFLAGS -no-wrap-margin"
 #INTELOPTFLAGS="$INTELOPTFLAGS -traceback"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
@@ -161,12 +162,12 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    #module switch mpi.intel  mpi.intel/2018
-    #module switch intel intel/18.0
-    #module switch mkl mkl/2018
-    module load  mpi.intel
-    module load intel
-    module load mkl
+    module switch mpi.intel  mpi.intel/2019
+    module switch intel intel/19.0
+    module switch mkl mkl/2019
+    #module load  mpi.intel
+    #module load intel
+    #module load mkl
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
