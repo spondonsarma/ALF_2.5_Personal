@@ -704,7 +704,7 @@ Program Main
            Call Wrapgr_dealloc
         endif
 
-        Call Control_Print(Group_Comm)
+        Call Control_Print(Group_Comm,Langevin)
 
 #if defined(MPI)
         If (Irank_g == 0 ) then

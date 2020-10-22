@@ -147,6 +147,7 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm
+      Logical              :: Langevin=.false.
 
 
       Type (Lattice),       private, target :: Latt
@@ -824,6 +825,48 @@
         end Subroutine OBSERT
 
 #include "Hamiltonian_Hubbard_include.h"
+
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Langevin dynamics  update.   
+!> On input the fermion forces are given. On output the field nsigma is updated.
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_update( Forces, Phase )
+
+          Implicit none
+
+          Complex (Kind=Kind(0.d0)), Intent(in),  dimension(:,:) :: Forces
+          Complex (Kind=Kind(0.d0)), Intent(in) :: Phase
+          
+          !Local
+!!$          Real    (Kind=Kind(0.d0))  :: Xmax, X
+!!$          Integer                    :: N_op, n, nt
+!!$          N_op = size(nsigma%f,1)
+!!$
+!!$          Xmax = 0.d0
+!!$          do n = 1,N_op
+!!$             do nt = 1,Ltrot
+!!$                X = abs(Real(Forces(n,nt), Kind(0.d0)))
+!!$                if (X > Xmax) Xmax = X
+!!$             enddo
+!!$          enddo
+!!$          Running_Delta_tau_Langevin =   Delta_tau_Langevin
+!!$          If ( Xmax >  Max_Force ) &
+!!$               &  Running_Delta_tau_Langevin  = Max_Force *  Delta_tau_Langevin / Xmax
+!!$          do n = 1,N_op
+!!$             do nt = 1,Ltrot
+!!$                nsigma%f(n,nt)   = nsigma%f(n,nt)  -   ( nsigma%f(n,nt) +  real(Forces(n,nt),kind(0.d0)) )*Running_Delta_tau_Langevin + &
+!!$                     & sqrt(2.d0*Running_Delta_tau_Langevin )* rang_wrap()
+!!$             enddo
+!!$          enddo
+          
+          
+        end Subroutine Ham_Langevin_update
+
 
 
     end Module Hamiltonian
