@@ -115,7 +115,7 @@ The first   argument of the function \texttt{S0}, namely \texttt{n},  correspond
 \texttt{Op\_V(n,1)}. If \texttt{Op\_V(n,1)\%type = 2} then   \texttt{S0(n,nt)}  returns 1. Note that \texttt{type=2} refers to spins that stem from a  HS transformation. 
 If however  \texttt{Op\_V(n,1)\%type = 1}  then function \texttt{S0}  returns
 \begin{equation}
-\frac{e^{-S_{0,I} \left(  s_{1,\tau},  \cdots,  - s_{n,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_{0,I}  \left(  s_{1,\tau},  \cdots,   s_{n,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
+\frac{e^{-S_0 \left(  s_{1,\tau},  \cdots,  - s_{n,\tau},  \cdots s_{M_I,\tau}   \right) } }{e^{-S_0  \left(  s_{1,\tau},  \cdots,   s_{n,\tau},  \cdots s_{M_I,\tau}   \right)   } }	
 \end{equation}
 That is,   if $n \leq 2* \texttt{Ndim} $,    $ \texttt{S0(n,nt)} $  returns the ratio of the new weight to the old weight  of the  Ising Hamiltonian upon flipping a single Ising spin $ s_{n,\tau} $.  Otherwise, $ \texttt{S0(n,nt)} $   returns unity. 
 

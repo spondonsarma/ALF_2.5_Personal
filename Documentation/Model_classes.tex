@@ -52,7 +52,9 @@ If the variable \texttt{Mz} is set to \texttt{.True.}, then the code    will req
 \end{align}
 In this case, the flavor index \texttt{N\_FL}   takes the value 2. Cleary at $N=2$, both modes  correspond  to the Hubbard model.  For $N$  even and $N > 2$  the models differ.  In particular  in the latter  Hamiltonian the U(N) symmetry is broken down to  U(N/2) $\otimes $U(N/2).  
 
-Since this model class  works for all predefined lattices  (see Fig.~\ref{fig_predefined_lattices})  is includes the SU(N) periodic Anderson model on   the square and Honeycomb lattices.     Finally,  we note that the executable for this class is given by \texttt{Hubbard.out}. 
+Since this model class  works for all predefined lattices  (see Fig.~\ref{fig_predefined_lattices}) 
+it includes the SU(N) periodic Anderson model on the square and Honeycomb lattices.
+Finally, we note that the executable for this class is given by \texttt{Hubbard.out}.
 
 As an example,  we can consider the periodic Anderson model.   Here we choose  the \texttt{Bilayer\_square}  lattice \texttt{Ham\_U} =  \texttt{Ham\_T2} $= 0$,  \texttt{Ham\_U2}$=U_f$,  \texttt{Ham\_tperp}$=V$  and \texttt{Ham\_T}$=1$.   The  pyALF  based python script    \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_PAM.py}{\texttt{Hubbard\_PAM.py}}  produces the data  shown in  Fig.~\ref{Fig:PAM}  for the L=8 lattice.  
 
