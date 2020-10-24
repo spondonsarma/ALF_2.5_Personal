@@ -318,9 +318,9 @@ where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ latti
 		\texttt{Obs\%N}                       &  Int.        &   Number of measurements &    $+1$\\
 		\texttt{Obs\%Ave\_sign}  
 		&  Real  &    Cumulated sign [Eq.~(\ref{eqn:sign_rw})] & $\text{sign}(C)$  \\
-		\texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},$}        & Compl.      &    Cumul.  correl. funct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \vspace{-4pt} \\
+		\texttt{Obs\%Obs\_latt($\vec{i}-\vec{j},$}        & Complex      &    Cumul.  correl. funct. [Eq.~(\ref{eqn:obs_rw})] &  $ \langle \langle \hat{O}_{\vec{i},\alpha} (\tau) \hat{O}_{\vec{j},\beta} \rangle \rangle_{C} \; \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{sign}(C) $ \vspace{-4pt} \\
 		\hfill \texttt{$\tau,\alpha,\beta$)} & & & \\
-		\texttt{Obs\%Obs\_latt0($\alpha$)}        & Compl.      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
+		\texttt{Obs\%Obs\_latt0($\alpha$)}        & Complex      &    Cumul. expect. value [Eq.~(\ref{eqn:obs_rw})] &   $ \langle \langle \hat{O}_{\vec{i},\alpha} \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \text{ sign }(C) $ \\
 		\texttt{Obs\%File\_Latt}           &  Char.    &    Name of output file  &
 		\\
 		\texttt{Obs\%Latt} & Lattice & Bravais lattice [Tab.~\ref{table:lattice}] \\
@@ -329,9 +329,9 @@ where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ latti
 		\texttt{Obs\%Latt\_unit} & Unit\_cell & Unit cell [Tab.~\ref{table:unit_cell}] \\
 		& pointer
 		\\
-		\texttt{Obs\%dtau} & Real & Imaginary time step.
+		\texttt{Obs\%dtau} & Real & Imaginary time step
 		\\
-		\texttt{Obs\%Channel} & Char. & Channel for Maximum Entropy.
+		\texttt{Obs\%Channel} & Char. & Channel for Maximum Entropy
 		\\\bottomrule
 	\end{tabular}
 	\caption{Components of a variable of type \texttt{Obser\_latt} named \texttt{Obs}.
