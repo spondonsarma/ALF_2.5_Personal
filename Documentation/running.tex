@@ -57,7 +57,7 @@ make
 \end{lstlisting}
 Related directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
 
-A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configure.sh} sets environment variables as described above.):
+A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configure.sh} sets environment variables as described above):
 \begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]
 
 source configure.sh Devel serial

@@ -336,7 +336,7 @@ where $\alpha$ and $\beta$ are orbital indices and $\vec{i}$ and $\vec{j}$ latti
 	\end{tabular}
 	\caption{Components of a variable of type \texttt{Obser\_latt} named \texttt{Obs}.
 	Be aware: When creating the observable with the subroutine \texttt{Obser\_Latt\_make},
-	\texttt{Latt} and \texttt{Latt\_unit} don't get copied but linked, meaning changing them after making the 
+	\texttt{Latt} and \texttt{Latt\_unit} do not get copied but linked, meaning changing them after making the 
 	observable still affects the observable.}
 	\label{table:Obser_latt}
 \end{center}
@@ -377,7 +377,7 @@ The projective algorithm (Sec.~\ref{sec:defT0}) requires a pair of trial wave fu
 		\begin{tabular}{@{} p{0.13\columnwidth} p{0.1\columnwidth} p{0.71\columnwidth}  @{}}\toprule
 			Variable               &  Type     &  Description \\\midrule
 			\texttt{WF\%P(:,:)}    &  Complex  &  P is an $\texttt{Ndim}\times\texttt{N\_part}$ matrix, where \texttt{N\_part} is the number of particles\\
-			\texttt{WF\%Degen}     &  Real     &  It stores the energy difference between the last occupied and fist un-occupied single particle state and can be used for checking for degeneracy\\\bottomrule
+			\texttt{WF\%Degen}     &  Real     &  It stores the energy difference between the last occupied and first un-occupied single particle state and can be used to check for degeneracy\\\bottomrule
 		\end{tabular}
 		\caption{Components of a variable of type \texttt{WaveFunction} named \texttt{WF}.}
 		\label{table:wavefunction}
