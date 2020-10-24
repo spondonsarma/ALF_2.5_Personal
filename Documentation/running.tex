@@ -86,7 +86,7 @@ To run serially the simulation for a given model, for instance one of the plain 
 \begin{lstlisting}[style=bash]
 ./Prog/Hubbard_Plain_Vanilla.out
 \end{lstlisting}
-In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a GNU-compiled Kondo model (Sec.~\ref{sec:kondo}) can be run in parallel by issuing  
+In order to run a different model, the corresponding executable should be used and, for running with parallelization, the appropriate MPI execution command should be called. For instance, a Kondo model (Sec.~\ref{sec:kondo}) compiled with OpenMPI can be run in parallel by issuing  
   \begin{lstlisting}[style=bash]
 orterun -np <number of processes> ./Prog/Kondo_Honey.out
 \end{lstlisting}
@@ -125,7 +125,7 @@ The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, 
 		\texttt{cov\_tau(name)}   &  
 		  The bin file \texttt{name}, which should have suffix \texttt{\_tau}, is read in, and the directories \texttt{X\_kx\_ky} are produced for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
 		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_dat}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file (see Sec.~\ref{sec:input}). Also, a directory \texttt{X\_R0} for the local time displaced correlation function is generated.  \\                         
-		& For particle-hole, imaginary-time correlation functions (\texttt{Channel="PH"}) such as Spin and Charge, we use the fact that these correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.
+		& For particle-hole, imaginary-time correlation functions (\texttt{Channel="PH"}) such as spin and charge, we use the fact that these correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.
 		\\\bottomrule
 	\end{tabular}
 	\caption{Overview of analysis subroutines called within the program \texttt{ana.out}. \label{table:analysis_programs}}
@@ -224,7 +224,7 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 			\texttt{nskip}       & Should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time) \\
 			\texttt{Nrebin}      & Can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used\\
 			Stabilization scheme & Use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}) \\
-			Parallelism          & For some models and systems, restricting parallelism in OpenBLAS can improve performance: try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell \\\bottomrule
+			Parallelism          & For some models and systems, restricting parallelism in your BLAS library can improve performance: for OpenBLAS try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell \\\bottomrule
 		\end{tabular}
 		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \label{table:tips}}
 	\end{center}
@@ -233,9 +233,5 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 
 In particular, for the stabilization of the involved matrix multiplications we rely on routines from LAPACK. Notice that results are very likely to change
 %significantly
-depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.6.1 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configure.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}. The performance of the package is further discussed in Sec.~\ref{sec:performance}.
-
-
-
-
+depending on the specific implementation of the library used\footnote{The linked library should implement at least the LAPACK-3.4.0 interface.}. In order to deal with this possibility, we offer a simple baseline which can be used as a quick check as tho whether results depend on the library used for linear algebra routines. Namely, we have included QR-decomposition related routines of the LAPACK-3.7.0 reference implementation from \url{http://www.netlib.org/lapack/}, which you can use by running the script \path{configure.sh}, (described in Sec.~\ref{sec:running}), with the flag \texttt{STAB1} and recompiling ALF\footnote{This flag may trigger compiling issues, in particular, the Intel ifort compiler version 10.1 fails for all optimization levels.}. The stabilization flags available are described in Tables~\ref{table:configureHPC} and~\ref{table:tips}. The performance of the package is further discussed in Sec.~\ref{sec:performance}.
 
