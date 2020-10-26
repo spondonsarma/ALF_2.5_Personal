@@ -66,19 +66,19 @@ This type \path{Operator} bundles several components, listed in Table \ref{table
 	\begin{center}
     \begin{tabular}{@{} l l l @{}}\toprule
     Variable & Type & Description \\\midrule
-    \hl{\texttt{Op\_X\%N}}       & Integer     &  Effective dimension $N$ \\
-    \hl{\texttt{Op\_X\%O}}       & Complex    &  Matrix  $\bm{O}$  of dimension $N \times N$\\
-    \hl{\texttt{Op\_X\%P}}       & Integer   &  Matrix $\bm{P}$  encoded as a vector of dimension $N$\\
-    \hl{\texttt{Op\_X\%g}}       & Complex    &  Coupling strength $g$ \\  
-    \hl{\texttt{Op\_X\%alpha}}   & Complex  &  Constant $\alpha$ \\
-    \hl{\texttt{Op\_X\%type}}    & Integer   &  Sets the type of HS transformation (1: Ising; 2: discrete\\
+    \hl{\texttt{Op\_X\%N}}       & \texttt{int}     &  Effective dimension $N$ \\
+    \hl{\texttt{Op\_X\%O}}       & \texttt{cmplx}   &  Matrix  $\bm{O}$  of dimension $N \times N$\\
+    \hl{\texttt{Op\_X\%P}}       & \texttt{int}     &  Matrix $\bm{P}$  encoded as a vector of dimension $N$\\
+    \hl{\texttt{Op\_X\%g}}       & \texttt{cmplx}   &  Coupling strength $g$ \\  
+    \hl{\texttt{Op\_X\%alpha}}   & \texttt{cmplx}   &  Constant $\alpha$ \\
+    \hl{\texttt{Op\_X\%type}}    & \texttt{int}     &  Sets the type of HS transformation (1: Ising; 2: discrete\\
              &   &    HS for perfect-square term; 3: continuous real field.)  \\ 
-    \texttt{Op\_X\%diag}  & Logical & True if   $\bm{O}$  is  diagonal  \\
-    \texttt{Op\_X\%U}            & Complex &  Matrix containing the eigenvectors of $\bm{O}$  \\
-    \texttt{Op\_X\%E}            & Real &  Eigenvalues of $\bm{O}$ \\
-    \texttt{Op\_X\%N\_non\_zero} & Integer &  Number of non-vanishing eigenvalues of $\bm{O}$  \\
-    \texttt{Op\_X\%M\_exp}    & Complex &  Stores $ \texttt{M\_exp}(:,:,s) = e^{g  \phi(s,\texttt{type}) \bm{O}(:,:)} $  \\
-    \texttt{Op\_X\%E\_exp}    & Complex &  Stores $ \texttt{E\_exp}(:,s) = e^{g  \phi(s,\texttt{type}) \bm{E}(:)} $ 
+    \texttt{Op\_X\%diag}         & \texttt{logical} &  True if   $\bm{O}$  is  diagonal  \\
+    \texttt{Op\_X\%U}            & \texttt{cmplx}   &  Matrix containing the eigenvectors of $\bm{O}$  \\
+    \texttt{Op\_X\%E}            & \texttt{dble}    &  Eigenvalues of $\bm{O}$ \\
+    \texttt{Op\_X\%N\_non\_zero} & \texttt{int}     &  Number of non-vanishing eigenvalues of $\bm{O}$  \\
+    \texttt{Op\_X\%M\_exp}       & \texttt{cmplx}   &  Stores $ \texttt{M\_exp}(:,:,s) = e^{g  \phi(s,\texttt{type}) \bm{O}(:,:)} $  \\
+    \texttt{Op\_X\%E\_exp}       & \texttt{cmplx}   &  Stores $ \texttt{E\_exp}(:,s) = e^{g  \phi(s,\texttt{type}) \bm{E}(:)} $ 
      \\\bottomrule
    \end{tabular}
    \caption{Member variables of the \texttt{Operator}  type. 
@@ -107,7 +107,7 @@ The ALF includes three different types of fields.
 %For an Ising term, we store type \texttt{t=1}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=s_{k,\tau} = \pm 1$. 
 %In the case of a perfect-square term, the fields results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{t=2}, which sets $\gamma_{k,\tau} = s_{k,\tau}$ and $\phi_{k,\tau}=\eta_{k,\tau}$ ). For continuous real fields $f$ we store \texttt{t=3}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=f$.
 
-For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly.  
+For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly. Before using this variable type, the routine \texttt{Fields\_init(del)} should be called (its argument is optional), in order for internal variables such as  $\eta(l)$ and $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}) to be initialized.
 
 
 %
@@ -121,7 +121,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 		\texttt{del}                       & \texttt{dble}  & Width $\Delta x$ of box distribution for inititial \texttt{t=3} fields, with a default value of \texttt{1}. \\
 		\texttt{amplitude}                 & \texttt{dble}  & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
 		\multicolumn{2}{@{}l@{}}{ \textbf{Method(arguments)}}         &    \\ \midrule
-		\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}         & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}); the variable $\texttt{del}=\Delta x$ (see above) is optional.  \\
+		%\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}         & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}); the variable $\texttt{del}=\Delta x$ (see above) is optional.  \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%make(n\_op,Ltrot)}}  & Reserves memory for the field.    \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%clear()}}            & Clears field from memory.    \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%set()}}              & Sets a random configuration.    \\
@@ -135,7 +135,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 		 Here \texttt{np} is the rank number  of the process.\\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out(Group\_Comm)}}   & Writes out the field configuration.    \\\bottomrule
 	\end{tabular}
-	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.    \texttt{del}  and \texttt{amplitude}   are private variables of the fields module. \texttt{n\_op} and \texttt{Ltrot} (integers) are the number of  interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) defines an MPI communicator, and the optional \texttt{In\_field} stores the initial field configuration.}
+	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.  The routine \texttt{Fields\_init(del)} should be called before the use of this variable type, since it initializes necessary internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}). Note that \texttt{del}  and \texttt{amplitude}   are private variables of the fields module. \texttt{n\_op} and \texttt{Ltrot} (integers) are the number of  interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) defines an MPI communicator, and the optional \texttt{In\_field} stores the initial field configuration.}
     \end{center}
 	\label{table:Fields}
 \end{table}
@@ -241,10 +241,10 @@ The position of an orbital  $i$  is given by   $\vec{R}_i +   \ve{\delta}_i $.  
 \begin{table}[h]
 	\begin{center}
    \begin{tabular}{@{} l l l @{}}\toprule
-    Variable  & Type & Description \\\midrule
-     \hl{\texttt{Norb}}   & Integer    & Number of orbitals.  \\
-      \hl{\texttt{N\_coord}} & Integer & Coordination number.  \\
-       \hl{\texttt{Orb\_pos(1..Norb,2[3]) }} & Real & Positions of the orbitals as measured from the lattice site.  \\\bottomrule
+    Variable                              & Type          & Description \\\midrule
+    \hl{\texttt{Norb}}                    & \texttt{int}  & Number of orbitals.  \\
+    \hl{\texttt{N\_coord}}                & \texttt{int}  & Coordination number.  \\
+    \hl{\texttt{Orb\_pos(1..Norb,2[3]) }} & \texttt{dble} & Orbitals' positions, measured from the lattice site.  \\\bottomrule
    \end{tabular}
      \caption{Components of an instance \texttt{Latt\_unit} of the \texttt{Unit\_cell} type.
    The \hl{highlighted} variables have to be specified by the user. Note that for bilayer lattices the second index of the \texttt{Orb\_pos} array  ranges from $1$ to $3$.  } 
@@ -288,14 +288,14 @@ Scalar observables are stored in the data type \texttt{Obser\_vec}, described in
 \begin{table}[h]
 	\begin{center}
    \begin{tabular}{@{} l l l l @{}}\toprule
-    Variable  &  Type      &  Description &  Contribution of configuration $C$ \\\midrule
-    \texttt{Obs\%N}                       &  Int.       &    Number of measurements &    $+1$ \\
-    \texttt{Obs\%Ave\_sign}               &  Real     	&    Cumulated average sign [Eq.~\eqref{eqn:sign_rw}] & $\text{sign}(C)$  \\
-    \texttt{Obs\%Obs\_vec(:)}  		      &  Comp.      &    Cumul. vector of observables [Eq.~\eqref{eqn:obs_rw}] &
+    Variable  &  Type      &  Description &  Contribution \\\midrule
+    \texttt{Obs\%N}                       & \texttt{int}   &    Number of measurements &    $+1$ \\
+    \texttt{Obs\%Ave\_sign}               & \texttt{dble}  &    Cumulated average sign [Eq.~\eqref{eqn:sign_rw}] & $\text{sign}(C)$  \\
+    \texttt{Obs\%Obs\_vec(:)}  		      & \texttt{cmplx} &    Cumul. vector of observables [Eq.~\eqref{eqn:obs_rw}] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \text{ sign }(C) $ \\
-     \texttt{Obs\%File\_Vec}           &  Char.    &    Name of output file  &\\\bottomrule
+     \texttt{Obs\%File\_Vec}           & \texttt{char}   &    Name of output file  &\\\bottomrule
    \end{tabular}
-   \caption{Components of a variable of type \texttt{Obser\_vec} named \texttt{Obs}.}
+   \caption{Components of a variable of type \texttt{Obser\_vec} named \texttt{Obs}. The contribution listed is that of each configuration $C$.}
    % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
          \label{table:Obser_vec}
      \end{center}
