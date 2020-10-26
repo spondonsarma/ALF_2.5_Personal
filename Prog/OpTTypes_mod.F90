@@ -37,7 +37,7 @@ module OpTTypes_mod
     
     ! Encapsulates Operations for real OpTs
     type, extends(ContainerElementBase) :: RealOpT
-        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2 !> We store the matrix here in the class
+        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Real(kind=kind(0.d0)) :: g, Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
@@ -55,7 +55,7 @@ module OpTTypes_mod
 
     ! Encapsulates Operations for complex OpTs
     type, extends(ContainerElementBase) :: CmplxOpT
-        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat, mat_1D2 !> We store the matrix here in the class
+        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Complex(kind=kind(0.d0)) :: g
         Real(kind=kind(0.d0)) :: Zero
         integer, pointer :: P(:)
@@ -81,9 +81,9 @@ contains
         
         this%Zero = 1.E-12
         this%Ndim_hop = Op_T%N
-        cg = -Op_T%g
         allocate (this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop), cmat(this%Ndim_hop, this%Ndim_hop), cinvmat(this%Ndim_hop, this%Ndim_hop))
 
+        cg = -Op_T%g
         Call  Op_exp(cg, Op_T, cinvmat)
         cg = Op_T%g
         Call  Op_exp(cg, Op_T, cmat)
@@ -91,10 +91,21 @@ contains
         this%mat = DBLE(cmat)
         this%invmat = DBLE(cinvmat)
         
+        cg = -Op_T%g/2.0
+        Call  Op_exp(cg, Op_T, cinvmat)
+        cg = Op_T%g/2.0
+        Call  Op_exp(cg, Op_T, cmat)
+        ! copy over the data to the real storage
+        this%mat_1D2 = DBLE(cmat)
+        this%invmat_1D2 = DBLE(cinvmat)
+        
         DO i = 1, this%Ndim_hop
             DO j = i, this%Ndim_hop
                 this%mat(i, j) = (this%mat(i, j) + this%mat(j, i))/2.D0
                 this%invmat(i, j) = (this%invmat(i, j) + this%invmat(j, i))/2.D0
+                
+                this%mat_1D2(i, j) = (this%mat_1D2(i, j) + this%mat_1D2(j, i))/2.D0
+                this%invmat_1D2(i, j) = (this%invmat_1D2(i, j) + this%invmat_1D2(j, i))/2.D0
             ENDDO
         ENDDO
         this%P => Op_T%P
@@ -105,8 +116,14 @@ contains
     subroutine RealOpT_adjointaction(this, arg)
         class(RealOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
-
+        Integer :: n1, n2
+        
+        n1 = size(arg,1)
+        n2 = size(arg,2)
+        If ( dble(this%g*conjg(this%g)) > this%Zero ) then
+            call ZDSLSYMM('L', 'U', this%Ndim_hop, n1, n2, this%mat_1D2, this%P, arg)
+            call ZDSLSYMM('R', 'U', this%Ndim_hop, n1, n2, this%invmat_1D2, this%P, arg)
+        Endif
     end subroutine
     
     subroutine RealOpT_rmult(this, arg)
@@ -187,6 +204,15 @@ contains
     subroutine CmplxOpT_adjointaction(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Integer :: n1, n2
+        
+        n1 = size(arg,1)
+        n2 = size(arg,2)
+        If ( dble(this%g*conjg(this%g)) > this%Zero ) then
+            call ZSLHEMM('L', 'U', this%Ndim_hop, n1, n2, this%mat_1D2, this%P, arg)
+            call ZSLHEMM('R', 'U', this%Ndim_hop, n1, n2, this%invmat_1D2, this%P, arg)
+        Endif
+        
     end subroutine
     
     subroutine CmplxOpT_rmult(this, arg)
