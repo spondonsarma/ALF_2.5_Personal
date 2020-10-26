@@ -6,12 +6,12 @@
 
 % !TEX root = doc.tex
 
-\section{  Model Classes } \label{sec:model_classes}
+\section{Model Classes} \label{sec:model_classes}
 
 The ALF  library comes with five model classes: (i) SU(N) Hubbard models, (ii) O(2N) t-V models, (iii) Kondo models, (iv) Models with long ranged coulomb, and (v) Generic $Z_2$ lattice gauge theories coupled to $Z_2$ matter  and fermions.   Below we detail the functioning of these classes.  
 
 
-\subsection{ SU(N) Hubbard models   \texttt{Hamiltonian\_Hubbard\_mod.F90}} \label{sec:hubbard}
+\subsection{SU(N) Hubbard models  \texttt{Hamiltonian\_Hubbard\_mod.F90}} \label{sec:hubbard}
 
 The parameter space for this model class  reads: 
 
@@ -62,7 +62,7 @@ As an example,  we can consider the periodic Anderson model.   Here we choose  t
 \center
 \includegraphics[width=0.4\textwidth]{Figures/PAM/PAM.pdf}
 
-\caption{  The periodic Anderson model.  Here we  plot the  equal time spin structure factor  of the f-electrons  at $\ve{q} = (\pi,\pi)$.   This quantity is found in the file \texttt{SpinZ\_eqJK}.  The  pyALF  based python script    \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_PAM.py}{\texttt{Hubbard\_PAM.py}}  produces the data  shown   for the L=8 lattice.    One sees  that for this considered value of $U_f/t $  the competition between the RKKY interaction and  Kondo screening drives the system through a magnetic order-disorder transition at $V_c/t \simeq 1$  \cite{Vekic95}.}
+\caption{The periodic Anderson model.  Here we  plot the  equal time spin structure factor  of the f-electrons  at $\ve{q} = (\pi,\pi)$.   This quantity is found in the file \texttt{SpinZ\_eqJK}.  The  pyALF  based python script    \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_PAM.py}{\texttt{Hubbard\_PAM.py}}  produces the data  shown   for the L=8 lattice.    One sees  that for this considered value of $U_f/t $  the competition between the RKKY interaction and  Kondo screening drives the system through a magnetic order-disorder transition at $V_c/t \simeq 1$  \cite{Vekic95}.}
         \label{Fig:PAM}
 \end{figure}
 
@@ -123,17 +123,17 @@ and can be simulated by setting $\texttt{ham\_T}=t$, $\texttt{ham\_V} = V$, and 
 
 Note  that   in the absence of orbital magnetic fields,  the model has an O(2N) symmetry. This can be seen by writing the model in a Majorana basis (see e.g. Ref.~\cite{Assaad16}). 
 
-\subsection{  SU(N) Kondo lattice models  \texttt{Kondo\_mod.F90}}
+\subsection{SU(N) Kondo lattice models \texttt{Kondo\_mod.F90}}
 
 \input{Kondo_SUN}
 
 
 
-\subsection{  Models with long range Coulomb interactions  \texttt{LRC\_mod.F90}}
+\subsection{Models with long range Coulomb interactions \texttt{LRC\_mod.F90}}
 
 \input{LRC}
 
-\subsection{Z$_2$ lattice gauge theories coupled to fermion and  Z$_2$ matter    \texttt{Z2\_mod.F90}}
+\subsection{Z$_2$ lattice gauge theories coupled to fermion and Z$_2$ matter  \texttt{Z2\_mod.F90}}
 
 %I suggest to work on the  Hamiltonian of Ref.~\ref{Z2.Sec} since this is the most general  model I can think of.   Would be nice to add a Hubbard-$U$ term.  It is actually not so easy to generalize this model to 
 %arbitrary lattices, so that for the moment, I would concentrate only on the square lattice. 
