@@ -37,7 +37,7 @@ module OpTTypes_mod
     
     ! Encapsulates Operations for real OpTs
     type, extends(ContainerElementBase) :: RealOpT
-        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat !> We store the matrix here in the class
+        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2 !> We store the matrix here in the class
         Real(kind=kind(0.d0)) :: g, Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
@@ -45,17 +45,17 @@ module OpTTypes_mod
     contains
         procedure :: init => RealOpT_init ! initialize and allocate matrices
         procedure :: dealloc => RealOpT_dealloc ! dealloc matrices
-        procedure :: simt => RealOpT_simt ! similarity transform (not implemented)
         procedure :: rmult => RealOpT_rmult ! right multiplication with Op_T
         procedure :: lmult => RealOpT_lmult
         procedure :: rmultinv => RealOpT_rmultinv ! right multiplication with Op_T inverse
         procedure :: lmultinv => RealOpT_lmultinv
+        procedure :: adjointaction => RealOpT_adjointaction
         procedure :: dump => RealOpT_dump ! dump matrices for debugging to screen
     end type RealOpT
 
     ! Encapsulates Operations for complex OpTs
     type, extends(ContainerElementBase) :: CmplxOpT
-        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat !> We store the matrix here in the class
+        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat, mat_1D2 !> We store the matrix here in the class
         Complex(kind=kind(0.d0)) :: g
         Real(kind=kind(0.d0)) :: Zero
         integer, pointer :: P(:)
@@ -63,11 +63,11 @@ module OpTTypes_mod
     contains
         procedure :: init => CmplxOpT_init ! initialize and allocate matrices
         procedure :: dealloc => CmplxOpT_dealloc ! dealloc matrices
-        procedure :: simt => CmplxOpT_simt ! similarity transform (not implemented)
         procedure :: rmult => CmplxOpT_rmult ! right multiplication with Op_T
         procedure :: lmult => CmplxOpT_lmult
         procedure :: rmultinv => CmplxOpT_rmultinv ! right multiplication with Op_T inverse
         procedure :: lmultinv => CmplxOpT_lmultinv
+        procedure :: adjointaction => CmplxOpT_adjointaction
         procedure :: dump => CmplxOpT_dump ! dump matrices for debugging to screen
     end type CmplxOpT
 
@@ -102,7 +102,7 @@ contains
         deallocate(cmat, cinvmat)
     end subroutine
     
-    subroutine RealOpT_simt(this, arg)
+    subroutine RealOpT_adjointaction(this, arg)
         class(RealOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: temp
@@ -184,7 +184,7 @@ contains
 
     end subroutine
 
-    subroutine CmplxOpT_simt(this, arg)
+    subroutine CmplxOpT_adjointaction(this, arg)
         class(CmplxOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
     end subroutine
