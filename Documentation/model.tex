@@ -83,14 +83,14 @@ Z &= \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
      \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}  
    \right]^{L_{\text{Trotter}}}}  + \mathcal{O}(\Delta\tau^{2})\nonumber \\
    &=
-   \sum_{C} \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right) e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }\times \nonumber\\
+   \sum_{C} \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right) e^{-S_0 \left( \left\{ s_{i,\tau} \right\}  \right) }\times \nonumber\\
    &\quad
     \Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[  
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  
       \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}    \right]\right\} }+ \mathcal{O}(\Delta\tau^{2})\;.
 \end{align}
 In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
-$S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.  We have adopted the shorthand notation $\eta_{k,\tau} \equiv \eta(l_{k,\tau})$   and $\gamma_{k,\tau} \equiv \gamma(l_{k,\tau})$.
+$S_0 \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.  We have adopted the shorthand notation $\eta_{k,\tau} \equiv \eta(l_{k,\tau})$   and $\gamma_{k,\tau} \equiv \gamma(l_{k,\tau})$.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{align}
  &\Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[    
@@ -107,7 +107,7 @@ At this point,  and  since for a given configuration $C$  we are dealing with a 
 where the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$, and  $\bm{I}^{(ks)}$ define the Hamiltonian [Eq.~(\ref{eqn:general_ham}) - (\ref{eqn:general_ham_i})].
 All in all, the partition function is given by:
 \begin{align}\label{eqn:partition_2}
-    Z  &=   \sum_{C}   e^{-S_{0,I} \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
+    Z  &=   \sum_{C}   e^{-S_0 \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
     e^{ N_{\mathrm{col}}\sum\limits_{s=1}^{N_{\mathrm{fl}}} \sum\limits_{k=1}^{M_V} \sum\limits_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{-\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } 
   \times   \nonumber \\
   &\quad

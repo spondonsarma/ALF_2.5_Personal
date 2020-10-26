@@ -11,8 +11,12 @@
 \subsubsection{Setting up the hopping matrix: the \texttt{Hopping\_Matrix\_type}}\label{sec:hopping_type}
 %--------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify a  hopping matrix on a  multi-orbital   Bravais lattice.  The only  assumption that we make is  translation symmetry.   We   allow  for twisted  boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by  \texttt{Phi\_X}  and \texttt{Phi\_Y}  respectively.  If the flag  \texttt{bulk=.true.}, then the twist is implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist is imposed at the boundary. The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.  All phase factors mentioned above can be flavor dependent.   The checkerboard decomposition can also be specified in this module.
 All information, including the checkerboard decomposition is specified in the  \path{Hopping_Matrix_type}   type (see below) from which  the array of  operator type \path{OP_T},   accounting for the single particle propagation in one time step,  as well as the kinetic energy can be derived.    
+=======
+The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify a  hopping matrix on a  multi-orbital   Bravais lattice.  The only  assumption that we make is  translation symmetry.   We   allow  for twisted  boundary conditions in the $\vec{L}_1$ and $\vec{L}_2$ lattice directions. The twist is given by  \texttt{Phi\_X}  and \texttt{Phi\_Y}  respectively.  If the flag  \texttt{bulk=.true.}, then the twist is implemented with a vector potential. Otherwise, if  \texttt{bulk=.false.}, the twist is imposed at the boundary. The routine also accounts for  the inclusion of a  total number of \texttt{N\_Phi}  flux quanta traversing the lattice.  All phase factors mentioned above can be flavor dependent.   The checkerboard decomposition can also be specified in this module.      All information, including the checkerboard decomposition is specified in the  \path{Hopping_Matrix_type}   type (see below) from which  the array of  operator type \path{OP_T},   accounting for the single particle propagation in one time step,  as well as the kinetic energy can be derived.    
+>>>>>>> master
 
 \paragraph*{Generic hopping matrices}\label{sec:generic_hopping}
 %-----------------------------------------------------------------------------------
@@ -32,12 +36,16 @@ From now onwards we will  mostly omit the flavor index ${s}$.\\
 
 \noindent
 \textbf{Phase factors}.  
+<<<<<<< HEAD
 The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux  quanta and the scalar function $\chi$ is defined  through:
+=======
+The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux quanta and the scalar function $\chi$ is defined through:
+>>>>>>> master
 \begin{equation}
 \vec{A}( \vec{x} + \vec{L}_{i} )  = \vec{A}( \vec{x} )   +  \vec{\nabla} \chi_{L_{i}}(\vec{x}). 
 \end{equation}
 
-Provided that the bare hopping Hamiltonian, $T$,  is invariant under lattice translations, $\hat{H}_T$ commutes with magnetic translations  that satisfy the algebra: 
+Provided that the bare hopping Hamiltonian, $T$,  is invariant under lattice translations, $\hat{H}_T$ commutes with magnetic translations that satisfy the algebra:
 \begin{equation}
 \hat{T}_{\vec{a}} \hat{T}_{\vec{b}} =  e^{ \frac{2 \pi i}{\Phi_0}   \vec{B} \cdot \left( \vec{a} \times \vec{b} \right) }  \hat{T}_{\vec{b}} \hat{T}_{\vec{a}}. 
 \end{equation}
@@ -46,10 +54,15 @@ that
 \begin{equation}
 \frac{\vec{B} \cdot \left( \vec{a} \times \vec{b}  \right) }{\Phi_0 } = N_{\Phi}   
 \end{equation}
+<<<<<<< HEAD
 with  $N_\Phi $ an integer.  The variable \texttt{N\_Phi},   specified in the parameter file,   denotes the number of flux quanta piercing the lattice.    The variables \texttt{Phi\_X}  and   \texttt{Phi\_Y} also   in the parameter file denote  the twists  -- in units of the flux quanta  --  along the $\vec{L}_1$ and  $\vec{L}_2$ directions.
 There are gauge  equivalent ways to insert the  twist in the boundary conditions.
 In the above we  have inserted the twist as a boundary condition such  that for example setting  \texttt{Phi\_1=0.5}  corresponds to anti-periodic boundary conditions along the $L_1$  axis.   Alternatively we  can  consider the 
 Hamiltonian:
+=======
+with  $N_\Phi $ an integer.  The variable \texttt{N\_Phi},   specified in the parameter file,   denotes the number of flux quanta piercing the lattice.    The variables \texttt{Phi\_X}  and   \texttt{Phi\_Y} also   in the parameter file denote  the twists  -- in units of the flux quanta  --  along the $\vec{L}_1$ and  $\vec{L}_2$ directions.     There are gauge  equivalent ways to insert the  twist in the boundary conditions. In the above we  have inserted the twist as a boundary condition such that for example setting \texttt{Phi\_1=0.5}  corresponds to anti-periodic boundary conditions along the $L_1$  axis.
+Alternatively we can consider the Hamiltonian:
+>>>>>>> master
 \begin{equation}
 \hat{H}_T = \sum_{(i,\delta), (j,\delta'), s, \sigma}    T_{(i,\delta), (j,\delta')}^{(s)}    \tilde{c}^{\dagger}_{(i,\delta),s,\sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{i + \delta}^{j + \delta'} \left(  \vec{A}(\vec{l})  + \vec{A}_{\phi} \right)  d \vec{l}} \tilde{c}^{}_{(j,\delta'),s,\sigma }
 \end{equation}
@@ -74,7 +87,8 @@ As  we will see below, the information for the phases is encoded in  the type \t
 
 \noindent
 \textbf{The  Hopping matrix elements}. 
-The hopping matrix  is specified assuming only translation invariance.  (The point group symmetry of the lattice can be broken).    That is, we assume that  for  each flavor index: 
+The hopping matrix  is specified assuming only translation invariance.  (The point group symmetry of the lattice can be broken).
+That is, we assume that  for  each flavor index:
 \begin{equation} 
 T_{(\ve{i},\ve{\delta}), (\ve{i} +  n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}')}^{(s)}   =   T^{(s)}_{(\ve{0},\ve{\delta}),  (n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}') }.
 \label{Hop.eq}	 
@@ -114,7 +128,7 @@ There are  \path{N_bonds}   hopping   matrix  elements  emanating  from  a  give
 			\texttt{N\_Phi}                    & Integer     &  Number of  flux quanta piercing the lattice   \\
 			\texttt{Phi\_X}                    &  Real        &   Twist in $\ve{a}_1$  direction   \\
 			\texttt{Phi\_Y}                    &  Real        &   Twist in $\ve{a}_2$  direction   \\
-			\texttt{Bulk}                        &   Logical   &   Twist as vector potential (T) or  boundary condition (F).
+			\texttt{Bulk}                        &   Logical   &   Twist as vector potential (T) or  boundary condition (F)
 			\\  \\
 			\texttt{N\_Fam}                &  Integer  &      Number of  sets, $N_T$ in Eq.~\eqref{Checkerboard.Eq}   \\
 			\texttt{L\_Fam(N\_FAM)}  &  Integer &     Number of bonds per set $\mathcal{S}^{T}$ \\    
@@ -146,7 +160,7 @@ The   data in  the \texttt{Hopping\_matrix\_type} type   equally  suffices to co
 \center
 \includegraphics[width=\textwidth]{Figures/But.png}
 
-\caption{  The   single particle spectrum  of the tight binding model on the  honeycomb  (a) and square (b) lattices as a function of the  flux  $N_\Phi$.    This corresponds to the well known  Hofstadter butterflies.  }
+\caption{The single particle spectrum  of the tight binding model on the  honeycomb  (a) and square (b) lattices as a function of the  flux  $N_\Phi$.    This corresponds to the well known  Hofstadter butterflies.  }
         \label{But.fig}
 \end{figure}
 
@@ -162,8 +176,8 @@ T_loc(1) =0.0; T_loc(2) =0.0                                      ! Chemical pot
 In the last two lines, we have set the hopping matrix element  for each bond to $-1$  and the chemical potential to zero.    The fields,   can then be specified   with the  variables   \texttt{N\_phi, Phi\_x, Phi\_y}.  Setting   the twists, 
  \texttt{Phi\_x, Phi\_y}  to zero and  looping over \texttt{N\_phi}    from $ 1 \cdots L^2 $   produces  the single particle spectrum of  Fig.~\ref{But.fig}(a).  
  
- For the Honeycomb lattice  the checkerboard decomposition  for the nearest neighbor hopping consists of three  sets:  \texttt{N\_Fam = 3}  each of length   corresponding  to the number of unit cells.  In  Fig.~\ref{fig_predefined_lattices}(d)  
- the bond elements of these three sets are color coded.  In the code,   the element of the sets  are specified as:
+ For the honeycomb lattice  the checkerboard decomposition  for the nearest neighbor hopping consists of three  sets:  \texttt{N\_Fam = 3}  each of length   corresponding  to the number of unit cells.  In  Fig.~\ref{fig_predefined_lattices}(d)  
+ the bond elements of these three sets are color coded. In the code, the elements of the sets are specified as:
  
 \begin{lstlisting}[style=fortran] 
 do I = 1,Latt%N
@@ -175,6 +189,3 @@ enddo
 Multiplicity  = 3
 \end{lstlisting}        
 Since each site of the honeycomb lattice occurs in  the three sets,  the multiplicity is equal to 3.  
-
-
-

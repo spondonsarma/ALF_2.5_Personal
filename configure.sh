@@ -162,12 +162,12 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    #module switch mpi.intel  mpi.intel/2018
-    #module switch intel intel/18.0
-    #module switch mkl mkl/2018
-    module load  mpi.intel
-    module load intel
-    module load mkl
+    module switch mpi.intel  mpi.intel/2019
+    module switch intel intel/19.0
+    module switch mkl mkl/2019
+    #module load  mpi.intel
+    #module load intel
+    #module load mkl
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
