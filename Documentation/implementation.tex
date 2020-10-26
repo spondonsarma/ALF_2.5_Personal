@@ -11,8 +11,8 @@
 %Also available is the \texttt{Hopping\_Matrix\_type}, defined in Sec.~\ref{sec:hopping_type}, used for defining hopping matrices.
 
 
-To specify a general model,  we define a set of data types.    The \texttt{Operator} (see Sec.~\ref{sec:op}) type  is used  to specify the interaction as well as the hopping.  The handling of the fields is taken care of by the \texttt{Fields}  type. To define a Bravais lattice as well as a unit cell we 
-introduce the \texttt{Lattice}  and \texttt{Unit\_cell}  types.  General  scalar,  equal time and time displaced correlation functions are  handled by the  \texttt{Observable} type.   For the projective code, we provide a  \texttt{WaveFunction}  type to define the  left and right trial wave functions.  
+To manipulate the relevant physical quantities in a general model, we define a set of corresponding data types. The \texttt{Operator} (see Sec.~\ref{sec:op}) type  is used  to specify the interaction as well as the hopping.  The handling of the fields is taken care of by the \texttt{Fields}  type. To define a Bravais lattice as well as a unit cell we 
+introduce the \texttt{Lattice}  and \texttt{Unit\_cell}  types.  General  scalar,  equal-time, and time-displaced correlation functions are  handled by the  \texttt{Observable} type.   For the projective code, we provide a  \texttt{WaveFunction}  type to define the  left and right trial wave functions.  
 The Hamiltonian is then specified in the  \texttt{Hamiltonian}  module   that allocates  the aforementioned types. 
 
 
