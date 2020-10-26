@@ -26,11 +26,10 @@ $P(\ve{s}, \tl) $ be the distribution of fields at Langevin time $\tl$. Then,
 \end{equation}
 where $\delta$ corresponds to the $L_\mathrm{trotter} M_I $  dimensional Dirac $\delta$-function.   Taylor expanding  up to order $\delta \tl$  and averaging over the stochastic variable yields:
 \begin{align}
-P(\ve{s}, \tl  + \delta \tl ) &  = \int D\ve{s'}  P  (\ve{s}', \tl  )   \times \left(   \delta \left(  \ve{s}' - \ve{s}   \right)
-- \frac{\partial S(\ve{s'}) }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s'} } \delta \left(  \ve{s}' - \ve{s} \right)  \delta \tl   +
-   \frac{\partial  }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s}' }  \delta \left(  \ve{s}' - \ve{s}\right)    \delta \tl
-\right)  \nonumber   \\
-  &  + {\cal O}  \left(  \delta \tl^2 \right).
+P(\ve{s}, \tl  + \delta \tl ) =& \int D\ve{s'}  P  (\ve{s}', \tl  )   \times \left(   \delta \left(  \ve{s}' - \ve{s}   \right)
+- \frac{\partial S(\ve{s'}) }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s'} } \delta \left(  \ve{s}' - \ve{s} \right)  \delta \tl   +   \right. \nonumber   \\
+   &\left. \frac{\partial  }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s}' }  \delta \left(  \ve{s}' - \ve{s}\right)    \delta \tl
+\right)  + {\cal O}  \left(  \delta \tl^2 \right).
 \end{align}
 Partial integration  and taking the limit of infinitesimal time steps   gives the Fokker-Plank equation
 \begin{equation}

@@ -63,6 +63,7 @@ In the code, we define a structure called \path{Operator} to capture the above.
 This type \path{Operator} bundles several components, listed in Table \ref{table:operator}, that are needed to define and use an operator matrix in the program.  
 
 \begin{table}[h]
+	\begin{center}
     \begin{tabular}{@{} l l l @{}}\toprule
     Variable & Type & Description \\\midrule
     \hl{\texttt{Op\_X\%N}}       & Integer     &  Effective dimension $N$ \\
@@ -70,8 +71,8 @@ This type \path{Operator} bundles several components, listed in Table \ref{table
     \hl{\texttt{Op\_X\%P}}       & Integer   &  Matrix $\bm{P}$  encoded as a vector of dimension $N$\\
     \hl{\texttt{Op\_X\%g}}       & Complex    &  Coupling strength $g$ \\  
     \hl{\texttt{Op\_X\%alpha}}   & Complex  &  Constant $\alpha$ \\
-    \hl{\texttt{Op\_X\%type}}    & Integer   &  Sets the type of HS transformation (1: Ising; 2: discrete HS for\\
-             &   &   perfect-square term; 3: continuous real field.)  \\ 
+    \hl{\texttt{Op\_X\%type}}    & Integer   &  Sets the type of HS transformation (1: Ising; 2: discrete\\
+             &   &    HS for perfect-square term; 3: continuous real field.)  \\ 
     \texttt{Op\_X\%diag}  & Logical & True if   $\bm{O}$  is  diagonal  \\
     \texttt{Op\_X\%U}            & Complex &  Matrix containing the eigenvectors of $\bm{O}$  \\
     \texttt{Op\_X\%E}            & Real &  Eigenvalues of $\bm{O}$ \\
@@ -86,6 +87,7 @@ This type \path{Operator} bundles several components, listed in Table \ref{table
    The \hl{highlighted} variables must be specified by the user. \texttt{M\_exp} and \texttt{E\_exp}  are allocated only if  $\texttt{type}=1,2$. 
   %  One will have to specify $N$, $O$, $P$, $g$, $\alpha$ and the type.  The other variables will be automatically generated in the routine \texttt{Op\_Set}.  
     \label{table:operator}}
+\end{center}
 \end{table}
 %
 
@@ -111,27 +113,27 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 %
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} p{0.25\columnwidth} p{0.08\columnwidth} p{0.6\columnwidth} @{}}\toprule
-		Component                 &                & Description    \\ \midrule
-		\textbf{Variable}         &  \textbf{Type} &  \\ \midrule
-		\texttt{Field\%t(1:n\_op)}      &  Integer       & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-square term; 3: continuous real field). The index denotes the operator on a given time slice. \\
-		\texttt{Field\%f(1:n\_op,1:Ltrot)}    &  Real          & Defines the auxiliary fields. The first index runs through the operator sequence and the second through the time slices.  For \texttt{t=1} $ f = \pm 1$,  \texttt{t=2} $f = \pm 1, \pm 2$, and for  \texttt{t=2} $f  \in \mathbb{R}$. \\
-		\texttt{del}       &      Real          & Width $\Delta x$ of box distribution for inititial \texttt{t=3} fields, with a default value of \texttt{1}. \\
-		\texttt{amplitude} &  Real          & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
-		\multicolumn{2}{@{}l@{}}{ \textbf{Method(arguments)}}          &    \\ \midrule
-		\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}          & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}); the variable $\texttt{del}=\Delta x$ (see above) is optional.  \\
+	\begin{tabular}{@{} p{0.3\columnwidth} p{0.05\columnwidth} p{0.58\columnwidth} @{}}\toprule
+		Component                          &                & Description    \\ \midrule
+		\textbf{Variable}                  &  \textbf{Type} &  \\ \midrule
+		\texttt{Field\%t(1:n\_op)}         &  \texttt{int}  & Sets the HS transformation type (1: Ising; 2: discrete HS for perfect-square term; 3: continuous real field). The index denotes the operator on a given time slice. \\
+		\texttt{Field\%f(1:n\_op,1:Ltrot)} & \texttt{dble}  & Defines the auxiliary fields. The first index runs through the operator sequence and the second through the time slices.  For \texttt{t=1} $ f = \pm 1$,  \texttt{t=2} $f = \pm 1, \pm 2$, and for  \texttt{t=2} $f  \in \mathbb{R}$. \\
+		\texttt{del}                       & \texttt{dble}  & Width $\Delta x$ of box distribution for inititial \texttt{t=3} fields, with a default value of \texttt{1}. \\
+		\texttt{amplitude}                 & \texttt{dble}  & Width of a random flip for fields of type \texttt{t=3}, defaults to \texttt{1}. \vspace{7pt} \\ 
+		\multicolumn{2}{@{}l@{}}{ \textbf{Method(arguments)}}         &    \\ \midrule
+		\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}         & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}); the variable $\texttt{del}=\Delta x$ (see above) is optional.  \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%make(n\_op,Ltrot)}}  & Reserves memory for the field.    \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%clear()}}             & Clears field from memory.    \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%set()}}               & Sets a random configuration.    \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%flip(n,nt)}}  & Flips the field values randomly  for  field \texttt{n} on time slice \texttt{nt}.    For  \texttt{t=1} it flips the sign of the Ising spin.  For \texttt{t=2} it randomly choose one of the 
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%clear()}}            & Clears field from memory.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%set()}}              & Sets a random configuration.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%flip(n,nt)}}         & Flips the field values randomly  for  field \texttt{n} on time slice \texttt{nt}.    For  \texttt{t=1} it flips the sign of the Ising spin.  For \texttt{t=2} it randomly choose one of the 
 		three other values of $l$. For  \texttt{t=3},  \texttt{f = f + amplitude*(ranf() -1/2)}. \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%phi(n,nt)}}   & Returns $\phi$ for the \texttt{n}-th operator at the time slice  \texttt{nt}. \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%gamma(n,nt)}} & Returns $\gamma$ for the  \texttt{n}-th operator at the time slice  \texttt{nt}.    \\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%i(n,nt)}}     & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%phi(n,nt)}}          & Returns $\phi$ for the \texttt{n}-th operator at the time slice  \texttt{nt}. \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%gamma(n,nt)}}        & Returns $\gamma$ for the  \texttt{n}-th operator at the time slice  \texttt{nt}.    \\
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%i(n,nt)}}            & Returns \texttt{Field\%f} rounded to nearest integer (for \texttt{t=1} or \texttt{2}). \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%in(Group\_Comm,In\_field)}} &      If  the file  \texttt{confin\_np} exists  it reads the field configuration  from this file.   Otherwise if \texttt{In\_field}  is present it sets the fields to   \texttt{In\_field}.   
 		 If both  \texttt{confin\_np}  and  \texttt{In\_field}  are not provided it sets a random field by calling \texttt{Field\%set()}.
 		 Here \texttt{np} is the rank number  of the process.\\
-		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out(Group\_Comm)}}    & Writes out the field configuration.    \\\bottomrule
+		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out(Group\_Comm)}}   & Writes out the field configuration.    \\\bottomrule
 	\end{tabular}
 	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.    \texttt{del}  and \texttt{amplitude}   are private variables of the fields module. \texttt{n\_op} and \texttt{Ltrot} (integers) are the number of  interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) defines an MPI communicator, and the optional \texttt{In\_field} stores the initial field configuration.}
     \end{center}
@@ -179,36 +181,39 @@ With $\vec{k} = \sum_{i} \alpha_i  \vec{g}_i $, the  k-space quantization follow
 \end{bmatrix}
 \end{equation}
 such that 
-\begin{eqnarray} \label{k.quant.eq}
-     \vec{k} =  n \vec{b}_1  + m \vec{b}_2,\; \text{with}   & &   \vec{b}_1 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   \left[  (\vec{L}_2 \cdot  \vec{g}_2) \vec{g}_1 -   (\vec{L}_2  \cdot \vec{g_1} ) \vec{g}_2 \right], \nonumber \\ 
-        & & \vec{b}_2 = \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
-           \left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right].
-\end{eqnarray}
+\begin{equation}
+\vec{k} =  n \vec{b}_1  + m \vec{b}_2,\; \text{with}
+\end{equation}
+\begin{align} \label{k.quant.eq}
+\vec{b}_1 &= \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   \left[  (\vec{L}_2 \cdot  \vec{g}_2) \vec{g}_1 -   (\vec{L}_2  \cdot \vec{g_1} ) \vec{g}_2 \right], \nonumber \\ 
+\vec{b}_2 &= \frac{2 \pi}{ (\vec{L}_1 \cdot \vec{g}_1)  (\vec{L}_2 \cdot  \vec{g}_2 )  - (\vec{L}_1 \cdot \vec{g}_2) (\vec{L}_2  \cdot \vec{g_1} ) }   
+\left[  (\vec{L}_1 \cdot  \vec{g}_1) \vec{g}_2 -   (\vec{L}_1  \cdot \vec{g_2} ) \vec{g}_1 \right].
+\end{align}
 
 %
 \begin{table}[h]
 	\begin{center}
-   \begin{tabular}{@{} l l l @{}}\toprule
+   \begin{tabular}{@{} l l @{$\;\;$} l @{}}\toprule
     Variable  & Type & Description \\\midrule
-     \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & Real     & Unit vectors $\vec{a}_1$,  $\vec{a}_2$. \\ 
-     \hl{\texttt{Latt\%L1\_p}, \texttt{Latt\%L2\_p}}   & Real     & Vectors $\vec{L}_1$, $\vec{L}_2$ that define the topology of the  lattice. \\
-     									  &              &  Tilted lattices are  thereby possible to implement.  \\
-    \hl{\texttt{Latt\%N}}                                                 &   Integer &  Number of lattice points, $N_{\text{unit-cell}}$.   \\
-    \texttt{Latt\%list}                                               & Integer &  Maps each lattice point $i=1,\cdots, N_{\text{unit-cell}}$ to a real space vector\\ 
-                                                                             &   &  denoting the position of the unit cell: \\
-                                                                             &   & $\vec{R}_i$ = \texttt{list(i,1)}$\vec{a}_1$ + \texttt{list(i,2)}$\vec{a}_2$  $  \equiv i_1  \vec{a}_1 + i_2  \vec{a}_2 $. \\
-    \texttt{Latt\%invlist}                                        &  Integer &   Return lattice point from position: \texttt{Invlist}$(i_1,i_2) = i $. \\
-    \texttt{Latt\%nnlist}                                         &  Integer &  Nearest neighbor indices: $j = \texttt{nnlist} (i, n_1, n_2) $,  $n_1, n_2 \in [-1,1] $, \\
-                                                                           &              &    $\vec{R}_j = \vec{R}_i + n_1 \vec{a}_1  + n_2 \vec{a}_2 $. \\
-   \texttt{Latt\%imj}                                             &   Integer  &  $\vec{R}_{\mathrm{imj}(i,j)}  =  \vec{R}_i -  \vec{R}_j$, with  $\mathrm{imj}, i, j \in  1,\cdots, N_{\text{unit-cell}}$.\\
-    \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}  &   Real     & Reciprocal space vectors $\vec{g}_i$   (See Eq.~\ref{Latt.G.eq}).\\
-    \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}       &   Real     &  $k$-quantization (See Eq.~\ref{k.quant.eq}). \\
-    \texttt{Latt\%listk}                                           &  Integer &  Maps each reciprocal lattice point $k=1,\cdots, N_{\text{unit-cell}}$\\
-                                                                          &    & to a reciprocal space vector\\
-                                                                          &     & $\vec{k}_k= \texttt{listk(k,1)} \vec{b}_1 +  \texttt{listk(k,2)} \vec{b}_2  \equiv k_1  \vec{b}_1 +   k_2  \vec{b}_2 $.\\
-    \texttt{Latt\%invlistk}                                     &    Integer    &   \texttt{Invlistk}$(k_1,k_2) = k $. \\
-   \texttt{Latt\%b1\_perp\_p},  \\ 
-   \texttt{Latt\%b2\_perp\_p}                             &    Real         &  Orthonormal vectors to $\vec{b}_i$.  For internal use. \\\bottomrule
+     \hl{\texttt{Latt\%a1\_p}, \texttt{Latt\%a2\_p}}   & \texttt{dble}  & Unit vectors $\vec{a}_1$,  $\vec{a}_2$. \\ 
+     \hl{\texttt{Latt\%L1\_p}, \texttt{Latt\%L2\_p}}   & \texttt{dble}  & Vectors $\vec{L}_1$, $\vec{L}_2$ that define the topology of the  lattice. \\
+     									               &                &  Tilted lattices are  thereby possible to implement.  \\
+    \hl{\texttt{Latt\%N}}                              & \texttt{int}   &  Number of lattice points, $N_{\text{unit-cell}}$.   \\
+    \texttt{Latt\%list}                                & \texttt{int}   &  Maps each lattice point $i=1,\cdots, N_{\text{unit-cell}}$ to a real\\
+                                                                    &   &  space vector denoting the position of the unit cell: \\
+                                                                    &   & $\vec{R}_i$ = \texttt{list(i,1)}$\vec{a}_1$ + \texttt{list(i,2)}$\vec{a}_2$  $  \equiv i_1  \vec{a}_1 + i_2  \vec{a}_2 $. \\
+    \texttt{Latt\%invlist}                             & \texttt{int}   &  Return lattice point from position: \texttt{Invlist}$(i_1,i_2) = i $. \\
+    \texttt{Latt\%nnlist}                              & \texttt{int}   &  Nearest neighbor indices: $j = \texttt{nnlist} (i, n_1, n_2) $, \\
+                                                       &                &  $n_1, n_2 \in [-1,1] $, $\vec{R}_j = \vec{R}_i + n_1 \vec{a}_1  + n_2 \vec{a}_2 $. \\
+   \texttt{Latt\%imj}                                  & \texttt{int}   &  $\vec{R}_{\mathrm{imj}(i,j)}  =  \vec{R}_i -  \vec{R}_j$, with  $\mathrm{imj}, i, j \in  1,\cdots, N_{\text{unit-cell}}$.\\
+    \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}       & \texttt{dble}  & Reciprocal space vectors $\vec{g}_i$   (See Eq.~\ref{Latt.G.eq}).\\
+    \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}         & \texttt{dble}  &  $k$-quantization (See Eq.~\ref{k.quant.eq}). \\
+    \texttt{Latt\%listk}                               & \texttt{int}   &  Maps each reciprocal lattice point $k=1,\cdots, N_{\text{unit-cell}}$\\
+                                                                   &    & to a reciprocal space vector\\
+                                                                   &    & $\vec{k}_k= \texttt{listk(k,1)} \vec{b}_1 +  \texttt{listk(k,2)} \vec{b}_2  \equiv k_1  \vec{b}_1 +   k_2  \vec{b}_2 $.\\
+    \texttt{Latt\%invlistk}                            & \texttt{int}   &   \texttt{Invlistk}$(k_1,k_2) = k $. \\
+   \texttt{Latt\%b1\_perp\_p},                         &                & \\ 
+   \texttt{Latt\%b2\_perp\_p}                          & \texttt{dble}  &  Orthonormal vectors to $\vec{b}_i$.  For internal use. \\\bottomrule
    \end{tabular}
    \caption{Components of the \texttt{Lattice} type for two-dimensional lattices using as example the default lattice name \texttt{Latt}.
    The \hl{highlighted} variables must be specified by the user.  Other components of \texttt{Lattice} are generated upon calling: \texttt{ Call Make\_Lattice( L1, L2, a1,  a2, Latt )}. 
@@ -248,8 +253,8 @@ The position of an orbital  $i$  is given by   $\vec{R}_i +   \ve{\delta}_i $.  
 \end{table}
 
 The total  number of orbitals  is then given by \texttt{Ndim=Lattice\%N*Unit\_cell\%Norb}.  To keep track of the orbital and  unit cell structure, it is useful to define arrays 
-\texttt{List(Ndim,2)}  and \texttt{Inv\_list(Latt\%N, Unit\_cell\%Norb)}.  For a superindex $x = (i,n) $ labeling the unit cell, i,  and the orbital, n, of a site on the lattice, we have 
-\texttt{List(x,1) = i}, \texttt{List(x,2)=n}  and \texttt{ Inv\_list(i,n) = x }. 
+\texttt{List(Ndim,2)}  and \texttt{Inv\_list(Latt\%N, Unit\_cell\%Norb)}.  For a superindex $x = (i,n)$ labeling the unit cell, i,  and the orbital, n, of a site on the lattice, we have 
+\texttt{List(x,1)=i}, \texttt{List(x,2)=n}  and \texttt{Inv\_list(i,n)=x}. 
 
 
 %--------------------------------------------------------------------------------------------
