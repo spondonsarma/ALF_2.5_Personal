@@ -84,7 +84,7 @@ module ContainerElementBase_mod
       subroutine adjointactioninterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
-         Complex(kind=kind(0.d0)), intent(inout), allocatable, dimension(:,:) :: arg
+         Complex(kind=kind(0.d0)), intent(inout), dimension(:,:) :: arg
       end subroutine
     end interface
 end module ContainerElementBase_mod

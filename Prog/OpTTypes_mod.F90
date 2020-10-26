@@ -115,12 +115,12 @@ contains
     
     subroutine RealOpT_adjointaction(this, arg)
         class(RealOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
         n1 = size(arg,1)
         n2 = size(arg,2)
-        If ( dble(this%g*conjg(this%g)) > this%Zero ) then
+        If ( this%g*this%g > this%Zero ) then
             call ZDSLSYMM('L', 'U', this%Ndim_hop, n1, n2, this%mat_1D2, this%P, arg)
             call ZDSLSYMM('R', 'U', this%Ndim_hop, n1, n2, this%invmat_1D2, this%P, arg)
         Endif
@@ -203,7 +203,7 @@ contains
 
     subroutine CmplxOpT_adjointaction(this, arg)
         class(CmplxOpT), intent(in) :: this
-        Complex(kind=kind(0.D0)), intent(inout), allocatable, dimension(:,:) :: arg
+        Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
         n1 = size(arg,1)

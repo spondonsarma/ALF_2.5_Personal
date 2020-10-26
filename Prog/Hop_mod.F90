@@ -55,8 +55,8 @@
 
       ! Private variables
       Type(DynamicMatrixArray), private, allocatable :: vec(:) ! for now we have for simplicity for each flavour a vector
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
-      Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T_1D2(:,:,:,:), Exp_T_M1_1D2(:,:,:,:)
+!       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T(:,:,:,:), Exp_T_M1(:,:,:,:)
+!       Complex (Kind=Kind(0.d0)), allocatable, private :: Exp_T_1D2(:,:,:,:), Exp_T_M1_1D2(:,:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
       Integer, private, save ::  Ncheck, Ndim_hop
       Real (Kind=Kind(0.d0)), private, save  :: Zero
@@ -97,10 +97,10 @@
              enddo
           enddo
 
-          Allocate ( Exp_T       (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
-          Allocate ( Exp_T_M1    (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
-          Allocate ( Exp_T_1D2   (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
-          Allocate ( Exp_T_M1_1D2(Ndim_hop,Ndim_hop,Ncheck,N_FL) )
+!           Allocate ( Exp_T       (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
+!           Allocate ( Exp_T_M1    (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
+!           Allocate ( Exp_T_1D2   (Ndim_hop,Ndim_hop,Ncheck,N_FL) )
+!           Allocate ( Exp_T_M1_1D2(Ndim_hop,Ndim_hop,Ncheck,N_FL) )
           
           allocate(vec(N_FL))
 
@@ -109,8 +109,8 @@
           Allocate ( U_Hlp (Ndim, Ndim_hop) )
           Allocate ( U_Hlp1(Ndim, Ndim_hop) )
 
-          Exp_T = cmplx(0.d0, 0.d0, kind(0.D0))
-          Exp_T_M1 = cmplx(0.d0, 0.d0, kind(0.D0))
+!           Exp_T = cmplx(0.d0, 0.d0, kind(0.D0))
+!           Exp_T_M1 = cmplx(0.d0, 0.d0, kind(0.D0))
           do nf = 1,N_FL
              call vec(nf)%init()
              do nc = 1,Ncheck
@@ -131,10 +131,10 @@
 !                 Call  Op_exp(g,Op_T(nc,nf),Exp_T(:,:,nc,nf))
 !                 g = -Op_T(nc,nf)%g
 !                 Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1(:,:,nc,nf))
-                g = Op_T(nc,nf)%g/2.d0
-                Call  Op_exp(g,Op_T(nc,nf),Exp_T_1D2(:,:,nc,nf))
-                g = -Op_T(nc,nf)%g/2.d0
-                Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1_1D2(:,:,nc,nf))
+!                 g = Op_T(nc,nf)%g/2.d0
+!                 Call  Op_exp(g,Op_T(nc,nf),Exp_T_1D2(:,:,nc,nf))
+!                 g = -Op_T(nc,nf)%g/2.d0
+!                 Call  Op_exp(g,Op_T(nc,nf),Exp_T_M1_1D2(:,:,nc,nf))
                 ! symmetrize the upper part of Exp_T and Exp_T_M1
 !                 DO i = 1, Ndim_hop
 !                    DO j = i, Ndim_hop
@@ -176,27 +176,27 @@
         end Subroutine Hop_mod_mmthr
 
 !--------------------------------------------------------------------
-        Subroutine Hop_mod_mmthr_1D2(In,nf)
-
-
-          ! InOut:  In = e^{ -dtau T /2 }.IN
-          Implicit none
-
-          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
-          Integer, intent(IN) :: nf
-
-          !Local
-          Integer :: nc, N1, N2
-
-          N1=size(In,1)
-          N2=size(In,2)
-
-          do nc =  Ncheck,1,-1
-             If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
-             Endif
-          Enddo
-        end Subroutine Hop_mod_mmthr_1D2
+!         Subroutine Hop_mod_mmthr_1D2(In,nf)
+! 
+! 
+!           ! InOut:  In = e^{ -dtau T /2 }.IN
+!           Implicit none
+! 
+!           Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
+!           Integer, intent(IN) :: nf
+! 
+!           !Local
+!           Integer :: nc, N1, N2
+! 
+!           N1=size(In,1)
+!           N2=size(In,2)
+! 
+!           do nc =  Ncheck,1,-1
+!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
+!                 call ZSLHEMM('L','U',Ndim_hop,N1,N2,Exp_T_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
+!              Endif
+!           Enddo
+!         end Subroutine Hop_mod_mmthr_1D2
 
 !--------------------------------------------------------------------
 
@@ -289,28 +289,28 @@
 
 !--------------------------------------------------------------------
 
-        Subroutine Hop_mod_mmthl_m1_1D2(In, nf)
-
-
-          ! InOut:  In = IN * e^{ dtau T/2 }
-          Implicit none
-
-          Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
-          Integer :: nf
-
-          !Local
-          Integer :: nc, N1, N2
-
-          N1=size(In,1)
-          N2=size(In,2)
-
-          do nc =  Ncheck,1,-1
-             If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
-                call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
-             Endif
-          Enddo
-
-        end Subroutine Hop_mod_mmthl_m1_1D2
+!         Subroutine Hop_mod_mmthl_m1_1D2(In, nf)
+! 
+! 
+!           ! InOut:  In = IN * e^{ dtau T/2 }
+!           Implicit none
+! 
+!           Complex (Kind=Kind(0.d0)), intent(INOUT)  :: IN(:,:)
+!           Integer :: nf
+! 
+!           !Local
+!           Integer :: nc, N1, N2
+! 
+!           N1=size(In,1)
+!           N2=size(In,2)
+! 
+!           do nc =  Ncheck,1,-1
+!              If ( dble( Op_T(nc,nf)%g*conjg(Op_T(nc,nf)%g) ) > Zero ) then
+!                 call ZSLHEMM('R','U',Ndim_hop,N1,N2,Exp_T_m1_1D2(:,:,nc,nf),Op_T(nc,nf)%P,In)
+!              Endif
+!           Enddo
+! 
+!         end Subroutine Hop_mod_mmthl_m1_1D2
 
 
 !!$        Subroutine  Hop_mod_test
@@ -346,12 +346,17 @@
           COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(Out):: Out
           COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(IN):: In
 
-          Integer :: nf
+          Integer :: nf, nc
+          class(ContainerElementBase), pointer :: dummy
 
           Out = In
           Do nf = 1, size(In,3)
-             Call Hop_mod_mmthr_1D2   (Out(:,:,nf), nf )
-             Call Hop_mod_mmthl_m1_1D2(Out(:,:,nf), nf )
+             do nc =  Ncheck,1,-1
+                dummy => vec(nf)%at(nc)
+                call dummy%adjointaction(Out(:, :, nf))
+!              Call Hop_mod_mmthr_1D2   (Out(:,:,nf), nf )
+!              Call Hop_mod_mmthl_m1_1D2(Out(:,:,nf), nf )
+             enddo
           enddo
 
         End Subroutine Hop_mod_Symm
