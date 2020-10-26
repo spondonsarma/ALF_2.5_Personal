@@ -9,7 +9,7 @@
 \subsection{Predefined interaction vertices} \label{sec:interaction_vertices}
 %-----------------------------------------------------------------------------------
 
-In its most general form, an interaction Hamiltonian expressed in terms of sums of perfect squares can be written, as presented in Section~\ref{sec:intro}, as a sum of $M_V$ vertices: %Eq.~\eqref{eqn:general_ham_v}:
+In its most general form, an interaction Hamiltonian, expressed in terms of sums of perfect squares, can be written, as presented in Section~\ref{sec:intro}, as a sum of $M_V$ vertices: %Eq.~\eqref{eqn:general_ham_v}:
 
 \begin{align*}
 \hat{\mathcal{H}}_{V} &=  \sum\limits_{k=1}^{M_V}U_{k}
@@ -21,7 +21,7 @@ In its most general form, an interaction Hamiltonian expressed in terms of sums 
 \end{align*}
 which are encoded in one or more variables of type \texttt{Operator}, described in Sec.~\ref{sec:op}. We often use arrays of \texttt{Operator} type, which should be initialized by repeatedly calling the subroutine \texttt{Op\_make}.
 
-The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction vertices $\hat{\mathcal{H}}_V^{(k)}$, as detailed in the remaining of this section, where we drop the superscript $(k)$ when unambiguous.
+The module \texttt{Predefined\_Int\_mod.F90} implements some of the most common of such interaction vertices $\hat{\mathcal{H}}_V^{(k)}$, as detailed in the remainder of this section, where we drop the superscript $(k)$ when unambiguous.
 
 
 \subsubsection{$SU(N)$ Hubbard interaction}
@@ -181,7 +181,7 @@ Another predefined vertex is:
 - \frac{|J_z|}{2}  \left( S^{z}_i - \sgn|J_z| S^{z}_j \right)^2 =
 J_z  S^{z}_i  S^{z}_j  - \frac{|J_z|}{2} (S^{z}_i)^2 - \frac{|J_z|}{2}(S^{z}_j)^2 
 \end{align} 
-which, if particle fluctuations are frozen on the $i$ and $j$ sites, then $(S^{z}_i)^2 = 1/4$ and the interactions corresponds to a $J_z$-$J_z$ ferro or antiferro coupling.
+which, if particle fluctuations are frozen on the $i$ and $j$ sites, then $(S^{z}_i)^2 = 1/4$ and the interaction corresponds to a $J_z$-$J_z$ ferromagnetic or antiferromagnetic coupling.
 
 The implementation of the interaction in \texttt{Predefined\_Int\_Jz} defines two operators:
 \begin{lstlisting}[style=fortran]
