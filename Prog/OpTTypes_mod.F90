@@ -35,7 +35,13 @@ module OpTTypes_mod
     use Operator_mod
     implicit none
     
-    ! Encapsulates Operations for real OpTs
+    !--------------------------------------------------------------------
+    !> @author
+    !> ALF-project
+    !> @brief
+    !> Encapsulates Operations for real OpTs
+    !>
+    !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: RealOpT
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Real(kind=kind(0.d0)) :: g, Zero
@@ -53,7 +59,13 @@ module OpTTypes_mod
         procedure :: dump => RealOpT_dump ! dump matrices for debugging to screen
     end type RealOpT
 
-    ! Encapsulates Operations for complex OpTs
+    !--------------------------------------------------------------------
+    !> @author
+    !> ALF-project
+    !> @brief
+    !> Encapsulates Operations for Complex OpTs
+    !>
+    !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: CmplxOpT
         Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Complex(kind=kind(0.d0)) :: g
@@ -81,7 +93,9 @@ contains
         
         this%Zero = 1.E-12
         this%Ndim_hop = Op_T%N
-        allocate (this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop), cmat(this%Ndim_hop, this%Ndim_hop), cinvmat(this%Ndim_hop, this%Ndim_hop))
+        allocate(this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop))
+        allocate(this%mat_1D2(this%Ndim_hop, this%Ndim_hop), this%invmat_1D2(this%Ndim_hop, this%Ndim_hop))
+        allocate(cmat(this%Ndim_hop, this%Ndim_hop), cinvmat(this%Ndim_hop, this%Ndim_hop))
 
         cg = -Op_T%g
         Call  Op_exp(cg, Op_T, cinvmat)
@@ -184,17 +198,27 @@ contains
         
         this%Zero = 1.E-12
         this%Ndim_hop = Op_T%N
+        
+        allocate(this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop))
+        allocate(this%mat_1D2(this%Ndim_hop, this%Ndim_hop), this%invmat_1D2(this%Ndim_hop, this%Ndim_hop))
+        
+        this%g = -Op_T%g/2.0
+        Call  Op_exp(this%g, Op_T, this%invmat_1D2)
+        this%g = Op_T%g/2.0
+        Call  Op_exp(this%g, Op_T, this%mat_1D2)
+        
         this%g = -Op_T%g
-!        if (allocated(this%mat) .and. allocated(this%invmat) ) then
-            allocate (this%mat(this%Ndim_hop, this%Ndim_hop), this%invmat(this%Ndim_hop, this%Ndim_hop))
-!        endif
         Call  Op_exp(this%g, Op_T, this%invmat)
         this%g = Op_T%g
-        Call  Op_exp(this%g, Op_T, this%mat )
+        Call  Op_exp(this%g, Op_T, this%mat)
+        
         DO i = 1, this%Ndim_hop
             DO j = i, this%Ndim_hop
                 this%mat(i, j) = (this%mat(i, j) + Conjg(this%mat(j, i)))/2.D0
                 this%invmat(i, j) = (this%invmat(i, j) + Conjg(this%invmat(j, i)))/2.D0
+                
+                this%mat_1D2(i, j) = (this%mat_1D2(i, j) + Conjg(this%mat_1D2(j, i)))/2.D0
+                this%invmat_1D2(i, j) = (this%invmat_1D2(i, j) + Conjg(this%invmat_1D2(j, i)))/2.D0
             ENDDO
         ENDDO
         this%P => Op_T%P
@@ -270,11 +294,11 @@ contains
         integer :: i,j
 
         do i = 1, size(this%mat, 1)
-        write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
+            write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
         enddo
         write (*,*) "---------------"
         do i = 1, size(this%mat, 1)
-        write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
+            write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
         enddo
     end subroutine
 
@@ -283,24 +307,24 @@ contains
         integer :: i,j
 
         do i = 1, size(this%mat, 1)
-        write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
+            write (*,*) (dble(this%mat(i,j)), j = 1,size(this%mat,2) )
         enddo
         write (*,*) "---------------"
         do i = 1, size(this%mat, 1)
-        write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
+            write (*,*) (dble(this%invmat(i,j)), j = 1,size(this%mat,2) )
         enddo
     end subroutine
     
         subroutine CmplxOpT_dealloc(this)
         class(CmplxOpT), intent(inout) :: this
         
-        deallocate(this%mat, this%invmat)
+        deallocate(this%mat, this%invmat, this%mat_1D2, this%invmat_1D2)
     end subroutine
 
     subroutine RealOpT_dealloc(this)
         class(RealOpT), intent(inout) :: this
         
-        deallocate(this%mat, this%invmat)
+        deallocate(this%mat, this%invmat, this%mat_1D2, this%invmat_1D2)
     end subroutine
     
 end module OpTTypes_mod
