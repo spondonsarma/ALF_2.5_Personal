@@ -18,15 +18,15 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 Predicting how efficient a certain Monte Carlo update scheme will turn out to be for a given simulation is very hard, so one must typically resort to testing to find out which option produces best results.
 
 \begin{table}[h]
-	\begin{tabular}{@{} p{0.175\columnwidth} p{0.09\columnwidth} p{0.69\columnwidth} @{}}
+	\begin{tabular}{@{} p{0.2\columnwidth} p{0.11\columnwidth} p{0.63\columnwidth} @{}}
 		\toprule
 		Updating schemes             &  Type            &  Description \\
 		\midrule
 %		Sequential Sweeps            &   Default        &  Unless overruled, the program carries out sequential, single spin-flip sweeps  \\ 
-		\texttt{Propose\_S0}         &  Logical         &  If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
-		\texttt{Global\_tau\_moves}  &  Logical         &  Whether to carry out  global moves on a single time slice.
+		\texttt{Propose\_S0}         &  \texttt{logical}          &  If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
+		\texttt{Global\_tau\_moves}  &  \texttt{logical}         &  Whether to carry out  global moves on a single time slice.
 		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{Nt\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
-		\texttt{Global\_moves}      &  Logical          &   If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
+		\texttt{Global\_moves}      &  \texttt{logical}          &   If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
 		\texttt{Tempering}          &  Compiling option &    Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation} \\
 		\bottomrule
 	\end{tabular}
@@ -80,7 +80,7 @@ This option allows one to carry out  user-defined global moves on a single time 
 	e^{-V_{M_I+M_V}(s_{M_I+M_V,\tau})}  \cdots e^{-V_{1}(s_{1,\tau})}  \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(k)}},
 \end{equation}
 where $e^{-V_{n}(s_{n})}$ denotes one element of the  operator list  containing the HS fields.  One can provide  an interval of indices, 
-$ \left[ \texttt{Nt\_sequential\_start}, \texttt{Nt\_sequential\_end} \right] $,  in which the operators will be updated  sequentially. Setting $\texttt{Nt\_sequential\_start} = 1$ and $\texttt{Nt\_sequential\_end} = M_I+M_V$  reproduces the  sequential single spin flip strategy of the above section.
+\texttt{[Nt\_sequential\_start, Nt\_sequential\_end]},  in which the operators will be updated  sequentially. Setting \texttt{Nt\_sequential\_start}$\; = 1$ and \texttt{Nt\_sequential\_end}$\; = M_I+M_V$  reproduces the  sequential single spin flip strategy of the above section.
 
 The variable \texttt{N\_tau\_Global}  sets the number of global moves carried out on each time slice \texttt{ntau}. Each global move is generated in the routine  \texttt{Global\_move\_tau}, which is provided by the user in the Hamiltonian file. In order to  define this move, one specifies the following variables: 
 \begin{itemize}
@@ -128,10 +128,10 @@ Let $h$ be a parameter which one can vary without  altering the configuration sp
 where $W(h,C)$ corresponds to the weight for a given value of $h$ and configuration C. 
 Clearly, one can sample  $P( \left[h_1,C_1\right], \left[h_2,C_2\right], \cdots, \left[h_n,C_n\right])$ by carrying out $n$ independent runs.
 However, parallel tempering  includes the following   exchange step:
-\begin{align} \label{eq:exchangestep}
-	&\left[h_1,C_1\right], \cdots, \left[\red{h_i,C_i}\right],\left[\blue{h_{i+1},C_{i+1}}\right], \cdots, \left[h_n,C_n\right]  \; \rightarrow \; \nonumber \\
-	&\left[h_1,C_1\right], \cdots, \left[\red{h_i},\blue{C_{i+1}}\right],\left[\blue{h_{i+1}},\red{C_{i}}\right], \cdots, \left[h_n,C_n\right]
-\end{align}
+\begin{multline} \label{eq:exchangestep}
+	\left[h_1,C_1\right], \cdots, \left[\red{h_i,C_i}\right],\left[\blue{h_{i+1},C_{i+1}}\right], \cdots, \left[h_n,C_n\right]  \; \rightarrow \\
+	\left[h_1,C_1\right], \cdots, \left[\red{h_i},\blue{C_{i+1}}\right],\left[\blue{h_{i+1}},\red{C_{i}}\right], \cdots, \left[h_n,C_n\right]
+\end{multline}
 which, for a symmetric proposal matrix, will  be accepted with probability
 \begin{equation}
 	\text{ min} \left( 1,   \frac{ W(h_i,C_{i+1}) W(h_{i+1},C_{i})}{W(h_i,C_{i}) W(h_{i+1},C_{i+1})} \right).

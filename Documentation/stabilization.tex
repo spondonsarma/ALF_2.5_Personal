@@ -98,9 +98,9 @@ f_{\text{Approx} }  &=
 \begin{aligned}[t]
    -\frac{1}{\beta V } \log \Tr &\left[ \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)     \right. \nonumber \\   
-   &\left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
+   &\;\;\left(\prod_{i=1\phantom{N_O}}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
      \left( \prod_{i=N_O-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)   \nonumber  \\
-   &\left.   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
+   &\;\;\left.   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)   
    \right]^{L_{\text{Trotter}}}  \nonumber 
 \end{aligned}\\
@@ -137,13 +137,13 @@ If the  \texttt{Symm}   \index{\texttt{Symm}} flag is set to true,  then the pro
 hopping terms.
 
 To save CPU time  when the \texttt{Symm}  flag is on  we  carry out the following   approximation:
-\begin{equation}
+\begin{multline}
 	\left[  
 	  \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
-   \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)      \right]^2   \simeq
-	  \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{2} \hat{T}_j } \right)    e^{-\Delta \tau\hat{T}_{N_T} }    
+   \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)      \right]^2   \simeq \\
+	   \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{2} \hat{T}_j } \right)    e^{-\Delta \tau\hat{T}_{N_T} }    
    \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{T}_j } \right).   
-\end{equation}
+\end{multline}
 The above  is consistent with the overall precision of the Trotter decomposition and more importantly  conserves the Hermiticity of the propagation. 
 
 %-----------------------------------------------------------------------------------
