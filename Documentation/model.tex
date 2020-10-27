@@ -6,7 +6,13 @@
 
 % !TEX root = doc.tex
 
-\red{Summarize and change slightly -- or completely omit -- in order to reduce overlap with ALF 1.0 paper (unless this paper is to be published as a 2nd version of the first - especially since we'd prefer to have it self-contained).}//
+%\red{Summarize and change slightly -- or completely omit -- in order to reduce overlap with ALF 1.0 paper (unless this paper is to be published as a 2nd version of the first - especially since we'd prefer to have it self-contained).}//
+
+
+We start this section by deriving the detailed form of the partition function and outlining the computation of observables (Sec.~\ref{sec:part} - \ref{sec:reweight}). 
+Next, we present a number of update strategies, namely local updates, global updates, and parallel tempering (Sec.~\ref{sec:updating}). 
+We then discuss the Trotter error, both for symmetric and asymmetric decompositions (Sec.~\ref{sec:trotter}) and, finally, we describe the measures we have implemented to make the code numerically stable (Sec.~\ref{sec:stable}).
+%Finally, we discuss the autocorrelations and associated time scales during the Monte Carlo sampling process (Sec.~\ref{sec:sampling}). 
 
 %------------------------------------------------------------
 \subsection{Formulation of the method}  \label{sec:method}
@@ -16,16 +22,9 @@ Our aim is to compute observables  for the general Hamiltonian  (\ref{eqn:genera
 We show below  how the grand-canonical partition function can be rewritten as 
 \begin{equation}
 Z = \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}
-= \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})
+= \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2}),
 \end{equation}
-and define the space of configurations  $C$.
-Note that the chemical potential term is already included in the definition of the one-body term ${\mathcal{\hat{H}}_{T}}$, see Eq. \eqref{eqn:general_ham_t}, of the general Hamiltonian.  
-
-The outline of this section is as follows. First, we derive the detailed form of the partition function and outline the computation of observables (Sec.~\ref{sec:part} - \ref{sec:reweight}). 
-Next, we present a number of update strategies, namely local updates, global updates, and parallel tempering (Sec.~\ref{sec:updating}). 
-We also describe the measures we have implemented to make the code numerically stable (Sec.~\ref{sec:stable}). Finally, we discuss the autocorrelations and associated time scales during the 
-Monte Carlo sampling process (Sec.~\ref{sec:sampling}). 
-
+and define the space of configurations  $C$. Note that the chemical potential term is already included in the definition of the one-body term ${\mathcal{\hat{H}}_{T}}$, see Eq. \eqref{eqn:general_ham_t}, of the general Hamiltonian.  
 The essential ingredients of the auxiliary-field quantum Monte Carlo implementation in the ALF package are the following:
 \begin{itemize}
 \item  We discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $. Generically this introduces a systematic Trotter error of $\mathcal{O}(\Delta \tau)^2$  \cite{Fye86}. 
@@ -43,11 +42,11 @@ The second issue is that in the continuous-time  approach it is hard to formulat
 continuous HS transform and obtain the discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
 \label{HS_squares}
-        e^{\Delta \tau  \lambda  \hat{A}^2 } =
+        e^{\Delta \tau  \lambda  \hat{A}^2 } = \frac{1}{4}
         \sum_{ l = \pm 1, \pm 2}  \gamma(l)
 e^{ \sqrt{\Delta \tau \lambda }
        \eta(l)  \hat{A} }
-                + \mathcal{O} (\Delta \tau ^4)\;,
+                + \mathcal{O} \left(  (\Delta \tau \lambda)^4\right) \;,
 \end{equation}
 where the fields $\eta$ and $\gamma$ take the values:
 \begin{equation} \label{eta_gamma_fields}
@@ -57,13 +56,19 @@ where the fields $\eta$ and $\gamma$ take the values:
 \end{aligned}
 \end{equation}
 Since the Trotter error is already of order $(\Delta \tau ^2) $ per time slice, this transformation is next to exact.
-\item $\hat{Z}_k$ can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$, in which case the Ising spins take the values $s_{k} = \pm 1$, or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi|\phi\rangle $, with $\phi$ a real number.
+One can relate the expectation value of the field $\eta_l$ to the operator $\hat{A}$  by noting that:
+\begin{eqnarray} 
+    & &  \frac{1}{4} \sum_{l = \pm 1, \pm 2} \gamma_l e^{\sqrt{ \Delta \tau \lambda} \eta_l \hat{A}} \left( \frac{\eta_l}{-2 \sqrt{ \Delta \tau \lambda}  } \right)    =   e^{ \Delta \tau \lambda  \hat{A}^2}  \hat{A}  +   \mathcal{O}  \left( (\Delta \tau \lambda)^3\right)   \text{  and } \nonumber \\  
+     & &    \frac{1}{4} \sum_{l = \pm 1, \pm 2} \gamma_l e^{\sqrt{ \Delta \tau \lambda} \eta_l \hat{A}} \left( \frac{\eta_l^2 - 2}{4 \Delta \tau \lambda  } \right)    =   e^{ \Delta \tau \lambda  \hat{A}^2}  \hat{A}^2  +   \mathcal{O}  \left( (\Delta \tau \lambda)^2\right).
+\end{eqnarray}
+\item $\hat{Z}_k$ can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$, in which case the Ising spins take the values $s_{k} = \pm 1$, or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi_k  |\phi\rangle $, with $\phi_k$ a real number.  
+
 \item From the above it follows that the  Monte Carlo configuration space $C$  
 is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
 \begin{equation}
-	C = \left\{   s_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}.
+	C = \left\{   \phi_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}.
 \end{equation}
-Here, the HS fields take the values $l_{j,\tau} = \pm 2, \pm 1 $ and the Ising spins $s_{i,\tau}$ may, for instance, be a continuous real field or, if $\hat{Z}_k = \hat{\sigma}_{z}$, be restricted to $\pm 1$.
+Here, the HS fields take the values $l_{j,\tau} = \pm 2, \pm 1 $ and  $\phi_{i,\tau}$ may, for instance, be a continuous real field or, if $\hat{Z}_k = \hat{\sigma}_{z}$, be restricted to $\pm 1$.
 \end{itemize}
 
 %------------------------------------------------------------
@@ -228,7 +233,7 @@ where $\Delta $ is intensive positive quantity and $N \beta$ denotes the  Euclid
 	T_{CPU}  \gg e^{2 \Delta N \beta}.
 \end{equation}   
 Two comments are in order. First, the presence of a sign problem invariably leads to an exponential increase of CPU time as a function of the Euclidean volume. And second,  $\Delta$ is formulation dependent.  
-For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:walk1}   has a much more severe sign problem than the formulation presented in Sec.~\ref{sec:walk1.1} where the HS field couples to the z-component of the magnetization. 
+For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard}   has a much more severe sign problem than the formulation also presented in Sec.~\ref{sec:hubbard} where the HS field couples to the z-component of the magnetization. 
 
 
 

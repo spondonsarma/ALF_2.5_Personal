@@ -98,7 +98,7 @@ The great advantage of the Langevin updating scheme is the absence of update rej
 \end{itemize}
 
 We have tested the code for a 6-site Hubbard chain at half-filling  at $U/t = 4$,  $\beta t = 4$.
-The Hubbard interaction can also be decoupled using a continuous HS transformation, where we introduce a real auxiliary field $s_{i,\tau}$ for every lattice site $i$ and time slice $\tau$. When the HS fields are coupled to the $z$-component of the magnetization (see Sec.~\ref{sec:walk1.1}), the partition function can be written as
+The Hubbard interaction can also be decoupled using a continuous HS transformation, where we introduce a real auxiliary field $s_{i,\tau}$ for every lattice site $i$ and time slice $\tau$. When the HS fields are coupled to the $z$-component of the magnetization (see Sec.~\ref{sec:hubbard}), the partition function can be written as
 \begin{align}
 Z &= \int \left( \prod_{\tau=1}^{L_{\text{Trotter}}} \prod_{i=1}^{N_{\text{unit-cell}} } \frac{d s_{i,\tau}}{\sqrt{2 \pi}} e^{-\frac{1}{2} s_{i,\tau}^2 } \right) \times \nonumber \\
  &\quad \prod_{s=\uparrow, \downarrow} \det \left(  \mathds{1} + \prod_{\tau=1}^{L_{\mathrm{Trotter}}}    \prod_{i=1}^{N_{\text{unit-cell}}} \left( e^{-\sqrt{\Delta \tau U}s_{i,\tau} \bm{V}^{(is)}} \right) e^{-\Delta \tau \bm{T}} \right) + \mathcal{O}(\Delta\tau^{2}).
