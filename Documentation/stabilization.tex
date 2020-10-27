@@ -39,24 +39,26 @@ The default Trotter decomposition in the ALF code is  based on the equation:
 	e^{ -\Delta \tau \left( \hat{A} + \hat{B} \right)  }  =  e^{ -\Delta \tau \hat{A}}  e^{ -\Delta \tau  \hat{B}  }   +  \frac{\Delta  \tau^2}{2} \left[ \hat{B}, \hat{A} \right] + \mathcal{O} \left (\Delta \tau ^3 \right).
 \end{equation}
 Using iteratively the above  the single time step is given by: 
-\begin{align}
-    e^{-\Delta \tau \mathcal{H}}    =&   \prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  +  \nonumber \\
-    &\underbrace{ \frac{\Delta \tau^2}{2}  
+\begin{multline}
+    e^{-\Delta \tau \mathcal{H}}   =   \prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  +  \\
+    \underbrace{ \frac{\Delta \tau^2}{2}  
    \left(    \sum_{i=1}^{N_O}  \sum_{j=1}^{N_T} \left[ \hat{T}_j, \hat{O}_i \right]  +   \sum_{j'}^{N_T -1}  \left[ \hat{T}_{j'},   \hat{T}_{j'}^{>}\right] 
    +   \sum_{i'=1}^{N_O-1}  \left[ \hat{O}_{i'}, \hat{O}^{>}_{i'} \right]  \right)  }_{\equiv \Delta \tau \hat{\lambda}_1} 
    + \mathcal{O} \left( \Delta \tau^3 \right).
-\end{align}
+\end{multline}
 In the above, we have introduced the shorthand notation 
 \begin{equation}
-\hat{T}_{n}^{>} = \sum_{j=n+1}^{N_T}  \hat{T}_{j}, \, \, \text{and} \, \, \hat{O}_{n}^{>} = \sum_{j=n+1}^{N_O}  \hat{O}_{j}.
+\hat{T}_{n}^{>} = \sum_{j=n+1}^{N_T}  \hat{T}_{j} \quad \text{and} \quad \hat{O}_{n}^{>} = \sum_{j=n+1}^{N_O}  \hat{O}_{j}.
 \end{equation} 
 The full propagation then reads
-\begin{align}
+\begin{equation}
+\begin{split}
   \hat{U}_{\text{Approx}} &=  \left(\prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  \right)   = e^{-\beta \left(  \hat{H} + \hat{\lambda}_1 \right)} 
-  + \mathcal{O} \left( \Delta \tau^2 \right)  \nonumber \\
+  + \mathcal{O} \left( \Delta \tau^2 \right)  \\
   &=  e^{-\beta  \hat{H}  }  - 
 	 \int_0^{\beta}  d \tau  e^{-(\beta-\tau )\hat{H}} \hat{\lambda}_1  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^2 ).
-\end{align}
+\end{split}
+\end{equation} 
 The last step follows from time-dependent perturbation theory. 
 The following comments are in order:
 \begin{itemize}
@@ -82,16 +84,16 @@ Before we apply the expression above to a time step, let us write
 	 +  \underbrace{\frac{\Delta \tau ^3}{12}   \left[ 2\hat{T}^{>}_0 + \hat{O}^{>}_0, \left[\hat{O}^{>}_{0}, \hat{T}^{>}_0 \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{TO}}   + \mathcal{O}\left(  \Delta \tau^5 \right).
 \end{equation}
 Then,
-\begin{align}
- e^{-\Delta \tau \sum_{i}^{N_I} \hat{O}_i }  =&  \left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
-   \left(  \prod_{i=N_O-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)  +  \nonumber \\
-  &\underbrace{\frac{\Delta \tau ^3}{12}  \sum_{i=1}^{N_0-1} \left[ 2\hat{O}_i + \hat{O}^{>}_i, \left[\hat{O}^{>}_{i}, \hat{O}_i \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{O}}    + \mathcal{O}\left(  \Delta  \tau^5 \right), 
-\end{align}
-\begin{align}
- e^{- \frac{\Delta \tau}{2} \sum_{j}^{N_T} \hat{T}_j }  =&  \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
-   \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)  +  \nonumber \\
-  &\underbrace{\frac{\Delta \tau ^3}{96}  \sum_{j=1}^{N_T-1} \left[ 2\hat{T}_j + \hat{T}^{>}_j, \left[\hat{T}^{>}_{j}, \hat{T}_j \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{T}}    + \mathcal{O}\left(  \Delta  \tau^5 \right) 
-\end{align}
+\begin{multline}
+ e^{-\Delta \tau \sum_{i}^{N_I} \hat{O}_i }  =  \left(\prod_{i=1}^{N_O-1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)    e^{-\Delta \tau \hat{O}_{N_O} }    
+   \left(  \prod_{i=N_O-1}^{1} e^{-\frac{\Delta \tau}{2} \hat{O}_i } \right)  + \\
+  \underbrace{\frac{\Delta \tau ^3}{12}  \sum_{i=1}^{N_0-1} \left[ 2\hat{O}_i + \hat{O}^{>}_i, \left[\hat{O}^{>}_{i}, \hat{O}_i \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{O}}    + \mathcal{O}\left(  \Delta  \tau^5 \right), 
+\end{multline}
+\begin{multline}
+ e^{- \frac{\Delta \tau}{2} \sum_{j}^{N_T} \hat{T}_j }  = \left(\prod_{j=1}^{N_T-1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right)    e^{-\frac{\Delta \tau}{2} \hat{T}_{N_T} }    
+   \left(  \prod_{j=N_T-1}^{1} e^{-\frac{\Delta \tau}{4} \hat{T}_j } \right) + \\
+  \underbrace{\frac{\Delta \tau ^3}{96}  \sum_{j=1}^{N_T-1} \left[ 2\hat{T}_j + \hat{T}^{>}_j, \left[\hat{T}^{>}_{j}, \hat{T}_j \right]\right] }_{\equiv \Delta \tau \hat{\lambda}_{T}}    + \mathcal{O}\left(  \Delta  \tau^5 \right) 
+\end{multline}
 and we can derive  a  closed equation  for  the free energy density:
 \begin{align}
 f_{\text{Approx} }  &=  
