@@ -40,20 +40,31 @@
 !--------------------------------------------------------------------
      Module Observables
 
+#if !defined HDF5 && !defined OBS_LEGACY
+#define OBS_LEGACY 1
+#endif
+
        Use Lattices_v3, only: Unit_cell, Lattice
        use iso_fortran_env, only: output_unit, error_unit
 
-       Type Obser_Vec
+       Type :: Obser_Vec
 !>  Data structure for
 !>  < O_n >  n : =1, size(Obs,1)
-          Integer            :: N                    ! Number of measurements
-          real      (Kind=Kind(0.d0)) :: Ave_Sign             ! Averarge sign
+          !private
+          Integer                     :: N        ! Number of measurements
+          real      (Kind=Kind(0.d0)) :: Ave_Sign ! Averarge sign
+          Character (len=64)          :: File_Vec ! Name of file in which the bins will be written out
           complex   (Kind=Kind(0.d0)), pointer :: Obs_vec(:)  ! Vector of observables
-          Character (len=64) :: File_Vec             ! Name of file in which the bins will be written out
+
+       contains
+          procedure :: make        => Obser_vec_make
+          procedure :: init        => Obser_vec_init
+          procedure :: print_bin   => print_bin_vec
+          procedure :: measure     => Obser_vec_measure
        end type Obser_Vec
 
 
-       Type Obser_Latt
+       Type :: Obser_Latt
 !>  Data structure for
 !>  < O^{dagger}(i,tau)_n O(j,0)_m>  - < O_n> <O_m>
 !>  where it is assumed that translation symmetry as specified by the lattice Latt is present.
@@ -74,6 +85,10 @@
                                            ! - P:  finite temperature particle
                                            ! - PH: finite temperature particle-hole
                                            ! - PP: finite temperature particle-particle
+       contains
+          procedure :: make        => Obser_latt_make
+          procedure :: init        => Obser_latt_init
+          procedure :: print_bin   => print_bin_latt
        end type Obser_Latt
 
 
@@ -82,7 +97,7 @@
 
          Subroutine Obser_Latt_make_eq(Obs, Filename, Latt, Latt_unit)
            Implicit none
-           Type(Obser_Latt),  Intent(INOUT)      :: Obs
+           class(Obser_Latt), Intent(INOUT)      :: Obs
            Character(len=64), Intent(IN)         :: Filename
            Type(Lattice),     Intent(IN), target :: Latt
            Type(Unit_cell),   Intent(IN), target :: Latt_unit
@@ -96,7 +111,32 @@
            dtau = -1.d0
            
            call Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
+           
          end subroutine Obser_Latt_make_eq
+
+         Subroutine Obser_Latt_make_norb(Obs, Nt, Norb, Filename, Latt, Channel, dtau)
+            Implicit none
+            class(Obser_Latt), Intent(INOUT)      :: Obs
+            Integer,           Intent(IN)         :: Nt
+            Integer,           Intent(IN)         :: Norb
+            Character(len=64), Intent(IN)         :: Filename
+            Type(Lattice),     Intent(IN), target :: Latt
+            Character(len=2),  Intent(IN)         :: Channel
+            Real(Kind=Kind(0.d0)),  Intent(IN)    :: dtau
+           
+            allocate(Obs%Latt_unit)
+            Obs%Latt_unit%N_coord = 0
+            Obs%Latt_unit%Norb = Norb
+            allocate(Obs%Latt_unit%Orb_pos_p(Norb, 2))
+            Obs%Latt_unit%Orb_pos_p = 0.d0
+            
+            Allocate (Obs%Obs_Latt(Latt%N, Nt, Obs%Latt_unit%Norb, Obs%Latt_unit%Norb))
+            Allocate (Obs%Obs_Latt0(Obs%Latt_unit%Norb))
+            Obs%File_Latt = Filename
+            Obs%Latt => Latt
+            Obs%Channel = Channel
+            Obs%dtau = dtau
+         end subroutine Obser_Latt_make_norb
 
          Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
 !--------------------------------------------------------------------
@@ -107,7 +147,7 @@
 !> Create lattice type observable
 !>
 !> @details
-!> Create lattice type observable. Be aware that Latt and Latt_unit don't get copied 
+!> Create lattice type observable. Be aware that Latt and Latt_unit don't get copied
 !> but linked, meaning changing them after making the observable still affects the
 !> observable.
 !>
@@ -141,7 +181,7 @@
 !> \endverbatim
 !-------------------------------------------------------------------
            Implicit none
-           Type(Obser_Latt),  Intent(INOUT)      :: Obs
+           class(Obser_Latt), Intent(INOUT)      :: Obs
            Integer,           Intent(IN)         :: Nt
            Character(len=64), Intent(IN)         :: Filename
            Type(Lattice),     Intent(IN), target :: Latt
@@ -160,7 +200,7 @@
 
          Subroutine Obser_Latt_Init(Obs)
            Implicit none
-           Type (Obser_Latt), intent(INOUT) :: Obs
+           class(Obser_Latt), intent(INOUT) :: Obs
            Obs%Obs_Latt  = cmplx(0.d0,0.d0,kind(0.d0))
            Obs%Obs_Latt0 = cmplx(0.d0,0.d0,kind(0.d0))
            Obs%N         = 0
@@ -171,7 +211,7 @@
 
          Subroutine Obser_Vec_make(Obs,N,Filename)
            Implicit none
-           Type (Obser_vec), intent(INOUT) :: Obs
+           class(Obser_vec), intent(INOUT) :: Obs
            Integer, Intent(IN)             :: N
            Character (len=64), Intent(IN)  :: Filename
            Allocate (Obs%Obs_vec(N))
@@ -181,7 +221,7 @@
 
          Subroutine Obser_Vec_Init(Obs)
            Implicit none
-           Type (Obser_vec), intent(INOUT) :: Obs
+           class(Obser_vec), intent(INOUT) :: Obs
            Obs%Obs_vec = cmplx(0.d0,0.d0,kind(0.d0))
            Obs%N       = 0
            Obs%Ave_Sign= 0.d0
@@ -189,23 +229,63 @@
 
 !--------------------------------------------------------------------
 
+         Subroutine Obser_vec_measure(obs, value, Phase)
+           Implicit none
+
+           class (Obser_vec),        Intent(Inout) :: Obs
+           complex(Kind=Kind(0.d0)), Intent(In)    :: value(:)  ! Vector of observables
+           complex(Kind=Kind(0.d0)), Intent(IN), optional    :: Phase
+            !Local
+           Complex (Kind=Kind(0.d0)) :: ZP, ZS
+
+           obs%N = obs%N + 1
+
+           if ( present(Phase) ) then
+              ZP = PHASE/Real(Phase, kind(0.D0))
+              ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+
+              obs%Ave_sign  = obs%Ave_sign + real(ZS, kind(0.D0))
+              obs%obs_vec   = obs%obs_vec + value *ZS*ZP
+           else
+              obs%Ave_sign  = obs%Ave_sign + 1.d0
+              obs%obs_vec   = obs%obs_vec  + value
+           endif
+
+         end Subroutine  Obser_vec_measure
+
+!--------------------------------------------------------------------
+
          Subroutine  Print_bin_Latt(Obs, Group_Comm)
            Use Lattices_v3
-#ifdef MPI
+#if defined HDF5
+           Use hdf5
+           Use alf_hdf5
+#endif
+#if defined MPI
            Use mpi
 #endif
            Implicit none
 
-           Type (Obser_Latt),        Intent(Inout)   :: Obs
+           class(Obser_Latt),        Intent(Inout)   :: Obs
            Integer,                  Intent(In)      :: Group_Comm
 
            ! Local
            Integer :: Ns, Nt, no, no1, I, Ntau
-           Complex (Kind=Kind(0.d0)), allocatable :: Tmp(:,:,:,:)
+           Complex (Kind=Kind(0.d0)), pointer     :: Tmp(:,:,:,:)
            Real    (Kind=Kind(0.d0))              :: x_p(2)
            Complex (Kind=Kind(0.d0))              :: Sign_bin
            Character (len=64) :: File_pr,  File_suff, File_aux, tmp_str
            logical            :: File_exists
+#ifdef HDF5
+           Character (len=7), parameter  :: File_h5 = "data.h5"
+           Character (len=64)            :: filename, groupname, obs_dsetname, bak_dsetname, sgn_dsetname
+           INTEGER(HID_T)                :: file_id, group_id
+           logical                       :: link_exists
+           INTEGER                       :: hdferr
+           INTEGER(HSIZE_T), allocatable :: dims(:)
+           TYPE(C_PTR)                   :: dat_ptr
+           real(Kind=Kind(0.d0)), target :: sgn
+#endif
 #ifdef MPI
            Complex (Kind=Kind(0.D0)), allocatable :: Tmp1(:)
            Complex (Kind=Kind(0.d0)) :: Z
@@ -232,6 +312,10 @@
               File_suff = "_tau"
            endif
            write(File_pr, '(A,A)') trim(Obs%File_Latt), Trim(File_suff)
+#if defined HDF5
+           groupname = File_pr
+           filename = File_h5
+#endif
            Allocate (Tmp(Ns, Ntau, Obs%Latt_unit%Norb, Obs%Latt_unit%Norb))
            Obs%Obs_Latt  = Obs%Obs_Latt /dble(Obs%N   )
            Obs%Obs_Latt0 = Obs%Obs_Latt0/dble(Obs%N*Ns*Ntau)
@@ -257,9 +341,22 @@
 
            If (Irank_g == 0 ) then
 #endif
-#if defined(TEMPERING)
-              write(File_pr ,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Latt),trim(File_suff)
+#if defined TEMPERING
+              write(File_pr ,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Latt),trim(File_suff )
+#if defined HDF5
+              write(filename ,'(A,I0,A,A)') "Temp_",igroup,"/",trim(File_h5)
 #endif
+#endif
+
+              do nt = 1, Ntau
+                 do no = 1, Obs%Latt_unit%Norb
+                    do no1 = 1, Obs%Latt_unit%Norb
+                       Call Fourier_R_to_K(Obs%Obs_Latt(:,nt,no,no1), Tmp(:,nt,no,no1), Obs%Latt)
+                    enddo
+                 enddo
+              enddo
+
+#if defined OBS_LEGACY
               write(File_aux, '(A,A)') trim(File_pr), "_info"
               inquire(file=File_aux, exist=File_exists)
               if (.not.File_exists) then
@@ -289,13 +386,6 @@
                  close(10)
               endif
 
-              do nt = 1, Ntau
-                 do no = 1, Obs%Latt_unit%Norb
-                    do no1 = 1, Obs%Latt_unit%Norb
-                       Call Fourier_R_to_K(Obs%Obs_Latt(:,nt,no,no1), Tmp(:,nt,no,no1), Obs%Latt)
-                    enddo
-                 enddo
-              enddo
               Open(Unit=10, File=File_pr, status="unknown",  position="append")
               If ( Ntau == 1 ) then
                  Write(10,*) Obs%Ave_sign, Obs%Latt_unit%Norb, Obs%Latt%N
@@ -317,7 +407,62 @@
                  enddo
               enddo
               close(10)
-#if defined(MPI)
+#endif
+
+#if defined HDF5
+              write(obs_dsetname,'(A,A,A)') trim(groupname), "/obser"
+              write(bak_dsetname,'(A,A,A)') trim(groupname), "/back"
+              write(sgn_dsetname,'(A,A,A)') trim(groupname), "/sign"
+
+              CALL h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, hdferr)
+
+              !Writes the lattice to HDF5 file if it doesn't already exist
+              call write_latt(file_id, Obs%Latt)
+
+              CALL h5lexists_f(file_id, groupname, link_exists, hdferr)
+              if ( .not. link_exists ) then
+                !Create Group for observable
+                CALL h5gcreate_f (file_id, groupname, group_id, hdferr)
+                call write_attribute(group_id, "dtau", Obs%dtau, hdferr)
+                call write_attribute(group_id, "Channel", Obs%Channel, hdferr)
+                call write_latt(group_id, Obs%Latt)
+                CALL h5gclose_f (group_id, hdferr)
+
+                !Create Dataset for data
+                allocate( dims(6) )
+                dims = [2, Obs%Latt%N, Ntau, Obs%Latt_unit%Norb, Obs%Latt_unit%Norb, 0]
+                CALL init_dset(file_id, obs_dsetname, dims, .true.)
+                deallocate( dims )
+
+                !Create Dataset for background
+                allocate( dims(3) )
+                dims = [2, Obs%Latt_unit%Norb, 0]
+                CALL init_dset(file_id, bak_dsetname, dims, .true.)
+                deallocate( dims )
+
+                !Create Dataset for sign
+                allocate( dims(1) )
+                dims = [0]
+                CALL init_dset(file_id, sgn_dsetname, dims, .False.)
+                deallocate( dims )
+              endif
+
+              !Write data
+              dat_ptr = C_LOC(tmp(1,1,1,1))
+              CALL append_dat(file_id, obs_dsetname, dat_ptr)
+
+              !Write background
+              dat_ptr = C_LOC(Obs%Obs_Latt0(1))
+              CALL append_dat(file_id, bak_dsetname, dat_ptr)
+
+              !Write sign
+              sgn = Obs%Ave_sign
+              dat_ptr = C_LOC(sgn)
+              CALL append_dat(file_id, sgn_dsetname, dat_ptr)
+
+              CALL h5fclose_f(file_id, hdferr)
+#endif
+#if defined MPI
            Endif
 #endif
 
@@ -328,22 +473,38 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
-#ifdef MPI
+#if defined MPI
            Use mpi
+#endif
+#if defined HDF5
+           Use hdf5
+           Use alf_hdf5
 #endif
            Implicit none
 
-           Type (Obser_vec), intent(Inout) :: Obs
+           class(Obser_vec), intent(Inout) :: Obs
            Integer, INTENT(IN)  :: Group_Comm
 
            ! Local
            Integer :: I
-           Character (len=64)             :: File_pr, File_suff
-#ifdef MPI
+           Character (len=64)           :: File_pr
+
+#if defined HDF5
+           Character (len=7), parameter  :: File_h5 = "data.h5"
+           Character (len=64)            :: filename, groupname, obs_dsetname, sgn_dsetname
+           INTEGER(HID_T)                :: file_id, group_id
+           logical                       :: link_exists
+           INTEGER                       :: hdferr
+           INTEGER(HSIZE_T), allocatable :: dims(:)
+           TYPE(C_PTR)                   :: dat_ptr
+           real(Kind=Kind(0.d0)), target :: sgn
+#endif
+#if defined MPI
            Integer        :: Ierr, Isize, Irank, No
            INTEGER        :: irank_g, isize_g, igroup
            Complex  (Kind=Kind(0.d0)), allocatable :: Tmp(:)
            Real     (Kind=Kind(0.d0)) :: X
+
 
            CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
            CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -353,10 +514,13 @@
 #endif
            Obs%Obs_vec  = Obs%Obs_vec /dble(Obs%N)
            Obs%Ave_sign = Obs%Ave_sign/dble(Obs%N)
-           File_suff = "_scal"
-           write(File_pr, '(A,A)') trim(Obs%File_Vec), Trim(File_suff)
+           write(File_pr, '(A,A)') trim(Obs%File_Vec), "_scal"
+#if defined HDF5
+           groupname = File_pr
+           filename = File_h5
+#endif
 
-#if defined(MPI)
+#if defined MPI
            No = size(Obs%Obs_vec, 1)
            Allocate (Tmp(No) )
            Tmp = cmplx(0.d0,0.d0,kind(0.d0))
@@ -371,13 +535,59 @@
 
            if (Irank_g == 0 ) then
 #endif
-#if defined(TEMPERING)
-              write(File_pr,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Vec),trim(File_suff)
+
+#if defined TEMPERING
+              write(File_pr,'(A,I0,A,A,A)') "Temp_",igroup,"/",trim(Obs%File_Vec), "_scal"
+#if defined HDF5
+              write(filename ,'(A,I0,A,A)') "Temp_",igroup,"/",trim(File_h5)
 #endif
+#endif
+
+#if defined OBS_ASCII || defined OBS_LEGACY
               Open (Unit=10,File=File_pr, status="unknown",  position="append")
               WRITE(10,*) size(Obs%Obs_vec,1)+1, (Obs%Obs_vec(I), I=1,size(Obs%Obs_vec,1)), Obs%Ave_sign
               close(10)
-#if defined(MPI)
+#endif
+
+#if defined HDF5
+              write(obs_dsetname,'(A,A,A)') trim(groupname), "/obser"
+              write(sgn_dsetname,'(A,A,A)') trim(groupname), "/sign"
+
+              CALL h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, hdferr)
+
+              !Check if observable already exists in hdf5 file
+              CALL h5lexists_f(file_id, groupname, link_exists, hdferr)
+
+              if ( .not. link_exists ) then
+                !Create Group for observable
+                CALL h5gcreate_f (file_id, groupname, group_id, hdferr)
+                CALL h5gclose_f (group_id, hdferr)
+
+                !Create Dataset for data
+                allocate( dims(3) )
+                dims = [2, size(Obs%Obs_vec,1), 0]
+                CALL init_dset(file_id, obs_dsetname, dims, .true.)
+                deallocate( dims )
+
+                !Create Dataset for sign
+                allocate( dims(1) )
+                dims = [0]
+                CALL init_dset(file_id, sgn_dsetname, dims, .false.)
+                deallocate( dims )
+              endif
+
+              !Write data
+              dat_ptr = C_LOC(Obs%Obs_vec(1))
+              CALL append_dat(file_id, obs_dsetname, dat_ptr)
+
+              !Write sign
+              sgn = Obs%Ave_sign
+              dat_ptr = C_LOC(sgn)
+              CALL append_dat(file_id, sgn_dsetname, dat_ptr)
+
+              CALL h5fclose_f(file_id, hdferr)
+#endif
+#if defined MPI
            endif
 #endif
 
