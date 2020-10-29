@@ -2,20 +2,43 @@
 STABCONFIGURATION=""
 # STABCONFIGURATION="${STABCONFIGURATION} -DQRREF"
 
+ALF_DIR="$PWD"
+
+set_hdf5_flags()
+{
+  HDF5_DIR="$1"
+  if [ ! -d "$HDF5_DIR" ]; then
+    echo
+  fi
+  INC_HDF5="-I$HDF5_DIR/include"
+  LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
+  LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
+}
+
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
-INTELOPTFLAGS="-cpp -O3"
-INTELOPTFLAGS="$INTELOPTFLAGS -no-wrap-margin"
+INTELOPTFLAGS="-cpp -O3 "
 #INTELOPTFLAGS="$INTELOPTFLAGS -traceback"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
+INTELDEVFLAGS="-warn all -check all -g -traceback"
 INTELUSEFULFLAGS="-std08"
 
 # default optimization flags for GNU compiler
-GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math -fmax-errors=10"
+GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
+#GNUOPTFLAGS="-cpp -O0 -ffree-line-length-none"
 # uncomment the next line if you want to use additional openmp parallelization
 GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
+# GNUDEVFLAGS="-Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
+GNUDEVFLAGS="-Wconversion -Werror -fcheck=all -g -fbacktrace -fmax-errors=10"
 GNUUSEFULFLAGS="-std=f2008"
+
+# default optimization flags for PGI compiler
+PGIOPTFLAGS="-Mpreprocess -O1"
+# uncomment the next line if you want to use additional openmp parallelization
+PGIOPTFLAGS="${PGIOPTFLAGS} -mp"
+PGIDEVFLAGS="-Minform=inform -g -traceback"
+PGIUSEFULFLAGS=""
 
 MACHINE=""
 Machinev=0
@@ -23,6 +46,7 @@ MODE=""
 modev=0
 STAB=""
 stabv=0
+HDF5_ENABLED=""
 
 RED='\033[0;31m'
 NC='\033[0m' # No Color
@@ -44,6 +68,15 @@ while [ "$#" -gt "0" ]; do
       fi
       MODE="$ARG"
       modev="1"
+    ;;
+    HDF5)
+      HDF5_ENABLED="1"
+    ;;
+    DEVEL|DEVELOPMENT)
+      #DEVEL="1"
+      GNUOPTFLAGS="$GNUOPTFLAGS $GNUDEVFLAGS"
+      INTELOPTFLAGS="$INTELOPTFLAGS $INTELDEVFLAGS"
+      PGIOPTFLAGS="$PGIOPTFLAGS $PGIDEVFLAGS"
     ;;
     *)
       if [ "$Machinev" = "1" ]; then
@@ -135,17 +168,7 @@ case $MACHINE in
     ALF_FC="$mpif90"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-  ;;
-
-  #Development
-  DEVEL|DEVELOPMENT)
-    # F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
-    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -g -fbacktrace "
-    # F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
-    F90USEFULFLAGS="$GNUUSEFULFLAGS"
-
-    ALF_FC="$GNUCOMPILER"
-    LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
   ;;
 
   #LRZ enviroment
@@ -153,26 +176,29 @@ case $MACHINE in
     module switch mpi.ibm  mpi.intel/2018
     module switch intel intel/18.0
     module switch mkl mkl/2018
+    module load hdf5
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="$MKL_LIB"
+    LIB_HDF5="$HDF5_F90_LIB $HDF5_LIB $SZIP_LIB -lz"
+    INC_HDF5="$HDF5_INC"
   ;;
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    module switch mpi.intel  mpi.intel/2019
-    module switch intel intel/19.0
-    module switch mkl mkl/2019
-    #module load  mpi.intel
-    #module load intel
-    #module load mkl
+    #module switch mpi.intel  mpi.intel/2019
+    #module switch intel intel/19.0
+    #module switch mkl mkl/2019
+    module load hdf5/serial/1.8
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="$MKL_LIB"
+    LIB_HDF5="$HDF5_F90_LIB $HDF5_LIB $SZIP_LIB -lz"
+    INC_HDF5="$HDF5_INC"
   ;;
 
   #JUWELS enviroment
@@ -193,6 +219,7 @@ case $MACHINE in
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
     LIB_BLAS_LAPACK="-mkl"
+    set_hdf5_flags "$ALF_DIR/HDF5/intel/"
   ;;
 
   #GNU (as Hybrid code)
@@ -201,10 +228,13 @@ case $MACHINE in
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
     ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
+    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
   ;;
 
   #PGI
   PGI)
+    F90OPTFLAGS="$PGIOPTFLAGS"
+    F90USEFULFLAGS="$PGIUSEFULFLAGS"
     if [ "$MPICOMP" -eq "0" ]; then
       ALF_FC="pgfortran"
     else
@@ -214,8 +244,7 @@ case $MACHINE in
       printf "    'export ALF_FC=<mpicompiler>'${NC}\n"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas"
-    F90OPTFLAGS="-Mpreprocess -O1 -mp"
-    F90USEFULFLAGS="-Minform=inform"
+    set_hdf5_flags "$ALF_DIR/HDF5/pgi/"
   ;;
 
   #Default (unknown machine)
@@ -241,6 +270,8 @@ case $MACHINE in
     printf "Possible modes are MPI (default), noMPI and Tempering\n"
     printf "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)\n"
     printf "and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)\n"
+    printf "Further options: Devel and HDF5"
+    printf "To hand an additional flag to the compiler, export it in the varible ALF_FLAGS_EXT prior to soucing this script."
 
     PROGRAMMCONFIGURATION=""
     F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
@@ -248,17 +279,25 @@ case $MACHINE in
 
     ALF_FC="gfortran"
     LIB_BLAS_LAPACK="-llapack -lblas"
+    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
   ;;
 esac
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
-Libs="$PWD/Libraries"
+Libs="$ALF_DIR/Libraries"
 ALF_INC="-I${Libs}/Modules"
-ALF_LIB="${Libs}/Modules/modules_90.a ${Libs}/libqrref/libqrref.a ${LIB_BLAS_LAPACK}"
+ALF_LIB="${Libs}/Modules/modules_90.a ${LIB_BLAS_LAPACK} ${Libs}/libqrref/libqrref.a"
+if [ "${HDF5_ENABLED}" = "1" ]; then
+  echo; echo "HDF5 enabled"
+  ALF_INC="${ALF_INC} ${INC_HDF5}"
+  ALF_LIB="${ALF_LIB} ${LIB_HDF5}"
+else
+  echo; echo "HDF5 disabled"
+fi
 export ALF_LIB
 
-export ALF_DIR="$PWD"
+export ALF_DIR
 export ALF_FC
 
 if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
@@ -269,6 +308,12 @@ ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_MODULES="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_ANA="${F90USEFULFLAGS} ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
+# Control with flags -DHDF5 -DHDF5_ZLIB -DOBS_ASCII -DOBS_LEGACY, which observable format to use
+if [ "${HDF5_ENABLED}" = "1" ]; then
+  ALF_FLAGS_MODULES="${ALF_FLAGS_MODULES} ${INC_HDF5} -DHDF5 -DHDF5_ZLIB"
+  ALF_FLAGS_ANA="${ALF_FLAGS_ANA} ${INC_HDF5} -DHDF5 -DHDF5_ZLIB"
+  ALF_FLAGS_PROG="${ALF_FLAGS_PROG} -DHDF5 -DHDF5_ZLIB"
+fi
 export ALF_FLAGS_QRREF
 export ALF_FLAGS_MODULES
 export ALF_FLAGS_ANA
