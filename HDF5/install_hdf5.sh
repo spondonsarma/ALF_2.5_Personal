@@ -35,23 +35,23 @@ dir="$PWD"
 
 # Create temporary directory
 tmpdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'tmpdir')
-echo -e "\e[31mTemporary directory %s created\e[0m" "$tmpdir"
-cd $tmpdir || exit 1
+printf "\e[31mTemporary directory %s created\e[0m\n" "$tmpdir"
+cd "$tmpdir" || exit 1
 
-printf "\e[31m========== Downloading source ==========\e[0m"
+printf "\e[31m========== Downloading source ==========\e[0m\n"
 wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
 
-printf "\e[31m========== Unzipping source ==========\e[0m"
+printf "\e[31m========== Unzipping source ==========\e[0m\n"
 tar xzf hdf5-1.10.6.tar.gz || exit 1
 source_dir="hdf5-1.10.6"
 
-printf "\e[31m========== Build with Intel compilers ==========\e[0m"
+printf "\e[31m========== Build with Intel compilers ==========\e[0m\n"
 build intel icc ifort icpc
 
-printf "\e[31m========== Build with GNU compilers ==========\e[0m"
+printf "\e[31m========== Build with GNU compilers ==========\e[0m\n"
 build gnu gcc gfortran g++
 
-printf "\e[31m========== Build with PGI compilers ==========\e[0m"
+printf "\e[31m========== Build with PGI compilers ==========\e[0m\n"
 build pgi pgcc pgfortran pgc++
 
-printf "\e[31mYou can delete the temporary directory %s\e[0m" "$tmpdir"
+printf "\e[31mYou can delete the temporary directory %s\e[0m\n" "$tmpdir"
