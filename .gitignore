@@ -13,4 +13,7 @@ Documentation/doc.idx
 Documentation/doc.log
 Documentation/doc.synctex.gz
 Documentation/doc.toc
+HDF5/gnu/
+HDF5/intel/
+HDF5/pgi
 environment
