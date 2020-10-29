@@ -9,7 +9,8 @@
 \subsection{Predefined observables} \label{sec:predefined_observales}
 %-----------------------------------------------------------------------------------
 
-The types \texttt{Obser\_Vec} and \texttt{Obser\_Latt} described in Section~\ref{sec:obs} handles arrays of scalar observables and correlation functions with lattice symmetry respectively. The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described bellow.
+The types \texttt{Obser\_Vec} and \texttt{Obser\_Latt} described in Section~\ref{sec:obs} handle arrays of scalar observables and correlation functions with lattice symmetry respectively.
+The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described below.
 
 The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.
 %
@@ -35,8 +36,8 @@ The predefined measurements methods take as input Green functions \texttt{GR}, \
 			\texttt{Obs}                  & Obser\_Latt& Output & One or more measurement result\\
 			\bottomrule
 		\end{tabular}
-		\caption{Arguments taken by the subroutines in the module \texttt{Predefined\_Obs}. Note that a given method makes use of only a subset of this list, as specified in their calls described bellow.   Note that 
-		the superindex $i = (\ve{i}, n_{\ve{i}})$  where $\ve{i}$ denotes the unit cell and $n_{\ve{i}}$ the orbital. }		\label{table:predefined_obs}
+		\caption{Arguments taken by the subroutines in the module \texttt{Predefined\_Obs}. Note that a given method makes use of only a subset of this list, as specified in their calls described below.
+		   Note that the superindex $i = (\ve{i}, n_{\ve{i}})$  where $\ve{i}$ denotes the unit cell and $n_{\ve{i}}$ the orbital. }		\label{table:predefined_obs}
 	\end{center}
 \end{table}
 
@@ -63,11 +64,11 @@ Using   Wicks theorem,  valid for a given  configuration of   fields,  we  obtai
 & &   
   \left( \langle \langle \hat{c}^{\dagger}_{\vec{i},n_{\ve{i}},\alpha} \hat{c}^{\phantom\dagger}_{\vec{i},n_{\ve{i}}, \beta }  \rangle\rangle_C  \langle \langle     \hat{c}^{\dagger}_{\vec{j}, n_{\ve{j}},\gamma}  \hat{c}^{\phantom\dagger}_{\vec{j},n_{\ve{j}},\delta}\rangle\rangle_C        +  
   \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}},\alpha}   \hat{c}^{\phantom\dagger}_{\vec{j},  n_{\ve{j}},\delta}\rangle\rangle_C  \langle \langle   \hat{c}^{\phantom\dagger}_{\vec{i},   n_{\ve{i}}, \beta }   \hat{c}^{\dagger}_{\vec{j},   n_{\ve{j}}, \gamma} \rangle\rangle_C 
-   \right)    
+   \right).
 %\nonumber \\
 %\sum_{a=1}^{N^2 - 1 }  \left\langle \hat{c}^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
 \end{eqnarray}
-For this  SU(N)  symmetric  code, the  Green function  is diagonal  in the spin  index and spin independent: 
+For this $SU(N)$ symmetric code, the  Green function  is diagonal  in the spin  index and spin independent: 
 \begin{equation}
  \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}},\alpha} \hat{c}^{}_{\vec{j},  n_{\ve{j}}, \beta }  \rangle\rangle_C  =  \delta_{\alpha,\beta}  \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}}} \hat{c}^{}_{\vec{j} ,  n_{\ve{j}}}  \rangle\rangle_C.
 \end{equation}
@@ -77,7 +78,7 @@ Hence,
 \left[   \text{Tr} T^{a}\right]^2 \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}} } \hat{c}^{\phantom\dagger}_{\vec{i} ,  n_{\ve{i}}}  \rangle\rangle_C       \langle \langle \hat{c}^{\dagger}_{\vec{j} ,  n_{\ve{j}}} \hat{c}^{\phantom\dagger}_{\vec{j} ,  n_{\ve{j}}}  \rangle\rangle_C 
  +   \text{Tr}\left[ T^{a}  T^{a} \right]    \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\phantom\dagger}_{\vec{j},  n_{\ve{j}}}\rangle\rangle_C  \langle \langle   \hat{c}^{\phantom\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\dagger}_{\vec{j},  n_{\ve{j}}} \rangle\rangle_C  \right)   
  \nonumber \\
-= & &    N       \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\phantom\dagger}_{\vec{j},  n_{\ve{j}}}\rangle\rangle_C  \langle \langle   \hat{c}^{\phantom\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\dagger}_{\vec{j},  n_{\ve{j}}} \rangle\rangle_C   
+= & &    N       \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\phantom\dagger}_{\vec{j},  n_{\ve{j}}}\rangle\rangle_C  \langle \langle   \hat{c}^{\phantom\dagger}_{\vec{i},  n_{\ve{i}}}   \hat{c}^{\dagger}_{\vec{j},  n_{\ve{j}}} \rangle\rangle_C .
 \end{eqnarray}
 \subsubsection{Equal-time spin correlations}
 

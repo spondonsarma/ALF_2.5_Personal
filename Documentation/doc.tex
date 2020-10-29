@@ -7,16 +7,13 @@
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
 % For the licensing details of the documentation see license.CCBYSA.
 
-
-
-\documentclass[10pt,Arial]{scrartcl}
+\documentclass[submission, Phys]{SciPost}
+\usepackage{lineno}
 \usepackage{graphicx}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage{bbm}            
-\usepackage[fleqn]{amsmath} 
+%\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+\usepackage{bbm}
+\usepackage{amsmath,mathtools}
 \usepackage{amssymb}
 \usepackage{wasysym}
 \usepackage{color}
@@ -26,26 +23,23 @@
 \usepackage{multirow}
 \usepackage{xspace}
 \usepackage{bm}
-\usepackage{subfigure}
 \usepackage{dsfont}
+\usepackage[htt]{hyphenat}
 \usepackage{footnote}
 \usepackage{cite}
 \usepackage{alltt}
 \usepackage{listings}
 \usepackage{url}
 \usepackage{booktabs}
-\usepackage[breaklinks=true,colorlinks,pdfborder={0 0 0}]{hyperref} 
-\hypersetup{linkcolor={blue!80!black},citecolor={blue!80!black},urlcolor={blue!99!black}}
+\hypersetup{breaklinks=true, colorlinks, pdfborder={0 0 0}, linkcolor={red!60!black}, citecolor={blue!80!black}, urlcolor={blue!99!black}}
 \usepackage{float} 
-\usepackage{placeins} 
+\usepackage{placeins}
 \usepackage{makeidx}
-%\usepackage[xindy]{imakeidx}
+\usepackage[xindy]{imakeidx}
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
 \usepackage{etoolbox}
-\usepackage[page,title,toc]{appendix}
-%\usepackage[tocindentauto,tocgraduated]{tocstyle}
-%\usetocstyle{KOMAlike}
+\usepackage{calc}
 
 \makeatletter
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
@@ -56,12 +50,14 @@
 \setcounter{secnumdepth}{4} 
 \setcounter{tocdepth}{4}
 \definecolor{light-gray}{gray}{0.95}
+\definecolor{light-gray2}{gray}{0.88}
 \definecolor{comment-color}{rgb}{0.8,0.1,0.1}
 \definecolor{keyword-color}{rgb}{0.3,0.3,1}
+\sethlcolor{light-gray2}
 
 \lstdefinestyle{fortran}{
   language={[03]Fortran},
-  basicstyle=\ttfamily\small,
+  basicstyle=\ttfamily\footnotesize,
   keywordstyle=\color{keyword-color},
   commentstyle=\color{comment-color},
   morecomment=[l]{!\ },% Otherwise it's a comment only with space after !
@@ -77,7 +73,7 @@
 
 \lstdefinestyle{fortran_pseudo_code}{
   language={[03]Fortran},
-  basicstyle=\ttfamily,
+  basicstyle=\ttfamily\small,
   keywordstyle=\color{red},
   commentstyle=\normalfont\color{black},
   morecomment=[l]{!\ }% Comment only with space after !
@@ -113,13 +109,6 @@
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
-% % only for the scrartcl class:
-\setkomafont{author}{\large}
-\setkomafont{date}{\large}
-%% \RedeclareSectionCommand[style=section,indent=0pt]{part}
-%\RedeclareSectionCommands[tocdynnumwidth]{section,subsection}
-% \renewcommand*\partformat{\thepart\autodot\enskip}
-
 \newcommand*{\red}{\textcolor{red}}
 \newcommand*{\blue}{\textcolor{blue}}
 \newcommand{\mycomment}[1]{{\color{red} #1}}
@@ -134,22 +123,62 @@
 
 \makeindex
 \begin{document}
-%---------------------------------------------------------------------------------------------------------
-\title{The \emph{ALF} (\emph{A}lgorithms for \emph{L}attice \emph{F}ermions) project release 2.0}
+	
+% Title
+\begin{center}{\Large \textbf{
+The \emph{ALF} (\emph{A}lgorithms for \emph{L}attice \emph{F}ermions)\\project release 2.0\\
+{\normalsize Documentation for the  auxiliary-field quantum Monte Carlo code}
+}}\end{center}
 
-\subtitle{Documentation for the  auxiliary-field quantum Monte Carlo code.}
-\author{Martin Bercx,  Florian Goth,  Johannes S. Hofmann, Jefferson S. E. Portela, \\   Jonas Schwab, Fakher F. Assaad }
-%---------------------------------------------------------------------------------------------------------
-\maketitle
+% Author list
+\begin{center}
+The ALF Collaboration: F.~F. Assaad\textsuperscript{1},
+M. Bercx\textsuperscript{1},
+F. Goth\textsuperscript{1},
+A. G\"otz\textsuperscript{1},
+J.~S. Hofmann\textsuperscript{2},
+Z. Liu\textsuperscript{1},
+J.~S.~E. Portela\textsuperscript{1},
+J. Schwab\textsuperscript{1}
+\end{center}
 
-\noindent Copyright \textcopyright ~2016--2020 The \textit{ALF} Project.\\
-This is the ALF Project Documentation. % by the ALF contributors.
-It is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+% Affiliation
+\begin{center}
+{\bf 1} Institut f\"ur Theoretische Physik und Astrophysik, Universit\"at W\"urzburg,\\
+97074 W\"urzburg, Germany\\
+{\bf 2} Department of Condensed Matter Physics, Weizmann Institute of Science,\\
+Rehovot, 76100, Israel
+\\
+\url{alf@physik.uni-wuerzburg.de}
+\end{center}
+
+\begin{center}
+\today
+\end{center}
+
+% For convenience during refereeing: line numbers
+%\linenumbers
+
+\section*{Abstract}
+{\bf
+\red{ TODO } The abstract is in boldface, and should fit in 8 lines.
+The Algorithms for Lattice Fermions package provides a general code for the auxiliary field quantum Monte Carlo algorithm. The code is engineered to be	able to simulate any model that can be written in terms of sums of single-body operators, of squares of single-body operators and single-body operators coupled to an Ising field with given dynamics. We provide predefined types that allow the user to specify the model, the Bravais lattice as well as equal-time and time-displaced observables. The code supports an MPI implementation. Examples such as the Hubbard model on the honeycomb lattice and the Hubbard model on the square lattice coupled to a transverse Ising field are provided and discussed in the documentation. We furthermore discuss how to use the package to implement the Kondo lattice model and the SU(N)-Hubbard-Heisenberg model. One can download the code from our Git instance at \url{https://alf.physik.uni-wuerzburg.de} and sign in to file issues.
+}\\
+
+%\noindent Copyright \textcopyright ~2016--2020 The \textit{ALF} Project.\\
+%This is the ALF Project Documentation. % by the ALF contributors.
+%It is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 You are free to share and benefit from this documentation as long as this license is preserved
 and proper attribution to the authors is given. For details see the ALF project
 website \url{alf.physik.uni-wuerzburg.de}.
-\tableofcontents
-\clearpage
+
+\vspace{10pt}
+\noindent\rule{\textwidth}{1pt}
+\tableofcontents\thispagestyle{fancy}
+\noindent\rule{\textwidth}{1pt}
+\vspace{10pt}
+
+%\clearpage
 \section{Introduction}\label{sec:intro}
 \input{intro}
 \section{Auxiliary Field Quantum Monte Carlo: finite temperature}\label{sec:def}
@@ -178,32 +207,13 @@ website \url{alf.physik.uni-wuerzburg.de}.
 \input{conclusion}
 \addcontentsline{toc}{section}{Acknowledgments}
 \input{acknowledgment}
-%%%%%%%%\addcontentsline{toc}{section}{Appendices}
-%%%%%%%%\appendix
-%\gdef\thesubsection{Appendix~\Alph{subsection}}
-\gdef\thesubsection{\Alph{subsection}}
-%\makeatletter
-%\addtocontents{toc}{\protect\patchcmd{\protect\l@section}{1.5em}{\widthof{\textbf{Appendix X\quad}}}{}{}}
-%\makeatother
-\begin{appendices}
+\begin{appendix}
 \input{performance}
 \input{license}
-\end{appendices}
-
-%{\color{red} OLD STUFF} 
-%\section{Examples}\label{sec:ex}
-%\input{walkthrough_hubbard}
-%\section{Miscellaneous}\label{sec:misc}
-%\input{other_models}
-%\input{Z2_Slave}
-%\input{Z2_Matter}
-%\input{tV}
-
-\addcontentsline{toc}{section}{References}
-\bibliographystyle{./prXsty} 
+\end{appendix}
 \bibliography{./fassaad,./doc}
 \printindex
-%\addcontentsline{toc}{section}{License}
-%\input{license}
+
+\nolinenumbers
 
 \end{document}
