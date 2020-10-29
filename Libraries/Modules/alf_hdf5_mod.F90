@@ -15,10 +15,10 @@
   
          Subroutine init_dset(file_id, dsetname, dims, is_complex, chunklen)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> This subroutine creates a new dataset in an opened HDF5 file for the
 !> purpsose of filling if with Monte-Carlo bins.
 !
@@ -86,15 +86,15 @@
          
          Subroutine append_dat(file_id, dsetname, dat_ptr, Nbins_in)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> This subroutine appends one bin to an existing dataset of an opened HDF5 file.
 !
 !> @param [in] file_id  Idendifier of the opened HDF5 file
 !> @param [in] dsetname Name of the dataset
-!> @param [in] data_ptr C-pointer to the first element of the data to write. 
+!> @param [in] data_ptr C-pointer to the first element of the data to write.
 !>                      The data should be all double precision.
 !>                      The length of the data is assumed from the existing dataset.
 !-------------------------------------------------------------------
@@ -165,12 +165,12 @@
 
 !--------------------------------------------------------------------
          
-         Subroutine write_latt(obj_id, Latt)
+         Subroutine write_latt(obj_id, Latt, Latt_Unit)
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
-!> @brief 
+!> @brief
 !> This subroutine writes the lattice in an opened HDF5 object.
 !
 !> @param [in] obj_id  Idendifier of the opened HDF5 object
@@ -180,13 +180,14 @@
             use h5lt
             Use Lattices_v3
             Implicit none
-            INTEGER(HID_T), intent(in) :: obj_id
-            Type (Lattice), intent(in) :: Latt 
+            INTEGER(HID_T),   intent(in) :: obj_id
+            Type (Lattice),   intent(in) :: Latt
+            Type (Unit_cell), intent(in) :: Latt_unit
                   
             Character (len=64) :: group_name, dset_name, attr_name
             INTEGER(HID_T)  :: group_id
             LOGICAL :: link_exists
-            INTEGER            :: ierr, ndim, I, rank
+            INTEGER            :: ierr, no
             INTEGER(HSIZE_T)   :: size_dat
             INTEGER(HSIZE_T), allocatable :: dims(:)
             Real (Kind=Kind(0.d0)), allocatable :: X(:,:)
@@ -196,8 +197,7 @@
             if ( link_exists ) return
             call h5gcreate_f(obj_id, group_name, group_id, ierr)
             
-            ndim = size(Latt%L1_p)
-            size_dat = ndim
+            size_dat = size(Latt%L1_p)
             dset_name = "."
             attr_name = "a1"
             call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%a1_p, size_dat, ierr )
@@ -207,67 +207,19 @@
             call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%L1_p, size_dat, ierr )
             attr_name = "L2"
             call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%L2_p, size_dat, ierr )
-            !attr_name = "b1"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%b1_p, size_dat, ierr )
-            !attr_name = "b2"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%b2_p, size_dat, ierr )
-            !attr_name = "b1_perp"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%b1_perp_p, size_dat, ierr )
-            !attr_name = "b2_perp"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%b2_perp_p, size_dat, ierr )
-            !attr_name = "BZ1"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%BZ1_p, size_dat, ierr )
-            !attr_name = "BZ2"
-            !call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%BZ2_p, size_dat, ierr )
             
-!             dset_name = "list"
-!             rank = 2
-!             allocate( dims(rank) )
-!             dims = shape(Latt%list)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%list, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "invlist"
-!             rank = 2
-!             allocate( dims(rank) )
-!             dims = shape(Latt%invlist)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%invlist, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "nnlist"
-!             rank = 3
-!             allocate( dims(rank) )
-!             dims = shape(Latt%nnlist)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%nnlist, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "listk"
-!             rank = 2
-!             allocate( dims(rank) )
-!             dims = shape(Latt%listk)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%listk, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "invlistk"
-!             rank = 2
-!             allocate( dims(rank) )
-!             dims = shape(Latt%invlistk)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%invlistk, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "nnlistk"
-!             rank = 3
-!             allocate( dims(rank) )
-!             dims = shape(Latt%nnlistk)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%nnlistk, ierr)
-!             deallocate( dims )
-!             
-!             dset_name = "imj"
-!             rank = 2
-!             allocate( dims(rank) )
-!             dims = shape(Latt%imj)
-!             call h5LTmake_dataset_int_f( group_id, dset_name, rank, dims, Latt%imj, ierr)
-!             deallocate( dims )
+            attr_name = "N_coord"
+            call write_attribute(group_id, attr_name, Latt_unit%Norb, ierr)
+            attr_name = "Norb"
+            call write_attribute(group_id, attr_name, Latt_unit%N_coord, ierr)
+            attr_name = "Ndim"
+            call write_attribute(group_id, attr_name, size(Latt_unit%Orb_pos_p, 2), ierr)
+            
+            size_dat = size(Latt_unit%Orb_pos_p, 2)
+            do no = 1, Latt_unit%Norb
+               write(attr_name, '("Orbital", I0)') no
+               call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt_unit%Orb_pos_p(no,:), size_dat, ierr )
+            enddo
             
             call h5gclose_f(group_id, ierr)
            
@@ -290,7 +242,7 @@
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
            call h5acreate_f (obj_id, attr_name, H5T_NATIVE_DOUBLE, space_id, attr_id, ierr)
-           call h5awrite_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)  
+           call h5awrite_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
          end Subroutine write_attribute_double
@@ -310,7 +262,7 @@
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
            call h5acreate_f (obj_id, attr_name, H5T_NATIVE_INTEGER, space_id, attr_id, ierr)
-           call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)  
+           call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
          end Subroutine write_attribute_int
@@ -332,7 +284,7 @@
            
            CALL h5screate_simple_f(rank, dims, space_id, ierr)
            call h5acreate_f (obj_id, attr_name, H5T_NATIVE_CHARACTER, space_id, attr_id, ierr)
-           call h5awrite_f  (attr_id, H5T_NATIVE_CHARACTER, attr_value, dims, ierr)  
+           call h5awrite_f  (attr_id, H5T_NATIVE_CHARACTER, attr_value, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
          end Subroutine write_attribute_string
@@ -356,7 +308,7 @@
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
            call h5acreate_f (obj_id, attr_name, H5T_NATIVE_INTEGER, space_id, attr_id, ierr)
-           call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)  
+           call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
          end Subroutine write_attribute_logical
@@ -375,7 +327,7 @@
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
            call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
-           call h5aread_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)  
+           call h5aread_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)
            call h5aclose_f (attr_id, ierr)
          end Subroutine read_attribute_double
         
@@ -393,7 +345,7 @@
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
            call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
-           call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)  
+           call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)
            call h5aclose_f (attr_id, ierr)
          end Subroutine read_attribute_int
         
@@ -432,7 +384,7 @@
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
            call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
-           call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)  
+           call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)
            call h5aclose_f (attr_id, ierr)
            
            if ( attr_value2 == 0 ) then

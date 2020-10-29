@@ -417,7 +417,7 @@
               CALL h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, hdferr)
 
               !Writes the lattice to HDF5 file if it doesn't already exist
-              call write_latt(file_id, Obs%Latt)
+              call write_latt(file_id, Obs%Latt, Obs%Latt_Unit)
 
               CALL h5lexists_f(file_id, groupname, link_exists, hdferr)
               if ( .not. link_exists ) then
@@ -425,7 +425,7 @@
                 CALL h5gcreate_f (file_id, groupname, group_id, hdferr)
                 call write_attribute(group_id, "dtau", Obs%dtau, hdferr)
                 call write_attribute(group_id, "Channel", Obs%Channel, hdferr)
-                call write_latt(group_id, Obs%Latt)
+                call write_latt(group_id, Obs%Latt, Obs%Latt_Unit)
                 CALL h5gclose_f (group_id, hdferr)
 
                 !Create Dataset for data
