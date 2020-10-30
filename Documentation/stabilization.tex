@@ -53,7 +53,7 @@ In the above, we have introduced the shorthand notation
 The full propagation then reads
 \begin{equation}
 \begin{split}
-  \hat{U}_{\text{Approx}} &=  \left(\prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  \right)   = e^{-\beta \left(  \hat{H} + \hat{\lambda}_1 \right)} 
+  \hat{U}_{\text{Approx}} &=  \left(\prod_{i=1}^{N_O} e^{-\Delta \tau \hat{O}_i} \prod_{j=1}^{N_T} e^{-\Delta \tau \hat{T}_j}  \right)^{\!\!L_\text{Trotter}} \!  = e^{-\beta \left(  \hat{H} + \hat{\lambda}_1 \right)} 
   + \mathcal{O} \left( \Delta \tau^2 \right)  \\
   &=  e^{-\beta  \hat{H}  }  - 
 	 \int_0^{\beta}  d \tau  e^{-(\beta-\tau )\hat{H}} \hat{\lambda}_1  e^{-\tau \hat{H}}   +  \mathcal{O} (\Delta \tau^2 ).
