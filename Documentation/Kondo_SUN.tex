@@ -55,7 +55,7 @@ To do so, we work in the unconstrained Hilbert space and add a Hubbard  $U$-term
 With this addition, the Hamiltonian we simulate reads: 
 
 \begin{multline}
-	\hat{H}_{QMC}     =    - t  \sum_{\langle i,j \rangle}    \sum_{\sigma=1}^{N}  \left(  \hat{c}^{\dagger}_{i,\sigma}  e^{\frac{2\pi i}{\Phi_0}  \int_{i}^{j} \ve{A}\cdot d \ve{l}}\hat{c}^{\phantom\dagger}_{j,\sigma}   + H.c.  \right)  - \mu \sum_{i,\sigma} \hat{c}^{\dagger}_{i,\sigma}  \hat{c}^{\phantom\dagger}_{i,\sigma} 
+	\hat{H}_\textrm{QMC}     =    - t  \sum_{\langle i,j \rangle}    \sum_{\sigma=1}^{N}  \left(  \hat{c}^{\dagger}_{i,\sigma}  e^{\frac{2\pi i}{\Phi_0}  \int_{i}^{j} \ve{A}\cdot d \ve{l}}\hat{c}^{\phantom\dagger}_{j,\sigma}   + H.c.  \right)  - \mu \sum_{i,\sigma} \hat{c}^{\dagger}_{i,\sigma}  \hat{c}^{\phantom\dagger}_{i,\sigma} 
 	+    \frac{U_c}{N}  \sum_{i}   \left( \hat{n}^c_i -  \frac{N}{2} \right)^2  \\
     -    \frac{J}{4N}    \left[ \left(   \hat{D}^{\dagger}_{i}  + \hat{D}^{\phantom\dagger}_{i}    \right)^{2}  + 
                                                        \left(  i\hat{D}^{\dagger}_{i}  - i  \hat{D}^{\phantom\dagger}_{i}    \right)^2  \right]  
@@ -64,7 +64,7 @@ With this addition, the Hamiltonian we simulate reads:
 \end{multline}
 The key point for the efficiency of the code, is to  see that 
 \begin{equation}
-	\left[   \hat{H}_{QMC},  \left( \hat{n}^f_i -  \frac{N}{2} \right)^2  \right]    = 0 
+	\left[   \hat{H}_\textrm{QMC},  \left( \hat{n}^f_i -  \frac{N}{2} \right)^2  \right]    = 0 
 \label{Constraint_KLM.eq}
 \end{equation}
 such that the  constraint is implemented  efficiently.  In fact, for the finite temperature code  at inverse temperature $\beta$,  the unphysical Hilbert space   is suppressed by a  
