@@ -151,9 +151,9 @@ ALF's lattice module can generate one- and two-dimensional Bravais lattices.
 Both the lattice and the unit cell are defined in the module \texttt{Lattices\_v3\_mod.F90} and their components are detailed in Tables \ref{table:lattice} and \ref{table:unit_cell}. 
 As  its name suggest the module  \texttt{Predefined\_Latt\_mod.F90} also provides predefined lattices as  described in Sec.~\ref{sec:predefined_lattices}.
 The user who wishes to define his/her own lattice also has to specify unit vectors $\vec{a}_1$ and $\vec{a}_2$,  the size of the  lattice, characterized by the vectors $\vec{L}_1$ and $\vec{L}_2$  as well as the  unit cell characterized be the number of orbitals and their positions.  The coordination number of the lattice is equally specified in the \texttt{Unit\_cell}   data type.   The lattice is placed on a torus (periodic boundary conditions):
-\begin{align}
+\begin{equation}
 	\hat{c}_{\vec{i} + \vec{L}_1 }  =  \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}\;.
-\end{align}
+\end{equation}
 The function call 
 \begin{lstlisting}[style=fortran]
 Call Make_Lattice( L1, L2, a1, a2, Latt )
