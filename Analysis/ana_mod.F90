@@ -401,8 +401,8 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       Integer    :: Nbins, Norb
 
-      Character (len=64) :: obs_dsetname, bak_dsetname, sgn_dsetname, par_dsetname
-      INTEGER                       :: ierr, rank, Nunit, Ntau
+      Character (len=64) :: obs_dsetname, bak_dsetname, sgn_dsetname, par_dsetname, attr_name
+      INTEGER                       :: ierr, rank, Nunit, Ntau, Ndim, no
       INTEGER(HSIZE_T), allocatable :: dims(:), maxdims(:)
       INTEGER(HID_T)                :: file_id, dset_id, grp_id, dataspace
       TYPE(C_PTR)                   :: dat_ptr
@@ -449,11 +449,26 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       call h5gclose_f(grp_id, ierr)
 
       par_dsetname = "lattice"
-      call h5ltget_attribute_double_f(file_id, par_dsetname, "a1", a1_p , ierr)
-      call h5ltget_attribute_double_f(file_id, par_dsetname, "a2", a2_p , ierr)
-      call h5ltget_attribute_double_f(file_id, par_dsetname, "L1", L1_p , ierr)
-      call h5ltget_attribute_double_f(file_id, par_dsetname, "L2", L2_p , ierr)
+      write(par_dsetname, '(A, "/lattice")') trim(name)
+      CALL h5gopen_f(file_id, par_dsetname, grp_id, ierr)
+      call h5ltget_attribute_double_f(grp_id, '.', "a1", a1_p , ierr)
+      call h5ltget_attribute_double_f(grp_id, '.', "a2", a2_p , ierr)
+      call h5ltget_attribute_double_f(grp_id, '.', "L1", L1_p , ierr)
+      call h5ltget_attribute_double_f(grp_id, '.', "L2", L2_p , ierr)
       Call Make_Lattice( L1_p, L2_p, a1_p, a2_p, Latt )
+      
+      attr_name = "N_coord"
+      call read_attribute(grp_id, attr_name, Latt_unit%Norb, ierr)
+      attr_name = "Norb"
+      call read_attribute(grp_id, attr_name, Latt_unit%N_coord, ierr)
+      attr_name = "Ndim"
+      call read_attribute(grp_id, attr_name, Ndim, ierr)
+      allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb, Ndim))
+      
+      do no = 1, Latt_unit%Norb
+         write(attr_name, '("Orbital", I0)') no
+         call  h5ltget_attribute_double_f(grp_id, '.', attr_name, Latt_unit%Orb_pos_p(no,:), ierr )
+      enddo
 
       Allocate ( Bins(Nunit,Ntau,Norb,Norb,Nbins), Bins0(Norb,Nbins), sgn(Nbins) )
 
