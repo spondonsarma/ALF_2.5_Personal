@@ -306,7 +306,8 @@
              Write(50,*) '====================================='
              Write(50,*) 'Model is      : ', Model
              Write(50,*) 'Lattice is    : ', Lattice_type
-             Write(50,*) '# of orbitals : ', Ndim
+             Write(50,*) '# unit cells  : ', Latt%N 
+             Write(50,*) '# of orbitals : ', Latt_unit%Norb
              Write(50,*) 'Flux_1        : ', Phi_X
              Write(50,*) 'Flux_2        : ', Phi_Y
              If (Bulk) then
@@ -732,14 +733,22 @@
           ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
           dec = 1
           If ( Mz  ) dec = 2
-          Do I = 1,Latt%N
-             do no_I = 1,Latt_unit%Norb
-                I1 = Invlist(I,no_I)
-                if (no_I == 1)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
-                if (no_I == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
-             enddo
-          Enddo
-
+          if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
+             Do I = 1,Latt%N
+                do no_I = 1,Latt_unit%Norb
+                   I1 = Invlist(I,no_I)
+                   if (no_I == 1)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
+                   if (no_I == 2)  ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U2
+                enddo
+             Enddo
+          else
+             Do I = 1,Latt%N
+                do no_I = 1,Latt_unit%Norb
+                   I1 = Invlist(I,no_I)
+                   ZPot = ZPot + Grc(i1,i1,1) * Grc(i1,i1, dec)* ham_U
+                enddo
+             Enddo
+          Endif
           Obs_scal(2)%Obs_vec(1)  =  Obs_scal(2)%Obs_vec(1) + Zpot * ZP*ZS
 
 

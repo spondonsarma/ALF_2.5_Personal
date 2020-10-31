@@ -36,9 +36,7 @@
 !> @brief 
 !> This module handles calculation of imaginary-time-displaced Green functions and  
 !> calls the routine ObserT.F90 in the Hamiltonian module, so as to compute  user
-!> defined time-displaced correlations functions. This modules is for the projector code.
-!> 
-!
+!> defined time-displaced correlations functions. This module is for the projector code.
 !--------------------------------------------------------------------
 
      Module Tau_p_mod
@@ -47,9 +45,23 @@
        Use Control
        Use Hop_mod
        Use UDV_State_mod
-       Use tau_m_mod !, only propr, proprm1
+       Use tau_m_mod  !, only propr, proprm1
 
      Contains
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief      This routine computes the time displaced  zero termperature Green functions and call  obserT. 
+!> On input:   a) GR,  the equal time Green function,  as  well as udvl, udvr are on time slice 
+!>                nt_in= stab_nt(nst)   with   stab_nt(NST) <= THTROT+1  and  stab_nt( NST +1 )  > THTROT+1.
+!>             b) The storage, udvst, is full with left propagations from  Ltrot to    stab_nt( NST +1 ).                    
+!
+!>             To do for Langevin:
+!>             The above has to be generalized  for a general value of nt_in.   Then the code has to propagate
+!>             the Green function up to nt = Thtrot. 
+!--------------------------------------------------------------------
 
        SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
 
@@ -153,14 +165,14 @@
            !#ifdef test
            !            WRITE(6,*) 'Ntau: ', NTAU, "on slice",NT
            !#endif
-           IF ( NT.EQ.STAB_NT(NT_ST) .and. NTAU/=0) THEN
+           IF ( NT .EQ. STAB_NT(NT_ST) .and. NTAU /= 0) THEN
               !               write(*,*) "stabilization at ",stab_nt(NT_st)
               do nf=1,N_FL
                  !                   write(*,*) "udvl side:",udvst(nt_st,nf)%side
                  CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st,nf))
               enddo
               Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
-              NT_ST=NT_ST+1
+              NT_ST = NT_ST+1
 
               GRUPB = -GRUP
               do nf=1,N_FL

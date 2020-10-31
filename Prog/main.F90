@@ -661,6 +661,7 @@ Program Main
                     CALL udvst(NST, nf)%reset('l')
                 endif
               enddo
+
               IF ( LTAU == 1 .and. .not. Projector ) then
                  ! Call for imaginary time displaced  correlation fuctions.
                  Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT )
