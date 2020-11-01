@@ -104,8 +104,9 @@ module Control
 
       Subroutine Control_Langevin(Forces, Group_Comm)
 
-        Use ieee_arithmetic
+
         Implicit none
+        
         Complex (Kind=Kind(0.d0)),  allocatable, Intent(In)  :: Forces(:,:)
         Integer, Intent(IN) :: Group_Comm
         
@@ -115,14 +116,6 @@ module Control
         ! Test for not a  number
         n1 =  size(Forces,1)
         n2 =  size(Forces,2)
-        do  n = 1,n1
-           do nt =1,n2
-              if ( ieee_is_nan(real(Forces(n,nt),kind(0.d0))) )  then
-                 Write(6,*) 'The forces are not defined ',  Forces(n,nt)
-                 stop
-              endif
-           enddo
-        enddo
         Force_count =  Force_count  + 1
 
         X = 0.d0
