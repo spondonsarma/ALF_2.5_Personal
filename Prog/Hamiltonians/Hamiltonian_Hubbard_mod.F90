@@ -159,6 +159,7 @@
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
+      real (Kind=Kind(0.d0)),        private :: Delta_t_Langevin_HMC, Max_Force, Running_Delta_t_Langevin
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: Checkerboard,  Bulk, Mz
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
@@ -197,7 +198,9 @@
 
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
-          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, &
+               &                        Projector, Langevin, Delta_t_Langevin_HMC, Max_Force
+                  
 
           NAMELIST /VAR_Hubbard/  ham_T, ham_chem, ham_U, ham_T2, ham_U2, ham_Tperp,  Mz
 
@@ -218,7 +221,9 @@
           Ham_T2       = 0.d0
           Ham_Tperp    = 0.d0
           Ham_U2       = 0.d0
-
+          Delta_t_Langevin_HMC = 0.d0
+          Max_Force    = 0.d0
+          
 
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
@@ -286,7 +291,10 @@
           CALL MPI_BCAST(ham_T2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_U2      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_Tperp   ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Max_Force   ,1,  MPI_REAL8  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Delta_t_Langevin_HMC,1,  MPI_REAL8  , 0,Group_Comm,IERR)
           CALL MPI_BCAST(Mz          ,1,  MPI_LOGICAL  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Langevin    ,1,  MPI_LOGICAL  , 0,Group_Comm,IERR)
 #endif
 
           ! Setup the Bravais lattice
@@ -335,6 +343,10 @@
                 Write(50,*) 'N_SUN         : ', 2*N_SUN
              else
                 Write(50,*) 'N_SUN         : ',   N_SUN
+             endif
+             If (Langevin) then
+                Write(50,*) 'Langevin del_t: ', Delta_t_Langevin_HMC
+                Write(50,*) 'Max Force     : ', Max_Force
              endif
              Write(50,*) 'N_FL          : ', N_FL
              Write(50,*) 't             : ', Ham_T
@@ -520,7 +532,11 @@
                    I = invlist(I1,no)
                    if (abs(Ham_U_vec(no)) > Zero ) then
                       nc = nc + 1
-                      Call Predefined_Int_U_MZ ( OP_V(nc,1), OP_V(nc,2), I,  DTAU, Ham_U_vec(no) )
+                      if (Langevin) then
+                         Call Predefined_Int_U_MZ_continuous_HS( OP_V(nc,1), OP_V(nc,2), I,  DTAU, Ham_U_vec(no) )
+                      else
+                         Call Predefined_Int_U_MZ              ( OP_V(nc,1), OP_V(nc,2), I,  DTAU, Ham_U_vec(no) )
+                      endif
                    endif
                 enddo
              enddo
@@ -532,7 +548,11 @@
                    I = invlist(I1,no)
                    if (abs(Ham_U_vec(no)) > Zero ) then
                       nc = nc + 1
-                      Call Predefined_Int_U_SUN(  OP_V(nc,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                      if (Langevin) then
+                         Call Predefined_Int_U_SUN_continuous_HS(  OP_V(nc,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                      else
+                         Call Predefined_Int_U_SUN              (  OP_V(nc,1), I, N_SUN, DTAU, Ham_U_vec(no)  )
+                      endif
                    endif
                 Enddo
              Enddo
@@ -841,41 +861,38 @@
 !> ALF Collaboration
 !>
 !> @brief 
-!> Langevin dynamics  update.   
-!> On input the fermion forces are given. On output the field nsigma is updated.
+!> Get/put paramters for  Langevin/HMC  step
 !-------------------------------------------------------------------
-        Subroutine Ham_Langevin_update( Forces, Phase )
+        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, Mode ) 
 
           Implicit none
 
-          Complex (Kind=Kind(0.d0)), Intent(in),  dimension(:,:) :: Forces
-          Complex (Kind=Kind(0.d0)), Intent(in) :: Phase
-          
+          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running_c
+          Real (Kind=Kind(0.d0)), intent(out  ) :: Max_Force_c, Delta_t_c
+          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+          Character (Len=3), intent(in)         ::  Mode
+
           !Local
-!!$          Real    (Kind=Kind(0.d0))  :: Xmax, X
-!!$          Integer                    :: N_op, n, nt
-!!$          N_op = size(nsigma%f,1)
-!!$
-!!$          Xmax = 0.d0
-!!$          do n = 1,N_op
-!!$             do nt = 1,Ltrot
-!!$                X = abs(Real(Forces(n,nt), Kind(0.d0)))
-!!$                if (X > Xmax) Xmax = X
-!!$             enddo
-!!$          enddo
-!!$          Running_Delta_tau_Langevin =   Delta_tau_Langevin
-!!$          If ( Xmax >  Max_Force ) &
-!!$               &  Running_Delta_tau_Langevin  = Max_Force *  Delta_tau_Langevin / Xmax
-!!$          do n = 1,N_op
-!!$             do nt = 1,Ltrot
-!!$                nsigma%f(n,nt)   = nsigma%f(n,nt)  -   ( nsigma%f(n,nt) +  real(Forces(n,nt),kind(0.d0)) )*Running_Delta_tau_Langevin + &
-!!$                     & sqrt(2.d0*Running_Delta_tau_Langevin )* rang_wrap()
-!!$             enddo
-!!$          enddo
+          Integer :: N, N_op,nt
           
+          If (Mode == "Get" )  then
+             Max_Force_c = Max_Force
+             Delta_t_c   = Delta_t_Langevin_HMC
+             ! Compute \partial S_0 / \partial s
+             N_op = size(nsigma%f,1)
+             Forces_0  = 0.d0
+             do n = 1,N_op
+                if (OP_V(n,1)%type == 3 ) then
+                   do nt = 1,Ltrot
+                      Forces_0(n,nt) = nsigma%f(n,nt)
+                   enddo
+                endif
+             enddo
+          endif
+          If (Mode == "Put" )  then
+             Running_Delta_t_Langevin = Delta_t_running_c
+          endif
           
-        end Subroutine Ham_Langevin_update
-
-
-
+        end Subroutine Ham_Langevin_HMC_S0_Params
+        
     end Module Hamiltonian

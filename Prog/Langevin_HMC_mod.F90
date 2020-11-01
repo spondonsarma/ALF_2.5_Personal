@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2019 The ALF project
+!  Copyright (C) 2016 - 2020 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 
-      Module Langevin_mod
+      Module Langevin_HMC_mod
         
         Use Hamiltonian
         Use UDV_State_mod
@@ -41,26 +41,28 @@
         Implicit none
         
         
-        Complex (Kind=Kind(0.d0)),  allocatable, private ::  Forces(:,:)
+        Complex (Kind=Kind(0.d0)),  allocatable, private ::  Forces  (:,:)
+        Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
 
 
 
       Contains
+
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
 !
 !> @brief 
-!> Handles a  Langevin sweep.
-!>   On input GR is on the first time slice and  the storage is full with
-!> left propagations.   Udvr  and Udvl are on time slice 1.
-!>   On output. The  field configuration is  updated.  GR, Udvr,  Udvl and Udvst are as on input but with the
-!> updated configuration.  
-!> Equal time measurments as well as time displaced ones  is projector is true are also carried out. 
+!>   Computes the  forces as well as, on demand,  observables.  
+!>   On input:  a)  GR is on the first time slice and  the storage is full with left propagations.
+!>              b)  Udvl is on time slice 0.
+!>   On output.
+!>              a)  Forces (only for field type 3 (i.e. continuous fieds)  are computed   and stored in Forces(:,:)
+!>              
 !> 
 !--------------------------------------------------------------------
-
-      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+        
+      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
         Implicit none
         
         Interface
@@ -91,13 +93,13 @@
         end Interface
         
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
-        CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst
-        Complex (Kind=Kind(0.d0)), intent(inout) :: Phase
+        CLASS(UDV_State), intent(in), allocatable, dimension(:,:)    :: udvst
+        Complex (Kind=Kind(0.d0)), intent(inout)                     :: Phase
         Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:)   :: Test
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
-
+  
 
         !Local
         Integer :: NSTM, n, nf, NST, NTAU, nt, nt1, Ntau1, NVAR, N_Type, I, J
@@ -149,7 +151,6 @@
               endif
            enddo
 
-           
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
               CALL WRAPUR(NT1, NTAU1, udvr)
@@ -157,8 +158,6 @@
               Do nf = 1, N_FL
                  ! Read from storage left propagation from LTROT to  NTAU1
                  udvl(nf) = udvst(NST, nf)
-                 ! Write in storage right prop from 1 to NTAU1
-                 udvst(NST, nf) = udvr(nf)
                  NVAR = 1
                  IF (NTAU1 .GT. LTROT/2) NVAR = 2
                  TEST(:,:) = GR(:,:,nf)
@@ -173,10 +172,6 @@
            ENDIF
            
            IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
-              !Call  Global_tau_mod_Test(Gr,ntau1)
-              !Stop
-              !write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
-              !write(*,*) "Phase before obser : ",phase
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
                  CALL Obser( GR_Tilde, PHASE, Ntau1 )
@@ -186,15 +181,60 @@
            endif
         enddo
 
-        Call Control_Langevin(Forces,Group_Comm)
-        Call Ham_Langevin_update( Forces, PHASE )
-        !DO NTAU1 = 1, LTROT
-        !   Do n = 1, size(OP_V,1)
-        !      nsigma%f(n,ntau1) = nsigma%flip(n,ntau1)
-        !   enddo
-        !enddo
-        ! Reset Left storage with new fields
+      end SUBROUTINE Langevin_HMC_Forces
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!>   This routine is called after a  Langevin or HMC step.  It fills the storage with left
+!>   propagations and calculates the Green function of the zeroth time slice. 
+!>   
+!--------------------------------------------------------------------
+      Subroutine Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+
+        Implicit none
         
+        Interface
+           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
+             Use Hamiltonian
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUR
+           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
+             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+             COMPLEX(Kind=Kind(0.d0)) :: PHASE
+             INTEGER         :: NVAR
+           END SUBROUTINE CGR
+        end Interface
+        
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst
+        Complex (Kind=Kind(0.d0)), intent(inout) :: Phase
+        COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR 
+        Integer, intent(in),  dimension(:), allocatable :: Stab_nt
+          
+        ! Local
+        Integer :: NSTM, nf,  nt, nt1,  NST, NVAR
+        Complex (Kind=Kind(0.d0)) :: Z
+
+        
+        NSTM = Size(Stab_nt,1) - 1 
         Do nf = 1,N_FL
            if (Projector) then
               CALL udvl(nf)%reset('l',WF_L(nf)%P)
@@ -204,7 +244,8 @@
               CALL udvst(NSTM, nf)%reset('l')
            endif
         ENDDO
-        
+
+
         DO NST = NSTM-1,1,-1
            NT1 = Stab_nt(NST+1)
            NT  = Stab_nt(NST  )
@@ -233,10 +274,79 @@
         Enddo
         call Op_phase(Phase,OP_V,Nsigma,N_SUN)
 
+      end Subroutine Langevin_HMC_Reset_storage
+      
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Handles a  Langevin sweep.
+!>   On input GR is on the first time slice and  the storage is full with
+!> left propagations.   Udvr  and Udvl are on time slice 1.
+!>   On output. The  field configuration is  updated.  GR, Udvr,  Udvl and Udvst are as on input but with the
+!> updated configuration.  
+!> Equal time measurments as well as time displaced ones  is projector is true are also carried out. 
+!> 
+!--------------------------------------------------------------------
+
+      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+        Implicit none
+        
+        
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
+        CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst
+        Complex (Kind=Kind(0.d0)), intent(inout) :: Phase
+        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:)   :: Test
+        COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
+        Integer, intent(in),  dimension(:), allocatable :: Stab_nt
+        Integer, intent(in) :: LOBS_ST, LOBS_EN
+
+
+        !Local
+        Integer :: N_op, n, nt
+        Real    (Kind=Kind(0.d0)) :: X, Xmax
+
+        Real    (Kind=Kind(0.d0)) :: Delta_t_running_c, Max_Force_c, Delta_t_c
+        
+        
+        Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+        
+        Call Control_Langevin   ( Forces,Group_Comm )
+
+        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, "Get" )
+          
+        N_op = size(nsigma%f,1)
+        !  Determine running time step
+        Xmax = 0.d0
+        do n = 1,N_op
+           do nt = 1,Ltrot
+              X = abs(Real(Forces(n,nt), Kind(0.d0)))
+              if (X > Xmax) Xmax = X
+           enddo
+        enddo
+        Delta_t_running_c = Delta_t_c
+        If ( Xmax >  Max_Force_c ) Delta_t_running_c = Max_Force_c * Delta_t_c / Xmax
+        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, "Put" )
+
+        do n = 1,N_op
+           if (OP_V(n,1)%type == 3 ) then
+              do nt = 1,Ltrot
+                 nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( Forces_0(n,nt) +  &
+                      &  real( Phase*Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * Delta_t_running_c + &
+                      &  sqrt( 2.d0 * Delta_t_running_c) * rang_wrap()
+              enddo
+           endif
+        enddo
+        
+        
+        Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+
         
       END SUBROUTINE LANGEVIN_UPDATE
      
 
+      
       SUBROUTINE  Langevin_setup
         Implicit none
 
@@ -244,14 +354,14 @@
         
         Nr = size(nsigma%f,1)
         Nt = size(nsigma%f,2)
-        Allocate ( Forces(Nr,Nt) )
+        Allocate ( Forces(Nr,Nt),  Forces_0(Nr,Nt) )
         !Write(6,*) "Langevin: ", Nr,Nt
       end SUBROUTINE Langevin_setup
 
 
       SUBROUTINE  Langevin_clear
         Implicit none
-        Deallocate ( Forces )
+        Deallocate ( Forces, Forces_0 )
       end SUBROUTINE Langevin_clear
 
-    end Module Langevin_mod
+    end Module Langevin_HMC_mod

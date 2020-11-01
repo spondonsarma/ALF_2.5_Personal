@@ -146,6 +146,7 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm
+      Logical              :: Langevin=.false.
 
 
       Type (Lattice),       private, target :: Latt
@@ -774,5 +775,22 @@
 
 #include "Hamiltonian_Hubbard_include.h"
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Get/put paramters for  Langevin/HMC  step 
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, Mode ) 
 
+          Implicit none
+
+          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running_c
+          Real (Kind=Kind(0.d0)), intent(out  ) :: Max_Force_c, Delta_t_c
+          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+          Character (Len=3), intent(in)         ::  Mode
+
+        end Subroutine Ham_Langevin_HMC_S0_Params
+        
     end Module Hamiltonian

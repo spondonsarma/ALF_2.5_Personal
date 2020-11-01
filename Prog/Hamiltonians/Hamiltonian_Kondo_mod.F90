@@ -146,6 +146,8 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm
+      Logical              :: Langevin =.False.
+
 
 
       Type (Lattice),       private, Target  :: Latt
@@ -157,6 +159,7 @@
       real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
+      Real (Kind=Kind(0.d0)),        private :: Delta_t_Langevin_HMC, Max_Force,  Running_Delta_t_Langevin
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: Checkerboard,  Bulk, Mz
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
@@ -195,7 +198,8 @@
 
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
-          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, Projector
+          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta,&
+               &   Projector, Langevin, Delta_t_Langevin_HMC, Max_Force
 
           NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_Uc, ham_Uf, ham_JK
 
@@ -217,6 +221,8 @@
           Ham_Uf       = 0.d0
           Ham_Uc       = 0.d0
           Ham_JK       = 0.d0
+          Delta_t_Langevin_HMC = 0.d0
+          Max_Force    = 0.d0
 
 
 #ifdef MPI
@@ -278,6 +284,11 @@
           CALL MPI_BCAST(ham_Uc      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_Uf      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(ham_JK      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
+          CALL MPI_BCAST(Max_Force   ,1,  MPI_REAL8  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Delta_t_Langevin_HMC,1,  MPI_REAL8  , 0,Group_Comm,IERR)
+          CALL MPI_BCAST(Langevin    ,1,  MPI_LOGICAL  , 0,Group_Comm,IERR)
+
+          
 #endif
 
           IF ( N_FL > 1 ) then
@@ -780,6 +791,25 @@
         end Subroutine OBSERT
 
 #include "Hamiltonian_Hubbard_include.h"
+
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!> Get/put paramters for  Langevin/HMC  step 
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, Mode ) 
+          
+          Implicit none
+          
+          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running_c
+          Real (Kind=Kind(0.d0)), intent(out  ) :: Max_Force_c, Delta_t_c
+          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+          Character (Len=3), intent(in)         ::  Mode
+          
+        end Subroutine Ham_Langevin_HMC_S0_Params
+
 
 
     end Module Hamiltonian
