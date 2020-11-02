@@ -230,10 +230,10 @@ contains
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2, t
         
-        Integer :: info, lwork
-        Integer, allocatable, dimension(:) :: ipiv
-        Complex(kind=kind(0.D0)), allocatable, dimension(:) :: work2
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: work
+!        Integer :: info, lwork
+!        Integer, allocatable, dimension(:) :: ipiv
+!        Complex(kind=kind(0.D0)), allocatable, dimension(:) :: work2
+!        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: work
         
         n1 = size(arg,1)
         n2 = size(arg,2)
@@ -248,22 +248,22 @@ contains
             ! IDXLIST(1) = 1
             ! DIMLIST(1) = 1
             
-            ALLOCATE (WORK(this%Ndim_hop, n2))
-            t = 1
-            CALL ZLACPY('A', t, n2, arg(this%P(1), 1), n1, work(1,1), this%Ndim_hop )
+            !! ALLOCATE (WORK(this%Ndim_hop, n2))
+            !! t = 1
+            !! CALL ZLACPY('A', t, n2, arg(this%P(1), 1), n1, work(1,1), this%Ndim_hop )
             ! mat * work = X <=>  mat * X = work
             ! call zhemm('L', 'U', ndimhop, n2, alpha, mat_1D2(1,1), ndimhop, work(1, 1), ndimhop, beta, arg(P(1,1), n1))
             ! deallocate (work)
             
             ! the following should be equivalent.
-            allocate (ipiv(n1), work2(this%Ndim_hop*8) )
-            call zhesv('U', this%Ndim_hop, n2, this%invmat_1D2(1,1), this%Ndim_hop, ipiv, work(1,1), this%Ndim_hop, work2, lwork, info)
-            call zlacpy('A', t, n2, work(1,1), this%Ndim_hop, arg(this%P(1), 1), n1)
+            !! allocate (ipiv(n1), work2(this%Ndim_hop*8) )
+            !! call zhesv('U', this%Ndim_hop, n2, this%invmat_1D2(1,1), this%Ndim_hop, ipiv, work(1,1), this%Ndim_hop, work2, lwork, info)
+            !! call zlacpy('A', t, n2, work(1,1), this%Ndim_hop, arg(this%P(1), 1), n1)
             
             
-!             call ZSLHEMM('L', 'U', this%Ndim_hop, n1, n2, this%mat_1D2, this%P, arg)
+         call ZSLHEMM('L', 'U', this%Ndim_hop, n1, n2, this%mat_1D2, this%P, arg)
             call ZSLHEMM('R', 'U', this%Ndim_hop, n1, n2, this%invmat_1D2, this%P, arg)
-            deallocate(work, work2, ipiv)
+!            deallocate(work, work2, ipiv)
         Endif
         
     end subroutine
