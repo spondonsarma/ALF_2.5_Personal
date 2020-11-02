@@ -29,6 +29,8 @@
 \usepackage{cite}
 \usepackage{alltt}
 \usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{url}
 \usepackage{booktabs}
 \hypersetup{breaklinks=true, colorlinks, pdfborder={0 0 0}, linkcolor={red!60!black}, citecolor={blue!80!black}, urlcolor={blue!99!black}}
@@ -126,6 +128,8 @@
 \newcommand{\ve}[1]{\boldsymbol{#1}}
 \newcommand{\tl}{t_{l}}
 \newcommand{\ts}{\underline{t}}
+\algnewcommand{\ThreeIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
+\algnewcommand{\FourIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
 
 \makeindex
 \begin{document}
