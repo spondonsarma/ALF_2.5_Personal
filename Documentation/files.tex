@@ -11,16 +11,15 @@
 %
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} l l @{}}\toprule
+	\begin{tabular}{@{} p{0.4\columnwidth} p{0.56\columnwidth} @{}}\toprule
    	Directory                             & Description \\\midrule
    	\path{Prog/}                          & Main program and subroutines  \\
    	\path{Libraries/}                     & Collection of mathematical routines \\  
   	\path{Analysis/}                      & Routines for error analysis \\
-  	\path{Scripts_and_Parameters_files/}  & Helper scripts and the \path{Start/} directory, which contains \\ 
-  	                                      & the files required to start a run \\
+  	\path{Scripts_and_Parameters_files/}  & Helper scripts and the \path{Start/} directory, which contains the files required to start a run \\
   	\path{Documentation/}                 & This documentation\\
   	\path{testsuite/}                     & A suite to automatically test various parts of the code\\ \bottomrule
-  	\hline
+  	%\hline
 	\end{tabular}
    	\caption{Overview of the directories included in the ALF package.\label{table:files}}
    \end{center}
@@ -60,7 +59,7 @@ N_SUN        = 2            ! Number of colors
 N_FL         = 1            ! Number of flavors
 Phi_X        = 0.d0         ! Twist along the L_1 direction, in units of the flux quanta
 Phi_Y        = 0.d0         ! Twist along the L_2 direction, in units of the flux quanta
-Bulk         = .T.          ! Twist as a vector potential (.T.), or at the boundary (.F.)
+Bulk         = .T.          ! Twist as a vector potential (.T.); at the boundary (.F.)
 N_Phi        = 0            ! Total number of flux quanta traversing the lattice
 Dtau         = 0.1d0        ! Thereby Ltrot=Beta/dtau
 Beta         = 5.d0         ! Inverse temperature
@@ -84,7 +83,7 @@ N_Global            = 1     ! Number of global moves per sweep
 Global_tau_moves    = .F.   ! Allows for global moves on a single time slice.  
 N_Global_tau        = 1     ! Number of global moves that will be carried out on a 
                             ! single time slice
-Nt_sequential_start = 0     ! One can combine sequential and global moves on a time slice
+Nt_sequential_start = 0     ! One can combine sequential & global moves on a time slice
 Nt_sequential_end   = -1    ! The program then carries out sequential local moves in the
                             ! range [Nt_sequential_start, Nt_sequential_end] followed by
                             ! N_Global_tau global moves
@@ -128,9 +127,9 @@ Tolerance  = 0.1d0          ! Data points for which the relative error exceeds t
 /
 
 &VAR_Hubbard               !! Variables for the specific model
-Mz        = .T.             ! When true, sets the M_z-Hubbard model: Nf=2, N_sun=1, HS field
-                            ! couples to the z-component of magnetization; otherwise, HS field
-                            ! couples to the density
+Mz        = .T.             ! When true, sets the M_z-Hubbard model: Nf=2, N_sun=1,
+                            ! HS field couples to the z-component of magnetization;
+                            ! otherwise, HS field couples to the density
 ham_T     = 1.d0            ! Hopping parameter
 ham_chem  = 0.d0            ! Chemical potential
 ham_U     = 4.d0            ! Hubbard interaction
@@ -253,9 +252,11 @@ on the chosen measurement interval \path{[LOBS_ST,LOBS_EN]} on the imaginary-tim
 \item Observables of type \path{Obs_vec}:
 For each additional bin, a single new line is added to the output file.
 In case of an observable with \path{N_size} components, the formatting is 
+{\small
 \begin{verbatim}
-N_size + 1    <measured value, 1> ... <measured value, N_size>    <measured sign>
+N_size+1  <measured value, 1> ... <measured value, N_size>  <measured sign>
 \end{verbatim}
+}
 The counter variable \path{N_size+1} refers to the number of measurements per line, including the phase measurement. 
 This format is required by the error analysis routine (see Sec.~\ref{sec:analysis}). 
 Scalar observables like kinetic energy, potential energy, total energy and particle number are treated as a vector 
@@ -266,10 +267,11 @@ For each additional bin, a new data block is added to the output file.
 The block consists of the expectation values [Eq.~(\ref{eqn:o})] contributing to the background part [Eq.~(\ref{eqn:s_back})] of the correlation function,
 and the correlated part [Eq.~(\ref{eqn:s_corr})] of the correlation function.
 For imaginary-time displaced correlation functions, the formatting of the block is given by:
+{\small
 \begin{alltt}
-<measured sign>  <N_orbital>  <N_unit_cell>  <N_time_slices>  <dtau>  <Channel>
+<measured sign> <N_orbital> <N_unit_cell> <N_time_slices> <dtau> <Channel>
 do alpha = 1, N_orbital
-    \(\langle\hat{O}\sb{\alpha}\rangle \)
+   \(\langle\hat{O}\sb{\alpha}\rangle \)
 enddo
 do i = 1, N_unit_cell
    <reciprocal lattice vector k(i)>
@@ -282,6 +284,7 @@ do i = 1, N_unit_cell
    enddo
 enddo
 \end{alltt}
+}
 The same block structure is used for equal-time correlation functions, except for the entries  \path{<N_time_slices>}, \path{<dtau>} and \path{<Channel>}, which are then omitted.
 Using this structure for the bins as input, the full correlation function $S_{\alpha,\beta}(\vec{k},\tau)$ [Eq.~(\ref{eqn:s})] is then calculated by calling the error analysis routine (see Sec.~\ref{sec:analysis}).
 \end{itemize}

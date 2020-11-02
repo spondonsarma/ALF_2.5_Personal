@@ -78,7 +78,7 @@ and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec
 The above phase factors are computed  in the   module function: 
 \begin{lstlisting}[style=fortran]
 complex function Generic_hopping(i,no_i, n_1, n_2, no_j, N_Phi, Phi_1,Phi_2, Bulk, 
-Latt, Latt_Unit)
+                                 Latt, Latt_Unit)
 \end{lstlisting}
 that  returns the  phase factor involved in the hopping of a hole from lattice site $ \ve{i} + \ve{\delta}_{\text{no}_i} $ to 
 $\ve{i} + n_1 \ve{a}_1 + n_1 \ve{a}_2+ \ve{\delta}_{\text{no}_j}  $.  Here  $\ve{\delta}_{\text{no}_i}$  is  the position of the $\text{no}_i$  orbital in the unit cell
@@ -116,26 +116,25 @@ There are  \path{N_bonds}   hopping   matrix  elements  emanating  from  a  give
 \begin{table}[h]
 	\begin{center}
 		%    \begin{tabular}{@{} l l l @{}}\toprule
-		\begin{tabular}{@{} p{0.28\columnwidth} @{} p{0.08\columnwidth} p{0.61\columnwidth} @{}}\toprule
-			Variable & Type & Description \\\midrule
-			\texttt{N\_bonds}  &  Integer  &      Number of  hopping  matrix elements within and  emanating from   a unit cell   \\
-			\texttt{List(N\_bonds,4)}    & Integer &  List($\bullet$,1) =   $\delta$ \\
-			&              &  List($\bullet$,2) =   $\delta'$ \\
-			&              &  List($\bullet$,3) =   $n_1$     \\
-			&              &  List($\bullet$,4) =   $n_2$     \\ 
-			\texttt{T(N\_bonds)}          & Complex &   Hopping amplitude   \\
-			\texttt{T\_loc(Norb)}           & Complex &    On site  potentials (e.g., chemical potential, Zeeman field)   \\
-			\texttt{N\_Phi}                    & Integer     &  Number of  flux quanta piercing the lattice   \\
-			\texttt{Phi\_X}                    &  Real        &   Twist in $\ve{a}_1$  direction   \\
-			\texttt{Phi\_Y}                    &  Real        &   Twist in $\ve{a}_2$  direction   \\
-			\texttt{Bulk}                        &   Logical   &   Twist as vector potential (T) or  boundary condition (F)
-			\\  \\
-			\texttt{N\_Fam}                &  Integer  &      Number of  sets, $N_T$ in Eq.~\eqref{Checkerboard.Eq}   \\
-			\texttt{L\_Fam(N\_FAM)}  &  Integer &     Number of bonds per set $\mathcal{S}^{T}$ \\    
-			\texttt{List\_Fam(N\_FAM,L\_FAM,2)}     &  Integer  &   \texttt{List Fam($ \bullet,\bullet $,1)} =  Unit cell \\
+		\begin{tabular}{@{} p{0.34\columnwidth} @{} p{0.09\columnwidth} p{0.54\columnwidth} @{}}\toprule
+			Variable                 & Type            & Description \\\midrule
+			\texttt{N\_bonds}        & \texttt{int}    & Number of  hopping  matrix elements within and  emanating from   a unit cell   \\
+			\texttt{List(N\_bonds,4)}& \texttt{int}    & List($\bullet$,1) =   $\delta$ \\
+                                     &                 & List($\bullet$,2) =   $\delta'$ \\
+                                     &                 & List($\bullet$,3) =   $n_1$     \\
+                                     &                 & List($\bullet$,4) =   $n_2$     \\ 
+			\texttt{T(N\_bonds)}     & \texttt{cmplx}  & Hopping amplitude   \\
+			\texttt{T\_loc(Norb)}    & \texttt{cmplx}  & On site  potentials (e.g., chemical potential, Zeeman field)   \\
+			\texttt{N\_Phi}          & \texttt{int}    & Number of  flux quanta piercing the lattice   \\
+			\texttt{Phi\_X}          & \texttt{dble}   & Twist in $\ve{a}_1$  direction   \\
+			\texttt{Phi\_Y}          & \texttt{dble}   & Twist in $\ve{a}_2$  direction   \\
+			\texttt{Bulk}            & \texttt{logical}& Twist as vector potential (T) or  boundary condition (F)  \\
+			\texttt{N\_Fam}          & \texttt{int}    & Number of  sets, $N_T$ in Eq.~\eqref{Checkerboard.Eq}   \\
+			\texttt{L\_Fam(N\_FAM)}  & \texttt{int}    & Number of bonds per set $\mathcal{S}^{T}$ \\    
+			\texttt{List\_Fam(N\_FAM,L\_FAM,2)}& \texttt{int} & \texttt{List Fam($ \bullet,\bullet $,1)} =  Unit cell \\
 			&                        &          \texttt{List Fam($\bullet,\bullet$,2)} =   Bond number \\
-			\texttt{Multiplicity(Norb)} & Integer           &        Number of  times a  given orbital  occurs in the list of bonds  \\
-			\texttt{Prop\_Fam} &  Real            &         The fraction of $ \Delta \tau $   with which the set will be propagated   \                                
+			\texttt{Multiplicity(Norb)}& \texttt{int}  & Number of  times a  given orbital  occurs in the list of bonds  \\
+			\texttt{Prop\_Fam} & \texttt{dble}         & The fraction of $\Delta \tau$ with which the set will be propagated   \                                
 			\\\bottomrule
 		\end{tabular}
 		\caption{Member variables of the \texttt{Hopping\_Matrix\_type}  type.   
@@ -147,7 +146,7 @@ The  data in the \texttt{Hopping\_matrix\_type} type suffices to uniquely define
 This is carried out by the call: 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Hoppings_set_OPT(Hopping_Matrix, List, Invlist, Latt, Latt_unit, Dtau,
-Checkerboard, Symm, OP_T)
+                                 Checkerboard, Symm, OP_T)
 \end{lstlisting}
 in which  the  operator   array  \path{OP_T(*,N_FL )}   is  allocated and defined.    In the simplest  case, where no  checkerboard is  used, the  first dimension  is  unity.
 
@@ -157,21 +156,21 @@ The   data in  the \texttt{Hopping\_matrix\_type} type   equally  suffices to co
 \subsubsection{An example:   nearest neighbor hopping on the   honeycomb lattice }
 
 \begin{figure}
-\center
-\includegraphics[width=\textwidth]{Figures/But.png}
-
+\begin{center}
+\includegraphics[width=0.95\textwidth,clip]{Figures/But.png}
 \caption{The single particle spectrum  of the tight binding model on the  honeycomb  (a) and square (b) lattices as a function of the  flux  $N_\Phi$.    This corresponds to the well known  Hofstadter butterflies.  }
         \label{But.fig}
+\end{center}
 \end{figure}
 
 For the honeycomb lattice of  Fig.~\ref{fig_predefined_lattices}(d)   the number of  bond within and emanating from  a unit cell is \texttt{N\_bonds = 3}.     The list array of the \texttt{Hopping\_matrix\_type} reads:
 
 \begin{lstlisting}[style=fortran]
-list(1,1) = 1;  list(1,2) = 2;  list(1,3) = 0;   list(1,4) =  0   ! Intra unit-cell hopping
-list(2,1) = 2;  list(2,2) = 1;  list(2,3) = 0:   list(2,4) =  1   ! Inter unit-cell hopping
-list(3,1) = 1;  list(3,2) = 2;  list(3,3) = 1:   list(3,4) = -1   ! Inter unit-cell hopping
-T(1) = -1.0; T(2) = -1.0; T(3) = -1.0                             ! Hopping
-T_loc(1) =0.0; T_loc(2) =0.0                                      ! Chemical potential 
+list(1,1) = 1;  list(1,2) = 2;  list(1,3) = 0;   list(1,4) =  0 ! Intra unit-cell hopping
+list(2,1) = 2;  list(2,2) = 1;  list(2,3) = 0:   list(2,4) =  1 ! Inter unit-cell hopping
+list(3,1) = 1;  list(3,2) = 2;  list(3,3) = 1:   list(3,4) = -1 ! Inter unit-cell hopping
+T(1) = -1.0;  T(2) = -1.0;  T(3) = -1.0                         ! Hopping
+T_loc(1) = 0.0;  T_loc(2) = 0.0                                 ! Chemical potential 
 \end{lstlisting} 
 In the last two lines, we have set the hopping matrix element  for each bond to $-1$  and the chemical potential to zero.    The fields,   can then be specified   with the  variables   \texttt{N\_phi, Phi\_x, Phi\_y}.  Setting   the twists, 
  \texttt{Phi\_x, Phi\_y}  to zero and  looping over \texttt{N\_phi}    from $ 1 \cdots L^2 $   produces  the single particle spectrum of  Fig.~\ref{But.fig}(a).  

@@ -22,9 +22,9 @@ source configure.sh [MACHINE] [MODE] [STAB]
 \end{lstlisting}
 If run with no arguments, it lists the available options and sets a generic, serial GNU compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined machine configurations and parallelization modes available, as well as the options for stabilization schemes for the matrix multiplications (see Sec.~\ref{sec:stable}) are shown Table~\ref{table:configureHPC}. The stabilization scheme choice, in particular, is critical for performance and is discussed further in Sec.~\ref{sec:optimize}.
 
-\begin{table}[h]
+\begin{table}[!ht]
 	\begin{center}
-		\begin{tabular}{@{} l l @{}}\toprule
+		\begin{tabular}{@{} p{0.22\columnwidth} p{0.75\columnwidth} @{}}\toprule
 			Argument & Selected feature \\\midrule
 			\textbf{\texttt{MACHINE}} &  \\\midrule
 			\texttt{Intel}  &   Intel compiler for a generic machine\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
@@ -32,14 +32,14 @@ If run with no arguments, it lists the available options and sets a generic, ser
 			\texttt{GNU}  &   GNU compiler for a generic machine (\emph{default}). \\
 			\texttt{PGI}  &   PGI compiler for a generic machine. \\
 			\texttt{MAC}  &   GNU compiler for a generic MAC computer. \\
-			\texttt{SuperMUC-NG}  &  Intel compiler and loading the necessary modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
-			\texttt{JUWELS}  &  Intel compiler and loading the necessary modules for JUWELS\footnote{Supercomputer at the J\"ulich Supercomputing Centre.}. \\
-			\texttt{Devel|Development}  &  GNU compiler, and flags appropriate for debugging.  \vspace{5pt}\\
+			\texttt{SuperMUC-NG}  &  Intel compiler and loads modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
+			\texttt{JUWELS}  &  Intel compiler and loads modules for JUWELS\footnote{Supercomputer at the J\"ulich Supercomputing Centre.}. \\
+			\texttt{Devel|Development}  &  GNU compiler, and flags appropriate for debugging.  \vspace{7pt}\\
 
 			\textbf{\texttt{MODE}} &  \\\midrule
 			\texttt{noMPI|serial}  &  No parallelization. \\
 			\texttt{MPI}  &  MPI parallelization (\emph{default} -- if a machine is selected). \\
-			\texttt{Tempering}  &  Parallel tempering (Sec.~\ref{Parallel_tempering.sec}) and the required MPI as well. \vspace{5pt}\\ 
+			\texttt{Tempering}  &  Parallel tempering (Sec.~\ref{Parallel_tempering.sec}) and the required MPI as well. \vspace{7pt}\\ 
 
 			\textbf{\texttt{STAB}} &  \\\midrule
 			\texttt{STAB1}  &  Simplest stabilization, with UDV (QR-, not SVD-based) decompositions.\\
@@ -116,7 +116,7 @@ The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, 
 
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} p{0.15\linewidth} p{0.8\linewidth} @{}}\toprule
+	\begin{tabular}{@{} p{0.18\linewidth} p{0.78\linewidth} @{}}\toprule
 		Program & Description \\\midrule
 		\texttt{cov\_vec(name)}  &  
 		  The bin file \texttt{name}, which should have suffix \texttt{\_scal}, is read in, and  the corresponding file with suffix \texttt{\_scalJ} is produced. It contains the result of the Jackknife rebinning analysis (see Sec.~\ref{sec:sampling}).  \\
@@ -141,11 +141,11 @@ If the autocorrelation time  is smaller than the effective bin size, the error s
 %
 \begin{table}[h]
 	\begin{center}
-		\begin{tabular}{@{} p{0.2\linewidth} p{0.75\linewidth} @{}}\toprule
+		\begin{tabular}{@{} p{0.23\linewidth} p{0.74\linewidth} @{}}\toprule
 		File & Description  \\ \midrule
 		Input &  \\\midrule %\cmidrule{1-1}
 		\texttt{parameters}  &  Includes error analysis variables \texttt{N\_skip}, \texttt{N\_rebin}, and \texttt{N\_Cov} (see Sec.~\ref{sec:input}) \\
-		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \vspace{5pt} \\
+		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \vspace{7pt}\\
 
 		Output &  \\\midrule
 		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}\\
@@ -160,34 +160,34 @@ If the autocorrelation time  is smaller than the effective bin size, the error s
 The analysis output files listed in Table \ref{table:analysis_files} and are formatted in the following way:
 \begin{itemize}
 	\item For the scalar quantities \texttt{X}, the output files  \texttt{X\_scalJ} have the following formatting:
-	\begin{alltt}
-		Effective number of bins, and bins:      <N_bin - N_skip>/<N_rebin>       <N_bin>	
-		OBS :    1      <mean(X)>      <error(X)>	
-		OBS :    2      <mean(sign)>   <error(sign)>
-	\end{alltt}
+	{\small \begin{alltt}
+		Effective number of bins, and bins:  <N_bin - N_skip>/<N_rebin>  <N_bin>	
+		OBS :  1    <mean(X)>      <error(X)>	
+		OBS :  2    <mean(sign)>   <error(sign)>
+	\end{alltt} }
 	
 	\item For the equal-time correlation functions \texttt{Y}, the formatting of the output files \texttt{Y\_eqJR} and \texttt{Y\_eqJK} follows the structure:
-	\begin{alltt}
+	{\small \begin{alltt}
 		do i = 1, N_unit_cell
 		   <k_x(i)>   <k_y(i)>
 		   do alpha = 1, N_orbital
 		      do beta  = 1, N_orbital
-		         alpha   beta   Re<mean(Y)>   Re<error(Y)>   Im<mean(Y)>   Im<error(Y)>
+		         alpha  beta  Re<mean(Y)>  Re<error(Y)>  Im<mean(Y)>  Im<error(Y)>
 		      enddo
 		   enddo
 		enddo
-	\end{alltt}
+	\end{alltt} }
 	where \texttt{Re} and \texttt{Im} refer to the real and imaginary part, respectively.
 	
 	\item The imaginary-time displaced correlation functions \texttt{Y} are written to the output files \texttt{g\_R0} inside folders \texttt{Y\_R0}, when measured locally in space; 
 	and to the output files \texttt{g\_kx\_ky} inside folders \texttt{Y\_kx\_ky} when they are measured $\vec{k}$-resolved (where $\vec{k}=(\texttt{kx}, \texttt{ky})$). The first line of the file prints the number of time slices, 
 	the number of bins and the inverse temperature. 
 	Both output files have the following formatting:
-	\begin{alltt}
+	{\small \begin{alltt}
 		do i = 0, Ltau
 		   tau(i)   <mean( Tr[Y] )>   <error( Tr[Y])>
 		enddo
-	\end{alltt}
+	\end{alltt} }
 	where \texttt{Tr} corresponds to the trace over the orbital degrees of freedom.   For particle-hole quantities at finite temperature,  $\tau$ runs from 
 	$0$ to $\beta/2$.   In all other cases it runs from $0$ to $\beta$. 
 	
@@ -213,7 +213,7 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 
 \begin{table}[h!]
 	\begin{center}
-		\begin{tabular}{@{} p{0.18\linewidth} p{0.75\linewidth} @{}}\toprule
+		\begin{tabular}{@{} p{0.22\linewidth} p{0.74\linewidth} @{}}\toprule
 			Element & Suggestion  \\ \midrule
 			\texttt{Precision Green}, \texttt{Precision Phase}  &  \multirow{2}{*}{Should be found to be \emph{small}, of order $< 10^{-8}$ (see Sec.~\ref{sec:stable})}\\
 			\texttt{theta}       & Should be \emph{large} enough to guarantee convergence to ground state \\

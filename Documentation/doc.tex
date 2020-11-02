@@ -10,10 +10,10 @@
 \documentclass[submission, Phys]{SciPost}
 \usepackage{lineno}
 \usepackage{graphicx}
-%\usepackage[utf8]{inputenc}
 %\usepackage[T1]{fontenc}
 %\usepackage{lmodern}
 \usepackage{bbm}
+\usepackage{amsmath,mathtools}
 \usepackage{amssymb}
 \usepackage{wasysym}
 \usepackage{color}
@@ -24,10 +24,13 @@
 \usepackage{xspace}
 \usepackage{bm}
 \usepackage{dsfont}
+\usepackage[htt]{hyphenat}
 \usepackage{footnote}
 \usepackage{cite}
 \usepackage{alltt}
 \usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{url}
 \usepackage{booktabs}
 \hypersetup{breaklinks=true, colorlinks, pdfborder={0 0 0}, linkcolor={red!60!black}, citecolor={blue!80!black}, urlcolor={blue!99!black}}
@@ -38,6 +41,7 @@
 \usepackage[framemethod=default]{mdframed}
 \usepackage{showexpl}
 \usepackage{etoolbox}
+\usepackage{calc}
 
 \makeatletter
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
@@ -45,15 +49,23 @@
             {1.25ex \@plus .25ex}%
             {\normalfont\normalsize\bfseries}}
 \makeatother
+\makeatletter
+\newcommand{\vast}{\bBigg@{3}}
+\newcommand{\Vast}{\bBigg@{4}}
+\newcommand{\VAST}{\bBigg@{5}}
+\makeatother
+
 \setcounter{secnumdepth}{4} 
 \setcounter{tocdepth}{4}
 \definecolor{light-gray}{gray}{0.95}
+\definecolor{light-gray2}{gray}{0.88}
 \definecolor{comment-color}{rgb}{0.8,0.1,0.1}
 \definecolor{keyword-color}{rgb}{0.3,0.3,1}
+\sethlcolor{light-gray2}
 
 \lstdefinestyle{fortran}{
   language={[03]Fortran},
-  basicstyle=\ttfamily\small,
+  basicstyle=\ttfamily\footnotesize,
   keywordstyle=\color{keyword-color},
   commentstyle=\color{comment-color},
   morecomment=[l]{!\ },% Otherwise it's a comment only with space after !
@@ -69,7 +81,7 @@
 
 \lstdefinestyle{fortran_pseudo_code}{
   language={[03]Fortran},
-  basicstyle=\ttfamily,
+  basicstyle=\ttfamily\small,
   keywordstyle=\color{red},
   commentstyle=\normalfont\color{black},
   morecomment=[l]{!\ }% Comment only with space after !
@@ -116,6 +128,8 @@
 \newcommand{\ve}[1]{\boldsymbol{#1}}
 \newcommand{\tl}{t_{l}}
 \newcommand{\ts}{\underline{t}}
+\algnewcommand{\ThreeIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
+\algnewcommand{\FourIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
 
 \makeindex
 \begin{document}
@@ -128,14 +142,17 @@ The \emph{ALF} (\emph{A}lgorithms for \emph{L}attice \emph{F}ermions)\\project r
 
 % Author list
 \begin{center}
-The ALF Collaboration: F.~F. Assaad\textsuperscript{1},
-M. Bercx\textsuperscript{1},
-F. Goth\textsuperscript{1},
-A. G\"otz\textsuperscript{1},
-J.~S. Hofmann\textsuperscript{2},
-Z. Liu\textsuperscript{1},
-J.~S.~E. Portela\textsuperscript{1},
-J. Schwab\textsuperscript{1}
+The \textbf{ALF Collaboration}:
+F.~F.~Assaad\textsuperscript{1},
+M.~Bercx\textsuperscript{1},
+F.~Goth\textsuperscript{1},
+A.~G\"otz\textsuperscript{1},
+J.~S.~Hofmann\textsuperscript{2},
+%E.~Huffman\textsuperscript{3},
+Z.~Liu\textsuperscript{1},
+J.~S.~E.~Portela\textsuperscript{1},
+J.~Schwab\textsuperscript{1},
+%F.~P.~Toldin\textsuperscript{1}
 \end{center}
 
 % Affiliation
@@ -143,8 +160,10 @@ J. Schwab\textsuperscript{1}
 {\bf 1} Institut f\"ur Theoretische Physik und Astrophysik, Universit\"at W\"urzburg,\\
 97074 W\"urzburg, Germany\\
 {\bf 2} Department of Condensed Matter Physics, Weizmann Institute of Science,\\
-Rehovot, 76100, Israel
-\\
+Rehovot, 76100, Israel\\
+%{\bf 3} Perimeter Institute for Theoretical Physics\\
+%Waterloo, Ontario N2L 2Y5, Canada\\
+
 \url{alf@physik.uni-wuerzburg.de}
 \end{center}
 

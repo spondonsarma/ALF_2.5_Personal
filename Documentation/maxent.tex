@@ -6,7 +6,8 @@
 
 % !TEX root = doc.tex
 
-If we want to compare the data we obtain from Monte Carlo simulations with experiments, we must extract spectral information from the imaginary-time output. This can be achieve through the maximum entropy method (MaxEnt), which generically computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
+If we want to compare the data we obtain from Monte Carlo simulations with experiments, we must extract spectral information from the imaginary-time output.
+This can be achieved through the maximum entropy method (MaxEnt), which generically computes the  image  $A(\omega) $ for a given  data  set $g(\tau) $  and kernel $K(\tau,\omega) $:
 \begin{equation}
 g(\tau) =  \int_{\omega_\mathrm{start}}^{\omega_\mathrm{end}} \d{\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
@@ -35,7 +36,7 @@ In order to produce a histogram of  $ A(\omega) $ we divide  the frequency range
 Besides the parameters included in the namelist \texttt{VAR\_Max\_Stoch} set in the file \texttt{parameters} (see Sec.~\ref{sec:files}), also the variable \texttt{N\_cov}, from the namelist \texttt{VAR\_errors}, is required to run the maxent code. Recalling: \texttt{N\_cov = 1} (\texttt{N\_cov = 0}) sets that the covariance will (will not) be taken into account.
 
 \subsubsection*{Input files} 
-Aside for the aforementioned parameter file,  the  MaxEnt program reads requires the output of the  analysis of the time displaced functions. After running \texttt{Anaylsis/ana.out} a directory named    \texttt{\$\{Variable\_name\}}\texttt{\_\$\{kx\}\_\$\{ky\}}   is  generate for each $k$-point.  In this directory  the file \texttt{g\_\$\{kx\}\_\$\{ky\}} contains the  required information for the MaxEnt code  and is  formatted as follows:
+Aside for the aforementioned parameter file, the MaxEnt program requires the output of the  analysis of the time displaced functions. After running \texttt{Anaylsis/ana.out} a directory named    \texttt{\$\{Variable\_name\}}\texttt{\_\$\{kx\}\_\$\{ky\}}   is  generate for each $k$-point.  In this directory  the file \texttt{g\_\$\{kx\}\_\$\{ky\}} contains the  required information for the MaxEnt code  and is  formatted as follows:
 \begin{alltt}
  < # tau-points >  <# of bins >  <beta>  <Norb>  <Channel>
 do tau = 1,  # tau-points
@@ -125,7 +126,7 @@ This follows directly from the  Lehmann representation
  \chi''(q,\omega)  = \frac{\pi}{Z} \sum_{n,m} e^{-\beta E_n} |\langle n | \hat{S}(q) | m \rangle |^2 
 \delta ( \omega + E_n - E_m) \left( 1 - e^{-\beta  \omega} \right) .
 \end{equation}
-Since the linear response to a Hermitian perturbation  is real, $\chi''(q,\omega)  = - \chi''(-q,-\omega)$ and hence $\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle $ is a symmetric function around $\beta= \tau/2$ for systems with inversion symmetry -- the ones we consider here. The analysis file \texttt{cov\_tau\_ph.F90} produced at compilation time uses this to define an improved estimator. 
+Since the linear response to a hermitian perturbation  is real, $\chi''(q,\omega)  = - \chi''(-q,-\omega)$ and hence $\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle $ is a symmetric function around $\beta= \tau/2$ for systems with inversion symmetry -- the ones we consider here. The analysis file \texttt{cov\_tau\_ph.F90} produced at compilation time uses this to define an improved estimator. 
 
 The  stochastic MaxEnt requires a sum rule, and hence the kernel and image have to be adequately redefined. 
 Let us consider $\coth(\beta \omega/2) \chi''(q,\omega)$. For this quantity, we have the sum rule, since
@@ -141,7 +142,8 @@ which is just the first point in the data. Therefore,
        \underbrace{ \coth(\beta \omega/2)   \chi''(q,\omega) }_{A(\omega)} 
 \label{Kpp.eq}
 \end{equation}
-and one  computes $A(\omega)$. Note that since $\chi'' $ is an odd function of $\omega$  one restricts the integration range  positive values of $\omega$. 
+and one computes $A(\omega)$.
+Note that since $\chi'' $ is an odd function of $\omega$ one restricts the integration range to positive values of $\omega$. 
 Hence: 
 \begin{equation}
 	\langle \hat{S}(q,\tau) \hat{S}(-q,0) \rangle  =  
@@ -226,11 +228,11 @@ The back transformation  yields
  
  \subsection{Dynamics of the one-dimensional half-filled Hubbard model}
 
-To conclude this section, we   show the example of the one dimensional Hubbard model that is know to  show spin-charge separation (see Ref.~\cite{Abendschein06}  and references therein).    The data of Fig.~\ref{Fig:Spectral1D}    was produced with the pyALF python script  \href{https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/Documentation/Figures/MaxEnt/Hubbard_1D.py}{\texttt{Hubbard\_1D.py}}, and   the  spectral functions plots with the bash \href{https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/Documentation/Figures/MaxEnt/Spectral.sh}{\texttt{Spectral.sh}}. 
+To conclude this section, we show the example of the one dimensional Hubbard model that is known to show spin-charge separation (see Ref.~\cite{Abendschein06}  and references therein).    The data of Fig.~\ref{Fig:Spectral1D}    was produced with the pyALF python script  \href{https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/Documentation/Figures/MaxEnt/Hubbard_1D.py}{\texttt{Hubbard\_1D.py}}, and   the spectral function plots with the bash script \href{https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/Documentation/Figures/MaxEnt/Spectral.sh}{\texttt{Spectral.sh}}. 
 
 \begin{figure}
 \center
-\includegraphics[width=\textwidth]{Figures/MaxEnt/Spectral_1D.pdf}
+\includegraphics[width=\textwidth,clip]{Figures/MaxEnt/Spectral_1D.pdf}
 
 \caption{Dynamics of the one-dimensional half-filled Hubbard model  on a 46-site chain   and at U/t=4 and at $\beta t = 10$.  (a) Dynamical charge structure factor, (b) single particle spectral function and (c) dynamical spin structure factor.   As apparent in the pyALF python script 
  \href{https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/Documentation/Figures/MaxEnt/Hubbard_1D.py}{\texttt{Hubbard\_1D.py}}  we consider 400  bins of 200 sweeps  each and  take into account the covariance matrix for the MaxEnt.  The parameters for the MaxEnt  that differ for the default values are also listed in the  python script.}

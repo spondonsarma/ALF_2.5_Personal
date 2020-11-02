@@ -92,30 +92,30 @@ Z &= \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
 In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
 $S_0 \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.  We have adopted the shorthand notation $\eta_{k,\tau} \equiv \eta(l_{k,\tau})$   and $\gamma_{k,\tau} \equiv \gamma(l_{k,\tau})$.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
-\begin{align}
- &\Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[    
+\begin{multline}
+\Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[    
     \prod_{k=1}^{M_V}   e^{  \sqrt{ - \Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}} 
-    \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}   \right]   \right\}} = \nonumber\\
-& \quad\prod\limits_{s=1}^{N_{\mathrm{fl}}} \left[  e^{\sum\limits_{k=1}^{M_V} \sum\limits_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{-\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } \right]^{N_{\mathrm{col}}} \times \nonumber\\
-&\quad   \prod\limits_{s=1}^{N_{\mathrm{fl}}} 
+    \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}   \right]   \right\}} = \\
+\begin{aligned}
+&\prod\limits_{s=1}^{N_{\mathrm{fl}}} \left[  e^{\sum\limits_{k=1}^{M_V} \sum\limits_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{-\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } \right]^{N_{\mathrm{col}}} \times \\
+&\prod\limits_{s=1}^{N_{\mathrm{fl}}} 
    \left[
     \det\left(  \mathds{1} + 
      \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
-      \prod_{k=1}^{M_T}   e^{-\Delta \tau \bm{T}^{(ks)}}   \right) \right]^{N_{\mathrm{col}}}\;,
-\end{align}
+      \prod_{k=1}^{M_T}   e^{-\Delta \tau \bm{T}^{(ks)}}   \right) \right]^{N_{\mathrm{col}}},
+\end{aligned}
+\end{multline}
 where the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$, and  $\bm{I}^{(ks)}$ define the Hamiltonian [Eq.~(\ref{eqn:general_ham}) - (\ref{eqn:general_ham_i})].
 All in all, the partition function is given by:
 \begin{align}\label{eqn:partition_2}
-    Z  &=   \sum_{C}   e^{-S_0 \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
+    Z  &=   \begin{multlined}[t]   \sum_{C}   e^{-S_0 \left( \left\{ s_{i,\tau} \right\}  \right) }     \left( \prod_{k=1}^{M_V} \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \gamma_{k,\tau} \right)
     e^{ N_{\mathrm{col}}\sum\limits_{s=1}^{N_{\mathrm{fl}}} \sum\limits_{k=1}^{M_V} \sum\limits_{\tau = 1}^{L_{\mathrm{Trotter}}}\sqrt{-\Delta \tau U_k}  \alpha_{k,s} \eta_{k,\tau} } 
-  \times   \nonumber \\
-  &\quad
-      \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  \mathds{1} + 
-     \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
+  \times  \prod_{s=1}^{N_{\mathrm{fl}}}\left[\det\left(  \mathds{1}   \phantom{\prod_{k=1}^{M_V}}   \right. \right. \\
+   \left. \left.   + \prod_{\tau=1}^{L_{\mathrm{Trotter}}}   
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} {\bm V}^{(ks)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  {\bm I}^{(ks)}}  
      \prod_{k=1}^{M_T}   e^{-\Delta \tau {\bm T}^{(ks)}} 
-     \right) \right]^{N_{\mathrm{col}}} + \mathcal{O}(\Delta\tau^{2}) \nonumber \\ 
+     \right) \right]^{N_{\mathrm{col}}} + \mathcal{O}(\Delta\tau^{2})  \end{multlined} \nonumber \\ 
      & \equiv  \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})\;.
 \end{align}
 In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{\mathrm{col}}$. 
@@ -129,7 +129,7 @@ In the auxiliary-field QMC approach, the single-particle Green function plays a 
 \begin{equation}\label{eqn:obs}
 \langle \hat{O}  \rangle  = \frac{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \hat{O}  \right] }{ \text{Tr}   \left[ e^{- \beta \hat{H}}  \right] } =   \sum_{C}   P(C) 
    \langle \langle \hat{O}  \rangle \rangle_{(C)} ,
-   \quad \text{ where } 
+   \; \text{ where } 
   P(C)   = \frac{ e^{-S(C)}}{\sum_C e^{-S(C)}}\;
 \end{equation}
 and $\langle \langle \hat{O}  \rangle \rangle_{(C)} $ denotes the observed value of $\hat{O}$ for a given configuration $C$.
@@ -155,12 +155,11 @@ with
 
 
 To compute equal-time, as well as time-displaced observables, one can make use of Wick's theorem. A convenient formulation of this theorem for QMC simulations reads: 
-\begin{align}
-&\langle \langle 	\mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
+\begin{multline}
+\langle \langle 	\mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
 \cdots c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n}) 
-\rangle \rangle_{C} =
-\nonumber \\
-&\qquad\det  
+\rangle \rangle_{C} = \\
+\det  
 \begin{bmatrix}
    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C} & 
     \langle \langle  \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots   &   
@@ -173,7 +172,7 @@ To compute equal-time, as well as time-displaced observables, one can make use o
      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}   & \dots  & 
      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
  \end{bmatrix}.
-\end{align}
+\end{multline}
 Here, we have defined the super-index $\underline{ x} = \left\{   x,\sigma,s \right\}$.
 
 % Removed to refer to predefined obs. instead: In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples_mod.F90} (see Sec.~\ref{sec:obs}) the user is provided with
