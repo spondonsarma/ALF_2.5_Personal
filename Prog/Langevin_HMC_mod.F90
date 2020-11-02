@@ -122,21 +122,10 @@
         NST = 1
         DO NTAU = 0, LTROT-1
            NTAU1 = NTAU + 1
+
+
+           Call  Wrapgrup_Forces(Gr, ntau1,forces)
            
-           Do nf = 1,N_FL
-              CALL HOP_MOD_mmthr   (GR(:,:,nf), nf )
-              CALL HOP_MOD_mmthl_m1(GR(:,:,nf), nf )
-           Enddo
-           Do n = 1, size(OP_V,1) 
-              Do nf = 1, N_FL
-                 spin = nsigma%f(n,ntau1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
-                 N_type = 1
-                 Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
-                 N_type =  2
-                 Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
-              enddo
-              Forces(n,ntau1) = Langevin_HMC_Calc_Force(Gr, n )
-           enddo
 
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
@@ -175,40 +164,58 @@
 !> ALF-project
 !
 !> @brief 
-!>   For a given  Green function  calculated at position n in the sequence of 
-!>   operators,  this routine  computes the force.
+!>   In :  Gr is on time slice NT
+!>   Out:  Gr is on time slice NT1=NT+1  and the forces on time slice NT1 are computed.
+!>         and stored in Forces(:,NT1)
 !>   
 !--------------------------------------------------------------------
 
-       Complex (Kind=kind(0.d0)) function  Langevin_HMC_Calc_Force(Gr,n )
-
+      Subroutine  Wrapgrup_Forces(Gr, NT1, forces)
+        
         Implicit none
         
         Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:,:) :: Gr
-        Integer                     :: n
+        Integer, intent(in)                                        :: nt1
+        Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:)   :: Forces
 
         
         !Local
         Complex (Kind=Kind(0.d0)) :: Z, Z1
-        Integer ::  nf, I, J
-        
-        Langevin_HMC_Calc_Force = cmplx(0.d0,0.d0,Kind(0.d0))
-        if (OP_V(n,1)%type == 3 ) then
-           Do nf = 1, N_Fl
-              Z = cmplx(0.d0,0.d0,Kind(0.d0))
-              do I = 1,size(OP_V(n,nf)%P,1)
-                 do J = 1,size(OP_V(n,nf)%P,1)
-                    Z1 =  cmplx(0.d0,0.d0,Kind(0.d0))
-                    if ( I == J ) Z1 = cmplx(1.d0,0.d0,Kind(0.d0))
-                    Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
-                 Enddo
-              Enddo
-              Langevin_HMC_Calc_Force =  Langevin_HMC_Calc_Force  - &
-                   &    Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
-           Enddo
-        endif
+        Integer ::  nf, I, J, n, N_type
+        Real(Kind=Kind(0.d0)) :: spin
 
-      end function Langevin_HMC_Calc_Force
+
+        Do nf = 1,N_FL
+           CALL HOP_MOD_mmthr   (GR(:,:,nf), nf )
+           CALL HOP_MOD_mmthl_m1(GR(:,:,nf), nf )
+        Enddo
+        Do n = 1, size(OP_V,1) 
+           Forces(n,nt1)  = cmplx(0.d0,0.d0,Kind(0.d0))
+           Do nf = 1, N_FL
+              spin = nsigma%f(n,nt1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
+              N_type = 1
+              Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
+              N_type =  2
+              Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
+           enddo
+           if (OP_V(n,1)%type == 3 ) then
+              Do nf = 1, N_Fl
+                 Z = cmplx(0.d0,0.d0,Kind(0.d0))
+                 do I = 1,size(OP_V(n,nf)%P,1)
+                    do J = 1,size(OP_V(n,nf)%P,1)
+                       Z1 =  cmplx(0.d0,0.d0,Kind(0.d0))
+                       if ( I == J ) Z1 = cmplx(1.d0,0.d0,Kind(0.d0))
+                       Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
+                    Enddo
+                 Enddo
+                 Forces(n,nt1) =  Forces(n,nt1)  - &
+                      &    Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
+              Enddo
+           endif
+        enddo
+        
+      end Subroutine Wrapgrup_Forces
+
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project

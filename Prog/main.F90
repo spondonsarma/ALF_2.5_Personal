@@ -557,12 +557,16 @@ Program Main
                  Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
                       &               LOBS_ST, LOBS_EN, Forces, L_Forces, Delta_t_Langevin_HMC, Max_Force )
 
-                 IF ( LTAU == 1 .and. .not. Projector ) then
-                    ! Call for imaginary time displaced  correlation fuctions and compute 
-                    Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
-                    L_Forces = .true.
+                 IF ( LTAU == 1 ) then
+                    If (Projector) then 
+                       NST = 0 
+                       Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+                       L_Forces = .false.
+                    else
+                       Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
+                       L_Forces = .true.
+                    endif
                  endif
-
               endif
 
               If (Sequential)  then 
@@ -665,8 +669,6 @@ Program Main
                        endif
                        NST = NST -1
                     ENDIF
-                    !                  IF( LTAU == 1 .and. Projector .and. Ntau1==THTROT+1) &
-                    !                  &Call tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
                  ENDDO
                  
                  !Calculate and compare green functions on time slice 0.
@@ -701,8 +703,8 @@ Program Main
                     endif
                  enddo
 
+                 
                  IF ( LTAU == 1 .and. .not. Projector ) then
-                    ! Call for imaginary time displaced  correlation fuctions.
                     Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
                  endif
               endif

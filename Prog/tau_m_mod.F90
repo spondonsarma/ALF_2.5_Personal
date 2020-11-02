@@ -139,21 +139,8 @@
               NT1 = NT + 1
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
-              If  (Langevin) then  !   Here we compute the foreces on the fly so as to save time.
-                 Do nf = 1,N_FL
-                    CALL HOP_MOD_mmthr   (GTT(:,:,nf), nf )
-                    CALL HOP_MOD_mmthl_m1(GTT(:,:,nf), nf )
-                 Enddo
-                 Do n = 1, size(OP_V,1) 
-                    Do nf = 1, N_FL
-                       spin = nsigma%f(n,NT1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
-                       N_type = 1
-                       Call Op_Wrapup(GTT(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
-                       N_type =  2
-                       Call Op_Wrapup(GTT(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
-                    enddo
-                    if (OP_V(n,1)%type == 3 ) Forces(n,NT1) =  Langevin_HMC_Calc_Force(GTT, n )
-                 enddo
+              If  (Langevin) then            
+                 Call Wrapgrup_Forces(GTT,NT1,Forces)
               else
                  CALL PROPRM1 (GTT,NT1)
                  CALL PROPR   (GTT,NT1)

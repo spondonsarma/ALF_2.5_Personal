@@ -57,13 +57,18 @@
 !> On input:   a) GR,  the equal time Green function,  as  well as udvl, udvr are on time slice 
 !>                nt_in= stab_nt(nst)   with   stab_nt(NST) <= THTROT+1  and  stab_nt( NST +1 )  > THTROT+1.
 !>             b) The storage, udvst, is full with left propagations from  Ltrot to    stab_nt( NST +1 ).                    
-!
-!>             To do for Langevin:
-!>             The above has to be generalized  for a general value of nt_in.   Then the code has to propagate
-!>             the Green function up to nt = Thtrot. 
+!> On_input    a) GR,  the equal time Green function,  as  well as udvl, udvr are on time slice 
+!>                nt_in = = Stab_nt(NST_IN)  with nt_in <= THTROT+1.
+!>             b) The storage is full with left propagations for all n's with stab_nt(n) > nt_in.
+!>             c) udvl and udvr are on time slice nt_in  such that  a call to CGR with udvl and udvr will
+!>                produce Gr.
+!>
+!> On_output   a) The time displaced Green functions have been computed and measurements carried out.
+!>             b) If Langevin then 1)  nt_in = 0, 2) forces are computes  3)  time displaced and equal time
+!>                observables are  measured.      
 !--------------------------------------------------------------------
 
-       SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+       SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST_IN)
 
          Implicit none
 
@@ -88,7 +93,7 @@
         ! Storage is full with U^{<} (left)  propagations.
 
 
-        Integer, Intent(In) :: NSTM, NST
+        Integer, Intent(In) :: NSTM, NST_IN
         CLASS(UDV_State), Dimension(:), ALLOCATABLE, INTENT(IN) :: udvl, udvr
         CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst
         Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
@@ -110,11 +115,6 @@
         Real (Kind=Kind(0.d0)):: XMEAN, XMAX
 
         LQ = ndim
-        nt_st=0
-
-        do while(STAB_NT(NT_ST)<=THTROT+1)
-           nt_st=nt_st+1
-        enddo
 
         ALLOCATE (  GRUPB(LQ,LQ,N_FL), GRUP(LQ,LQ,N_FL), G00UP(LQ,LQ,N_FL), G0TUP(LQ,LQ,N_FL), &
              &      GT0UP(LQ,LQ,N_FL),  GTTUP(LQ,LQ,N_FL), TEMP(LQ,LQ), udvr_local(N_FL) )
@@ -128,51 +128,59 @@
            udvr_local(nf)=udvr(nf)
         enddo
 
-
-        Call Wrapur(STAB_NT(NST), STAB_NT(NT_ST), UDVR_local)
-
-        GRUP=GR
-        do nt=stab_nt(nst)+1,THTROT+1
-           CALL PROPRM1(GRUP,nt)
-           CALL PROPR  (GRUP,nt)
+        GTTUP = GR ! On time slice Stab_nt(NST_IN)
+        NT_ST = NST_IN
+        do NT = Stab_nt(NT_ST)+1, Thtrot + 1
+           CALL PROPRM1(GTTUP,NT)
+           CALL PROPR  (GTTUP,NT)
+           IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN
+              Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
+              do nf=1,N_FL
+                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+              enddo
+              Do nf = 1,N_FL
+                 Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
+              enddo
+              GTTUP = GRUP
+              NT_ST = NT_ST+1
+           endif
         enddo
 
-        GRUPB = GRUP
+        GRUPB = GTTUP
         do nf=1,N_FL
            do I=1,Ndim
               GRUPB(I,I,nf)=GRUPB(I,I,nf)-1.d0
            enddo
         enddo
 
-        G00UP = GRUP
-        GTTUP = GRUP
-        GT0UP = GRUP
+        G00UP = GTTUP
+        !GTTUP = GTTUP
+        GT0UP = GTTUP
         G0TUP = GRUPB
-        NT1   = 0
+        NTAU   = 0
         If (Symm) then
            Call Hop_mod_Symm(G00UP_T,G00UP)
            Call Hop_mod_Symm(GTTUP_T,GTTUP)
            Call Hop_mod_Symm(G0TUP_T,G0TUP)
            Call Hop_mod_Symm(GT0UP_T,GT0UP)
-           CALL OBSERT (NT1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE)
+           CALL OBSERT (NTAU,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE)
         else
-           CALL OBSERT (NT1,GT0UP,G0TUP,G00UP,GTTUP,PHASE)
+           CALL OBSERT (NTAU,GT0UP,G0TUP,G00UP,GTTUP,PHASE)
         endif
-        ! WRITE(6,*) 'Starting Dyn'
         DO NT = THTROT+1, Ltrot-THTROT
            ! UR is on time slice NT
            NTAU = NT - THTROT -1
-           !#ifdef test
-           !            WRITE(6,*) 'Ntau: ', NTAU, "on slice",NT
-           !#endif
-           IF ( NT .EQ. STAB_NT(NT_ST) .and. NTAU /= 0) THEN
-              !               write(*,*) "stabilization at ",stab_nt(NT_st)
-              do nf=1,N_FL
-                 !                   write(*,*) "udvl side:",udvst(nt_st,nf)%side
-                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st,nf))
-              enddo
+           IF ( NT .EQ. STAB_NT(NT_ST+1) .and. NTAU /= 0) THEN
               Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
+              do nf=1,N_FL
+                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+              enddo
               NT_ST = NT_ST+1
+
+              Do nf = 1,N_FL
+                 Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
+              enddo
+              GTTUP = GRUP
 
               GRUPB = -GRUP
               do nf=1,N_FL
@@ -180,48 +188,18 @@
                     GRUPB(I,I,nf)=GRUPB(I,I,nf)+1.d0
                  enddo
               enddo
-
-              Do nf = 1,N_FL
-                 Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
-              enddo
-
-!!$              XMAX      = 0.D0
-!!$              XMEAN     = 0.D0
-!!$              XMAX_DYN  = 0.D0
-!!$              XMEAN_DYN = 0.D0
-!!$              do nf=1,N_FL
-!!$                 CALL COMPARE (GTTUP(:,:,nf), GRUP(:,:,nf), XMAX,XMEAN)
-!!$                 IF (XMAX.GT.XMAX_DYN) XMAX_DYN = XMAX
-!!$                 XMEAN_DYN = XMEAN_DYN + XMEAN
-!!$              enddo
-!!$              !#ifdef test
-!!$                                WRITE(6,*) 'Compare up: ',XMEAN/Real(N_FL*LQ*LQ,Kind(0.d0)), XMAX
-!!$              !#endif
-
-              GTTUP = GRUP
-
               do nf=1,N_FL
                  CALL MMULT(TEMP,GRUP(:,:,nf),GT0UP(:,:,nf))
                  GT0UP(:,:,nf) = TEMP
                  CALL MMULT(TEMP,G0TUP(:,:,nf),GRUPB(:,:,nf))
                  G0TUP(:,:,nf) = TEMP
               enddo
-           ENDIF                ! Ortho.
-           ! Now propagate to Ntau + 1 and call OBSERT.
+           ENDIF
            NT1 = NT + 1
-           !Write(6,*) "CALL PROPR  (GT0UP,NT1)"
            CALL PROPR  (GT0UP,NT1)
-           !Write(6,*) "Ret"
-           !Write(6,*) " CALL PROPRM1(G0TUP,NT1)"
            CALL PROPRM1(G0TUP,NT1)
-           !Write(6,*) "Ret"
-
-           !Write(6,*) "CALL PROPRM1(GTTUP,NT1)"
            CALL PROPRM1(GTTUP,NT1)
-           !Write(6,*) "Ret"
-           !Write(6,*) "CALL PROPR  (GTTUP,NT1)"
            CALL PROPR  (GTTUP,NT1)
-           !Write(6,*) "Ret"
 
 
            NTAU1 = NTAU + 1
@@ -244,11 +222,7 @@
         If (Symm) Then
            Deallocate ( G00UP_T, G0TUP_T, GT0UP_T,  GTTUP_T )
         endif
-
-        !         DEALLOCATE (TMPUP, V, D  )
-        !         DEALLOCATE (ULR , ULRINV )
         
-        RETURN
       END SUBROUTINE Tau_p
-
+      
     End Module Tau_p_mod
