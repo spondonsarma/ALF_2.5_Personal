@@ -8,138 +8,78 @@
 %------------------------------------------------------------
 \subsection{Pseudocode description}\label{sec:pseudocode}
 %------------------------------------------------------------
-%
 
 The Monte Carlo algorithm as implemented in ALF can be summarized as follows:
 
-\begin{mdframed}[frametitle={Basic structure of the auxiliary-field QMC implementation (\path{Prog/main.F90}):}]
-{\setlength{\parindent}{0pt}
-Set the Hamiltonian, lattice and fields:\\
-\textbf{Call} fields\_init\\
-\textbf{Call} ham\_set\\
-Read in an auxiliary-field configuration or generate it randomly:\\
-\textbf{Call} nsigma\%in\\
+\begin{algorithm}[H]
+	\caption{Basic structure of the QMC implementation in \texttt{Prog/main.f90}}
+	\label{alg:1}
+	\begin{algorithmic}[1]
+		
+		\LineComment{\textsc{Initialization}}
+		\State{\textbf{call} Ham\_Set}\Comment{Set the Hamiltonian and the lattice}
+		\State{\textbf{call} Fields\_Init}\Comment{Set the auxiliary fields}
+		\State{\textbf{call} Nsigma\%in}\Comment{Read in an auxiliary-field configuration or generate it randomly}
+		\For{$n=L_{\text{Trotter}}$ to $1$} \Comment{Fill the storage needed for the first actual MC sweep}
+		\State{\textbf{call} Wrapul}\Comment{Compute propagation matrices and store them at stabilization points}
+		\EndFor
+		\vspace{1.5ex}
+		
+		\LineComment{\textsc{Monte Carlo run}}
+		\For{$n_{\text{bc}}=1$ to $N_{\text{bin}}$}\Comment{Loop over bins. The bin defines the unit of Monte Carlo time}
+		
+		\For{$n_{\text{sw}}=1$ to $N_{\text{sweep}}$}\Comment{\parbox[t]{0.6\linewidth}{Loop over sweeps. Each sweep updates twice (upward and downward in imaginary time) the space-time lattice of auxiliary fields}}
+		
+		\If{Tempering}
+		\State{\textbf{call} Exchange\_Step} \Comment{Perform exchange step in a parallel tempering run}
+		\EndIf
+		\If{Global\_moves}
+		\State{\textbf{call} Global\_Updates} \Comment{Perform chosen global updates}
+		\EndIf
+		\vspace{1.5ex}
+		
+		\LineComment{\textsc{Upward sweep}}
+		\For{$n_{\tau}=1$ to $L_{\text{Trotter}}$}
+		\State{\textbf{call} Wrapgrup}\Comment{\parbox[t]{0.6\linewidth}{\textsc{Propagate} Green function from $n_{\tau}-1$ to $n_{\tau}$, and compute its new estimate at $n_{\tau}$, using sequential updates}}
+		\vspace{1.5ex}
+		
+		\If{$n_{\tau}$ = stabilization point in imaginary time} \Comment{\textsc{Stabilize}}
+		\State{\textbf{call} Wrapur}\Comment{Compute propagation from previous stabilization point to $n_{\tau}$} 
+		
+		\LineComment{Storage management:\\
+			-- Read from storage: propagation from $L_{\text{Trotter}}$ to $n_{\tau}$\\
+			-- Write to storage: the just computed propagation}
+		
+		\State{\textbf{call} CGR} \Comment{Recalculate the Green function at time $n_{\tau}$ in a stable way}
+		\State{\textbf{call} Control\_PrecisionG}\Comment{Compare propagated and recalculated Green fct.}
+		\EndIf
+		\vspace{1.5ex}
+		
+		\If{$n_{\tau} \in [\text{Lobs\_st}, \text{Lobs\_en}]$} \Comment{\textsc{Measure} the equal-time observables}
+		\State{\textbf{call} Obser}
+		\EndIf
+		\EndFor
+		\vspace{1.5ex}
+		
+		\LineComment{\textsc{Downward sweep}}
+		\For{$n_{\tau}=L_{\text{Trotter}}$ to $1$}
+		\FirstLineComment{Same steps as for the upward sweep (propagation and estimate update, stabilization, equal-time measurements) now downwards in imaginary time}
+		\EndFor
+		\vspace{1.5ex}
 
-This loop fills the storage needed for the first actual Monte Carlo sweep:\\
-\textbf{Do} \texttt{ntau} from  \texttt{ltrot} to \texttt{1}\\
-\hspace*{1em} Compute propagation matrices and store them at the stabilization points:\\
-\hspace*{1em} \textbf{Call} wrapul\\
-\textbf{Enddo}\\
- 
-Loop over bins: \\
-\textbf{Do} \texttt{nbc} from  \texttt{1} to \texttt{nbin} \\
-\hspace*{1em} Loop over sweeps. Each sweep updates twice (upward and downward in time) the whole\\
-\hspace*{1em} space-time lattice of auxiliary fields. The sweep defines the unit of Monte Carlo time:\\
-%\hspace*{1em} The sweep defines the unit of Monte Carlo time:\\
-\hspace*{1em} \textbf{Do} \texttt{nsw} from  \texttt{1} to \texttt{nsweep}  \\
-\hspace*{2em} \textbf{If} performing tempering \textbf{then}\\
-\hspace*{3em} \textbf{Call} exchange\_step \\
-\hspace*{2em} \textbf{If} performing global updates \textbf{then}\\
-\hspace*{3em} \textbf{Call} global\_updates \\
-\hspace*{2em} Upward sweep:\\
-\hspace*{2em} \textbf{Do} \texttt{ntau} from \texttt{1} to \texttt{ltrot}\\      
-\hspace*{3em} Propagate the Green function from time \texttt{ntau$-$1} to \texttt{ntau}, and compute a new\\
-\hspace*{3em} estimate (using sequential update scheme) of the Green function at \texttt{ntau}: \\
-\hspace*{3em} \textbf{Call} wrapgrup\\
-         
-\hspace*{3em}  Stabilization: \\     
-\hspace*{3em} \textbf{If} \texttt{ntau} equals stabilization point in imaginary time \textbf{then}\\
-\hspace*{4em} Compute propagation matrix from previous stabilization point to \texttt{ntau}: \\
-\hspace*{4em} \textbf{Call} wrapur\\
-\hspace*{4em} Read from storage: propagation from \texttt{ltrot} to \texttt{ntau}\\
-\hspace*{4em} Write to storage: the just-computed propagation \\
-\hspace*{4em} Recalculate the Green function at time \texttt{ntau} in a stable way:\\
-\hspace*{4em} \textbf{Call} cgr\\            
-\hspace*{4em} Check the precision between propagated and recalculated Green functions:\\
-\hspace*{4em} \textbf{Call} control\_precisionG\\
-\hspace*{3em} \textbf{Endif}\\
-    
-\hspace*{3em} Measure the equal-time observables: \\
-\hspace*{3em} \textbf{If} \texttt{ntau} is in the intervall \texttt{[LOBS\_ST, LOBS\_EN]} \textbf{then}\\
-\hspace*{4em} \textbf{Call} obser\\
-\hspace*{3em} \textbf{Endif}\\
-\hspace*{2em} \textbf{Enddo}\\
+		\LineComment{\textsc{Measure} time-displaced observables}
+		\If{$n_{\tau} = 1$}
+		\State{\textbf{call} Tau\_m}
+		\EndIf
+		
+		\EndFor
+		\vspace{1.5ex}
+		
+		\State{\textbf{call} Pr\_obs} \Comment{Calculate and write to disk measurement averages for the current bin}
+		\State{\textbf{call} Nsigm\%out}\Comment{Write auxiliary field configuration to disk}
+		
+		\EndFor
+		
+	\end{algorithmic}
+\end{algorithm}
 
-\hspace*{2em} Downward sweep:\\
-\hspace*{2em} \textbf{Do} \texttt{ntau} from \texttt{ltrot} to \texttt{1}\\
-\hspace*{3em} Repeat the above steps (propagation, update, stabilization, equal-time measurements) \\
-\hspace*{3em} for the downward direction in imaginary time\\
-\hspace*{2em} \textbf{Enddo}\\
-
-\hspace*{2em} Measure the time-displaced observables: \\
-\hspace*{2em} \textbf{Call} tau\_m\\
-\hspace*{1em} \textbf{Enddo} (loop over sweeps)\\
-    
-\hspace*{1em} Calculate measurement averages for current bin and write them to disk:\\
-\hspace*{1em} \textbf{Call} pr\_obs\\
-\hspace*{1em} Write auxiliary-field configuration to disk: \\
-\hspace*{1em} \textbf{Call} nsigma\%out\\
-\textbf{Enddo} (loop over bins)\\
-% 
-% Write the \texttt{info} file to disk:\\
-% \textbf{call} control\_print
-}
-\end{mdframed}
-% 
-% 
-% \lstset{style=fortran_pseudo_code}
-% \begin{lstlisting}
-% 
-% ! Set the Hamiltonian and the lattice:
-% call ham_set
-% 
-% ! Read in an auxiliary-field configuration or generate it randomly:
-% call confin
-% 
-% ! This loop fills the storage, needed for the first actual Monte Carlo sweep:
-% do ntau = ltrot, 1, -1 
-%    ! Compute propagation matrices and store them at the stabilization points:
-%    call wrapul 
-% enddo
-% 
-% ! Loop over bins. The bin defines the unit of Monte Carlo time:
-% do nbc = 1, nbin 
-% 
-%    ! Loop over sweeps. Each sweep updates twice (sweeping upward and downward in time)
-%    ! the whole space-time lattice of auxiliary fields:
-%    do nsw = 1, nsweep 
-%    
-%       ! Upward sweep:
-%       do ntau = 1, ltrot
-%       
-%          ! Propagate the Green function from time ntau -1 to ntau, 
-%          ! and compute new estimate (using sequential update scheme) of Green at ntau: 
-%          call wrapgrup
-%          
-%          ! Stabilization:      
-%          if (ntau == stabilization point)
-%             ! Compute propagation matrix from previous stabilization point to ntau: 
-%             call wrapur
-%             ! Read from storage: propagation from ltrot to ntau
-%             ! Write to storage : the just computed propagation 
-%                         
-%             ! Recalculate Green function at time ntau in a stable way:
-%             call cgr
-%             
-%             ! Check the precision between propagated and recalculated Green function
-%          endif
-%         
-%          ! Measure the equal time observables, 
-%          ! if ntau is in the measuring range [LOBS_ST, LOBS_EN]:
-%          call obser
-%       enddo
-%       
-%       ! Downward sweep:
-%       do ntau = ltrot, 1, -1
-%          ! Repeat the above steps (update, propagation, stabilization, measurements) 
-%          ! for the downward direction in imaginary time
-%       enddo
-%       
-%    enddo ! Loop over sweeps
-%     
-%    ! Calculate averages of the measurements of the previous bin and write to disk
-%    ! Write auxiliary-field configuration to disk
-%    
-% enddo ! Loop over bins        
-% 
-% \end{lstlisting}

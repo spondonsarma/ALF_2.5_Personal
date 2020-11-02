@@ -128,8 +128,22 @@
 \newcommand{\ve}[1]{\boldsymbol{#1}}
 \newcommand{\tl}{t_{l}}
 \newcommand{\ts}{\underline{t}}
-\algnewcommand{\ThreeIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
-\algnewcommand{\FourIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
+
+\algrenewcommand\algorithmiccomment[1]{\hfill \textcolor{comment-color}{\small  $\triangleright$ \textit{#1}}}
+\algrenewcommand\alglinenumber[1]{\scriptsize #1:}
+\algnewcommand{\IIf}[1]{\State\algorithmicif\ #1\ \algorithmicthen} % https://tex.stackexchange.com/a/184228/105662
+\algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
+\makeatletter % Based on  https://tex.stackexchange.com/a/169608/105662
+\newlength{\trianglerightwidth}
+\settowidth{\trianglerightwidth}{$\triangleright$~}
+\algnewcommand{\LineComment}[1]{\Statex \hskip\ALG@thistlm%
+	\parbox[t]{\dimexpr\linewidth-\ALG@thistlm}{\hangindent=\trianglerightwidth \hangafter=1 \strut\textcolor{comment-color}{\small $\triangleright$ \textit{#1}}\strut}}
+% If comment line is the first of a block:
+\algnewcommand{\FirstLineComment}[1]{\Statex \hskip\ALG@thistlm%
+	\parbox[t]{\dimexpr\linewidth-\ALG@thistlm}{\hangindent=\dimexpr\algorithmicindent+\trianglerightwidth \hangafter=1 \strut\makebox[\algorithmicindent][l]{}\textcolor{comment-color}{\small $\triangleright$ \textit{#1}}\strut}}
+\makeatother
+
+
 
 \makeindex
 \begin{document}
