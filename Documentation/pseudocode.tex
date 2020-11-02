@@ -9,7 +9,7 @@
 \subsection{Pseudocode description}\label{sec:pseudocode}
 %------------------------------------------------------------
 
-The Monte Carlo algorithm as implemented in ALF can be summarized as follows:
+The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{alg:1}, where.
 
 %\begin{algorithm}[H]
 \begin{breakablealgorithm}
@@ -27,9 +27,9 @@ The Monte Carlo algorithm as implemented in ALF can be summarized as follows:
 		\vspace{1.5ex}
 		
 		\LineComment{\textsc{Monte Carlo run}}
-		\For{$n_{\text{bc}}=1$ to $N_{\text{bin}}$}\Comment{Loop over bins. The bin defines the unit of Monte Carlo time}
+		\For{$n_{\text{bc}}=1$ to $N_{\text{Bin}}$}\Comment{Loop over bins. The bin defines the unit of Monte Carlo time}
 		
-		\For{$n_{\text{sw}}=1$ to $N_{\text{sweep}}$}\Comment{\parbox[t]{0.6\linewidth}{Loop over sweeps. Each sweep updates twice (upward and downward in imaginary time) the space-time lattice of auxiliary fields}}
+		\For{$n_{\text{sw}}=1$ to $N_{\text{Sweep}}$}\Comment{\parbox[t]{0.6\linewidth}{Loop over sweeps. Each sweep updates twice (upward and downward in imaginary time) the space-time lattice of auxiliary fields}}
 		
 		\If{Tempering}
 		\State{\textbf{call} Exchange\_Step} \Comment{Perform exchange step in a parallel tempering run}
@@ -37,22 +37,35 @@ The Monte Carlo algorithm as implemented in ALF can be summarized as follows:
 		\If{Global\_moves}
 		\State{\textbf{call} Global\_Updates} \Comment{Perform chosen global updates}
 		\EndIf
+		\If{Langevin}
+		\State{\textbf{call} Langevin\_update} \Comment{Update and measure equal-time observables}
+		\If{$L_{\tau} = 1$}
+		\If{Projector}
+		\State{\textbf{call} Tau\_p} \Comment{Measure time-displaced observables (projective code)}
+		\Else
+		\State{\textbf{call} Tau\_m} \Comment{Measure time-displaced observables (finite temperature)}
+		\EndIf
+		\EndIf
+		\EndIf
 		\vspace{1.5ex}
 		
-		\LineComment{\textsc{Upward sweep}}
+		\If{Sequential}
+		\vspace{1.5ex}
+		
+		\FirstLineComment{\textsc{Upward sweep}}
 		\For{$n_{\tau}=1$ to $L_{\text{Trotter}}$}
 		\State{\textbf{call} Wrapgrup}\Comment{\parbox[t]{0.6\linewidth}{\textsc{Propagate} Green function from $n_{\tau}-1$ to $n_{\tau}$, and compute its new estimate at $n_{\tau}$, using sequential updates}}
 		\vspace{1.5ex}
 		
 		\If{$n_{\tau}$ = stabilization point in imaginary time} \Comment{\textsc{Stabilize}}
-		\State{\textbf{call} Wrapur}\Comment{Compute propagation from previous stabilization point to $n_{\tau}$} 
+		\State{\textbf{call} Wrapur}\Comment{Propagate from previous stabilization point to $n_{\tau}$} 
 		
 		\LineComment{Storage management:\\
 			-- Read from storage: propagation from $L_{\text{Trotter}}$ to $n_{\tau}$\\
 			-- Write to storage: the just computed propagation}
 		
 		\State{\textbf{call} CGR} \Comment{Recalculate the Green function at time $n_{\tau}$ in a stable way}
-		\State{\textbf{call} Control\_PrecisionG}\Comment{Compare propagated and recalculated Green fct.}
+		\State{\textbf{call} Control\_PrecisionG}\Comment{Compare propagated and recalculated Greens}
 		\EndIf
 		\vspace{1.5ex}
 		
@@ -65,21 +78,30 @@ The Monte Carlo algorithm as implemented in ALF can be summarized as follows:
 		\LineComment{\textsc{Downward sweep}}
 		\For{$n_{\tau}=L_{\text{Trotter}}$ to $1$}
 		\FirstLineComment{Same steps as for the upward sweep (propagation and estimate update, stabilization, equal-time measurements) now downwards in imaginary time}
+		\If{Projector \textbf{and}  $L_{\tau} = 1$ \textbf{and} \\
+			\hspace{15.8ex} $n_{\tau}$ = stabilization point in imaginary time \textbf{and} \\
+			\hspace{15.8ex} the projection time is within the measurement interval}
+		\State{\textbf{call} Tau\_p} \Comment{\textsc{Measure} time-displaced observables (projective code)}
+		\EndIf
 		\EndFor
 		\vspace{1.5ex}
 
-		\LineComment{\textsc{Measure} time-displaced observables}
-		\If{$n_{\tau} = 1$}
+		\LineComment{\textsc{Measure} time-displaced observables (finite temperature)}
+		\If{$L_{\tau} = 1$ \textbf{and not} Projector}
 		\State{\textbf{call} Tau\_m}
 		\EndIf
+		\vspace{1.5ex}
 		
-		\EndFor
+		\EndIf % sequential
+		\vspace{1.5ex}
+		
+		\EndFor % sweeps
 		\vspace{1.5ex}
 		
 		\State{\textbf{call} Pr\_obs} \Comment{Calculate and write to disk measurement averages for the current bin}
-		\State{\textbf{call} Nsigm\%out}\Comment{Write auxiliary field configuration to disk}
+		\State{\textbf{call} Nsigma\%out}\Comment{Write auxiliary field configuration to disk}
 		
-		\EndFor
+		\EndFor % bins
 		
 	\end{algorithmic}
 \end{breakablealgorithm}
