@@ -114,7 +114,7 @@
 
 
 #if defined (MPI) || defined(TEMPERING)
-           use mpi
+          use mpi
 #endif
           Implicit none
 
@@ -129,10 +129,6 @@
                &                   Dtau, Beta, ham_TZ2, Ham_U,  N_SUN, Projector, Theta, N_part
 
           
-          If (Langevin) then
-             WRITE(error_unit,*) 'Lagevin update is not implemented for t-V model'
-             error stop 1
-          endif
           
 #ifdef MPI
           Integer        :: Isize, Irank, igroup, irank_g, isize_g
@@ -146,6 +142,13 @@
 #endif
 
 
+          If (Langevin) then
+             WRITE(error_unit,*) 'Lagevin update is not implemented for Z2_Matter'
+             error stop 1
+          endif
+
+
+          
 #ifdef MPI
           If (Irank == 0 ) then
 #endif
