@@ -184,7 +184,12 @@ Program Main
         Integer :: Nt_sequential_start, Nt_sequential_end, mpi_per_parameter_set
         Integer :: N_Global_tau
         Logical :: Sequential
-        
+
+        ! Space for Langevin / HMC
+
+        Complex (Kind=Kind(0.d0)), dimension(:,:), allocatable :: Forces
+        Logical :: L_Forces
+        Real (Kind=Kind(0.d0)) :: Delta_t_Langevin_HMC, Max_Force
 
 #if defined(TEMPERING)
         Integer :: N_exchange_steps, N_Tempering_frequency
@@ -193,7 +198,9 @@ Program Main
 
         NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX, &
              &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
-             &               Nt_sequential_start, Nt_sequential_end, N_Global_tau
+             &               Nt_sequential_start, Nt_sequential_end, N_Global_tau, &
+             &               Langevin, Delta_t_Langevin_HMC, Max_Force
+          
 
 
         Integer :: Ierr, I,nf, nst, n, N_op
@@ -270,7 +277,8 @@ Program Main
            ! This is a set of variables that  identical for each simulation.
            Nwrap=0;  NSweep=0; NBin=0; Ltau=0; LOBS_EN = 0;  LOBS_ST = 0;  CPU_MAX = 0.d0
            Propose_S0 = .false. ;  Global_moves = .false. ; N_Global = 0
-           Global_tau_moves = .false.
+           Global_tau_moves = .false.; Langevin = .false.
+           Delta_t_Langevin_HMC = 0.d0;  Max_Force = 0.d0
            Nt_sequential_start = 1 ;  Nt_sequential_end  = 0;  N_Global_tau  = 0
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
            IF (ierr /= 0) THEN
@@ -282,20 +290,24 @@ Program Main
            NBin_eff = NBin
 #ifdef MPI
         Endif
-        CALL MPI_BCAST(Nwrap              ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(NSweep             ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(NBin               ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Ltau               ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(LOBS_EN            ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(LOBS_ST            ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(CPU_MAX            ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Propose_S0         ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Global_moves       ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(N_Global           ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Global_tau_moves   ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Nt_sequential_start,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Nt_sequential_end  ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(N_Global_tau       ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Nwrap               ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(NSweep              ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(NBin                ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Ltau                ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(LOBS_EN             ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(LOBS_ST             ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(CPU_MAX             ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Propose_S0          ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Global_moves        ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(N_Global            ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Global_tau_moves    ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Nt_sequential_start ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Nt_sequential_end   ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(N_Global_tau        ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Langevin            ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Max_Force           ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Delta_t_Langevin_HMC,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
+
 #endif
         Call Fields_init()
         Call Ham_set
@@ -423,7 +435,12 @@ Program Main
            else
               Write(50,*) 'Default sequential updating '
            endif
-
+           If (Langevin) then
+              Write(50,*) 'Langevin del_t: ', Delta_t_Langevin_HMC
+              Write(50,*) 'Max Force     : ', Max_Force
+           endif
+           
+           
 #if defined(MPI)
            Write(50,*) 'Number of mpi-processes : ', isize_g
 #endif
@@ -458,7 +475,8 @@ Program Main
 
         Sequential = .true.
         if (Langevin) then
-           Call Langevin_setup
+           Call Langevin_setup(Forces)
+           L_Forces   = .False.
            Sequential = .False.
         endif
 
@@ -536,7 +554,15 @@ Program Main
 
               If ( Langevin )  then
                  !  Carry out a Langevin update and calculate equal time observables.
-                 Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+                 Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
+                      &               LOBS_ST, LOBS_EN, Forces, L_Forces, Delta_t_Langevin_HMC, Max_Force )
+
+                 IF ( LTAU == 1 .and. .not. Projector ) then
+                    ! Call for imaginary time displaced  correlation fuctions and compute 
+                    Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
+                    L_Forces = .true.
+                 endif
+
               endif
 
               If (Sequential)  then 
@@ -675,10 +701,10 @@ Program Main
                     endif
                  enddo
 
-              endif
-              IF ( LTAU == 1 .and. .not. Projector ) then
-                 ! Call for imaginary time displaced  correlation fuctions.
-                 Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT )
+                 IF ( LTAU == 1 .and. .not. Projector ) then
+                    ! Call for imaginary time displaced  correlation fuctions.
+                    Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
+                 endif
               endif
 
            ENDDO
@@ -738,7 +764,7 @@ Program Main
         endif
 #endif
         
-        if (Langevin) Call Langevin_clear
+        if (Langevin) Call Langevin_clear(Forces)
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)

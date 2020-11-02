@@ -147,7 +147,7 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm
-      Logical              :: Langevin =.False.
+      Logical              :: Langevin
 
 
       Type (Lattice),       private, target :: Latt
@@ -160,7 +160,6 @@
       Real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
       Integer               ,        private :: N_Phi
       real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
-      Real (Kind=Kind(0.d0)),        private :: Delta_t_Langevin_HMC, Max_Force,  Running_Delta_t_Langevin
       Character (len=64),   private :: Model, Lattice_type
       Logical,              private :: Checkerboard,  Bulk,  Mz
       Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
@@ -204,7 +203,7 @@
           NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
 
           NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta, &
-               & Projector,  Langevin, Delta_t_Langevin_HMC, Max_Force
+               & Projector
 
           Namelist /VAR_LRC/      ham_T, ham_T2, ham_Tperp, ham_chem, ham_U, ham_alpha, Percent_change
 
@@ -224,8 +223,6 @@
           Ham_T2       = 0.d0
           Ham_Tperp    = 0.d0
           Ham_U2       = 0.d0
-          Delta_t_Langevin_HMC = 0.d0
-          Max_Force    = 0.d0
 
 
 
@@ -277,9 +274,6 @@
           CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
           CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Max_Force   ,1,  MPI_REAL8  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Delta_t_Langevin_HMC,1,  MPI_REAL8  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Langevin    ,1,  MPI_LOGICAL  , 0,Group_Comm,IERR)
 #endif
 
           Call  Ham_Latt
@@ -1030,17 +1024,40 @@
 !> ALF Collaboration
 !>
 !> @brief 
-!> Get/put paramters for  Langevin/HMC  step 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, Mode ) 
-          
+!>   Mode = Get:  Forces_0  = \partial S_0 / \partial s  are calculated and returned to
+!>                       main program.
+!>   Mode = Put:  The main program provides the running time step required for the calculation
+!>                of observables
+!> 
+!-------------------------------------------------------------------        
+        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running, Mode ) 
+
           Implicit none
-          
-          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running_c
-          Real (Kind=Kind(0.d0)), intent(out  ) :: Max_Force_c, Delta_t_c
+
+          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running
           Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
           Character (Len=3), intent(in)         ::  Mode
+
+          !Local
+          Integer :: N, N_op,nt
           
+          If (Mode == "Get" )  then
+             ! Compute \partial S_0 / \partial s
+             N_op = size(nsigma%f,1)
+             Forces_0  = 0.d0
+             do n = 1,N_op
+                if (OP_V(n,1)%type == 3 ) then
+                   do nt = 1,Ltrot
+                      Forces_0(n,nt) = 0.d0
+                   enddo
+                endif
+             enddo
+          endif
+          If (Mode == "Put" )  then
+             !Running_Delta_t_Langevin = Delta_t_running
+          endif
+        
         end Subroutine Ham_Langevin_HMC_S0_Params
+
       
       end Module Hamiltonian

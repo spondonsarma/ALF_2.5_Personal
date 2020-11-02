@@ -72,7 +72,7 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm = .False.
-      Logical              :: Langevin =.False.
+      Logical              :: Langevin
 
 
 !>    Privat variables
@@ -128,7 +128,12 @@
           NAMELIST /VAR_Z2_Matter/ ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h, &
                &                   Dtau, Beta, ham_TZ2, Ham_U,  N_SUN, Projector, Theta, N_part
 
-
+          
+          If (Langevin) then
+             WRITE(error_unit,*) 'Lagevin update is not implemented for t-V model'
+             error stop 1
+          endif
+          
 #ifdef MPI
           Integer        :: Isize, Irank, igroup, irank_g, isize_g
           Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -1931,17 +1936,39 @@
 !> ALF Collaboration
 !>
 !> @brief 
-!> Get/put paramters for  Langevin/HMC  step 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, Mode ) 
-          
+!>   Mode = Get:  Forces_0  = \partial S_0 / \partial s  are calculated and returned to
+!>                       main program.
+!>   Mode = Put:  The main program provides the running time step required for the calculation
+!>                of observables
+!> 
+!-------------------------------------------------------------------        
+        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running, Mode ) 
+
           Implicit none
-          
-          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running_c
-          Real (Kind=Kind(0.d0)), intent(out  ) :: Max_Force_c, Delta_t_c
+
+          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running
           Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
           Character (Len=3), intent(in)         ::  Mode
+
+          !Local
+          Integer :: N, N_op,nt
           
+          If (Mode == "Get" )  then
+             ! Compute \partial S_0 / \partial s
+             N_op = size(nsigma%f,1)
+             Forces_0  = 0.d0
+             do n = 1,N_op
+                if (OP_V(n,1)%type == 3 ) then
+                   do nt = 1,Ltrot
+                      Forces_0(n,nt) = 0.d0
+                   enddo
+                endif
+             enddo
+          endif
+          If (Mode == "Put" )  then
+             !Running_Delta_t_Langevin = Delta_t_running
+          endif
+        
         end Subroutine Ham_Langevin_HMC_S0_Params
 
 

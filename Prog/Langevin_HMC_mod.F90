@@ -41,7 +41,6 @@
         Implicit none
         
         
-        Complex (Kind=Kind(0.d0)),  allocatable, private ::  Forces  (:,:)
         Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
 
 
@@ -62,7 +61,7 @@
 !> 
 !--------------------------------------------------------------------
         
-      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN, Forces )
         Implicit none
         
         Interface
@@ -99,7 +98,8 @@
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
-  
+        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
+        
 
         !Local
         Integer :: NSTM, n, nf, NST, NTAU, nt, nt1, Ntau1, NVAR, N_Type, I, J
@@ -135,20 +135,7 @@
                  N_type =  2
                  Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
               enddo
-              ! Compute forces here.
-              if (OP_V(n,1)%type == 3 ) then
-                 Do nf = 1, N_Fl
-                    Z = cmplx(0.d0,0.d0,Kind(0.d0))
-                    do I = 1,size(OP_V(n,nf)%P,1)
-                       do J = 1,size(OP_V(n,nf)%P,1)
-                          Z1 =  cmplx(0.d0,0.d0,Kind(0.d0))
-                          if ( I == J ) Z1 = cmplx(1.d0,0.d0,Kind(0.d0))
-                          Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
-                       Enddo
-                    Enddo
-                    Forces(n,ntau1) = Forces(n,ntau1)  - Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
-                 Enddo
-              endif
+              Forces(n,ntau1) = Langevin_HMC_Calc_Force(Gr, n )
            enddo
 
            If (NTAU1 == Stab_nt(NST) ) then 
@@ -183,6 +170,45 @@
 
       end SUBROUTINE Langevin_HMC_Forces
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!>   For a given  Green function  calculated at position n in the sequence of 
+!>   operators,  this routine  computes the force.
+!>   
+!--------------------------------------------------------------------
+
+       Complex (Kind=kind(0.d0)) function  Langevin_HMC_Calc_Force(Gr,n )
+
+        Implicit none
+        
+        Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:,:) :: Gr
+        Integer                     :: n
+
+        
+        !Local
+        Complex (Kind=Kind(0.d0)) :: Z, Z1
+        Integer ::  nf, I, J
+        
+        Langevin_HMC_Calc_Force = cmplx(0.d0,0.d0,Kind(0.d0))
+        if (OP_V(n,1)%type == 3 ) then
+           Do nf = 1, N_Fl
+              Z = cmplx(0.d0,0.d0,Kind(0.d0))
+              do I = 1,size(OP_V(n,nf)%P,1)
+                 do J = 1,size(OP_V(n,nf)%P,1)
+                    Z1 =  cmplx(0.d0,0.d0,Kind(0.d0))
+                    if ( I == J ) Z1 = cmplx(1.d0,0.d0,Kind(0.d0))
+                    Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
+                 Enddo
+              Enddo
+              Langevin_HMC_Calc_Force =  Langevin_HMC_Calc_Force  - &
+                   &    Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
+           Enddo
+        endif
+
+      end function Langevin_HMC_Calc_Force
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -228,7 +254,7 @@
         Complex (Kind=Kind(0.d0)), intent(inout) :: Phase
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR 
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
-          
+                  
         ! Local
         Integer :: NSTM, nf,  nt, nt1,  NST, NVAR
         Complex (Kind=Kind(0.d0)) :: Z
@@ -282,15 +308,17 @@
 !
 !> @brief 
 !> Handles a  Langevin sweep.
-!>   On input GR is on the first time slice and  the storage is full with
-!> left propagations.   Udvr  and Udvl are on time slice 1.
-!>   On output. The  field configuration is  updated.  GR, Udvr,  Udvl and Udvst are as on input but with the
-!> updated configuration.  
-!> Equal time measurments as well as time displaced ones  is projector is true are also carried out. 
+!>   On input: a) GR is on the first time slice and  the storage is full with
+!>                left propagations.   Udvr  and Udvl are on time slice 1.
+!>             b) If L_Forces = .T. (.F.) Fermion_Forces  are (not)  provided      
+!>                If L_Forces = .F. (.T.) equal time measurements are (not)  carried  out. 
+!>   On output: The  field configuration is  updated.  GR, Udvr,  Udvl and Udvst are as on input but with the
+!>              updated configuration.  
 !> 
 !--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN, &
+           &       Forces, L_Forces, Delta_t_Langevin_HMC, Max_Force)
         Implicit none
         
         
@@ -301,20 +329,24 @@
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
-
+        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
+        Logical :: L_Forces 
+        Real    (Kind=Kind(0.d0)), intent(in) :: Delta_t_Langevin_HMC, Max_Force
 
         !Local
         Integer :: N_op, n, nt
         Real    (Kind=Kind(0.d0)) :: X, Xmax
 
-        Real    (Kind=Kind(0.d0)) :: Delta_t_running_c, Max_Force_c, Delta_t_c
+        Real    (Kind=Kind(0.d0)) :: Delta_t_running
         
-        
-        Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+
+        If ( .not. L_Forces) &
+             &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
+             &  LOBS_ST, LOBS_EN, Forces )
         
         Call Control_Langevin   ( Forces,Group_Comm )
 
-        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, "Get" )
+        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running, "Get" )
           
         N_op = size(nsigma%f,1)
         !  Determine running time step
@@ -325,32 +357,32 @@
               if (X > Xmax) Xmax = X
            enddo
         enddo
-        Delta_t_running_c = Delta_t_c
-        If ( Xmax >  Max_Force_c ) Delta_t_running_c = Max_Force_c * Delta_t_c / Xmax
-        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running_c, Max_Force_c, Delta_t_c, "Put" )
+        Delta_t_running = Delta_t_Langevin_HMC 
+        If ( Xmax >  Max_Force ) Delta_t_running = Max_Force * Delta_t_Langevin_HMC / Xmax
+        
+        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running,  "Put" )
 
         do n = 1,N_op
            if (OP_V(n,1)%type == 3 ) then
               do nt = 1,Ltrot
                  nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( Forces_0(n,nt) +  &
-                      &  real( Phase*Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * Delta_t_running_c + &
-                      &  sqrt( 2.d0 * Delta_t_running_c) * rang_wrap()
+                      &  real( Phase*Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * Delta_t_running + &
+                      &  sqrt( 2.d0 * Delta_t_running) * rang_wrap()
               enddo
            endif
         enddo
-        
-        
         Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
-
+        L_Forces = .False. 
         
       END SUBROUTINE LANGEVIN_UPDATE
      
 
       
-      SUBROUTINE  Langevin_setup
+      SUBROUTINE  Langevin_setup ( Forces )
         Implicit none
 
         Integer :: Nr,Nt
+        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
         
         Nr = size(nsigma%f,1)
         Nt = size(nsigma%f,2)
@@ -359,8 +391,9 @@
       end SUBROUTINE Langevin_setup
 
 
-      SUBROUTINE  Langevin_clear
+      SUBROUTINE  Langevin_clear ( Forces )
         Implicit none
+        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
         Deallocate ( Forces, Forces_0 )
       end SUBROUTINE Langevin_clear
 

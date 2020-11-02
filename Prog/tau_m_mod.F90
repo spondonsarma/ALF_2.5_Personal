@@ -46,10 +46,12 @@
        Use Control
        Use Hop_mod
        Use UDV_State_mod
+       Use Langevin_HMC_mod
+
 
        Contains
 
-         SUBROUTINE TAU_M(udvst, GR, PHASE, NSTM, NWRAP, STAB_NT  ) 
+         SUBROUTINE TAU_M(udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces) 
            
            Implicit none
 
@@ -77,8 +79,8 @@
            CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst
            Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
            Integer, Intent(In) :: STAB_NT(0:NSTM)         
-
-           
+           Integer, Intent(In) :: LOBS_ST, LOBS_EN
+           Complex (Kind=Kind(0.d0)),  Intent(Inout), dimension(:,:) :: Forces
 
            ! Local 
            ! This could be placed as  private for the module 
@@ -88,7 +90,8 @@
            Complex (Kind=Kind(0.d0))  :: HLP4(Ndim,Ndim), HLP5(Ndim,Ndim), HLP6(Ndim,Ndim)
            
            Complex (Kind=Kind(0.d0))  ::  Z
-           Integer  ::  I, J, nf, NT, NT1, NTST, NST
+           Integer  ::  I, J, nf, NT, NT1, NTST, NST, N,  N_type
+           Real (Kind=Kind(0.d0))  ::  spin   
            
            If (Symm) Then
               Allocate ( G00_T(Ndim,Ndim,N_FL), G0T_T(Ndim,Ndim,N_FL), GT0_T(Ndim,Ndim,N_FL),  GTT_T(Ndim,Ndim,N_FL) )
@@ -128,15 +131,33 @@
                 CALL udvr(nf)%init(ndim,'r')
               endif
            enddo
-              
+
+           If (Langevin)  Forces = cmplx(0.d0,0.d0,kind(0.d0))
            NST = 1
            DO NT = 0,LTROT - 1
               ! Now wrapup:
               NT1 = NT + 1
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
-              CALL PROPRM1 (GTT,NT1)
-              CALL PROPR   (GTT,NT1)
+              If  (Langevin) then  !   Here we compute the foreces on the fly so as to save time.
+                 Do nf = 1,N_FL
+                    CALL HOP_MOD_mmthr   (GTT(:,:,nf), nf )
+                    CALL HOP_MOD_mmthl_m1(GTT(:,:,nf), nf )
+                 Enddo
+                 Do n = 1, size(OP_V,1) 
+                    Do nf = 1, N_FL
+                       spin = nsigma%f(n,NT1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
+                       N_type = 1
+                       Call Op_Wrapup(GTT(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
+                       N_type =  2
+                       Call Op_Wrapup(GTT(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
+                    enddo
+                    if (OP_V(n,1)%type == 3 ) Forces(n,NT1) =  Langevin_HMC_Calc_Force(GTT, n )
+                 enddo
+              else
+                 CALL PROPRM1 (GTT,NT1)
+                 CALL PROPR   (GTT,NT1)
+              endif
               ! In Module Hamiltonian
               If (Symm) then
                  Call Hop_mod_Symm(G00_T,G00)
@@ -144,8 +165,10 @@
                  Call Hop_mod_Symm(G0T_T,G0T)
                  Call Hop_mod_Symm(GT0_T,GT0)
                  CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE)
+                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1 )
               Else
                  CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
+                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1 )
               Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN
