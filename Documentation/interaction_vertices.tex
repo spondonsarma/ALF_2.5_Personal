@@ -36,7 +36,7 @@ The $SU(N)$ Hubbard interaction on a given site $i$ is given by
 \end{align} 
 Assuming that no other term in the Hamiltonian breaks the $SU(N) $ color symmetry, then this interaction term conveniently corresponds to  a single operator, obtained by calling, for each of the $N_{\mathrm{dim}}$ sites $i$:
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_U_SUN( OP, I, N_SUN, DTAU, U )
+Call Predefined_Int_U_SUN(OP, I, N_SUN, DTAU, U)
 \end{lstlisting}
 which defines:
 %which corresponds to the general form of Eq.~\eqref{eqn:general_ham_v} by setting: 
@@ -57,7 +57,7 @@ To relate to  Eq.~\eqref{eqn:general_ham_v} we have,   $V_{x y}^{(is)} =  \delta
 \subsubsection{$M_z$-Hubbard interaction}
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_U_MZ( OP_up, Op_do, I, DTAU, U )
+Call Predefined_Int_U_MZ(OP_up, Op_do, I, DTAU, U)
 \end{lstlisting}
 
 The $M_z$-Hubbard interaction is given by 
@@ -88,7 +88,7 @@ Op_do%type   = 2
 \subsubsection{$SU(N)$ $V$-interaction}
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_V_SUN( OP, I, J, N_SUN, DTAU, V )
+Call Predefined_Int_V_SUN(OP, I, J, N_SUN, DTAU, V)
 \end{lstlisting}
 
 The interaction term of the generalized t-V model, given by 
@@ -112,7 +112,7 @@ Op%type   = 2
 \subsubsection{Fermion-Ising coupling}
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_Ising_SUN( OP, I, J, DTAU, XI )
+Call Predefined_Int_Ising_SUN(OP, I, J, DTAU, XI)
 \end{lstlisting}
 
 The interaction between the Ising and a fermion degree of freedom, given by
@@ -138,7 +138,7 @@ Op%type   = 1
 \subsubsection{Long-Range Coulomb repulsion}
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_LRC( OP, I, DTAU )
+Call Predefined_Int_LRC(OP, I, DTAU)
 \end{lstlisting}
 
 The Long-Range Coulomb (LRC) interaction can be written as
@@ -172,7 +172,7 @@ Op%type   = 3
 \subsubsection{$J_z$-$J_z$ interaction}
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_Int_Jz( OP_up, Op_do, I, J, DTAU, Jz )
+Call Predefined_Int_Jz(OP_up, Op_do, I, J, DTAU, Jz)
 \end{lstlisting}
 
 Another predefined vertex is:

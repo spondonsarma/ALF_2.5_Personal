@@ -30,14 +30,14 @@ Predefined_Latt(Lattice_type, L1, L2, Ndim, List, Invlist, Latt, Latt_Unit)
 \end{lstlisting}
 which returns a lattice of size \texttt{L1$\times$L2} of the given \texttt{Lattice\_type}, as detailed in Table~\ref{table:predefined_lattices}. Notice that the orbital position \texttt{Latt\_Unit\%Orb\_pos\_p(1,:)} is set to zero unless otherwise specified.
 %
-\begin{table}[h]
+\begin{table}[h!]
 	\begin{center}
-	\begin{tabular}{@{} p{0.13\columnwidth}  p{0.1\columnwidth} p{0.09\columnwidth} p{0.58\columnwidth}  @{}}
+	\begin{tabular}{@{} p{0.16\columnwidth}  p{0.12\columnwidth} p{0.09\columnwidth} p{0.54\columnwidth}  @{}}
 		\toprule
-		Argument                 & Type       & Role   & Description \\
+		Argument                 & Type                & Role   & Description \\
 		\midrule
-		\texttt{Lattice\_type}   & String     & Input  & Lattice configuration, which can take the values:
-		\vspace{-\topsep} %sometimes dispensable
+		\texttt{Lattice\_type}   & \texttt{char}       & Input  & Lattice configuration, which can take the values:
+		\vspace{-2\topsep} %sometimes dispensable
 		\begin{itemize}
 			\setlength{\itemsep}{0pt} \setlength{\parskip}{0pt} \setlength{\parsep}{0pt}
 			\item[-] \texttt{Square}
@@ -49,12 +49,12 @@ which returns a lattice of size \texttt{L1$\times$L2} of the given \texttt{Latti
 			\vspace{-1.4\topsep} 
 		\end{itemize} \\
 	    %\vspace{-\topsep} \\ \vspace{-\topsep}
-		\texttt{L1}, \texttt{L2} & Integer    & Input  & Lattice sizes (set \texttt{L2=1} for 1D lattices)\\
-		\texttt{Ndim}            & Integer    & Output & Total number of orbitals\\
-		\texttt{List}            & Integer    & Output & For every site index $\texttt{I} \in [1,\texttt{Ndim}]$, stores the corresponding lattice position, \texttt{List(I,1)}, and the (local) orbital index, \texttt{List(I,2)}\\
-		\texttt{Invlist}         & Integer    & Output &  For every $\texttt{lattice\_position} \in [1,\texttt{Latt\%N}]$ and $\texttt{orbital} \in [1,\texttt{Norb}]$ stores the corresponding site index \texttt{I(lattice\_position,orbital)}\\
-		\texttt{Latt}            & Lattice    & Output & Sets the lattice\\
-		\texttt{Latt\_Unit}      & Unit\_cell & Output & Sets the unit cell\\
+		\texttt{L1}, \texttt{L2} & \texttt{int}        & Input  & Lattice sizes (set \texttt{L2=1} for 1D lattices)\\
+		\texttt{Ndim}            & \texttt{int}        & Output & Total number of orbitals\\
+		\texttt{List}            & \texttt{int}        & Output & For every site index $\texttt{I} \in [1,\texttt{Ndim}]$, stores the corresponding lattice position, \texttt{List(I,1)}, and the (local) orbital index, \texttt{List(I,2)}\\
+		\texttt{Invlist}         & \texttt{int}        & Output &  For every $\texttt{lattice\_position} \in [1,\texttt{Latt\%N}]$ and $\texttt{orbital} \in [1,\texttt{Norb}]$ stores the corresponding site index \texttt{I(lattice\_position,orbital)}\\
+		\texttt{Latt}            & \texttt{Lattice}    & Output & Sets the lattice\\
+		\texttt{Latt\_Unit}      & \texttt{Unit\_cell} & Output & Sets the unit cell\\
 		\bottomrule
 	\end{tabular}
 \caption{Arguments of the subroutine \texttt{Predefined\_Latt}.   Note that the \texttt{Pi\_Flux} lattice is deprecated for the moment since it can be emulated with the Square lattice with half a flux quanta piercing each plaquette.}		\label{table:predefined_lattices}

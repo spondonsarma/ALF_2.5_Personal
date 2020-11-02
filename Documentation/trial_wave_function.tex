@@ -13,12 +13,12 @@ These are stored in variables of the \texttt{WaveFunction} type (Sec.~\ref{sec:w
 The ALF package provides a set of predefined trial wave functions $|\Psi_{T,L/R}\rangle$=\texttt{WF\_L/R}, returned by the call:
 
 \begin{lstlisting}[style=fortran]
-Call Predefined_TrialWaveFunction(Lattice_type, Ndim, List, Invlist, Latt, Latt_unit, N_part,
-                                  N_FL, WF_L, WF_R)
+Call Predefined_TrialWaveFunction(Lattice_type, Ndim, List, Invlist, Latt, Latt_unit,
+                                  N_part, N_FL, WF_L, WF_R)
 \end{lstlisting}
 Twisted boundary conditions (\texttt{Phi\_X\_vec=0.01}) are implemented for some lattices so as to generate a non-degenerate trial wave function. Here the marker "\texttt{\_vec}" indicates the variable may assume different values depending on the flavor (e.g., spin up and down). Currently predefined trial wave functions are flavor independent.
 
-The predefined trial wave functions correspond to the solution of the non-interacting tight binding Hamiltonian on each of the predefined lattices. These solutions are the ground states of the predefined hopping matrices (Sec.~\ref{sec:predefined_hopping}) with default parameters, for each lattice, as follows.
+The predefined trial wave functions correspond to the solution of the non-interacting tight binding Hamiltonian on each of the predefined lattices. These solutions are the ground states of the predefined hopping matrices (Sec.~\ref{sec:predefined_hopping_1}) with default parameters, for each lattice, as follows.
 
 \subsubsection{Square}
 

@@ -64,20 +64,20 @@ The code that we describe below  can be found in the module \path{Prog/Hamiltoni
 The main program will call the subroutine   \texttt{Ham\_set} in the module \path{Hamiltonian_plain_vanilla_hubbard_mod.F90}.
 The latter  subroutine  defines the  public variables
 \begin{lstlisting}[style=fortran]
-Type (Operator),     dimension(:,:), allocatable :: Op_V    ! Interaction
-Type (Operator),     dimension(:,:), allocatable :: Op_T    ! Hopping
-Type (WaveFunction), dimension(:),   allocatable :: WF_L    ! Left trial wave function
-Type (WaveFunction), dimension(:),   allocatable :: WF_R    ! Right trial wave function
-Type (Fields)        :: nsigma                              ! Fields
-Integer              :: Ndim	                            ! Number of sites
-Integer              :: N_FL                                ! number of flavors
-Integer              :: N_SUN	                            ! Number of colors 
-Integer              :: Ltrot                               ! Total number of trotter silces
-Integer              :: Thtrot                              ! Number of trotter slices 
-                                                            ! reserved for projection
-Logical              :: Projector                           ! Projector code
-Integer              :: Group_Comm                          ! Group communicator for MPI
-Logical              :: Symm                                ! Symmetric trotter 
+Type(Operator),     dimension(:,:), allocatable :: Op_V  ! Interaction
+Type(Operator),     dimension(:,:), allocatable :: Op_T  ! Hopping
+Type(WaveFunction), dimension(:),   allocatable :: WF_L  ! Left trial wave function
+Type(WaveFunction), dimension(:),   allocatable :: WF_R  ! Right trial wave function
+Type(Fields)        :: nsigma                            ! Fields
+Integer             :: Ndim                              ! Number of sites
+Integer             :: N_FL                              ! number of flavors
+Integer             :: N_SUN	                         ! Number of colors 
+Integer             :: Ltrot                             ! Total number of trotter silces
+Integer             :: Thtrot                            ! Number of trotter slices 
+                                                         ! reserved for projection
+Logical             :: Projector                         ! Projector code
+Integer             :: Group_Comm                        ! Group communicator for MPI
+Logical             :: Symm                              ! Symmetric trotter 
 \end{lstlisting}
 which specify the model.  The  routine \texttt{Ham\_set}  will first  read the parameter file,  then set the lattice, \texttt{Call Ham\_latt},  set the hopping, \texttt{Call Ham\_hop},  
  set the interaction, 
@@ -95,7 +95,6 @@ a2_p(1) = 0.0  ; a2_p(2) = 1.d0
 L1_p    = dble(L1)*a1_p
 L2_p    = dble(L2)*a2_p
 Call Make_Lattice(L1_p, L2_p, a1_p, a2_p, Latt)
-
 Latt_unit\%Norb = 1
 Latt_unit\%N_coord = 2
 allocate(Latt_unit\%Orb_pos_p(Latt_unit\%Norb,2))
@@ -287,7 +286,7 @@ An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \
 Obs_scal(2)%N        = Obs_scal(2)%N + 1
 Obs_scal(2)%Ave_sign = Obs_scal(2)%Ave_sign + Real(ZS,kind(0.d0))
 Do i = 1,Ndim
-   Obs_scal(2)%Obs_vec(1) = Obs_scal(2)%Obs_vec(1) + (1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
+  Obs_scal(2)%Obs_vec(1)= Obs_scal(2)%Obs_vec(1) +(1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
 Enddo
 \end{lstlisting} 
 Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
@@ -340,11 +339,11 @@ This subroutine is called by the main program at the beginning of each sweep, pr
 In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
 are thereby given by: 
-\begin{align}
+\begin{multline}
 	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle
-	& =  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} )      \nonumber \\  
-	& -   \; \texttt{G0T(J,I,1)}*\texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)}* \texttt{GT0(I,J,2)}
-\end{align}
+	=  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} )     \\  
+	-   \; \texttt{G0T(J,I,1)}*\texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)}* \texttt{GT0(I,J,2)}
+\end{multline}
 
 The handling of time displaced correlation functions is identical to that of equal-time correlations. 
 
@@ -354,11 +353,11 @@ The handling of time displaced correlation functions is identical to that of equ
 
 Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}. 
 For a   \textit{short} simulation on a $4 \times 4$  lattice at $U/t=4$ and $\beta t = 10$  we obtain
- \begin{alltt}
+{\small  \begin{alltt}
 Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
 Precision Phase, Max       :    0.0000000000000000     
 Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
-\end{alltt}
+\end{alltt} }
 showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.
 A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable simulation since the Green function  is of order one. 
 
