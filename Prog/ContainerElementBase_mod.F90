@@ -47,40 +47,85 @@ module ContainerElementBase_mod
     end type ContainerElementBase
 
     abstract interface
+    
+    
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> multiplies this with arg from the right.
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine rmultinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
          Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
-      
+
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> multiplies this with arg from the left.
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine lmultinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
          Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
-      
+
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> multiplies this^-1 with arg from the right.
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine rmultinvinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
          Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
-      
+
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> multiplies this^-1 with arg from the left.
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine lmultinvinterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
          Complex(kind=kind(0.d0)), intent(inout),  dimension(:,:) :: arg
       end subroutine
-      
+
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> This dumps the content to the screen.
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine dump(this)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
       end subroutine
       
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> Free the used memory
+    !
+    !> @param[in] this
+    !--------------------------------------------------------------------
       subroutine dealloc(this)
          import ContainerElementBase
          class(ContainerElementBase), intent(inout) :: this
       end subroutine
       
+    !--------------------------------------------------------------------
+    !> @brief 
+    !> Perform the similarity transform e^{-T/2} arg e^{T/2}
+    !
+    !> @param[in] this
+    !> @param[inout] the matrix that we intend to transform.
+    !--------------------------------------------------------------------
       subroutine adjointactioninterface(this, arg)
          import ContainerElementBase
          class(ContainerElementBase), intent(in) :: this
