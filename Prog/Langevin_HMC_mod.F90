@@ -36,10 +36,16 @@
         Use UDV_State_mod
         Use Control
         Use Hop_mod
+        Use iso_fortran_env, only: output_unit, error_unit
 
         
         Implicit none
+
         
+        Logical                              :: Langevin          !   Set in main program
+        Logical                              :: L_Forces
+        Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
+        Complex (Kind=Kind(0.d0)),  allocatable :: Forces(:,:)
         
         Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
 
@@ -61,7 +67,7 @@
 !> 
 !--------------------------------------------------------------------
         
-      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN, Forces )
+      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
         Implicit none
         
         Interface
@@ -98,7 +104,6 @@
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
-        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
         
 
         !Local
@@ -124,7 +129,7 @@
            NTAU1 = NTAU + 1
 
 
-           Call  Wrapgrup_Forces(Gr, ntau1,forces)
+           Call  Wrapgrup_Forces(Gr, ntau1)
            
 
            If (NTAU1 == Stab_nt(NST) ) then 
@@ -150,9 +155,9 @@
            IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
-                 CALL Obser( GR_Tilde, PHASE, Ntau1 )
+                 CALL Obser( GR_Tilde, PHASE, Ntau1,Delta_t_running )
               else
-                 CALL Obser( GR, PHASE, Ntau1 )
+                 CALL Obser( GR, PHASE, Ntau1, Delta_t_running )
               endif
            endif
         enddo
@@ -170,13 +175,12 @@
 !>   
 !--------------------------------------------------------------------
 
-      Subroutine  Wrapgrup_Forces(Gr, NT1, forces)
+      Subroutine  Wrapgrup_Forces(Gr, NT1)
         
         Implicit none
         
         Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:,:) :: Gr
         Integer, intent(in)                                        :: nt1
-        Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:)   :: Forces
 
         
         !Local
@@ -324,8 +328,8 @@
 !> 
 !--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN, &
-           &       Forces, L_Forces, Delta_t_Langevin_HMC, Max_Force)
+      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+        
         Implicit none
         
         
@@ -336,9 +340,6 @@
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
-        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
-        Logical :: L_Forces 
-        Real    (Kind=Kind(0.d0)), intent(in) :: Delta_t_Langevin_HMC, Max_Force
 
         !Local
         Integer :: N_op, n, nt
@@ -349,11 +350,11 @@
 
         If ( .not. L_Forces) &
              &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
-             &  LOBS_ST, LOBS_EN, Forces )
+             &  LOBS_ST, LOBS_EN )
         
         Call Control_Langevin   ( Forces,Group_Comm )
 
-        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running, "Get" )
+        Call Ham_Langevin_HMC_S0(Forces_0)
           
         N_op = size(nsigma%f,1)
         !  Determine running time step
@@ -367,7 +368,6 @@
         Delta_t_running = Delta_t_Langevin_HMC 
         If ( Xmax >  Max_Force ) Delta_t_running = Max_Force * Delta_t_Langevin_HMC / Xmax
         
-        Call Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running,  "Put" )
 
         do n = 1,N_op
            if (OP_V(n,1)%type == 3 ) then
@@ -383,24 +383,50 @@
         
       END SUBROUTINE LANGEVIN_UPDATE
      
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       Allocates space for Forces 
+!>       Checks that all fields are of tpye 3
+!>       Sets default running time step 
+!--------------------------------------------------------------------
 
       
-      SUBROUTINE  Langevin_setup ( Forces )
+      SUBROUTINE  Langevin_setup 
         Implicit none
 
-        Integer :: Nr,Nt
-        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
+        Integer :: Nr,Nt, I
+
         
+        Delta_t_running =  Delta_t_Langevin_HMC
+        L_Forces   = .False.
         Nr = size(nsigma%f,1)
         Nt = size(nsigma%f,2)
+
+        !  Check that all  fields are of type 3
+        Do i = 1, Nr
+           if ( nsigma%t(i) /= 3 ) then
+              WRITE(error_unit,*) 'For the Langevin runs, all fields have to be of type 3'
+              error stop 1
+           endif
+        enddo
+        
         Allocate ( Forces(Nr,Nt),  Forces_0(Nr,Nt) )
-        !Write(6,*) "Langevin: ", Nr,Nt
+
       end SUBROUTINE Langevin_setup
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       Deallocates space for forces 
+!--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_clear ( Forces )
+      SUBROUTINE  Langevin_clear 
         Implicit none
-        Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:) ::  Forces 
         Deallocate ( Forces, Forces_0 )
       end SUBROUTINE Langevin_clear
 

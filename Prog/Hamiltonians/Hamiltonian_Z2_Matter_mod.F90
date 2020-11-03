@@ -72,7 +72,6 @@
       Logical              :: Projector
       Integer              :: Group_Comm
       Logical              :: Symm = .False.
-      Logical              :: Langevin
 
 
 !>    Privat variables
@@ -140,13 +139,6 @@
           igroup           = irank/isize_g
           !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
-
-
-          If (Langevin) then
-             WRITE(error_unit,*) 'Lagevin update is not implemented for Z2_Matter'
-             error stop 1
-          endif
-
 
           
 #ifdef MPI
@@ -1079,7 +1071,7 @@
 !>  Time slice
 !> \endverbatim
 !--------------------------------------------------------------------
-        Subroutine Obser(GR,Phase,Ntau)
+        Subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
 
           Implicit none
@@ -1087,6 +1079,8 @@
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
@@ -1102,6 +1096,7 @@
 
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+          ZS = ZS*Mc_step_weight
 
           ZN =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
 
@@ -1250,12 +1245,13 @@
 !> \endverbatim
 !-------------------------------------------------------------------
 
-        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE,Mc_step_weight)
           Implicit none
 
           Integer         , INTENT(IN) :: NT
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
 
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
@@ -1265,6 +1261,8 @@
           If (NT == 0 ) NT1 = LTROT
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+
+          ZS = ZS*Mc_step_weight
 
 !!$          If (NT == 0 ) then
 !!$             DO I = 1,Size(Obs_tau,1)
@@ -1939,40 +1937,30 @@
 !> ALF Collaboration
 !>
 !> @brief 
-!>   Mode = Get:  Forces_0  = \partial S_0 / \partial s  are calculated and returned to
-!>                       main program.
-!>   Mode = Put:  The main program provides the running time step required for the calculation
-!>                of observables
+!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
 !> 
-!-------------------------------------------------------------------        
-        Subroutine Ham_Langevin_HMC_S0_Params(Forces_0,Delta_t_running, Mode ) 
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_HMC_S0(Forces_0)
 
           Implicit none
 
-          Real (Kind=Kind(0.d0)), intent(in   ) :: Delta_t_running
           Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
-          Character (Len=3), intent(in)         ::  Mode
 
           !Local
           Integer :: N, N_op,nt
           
-          If (Mode == "Get" )  then
-             ! Compute \partial S_0 / \partial s
-             N_op = size(nsigma%f,1)
-             Forces_0  = 0.d0
-             do n = 1,N_op
-                if (OP_V(n,1)%type == 3 ) then
-                   do nt = 1,Ltrot
-                      Forces_0(n,nt) = 0.d0
-                   enddo
-                endif
-             enddo
-          endif
-          If (Mode == "Put" )  then
-             !Running_Delta_t_Langevin = Delta_t_running
-          endif
-        
-        end Subroutine Ham_Langevin_HMC_S0_Params
+          ! Compute \partial S_0 / \partial s
+          N_op = size(nsigma%f,1)
+          Forces_0  = 0.d0
+          do n = 1,N_op
+             if (OP_V(n,1)%type == 3 ) then
+                do nt = 1,Ltrot
+                   Forces_0(n,nt) = nsigma%f(n,nt)
+                enddo
+             endif
+          enddo
+          
+        end Subroutine Ham_Langevin_HMC_S0
 
 
       end Module Hamiltonian

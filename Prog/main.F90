@@ -185,12 +185,9 @@ Program Main
         Integer :: N_Global_tau
         Logical :: Sequential
 
-        ! Space for Langevin / HMC
+        !  Space for Lagevin & HMC  is declared in the Langevin_HMC_mod module
 
-        Complex (Kind=Kind(0.d0)), dimension(:,:), allocatable :: Forces
-        Logical :: L_Forces
-        Real (Kind=Kind(0.d0)) :: Delta_t_Langevin_HMC, Max_Force
-
+          
 #if defined(TEMPERING)
         Integer :: N_exchange_steps, N_Tempering_frequency
         NAMELIST /VAR_TEMP/  N_exchange_steps, N_Tempering_frequency, mpi_per_parameter_set, Tempering_calc_det
@@ -200,13 +197,16 @@ Program Main
              &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau, &
              &               Langevin, Delta_t_Langevin_HMC, Max_Force
-          
 
 
+        !  General
         Integer :: Ierr, I,nf, nst, n, N_op
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
         Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8, X, X1
-        Integer, dimension(:), allocatable :: Stab_nt
+        Real    (Kind=Kind(0.d0)) :: Mc_step_weight
+
+        ! Storage for  stabilization steps
+        Integer, dimension(:), allocatable :: Stab_nt 
 
         ! Space for storage.
         CLASS(UDV_State), Dimension(:,:), ALLOCATABLE :: udvst
@@ -475,8 +475,7 @@ Program Main
 
         Sequential = .true.
         if (Langevin) then
-           Call Langevin_setup(Forces)
-           L_Forces   = .False.
+           Call Langevin_setup()
            Sequential = .False.
         endif
 
@@ -555,15 +554,15 @@ Program Main
               If ( Langevin )  then
                  !  Carry out a Langevin update and calculate equal time observables.
                  Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
-                      &               LOBS_ST, LOBS_EN, Forces, L_Forces, Delta_t_Langevin_HMC, Max_Force )
+                      &               LOBS_ST, LOBS_EN)
 
                  IF ( LTAU == 1 ) then
                     If (Projector) then 
                        NST = 0 
-                       Call tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
+                       Call Tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST )
                        L_Forces = .false.
                     else
-                       Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
+                       Call Tau_m( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN )
                        L_Forces = .true.
                     endif
                  endif
@@ -612,11 +611,12 @@ Program Main
                        !Stop
                        !write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
                        !write(*,*) "Phase before obser : ",phase
+                       Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          CALL Obser( GR_Tilde, PHASE, Ntau1 )
+                          CALL Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          CALL Obser( GR, PHASE, Ntau1 )
+                          CALL Obser( GR, PHASE, Ntau1, Mc_step_weight  )
                        endif
                     ENDIF
                  ENDDO
@@ -636,11 +636,12 @@ Program Main
                     IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
                        !write(*,*) "GR before obser sum: ",sum(GR(:,:,1))
                        !write(*,*) "Phase before obser : ",phase
+                       Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          CALL Obser( GR_Tilde, PHASE, Ntau1 )
+                          CALL Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          CALL Obser( GR, PHASE, Ntau1 )
+                          CALL Obser( GR, PHASE, Ntau1,Mc_step_weight )
                        endif
                     ENDIF
                     IF ( Stab_nt(NST) == NTAU1 .AND. NTAU1.NE.0 ) THEN
@@ -702,10 +703,9 @@ Program Main
                        CALL udvst(NST, nf)%reset('l')
                     endif
                  enddo
-
                  
                  IF ( LTAU == 1 .and. .not. Projector ) then
-                    Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces )
+                    Call TAU_M( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN )
                  endif
               endif
 
@@ -766,7 +766,7 @@ Program Main
         endif
 #endif
         
-        if (Langevin) Call Langevin_clear(Forces)
+        if (Langevin) Call Langevin_clear()
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)

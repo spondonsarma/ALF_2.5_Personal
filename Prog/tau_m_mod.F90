@@ -51,7 +51,7 @@
 
        Contains
 
-         SUBROUTINE TAU_M(udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN, Forces) 
+         SUBROUTINE TAU_M(udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN) 
            
            Implicit none
 
@@ -80,7 +80,6 @@
            Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
            Integer, Intent(In) :: STAB_NT(0:NSTM)         
            Integer, Intent(In) :: LOBS_ST, LOBS_EN
-           Complex (Kind=Kind(0.d0)),  Intent(Inout), dimension(:,:) :: Forces
 
            ! Local 
            ! This could be placed as  private for the module 
@@ -91,11 +90,15 @@
            
            Complex (Kind=Kind(0.d0))  ::  Z
            Integer  ::  I, J, nf, NT, NT1, NTST, NST, N,  N_type
-           Real (Kind=Kind(0.d0))  ::  spin   
+           Real (Kind=Kind(0.d0))  ::  spin,  Mc_step_Weight
            
            If (Symm) Then
               Allocate ( G00_T(Ndim,Ndim,N_FL), G0T_T(Ndim,Ndim,N_FL), GT0_T(Ndim,Ndim,N_FL),  GTT_T(Ndim,Ndim,N_FL) )
            endif
+
+           
+           Mc_step_Weight  = 1.d0
+           if (Langevin) Mc_step_weight =  Delta_t_running
            
            !Tau = 0
            Do nf = 1, N_FL
@@ -117,9 +120,9 @@
               Call Hop_mod_Symm(GTT_T,GTT)
               Call Hop_mod_Symm(G0T_T,G0T)
               Call Hop_mod_Symm(GT0_T,GT0)
-              CALL OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE)
+              CALL OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE, Mc_step_Weight)
            Else
-              CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE)
+              CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_Weight)
            Endif
            
            ALLOCATE(udvr(N_FL))
@@ -132,7 +135,6 @@
               endif
            enddo
 
-           If (Langevin)  Forces = cmplx(0.d0,0.d0,kind(0.d0))
            NST = 1
            DO NT = 0,LTROT - 1
               ! Now wrapup:
@@ -140,7 +142,7 @@
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
               If  (Langevin) then            
-                 Call Wrapgrup_Forces(GTT,NT1,Forces)
+                 Call Wrapgrup_Forces(GTT,NT1)
               else
                  CALL PROPRM1 (GTT,NT1)
                  CALL PROPR   (GTT,NT1)
@@ -151,11 +153,11 @@
                  Call Hop_mod_Symm(GTT_T,GTT)
                  Call Hop_mod_Symm(G0T_T,G0T)
                  Call Hop_mod_Symm(GT0_T,GT0)
-                 CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE)
-                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1 )
+                 CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE, Mc_step_weight)
+                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1, Mc_step_weight )
               Else
-                 CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE)
-                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1 )
+                 CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE, Mc_step_weight)
+                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1, Mc_step_weight )
               Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN

@@ -45,6 +45,7 @@
        Use Control
        Use Hop_mod
        Use UDV_State_mod
+       Use Langevin_HMC_mod
        Use tau_m_mod  !, only propr, proprm1
 
      Contains
@@ -105,17 +106,20 @@
         Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  ::  GRUPB, GRUP
         Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  ::  G00UP, G0TUP, GT0UP,  GTTUP
         Complex (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable  ::  G00UP_T, G0TUP_T, GT0UP_T,  GTTUP_T
-
         Complex (Kind=Kind(0.d0)), allocatable  :: TEMP(:,:), TMPUP(:,:)
 
         Real    (Kind=kind(0.d0))  :: XMEAN_DYN, XMAX_DYN
 
         Integer :: NTAUIN,  NTDM,  LFAM, NFAM, N_Part,  LQ , I, NCON, NF, NFLAG, NL, NT1, NT_ST, NT, NTAU, NTAU1,n
 
-        Real (Kind=Kind(0.d0)):: XMEAN, XMAX
-
+        Real (Kind=Kind(0.d0)) :: XMEAN, XMAX
+        Real (Kind=Kind(0.d0)) :: Mc_step_weight
+        
         LQ = ndim
 
+        Mc_step_weight = 1.d0
+        If (Langevin) Mc_step_weight = Delta_t_running
+        
         ALLOCATE (  GRUPB(LQ,LQ,N_FL), GRUP(LQ,LQ,N_FL), G00UP(LQ,LQ,N_FL), G0TUP(LQ,LQ,N_FL), &
              &      GT0UP(LQ,LQ,N_FL),  GTTUP(LQ,LQ,N_FL), TEMP(LQ,LQ), udvr_local(N_FL) )
 
@@ -163,9 +167,9 @@
            Call Hop_mod_Symm(GTTUP_T,GTTUP)
            Call Hop_mod_Symm(G0TUP_T,G0TUP)
            Call Hop_mod_Symm(GT0UP_T,GT0UP)
-           CALL OBSERT (NTAU,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE)
+           CALL OBSERT (NTAU,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE, Mc_step_Weight)
         else
-           CALL OBSERT (NTAU,GT0UP,G0TUP,G00UP,GTTUP,PHASE)
+           CALL OBSERT (NTAU,GT0UP,G0TUP,G00UP,GTTUP,PHASE, Mc_step_Weight)
         endif
         DO NT = THTROT+1, Ltrot-THTROT
            ! UR is on time slice NT
@@ -208,9 +212,9 @@
               Call Hop_mod_Symm(GTTUP_T,GTTUP)
               Call Hop_mod_Symm(G0TUP_T,G0TUP)
               Call Hop_mod_Symm(GT0UP_T,GT0UP)
-              Call OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE)
+              Call OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE,Mc_step_weight)
            else
-              Call OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE)
+              Call OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE,Mc_step_weight)
            endif
 
         ENDDO
