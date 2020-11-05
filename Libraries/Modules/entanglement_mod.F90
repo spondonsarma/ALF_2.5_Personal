@@ -164,7 +164,6 @@
             Enddo
               
             if (N_FL/=2*N_FL_half) then
-            
               call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
               Renyi = Renyi * PRODDET
             
@@ -415,7 +414,7 @@
           Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites(2), N_SUN(2),nf_list(2) ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
           Complex (Kind=8), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
@@ -495,14 +494,13 @@
           Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites, N_SUN,nf_eff ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
           Complex (Kind=8), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
           Complex (Kind=8) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
-
 
           Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
@@ -513,7 +511,6 @@
           ! and GreenA_f_tmp (f electrons)
           ! The first Nsites columns contains the last flavour sector,
           ! the last Nsites column are old (Nf>2) or random, but they won't be used
-
           DO J = 1, Nsites
             DO I = 1, Nsites
                 GreenA_tmp(I,J) = GRC(List(I), List(J), nf_eff)
