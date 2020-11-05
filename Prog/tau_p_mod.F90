@@ -65,11 +65,11 @@
 !>                produce Gr.
 !>
 !> On_output   a) The time displaced Green functions have been computed and measurements carried out.
-!>             b) If Langevin then 1)  nt_in = 0, 2) forces are computes  3)  time displaced and equal time
+!>             b) If Langevin then 1)  nt_in = 0, 2) forces are computed  3)  time displaced and equal time
 !>                observables are  measured.      
 !--------------------------------------------------------------------
 
-       SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST_IN)
+       SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST_IN, LOBS_ST, LOBS_EN )
 
          Implicit none
 
@@ -99,7 +99,8 @@
         CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst
         Complex (Kind=Kind(0.d0)), Intent(in) :: GR(NDIM,NDIM,N_FL),  Phase
         Integer, Intent(In) :: STAB_NT(0:NSTM)
-
+        Integer, Intent(In) :: LOBS_ST, LOBS_EN
+        
 !       Local.
         CLASS(UDV_State), Dimension(:), ALLOCATABLE :: udvr_local
         Complex (Kind=Kind(0.d0)) :: DETZ, ZK, DET1(2)
@@ -135,8 +136,20 @@
         GTTUP = GR ! On time slice Stab_nt(NST_IN)
         NT_ST = NST_IN
         do NT = Stab_nt(NT_ST)+1, Thtrot + 1
-           CALL PROPRM1(GTTUP,NT)
-           CALL PROPR  (GTTUP,NT)
+           If  (Langevin) then            
+              Call Wrapgrup_Forces(GTTUP,NT)
+           else
+              CALL PROPRM1 (GTTUP,NT)
+              CALL PROPR   (GTTUP,NT)
+           endif
+           If (Langevin .and. NT .ge. LOBS_ST .and. NT .le. LOBS_EN ) then
+              If (Symm) then
+                 Call Hop_mod_Symm(GTTUP_T,GTTUP)
+                 CALL Obser( GTTUP_T, PHASE, NT, Mc_step_weight )
+              else
+                 CALL Obser( GTTUP, PHASE, NT, Mc_step_weight )
+              endif
+           endif
            IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN
               Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
               do nf=1,N_FL
@@ -180,7 +193,6 @@
                  CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
               enddo
               NT_ST = NT_ST+1
-
               Do nf = 1,N_FL
                  Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
               enddo
@@ -202,9 +214,12 @@
            NT1 = NT + 1
            CALL PROPR  (GT0UP,NT1)
            CALL PROPRM1(G0TUP,NT1)
-           CALL PROPRM1(GTTUP,NT1)
-           CALL PROPR  (GTTUP,NT1)
-
+           If  (Langevin) then            
+              Call Wrapgrup_Forces(GTTUP,NT1)
+           else
+              CALL PROPRM1 (GTTUP,NT1)
+              CALL PROPR   (GTTUP,NT1)
+           endif
 
            NTAU1 = NTAU + 1
            If (Symm) then
@@ -213,12 +228,41 @@
               Call Hop_mod_Symm(G0TUP_T,G0TUP)
               Call Hop_mod_Symm(GT0UP_T,GT0UP)
               Call OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE,Mc_step_weight)
+              If ( Langevin .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
            else
               Call OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE,Mc_step_weight)
+              If ( Langevin .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP, PHASE, NT1, Mc_step_weight )
            endif
 
         ENDDO
 
+        If (Langevin) then   ! Finish calculating the forces
+           DO NT = Ltrot-THTROT + 1, Ltrot - 1
+              ! UR is on time slice NT
+              IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN
+                 Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
+                 do nf=1,N_FL
+                    CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+                 enddo
+                 NT_ST = NT_ST+1
+                 Do nf = 1,N_FL
+                    Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
+                 enddo
+                 GTTUP = GRUP
+              ENDIF
+              NT1 = NT + 1
+              Call Wrapgrup_Forces(GTTUP,NT1)
+              If (NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) Then
+                 If (Symm) then
+                    Call Hop_mod_Symm(GTTUP_T,GTTUP)
+                    CALL Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
+                 else
+                    CALL Obser( GTTUP, PHASE, NT1, Mc_step_weight )
+                 endif
+              endif
+           Enddo
+        endif
+        
         Do nf=1,N_FL
            call udvr_local(nf)%dealloc
         enddo

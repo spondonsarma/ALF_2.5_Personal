@@ -11,7 +11,7 @@
 !     GNU General Public License for more details.
 ! 
 !     You should have received a copy of the GNU General Public License
-!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!     along with ALF.  If not, usee http://www.gnu.org/licenses/.
 !     
 !     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms: 
 !     
@@ -41,16 +41,35 @@
         
         Implicit none
 
+!!$        Private
+!!$        
+!!$        Public :: Langevin_HMC, Langevin_HMC_type
+!!$        
+!!$        Type Langevin_HMC_type
+!!$           Logical                                 :: Langevin          !  
+!!$           Logical                                 :: HMC               !
+!!$           Logical                                 :: L_Forces
+!!$           Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
+!!$           Complex (Kind=Kind(0.d0)),  allocatable :: Forces(:,:)
+!!$           
+!!$           Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
+!!$
+!!$        CONTAINS
+!!$          procedure  ::   
+!!$          
+!!$
+!!$       end type Langevin_HMC_type
+!!$
+!!$       Type (Langevin_HMC_type) :: Langevin_HMC
+
         
-        Logical                              :: Langevin          !   Set in main program
-        Logical                              :: L_Forces
-        Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
-        Complex (Kind=Kind(0.d0)),  allocatable :: Forces(:,:)
-        
-        Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
-
-
-
+           Logical                                 :: Langevin          !   Set in main program
+           Logical                                 :: L_Forces
+           Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
+           Complex (Kind=Kind(0.d0)),  allocatable :: Forces(:,:)
+           
+           Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
+           
       Contains
 
 !--------------------------------------------------------------------
@@ -127,11 +146,9 @@
         NST = 1
         DO NTAU = 0, LTROT-1
            NTAU1 = NTAU + 1
-
-
+           
            Call  Wrapgrup_Forces(Gr, ntau1)
            
-
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
               CALL WRAPUR(NT1, NTAU1, udvr)
@@ -152,7 +169,7 @@
               NST = NST + 1
            ENDIF
            
-           IF (NTAU1.GE. LOBS_ST .AND. NTAU1.LE. LOBS_EN ) THEN
+           IF (NTAU1 .GE. LOBS_ST .AND. NTAU1 .LE. LOBS_EN ) THEN
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
                  CALL Obser( GR_Tilde, PHASE, Ntau1,Delta_t_running )
@@ -225,9 +242,9 @@
 !> ALF-project
 !
 !> @brief 
-!>   This routine is called after a  Langevin or HMC step.  It fills the storage with left
-!>   propagations and calculates the Green function of the zeroth time slice. 
-!>   
+!>   This routine is called after a  Langevin or HMC step.  On exit, the storage is full  with 
+!>   ledt propagationsm,  the Green function is on time slice 0, and  both  
+!>   udvl, udvr are on time slice 0. 
 !--------------------------------------------------------------------
       Subroutine Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
 
