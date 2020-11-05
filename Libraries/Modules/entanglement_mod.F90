@@ -30,20 +30,6 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
      Module entanglement
-      INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
-
-      INTERFACE Calc_Renyi_Ent
-        MODULE PROCEDURE Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, Calc_Renyi_Ent_gen_all
-      END INTERFACE
-      INTERFACE Init_Entanglement_replicas
-        MODULE PROCEDURE Init_Entanglement_replicas
-      END INTERFACE
-      ! INTERFACE Calc_Mutual_Inf
-      !   MODULE PROCEDURE Calc_Mutual_Inf
-      ! END INTERFACE
-      Contains
-
-!--------------------------------------------------------------------
 
 !--------------------------------------------------------------------
 !> @author 
@@ -53,11 +39,13 @@
 !> This module generates one and two dimensional Bravais lattices.
 !
 !--------------------------------------------------------------------
-
       ! Used for MPI
-      ! INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
 
-      ! Contains
+      INTERFACE Calc_Renyi_Ent
+        MODULE PROCEDURE Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, Calc_Renyi_Ent_gen_all
+      END INTERFACE
+      Contains
 !========================================================================
 
         Subroutine Init_Entanglement_replicas(Group_Comm)
@@ -146,20 +134,29 @@
           Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
+
+          if (Nsites==0) then
+            Renyi=0.d0
+            return
+          endif
             
 #ifdef MPI
           ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
           if(ENT_SIZE==2) then
           
+            allocate(List_tmp(NSITES,2))
             Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites)) ! new
+
+            DO J = 1, 2
+              List_tmp(:,J)=List(:)
+              Nsites_tmp(J) = Nsites
+              N_SUN_tmp(J) = N_SUN
+            enddo
 
             DO nf=1,N_FL_half
               
               DO J = 1, 2
-                List_tmp(:,J)=List(:)
-                Nsites_tmp(J) = Nsites
                 nf_list(J) = 2*nf-2+J
-                N_SUN_tmp(J) = N_SUN
               enddo
               call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
               Renyi = Renyi * PRODDET
@@ -168,7 +165,6 @@
               
             if (N_FL/=2*N_FL_half) then
             
-              List_tmp(:,1)=List(:)
               call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
               Renyi = Renyi * PRODDET
             
@@ -223,7 +219,7 @@
           if (Nsites(1)==0) start_flav = 1
           DO I=2,N_FL
             x = Nsites(I)
-            if (Nsites(I)==0) start_flav = start_flav + 1 ! there was a bug here
+            if (Nsites(I)==0) start_flav = start_flav + 1
             J = I-1
             DO while(J >= 1)
               if(Nsites(J) <= x) exit
@@ -232,6 +228,10 @@
             end do
             SortedFlavors(J+1) = I
           END DO
+          if(start_flav==N_FL) then
+            Renyi=0.0d0
+            return
+          endif
           N_FL_half = (N_FL-start_flav)/2
           
           Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
@@ -287,7 +287,7 @@
             
         End Subroutine Calc_Renyi_Ent_gen_fl
 
-        Subroutine Calc_Renyi_Ent_gen_all(GRC,List,Nsites,N_SUN,Renyi)
+        Subroutine Calc_Renyi_Ent_gen_all(GRC,List,Nsites,Renyi)
 #ifdef MPI
           Use mpi
 #endif
@@ -296,93 +296,113 @@
           
           Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:,:), INTENT(IN) :: List
-          Integer, INTENT(IN)               :: Nsites(:,:), N_SUN
+          Integer, INTENT(IN)               :: Nsites(:,:)
           Complex (Kind=8), INTENT(OUT)   :: Renyi
 
           Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
           Complex (Kind=8) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
-          Integer          :: nc
-          Integer         , Dimension(:), Allocatable :: SortedFlavors
-          Integer         , Dimension(:,:), Allocatable :: List_tmp
+          Integer          :: nc, num_nc
+          Integer         , Dimension(:), Allocatable :: SortedFlavors,N_SUN_fl,df_list
+          Integer         , Dimension(:,:), Allocatable :: List_tmp, eff_ind, eff_ind_inv
           Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
           
           EXTERNAL ZGEMM
           EXTERNAL ZGETRF
           
           N_FL = size(GRC,3)
-          Allocate(SortedFlavors(N_FL))
+          num_nc = size(List,3)
+          Allocate(SortedFlavors(num_nc*N_FL),N_SUN_fl(num_nc*N_FL),eff_ind(N_FL,num_nc),eff_ind_inv(2,N_FL*num_nc))
 
-          Do nc=1,N_SUN
+          I=0
+          do nc=1,num_nc
+            do nf=1,N_FL
+              I=I+1
+              eff_ind(nf,nc)=i
+              eff_ind_inv(1,I)=nf
+              eff_ind_inv(2,I)=nc
+            enddo
+          enddo
+          N_SUN_fl=1
 
-            ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
-            start_flav=0
-            if (Nsites(1,nc)==0) start_flav = 1
-            DO I=2,N_FL
-              x = Nsites(I,nc)
-              if (Nsites(I,nc)==0) start_flav = start_flav + 1 ! there was a bug here
-              J = I-1
-              DO while(J >= 1)
-                if(Nsites(J,nc) <= x) exit
-                SortedFlavors(J+1) = J 
-                J = J - 1
-              end do
-              SortedFlavors(J+1) = I
-            END DO
-            N_FL_half = (N_FL-start_flav)/2
-            
-            Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
-            alpha=CMPLX(2.d0,0.d0,kind(0.d0))
-            beta =CMPLX(1.d0,0.d0,kind(0.d0))
+          ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
+          start_flav=0
+          if (Nsites(1,1)==0) start_flav = 1
+          ! might have an update in the future to exchange color and flavor loops--optimization
+          DO I=2,N_FL*num_nc
+            x = Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))
+            if (Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))==0) start_flav = start_flav + 1 ! there was a bug here
+            J = I-1
+            DO while(J >= 1)
+              if(Nsites(eff_ind_inv(1,J),eff_ind_inv(2,J)) <= x) exit
+              SortedFlavors(J+1) = J 
+              J = J - 1
+            end do
+            SortedFlavors(J+1) = I
+          END DO
+          if(start_flav==N_FL*num_nc) then
+            Renyi=0.0d0
+            return
+          endif
+
+          N_FL_half = (N_FL*num_nc-start_flav)/2
+          
+          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
             
 #ifdef MPI
-            ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
-            if(ENT_SIZE==2) then
+          ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
+          if(ENT_SIZE==2) then
+          
+            !Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
+            nf=eff_ind_inv(1,SortedFlavors(N_FL*num_nc))
+            nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
+            dim = Nsites(nf,nc) ! new
+            allocate(List_tmp(dim,2))
+            Allocate(GreenA(dim,2*dim),GreenA_tmp(dim,2*dim),IDA(dim,dim)) ! new
+
+            DO I=1,N_FL_half
+
+              DO J = 1, 2
+                nf=eff_ind_inv(1,SortedFlavors(start_flav+2*I-2+J))
+                nc=eff_ind_inv(2,SortedFlavors(start_flav+2*I-2+J))
+                Nsites_tmp(J)=Nsites(nf,nc)
+                List_tmp(:,J)=List(:,nf,nc)
+                N_sun_tmp(J)=1
+                nf_list(J)=nf
+              enddo
+              call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              Renyi = Renyi * PRODDET
+              
+            Enddo
+              
+            if (N_FL*num_nc/=2*N_FL_half+start_flav) then
+
+              nf=eff_ind_inv(1,SortedFlavors(N_FL*num_nc))
+              nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
+              List_tmp(:,1)=List(:,nf,nc)
             
-              !Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
-              dim = Nsites(SortedFlavors(N_FL),nc) ! new
-              allocate(List_tmp(dim,2))
-              Allocate(GreenA(dim,2*dim),GreenA_tmp(dim,2*dim),IDA(dim,dim)) ! new
-
-              DO nf=1,N_FL_half
-
-                DO J = 1, 2
-                  nf_eff = SortedFlavors(start_flav+2*nf-2+J)
-                  Nsites_tmp(J)=Nsites(nf_eff,nc)
-                  List_tmp(:,J)=List(:,nf_eff,nc)
-                  N_sun_tmp(J)=1
-                  nf_list(J)=nf_eff
-                enddo
-                call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
-                Renyi = Renyi * PRODDET
-                
-              Enddo
-                
-              if (N_FL/=2*N_FL_half+start_flav) then
-
-                nf_eff = SortedFlavors(N_fl)
-                List_tmp(:,1)=List(:,nf_eff,nc)
-              
-                call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff,nc),nf_eff,1,PRODDET,GreenA, GreenA_tmp, IDA)
-                Renyi = Renyi * PRODDET
-              
-              endif
-              
-              Deallocate(GreenA,GreenA_tmp,IDA)
-              
-            else
-              ! if there had been an odd number of task in tempering group / world, set renyi to 0
-              Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+              call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,PRODDET,GreenA, GreenA_tmp, IDA)
+              Renyi = Renyi * PRODDET
+            
             endif
             
-            ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-            CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-            Renyi=PRODDET/dble(norm)
-            ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
-            ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+            Deallocate(GreenA,GreenA_tmp,IDA)
+              
+          else
+            ! if there had been an odd number of task in tempering group / world, set renyi to 0
+            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+          endif
+            
+          ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
+          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
+          Renyi=PRODDET/dble(norm)
+          ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
+          ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
-          enddo
+
             
         End Subroutine Calc_Renyi_Ent_gen_all
         
