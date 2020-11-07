@@ -61,13 +61,6 @@
 
         Type (Langevin_HMC_type) :: Langevin_HMC
 
-        
-!!$           Logical                                 :: Langevin          !   Set in main program
-!!$           Logical                                 :: L_Forces
-!!$           Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
-!!$           Complex (Kind=Kind(0.d0)),  allocatable :: Forces(:,:)
-!!$           
-!!$           Real    (Kind=Kind(0.d0)),  allocatable, private ::  Forces_0(:,:)
            
       Contains
 
@@ -364,40 +357,50 @@
 
         
 
-        If ( .not. this%L_Forces) &
-             &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
-             &  LOBS_ST, LOBS_EN )
-        
-        Call Control_Langevin   ( this%Forces,Group_Comm )
-
-        Call Ham_Langevin_HMC_S0( this%Forces_0)
-          
-        N_op = size(nsigma%f,1)
-        !  Determine running time step
-        Xmax = 0.d0
-        do n = 1,N_op
-           do nt = 1,Ltrot
-              X = abs(Real(this%Forces(n,nt), Kind(0.d0)))
-              if (X > Xmax) Xmax = X
-           enddo
-        enddo
-        this%Delta_t_running = this%Delta_t_Langevin_HMC 
-        If ( Xmax >  this%Max_Force ) this%Delta_t_running = this%Max_Force &
-             &                              * this%Delta_t_Langevin_HMC / Xmax
-        
-
-        do n = 1,N_op
-           if (OP_V(n,1)%type == 3 ) then
+        select case (trim(this%Update_scheme))
+        case("Langevin")
+           If ( .not. this%L_Forces) &
+                &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
+                &  LOBS_ST, LOBS_EN )
+           
+           Call Control_Langevin   ( this%Forces,Group_Comm )
+           
+           Call Ham_Langevin_HMC_S0( this%Forces_0)
+           
+           N_op = size(nsigma%f,1)
+           !  Determine running time step
+           Xmax = 0.d0
+           do n = 1,N_op
               do nt = 1,Ltrot
-                 nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( this%Forces_0(n,nt) +  &
-                      &  real( Phase*this%Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * this%Delta_t_running + &
-                      &  sqrt( 2.d0 * this%Delta_t_running) * rang_wrap()
+                 X = abs(Real(this%Forces(n,nt), Kind(0.d0)))
+                 if (X > Xmax) Xmax = X
               enddo
-           endif
-        enddo
-        Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
-        this%L_Forces = .False. 
-
+           enddo
+           this%Delta_t_running = this%Delta_t_Langevin_HMC 
+           If ( Xmax >  this%Max_Force ) this%Delta_t_running = this%Max_Force &
+                &                              * this%Delta_t_Langevin_HMC / Xmax
+           
+           
+           do n = 1,N_op
+              if (OP_V(n,1)%type == 3 ) then
+                 do nt = 1,Ltrot
+                    nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( this%Forces_0(n,nt) +  &
+                         &  real( Phase*this%Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * this%Delta_t_running + &
+                         &  sqrt( 2.d0 * this%Delta_t_running) * rang_wrap()
+                 enddo
+              endif
+           enddo
+           Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+           this%L_Forces = .False. 
+        case("HMC")
+           WRITE(error_unit,*) 'HMC  step is not yet implemented'
+           error stop 1
+        case default
+           WRITE(error_unit,*) 'Unknown Global_update_scheme ', trim(this%Update_scheme) 
+           WRITE(error_unit,*) 'Global_update_scheme is Langevin or HMC'
+           error stop 1
+        end select
+           
       end SUBROUTINE Langevin_HMC_update
      
 !--------------------------------------------------------------------
