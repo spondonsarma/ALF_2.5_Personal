@@ -138,7 +138,7 @@
         NT_ST = NST_IN
         do NT = Stab_nt(NT_ST)+1, Thtrot + 1
            If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
-              Call Wrapgrup_Forces(GTTUP,NT)
+              Call Langevin_HMC%Wrap_Forces(GTTUP,NT)
            else
               CALL PROPRM1 (GTTUP,NT)
               CALL PROPR   (GTTUP,NT)
@@ -215,8 +215,8 @@
            NT1 = NT + 1
            CALL PROPR  (GT0UP,NT1)
            CALL PROPRM1(G0TUP,NT1)
-           If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
-              Call Wrapgrup_Forces(GTTUP,NT1)
+           If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then
+              Call Langevin_HMC%Wrap_Forces(GTTUP,NT1)
            else
               CALL PROPRM1 (GTTUP,NT1)
               CALL PROPR   (GTTUP,NT1)
@@ -254,7 +254,7 @@
                  GTTUP = GRUP
               ENDIF
               NT1 = NT + 1
-              Call Wrapgrup_Forces(GTTUP,NT1)
+              Call Langevin_HMC%Wrap_Forces(GTTUP,NT1)
               If (NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) Then
                  If (Symm) then
                     Call Hop_mod_Symm(GTTUP_T,GTTUP)

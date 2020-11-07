@@ -476,7 +476,7 @@ Program Main
         Sequential = .true.
            
         if ( Trim(Global_update_scheme) == "Langevin" ) then
-           Call Langevin_HMC_setup(Global_update_scheme, Delta_t_Langevin_HMC, Max_Force)
+           Call Langevin_HMC%make(Global_update_scheme, Delta_t_Langevin_HMC, Max_Force)
            Sequential = .False.
         endif
         
@@ -554,8 +554,8 @@ Program Main
 
               If (  trim(Langevin_HMC%Update_scheme) == "Langevin" )  then
                  !  Carry out a Langevin update and calculate equal time observables.
-                 Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
-                      &               LOBS_ST, LOBS_EN)
+                 Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
+                      &                   LOBS_ST, LOBS_EN)
                  
                  IF ( LTAU == 1 ) then
                     If (Projector) then 
@@ -767,7 +767,7 @@ Program Main
         endif
 #endif
         
-        if (trim(Langevin_HMC%Update_scheme)== "Langevin" ) Call Langevin_clear()
+        Call Langevin_HMC%clean()
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)

@@ -141,8 +141,8 @@
               NT1 = NT + 1
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
-              If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
-                 Call Wrapgrup_Forces(GTT,NT1)
+              If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then
+                 Call Langevin_HMC%Wrap_Forces(GTT,NT1)
               else
                  CALL PROPRM1 (GTT,NT1)
                  CALL PROPR   (GTT,NT1)

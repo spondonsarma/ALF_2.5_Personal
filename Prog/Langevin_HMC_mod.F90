@@ -41,10 +41,10 @@
         
         Implicit none
 
-!!$        Private
-!!$        
-!!$        Public :: Langevin_HMC, Langevin_HMC_type
-!!$        
+        Private
+        
+        Public :: Langevin_HMC, Langevin_HMC_type
+        
         Type Langevin_HMC_type
            Character (Len=64)                      :: Update_scheme
            Logical                                 :: L_Forces
@@ -52,17 +52,14 @@
            Complex (Kind=Kind(0.d0)),  pointer :: Forces  (:,:)
            
            Real    (Kind=Kind(0.d0)),  pointer :: Forces_0(:,:)
+         CONTAINS
+           procedure  ::    make        => Langevin_HMC_setup
+           procedure  ::    clean       => Langevin_HMC_clear
+           procedure  ::    Wrap_Forces => Wrapgrup_Forces
+           procedure  ::    Update      => Langevin_HMC_update
         end type Langevin_HMC_type
 
         Type (Langevin_HMC_type) :: Langevin_HMC
-        
-!!$        CONTAINS
-!!$          procedure  ::   
-!!$          
-!!$
-!!$       end type Langevin_HMC_type
-!!$
-!!$       Type (Langevin_HMC_type) :: Langevin_HMC
 
         
 !!$           Logical                                 :: Langevin          !   Set in main program
@@ -149,7 +146,7 @@
         DO NTAU = 0, LTROT-1
            NTAU1 = NTAU + 1
            
-           Call  Wrapgrup_Forces(Gr, ntau1)
+           Call  Langevin_HMC%Wrap_Forces(Gr, ntau1)
            
            If (NTAU1 == Stab_nt(NST) ) then 
               NT1 = Stab_nt(NST-1)
@@ -194,10 +191,11 @@
 !>   
 !--------------------------------------------------------------------
 
-      Subroutine  Wrapgrup_Forces(Gr, NT1)
+      Subroutine  Wrapgrup_Forces(this,Gr, NT1)
         
         Implicit none
         
+        class (Langevin_HMC_type) :: this
         Complex (Kind=Kind(0.d0)), intent(inout), dimension(:,:,:) :: Gr
         Integer, intent(in)                                        :: nt1
 
@@ -213,7 +211,7 @@
            CALL HOP_MOD_mmthl_m1(GR(:,:,nf), nf )
         Enddo
         Do n = 1, size(OP_V,1) 
-           Langevin_HMC%Forces(n,nt1)  = cmplx(0.d0,0.d0,Kind(0.d0))
+           this%Forces(n,nt1)  = cmplx(0.d0,0.d0,Kind(0.d0))
            Do nf = 1, N_FL
               spin = nsigma%f(n,nt1) ! Phi(nsigma(n,ntau1),Op_V(n,nf)%type)
               N_type = 1
@@ -231,7 +229,7 @@
                        Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
                     Enddo
                  Enddo
-                 Langevin_HMC%Forces(n,nt1) =  Langevin_HMC%Forces(n,nt1)  - &
+                 this%Forces(n,nt1) =  this%Forces(n,nt1)  - &
                       &    Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
               Enddo
            endif
@@ -347,11 +345,11 @@
 !> 
 !--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+      SUBROUTINE  Langevin_HMC_update(this,Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
         
         Implicit none
         
-        
+        class (Langevin_HMC_type) :: this
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
         CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst
         Complex (Kind=Kind(0.d0)), intent(inout) :: Phase
@@ -366,41 +364,41 @@
 
         
 
-        If ( .not. Langevin_HMC%L_Forces) &
+        If ( .not. this%L_Forces) &
              &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
              &  LOBS_ST, LOBS_EN )
         
-        Call Control_Langevin   ( Langevin_HMC%Forces,Group_Comm )
+        Call Control_Langevin   ( this%Forces,Group_Comm )
 
-        Call Ham_Langevin_HMC_S0(Langevin_HMC%Forces_0)
+        Call Ham_Langevin_HMC_S0( this%Forces_0)
           
         N_op = size(nsigma%f,1)
         !  Determine running time step
         Xmax = 0.d0
         do n = 1,N_op
            do nt = 1,Ltrot
-              X = abs(Real(Langevin_HMC%Forces(n,nt), Kind(0.d0)))
+              X = abs(Real(this%Forces(n,nt), Kind(0.d0)))
               if (X > Xmax) Xmax = X
            enddo
         enddo
-        Langevin_HMC%Delta_t_running = Langevin_HMC%Delta_t_Langevin_HMC 
-        If ( Xmax >  Langevin_HMC%Max_Force ) Langevin_HMC%Delta_t_running = Langevin_HMC%Max_Force &
-             &                              * Langevin_HMC%Delta_t_Langevin_HMC / Xmax
+        this%Delta_t_running = this%Delta_t_Langevin_HMC 
+        If ( Xmax >  this%Max_Force ) this%Delta_t_running = this%Max_Force &
+             &                              * this%Delta_t_Langevin_HMC / Xmax
         
 
         do n = 1,N_op
            if (OP_V(n,1)%type == 3 ) then
               do nt = 1,Ltrot
-                 nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( Langevin_HMC%Forces_0(n,nt) +  &
-                      &  real( Phase*Langevin_HMC%Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * Langevin_HMC%Delta_t_running + &
-                      &  sqrt( 2.d0 * Langevin_HMC%Delta_t_running) * rang_wrap()
+                 nsigma%f(n,nt)   = nsigma%f(n,nt)  -  ( this%Forces_0(n,nt) +  &
+                      &  real( Phase*this%Forces(n,nt),kind(0.d0)) / Real(Phase,kind(0.d0)) ) * this%Delta_t_running + &
+                      &  sqrt( 2.d0 * this%Delta_t_running) * rang_wrap()
               enddo
            endif
         enddo
         Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
-        Langevin_HMC%L_Forces = .False. 
-        
-      END SUBROUTINE LANGEVIN_UPDATE
+        this%L_Forces = .False. 
+
+      end SUBROUTINE Langevin_HMC_update
      
 !--------------------------------------------------------------------
 !> @author
@@ -413,10 +411,12 @@
 !--------------------------------------------------------------------
 
       
-      SUBROUTINE  Langevin_HMC_setup(Global_update_scheme, Delta_t_Langevin_HMC, Max_Force )
+      SUBROUTINE  Langevin_HMC_setup(this,Global_update_scheme, Delta_t_Langevin_HMC, Max_Force )
         Implicit none
 
         Integer :: Nr,Nt, I
+
+        class (Langevin_HMC_type) :: this
 
         Character (Len=64), Intent(in)          :: Global_Update_scheme
         Real    (Kind=Kind(0.d0)), Intent(in)   :: Delta_t_Langevin_HMC, Max_Force
@@ -435,13 +435,13 @@
         enddo
 
         
-        Langevin_HMC%Update_scheme        =  Global_update_scheme
-        Langevin_HMC%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
-        Langevin_HMC%Delta_t_running      =  Delta_t_Langevin_HMC
-        Langevin_HMC%Max_Force            =  Max_Force
-        Langevin_HMC%L_Forces             = .False.
+        this%Update_scheme        =  Global_update_scheme
+        this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
+        this%Delta_t_running      =  Delta_t_Langevin_HMC
+        this%Max_Force            =  Max_Force
+        this%L_Forces             = .False.
         
-        Allocate ( Langevin_HMC%Forces(Nr,Nt),  Langevin_HMC%Forces_0(Nr,Nt) )
+        Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
 
       end SUBROUTINE Langevin_HMC_setup
 
@@ -453,9 +453,12 @@
 !>       Deallocates space for forces 
 !--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_clear 
+      SUBROUTINE  Langevin_HMC_clear(this) 
         Implicit none
-        Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
-      end SUBROUTINE Langevin_clear
+        
+        class (Langevin_HMC_type) :: this
+        if (Trim(this%Update_scheme) == "Langevin" ) Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
+        
+      end SUBROUTINE Langevin_HMC_clear
 
     end Module Langevin_HMC_mod
