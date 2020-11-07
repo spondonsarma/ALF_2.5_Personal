@@ -779,6 +779,7 @@
         end Subroutine OBSERT
 
 #include "Hamiltonian_Hubbard_include.h"
+        
 !--------------------------------------------------------------------
 !> @author 
 !> ALF Collaboration
@@ -809,5 +810,30 @@
           
         end Subroutine Ham_Langevin_HMC_S0
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Single spin flip S0 ratio
+!> @details
+!> S0=exp(-S0(new))/exp(-S0(old)) where the new configuration correpsonds to the old one up to
+!> a spin flip of Operator n on time slice nt
+!> @details
+!--------------------------------------------------------------------
+      Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
+        Implicit none
+        !> Operator index
+        Integer, Intent(IN) :: n
+        !> Time slice
+        Integer, Intent(IN) :: nt
+        !> New local field on time slice nt and operator index n
+        Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+
+        Integer :: nt1,I
+
+        S0 = 1.d0
+        
+      end function S0
         
     end Module Hamiltonian

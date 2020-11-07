@@ -1950,15 +1950,7 @@
           Integer :: N, N_op,nt
           
           ! Compute \partial S_0 / \partial s
-          N_op = size(nsigma%f,1)
           Forces_0  = 0.d0
-          do n = 1,N_op
-             if (OP_V(n,1)%type == 3 ) then
-                do nt = 1,Ltrot
-                   Forces_0(n,nt) = nsigma%f(n,nt)
-                enddo
-             endif
-          enddo
           
         end Subroutine Ham_Langevin_HMC_S0
 

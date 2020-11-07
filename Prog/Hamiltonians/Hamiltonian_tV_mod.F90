@@ -859,18 +859,35 @@
           Integer :: N, N_op,nt
           
           ! Compute \partial S_0 / \partial s
-          N_op = size(nsigma%f,1)
           Forces_0  = 0.d0
-          do n = 1,N_op
-             if (OP_V(n,1)%type == 3 ) then
-                do nt = 1,Ltrot
-                   Forces_0(n,nt) = nsigma%f(n,nt)
-                enddo
-             endif
-          enddo
           
         end Subroutine Ham_Langevin_HMC_S0
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Single spin flip S0 ratio
+!> @details
+!> S0=exp(-S0(new))/exp(-S0(old)) where the new configuration correpsonds to the old one up to
+!> a spin flip of Operator n on time slice nt
+!> @details
+!--------------------------------------------------------------------
+      Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
+        Implicit none
+        !> Operator index
+        Integer, Intent(IN) :: n
+        !> Time slice
+        Integer, Intent(IN) :: nt
+        !> New local field on time slice nt and operator index n
+        Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+
+        Integer :: nt1,I
+
+        S0 = 1.d0
+        
+      end function S0
 
 
     end Module Hamiltonian

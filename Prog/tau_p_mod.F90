@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2020 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -119,7 +119,8 @@
         LQ = ndim
 
         Mc_step_weight = 1.d0
-        If (Langevin) Mc_step_weight = Delta_t_running
+        if (trim(Langevin_HMC%Update_scheme)=="Langevin") Mc_step_weight =  Langevin_HMC%Delta_t_running
+
         
         ALLOCATE (  GRUPB(LQ,LQ,N_FL), GRUP(LQ,LQ,N_FL), G00UP(LQ,LQ,N_FL), G0TUP(LQ,LQ,N_FL), &
              &      GT0UP(LQ,LQ,N_FL),  GTTUP(LQ,LQ,N_FL), TEMP(LQ,LQ), udvr_local(N_FL) )
@@ -136,13 +137,13 @@
         GTTUP = GR ! On time slice Stab_nt(NST_IN)
         NT_ST = NST_IN
         do NT = Stab_nt(NT_ST)+1, Thtrot + 1
-           If  (Langevin) then            
+           If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
               Call Wrapgrup_Forces(GTTUP,NT)
            else
               CALL PROPRM1 (GTTUP,NT)
               CALL PROPR   (GTTUP,NT)
            endif
-           If (Langevin .and. NT .ge. LOBS_ST .and. NT .le. LOBS_EN ) then
+           If (trim(Langevin_HMC%Update_scheme)=="Langevin" .and. NT .ge. LOBS_ST .and. NT .le. LOBS_EN ) then
               If (Symm) then
                  Call Hop_mod_Symm(GTTUP_T,GTTUP)
                  CALL Obser( GTTUP_T, PHASE, NT, Mc_step_weight )
@@ -214,7 +215,7 @@
            NT1 = NT + 1
            CALL PROPR  (GT0UP,NT1)
            CALL PROPRM1(G0TUP,NT1)
-           If  (Langevin) then            
+           If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
               Call Wrapgrup_Forces(GTTUP,NT1)
            else
               CALL PROPRM1 (GTTUP,NT1)
@@ -228,15 +229,17 @@
               Call Hop_mod_Symm(G0TUP_T,G0TUP)
               Call Hop_mod_Symm(GT0UP_T,GT0UP)
               Call OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE,Mc_step_weight)
-              If ( Langevin .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
+              If ( trim(Langevin_HMC%Update_scheme)=="Langevin"&
+                   &.and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
            else
               Call OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE,Mc_step_weight)
-              If ( Langevin .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP, PHASE, NT1, Mc_step_weight )
+              If ( trim(Langevin_HMC%Update_scheme)=="Langevin"&
+                   & .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL Obser( GTTUP, PHASE, NT1, Mc_step_weight )
            endif
 
         ENDDO
 
-        If (Langevin) then   ! Finish calculating the forces
+        If (trim(Langevin_HMC%Update_scheme)=="Langevin") then   ! Finish calculating the forces
            DO NT = Ltrot-THTROT + 1, Ltrot - 1
               ! UR is on time slice NT
               IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN

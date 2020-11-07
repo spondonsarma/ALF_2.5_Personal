@@ -107,7 +107,7 @@ module Control
 
         Implicit none
         
-        Complex (Kind=Kind(0.d0)),  allocatable, Intent(In)  :: Forces(:,:)
+        Complex (Kind=Kind(0.d0)), Intent(In)  :: Forces(:,:)
         Integer, Intent(IN) :: Group_Comm
         
         Integer :: n1,n2, n, nt 
@@ -216,14 +216,14 @@ module Control
       End Subroutine Control_PrecisionP_Glob
 
 
-      Subroutine Control_Print(Group_Comm, Langevin)
+      Subroutine Control_Print(Group_Comm, Global_update_scheme)
 #ifdef MPI
         Use mpi
 #endif
         Implicit none
 
         Integer, Intent(IN) :: Group_Comm
-        Logical, Intent(IN) :: Langevin
+        Character (Len = 64), Intent(IN) :: Global_update_scheme
                 
 
         Character (len=64) :: file1
@@ -258,10 +258,10 @@ module Control
         call system_clock(count_CPU_end)
         time = (count_CPU_end-count_CPU_start)/dble(count_rate)
         if (count_CPU_end .lt. count_CPU_start) time = (count_max+count_CPU_end-count_CPU_start)/dble(count_rate)
-        If (Langevin) Force_mean =  Force_mean/real(Force_count,kind(0.d0)) 
+        If (trim(Global_update_scheme) == "Langevin") Force_mean =  Force_mean/real(Force_count,kind(0.d0)) 
         
 #if defined(MPI)
-        If (Langevin)  then
+        If (trim(Global_update_scheme) == "Langevin")  then
            X = 0.d0
            CALL MPI_REDUCE(Force_mean,X,1,MPI_REAL8,MPI_SUM, 0,Group_Comm,IERR)
            Force_mean= X/dble(Isize_g)
@@ -349,7 +349,7 @@ module Control
            Write(50,*) ' Average cluster size         : ', size_clust_Glob
            Write(50,*) ' Average accepted cluster size: ', size_clust_Glob_ACC
            !endif
-           if (Langevin) &
+           if (trim(Global_update_scheme) == "Langevin") &
                 &  Write(50,*) ' Langevin         Mean, Max : ', Force_mean,  Force_max
            
            Write(50,*) ' CPU Time                   : ', Time

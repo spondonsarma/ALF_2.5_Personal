@@ -47,7 +47,7 @@
        Use Hop_mod
        Use UDV_State_mod
        Use Langevin_HMC_mod
-
+       
 
        Contains
 
@@ -98,7 +98,7 @@
 
            
            Mc_step_Weight  = 1.d0
-           if (Langevin) Mc_step_weight =  Delta_t_running
+           if (trim(Langevin_HMC%Update_scheme)=="Langevin") Mc_step_weight =  Langevin_HMC%Delta_t_running
            
            !Tau = 0
            Do nf = 1, N_FL
@@ -141,7 +141,7 @@
               NT1 = NT + 1
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
-              If  (Langevin) then            
+              If  (trim(Langevin_HMC%Update_scheme)=="Langevin") then            
                  Call Wrapgrup_Forces(GTT,NT1)
               else
                  CALL PROPRM1 (GTT,NT1)
@@ -154,10 +154,12 @@
                  Call Hop_mod_Symm(G0T_T,G0T)
                  Call Hop_mod_Symm(GT0_T,GT0)
                  CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE, Mc_step_weight)
-                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1, Mc_step_weight )
+                 If (trim(Langevin_HMC%Update_scheme)=="Langevin" &
+                      &  .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1, Mc_step_weight )
               Else
                  CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE, Mc_step_weight)
-                 If (Langevin .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1, Mc_step_weight )
+                 If (trim(Langevin_HMC%Update_scheme)=="Langevin"&
+                      & .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1, Mc_step_weight )
               Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN

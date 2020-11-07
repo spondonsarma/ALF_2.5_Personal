@@ -185,8 +185,9 @@ Program Main
         Integer :: N_Global_tau
         Logical :: Sequential
 
-        !  Space for Lagevin & HMC  is declared in the Langevin_HMC_mod module
-
+        !  Space for reading in Langevin & HMC  parameters
+        Character (len=64)           :: Global_update_scheme
+        Real  (Kind=Kind(0.d0))      :: Delta_t_Langevin_HMC, Max_Force
           
 #if defined(TEMPERING)
         Integer :: N_exchange_steps, N_Tempering_frequency
@@ -196,7 +197,7 @@ Program Main
         NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX, &
              &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau, &
-             &               Langevin, Delta_t_Langevin_HMC, Max_Force
+             &               Global_update_scheme, Delta_t_Langevin_HMC, Max_Force
 
 
         !  General
@@ -277,7 +278,7 @@ Program Main
            ! This is a set of variables that  identical for each simulation.
            Nwrap=0;  NSweep=0; NBin=0; Ltau=0; LOBS_EN = 0;  LOBS_ST = 0;  CPU_MAX = 0.d0
            Propose_S0 = .false. ;  Global_moves = .false. ; N_Global = 0
-           Global_tau_moves = .false.; Langevin = .false.
+           Global_tau_moves = .false.; Global_update_scheme = "None"
            Delta_t_Langevin_HMC = 0.d0;  Max_Force = 0.d0
            Nt_sequential_start = 1 ;  Nt_sequential_end  = 0;  N_Global_tau  = 0
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
@@ -290,24 +291,23 @@ Program Main
            NBin_eff = NBin
 #ifdef MPI
         Endif
-        CALL MPI_BCAST(Nwrap               ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(NSweep              ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(NBin                ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Ltau                ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(LOBS_EN             ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(LOBS_ST             ,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(CPU_MAX             ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Propose_S0          ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Global_moves        ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(N_Global            ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Global_tau_moves    ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Nt_sequential_start ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Nt_sequential_end   ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(N_Global_tau        ,1,MPI_Integer,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Langevin            ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Max_Force           ,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
-        CALL MPI_BCAST(Delta_t_Langevin_HMC,1,MPI_REAL8,  0,MPI_COMM_WORLD,ierr)
-
+        CALL MPI_BCAST(Nwrap                ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(NSweep               ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(NBin                 ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Ltau                 ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(LOBS_EN              ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(LOBS_ST              ,1 ,MPI_INTEGER  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(CPU_MAX              ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Propose_S0           ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Global_moves         ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(N_Global             ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Global_tau_moves     ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Nt_sequential_start  ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Nt_sequential_end    ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(N_Global_tau         ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Global_update_scheme ,64,MPI_CHARACTER,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Max_Force            ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(Delta_t_Langevin_HMC ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
 #endif
         Call Fields_init()
         Call Ham_set
@@ -435,7 +435,7 @@ Program Main
            else
               Write(50,*) 'Default sequential updating '
            endif
-           If (Langevin) then
+           if ( Trim(Global_update_scheme) == "Langevin" ) then
               Write(50,*) 'Langevin del_t: ', Delta_t_Langevin_HMC
               Write(50,*) 'Max Force     : ', Max_Force
            endif
@@ -474,11 +474,12 @@ Program Main
 #endif
 
         Sequential = .true.
-        if (Langevin) then
-           Call Langevin_setup()
+           
+        if ( Trim(Global_update_scheme) == "Langevin" ) then
+           Call Langevin_HMC_setup(Global_update_scheme, Delta_t_Langevin_HMC, Max_Force)
            Sequential = .False.
         endif
-
+        
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
         ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
@@ -551,19 +552,19 @@ Program Main
               If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
 
 
-              If ( Langevin )  then
+              If (  trim(Langevin_HMC%Update_scheme) == "Langevin" )  then
                  !  Carry out a Langevin update and calculate equal time observables.
                  Call Langevin_update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
                       &               LOBS_ST, LOBS_EN)
-
+                 
                  IF ( LTAU == 1 ) then
                     If (Projector) then 
                        NST = 0 
                        Call Tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST, LOBS_ST, LOBS_EN)
-                       L_Forces = .true.
+                       Langevin_HMC%L_Forces = .true.
                     else
                        Call Tau_m( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN )
-                       L_Forces = .true.
+                       Langevin_HMC%L_Forces = .true.
                     endif
                  endif
               endif
@@ -747,7 +748,7 @@ Program Main
            Call Wrapgr_dealloc
         endif
 
-        Call Control_Print(Group_Comm,Langevin)
+        Call Control_Print(Group_Comm, Langevin_HMC%Update_scheme)
 
 #if defined(MPI)
         If (Irank_g == 0 ) then
@@ -766,7 +767,7 @@ Program Main
         endif
 #endif
         
-        if (Langevin) Call Langevin_clear()
+        if (trim(Langevin_HMC%Update_scheme)== "Langevin" ) Call Langevin_clear()
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)
