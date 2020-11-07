@@ -29,7 +29,9 @@
 \usepackage{cite}
 \usepackage{alltt}
 \usepackage{listings}
+\usepackage{enumitem}
 \usepackage{algorithm}
+\usepackage{algcompatible}
 \usepackage{algpseudocode}
 \usepackage{url}
 \usepackage{booktabs}
@@ -62,6 +64,9 @@
 \definecolor{comment-color}{rgb}{0.8,0.1,0.1}
 \definecolor{keyword-color}{rgb}{0.3,0.3,1}
 \sethlcolor{light-gray2}
+\newcommand*{\red}{\textcolor{red}}
+\newcommand*{\blue}{\textcolor{blue}}
+
 
 \lstdefinestyle{fortran}{
   language={[03]Fortran},
@@ -117,21 +122,60 @@
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
-\newcommand*{\red}{\textcolor{red}}
-\newcommand*{\blue}{\textcolor{blue}}
-\newcommand{\mycomment}[1]{{\color{red} #1}}
-\newcommand{\FAcomment}[1]{{\color{red} #1}}
-
 \renewcommand{\Re}{\operatorname{Re}}
 \renewcommand{\Im}{\operatorname{Im}}
 \renewcommand{\vec}[1]{\boldsymbol{#1}}
 \newcommand{\ve}[1]{\boldsymbol{#1}}
 \newcommand{\tl}{t_{l}}
 \newcommand{\ts}{\underline{t}}
-\algnewcommand{\ThreeIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
-\algnewcommand{\FourIndentedLeftComment}[1]{\Statex \(\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\hspace\algorithmicindent\triangleright\) \textit{#1}}
+
+%------------------------ algpseudocode additions -----------------------------------
+
+\algrenewcommand\algorithmiccomment[1]{\hfill \textcolor{comment-color}{\small  $\triangleright$ \textit{#1}}}
+\algrenewcommand\alglinenumber[1]{\scriptsize #1:}
+
+%\algnewcommand{\IIf}[1]{\State\algorithmicif\ #1\ \algorithmicthen} % https://tex.stackexchange.com/a/184228/105662
+%\algnewcommand{\IElse}[1]{\State\algorithmicelse\ #1 }
+%\algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
+
+\makeatletter % Based on  https://tex.stackexchange.com/a/169608/105662
+\newlength{\trianglerightwidth}
+\settowidth{\trianglerightwidth}{$\triangleright$~}
+\algnewcommand{\LineComment}[1]{\Statex \hskip\ALG@thistlm%
+	\parbox[t]{\dimexpr\linewidth-\ALG@thistlm}{\hangindent=\trianglerightwidth \hangafter=1 \strut\textcolor{comment-color}{\small $\triangleright$ \textit{#1}}\strut}}
+% If comment line is the first of a block:
+\algnewcommand{\FirstLineComment}[1]{\Statex \hskip\ALG@thistlm%
+	\parbox[t]{\dimexpr\linewidth-\ALG@thistlm}{\hangindent=\dimexpr\algorithmicindent+\trianglerightwidth \hangafter=1 \strut\makebox[\algorithmicindent][l]{}\textcolor{comment-color}{\small $\triangleright$ \textit{#1}}\strut}}
+\makeatother
+
+\makeatletter % https://tex.stackexchange.com/a/428081/105662
+\newenvironment{breakablealgorithm}
+{% \begin{breakablealgorithm}
+	\begin{center}
+		\refstepcounter{algorithm}% New algorithm
+		\hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+		\renewcommand{\caption}[2][\relax]{% Make a new \caption
+			{\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+			\ifx\relax##1\relax % #1 is \relax
+			\addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+			\else % #1 is not \relax
+			\addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+			\fi
+			\kern2pt\hrule\kern2pt
+		}
+	}{% \end{breakablealgorithm}
+		\kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+	\end{center}
+}
+\makeatother
+
+% vertical rules for blocks: None of the solutions found work with all of the: page breaks, redefined comments and added vertical spaces. The solution at  https://tex.stackexchange.com/a/351363/105662  and the 1st solution at  https://tex.stackexchange.com/a/147751/105662  appear to break the least, but vertical rules are full of gaps at those special spots.
+
+%------------------------------------------------------------------------------------
+
 
 \makeindex
+
 \begin{document}
 	
 % Title
