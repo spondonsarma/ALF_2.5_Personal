@@ -40,7 +40,9 @@
 !
 !--------------------------------------------------------------------
       ! Used for MPI
-      INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      private
+      INTEGER, save :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      public::
 
       INTERFACE Calc_Renyi_Ent
         MODULE PROCEDURE Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, Calc_Renyi_Ent_gen_all
