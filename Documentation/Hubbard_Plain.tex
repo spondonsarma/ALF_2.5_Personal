@@ -118,9 +118,9 @@ Enddo
 \end{lstlisting}
 Here, the integer function \texttt{Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
 Note that periodic boundary conditions are 
-already taken into account.  The hopping parameter \texttt{Ham\_T} as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
-To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type}  is not  required. 
-Note that although a checkerboard decomposition is not  used here,  it can be implemented by considering a larger number of sparse hopping matrices.  
+already taken into account.  The hopping parameter \texttt{Ham\_T}, as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
+To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type} is not required. 
+Finally, note that, although a checkerboard decomposition is not used here, it can be implemented by considering a larger number of sparse hopping matrices.  
 
 
 %------------------------------------------------------------
@@ -149,9 +149,8 @@ Do nf = 1,N_FL
       Call Op_set( Op_V(i,nf) )
    Enddo
 Enddo
-
 \end{lstlisting}
-In the above, one will see explicitly that  there is a sign   difference between  the coupling of the HS field  in  the  two flavor sectors. 
+The code above makes it explicit that there is a sign difference between the coupling of the HS field in the two flavor sectors. 
 
 %------------------------------------------------------------
 \subsection{The trial wave function: \texttt{Call Ham\_Trial}} \label{U_PV_Ham_Trial}
@@ -181,10 +180,9 @@ with \texttt{N\_part = Ndim/2}.     The  variable \texttt{Degen}   belonging to 
 \subsection{Observables}
 %------------------------------------------------------------
 
-At this point, all the information for starting the simulation has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.   Between  time slices   \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN}   the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}   which is provided by the user and handles equal-time correlation functions. 
-If \texttt{Ltau=1} the main program will call the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE) }   which is again  provided by the user and handles  imaginary-time displaced correlation functions. 
+At this point, all the information for starting the simulation has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.  Between  time slices  \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN} the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}, which handles equal-time correlation functions, and, if \texttt{Ltau=1}, the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE)} which handles imaginary-time displaced correlation functions. 
 
-The users have to implement the observables they want to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here  we  will describe how to  proceed. 
+Both \texttt{Obser} and \texttt{ObserT} should be provided by the user, who can either implement themselves the observables they want to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here we describe how to proceed in order to define an observable. 
 
 %------------------------------------------------------------------------------------
 \subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
@@ -209,7 +207,7 @@ Do I = 1,Size(Obs_scal,1)
    Call Obser_Vec_make(Obs_scal(I), N, Filename)
 enddo
 \end{lstlisting}
-Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the $x$- and $y$-components of the kinetic energy for example.  
+Here,   \texttt{Obs\_scal(1)}   contains a vector  of two observables  so as to account for the $x$- and $y$-components of the kinetic energy, for example.  
 
 For equal-time correlation functions  we allocate  \texttt{Obs\_eq}  of type \texttt{Obser\_Latt}.  Here we include the calculation of spin-spin and density-density correlation functions alongside equal-time Green functions. 
 \begin{lstlisting}[style=fortran]
@@ -239,10 +237,9 @@ efficient. One can have different lattices attached to different observables by 
 additional instances of \texttt{Type(Lattice)} and \texttt{Type(Unit\_cell)}.
  For equal-time correlation functions, we set \texttt{Nt = 1} and \texttt{Channel} does not have a meaning.
 
-If \texttt{Ltau = 1}, then the code will allocate space for time displaced quantities. The 
-same structure as for equal-time correlation functions will be used, albeit with 
-\texttt{Nt = Ltrot + 1} and the channel should be set. Whith \texttt{Channel="PH"}, the 
-analysis will assume the observable to be particle-hole symmetric. For more details on the meaning of this parameter, see Sec.~\ref{sec:maxent}.
+If \texttt{Ltau = 1}, then the code allocates space for time displaced quantities. The 
+same structure as for equal-time correlation functions is used, albeit with 
+\texttt{Nt = Ltrot + 1} and the channel should be set. Whith \texttt{Channel="PH"}, for instance, the analysis algorithm assumes the observable to be particle-hole symmetric. For more details on this parameter, see Sec.~\ref{sec:maxent}.
 
 At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine \texttt{Init\_obs(Ltau)}. The user does not have to edit this routine. 
  
@@ -250,7 +247,7 @@ At the beginning of each bin, the main program will set the bin observables to z
 \subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}} \label{sec:EqualTimeobs}
 %-------------------------------------------------------------------------------------
 
-The equal-time  Green function,
+Having allocated the necessary memory, we proceed to define the observables. The equal-time  Green function,
 \begin{equation}
 	 \texttt{GR(x,y},\sigma{\texttt)}  = \langle \hat{c}^{\phantom{\dagger}}_{x,\sigma} \hat{c}^{\dagger}_{y,\sigma}  \rangle,
 \end{equation}
@@ -266,7 +263,7 @@ Do i = 1,Ndim
   Obs_scal(2)%Obs_vec(1)= Obs_scal(2)%Obs_vec(1) +(1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
 Enddo
 \end{lstlisting} 
-Here  $ \texttt{ZS} = \sgn(C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
+Here  $ \texttt{ZS} = \sgn(C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard's $U$ term.
 
 Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
@@ -297,44 +294,44 @@ Do I = 1,Ndim
    Obs_eq(4)%Obs_Latt0(1) = Obs_eq(4)%Obs_Latt0(1) + (GRC(I,I,1)+GRC(I,I,2))*ZP*ZS
 Enddo
 \end{lstlisting} 
-At the end of each bin  the main program will call the routine \texttt{ Pr\_obs(LTAU)}. This routine will append the result of the bins in the specified file,  with appropriate suffix. 
+At the end of each bin the main program calls the routine \texttt{ Pr\_obs(LTAU)}. This routine appends the result for the current bins to the corresponding file, with the appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring time displaced observables: \texttt{ObserT(NT, GT0, G0T, G00, GTT, PHASE)} }  \label{sec:TimeDispObs}
+\subsubsection{Measuring time-displaced observables: \texttt{ObserT(NT, GT0, G0T, G00, GTT, PHASE)} }  \label{sec:TimeDispObs}
 %-------------------------------------------------------------------------------------
 %
-This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to unity.  \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the   imaginary time difference.   For a given time  displacement, the main program provides:
+This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to $1$. The variable \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the imaginary time difference. For a given time  displacement, the main program provides:
 \begin{align}
 \begin{aligned}
-\texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle = \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle   \\
-\texttt{G0T(x,y,s) }   &=  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle =
+\texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle \;=\; \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle   \\
+\texttt{G0T(x,y,s) }   &=  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle \;=\;
     \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    \\
   \texttt{G00(x,y,s) }  &=    \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (0)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle     \\
     \texttt{GTT(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle.
 \end{aligned}
 \end{align}
-In the above we have omitted the color index since  the  Green functions are color independent.  The time displaced  spin-spin correlations 
+In the above we have omitted the color index since  the  Green functions are color independent.  The time-displaced spin-spin correlations 
 $ 4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle   $ 
-are thereby given by: 
+are then given by: 
 \begin{multline}
 	4 \langle \langle \hat{S}^{z}_{\vec{i}} (\tau)  \hat{S}^{z}_{\vec{j}} (0)\rangle \rangle
 	=  ( \texttt{GTT(I,I,1)} -  \texttt{GTT(I,I,2)} ) * ( \texttt{G00(J,J,1)} -  \texttt{G00(J,J,2)} )     \\  
 	-   \; \texttt{G0T(J,I,1)}*\texttt{GT0(I,J,1)}  -  \texttt{G0T(J,I,2)}* \texttt{GT0(I,J,2)}
 \end{multline}
 
-The handling of time displaced correlation functions is identical to that of equal-time correlations. 
+The handling of time-displaced correlation functions is identical to that of equal-time correlations. 
 
 %-------------------------------------------------------------------------------------
 \subsection{Numerical precision}\label{sec:prec_spin}
 %-------------------------------------------------------------------------------------
 
 Information on the numerical stability is included in the following lines of the corresponding file \texttt{info}. 
-For a   \textit{short} simulation on a $4 \times 4$  lattice at $U/t=4$ and $\beta t = 10$  we obtain
-{\small  \begin{alltt}
-Precision Green  Mean, Max :    5.0823874429126405E-011   5.8621144596315844E-006
-Precision Phase, Max       :    0.0000000000000000     
-Precision tau    Mean, Max :    1.5929357848647394E-011   1.0985132530727526E-005 
-\end{alltt} }
+For a  \textit{short} simulation on a $4 \times 4$  lattice at $U/t=4$ and $\beta t = 10$  we obtain
+\begin{lstlisting}[basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
+Precision Green  Mean, Max :   5.0823874429126405E-011  5.8621144596315844E-006
+Precision Phase, Max       :   0.0000000000000000    
+Precision tau    Mean, Max :   1.5929357848647394E-011  1.0985132530727526E-005 
+\end{lstlisting}
 showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.
 A stable code  should produce results where the mean difference is smaller than the  stochastic error. The above example  shows a very stable simulation since the Green function  is of order one. 
 
