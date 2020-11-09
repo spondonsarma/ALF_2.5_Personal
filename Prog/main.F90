@@ -552,7 +552,7 @@ Program Main
               If (Global_moves) Call Global_Updates(Phase, GR, udvr, udvl, Stab_nt, udvst,N_Global)
 
 
-              If (  trim(Langevin_HMC%Update_scheme) == "Langevin" )  then
+              If (  trim(Langevin_HMC%get_Update_scheme()) == "Langevin" )  then
                  !  Carry out a Langevin update and calculate equal time observables.
                  Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
                       &                   LOBS_ST, LOBS_EN)
@@ -561,10 +561,10 @@ Program Main
                     If (Projector) then 
                        NST = 0 
                        Call Tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST, LOBS_ST, LOBS_EN)
-                       Langevin_HMC%L_Forces = .true.
+                       call Langevin_HMC%set_L_Forces(.true.)
                     else
                        Call Tau_m( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN )
-                       Langevin_HMC%L_Forces = .true.
+                       call Langevin_HMC%set_L_Forces(.true.)
                     endif
                  endif
               endif
@@ -748,7 +748,7 @@ Program Main
            Call Wrapgr_dealloc
         endif
 
-        Call Control_Print(Group_Comm, Langevin_HMC%Update_scheme)
+        Call Control_Print(Group_Comm, Langevin_HMC%get_Update_scheme())
 
 #if defined(MPI)
         If (Irank_g == 0 ) then

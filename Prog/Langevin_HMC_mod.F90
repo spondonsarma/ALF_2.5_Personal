@@ -46,6 +46,7 @@
         Public :: Langevin_HMC, Langevin_HMC_type
         
         Type Langevin_HMC_type
+        private
            Character (Len=64)                      :: Update_scheme
            Logical                                 :: L_Forces
            Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
@@ -57,6 +58,9 @@
            procedure  ::    clean       => Langevin_HMC_clear
            procedure  ::    Wrap_Forces => Wrapgrup_Forces
            procedure  ::    Update      => Langevin_HMC_update
+           procedure  ::    set_L_Forces         => Langevin_HMC_set_L_Forces
+           procedure  ::    get_Update_scheme    => Langevin_HMC_get_Update_scheme
+           procedure  ::    get_Delta_t_running  => Langevin_HMC_get_Delta_t_running
         end type Langevin_HMC_type
 
         Type (Langevin_HMC_type) :: Langevin_HMC
@@ -463,5 +467,50 @@
         if (Trim(this%Update_scheme) == "Langevin" ) Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
         
       end SUBROUTINE Langevin_HMC_clear
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       sets L_Forces
+!--------------------------------------------------------------------
+      Subroutine Langevin_HMC_set_L_Forces(this, L_Forces)
+        Implicit none
+        
+        class (Langevin_HMC_type) :: this
+        Logical, intent(in) :: L_Forces
+        Langevin_HMC%L_Forces = L_Forces
+      end Subroutine Langevin_HMC_set_L_Forces
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       Returns Update_scheme
+!--------------------------------------------------------------------
+      function Langevin_HMC_get_Update_scheme(this)
+        Implicit none
+        
+        class (Langevin_HMC_type) :: this
+        Character (Len=64) :: Langevin_HMC_get_Update_scheme
+        Langevin_HMC_get_Update_scheme = Langevin_HMC%get_Update_scheme()
+      end function Langevin_HMC_get_Update_scheme
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       Returns Delta_t_running
+!--------------------------------------------------------------------
+      function Langevin_HMC_get_Delta_t_running(this)
+        Implicit none
+        
+        class (Langevin_HMC_type) :: this
+        Real(Kind=Kind(0.d0)) :: Langevin_HMC_get_Delta_t_running
+        Langevin_HMC_get_Delta_t_running = Langevin_HMC%Delta_t_running
+      end function Langevin_HMC_get_Delta_t_running
 
     end Module Langevin_HMC_mod
