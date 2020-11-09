@@ -110,8 +110,6 @@ or run
 \end{lstlisting}
 for all observables.
 
-In case the parameter \path{N_auto} is set to a finite value the program will also trigger the computation of autocorrelation functions (Sec.~\ref{sec:autocorr}).
-
 The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, which provides subroutines for reading an analyzing ALF Monte Carlo bins, that can be used to implement more specialized analysis. The three high-level analysis routines employed by \texttt{ana\_mod} are listed in Table~\ref{table:analysis_programs}. The files taken as input, as well as the output files are listed in Table~\ref{table:analysis_files}.
 
 \begin{table}[h]
@@ -134,24 +132,24 @@ The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, 
 %
 %Here we briefly describe the analysis programs, which read in bins and carry out the error analysis. (See Sec.~\ref{sec:sampling}  for a more detailed discussion.)
 The error analysis is based on the central limit theorem, which requires bins to be statistically independent, and also the existence of a well-defined variance for the observable under consideration (see Sec.~\ref{sec:sampling}).
-The former will be the case if bins are  longer than the autocorrelation time.  The latter has to be checked by the user.  In the parameter file described in Sec.~\ref{sec:input}, the user  can specify how many initial bins should be omitted (variable \texttt{n\_skip}). 
-This  number should be comparable to the autocorrelation time.     
+The former will be the case if bins are  longer than the autocorrelation time -- autocorrelation functions are computed by setting the parameter \path{N_auto} to a nonzero value -- which has to be checked by the user.  In the parameter file described in Sec.~\ref{sec:input}, the user  can specify how many initial bins should be omitted (variable \texttt{n\_skip}). This number should be comparable to the autocorrelation time.
 The  rebinning  variable \texttt{N\_rebin} will merge \texttt{N\_rebin}  bins into a single new bin. 
 If the autocorrelation time  is smaller than the effective bin size, the error should become independent of the bin size and thereby of the variable \texttt{N\_rebin}.
 %
 \begin{table}[h]
 	\begin{center}
 		\begin{tabular}{@{} p{0.23\linewidth} p{0.74\linewidth} @{}}\toprule
-		File & Description  \\ \midrule
-		Input &  \\\midrule %\cmidrule{1-1}
+		File                 & Description  \\ \midrule
+		Input                &  \\\midrule %\cmidrule{1-1}
 		\texttt{parameters}  &  Includes error analysis variables \texttt{N\_skip}, \texttt{N\_rebin}, and \texttt{N\_Cov} (see Sec.~\ref{sec:input}) \\
 		\texttt{X\_scal}, \texttt{Y\_eq}, \texttt{Y\_tau} & Monte Carlo bins (see Table \ref{table:output}) \vspace{7pt}\\
 
-		Output &  \\\midrule
-		\texttt{X\_scalJ} & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}\\
+		Output               &  \\\midrule
+		\texttt{X\_scalJ}    & Jackknife mean and error of \texttt{X}, where  \texttt{X} stands for \texttt{Kin, Pot, Part}, or \texttt{Ener}\\
 		\texttt{Y\_eqJR} and \texttt{Y\_eqJK} & Jackknife mean and error of \texttt{Y}, which stands for \texttt{Green, SpinZ, SpinXY}, or \texttt{Den}. The suffixes \texttt{R} and \texttt{K} refer to real and reciprocal space, respectively\\
 		\texttt{Y\_R0/g\_R0} & Time-resolved and spatially local Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}\\
-		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}\\\bottomrule
+		\texttt{Y\_kx\_ky/g\_kx\_ky} & Time resolved and $\vec{k}$-dependent Jackknife mean and error of \texttt{Y}, where \texttt{Y} stands for \texttt{Green, SpinZ, SpinXY}, and \texttt{Den}\\
+		\texttt{Part\_scal\_Auto} & Autocorrelation functions $S_{\hat{O}}(t_{\textrm{Auto}})$ in the range $t_{\text{Auto}}=[0,\textrm{\path{N_auto}}]$ for the observable $\hat{O}$ \\\bottomrule
 	\end{tabular}
 	\caption{Standard input and output files of the error analysis program \texttt{ana.out}. \label{table:analysis_files}}
 \end{center}
@@ -190,6 +188,16 @@ The analysis output files listed in Table \ref{table:analysis_files} and are for
 	\end{alltt} }
 	where \texttt{Tr} corresponds to the trace over the orbital degrees of freedom.   For particle-hole quantities at finite temperature,  $\tau$ runs from 
 	$0$ to $\beta/2$.   In all other cases it runs from $0$ to $\beta$. 
+	
+	\item Setting the parameter \path{N_auto} to a finite value triggers the computation of autocorrelation functions $S_{\hat{O}}(t_{\textrm{Auto}})$ in the range $t_{\text{Auto}}=[0,\textrm{\path{N_auto}}]$. The output is written to the file \texttt{Part\_scal\_Auto}, where the data in organized in three columns:
+	{\small
+		\begin{alltt}
+			\(t\sb{\textrm{Auto}}\)   \(S\sb{\hat{O}}(t\sb{\textrm{Auto}})\)   error
+		\end{alltt}
+	}
+	Since these computations are quite time consuming and require many Monte Carlo bins, our default is \path{N_auto=0}.
+	
+	
 	
 	
 \end{itemize}
