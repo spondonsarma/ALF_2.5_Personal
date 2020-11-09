@@ -18,19 +18,20 @@ so as to guarantee the stationarity condition.  Here, $ W(C) = \left| \Re \left[
 Predicting how efficient a certain Monte Carlo update scheme will turn out to be for a given simulation is very hard, so one must typically resort to testing to find out which option produces best results.
 
 \begin{table}[h]
-	\begin{tabular}{@{} p{0.2\columnwidth} p{0.11\columnwidth} p{0.63\columnwidth} @{}}
+	\begin{tabular}{@{} p{0.22\columnwidth} p{0.11\columnwidth} p{0.61\columnwidth} @{}}
 		\toprule
-		Updating schemes             &  Type            &  Description \\
+		Updating schemes             & Type             & Description \\
 		\midrule
-%		Sequential Sweeps            &   Default        &  Unless overruled, the program carries out sequential, single spin-flip sweeps  \\ 
-		\texttt{Propose\_S0}         &  \texttt{logical}          &  If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
-		\texttt{Global\_tau\_moves}  &  \texttt{logical}         &  Whether to carry out  global moves on a single time slice.
+		\texttt{Sequential}          & \texttt{logical} & If true, the configurations moves through sequential, single spin flips  \\
+		\texttt{Propose\_S0}         & \texttt{logical} & If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
+		\texttt{Global\_tau\_moves}  & \texttt{logical} & Whether to carry out  global moves on a single time slice.
 		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{Nt\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
-		\texttt{Global\_moves}      &  \texttt{logical}          &   If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
-		\texttt{Tempering}          &  Compiling option &    Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation} \\
+		\texttt{Global\_moves}       & \texttt{logical} & If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
+		\texttt{Langevin}            & \texttt{logical} & If true, Langevin dynamics is used instead of sequential, single flips \\
+		\texttt{Tempering}           & Compiling option & Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation} \\
 		\bottomrule
 	\end{tabular}
-	\caption{Variables required to control the updating scheme. Per default the program carries out sequential, single spin-flip sweeps, and logical variables are set to \texttt{false}.}
+	\caption{Variables required to control the updating scheme. Per default the program carries out sequential, single spin-flip sweeps, and logical variables are set to \texttt{.false.}.}
 	\label{table:Updating_schemes}
 \end{table}
 % 

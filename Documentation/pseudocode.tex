@@ -9,7 +9,16 @@
 \subsection{Pseudocode description}\label{sec:pseudocode}
 %------------------------------------------------------------
 
-The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{alg:1}, where.
+The Monte Carlo algorithm as implemented in ALF is summarized in Alg.~\ref{alg:1}. Key control variables include:
+\begin{description}[leftmargin=!,align=right,noitemsep,labelwidth=\widthof{\bfseries Global\_moves},font=\texttt] % width: The longest label
+	\item[Projector]     Uses (=true) the projective instead of finite-$T$ algorithm (see Sec.~\ref{sec:defT0})
+	\item[$L_{\tau}$]    Measures (Ltau=1) time-displaced observables (see Sec.~\ref{sec:Observables.General})
+	\item[Tempering]     Runs (=true) in parallel tempering mode (see Table~\ref{table:Updating_schemes})
+	\item[Global\_moves] Carries out (=true) global moves in a single time slice (see Table~\ref{table:Updating_schemes}) 
+	\item[Sequential]    Carries out (=true) sequential, single spin-flip updates (see Table~\ref{table:Updating_schemes})
+	\item[Langevin]      Uses (=true) Langevin dynamics instead of sequential (see Table~\ref{table:Updating_schemes})
+\end{description}
+Per default, the finite-temperature algorithm is used, \texttt{Ltau=0}, and the updating used is \texttt{Sequential} (i.e., \texttt{Global\_moves}, \texttt{Tempering} and \texttt{Langevin} default values are all \texttt{.false.}).
 
 %\begin{algorithm}[H]
 \begin{breakablealgorithm}
@@ -38,15 +47,15 @@ The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{a
 		\State{\textbf{call} Global\_Updates} \Comment{Perform chosen global updates}
 		\EndIf
 		\If{Langevin}
-		\State{\textbf{call} Langevin\_update} \Comment{Update and measure equal-time observables}
-		\If{$L_{\tau} = 1$}
-		\If{Projector}
-		\State{\textbf{call} Tau\_p} \Comment{Measure time-displaced observables (projective code)}
-		\Else
-		\State{\textbf{call} Tau\_m} \Comment{Measure time-displaced observables (finite temperature)}
-		\EndIf
-		\EndIf
-		\EndIf
+			\State{\textbf{call} Langevin\_update} \Comment{\textsc{Update and measure} equal-time observables}
+			\If{$L_{\tau} = 1$}
+			\If{Projector}
+			\State{\textbf{call} Tau\_p} \Comment{\textsc{Measure} time-displaced observables (projective code)}
+			\Else
+			\State{\textbf{call} Tau\_m} \Comment{\textsc{Measure} time-displaced observables (finite temperature)}
+			\EndIf
+			\EndIf
+		\EndIf \textcolor{gray}{~\scriptsize (Langevin)}
 		\vspace{1.5ex}
 		
 		\If{Sequential}
@@ -69,8 +78,8 @@ The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{a
 		\EndIf
 		\vspace{1.5ex}
 		
-		\If{$n_{\tau} \in [\text{Lobs\_st}, \text{Lobs\_en}]$} \Comment{\textsc{Measure} the equal-time observables}
-		\State{\textbf{call} Obser}
+		\If{$n_{\tau} \in [\text{Lobs\_st}, \text{Lobs\_en}]$}
+		\State{\textbf{call} Obser} \Comment{\textsc{Measure} the equal-time observables}
 		\EndIf
 		\EndFor
 		\vspace{1.5ex}
@@ -80,7 +89,7 @@ The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{a
 		\FirstLineComment{Same steps as for the upward sweep (propagation and estimate update, stabilization, equal-time measurements) now downwards in imaginary time}
 		\If{Projector \textbf{and}  $L_{\tau} = 1$ \textbf{and} \\
 			\hspace{15.8ex} $n_{\tau}$ = stabilization point in imaginary time \textbf{and} \\
-			\hspace{15.8ex} the projection time is within the measurement interval}
+			\hspace{15.8ex} the projection time $\theta$ is within the measurement interval}
 		\State{\textbf{call} Tau\_p} \Comment{\textsc{Measure} time-displaced observables (projective code)}
 		\EndIf
 		\EndFor
@@ -92,16 +101,16 @@ The Monte Carlo algorithm as implemented in ALF can be summarized in Alg.~\ref{a
 		\EndIf
 		\vspace{1.5ex}
 		
-		\EndIf % sequential
+		\EndIf  \textcolor{gray}{~\scriptsize (Sequential)} % sequential
 		\vspace{1.5ex}
 		
-		\EndFor % sweeps
+		\EndFor  \textcolor{gray}{~\scriptsize (Sweeps)} % sweeps
 		\vspace{1.5ex}
 		
 		\State{\textbf{call} Pr\_obs} \Comment{Calculate and write to disk measurement averages for the current bin}
 		\State{\textbf{call} Nsigma\%out}\Comment{Write auxiliary field configuration to disk}
 		
-		\EndFor % bins
+		\EndFor  \textcolor{gray}{~\scriptsize (Bins)} % bins
 		
 	\end{algorithmic}
 \end{breakablealgorithm}

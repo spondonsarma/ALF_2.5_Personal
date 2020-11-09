@@ -33,7 +33,7 @@ $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,
  \end{equation}
  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
- The coupling of the HS fields to the $z$-component of   the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless, the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labeling spin up and spin down  degrees of freedom.     We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+The coupling of the HS fields to the $z$-component of the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless, the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index  which runs from one to two  labeling spin up and spin down  degrees of freedom.     We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
 The code that we describe below  can be found in the module \path{Prog/Hamiltonians/Hamiltonian_plain_vanilla_hubbard_mod.F90}.   Editing this file may be a good starting point to implement a new model Hamiltonian. 
 
 %To implement a Hamiltonian, the user has to provide  a module   which  specifies the lattice, the model, as well as the observables  they wish to compute. 
@@ -289,7 +289,7 @@ Do i = 1,Ndim
   Obs_scal(2)%Obs_vec(1)= Obs_scal(2)%Obs_vec(1) +(1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
 Enddo
 \end{lstlisting} 
-Here  $ \texttt{ZS} = \text{ sign} (C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
+Here  $ \texttt{ZS} = \sgn(C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard-$U$ term.
 
 Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
