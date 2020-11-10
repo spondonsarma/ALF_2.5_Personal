@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
-     Module entanglement
+Module entanglement
 
 !--------------------------------------------------------------------
 !> @author 
@@ -43,7 +43,7 @@
       INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
 
       INTERFACE Calc_Renyi_Ent
-        MODULE PROCEDURE Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, Calc_Renyi_Ent_gen_all
+        MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
       END INTERFACE
       Contains
 !========================================================================
@@ -194,7 +194,8 @@
           Implicit none
           
           Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
-          Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          !Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          Integer, INTENT(IN) :: List(:,:)
           Integer, INTENT(IN)               :: Nsites(:), N_SUN(:) ! new
           Complex (Kind=8), INTENT(OUT)   :: Renyi
 
@@ -372,7 +373,9 @@
                 N_sun_tmp(J)=1
                 nf_list(J)=nf
               enddo
+              write (*,*) "calling ent_pair"
               call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              write (*,*) "calling ent_pair 2"
               Renyi = Renyi * PRODDET
               
             Enddo
@@ -562,3 +565,4 @@
 #endif
         
       end Module entanglement
+      
