@@ -122,7 +122,7 @@ In the above, one notices that the weight factorizes in  the flavor index. The c
 This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions are color independent, again for each given  configuration $C$.
 
 %------------------------------------------------------------
-\subsubsection{Observables}\label{Observables.General}
+\subsubsection{Observables}\label{sec:Observables.General}
 %------------------------------------------------------------
 
 In the auxiliary-field QMC approach, the single-particle Green function plays a crucial role.  It determines the Monte Carlo dynamics and is used to compute  observables. Consider the observable:
@@ -192,7 +192,7 @@ Thereby\footnote{The attentive reader will have noticed that   for arbitrary Tro
 and with the definition
 \begin{equation}
 \label{Sign.eq}
-	 \text{ sign }(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }\;,
+	 \sgn(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }\;,
 \end{equation}
 the computation of the observable [Eq.~(\ref{eqn:obs})] is re-expressed as follows:
 \begin{align}\label{eqn:obs_rw}
@@ -201,21 +201,21 @@ the computation of the observable [Eq.~(\ref{eqn:obs})] is re-expressed as follo
           &=
    \frac{
      \left\{
-      \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \right\}/
+      \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \sgn(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \right\}/
             \sum_{C}  \left| \Re \left[ e^{-S(C)} \right] \right|  
           }  
           { 
-          \left\{ \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) \right\}/
+          \left\{ \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \sgn(C) \right\}/
             \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  
           } \nonumber\\
           &=
-  	 \frac{  \left\langle  \text{ sign }   \frac{e^{-S}} {\Re \left[e^{-S} \right]}  \langle \langle \hat{O}  \rangle \rangle  \right\rangle_{\overline{P}} } { \langle \text{sign}   \rangle_{\overline{P}}}  \;.      
+  	 \frac{  \left\langle  \sgn   \frac{e^{-S}} {\Re \left[e^{-S} \right]}  \langle \langle \hat{O}  \rangle \rangle  \right\rangle_{\overline{P}} } { \langle \sgn \rangle_{\overline{P}}}  \;.      
 \end{align} 
 The average sign is 
 \begin{equation}\label{eqn:sign_rw}
-	 \langle \text{sign} \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
+	 \langle \sgn \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \sgn(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
 \end{equation}
-and we have  $\langle \text{sign} \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
+and we have  $\langle \sgn \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
 The Monte Carlo simulation samples the probability distribution 
 \begin{equation}  
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
@@ -224,14 +224,14 @@ such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be compu
 
 The negative sign problem is still an issue because the average sign is a ratio of two partition functions and one can argue that 
 \begin{equation}
- \langle \text{sign} \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta},
+ \langle \sgn \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta},
 \end{equation}
 where $\Delta $ is an intensive positive quantity and $N \beta$ denotes the  Euclidean volume.    In a Monte Carlo simulation the  error scales as $ 1/\sqrt{T_\text{CPU}} $   where $T_\text{CPU}$ corresponds to the computational  time.  Since the error on the  average sign has to be much smaller than the average sign itself,   one sees that:
 \begin{equation}
 	T_\text{CPU}  \gg e^{2 \Delta N \beta}.
 \end{equation}   
 Two comments are in order. First, the presence of a sign problem invariably leads to an exponential increase of CPU time as a function of the Euclidean volume. And second,  $\Delta$ is formulation dependent.  
-For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard} has a much more severe sign problem than the formulation (also presented in Sec.~\ref{sec:hubbard}) where the HS field couples to the $z$-component of the magnetization. 
+For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard} has a much more severe sign problem than the formulation (presented in the same section) where the HS field couples to the $z$-component of the magnetization. 
 
 
 

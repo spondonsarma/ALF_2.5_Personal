@@ -22,40 +22,40 @@ source configure.sh [MACHINE] [MODE] [STAB]
 \end{lstlisting}
 If run with no arguments, it lists the available options and sets a generic, serial GNU compiler with minimal flags \texttt{-cpp -O3 -ffree-line-length-none -ffast-math}. The predefined machine configurations and parallelization modes available, as well as the options for stabilization schemes for the matrix multiplications (see Sec.~\ref{sec:stable}) are shown Table~\ref{table:configureHPC}. The stabilization scheme choice, in particular, is critical for performance and is discussed further in Sec.~\ref{sec:optimize}.
 
-\begin{table}[!ht]
-	\begin{center}
-		\begin{tabular}{@{} p{0.22\columnwidth} p{0.75\columnwidth} @{}}\toprule
-			Argument & Selected feature \\\midrule
-			\textbf{\texttt{MACHINE}} &  \\\midrule
-			\texttt{Intel}  &   Intel compiler for a generic machine\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
-				which \texttt{ifort} allocates on the stack. For large system sizes and/or low temperatures this may lead to a runtime error. One solution is to demand allocation of arrays above a certain size on the heap instead of the stack. This is accomplished by the \texttt{ifort} compiler flag \texttt{-heap-arrays [n]} where \texttt{[n]} is the minimal size (in kilobytes, for example \texttt{n=1024}) of arrays that are allocated on the heap.}. \\
-			\texttt{GNU}  &   GNU compiler for a generic machine (\emph{default}). \\
-			\texttt{PGI}  &   PGI compiler for a generic machine. \\
-			\texttt{MAC}  &   GNU compiler for a generic MAC computer. \\
-			\texttt{SuperMUC-NG}  &  Intel compiler and loads modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.}. \\
-			\texttt{JUWELS}  &  Intel compiler and loads modules for JUWELS\footnote{Supercomputer at the J\"ulich Supercomputing Centre.}. \\
-			\texttt{Devel|Development}  &  GNU compiler, and flags appropriate for debugging.  \vspace{7pt}\\
-
-			\textbf{\texttt{MODE}} &  \\\midrule
-			\texttt{noMPI|serial}  &  No parallelization. \\
-			\texttt{MPI}  &  MPI parallelization (\emph{default} -- if a machine is selected). \\
-			\texttt{Tempering}  &  Parallel tempering (Sec.~\ref{Parallel_tempering.sec}) and the required MPI as well. \vspace{7pt}\\ 
-
-			\textbf{\texttt{STAB}} &  \\\midrule
-			\texttt{STAB1}  &  Simplest stabilization, with UDV (QR-, not SVD-based) decompositions.\\
-			\texttt{STAB2}  &  QR-based UDV decompositions with additional normalizations.\\
-			\texttt{STAB3}  &  Newest stabilization, additionally separates large and small scales (\emph{default}).\\
-			\texttt{LOG}  &  Log storage for internal scales, increases accessible ranges.\\\bottomrule
-		\end{tabular}
-		\caption{Available arguments for the script \texttt{configure.sh}, called before compilation of the package: predefined machines, parallelization modes, and stabilization schemes (see also Sec.~\ref{sec:optimize}).} \label{table:configureHPC}
-	\end{center}
-\end{table}
-
 In order to compile the libraries, the analysis routines and the QMC program at once, just execute the single command:%\lstinline[style=bash,morekeywords={make}]{make}.
 \begin{lstlisting}[style=bash,morekeywords={make}]
 make
 \end{lstlisting}
-Related directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
+Related auxiliary directories, object files and executables can be removed by executing the command \lstinline[style=bash,morekeywords={make}]{make clean}. The accompanying \texttt{Makefile} also provides rules for compiling and cleaning up the library, the analysis routines and the QMC program separately.  
+
+\begin{table}[!ht]
+	\begin{center}
+		\begin{tabular}{@{} p{0.16\columnwidth} p{0.81\columnwidth} @{}}\toprule
+			Argument & Selected feature \\\midrule
+			\textbf{\texttt{MACHINE}} &  \\\midrule
+			\texttt{Intel}  &   Intel compiler for a generic machine\footnote{A known issue with the alternative Intel Fortran compiler \texttt{ifort} is the handling of automatic, temporary arrays 
+				which \texttt{ifort} allocates on the stack. For large system sizes and/or low temperatures this may lead to a runtime error. One solution is to demand allocation of arrays above a certain size on the heap instead of the stack. This is accomplished by the \texttt{ifort} compiler flag \texttt{-heap-arrays [n]} where \texttt{[n]} is the minimal size (in kilobytes, for example \texttt{n=1024}) of arrays that are allocated on the heap.} \\
+			\texttt{GNU}  &   GNU compiler for a generic machine (\emph{default}) \\
+			\texttt{PGI}  &   PGI compiler for a generic machine \\
+			\texttt{MAC}  &   GNU compiler for a generic MAC computer \\
+			\texttt{SuperMUC-NG}  &  Intel compiler and loads modules for SuperMUC-NG\footnote{Supercomputer at the Leibniz Supercomputing Centre.} \\
+			\texttt{JUWELS}  &  Intel compiler and loads modules for JUWELS\footnote{Supercomputer at the J\"ulich Supercomputing Centre.} \\
+			\texttt{Development}  &  GNU compiler, and flags appropriate for debugging  \vspace{7pt}\\
+			
+			\textbf{\texttt{MODE}} &  \\\midrule
+			\texttt{noMPI|serial}  &  No parallelization \\
+			\texttt{MPI}  &  MPI parallelization (\emph{default} -- if a machine is selected) \\
+			\texttt{Tempering}  &  Parallel tempering (Sec.~\ref{Parallel_tempering.sec}) and the required MPI as well \vspace{7pt}\\ 
+			
+			\textbf{\texttt{STAB}} &  \\\midrule
+			\texttt{STAB1}  &  Simplest stabilization, with UDV (QR-, not SVD-based) decompositions\\
+			\texttt{STAB2}  &  QR-based UDV decompositions with additional normalizations\\
+			\texttt{STAB3}  &  Newest scheme, additionally separates large and small scales (\emph{default})\\
+			\texttt{LOG}  &  Log storage for internal scales, increases accessible ranges\\\bottomrule
+		\end{tabular}
+		\caption{Available arguments for the script \texttt{configure.sh}, called before compilation of the package: predefined machines, parallelization modes, and stabilization schemes (see also Sec.~\ref{sec:optimize}).} \label{table:configureHPC}
+	\end{center}
+\end{table}
 
 A suite of tests for individual parts of the code (subroutines, functions, operations, etc.) is available at the directory \path{testsuite}. The tests can be run by executing the following sequence of commands (the script \path{configure.sh} sets environment variables as described above):
 \begin{lstlisting}[style=bash,morekeywords={make,cmake,ctest}]
@@ -82,7 +82,7 @@ which will output test results and total success rate.
 %
 
 In order to start a simulation from scratch, the following files have to be present: \texttt{parameters} and \texttt{seeds} (see Sec.~\ref{sec:input}). 
-To run serially the simulation for a given model, for instance one of the plain vanilla Hubbard model included in \texttt{Hamiltonian\_Hubbard\_Plain\_Vanilla\_mod.F90}, described in Sec.~\ref{sec:hubbard}, issue the command
+To run serially the simulation for a given model, for instance the plain vanilla Hubbard model included in \texttt{Hamiltonian\_Hubbard\_Plain\_Vanilla\_mod.F90}, described in Sec.~\ref{sec:hubbard}, issue the command
 \begin{lstlisting}[style=bash]
 ./Prog/Hubbard_Plain_Vanilla.out
 \end{lstlisting}
@@ -116,16 +116,16 @@ The program \texttt{ana.out} is based on the included module \texttt{ana\_mod}, 
 
 \begin{table}[h]
 	\begin{center}
-	\begin{tabular}{@{} p{0.18\linewidth} p{0.78\linewidth} @{}}\toprule
+	\begin{tabular}{@{} p{0.18\linewidth} @{$\;$} p{0.8\linewidth} @{}}\toprule
 		Program & Description \\\midrule
 		\texttt{cov\_vec(name)}  &  
-		  The bin file \texttt{name}, which should have suffix \texttt{\_scal}, is read in, and  the corresponding file with suffix \texttt{\_scalJ} is produced. It contains the result of the Jackknife rebinning analysis (see Sec.~\ref{sec:sampling}).  \\
+		  The bin file \texttt{name}, which should have suffix \texttt{\_scal}, is read in, and  the corresponding file with suffix \texttt{\_scalJ} is produced. It contains the result of the Jackknife rebinning analysis (see Sec.~\ref{sec:sampling}) \\
 		\texttt{cov\_eq(name)}    &  
-		  The bin file \texttt{name}, which should have suffix \texttt{\_eq}, is read in, and the corresponding files with suffix \texttt{\_eqJR} and \texttt{\_eqJK} are produced. They  correspond to correlation functions in real and Fourier space, respectively. \\
+		  The bin file \texttt{name}, which should have suffix \texttt{\_eq}, is read in, and the corresponding files with suffix \texttt{\_eqJR} and \texttt{\_eqJK} are produced. They  correspond to correlation functions in real and Fourier space, respectively \\
 		\texttt{cov\_tau(name)}   &  
 		  The bin file \texttt{name}, which should have suffix \texttt{\_tau}, is read in, and the directories \texttt{X\_kx\_ky} are produced for all \texttt{kx} and \texttt{ky} greater or equal to zero. \\
-		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_dat}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file (see Sec.~\ref{sec:input}). Also, a directory \texttt{X\_R0} for the local time displaced correlation function is generated.  \\                         
-		& For particle-hole, imaginary-time correlation functions (\texttt{Channel="PH"}) such as spin and charge, we use the fact that these correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$.
+		& Here \texttt{X}  is a place holder from \texttt{Green}, \texttt{SpinXY}, etc., as specified in \texttt{ Alloc\_obs(Ltau)} (See section \ref{Alloc_obs_sec}). Each directory contains  a  file    \texttt{g\_dat}  containing the  time-displaced correlation function traced over the  orbitals.  It also contains the covariance matrix if \texttt{N\_cov} is set to unity in the parameter file (see Sec.~\ref{sec:input}). Besides, a directory \texttt{X\_R0} for the local time displaced correlation function is generated. \\
+		& For particle-hole, imaginary-time correlation functions (\texttt{Channel = "PH"}) such as spin and charge, we use the fact that these correlation functions  are symmetric around $\tau = \beta/2$ so that we can define an improved estimator by averaging over $\tau$ and $\beta - \tau$
 		\\\bottomrule
 	\end{tabular}
 	\caption{Overview of analysis subroutines called within the program \texttt{ana.out}. \label{table:analysis_programs}}
@@ -180,7 +180,7 @@ The analysis output files listed in Table \ref{table:analysis_files} and are for
 	where \texttt{Re} and \texttt{Im} refer to the real and imaginary part, respectively.
 	
 	\item The imaginary-time displaced correlation functions \texttt{Y} are written to the output files \texttt{g\_R0} inside folders \texttt{Y\_R0}, when measured locally in space; 
-	and to the output files \texttt{g\_kx\_ky} inside folders \texttt{Y\_kx\_ky} when they are measured $\vec{k}$-resolved (where $\vec{k}=(\texttt{kx}, \texttt{ky})$). The first line of the file prints the number of time slices, 
+	and to the output files \texttt{g\_kx\_ky} inside folders \texttt{Y\_kx\_ky} when they are measured $\vec{k}$-resolved (where $\vec{k}=(\texttt{kx}, \texttt{ky})$). The first line of the file contains the number of time slices, 
 	the number of bins and the inverse temperature. 
 	Both output files have the following formatting:
 	{\small \begin{alltt}
