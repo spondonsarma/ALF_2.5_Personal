@@ -339,28 +339,31 @@ A stable code  should produce results where the mean difference is smaller than 
 
 To test the code, one can carry out high precision simulations. After compilation, the executable \texttt{Hubbard\_Plain\_Vanilla.out} is found in the directory \texttt{\$ALF\_DIR/Prog/} and can be run from any directory containing the files \texttt{parameters} and \texttt{seeds} (See Sec.~\ref{sec:files}).
 
-Alternatively, it may be convenient to use \texttt{pyALF} to compile and run the code.  
+Alternatively, as we do bellow, it may be convenient to use \texttt{pyALF} to compile and run the code, especially when using one of the scripts or notebooks available.  
 
-\paragraph*{One dimensional case} 
+\paragraph*{One-dimensional case} 
 
-The \texttt{pyALF} python script   \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_Plain_Vanilla.py}{\texttt{Hubbard\_Plain\_Vanilla.py}}   runs the projective version of the code for the four site Hubbard model.   At $\theta t =10$, $\Delta \tau t = 0.05 $ with the symmetric Trotter  decomposition,  we obtain  after  40 bins of each 2000 sweeps  the  total energy:   
+The \texttt{pyALF} python script   \href{https://git.physik.uni-wuerzburg.de/ALF/pyALF/-/blob/master/Scripts/Hubbard_Plain_Vanilla.py}{\texttt{Hubbard\_Plain\_Vanilla.py}}   runs the projective version of the code for the four-site Hubbard model.  At $\theta t =10$, $\Delta \tau t = 0.05 $ with the symmetric Trotter  decomposition, we obtain after 40 bins of 2000 sweeps each the total energy:   
 \begin{equation*}
-       \langle  \hat{H}   \rangle = -2.103750  \pm      0.004825  
+       \langle  \hat{H}   \rangle = -2.103750  \pm      0.004825,
  \end{equation*}
 and the exact result is  
 \begin{equation*}
-\langle  \hat{H}   \rangle_{\texttt{Exact}}    = -2.100396
+\langle  \hat{H}   \rangle_{\texttt{Exact}}    = -2.100396.
 \end{equation*}
 
-\paragraph*{Two dimensional case}  
-For the two-dimensional case,   with similar parameters, we obtain, \\
+\paragraph*{Two-dimensional case}  
+For the two-dimensional case,   with similar parameters, we obtain the results listed in Table~\ref{tab:2dplain}.
+\begin{table}[h!]
 \begin{center}
-\begin{tabular}{|c|c|c|}
-\hline
-                  &   QMC  & Exact  \\ \hline
-Total energy & -13.618   $\pm $  0.002 &  -13.6224  \\ \hline
- $\ve{Q}=(\pi,\pi)$ spin correlations &  3.630     $ \pm $   0.006     & 3.64 \\ 
- \hline 
+\begin{tabular}{@{}l l l@{}}
+\toprule
+             &  QMC  & Exact  \\ \midrule
+Total energy & -13.618   $\pm $  0.002 &  -13.6224  \\
+ $\ve{Q}=(\pi,\pi)$ spin correlations &  \phantom{-1}3.630     $ \pm $   0.006     & \phantom{-1}3.64 \\ 
+ \bottomrule
 \end{tabular}
- \end{center}
- The exact results stem from Ref.~\cite{Parola91}     and the slight discrepancies from the exact results can be  assigned to the finite value of $\Delta \tau$.  Note that all the simulations were carried out with the default value of the Hubbard interaction, $U/t =4$. 
+\caption{Test results for the \texttt{Hubbard\_Plain\_Vanilla} code.} \label{tab:2dplain}
+\end{center}
+\end{table}
+The exact results stem from Ref.~\cite{Parola91}     and the slight discrepancies from the exact results can be  assigned to the finite value of $\Delta \tau$.  Note that all the simulations were carried out with the default value of the Hubbard interaction, $U/t =4$. 
