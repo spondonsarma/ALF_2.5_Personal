@@ -41,6 +41,7 @@ Module entanglement
 !--------------------------------------------------------------------
       ! Used for MPI
       INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      Real (kind=kind(0.d0)) :: weight
 
       INTERFACE Calc_Renyi_Ent
         MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
@@ -66,6 +67,7 @@ Module entanglement
           Norm=ISIZE/2 ! number of pairs
           norm=2*norm ! but each task of pair contributes
           group=Group_Comm
+          weight=dble(ISIZE)/dble(Norm)
 #endif
           
         end Subroutine Init_Entanglement_replicas
@@ -177,8 +179,7 @@ Module entanglement
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
@@ -280,8 +281,7 @@ Module entanglement
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
@@ -400,8 +400,8 @@ Module entanglement
           endif
             
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
+
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
