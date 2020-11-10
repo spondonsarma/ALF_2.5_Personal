@@ -217,6 +217,7 @@ Module entanglement
           ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
           start_flav=0
           if (Nsites(1)==0) start_flav = 1
+          SortedFlavors(1) = 1
           DO I=2,N_FL
             x = Nsites(I)
             if (Nsites(I)==0) start_flav = start_flav + 1
@@ -329,6 +330,7 @@ Module entanglement
           ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
           start_flav=0
           if (Nsites(1,1)==0) start_flav = 1
+          SortedFlavors(1) = 1
           ! might have an update in the future to exchange color and flavor loops--optimization
           DO I=2,N_FL*num_nc
             x = Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))
@@ -341,6 +343,7 @@ Module entanglement
             end do
             SortedFlavors(J+1) = I
           END DO
+
           if(start_flav==N_FL*num_nc) then
             Renyi=0.0d0
             return
@@ -373,9 +376,7 @@ Module entanglement
                 N_sun_tmp(J)=1
                 nf_list(J)=nf
               enddo
-              write (*,*) "calling ent_pair"
               call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
-              write (*,*) "calling ent_pair 2"
               Renyi = Renyi * PRODDET
               
             Enddo
