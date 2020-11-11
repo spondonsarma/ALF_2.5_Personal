@@ -250,6 +250,10 @@ Program Main
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
 #endif
+        !Initialize entanglement pairs of MPI jobs
+        !This routine can and should also be called if MPI is not activated
+        !It will then deactivate the entanglement measurements, i.e., the user does not have to care about this
+        call Init_Entanglement_replicas(Group_Comm)
 
 #ifdef MPI
         If (  Irank == 0 ) then
