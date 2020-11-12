@@ -1,4 +1,4 @@
-!  Copyright (C) 2018 The ALF project
+!  Copyright (C) 2020 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
-Module entanglement
+Module entanglement_mod
 
 !--------------------------------------------------------------------
 !> @author 
@@ -81,10 +81,10 @@ Module entanglement
 
         !   Implicit none
           
-        !   Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+        !   Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
         !   Integer, Dimension(:), INTENT(IN) :: List_c, List_f
         !   Integer, INTENT(IN)               :: Nsites_c ,Nsites_f
-        !   Complex (Kind=8), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+        !   Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
         !   Integer, Dimension(:), Allocatable :: List_cf
         !   Integer          :: I, J, IERR, INFO, Nsites_cf
@@ -115,14 +115,14 @@ Module entanglement
   
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, INTENT(IN)               :: List(:)
           Integer, INTENT(IN)               :: Nsites, N_SUN
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: J, IERR, INFO, N_FL, nf, N_FL_half
           Integer         , Dimension(:,:), Allocatable :: List_tmp
           Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
@@ -143,7 +143,7 @@ Module entanglement
           endif
             
 #ifdef MPI
-          ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
+          ! Check if entanglement replica group is of size 2 such that the second renyi entropy can be calculated
           if(ENT_SIZE==2) then
           
             allocate(List_tmp(NSITES,2))
@@ -171,7 +171,7 @@ Module entanglement
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -194,15 +194,15 @@ Module entanglement
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           !Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN) :: List(:,:)
           Integer, INTENT(IN)               :: Nsites(:), N_SUN(:) ! new
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
           Integer         , Dimension(:,:), Allocatable :: List_tmp
@@ -221,7 +221,7 @@ Module entanglement
           SortedFlavors(1) = 1
           DO I=2,N_FL
             x = Nsites(I)
-            if (Nsites(I)==0) start_flav = start_flav + 1
+            if (x==0) start_flav = start_flav + 1
             J = I-1
             DO while(J >= 1)
               if(Nsites(J) <= x) exit
@@ -273,7 +273,7 @@ Module entanglement
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -295,14 +295,14 @@ Module entanglement
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:,:), INTENT(IN) :: List
           Integer, INTENT(IN)               :: Nsites(:,:)
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer          :: nc, num_nc
           Integer         , Dimension(:), Allocatable :: SortedFlavors,N_SUN_fl,df_list
@@ -334,7 +334,7 @@ Module entanglement
           ! might have an update in the future to exchange color and flavor loops--optimization
           DO I=2,N_FL*num_nc
             x = Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))
-            if (Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))==0) start_flav = start_flav + 1 ! there was a bug here
+            if (x==0) start_flav = start_flav + 1
             J = I-1
             DO while(J >= 1)
               if(Nsites(eff_ind_inv(1,J),eff_ind_inv(2,J)) <= x) exit
@@ -392,7 +392,7 @@ Module entanglement
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
               
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -415,14 +415,14 @@ Module entanglement
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites(2), N_SUN(2),nf_list(2) ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
@@ -495,14 +495,14 @@ Module entanglement
           
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites, N_SUN,nf_eff ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
@@ -565,5 +565,5 @@ Module entanglement
         end subroutine Calc_Renyi_Ent_single
 #endif
         
-      end Module entanglement
+      end Module entanglement_mod
       
