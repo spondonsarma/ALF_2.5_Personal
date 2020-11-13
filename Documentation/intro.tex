@@ -46,7 +46,7 @@ In this documentation we summarize the essential aspects of the auxiliary-field 
 %------------------------------------------------------------
 
 The first and most fundamental part of the project  is to define a general Hamiltonian which  can  accommodate a large class of models. 
-Our approach is to express the model as a sum of one-body terms, a sum of two-body terms each written as a perfect square of a one body term, as well as a one-body term coupled to an Ising field with  dynamics to be specified by the user. 
+Our approach is to express the model as a sum of one-body terms, a sum of two-body terms each written as a perfect square of a one body term, as well as a one-body term coupled to a bosonic field with  dynamics to be specified by the user. 
 Writing the interaction in terms of sums of perfect squares allows us to use generic forms of  discrete  approximations to the  HS  transformation \cite{Motome97,Assaad97}.
 Symmetry considerations  are  imperative to increase the speed of the code.  
 We therefore include a \emph{color} index  reflecting  an underlying  $SU(N)$ color symmetry as  well as a \emph{flavor} index  reflecting  the fact that  after  the HS  transformation,  the  fermionic determinant is block diagonal in this index.
@@ -110,7 +110,7 @@ The indices and symbols used above have the following meaning:
 \end{itemize}
 The bosonic  part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\mathcal{H}}_{0,I}+ \hat{\mathcal{H}}_{I}$ and  has the following properties:
 \begin{itemize}
-\item $\hat{Z}_k$ couples to a general one-body term. It is a general operator, such as the Ising spin operator corresponding to the Pauli matrix $\hat{\sigma}_{z}$ or the position operator.  Generically,  we will work in a basis where this operator is diagonal:  $\hat{Z}_k | \phi \rangle  =  \phi_k | \phi \rangle $. $\phi_k$ is a real   or Ising variable. 
+\item $\hat{Z}_k$ couples to a general one-body term. It is a general operator, such as the Ising spin operator (which gives the term its index $I$) corresponding to the Pauli matrix $\hat{\sigma}_{z}$ or the position operator.  Generically,  we will work in a basis where this operator is diagonal:  $\hat{Z}_k | \phi \rangle  =  \phi_k | \phi \rangle $. $\phi_k$ is a real   or Ising variable. 
 \item  The dynamics of the bosonic field  is given by $\hat{\mathcal{H}}_{0,I}$. This term is not specified here; 
 it has to be specified by the user and becomes relevant when the Monte Carlo update probability is computed in the code
 \end{itemize}
@@ -127,8 +127,8 @@ In order to use the program, a minimal understanding of the algorithm is necessa
 Its code is written in Fortran, according to the 2003 standard, and natively uses MPI, for parallel runs on supercomputing systems.
 In this documentation we aim to present in enough detail both the algorithm and its implementation to allow the user to confidently use and modify the program.
 
-In Sec.~\ref{sec:def}, we summarize the steps required to formulate the many-body, imaginary-time propagation in terms of a sum over HS and Ising fields of one-body, imaginary-time propagators.   
-To simulate a model not already included in ALF, the user has to provide this one-body, imaginary-time propagator for a given configuration of HS and  Ising fields.  In this section we also  touch on how to compute observables and on  how we deal with the negative sign problem.  The ALF-2.0  has a number  of new updating schemes.   The package comes with  the possibility to  implement global updates in space and time or only in space. We provide parallel-tempering  and Langevin dynamics options.   Another important addition in ALF 2.0  is the possibility to implement symmetric Trotter decompositions.    At the end of the section   we  comment  on the issue of stabilization for the finite temperature code. 
+In Sec.~\ref{sec:def}, we summarize the steps required to formulate the many-body, imaginary-time propagation in terms of a sum over HS and bosonic fields of one-body, imaginary-time propagators.   
+To simulate a model not already included in ALF, the user has to provide this one-body, imaginary-time propagator for a given configuration of HS and bosonic fields.  In this section we also  touch on how to compute observables and on  how we deal with the negative sign problem.  The ALF-2.0  has a number  of new updating schemes.   The package comes with  the possibility to  implement global updates in space and time or only in space. We provide parallel-tempering  and Langevin dynamics options.   Another important addition in ALF 2.0  is the possibility to implement symmetric Trotter decompositions.    At the end of the section   we  comment  on the issue of stabilization for the finite temperature code. 
 
 In Sec.~\ref{sec:defT0},    we describe the projective version of the algorithm, constructed to produce ground state properties. This is a new feature of ALF 2.0, and  one can very easily switch between  projective and finite temperature codes. 
 

@@ -18,7 +18,7 @@ The module \texttt{Predefined\_Hopping}   provides a   generic way to   specify 
 %-----------------------------------------------------------------------------------
 \subsubsection{Setting up the hopping matrix: the \texttt{Hopping\_Matrix\_type}}\label{sec:hopping_type}
 
-All information for setting up a generic hopping matrix on a lattice, including the checkerboard decomposition, is specified in the  \path{Hopping_Matrix_type} type, which we describe in the remaining of this section. The information stored in this type fully defines the array of  operator type \path{OP_T} that accounts for the single particle propagation in one time step, from which the kinetic energy can be derived as well.    
+All information for setting up a generic hopping matrix on a lattice, including the checkerboard decomposition, is specified in the  \path{Hopping_Matrix_type} type, which we describe in the remaining of this section. The information stored in this type (see Table~\ref{table:Hopping_matrix}) fully defines the array of  operator type \path{OP_T} that accounts for the single particle propagation in one time step, from which the kinetic energy can be derived as well.    
 
 \paragraph*{Generic hopping matrices}\label{sec:generic_hopping}
 %-----------------------------------------------------------------------------------
@@ -37,12 +37,12 @@ Both the twist and  vector  potential can have a flavor dependency. These and th
 
 \noindent
 \textbf{Phase factors}.  
-The vector potential accounts for an orbital magnetic field that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux quanta and the scalar function $\chi$ is defined through:
+The vector potential accounts for an orbital magnetic field in the $z$ direction that is implemented  in the Landau  gauge:  $\vec{A}(\vec{x})  =  -B(y,0,0) $ with $ \vec{x} = (x,y,z)$. $\Phi_0$ corresponds to the flux quanta and the scalar function $\chi$ is defined through:
 \begin{equation}
 \vec{A}( \vec{x} + \vec{L}_{i} )  = \vec{A}( \vec{x} )   +  \vec{\nabla} \chi_{L_{i}}(\vec{x}). 
 \end{equation}
 
-Provided that the bare hopping Hamiltonian, $T$,  is invariant under lattice translations, $\hat{H}_T$ commutes with magnetic translations that satisfy the algebra:
+Provided that the bare hopping Hamiltonian, $T$ (i.e., without phases, see Eq.~\eqref{eq:hop}), is invariant under lattice translations, $\hat{H}_T$ commutes with magnetic translations that satisfy the algebra:
 \begin{equation}
 \hat{T}_{\vec{a}} \hat{T}_{\vec{b}} =  e^{ \frac{2 \pi i}{\Phi_0}   \vec{B} \cdot \left( \vec{a} \times \vec{b} \right) }  \hat{T}_{\vec{b}} \hat{T}_{\vec{a}}. 
 \end{equation}
@@ -77,11 +77,11 @@ The information for the phases is encoded in the type \texttt{Hopping\_matrix\_t
 
 \noindent
 \textbf{The  Hopping matrix elements}. 
-The hopping matrix  is specified assuming only translation invariance.  (The point group symmetry of the lattice can be broken).
+The hopping matrix  is specified assuming only translation invariance.  (The point group symmetry of the lattice can be broken.)
 That is, we assume that  for  each flavor index:
 \begin{equation} 
 T_{(\ve{i},\ve{\delta}), (\ve{i} +  n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}')}^{(s)}   =   T^{(s)}_{(\ve{0},\ve{\delta}),  (n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}') }.
-\label{Hop.eq}	 
+\label{eq:hop}	 
 \end{equation}
 The right  hand side of the above equation is given  the type  \texttt{Hopping\_matrix\_type}.\\
 
@@ -100,7 +100,7 @@ As an  example we can consider the three-leg ladder lattice of Figure~\ref{fig_p
 \paragraph*{Usage: the \texttt{Hopping\_Matrix\_type} } %\label{Hopping_Matrix_type.sec} 
 
 There are  \path{N_bonds}   hopping   matrix  elements  emanating  from  a  given unit  cell. For  each bond,  the array 
-\texttt{List}   contains the full  information to define the  RHS of Eq.~\eqref{Hop.eq}.    The hopping amplitudes are  stored in the  array  \texttt{T}  and the local potentials in the  array \texttt{T\_loc}   (See  Table~\ref{table:Hopping_matrix}).    The  \texttt{Hopping\_Matrix\_type}   type    also contains the information for the  checkerboard   decomposition.
+\texttt{List}   contains the full  information to define the  RHS of Eq.~\eqref{eq:hop}.    The hopping amplitudes are  stored in the  array  \texttt{T}  and the local potentials in the  array \texttt{T\_loc}   (See  Table~\ref{table:Hopping_matrix}).    The  \texttt{Hopping\_Matrix\_type}   type    also contains the information for the  checkerboard   decomposition.
 
 \begin{table}[h]
 	\begin{center}
@@ -134,7 +134,7 @@ There are  \path{N_bonds}   hopping   matrix  elements  emanating  from  a  give
 The  data in the \texttt{Hopping\_matrix\_type} type suffices to uniquely define the  unit step propagation for the kinetic energy, and for  any combinations of the  \texttt{Checkerboard} and  \texttt{Symm}  options (see Sec.~\ref{sec:trotter}). The propagation is set through the call: 
 \begin{lstlisting}[style=fortran]
 Call Predefined_Hoppings_set_OPT(Hopping_Matrix, List, Invlist, Latt, Latt_unit, Dtau,
-Checkerboard, Symm, OP_T)
+                                 Checkerboard, Symm, OP_T)
 \end{lstlisting}
 in which the operator array \path{OP_T(*,N_FL)} is allocated and defined. In the simplest case, where no checkerboard is used, the array's first dimension is unity.
 
