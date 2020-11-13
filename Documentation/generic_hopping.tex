@@ -67,8 +67,8 @@ Here
 and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  of inserting the twist angle. If \texttt{bulk=.true.} then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
 The above phase factors are computed  in the   module function: 
 \begin{lstlisting}[style=fortran]
-complex function Generic_hopping(i,no_i, n_1, n_2, no_j, N_Phi, Phi_1,Phi_2, Bulk, 
-Latt, Latt_Unit)
+complex function Generic_hopping(i, no_i, n_1, n_2, no_j, N_Phi, Phi_1, Phi_2, Bulk, 
+                                 Latt, Latt_Unit)
 \end{lstlisting}
 which returns the  phase factor involved in the hopping of a hole from lattice site $ \ve{i} + \ve{\delta}_{\text{no}_i} $ to 
 $\ve{i} + n_1 \ve{a}_1 + n_2 \ve{a}_2+ \ve{\delta}_{\text{no}_j}  $.  Here  $\ve{\delta}_{\text{no}_i}$  is  the position of the $\text{no}_i$  orbital in the unit cell
@@ -80,7 +80,7 @@ The information for the phases is encoded in the type \texttt{Hopping\_matrix\_t
 The hopping matrix  is specified assuming only translation invariance.  (The point group symmetry of the lattice can be broken.)
 That is, we assume that  for  each flavor index:
 \begin{equation} 
-T_{(\ve{i},\ve{\delta}), (\ve{i} +  n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}')}^{(s)}   =   T^{(s)}_{(\ve{0},\ve{\delta}),  (n_1\vec{a}_1  + n_2 \vec{a}_2,\ve{\delta}') }.
+T_{(\ve{i},\,\ve{\delta}), (\ve{i} +  n_1\vec{a}_1  + n_2 \vec{a}_2,\,\ve{\delta}')}^{(s)}   =   T^{(s)}_{(\ve{0},\,\ve{\delta}),  (n_1\vec{a}_1  + n_2 \vec{a}_2,\,\ve{\delta}') }.
 \label{eq:hop}	 
 \end{equation}
 The right  hand side of the above equation is given  the type  \texttt{Hopping\_matrix\_type}.\\
@@ -94,7 +94,7 @@ The right  hand side of the above equation is given  the type  \texttt{Hopping\_
 with the rule that  if $k$ and $k'$  belong to the same set $\mathcal{S}^{T}_i $ then   $ \big[ \hat{T}^{(k)} , \hat{T}^{(k')} \big] = 0 $.  In the checkerboard decomposition, $\hat{T}^{(k)}$   corresponds to  hopping on a bond.    The checkerboard decomposition depends on the   lattice type, as well as on the hopping matrix elements.   The required  information is stored in  \texttt{Hopping\_matrix\_type}. In this data type,  \texttt{N\_FAM}  corresponds to the number of sets  (or families) ($N_T$ in the above equation). \texttt{L\_FAM(1:N\_FAM)}   corresponds to the number of bonds in the set,  and finally,  \texttt{LIST\_FAM(1:N\_FAM, 1:max(L\_FAM(:)), 2)}    contains  information concerning the two legs of the bonds.    In the checkerboard decomposition, care has to be taken for local terms: each site  occurs multiple times in the list of bonds.    Since we have postulated translation symmetry,    a one-dimensional array, \texttt{Multiplicity},  of length  given by  the number of orbitals per unit cell suffices to  encode the required information.  
 Finally, to be able to generate  the imaginary time step of length $\Delta \tau$  we  have to know   by which fraction of  $\Delta \tau$   we have to propagate each set.  This information is given in  the array  \texttt{Prop\_Fam}.  
 
-As an  example we can consider the three-leg ladder lattice of Figure~\ref{fig_predefined_lattices}(c).   Here the number of sets (or families) \texttt{N\_FAM}  is equal to four  corresponding to the red, green, black and blue  bonds.  As apparent,  bonds in a given set do not have common legs such that hopping instances on the bonds of a given set commute.     For this three leg ladder  it is apparent that the  second orbital in a unit cell appears  in each set or family. It hence has a multiplicity of four. On the other hand, the top and bottom orbitals have a multiplicity of 3 since they appear in only three of the four sets. 
+As an  example we can consider the three-leg ladder lattice of Figure~\ref{fig_predefined_lattices}(c).   Here the number of sets (or families) \texttt{N\_FAM} is equal to four, corresponding to the red, green, black and blue  bonds. It is clear from the figure that bonds in a given set do not have common legs, so that hopping instances on the bonds of a given set commute.  For this three-leg ladder, we see that the middle orbital in a unit cell appears in each set or family. It hence has a multiplicity of four. On the other hand, the top and bottom orbitals have a multiplicity of 3 since they appear in only three of the four sets. 
 
 
 \paragraph*{Usage: the \texttt{Hopping\_Matrix\_type} } %\label{Hopping_Matrix_type.sec} 
@@ -153,7 +153,7 @@ The   data in  the \texttt{Hopping\_matrix\_type} type   equally  suffices to co
 
 For the honeycomb lattice of  Fig.~\ref{fig_predefined_lattices}(d)   the number of  bond within and emanating from  a unit cell is \texttt{N\_bonds = 3}.     The list array of the \texttt{Hopping\_matrix\_type} reads:
 
-\begin{lstlisting}[style=fortran]
+\begin{lstlisting}[style=fortran,escapechar=\#]
 list(1,1) = 1;  list(1,2) = 2;  list(1,3) = 0;   list(1,4) =  0 ! Intra unit-cell hopping
 list(2,1) = 2;  list(2,2) = 1;  list(2,3) = 0:   list(2,4) =  1 ! Inter unit-cell hopping
 list(3,1) = 1;  list(3,2) = 2;  list(3,3) = 1:   list(3,4) = -1 ! Inter unit-cell hopping
@@ -175,7 +175,7 @@ Enddo
 enddo
 Multiplicity  = 3
 \end{lstlisting}        
-Since each site of the honeycomb lattice occurs in  the three sets,  the multiplicity is equal to 3.  
+Since each site of the honeycomb lattice occurs in  the three sets, their multiplicity is equal to 3.  
 
 
 %-----------------------------------------------------------------------------------
