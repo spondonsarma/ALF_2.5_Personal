@@ -64,16 +64,16 @@ Here
 \begin{equation}
 \vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
 \end{equation}
-and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  of inserting the twist angle. If \texttt{bulk=\.true\.}    then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
+and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  of inserting the twist angle. If \texttt{bulk=.true.} then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
 The above phase factors are computed  in the   module function: 
 \begin{lstlisting}[style=fortran]
 complex function Generic_hopping(i,no_i, n_1, n_2, no_j, N_Phi, Phi_1,Phi_2, Bulk, 
 Latt, Latt_Unit)
 \end{lstlisting}
-that  returns the  phase factor involved in the hopping of a hole from lattice site $ \ve{i} + \ve{\delta}_{\text{no}_i} $ to 
-$\ve{i} + n_1 \ve{a}_1 + n_1 \ve{a}_2+ \ve{\delta}_{\text{no}_j}  $.  Here  $\ve{\delta}_{\text{no}_i}$  is  the position of the $\text{no}_i$  orbital in the unit cell
+which returns the  phase factor involved in the hopping of a hole from lattice site $ \ve{i} + \ve{\delta}_{\text{no}_i} $ to 
+$\ve{i} + n_1 \ve{a}_1 + n_2 \ve{a}_2+ \ve{\delta}_{\text{no}_j}  $.  Here  $\ve{\delta}_{\text{no}_i}$  is  the position of the $\text{no}_i$  orbital in the unit cell
 $\ve{i}$. 
-As  we will see below, the information for the phases is encoded in  the type \texttt{Hopping\_matrix\_type}.\\
+The information for the phases is encoded in the type \texttt{Hopping\_matrix\_type}.\\
 
 \noindent
 \textbf{The  Hopping matrix elements}. 
