@@ -1,4 +1,4 @@
-!  Copyright (C) 2018 The ALF project
+!  Copyright (C) 2020 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
-     Module entanglement
+Module entanglement_mod
 
 !--------------------------------------------------------------------
 !> @author 
@@ -42,10 +42,11 @@
       ! Used for MPI
       private
       INTEGER, save :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      Real (kind=kind(0.d0)), save :: weight
       public::
 
       INTERFACE Calc_Renyi_Ent
-        MODULE PROCEDURE Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, Calc_Renyi_Ent_gen_all
+        MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
       END INTERFACE
       Contains
 !========================================================================
@@ -68,6 +69,7 @@
           Norm=ISIZE/2 ! number of pairs
           norm=2*norm ! but each task of pair contributes
           group=Group_Comm
+          weight=dble(ISIZE)/dble(Norm)
 #endif
           
         end Subroutine Init_Entanglement_replicas
@@ -81,10 +83,10 @@
 
         !   Implicit none
           
-        !   Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+        !   Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
         !   Integer, Dimension(:), INTENT(IN) :: List_c, List_f
         !   Integer, INTENT(IN)               :: Nsites_c ,Nsites_f
-        !   Complex (Kind=8), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+        !   Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
         !   Integer, Dimension(:), Allocatable :: List_cf
         !   Integer          :: I, J, IERR, INFO, Nsites_cf
@@ -115,14 +117,14 @@
   
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, INTENT(IN)               :: List(:)
           Integer, INTENT(IN)               :: Nsites, N_SUN
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: J, IERR, INFO, N_FL, nf, N_FL_half
           Integer         , Dimension(:,:), Allocatable :: List_tmp
           Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
@@ -143,7 +145,7 @@
           endif
             
 #ifdef MPI
-          ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
+          ! Check if entanglement replica group is of size 2 such that the second renyi entropy can be calculated
           if(ENT_SIZE==2) then
           
             allocate(List_tmp(NSITES,2))
@@ -171,7 +173,7 @@
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -179,8 +181,7 @@
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
@@ -195,14 +196,15 @@
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
-          Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          !Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          Integer, INTENT(IN) :: List(:,:)
           Integer, INTENT(IN)               :: Nsites(:), N_SUN(:) ! new
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
           Integer         , Dimension(:,:), Allocatable :: List_tmp
@@ -218,9 +220,10 @@
           ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
           start_flav=0
           if (Nsites(1)==0) start_flav = 1
+          SortedFlavors(1) = 1
           DO I=2,N_FL
             x = Nsites(I)
-            if (Nsites(I)==0) start_flav = start_flav + 1
+            if (x==0) start_flav = start_flav + 1
             J = I-1
             DO while(J >= 1)
               if(Nsites(J) <= x) exit
@@ -272,7 +275,7 @@
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -280,8 +283,7 @@
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
@@ -295,14 +297,14 @@
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:,:), INTENT(IN) :: List
           Integer, INTENT(IN)               :: Nsites(:,:)
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer          :: nc, num_nc
           Integer         , Dimension(:), Allocatable :: SortedFlavors,N_SUN_fl,df_list
@@ -330,10 +332,11 @@
           ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
           start_flav=0
           if (Nsites(1,1)==0) start_flav = 1
+          SortedFlavors(1) = 1
           ! might have an update in the future to exchange color and flavor loops--optimization
           DO I=2,N_FL*num_nc
             x = Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))
-            if (Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))==0) start_flav = start_flav + 1 ! there was a bug here
+            if (x==0) start_flav = start_flav + 1
             J = I-1
             DO while(J >= 1)
               if(Nsites(eff_ind_inv(1,J),eff_ind_inv(2,J)) <= x) exit
@@ -342,6 +345,7 @@
             end do
             SortedFlavors(J+1) = I
           END DO
+
           if(start_flav==N_FL*num_nc) then
             Renyi=0.0d0
             return
@@ -390,7 +394,7 @@
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
               
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
@@ -398,8 +402,8 @@
           endif
             
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Renyi=Renyi*weight
+
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
@@ -413,14 +417,14 @@
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites(2), N_SUN(2),nf_list(2) ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
@@ -493,14 +497,14 @@
           
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites, N_SUN,nf_eff ! new
-          Complex (Kind=8), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
@@ -563,4 +567,5 @@
         end subroutine Calc_Renyi_Ent_single
 #endif
         
-      end Module entanglement
+      end Module entanglement_mod
+      
