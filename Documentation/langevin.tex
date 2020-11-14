@@ -12,34 +12,34 @@
 
 For models that include continuous real fields $\vec{s} \equiv \left\{s_{k,\tau} \right\}$ there is the option of using Langevin dynamics for the updating scheme, by setting  the variable \texttt{Langevin} to \texttt{.true.}. This corresponds to a  stochastic differential equation for the fields. They acquire a discrete Langevin time $\tl$ with step width $\delta \tl$ and satisfy the stochastic differential equation
 \begin{equation}\label{eqn:langevin}
-   \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \frac{\partial S( \ve{s}(\tl)) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl } \ve{\eta}(\tl).
+   \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - Q \frac{\partial S( \ve{s}(\tl)) }{\partial    \ve{s}(\tl) }    \delta \tl     +\sqrt{2 \delta \tl Q} \ve{\eta}(\tl).
 \end{equation}
-Here,  $  \ve{\eta}(\tl)  $   are  independent Gaussian  stochastic variables  satisfying:
+Here, $  \ve{\eta}(\tl)  $   are  independent Gaussian  stochastic variables  satisfying:
 \begin{equation}
         \langle  \eta_{k,\tau}(\tl) \rangle_{\eta}  = 0   \quad\text{and}\quad    \langle  \eta_{k,\tau}(\tl)  \eta_{k',\tau'}(\tl') \rangle_{\eta}  = \delta_{k,k'} \delta_{\tau,\tau'} \delta_{\tl,\tl'}.
 \end{equation}
-and we consider an arbitrary real action  $S( \ve{s}(\tl))$. 
+and we consider an arbitrary real action  $S( \ve{s}(\tl))$. $Q$ is an arbitrary positive definite matrix. By default it is equal to the identity matrix, but with a proper choice it can help accelerating the update scheme. We further discuss this below. 
 We refer the reader to  Ref.~\cite{Gardiner}   for a more in depth introduction to stochastic differential equations.
 To see that the above  indeed produces the desired probability distribution in the long Langevin time limit, we can transform the Langevin equation into the corresponding Fokker-Plank one.  Let
 $P(\ve{s}, \tl) $ be the distribution of fields at Langevin time $\tl$. Then,
 \begin{equation}
-        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \left\langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - \frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl } \vec{\eta}(\tl)  \right]    \right) \right\rangle_{\eta},
+        P(\ve{s}, \tl  + \delta \tl )    = \int D\ve{s}'  P  (\ve{s}', \tl  )    \left\langle    \delta \left(  \ve{s} - \left[ \ve{s}'   - Q\frac{\partial S(\ve{s}' )}{\partial    \ve{s}' }   \delta \tl     +\sqrt{2 \delta \tl Q} \vec{\eta}(\tl)  \right]    \right) \right\rangle_{\eta},
 \end{equation}
 where $\delta$ corresponds to the $L_\mathrm{trotter} M_I $  dimensional Dirac $\delta$-function.   Taylor expanding  up to order $\delta \tl$  and averaging over the stochastic variable yields:
 \begin{multline}
 P(\ve{s}, \tl  + \delta \tl ) = \int D\ve{s'}  P  (\ve{s}', \tl  )   \times \left(   \delta \left(  \ve{s}' - \ve{s}   \right)
-- \frac{\partial S(\ve{s'}) }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s'} } \delta \left(  \ve{s}' - \ve{s} \right)  \delta \tl   +   \right.  \\
-   \left. \frac{\partial  }{\partial    \ve{s'} }   \frac{\partial  }{\partial    \ve{s}' }  \delta \left(  \ve{s}' - \ve{s}\right)    \delta \tl
+-   \frac{\partial  }{\partial    \ve{s'} } \delta \left(  \ve{s}' - \ve{s} \right) Q \frac{\partial S(\ve{s'}) }{\partial    \ve{s'} }  \delta \tl   +   \right.  \\
+   \left. \frac{\partial  }{\partial    \ve{s'} } Q  \frac{\partial  }{\partial    \ve{s}' }  \delta \left(  \ve{s}' - \ve{s}\right)    \delta \tl
 \right)  + {\cal O}  \left(  \delta \tl^2 \right).
 \end{multline}
 Partial integration  and taking the limit of infinitesimal time steps   gives the Fokker-Plank equation
 \begin{equation}
-         \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl)  =  \frac{\partial  }{\partial    \ve{s} }  \left( P( \ve{s}, \tl)  \frac{\partial S(\ve{s}) }{\partial     \ve{s} }   +
-          \frac{\partial P(\ve{s},\tl) }{\partial     \ve{s} }
+         \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl)  =  \frac{\partial  }{\partial    \ve{s} }  \left( P( \ve{s}, \tl)  Q\frac{\partial S(\ve{s}) }{\partial     \ve{s} }   +
+        Q  \frac{\partial P(\ve{s},\tl) }{\partial     \ve{s} }
          \right) .
 \end{equation}
 The stationary,  $ \frac{\partial  }{\partial   \tl}  P( \ve{s}, \tl) =0$,  normalizable,  solution to the above equation corresponds to the desired probability distribution:
-\begin{equation}
+\begin{equation}\label{eqn:langevin_solution}
           P(\ve{s}) =  \frac{ e^{ - S(\ve{s}) } }   {   \int D \ve{s}  e^{ - S(\ve{s}) } }.
 \end{equation}
 Taking into account a potential negative sign problem, the action   for our general model reads:
@@ -85,6 +85,12 @@ With the adaptive time  step,  averages are computed as:
    \langle \hat{O} \rangle = \frac{ \sum_n (  \tilde{\delta \tl}  )_n  \text{ sign }(C_n)   \frac{e^{-S(C_n)}}{\Re \left[e^{-S(C_n)} \right]}   \langle \langle \hat{O} \rangle   \rangle_{(C_n)} } {\sum_n (  \tilde{\delta \tl}  )_n   \text{ sign }(C_n)  }. 
 \end{equation}
 where  $\text{ sign }(C_n)$   is defined in Eq.~\ref{Sign.eq}.    In this context the adaptive time step corresponds to the variable \texttt{Mc\_step\_weight}  required for the measurement routines (see Sec.~\ref{sec:obs}).  {\color{red}{FFA. We will have to update this section}}
+
+A possible way to reduce autocorrelation times is to employ Fourier acceleration \cite{Batrouni85,Batrouni19}. As we have seen from Eq.~\ref{eqn:langevin_solution} the choice of the matrix $Q$ does not alter the probability distribution, that we obtain from the Langevin equation. The main idea of Fourier acceleration is to scale the Langevin time step $\delta t_l$ depending on the momentum of the fields $\vec{s}$ with the aid of $Q$. The field components with low momenta are multiplied with a larger step size compared to the ones with high momenta \cite{Davies86}. The modified Langevin equation reads:
+\begin{equation}
+   \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \hat{F}^{-1} \left[ Q \hat{F}\left[\frac{\partial S( \ve{s}(\tl)) }{\partial    \ve{s}(\tl) } \right]   \delta \tl     +\sqrt{2 \delta \tl Q} \hat{F}\left[\ve{\eta}(\tl)\right] \right]
+\end{equation}
+with $\hat{F}$ being a Fourier transformation to momentum space. Currently implementation of Fourier acceleration is not included and has to be done by the user.
 
 In order to use Langevin dynamics the user also has to provide the Langevin time step \texttt{Delta\_t\_Langevin\_HMC},  the maximal force \texttt{Max\_Force},  set  \texttt{Global\_update\_scheme=Langevin} in the \texttt{parameter} file.  Furthermore the   forces   $ \frac{ \partial S_{0}(C)}{\partial s_{k,\tau}}  $  are to be specified in the routine \text{Ham\_Langevin\_HMC\_S0}  of the Hamiltonian files.  The Langevin update   for a general Hamiltonian  is carried out in the module  \texttt{Langevin\_HMC\_mod.F90}.   In particular the  fermion forces, 
 \begin{equation}
