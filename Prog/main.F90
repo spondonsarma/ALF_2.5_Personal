@@ -124,6 +124,7 @@ Program Main
         Use UDV_State_mod
         Use Wrapgr_mod
         Use Fields_mod
+        use entanglement_mod
         use iso_fortran_env, only: output_unit, error_unit
 #ifdef MPI
         Use mpi

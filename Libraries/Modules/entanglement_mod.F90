@@ -159,13 +159,13 @@ Module entanglement_mod
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
         ! ! (n, n+1), with n=0,2,...
-        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
+        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
 
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
           Integer, Dimension(:,:,:), INTENT(IN)      :: List_c, List_f
-          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_c ,Nsites_f, N_SUN
+          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_c ,Nsites_f
           Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
           Integer, Allocatable :: List_cf(:,:,:), Nsites_cf(:,:)
