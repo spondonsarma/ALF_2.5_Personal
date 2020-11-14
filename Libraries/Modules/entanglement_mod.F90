@@ -40,13 +40,14 @@ Module entanglement_mod
 !
 !--------------------------------------------------------------------
       ! Used for MPI
-      private
-      INTEGER, save :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
-      Real (kind=kind(0.d0)), save :: weight
-      public::
+      INTEGER, save, private :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      Real (kind=kind(0.d0)), save, private :: weight
 
       INTERFACE Calc_Renyi_Ent
         MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
+      END INTERFACE
+      INTERFACE Calc_Mutual_Inf
+        MODULE PROCEDURE Calc_Mutual_Inf_indep, Calc_Mutual_Inf_gen_fl, Calc_Mutual_Inf_gen_all
       END INTERFACE
       Contains
 !========================================================================
@@ -79,38 +80,129 @@ Module entanglement_mod
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
         ! ! (n, n+1), with n=0,2,...
-        ! Subroutine Calc_Mutual_Inf(GRC,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
+        Subroutine Calc_Mutual_Inf_indep(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
 
-        !   Implicit none
+          Implicit none
           
-        !   Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
-        !   Integer, Dimension(:), INTENT(IN) :: List_c, List_f
-        !   Integer, INTENT(IN)               :: Nsites_c ,Nsites_f
-        !   Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          Integer, Dimension(:), INTENT(IN) :: List_c, List_f
+          Integer, INTENT(IN)               :: Nsites_c ,Nsites_f, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
-        !   Integer, Dimension(:), Allocatable :: List_cf
-        !   Integer          :: I, J, IERR, INFO, Nsites_cf
+          Integer, Dimension(:), Allocatable :: List_cf
+          Integer          :: I, J, IERR, INFO, Nsites_cf
 
-        !   Nsites_cf=Nsites_c+Nsites_f
+          Nsites_cf=Nsites_c+Nsites_f
           
-        !   allocate(List_cf(Nsites_cf))
+          allocate(List_cf(Nsites_cf))
           
-        !   DO I = 1, Nsites_c
-        !      List_cf(I) = List_c(I)
-        !   END DO
-        !   DO I = 1, Nsites_f
-        !      List_cf(I+Nsites_c) = List_f(I)
-        !   END DO
+          DO I = 1, Nsites_c
+             List_cf(I) = List_c(I)
+          END DO
+          DO I = 1, Nsites_f
+             List_cf(I+Nsites_c) = List_f(I)
+          END DO
           
-        !   Call Calc_Renyi_Ent(GRC,List_c,Nsites_c,Renyi_c)
-        !   Call Calc_Renyi_Ent(GRC,List_f,Nsites_f,Renyi_f)
-        !   Call Calc_Renyi_Ent(GRC,List_cf,Nsites_cf,Renyi_cf)
+          Renyi_c  = Calc_Renyi_Ent_indep(GRC,List_c,Nsites_c,N_SUN)
+          Renyi_f  = Calc_Renyi_Ent_indep(GRC,List_f,Nsites_f,N_SUN)
+          Renyi_cf = Calc_Renyi_Ent_indep(GRC,List_cf,Nsites_cf,N_SUN)
           
-        !   deallocate(List_cf)
+          deallocate(List_cf)
           
-        ! End Subroutine Calc_Mutual_Inf
+        End Subroutine Calc_Mutual_Inf_indep
+          
+!========================================================================
+        ! Calculation of the Renyi entanglement entropy
+        ! The algorithm works only for an MPI program
+        ! We partition the nodes into groups of 2 replicas:
+        ! ! (n, n+1), with n=0,2,...
+        Subroutine Calc_Mutual_Inf_gen_fl(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
 
-          Subroutine Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN,Renyi)
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
+          Integer, Dimension(:,:), INTENT(IN)      :: List_c, List_f
+          Integer, Dimension(:), INTENT(IN)        :: Nsites_c ,Nsites_f, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+
+          Integer, Allocatable :: List_cf(:,:), Nsites_cf(:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max
+
+          N_FL=size(GRC,3)
+          Nsites_cf_max=0
+          do I=1,N_FL
+            Nsites_cf(I)=Nsites_c(I)+Nsites_f(I)
+            if (Nsites_cf(I)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I)
+          enddo
+          
+          allocate(List_cf(Nsites_cf_max,N_FL))
+          
+          do J=1,N_FL
+            DO I = 1, Nsites_c(J)
+              List_cf(I,J) = List_c(I,J)
+            END DO
+            DO I = 1, Nsites_f(J)
+              List_cf(I+Nsites_c(J),J) = List_f(I,J)
+            END DO
+          enddo
+          
+          Renyi_c  = Calc_Renyi_Ent_gen_fl(GRC,List_c,Nsites_c,N_SUN)
+          Renyi_f  = Calc_Renyi_Ent_gen_fl(GRC,List_f,Nsites_f,N_SUN)
+          Renyi_cf = Calc_Renyi_Ent_gen_fl(GRC,List_cf,Nsites_cf,N_SUN)
+          
+          deallocate(List_cf)
+          
+        End Subroutine Calc_Mutual_Inf_gen_fl
+          
+!========================================================================
+        ! Calculation of the Renyi entanglement entropy
+        ! The algorithm works only for an MPI program
+        ! We partition the nodes into groups of 2 replicas:
+        ! ! (n, n+1), with n=0,2,...
+        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
+
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
+          Integer, Dimension(:,:,:), INTENT(IN)      :: List_c, List_f
+          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_c ,Nsites_f, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+
+          Integer, Allocatable :: List_cf(:,:,:), Nsites_cf(:,:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max, nc, num_nc
+
+          N_FL=size(GRC,3)
+          num_nc=size(List_f,3)
+          Nsites_cf_max=0
+          do nc=1,num_nc
+            do I=1,N_FL
+              Nsites_cf(I,nc)=Nsites_c(I,nc)+Nsites_f(I,nc)
+              if (Nsites_cf(I,nc)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I,nc)
+            enddo
+          enddo
+          
+          allocate(List_cf(Nsites_cf_max,N_FL,num_nc))
+          
+          do nc=1, num_nc
+            do J=1,N_FL
+              DO I = 1, Nsites_c(J,nc)
+                List_cf(I,J,nc) = List_c(I,J,nc)
+              END DO
+              DO I = 1, Nsites_f(J,nc)
+                List_cf(I+Nsites_c(J,nc),J,nc) = List_f(I,J,nc)
+              END DO
+            enddo
+          enddo
+          
+          Renyi_c  = Calc_Renyi_Ent_gen_all(GRC,List_c,Nsites_c)
+          Renyi_f  = Calc_Renyi_Ent_gen_all(GRC,List_f,Nsites_f)
+          Renyi_cf = Calc_Renyi_Ent_gen_all(GRC,List_cf,Nsites_cf)
+          
+          deallocate(List_cf)
+          
+        End Subroutine Calc_Mutual_Inf_gen_all
+
+          Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN)
 #ifdef MPI
           Use mpi
 #endif
@@ -120,7 +212,6 @@ Module entanglement_mod
           Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, INTENT(IN)               :: List(:)
           Integer, INTENT(IN)               :: Nsites, N_SUN
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
@@ -135,12 +226,12 @@ Module entanglement_mod
           N_FL = size(GRC,3)
           N_FL_half = N_FL/2
             
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          Calc_Renyi_Ent_indep=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
 
           if (Nsites==0) then
-            Renyi=0.d0
+            Calc_Renyi_Ent_indep=0.d0
             return
           endif
             
@@ -162,14 +253,14 @@ Module entanglement_mod
               DO J = 1, 2
                 nf_list(J) = 2*nf-2+J
               enddo
-              call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              PRODET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
               
             Enddo
               
             if (N_FL/=2*N_FL_half) then
-              call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
             
             endif
             
@@ -177,19 +268,19 @@ Module entanglement_mod
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
-            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+            Calc_Renyi_Ent_indep=CMPLX(0.d0,0.d0,kind(0.d0))
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          Renyi=Renyi*weight
+          Calc_Renyi_Ent_indep=Calc_Renyi_Ent_indep*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
               
-          End Subroutine Calc_Renyi_Ent_indep
+          End function Calc_Renyi_Ent_indep
         
         
-        Subroutine Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN,Renyi)
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN)
 #ifdef MPI
           Use mpi
 #endif
@@ -200,7 +291,6 @@ Module entanglement_mod
           !Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN) :: List(:,:)
           Integer, INTENT(IN)               :: Nsites(:), N_SUN(:) ! new
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
@@ -233,12 +323,12 @@ Module entanglement_mod
             SortedFlavors(J+1) = I
           END DO
           if(start_flav==N_FL) then
-            Renyi=0.0d0
+            Calc_Renyi_Ent_gen_fl=0.0d0
             return
           endif
           N_FL_half = (N_FL-start_flav)/2
           
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          Calc_Renyi_Ent_gen_fl=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
@@ -260,8 +350,8 @@ Module entanglement_mod
                 N_sun_tmp(J)=N_SUN(nf_eff)
                 nf_list(J)=nf_eff
               enddo
-              call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
               
             Enddo
               
@@ -270,8 +360,8 @@ Module entanglement_mod
               nf_eff = SortedFlavors(N_fl)
               List_tmp(:,1)=List(:,nf_eff)
             
-              call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
             
             endif
             
@@ -279,18 +369,18 @@ Module entanglement_mod
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
-            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+            Calc_Renyi_Ent_gen_fl=CMPLX(0.d0,0.d0,kind(0.d0))
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          Renyi=Renyi*weight
+          Calc_Renyi_Ent_gen_fl=Calc_Renyi_Ent_gen_fl*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
             
-        End Subroutine Calc_Renyi_Ent_gen_fl
+        End function Calc_Renyi_Ent_gen_fl
 
-        Subroutine Calc_Renyi_Ent_gen_all(GRC,List,Nsites,Renyi)
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_all(GRC,List,Nsites)
 #ifdef MPI
           Use mpi
 #endif
@@ -300,7 +390,6 @@ Module entanglement_mod
           Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:,:,:), INTENT(IN) :: List
           Integer, INTENT(IN)               :: Nsites(:,:)
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
           ! Integer, Dimension(:), Allocatable :: PIVOT
@@ -347,13 +436,13 @@ Module entanglement_mod
           END DO
 
           if(start_flav==N_FL*num_nc) then
-            Renyi=0.0d0
+            Calc_Renyi_Ent_gen_all=0.0d0
             return
           endif
 
           N_FL_half = (N_FL*num_nc-start_flav)/2
           
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          Calc_Renyi_Ent_gen_all=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
             
@@ -378,8 +467,8 @@ Module entanglement_mod
                 N_sun_tmp(J)=1
                 nf_list(J)=nf
               enddo
-              call Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
               
             Enddo
               
@@ -389,8 +478,8 @@ Module entanglement_mod
               nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
               List_tmp(:,1)=List(:,nf,nc)
             
-              call Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,PRODDET,GreenA, GreenA_tmp, IDA)
-              Renyi = Renyi * PRODDET
+              proddet = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
             
             endif
             
@@ -398,21 +487,21 @@ Module entanglement_mod
               
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
-            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+            Calc_Renyi_Ent_gen_all=CMPLX(0.d0,0.d0,kind(0.d0))
           endif
             
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          Renyi=Renyi*weight
+          Calc_Renyi_Ent_gen_all=Calc_Renyi_Ent_gen_all*weight
 
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
 
             
-        End Subroutine Calc_Renyi_Ent_gen_all
+        End function Calc_Renyi_Ent_gen_all
         
 #ifdef MPI
-        subroutine Calc_Renyi_Ent_pair(GRC,List,Nsites,nf_list,N_SUN,Renyi,GreenA, GreenA_tmp, IDA)
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_pair(GRC,List,Nsites,nf_list,N_SUN,GreenA, GreenA_tmp, IDA)
           Use mpi
 
           Implicit none
@@ -421,7 +510,6 @@ Module entanglement_mod
           Integer, Dimension(:,:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites(2), N_SUN(2),nf_list(2) ! new
           Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
           Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
@@ -429,7 +517,7 @@ Module entanglement_mod
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
 
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          Calc_Renyi_Ent_pair=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
@@ -489,10 +577,10 @@ Module entanglement_mod
           CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
           ! Now each thread contains in PRODDET the full determinant, as obtained by
           ! a pair of replicas.
-          Renyi = Renyi * PRODDET
-        end subroutine Calc_Renyi_Ent_pair
+          Calc_Renyi_Ent_pair = Calc_Renyi_Ent_pair * PRODDET
+        end function Calc_Renyi_Ent_pair
 
-        subroutine Calc_Renyi_Ent_single(GRC,List,Nsites,nf_eff,N_SUN,Renyi,GreenA, GreenA_tmp, IDA)
+        Complex (Kind=8) function Calc_Renyi_Ent_single(GRC,List,Nsites,nf_eff,N_SUN,GreenA, GreenA_tmp, IDA)
           Use mpi
           
           Implicit none
@@ -501,14 +589,13 @@ Module entanglement_mod
           Integer, Dimension(:), INTENT(IN) :: List ! new
           Integer, INTENT(IN)               :: Nsites, N_SUN,nf_eff ! new
           Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi
 
           Integer, Dimension(:), Allocatable :: PIVOT
           Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
           Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+          Calc_Renyi_Ent_single=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
@@ -563,8 +650,8 @@ Module entanglement_mod
           CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
           ! Now each thread contains in PRODDET the full determinant, as obtained by
           ! a pair of replicas.
-          Renyi = Renyi * PRODDET
-        end subroutine Calc_Renyi_Ent_single
+          Calc_Renyi_Ent_single = Calc_Renyi_Ent_single * PRODDET
+        end function Calc_Renyi_Ent_single
 #endif
         
       end Module entanglement_mod
