@@ -83,7 +83,7 @@
 !> 
 !--------------------------------------------------------------------
         
-      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+      SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN,Calc_Obser_eq)
         Implicit none
         
         Interface
@@ -120,6 +120,7 @@
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
         Integer, intent(in) :: LOBS_ST, LOBS_EN
+        Logical, intent(in) :: Calc_Obser_eq 
         
 
         !Local
@@ -166,7 +167,7 @@
               NST = NST + 1
            ENDIF
            
-           IF (NTAU1 .GE. LOBS_ST .AND. NTAU1 .LE. LOBS_EN ) THEN
+           IF (NTAU1 .GE. LOBS_ST .AND. NTAU1 .LE. LOBS_EN .and. Calc_Obser_eq ) THEN
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
                  CALL Obser( GR_Tilde, PHASE, Ntau1,Langevin_HMC%Delta_t_running )
@@ -343,7 +344,7 @@
 !> 
 !--------------------------------------------------------------------
 
-      SUBROUTINE  Langevin_HMC_update(this,Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN)
+      SUBROUTINE  Langevin_HMC_update(this,Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN, LTAU)
         
         Implicit none
         
@@ -354,19 +355,20 @@
         Complex (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:)   :: Test
         COMPLEX (Kind=Kind(0.d0)), intent(inout), allocatable, dimension(:,:,:) :: GR, GR_Tilde
         Integer, intent(in),  dimension(:), allocatable :: Stab_nt
-        Integer, intent(in) :: LOBS_ST, LOBS_EN
+        Integer, intent(in) :: LOBS_ST, LOBS_EN, LTAU
 
         !Local
-        Integer :: N_op, n, nt
+        Integer                   :: N_op, n, nt
         Real    (Kind=Kind(0.d0)) :: X, Xmax
-
+        Logical                   :: Calc_Obser_eq
         
 
         select case (trim(this%Update_scheme))
         case("Langevin")
+           If (LTAU == 1)   Calc_Obser_eq = .false.
            If ( .not. this%L_Forces) &
                 &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
-                &  LOBS_ST, LOBS_EN )
+                &  LOBS_ST, LOBS_EN, Calc_Obser_eq )
            
            Call Control_Langevin   ( this%Forces,Group_Comm )
            
@@ -377,7 +379,9 @@
            Xmax = 0.d0
            do n = 1,N_op
               do nt = 1,Ltrot
-                 X = abs(Real(this%Forces(n,nt), Kind(0.d0)))
+                 X = abs(Real(this%Forces  (n,nt), Kind(0.d0)))
+                 if (X > Xmax) Xmax = X
+                 X = abs(Real(this%Forces_0(n,nt), Kind(0.d0)))
                  if (X > Xmax) Xmax = X
               enddo
            enddo
@@ -420,37 +424,79 @@
 
       
       SUBROUTINE  Langevin_HMC_setup(this,Global_update_scheme, Delta_t_Langevin_HMC, Max_Force )
+#ifdef MPI
+        Use mpi
+#endif
+
         Implicit none
 
+        
         Integer :: Nr,Nt, I
 
         class (Langevin_HMC_type) :: this
 
         Character (Len=64), Intent(in)          :: Global_Update_scheme
         Real    (Kind=Kind(0.d0)), Intent(in)   :: Delta_t_Langevin_HMC, Max_Force
+
+        !Local
+        Integer ::  IERR
+        Logical ::  lexist
+#ifdef MPI
+        Real (Kind=Kind(0.d0)) :: X
+        INTEGER                :: STATUS(MPI_STATUS_SIZE), ISIZE, IRANK
+        CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+        CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+#endif
         
 
-        
-        Nr = size(nsigma%f,1)
-        Nt = size(nsigma%f,2)
+        select case (Global_update_scheme)
+        case("Langevin")
+           !  Check that all  fields are of type 3
+           Do i = 1, Nr
+              if ( nsigma%t(i) /= 3 ) then
+                 WRITE(error_unit,*) 'For the Langevin runs, all fields have to be of type 3'
+                 error stop 1
+              endif
+           enddo
+           Nr = size(nsigma%f,1)
+           Nt = size(nsigma%f,2)
+           Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
+           this%Update_scheme        =  Global_update_scheme
+           this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
+           this%Max_Force            =  Max_Force
+           this%L_Forces             = .False.
 
-        !  Check that all  fields are of type 3
-        Do i = 1, Nr
-           if ( nsigma%t(i) /= 3 ) then
-              WRITE(error_unit,*) 'For the Langevin runs, all fields have to be of type 3'
-              error stop 1
+           inquire (file="Langevin_time_steps",exist=lexist)
+           if (lexist) then
+#if defined(MPI)       
+              IF (IRANK == 0) THEN
+                 OPEN(UNIT=10,FILE="Langevin_time_steps",STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+                 Read(10,*) this%Delta_t_running
+                 DO I = 1,ISIZE-1
+                    Read (10,*) X
+                    CALL MPI_SEND(X,1,MPI_REAL8, I, I+1024, MPI_COMM_WORLD,IERR)
+                 ENDDO
+                 Close(10)
+              ELSE
+                 CALL MPI_RECV(X, 1, MPI_REAL8,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
+                 this%Delta_t_running = X
+              ENDIF
+#else
+              OPEN(UNIT=10,FILE="Langevin_time_steps",STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+              Read(10,*) this%Delta_t_running
+              Close(10)
+#endif
+           else
+              this%Delta_t_running      =  Delta_t_Langevin_HMC
            endif
-        enddo
-
+        case ("HMC")
+           WRITE(error_unit,*) 'HMC  step is not yet implemented'
+           error stop 1
+        case default
+           WRITE(error_unit,*) 'Unknown updating scheme'
+           error stop 1
+        end select
         
-        this%Update_scheme        =  Global_update_scheme
-        this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
-        this%Delta_t_running      =  Delta_t_Langevin_HMC
-        this%Max_Force            =  Max_Force
-        this%L_Forces             = .False.
-        
-        Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
-
       end SUBROUTINE Langevin_HMC_setup
 
 !--------------------------------------------------------------------
@@ -462,12 +508,53 @@
 !--------------------------------------------------------------------
 
       SUBROUTINE  Langevin_HMC_clear(this) 
-        Implicit none
-        
-        class (Langevin_HMC_type) :: this
-        if (Trim(this%Update_scheme) == "Langevin" ) Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
 
-        
+#ifdef MPI
+        Use mpi
+#endif
+
+        Implicit none
+
+        class (Langevin_HMC_type) :: this
+
+        !Local
+        Integer :: IERR
+
+#ifdef MPI
+        Real (Kind=Kind(0.d0)) :: X
+        INTEGER                :: STATUS(MPI_STATUS_SIZE), ISIZE, IRANK
+        CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+        CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+#endif
+
+        select case (trim(this%Update_scheme))
+        case("Langevin")
+           
+#if defined(MPI)       
+           IF (IRANK .ne. 0) THEN
+              CALL MPI_SEND(this%Delta_t_running,1,MPI_REAL8, 0, Irank + 1024, MPI_COMM_WORLD,IERR)
+           ELSE
+              OPEN(UNIT=10,FILE="Langevin_time_steps",STATUS='Unknown',IOSTAT=IERR)
+              Write(10,*) this%Delta_t_running
+              Do I = 1, Isize-1
+                 CALL MPI_RECV(X, 1, MPI_REAL8,I,  I + 1024,  MPI_COMM_WORLD,STATUS,IERR)
+                 Write(10,*) X
+              enddo
+              Close(10)
+           ENDIF
+#else
+           OPEN(UNIT=10,FILE="Langevin_time_steps",STATUS='Unknown',IOSTAT=IERR)
+           Write(10,*) this%Delta_t_running
+           Close(10)
+#endif
+           Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
+        case ("HMC")
+           WRITE(error_unit,*) 'HMC  step is not yet implemented'
+           error stop 1
+        case default
+           WRITE(error_unit,*) 'Unknown updating scheme'
+           error stop 1
+        end select
       end SUBROUTINE Langevin_HMC_clear
 
 !--------------------------------------------------------------------

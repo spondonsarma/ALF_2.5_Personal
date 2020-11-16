@@ -557,7 +557,7 @@ Program Main
               If (  trim(Langevin_HMC%get_Update_scheme()) == "Langevin" )  then
                  !  Carry out a Langevin update and calculate equal time observables.
                  Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
-                      &                   LOBS_ST, LOBS_EN)
+                      &                   LOBS_ST, LOBS_EN, LTAU)
                  
                  IF ( LTAU == 1 ) then
                     If (Projector) then 
