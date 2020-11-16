@@ -22,10 +22,10 @@ Predicting how efficient a certain Monte Carlo update scheme will turn out to be
 		\toprule
 		Updating schemes             & Type             & Description \\
 		\midrule
-		\texttt{Sequential}          & \texttt{logical} & If true, the configurations moves through sequential, single spin flips  \\
-		\texttt{Propose\_S0}         & \texttt{logical} & If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the Ising action\\
+		\texttt{Sequential}          & \texttt{logical} & (internal variable) If true, the configurations moves through sequential, single spin flips  \\
+		\texttt{Propose\_S0}         & \texttt{logical} & If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the free bosonic action\\
 		\texttt{Global\_tau\_moves}  & \texttt{logical} & Whether to carry out  global moves on a single time slice.
-		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{Nt\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
+		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{N\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
 		\texttt{Global\_moves}       & \texttt{logical} & If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
 		\texttt{Langevin}            & \texttt{logical} & If true, Langevin dynamics is used instead of sequential, single flips \\
 		\texttt{Tempering}           & Compiling option & Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation} \\
@@ -57,19 +57,19 @@ It is also worth noting that this type of sequential spin-flip updating does not
 \label{sec:S0}
 %------------------------------------------------------------
 % 
-The package can also propose single spin-flip updates according to a non-vanishing Ising action $S_0(C)$. This sampling scheme is used if the logical variable \texttt{Propose\_S0} is set to \texttt{.true.}.
+The package can also propose single spin-flip updates according to a non-vanishing free bosonic action $S_0(C)$. This sampling scheme is used if the logical variable \texttt{Propose\_S0} is set to \texttt{.true.}.
 
 Consider an Ising spin at space-time $i,\tau$ in the configuration $C$. Flipping this spin generates the configuration $C'$ and we propose this move according to 
-  \begin{equation}
- T_0(C \rightarrow C')  =  \frac{e^{-S_0(C')}}{ e^{-S_0(C')} + e^{-S_0(C)} }   = 1 - \frac{1}{1 +  e^{-S_0(C')} /e^{-S_0(C)}}.
-  \end{equation}
- Note that the function $\texttt{S0}$ in the  \texttt{Hamiltonian\_Hubbard\_include.h}  module  computes precisely the ratio\\
+\begin{equation}
+T_0(C \rightarrow C')  =  \frac{e^{-S_0(C')}}{ e^{-S_0(C')} + e^{-S_0(C)} }   = 1 - \frac{1}{1 +  e^{-S_0(C')} /e^{-S_0(C)}}.
+\end{equation}
+Note that the function $\texttt{S0}$ in the  \texttt{Hamiltonian\_Hubbard\_include.h}  module  computes precisely the ratio\\
  ${e^{-S_0(C')} /e^{-S_0(C)}}$, therefore $T_0(C \rightarrow C') $ is obtained without any additional calculation. 
- The proposed move is accepted with the probability: 
- \begin{equation}
+The proposed move is accepted with the probability: 
+\begin{equation}
  P(C \rightarrow C') =  \text{min}  \left( 1,  \frac{e^{-S_0(C)}   W(C')}{ e^{-S_0(C')} W(C)} \right).
- \end{equation}
- Note that, as can be seen from Eq.~\eqref{eqn:partition_2}, the bare action $S_0(C)$  determining the  dynamics of the Ising spin  in the absence of coupling to the fermions  does not enter the Metropolis acceptance-rejection step.
+\end{equation}
+Note that, as can be seen from Eq.~\eqref{eqn:partition_2}, the bare action $S_0(C)$  determining the  dynamics of the bosonic configuration in the absence of coupling to the fermions does not enter the Metropolis acceptance-rejection step.
 % 
 % 
 

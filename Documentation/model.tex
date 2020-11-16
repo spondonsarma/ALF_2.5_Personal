@@ -64,7 +64,7 @@ One can relate the expectation value of the field $\eta(l)$ to the operator $\ha
 \item $\hat{Z}_k$ in Eq.~\ref{eqn:general_ham_i} can stand for a variety of operators, such as the Pauli matrix $\hat{\sigma}_{z}$ -- in which case the Ising spins take the values $s_{k} = \pm 1$ -- or the position operator -- such that $ \hat{Z}_k | \phi\rangle = \phi_k  |\phi\rangle $, with $\phi_k$ a real number.  
 
 \item From the above it follows that the  Monte Carlo configuration space $C$  
-is given by the combined spaces of Ising spin configurations  and of HS discrete field configurations:
+is given by the combined spaces of bosonic configurations  and of HS discrete field configurations:
 \begin{equation}
 	C = \left\{   \phi_{i,\tau} ,  l_{j,\tau}  \text{ with }  i=1\cdots M_I,\;  j = 1\cdots M_V,\; \tau=1\cdots L_{\mathrm{Trotter}}  \right\}.
 \end{equation}
@@ -89,8 +89,8 @@ Z &= \Tr{\left(e^{-\beta \hat{\mathcal{H}} }\right)}\nonumber\\
     \prod_{k=1}^{M_V}   e^{  \sqrt{ -\Delta \tau  U_k} \eta_{k,\tau} \hat{V}^{(k)} }   \prod_{k=1}^{M_I}   e^{  -\Delta \tau s_{k,\tau}  \hat{I}^{(k)}}  
       \prod_{k=1}^{M_T}   e^{-\Delta \tau \hat{T}^{(k)}}    \right]\right\} }+ \mathcal{O}(\Delta\tau^{2})\;.
 \end{align}
-In the above,  the trace $\mathrm{Tr} $  runs over the Ising spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
-$S_0 \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the Ising Hamiltonian,  and is only dependent on the Ising spins so that  it can be pulled out of the fermionic trace.  We have adopted the shorthand notation $\eta_{k,\tau} \equiv \eta(l_{k,\tau})$   and $\gamma_{k,\tau} \equiv \gamma(l_{k,\tau})$.
+In the above,  the trace $\mathrm{Tr} $  runs over the bosonic spins as well as over the fermionic degrees of freedom, and $ \mathrm{Tr}_{\mathrm{F}}  $ only over the  fermionic Fock space. 
+$S_0 \left( \left\{ s_{i,\tau} \right\}  \right)  $ is the action  corresponding to the bosonic Hamiltonian, and is only dependent on the bosonic states so that  it can be pulled out of the fermionic trace.  We have adopted the shorthand notation $\eta_{k,\tau} \equiv \eta(l_{k,\tau})$   and $\gamma_{k,\tau} \equiv \gamma(l_{k,\tau})$.
 At this point,  and  since for a given configuration $C$  we are dealing with a free propagation, we can integrate out the fermions to obtain a determinant: 
 \begin{multline}
 \Trf{ \left\{  \prod_{\tau=1}^{L_{\mathrm{Trotter}}} \left[    
@@ -192,7 +192,7 @@ Thereby\footnote{The attentive reader will have noticed that   for arbitrary Tro
 and with the definition
 \begin{equation}
 \label{Sign.eq}
-	 \text{ sign }(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }\;,
+	 \sgn(C)   =  \frac{   \Re \left[e^{-S(C)} \right]  } {\left| \Re \left[e^{-S(C)} \right]  \right|  }\;,
 \end{equation}
 the computation of the observable [Eq.~(\ref{eqn:obs})] is re-expressed as follows:
 \begin{align}\label{eqn:obs_rw}
@@ -201,21 +201,21 @@ the computation of the observable [Eq.~(\ref{eqn:obs})] is re-expressed as follo
           &=
    \frac{
      \left\{
-      \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \text{ sign }(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \right\}/
+      \sum_{C}  \left| \Re \left[e^{-S(C)} \right]  \right|   \sgn(C)   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}  \langle \langle \hat{O}  \rangle \rangle_{(C)}  \right\}/
             \sum_{C}  \left| \Re \left[ e^{-S(C)} \right] \right|  
           }  
           { 
-          \left\{ \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) \right\}/
+          \left\{ \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \sgn(C) \right\}/
             \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  
           } \nonumber\\
           &=
-  	 \frac{  \left\langle  \text{ sign }   \frac{e^{-S}} {\Re \left[e^{-S} \right]}  \langle \langle \hat{O}  \rangle \rangle  \right\rangle_{\overline{P}} } { \langle \text{sign}   \rangle_{\overline{P}}}  \;.      
+  	 \frac{  \left\langle  \sgn   \frac{e^{-S}} {\Re \left[e^{-S} \right]}  \langle \langle \hat{O}  \rangle \rangle  \right\rangle_{\overline{P}} } { \langle \sgn \rangle_{\overline{P}}}  \;.      
 \end{align} 
 The average sign is 
 \begin{equation}\label{eqn:sign_rw}
-	 \langle \text{sign} \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \text{ sign }(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
+	 \langle \sgn \rangle_{\overline{P}} =    \frac { \sum_{C}  \left|  \Re \left[ e^{-S(C)} \right]   \right|   \sgn(C) }  {  \sum_{C}   \left| \Re \left[ e^{-S(C)} \right] \right|  } \;,
 \end{equation}
-and we have  $\langle \text{sign} \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
+and we have  $\langle \sgn \rangle_{\overline{P}} \in \mathbb{R}$ per definition.
 The Monte Carlo simulation samples the probability distribution 
 \begin{equation}  
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
@@ -225,14 +225,14 @@ such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be compu
 
 The negative sign problem is still an issue because the average sign is a ratio of two partition functions and one can argue that 
 \begin{equation}
- \langle \text{sign} \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta},
+ \langle \sgn \rangle_{\overline{P}}   \propto e^{-  \Delta N \beta},
 \end{equation}
 where $\Delta $ is an intensive positive quantity and $N \beta$ denotes the  Euclidean volume.    In a Monte Carlo simulation the  error scales as $ 1/\sqrt{T_\text{CPU}} $   where $T_\text{CPU}$ corresponds to the computational  time.  Since the error on the  average sign has to be much smaller than the average sign itself,   one sees that:
 \begin{equation}
 	T_\text{CPU}  \gg e^{2 \Delta N \beta}.
 \end{equation}   
 Two comments are in order. First, the presence of a sign problem invariably leads to an exponential increase of CPU time as a function of the Euclidean volume. And second,  $\Delta$ is formulation dependent.  
-For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard} has a much more severe sign problem than the formulation (also presented in Sec.~\ref{sec:hubbard}) where the HS field couples to the $z$-component of the magnetization. 
+For instance, at finite doping, the SU(2) invariant formulation of the Hubbard model presented in Sec.~\ref{sec:hubbard} has a much more severe sign problem than the formulation (presented in the same section) where the HS field couples to the $z$-component of the magnetization. 
 
 
 

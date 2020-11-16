@@ -131,7 +131,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 		 Here \texttt{np} is the rank number of the process  \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out(Group\_Comm)}}   & Writes out the field configuration  \\\bottomrule
 	\end{tabular}
-	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.  The routine \texttt{Fields\_init(del)} should be called before the use of this variable type, since it initializes necessary internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}). Note that \texttt{del}  and \texttt{amplitude}  are private variables of the fields module. The integers \texttt{n\_op} and \texttt{Ltrot} are the number of interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) defines an MPI communicator, and the optional \texttt{In\_field} stores the initial field configuration.}
+	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.  The routine \texttt{Fields\_init(del)} should be called before the use of this variable type, since it initializes necessary internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}). Note that \texttt{del}  and \texttt{amplitude}  are private variables of the fields module. The integers \texttt{n\_op} and \texttt{Ltrot} are the number of interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) is an MPI communicator defined by the main program, and the optional \texttt{In\_field} stores the initial field configuration.}
     \end{center}
 	\label{table:Fields}
 \end{table}
@@ -261,7 +261,7 @@ Our definition  of the model includes observables [Eq.~(\ref{eqn:obs_rw})]. We d
 such as the energy, and  \texttt{Obser\_Latt}   for correlation functions that have the lattice symmetry. In the latter case, translation symmetry can be used to provide improved estimators and to reduce the size of the output.   
 We also obtain improved estimators by taking measurements in the imaginary-time interval $[\texttt{LOBS\_ST},\texttt{LOBS\_EN\texttt{}}]$ (see the parameter file in Sec.~\ref{sec:input}) thereby exploiting the invariance under translation in imaginary-time.
 Note that the translation symmetries  in space and in time are \emph{broken} for a given  configuration $C$ but restored by the Monte Carlo sampling. 
-In general, the user defines size and number of bins in the parameter file, each bin containing a given amount of sweeps. Within a sweep we run sequentially through the HS and Ising fields, from time slice $1$ to time slice $L_{\text{Trotter}}$ and back.  The results of each bin are written to a file  and analyzed at the end of the run.     
+In general, the user defines size and number of bins in the parameter file, each bin containing a given amount of sweeps. Within a sweep we run sequentially through the HS and bosonic fields, from time slice $1$ to time slice $L_{\text{Trotter}}$ and back.  The results of each bin are written to a file  and analyzed at the end of the run.     
 
 To accomplish the reweighting of observables (see Sec.~\ref{sec:reweight}), for each configuration the measured value of an observable is multiplied by the factors \texttt{ZS} and \texttt{ZP}:
 \begin{align}
@@ -292,7 +292,6 @@ Scalar observables are stored in the data type \texttt{Obser\_vec}, described in
      \texttt{Obs\%File\_Vec}           & \texttt{char}   &    Name of output file  &\\\bottomrule
    \end{tabular}
    \caption{Components of a variable of type \texttt{Obser\_vec} named \texttt{Obs}. The contribution listed is that of each configuration $C$.}
-   % \mycomment{MB $\texttt{Obs\%Phase}$ is not $phase(C)$ but $sign(C)$. And the type of sign could in principle be reduced to integer.   }
          \label{table:Obser_vec}
      \end{center}
 \end{table}
@@ -469,17 +468,16 @@ where $k=[1, M_{V}]$ and $s=[1, N_{\mathrm{fl}}]$, $g = \sqrt{-\Delta \tau  U_k}
 The discrete HS decomposition which is used for the perfect-square interaction, is selected by setting the type variable to $\texttt{Op\_V\%type}=2$.
 All in all, the required structure variables \texttt{Op\_V} are defined  using the array \texttt{Op\_V(M$_V$,N$_\mathrm{fl}$)}.
 
-
-\item For the Ising interaction Hamiltonian (\ref{eqn:general_ham_i}), we have to set the exponentiated matrices $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$:\\
+\item For the bosonic interaction Hamiltonian (\ref{eqn:general_ham_i}), we have to set the exponentiated matrices $e^{  -\Delta \tau s_{k\tau}  {\bm I}^{(ks)}}$:\\
 In this case, $\bm{X}  = \bm{I}^{(k,s)} $ and a single variable  \texttt{Op\_V} then  describes the operator matrix:
 \begin{equation}
             \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x I_{xy}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  \;,
 \end{equation} 
 where $k=[1, M_{I}]$ and $s=[1, N_{\mathrm{fl}}]$ and $g = -\Delta \tau$ (and $\alpha = 0$).
-The Ising interaction is specified by setting the type variable  $\texttt{Op\_V\%type=1}$. 
+An Ising interaction is specified by setting the type variable  $\texttt{Op\_V\%type=1}$. 
 All in all, the required structure variables are contained in the array \texttt{Op\_V(M$_{I}$,N$_\mathrm{fl}$)}.
 
-\item In case of a full interaction [perfect-square term (\ref{eqn:general_ham_v}) and Ising term (\ref{eqn:general_ham_i})],
+\item In case of a full interaction [perfect-square term (\ref{eqn:general_ham_v}) and bosonic term (\ref{eqn:general_ham_i})],
 we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm{fl}$)} and set the variables separately for both ranges of the array according to the above.  
 
 \end{itemize}
