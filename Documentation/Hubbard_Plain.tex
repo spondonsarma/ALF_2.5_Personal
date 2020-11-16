@@ -33,7 +33,7 @@ $N_{\mathrm{fl}} = 2$, $N_{\mathrm{col}} \equiv \texttt{N\_SUN}     =1 $,
  \end{equation}
  $M_V   =  N_{\text{unit-cell}} $,  $U_{k}       =   \frac{U}{2}$, 
  $V_{x y}^{(k, s=1)} =  \delta_{x,y} \delta_{x,k}  $,  $V_{x y}^{(k, s=2)} =  - \delta_{x,y} \delta_{x,k}  $,  $\alpha_{ks}   = 0  $ and $M_I       = 0 $.   
-The coupling of the HS fields to the $z$-component of the magnetization breaks the $SU(2)$ spin symmetry. Nevertheless, the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index running from $1$ to $2$,  labeling spin up and spin down degrees of freedom. We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
+The coupling of the HS fields to the $z$-component of the magnetization breaks the SU(2) spin symmetry. Nevertheless, the $z$-component of the spin remains a good quantum number such that the imaginary-time propagator -- for a given HS field -- is block  diagonal in this quantum number. This corresponds to the flavor index running from $1$ to $2$,  labeling spin up and spin down degrees of freedom. We note that  in this formulation the  hopping matrix can be flavor dependent such that a Zeeman  magnetic field can be introduced.  If the chemical potential is set to zero, this will not generate a negative sign problem \cite{Wu04,Milat04,Bercx09}.    
 The code that we describe below  can be found in the module \path{Prog/Hamiltonians/Hamiltonian_plain_vanilla_hubbard_mod.F90}. This file may be a good starting point for implementing a new model Hamiltonian. 
 
 %------------------------------------------------------------
@@ -62,7 +62,7 @@ which specify the model.  The  routine \texttt{Ham\_set}  will first  read the p
  set the interaction: \texttt{call Ham\_V}; and if required, set the trial wave function: \texttt{call Ham\_trial}.
 
 %------------------------------------------------------------
-\subsection{The lattice:   \texttt{Call Ham\_latt} }  \label{U_PV_Ham_latt}
+\subsection{The lattice: \texttt{Ham\_latt}} \label{U_PV_Ham_latt}
 %------------------------------------------------------------
 
 The routine, which sets the square lattice, reads:
@@ -83,7 +83,7 @@ In its last line, the routine sets the total number of single particle states pe
 \texttt{Ndim = Latt\%N*Latt\_unit\%Norb}.
 
 %------------------------------------------------------------
-\subsection{The hopping: \texttt{Call Ham\_hop}} \label{U_PV_Ham_hop}
+\subsection{The hopping: \texttt{Ham\_hop}} \label{U_PV_Ham_hop}
 %------------------------------------------------------------
 
 The hopping matrix is implemented as follows. 
@@ -124,7 +124,7 @@ Finally, note that, although a checkerboard decomposition is not used here, it c
 
 
 %------------------------------------------------------------
-\subsection{The interaction: \texttt{Call Ham\_V}}\label{U_PV_Ham_V} 
+\subsection{The interaction: \texttt{Ham\_V}}\label{U_PV_Ham_V} 
 %------------------------------------------------------------
 To implement  the interaction, we allocate an array of \texttt{Operator} type. The array is called  \texttt{Op\_V} and has dimensions $N_{\mathrm{dim}}\times N_{\mathrm{fl}}=N_{\mathrm{dim}} \times 2$. 
 We set the dimension for the interaction term to  $N=1$, and  allocate and initialize this array of type  \texttt{Operator} by repeatedly calling the subroutine \texttt{Op\_make}: 
@@ -153,7 +153,7 @@ Enddo
 The code above makes it explicit that there is a sign difference between the coupling of the HS field in the two flavor sectors. 
 
 %------------------------------------------------------------
-\subsection{The trial wave function: \texttt{Call Ham\_Trial}} \label{U_PV_Ham_Trial}
+\subsection{The trial wave function: \texttt{Ham\_Trial}} \label{U_PV_Ham_Trial}
 %------------------------------------------------------------
 \label{Sec:Plain_vanilla_trial}
 As  argued in Sec.~\ref{sec:trial_wave_function}, it is useful to generate the trial wave function from a non-interacting trial Hamiltonian.   Here we will  use the same left and right  flavor-independent trial wave functions that correspond to the ground state of: 
@@ -185,7 +185,7 @@ At this point, all the information for starting the simulation has been provided
 Both \texttt{Obser} and \texttt{ObserT} should be provided by the user, who can either implement themselves the observables they want to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here we describe how to proceed in order to define an observable. 
 
 %------------------------------------------------------------------------------------
-\subsubsection{Allocating space for the observables: \texttt{Call Alloc\_obs(Ltau) }} \label{Alloc_obs_sec}
+\subsubsection[Allocating space for the observables: \texttt{Alloc\_obs}]{Allocating space for the observables: \texttt{Alloc\_obs(Ltau)}} \label{Alloc_obs_sec}
 %-------------------------------------------------------------------------------------
 
 For  four scalar  or vector observables,  the user will have to  declare the following: 
@@ -244,7 +244,7 @@ same structure as for equal-time correlation functions is used, albeit with
 At the beginning of each bin, the main program will set the bin observables to zero by calling  the routine \texttt{Init\_obs(Ltau)}. The user does not have to edit this routine. 
  
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}} \label{sec:EqualTimeobs}
+\subsubsection[Measuring equal-time observables: \texttt{Obser}]{Measuring equal-time observables: \texttt{Obser(GR,Phase,Ntau)}} \label{sec:EqualTimeobs}
 %-------------------------------------------------------------------------------------
 
 Having allocated the necessary memory, we proceed to define the observables. The equal-time  Green function,
@@ -253,7 +253,7 @@ Having allocated the necessary memory, we proceed to define the observables. The
 \end{equation}
 the  phase factor \texttt{phase} [Eq.~(\ref{eqn:phase})], and time slice \texttt{Ntau}   are provided by the main program.  
 
-Here,   $x$ and $y$ label  both unit cell as well as the orbital within the unit cell. For the Hubbard model described here, $x$ corresponds to the unit cell.  The Green function  does not depend on the color index, and is diagonal in flavor.  For the $SU(2)$ symmetric implementation  there is only one flavor, $\sigma = 1$ and the Green function is  independent on the spin index.  This renders the calculation of the observables particularly easy.   
+Here,   $x$ and $y$ label  both unit cell as well as the orbital within the unit cell. For the Hubbard model described here, $x$ corresponds to the unit cell.  The Green function  does not depend on the color index, and is diagonal in flavor.  For the SU(2) symmetric implementation  there is only one flavor, $\sigma = 1$ and the Green function is  independent on the spin index.  This renders the calculation of the observables particularly easy.   
 
 An explicit calculation of the   potential energy  $ \langle U \sum_{\vec{i}}  \hat{n}_{\vec{i},\uparrow}   \hat{n}_{\vec{i},\downarrow}  \rangle $ reads 
 \begin{lstlisting}[style=fortran]
@@ -297,7 +297,7 @@ Enddo
 At the end of each bin the main program calls the routine \texttt{ Pr\_obs(LTAU)}. This routine appends the result for the current bins to the corresponding file, with the appropriate suffix. 
 
 %-------------------------------------------------------------------------------------
-\subsubsection{Measuring time-displaced observables: \texttt{ObserT(NT, GT0, G0T, G00, GTT, PHASE)} }  \label{sec:TimeDispObs}
+\subsubsection[Measuring time-displaced observables: \texttt{ObserT}]{Measuring time-displaced observables: \texttt{ObserT(NT, GT0, G0T, G00, GTT, PHASE)}}  \label{sec:TimeDispObs}
 %-------------------------------------------------------------------------------------
 %
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to $1$. The variable \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the imaginary time difference. For a given time  displacement, the main program provides:
@@ -329,7 +329,7 @@ Information on the numerical stability is included in the following lines of the
 For a  \textit{short} simulation on a $4 \times 4$  lattice at $U/t=4$ and $\beta t = 10$  we obtain
 \begin{lstlisting}[basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
 Precision Green  Mean, Max :   5.0823874429126405E-011  5.8621144596315844E-006
-Precision Phase, Max       :   0.0000000000000000    
+Precision Phase  Max       :   0.0000000000000000    
 Precision tau    Mean, Max :   1.5929357848647394E-011  1.0985132530727526E-005 
 \end{lstlisting}
 showing the mean and maximum difference between the \textit{wrapped}  and from scratched computed equal and time-displaced  Green functions \cite{Assaad08_rev}.

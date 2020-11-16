@@ -18,7 +18,7 @@ The aim of the ALF project is to provide a general formulation of the auxiliary-
 The auxiliary-field quantum Monte Carlo (QMC) approach is the algorithm of choice to simulate  thermodynamic properties of a variety of correlated electron systems in the solid state and beyond \cite{Blankenbecler81,White89,Sugiyama86,Sorella89, Duane87, Assaad08_rev}.  
 Apart from the physics of the  canonical Hubbard model 
 \cite{Scalapino07,LeBlanc15},   the topics one can investigate in detail include correlation effects in the bulk and on surfaces of topological insulators \cite{Hohenadler10,Zheng11}, quantum phase transitions between  Dirac fermions  and insulators \cite{Assaad13,Toldin14,Otsuka16,Chandrasekharan13,Chandrasekharan15},  
-deconfined quantum critical points \cite{Li15a,Assaad16}, topologically ordered phases \cite{Assaad16}, heavy fermion systems \cite{Assaad99a,Capponi00}, nematic \cite{Schattner15} and magnetic  \cite{Xu16c} quantum phase transitions in metals, antiferromagnetism in metals \cite{Berg12},    superconductivity in spin-orbit split bands \cite{Tang14_1}, $SU(N)$ symmetric models \cite{Assaad04,Lang13},  long-ranged Coulomb interactions in graphene systems \cite{Hohenadler14,Tang15},  cold atomic gases  \cite{Rigol03},  low energy nuclear physics \cite{Lee09},  entanglement entropies and spectra \cite{Grover13,Broecker14,Assaad13a,Assaad15},  among others. 
+deconfined quantum critical points \cite{Li15a,Assaad16}, topologically ordered phases \cite{Assaad16}, heavy fermion systems \cite{Assaad99a,Capponi00}, nematic \cite{Schattner15} and magnetic  \cite{Xu16c} quantum phase transitions in metals, antiferromagnetism in metals \cite{Berg12},    superconductivity in spin-orbit split bands \cite{Tang14_1}, SU(N) symmetric models \cite{Assaad04,Lang13},  long-ranged Coulomb interactions in graphene systems \cite{Hohenadler14,Tang15},  cold atomic gases  \cite{Rigol03},  low energy nuclear physics \cite{Lee09},  entanglement entropies and spectra \cite{Grover13,Broecker14,Assaad13a,Assaad15},  among others. 
 This ever-growing list of topics is based on algorithmic progress and on recent symmetry-related insights  \cite{Wu04,Huffman14,Yao14a,Wei16} that lead to formulations free of the negative sign problem for a number of model systems with very rich phase diagrams.
 
 Auxiliary-field methods  can be formulated in a number of very different ways.  The fields define  the  configuration space $\mathcal{C}$. They can stem from the Hubbard-Stratonovich (HS)  \cite{Hubbard59} transformation required to decouple the  many-body interacting term into a sum of non-interacting problems,  or they can correspond to  bosonic modes with predefined dynamics such as phonons or gauge fields. In all cases, the result is that  the grand-canonical partition function  takes the form
@@ -49,7 +49,7 @@ The first and most fundamental part of the project  is to define a general Hamil
 Our approach is to express the model as a sum of one-body terms, a sum of two-body terms each written as a perfect square of a one body term, as well as a one-body term coupled to a bosonic field with  dynamics to be specified by the user. 
 Writing the interaction in terms of sums of perfect squares allows us to use generic forms of  discrete  approximations to the  HS  transformation \cite{Motome97,Assaad97}.
 Symmetry considerations  are  imperative to increase the speed of the code.  
-We therefore include a \emph{color} index  reflecting  an underlying  $SU(N)$ color symmetry as  well as a \emph{flavor} index  reflecting  the fact that  after  the HS  transformation,  the  fermionic determinant is block diagonal in this index.
+We therefore include a \emph{color} index  reflecting  an underlying  SU(N) color symmetry as  well as a \emph{flavor} index  reflecting  the fact that  after  the HS  transformation,  the  fermionic determinant is block diagonal in this index.
 
 The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that have the following general form:
 \begin{align}
@@ -95,7 +95,7 @@ The class of solvable models includes  Hamiltonians $\hat{\mathcal{H}}$ that hav
 The indices and symbols used above have the following meaning:
 \begin{itemize}
 \item The number of fermion \emph{flavors} is set by $N_{\mathrm{fl}}$.  After the HS transformation, the action will be block diagonal in the flavor index. 
-\item The number of fermion \emph{colors} is set\footnote{Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $.} by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  $SU(N_{\mathrm{col}})$  rotations.
+\item The number of fermion \emph{colors} is set\footnote{Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $.} by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations.
 \item $N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit-cell}} N_{\mathrm{orbital}}$, where $N_{\text{unit-cell}}$ is the number of unit cells of the underlying Bravais lattice and $N_{\mathrm{orbital}}$ is the number of (spacial) orbitals per unit cell.
 \item The indices $x$ and $y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$.
@@ -115,7 +115,7 @@ The bosonic  part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\m
 it has to be specified by the user and becomes relevant when the Monte Carlo update probability is computed in the code
 \end{itemize}
 Note that the matrices  $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$ explicitly depend on the flavor index $s$ but not on the color index $\sigma$. 
-The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly $SU(N_{\mathrm{col}})$    symmetric.  We also require
+The color index $\sigma$ only appears in  the  second quantized operators such that the Hamiltonian is manifestly SU($N_{\mathrm{col}}$)  symmetric.  We also require
 the matrices $\bm{T}^{(ks)}$,  $\bm{V}^{(ks)}$ and  $\bm{I}^{(ks)}$  to be  Hermitian. 
 
 %------------------------------------------------------------
