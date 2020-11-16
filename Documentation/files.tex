@@ -123,7 +123,7 @@ mpi_per_parameter_set = 2   ! Number of mpi-processes per parameter set
 Tempering_calc_det    = .T. ! Specifies whether the fermion weight has to be taken
                             ! into account while tempering. The default is .true.,
                             ! and it can be set to .F. if the parameters that
-                            ! get varied only enter the Ising action S_0
+                            ! get varied only enter the free bosonic action S_0
 /
 
 &VAR_Max_Stoch             !! Variables for Stochastic Maximum entropy
@@ -183,7 +183,7 @@ The output of the measured data is organized in bins. One bin corresponds to the
    & The placeholder \path{X} stands for the observables \path{Kin}, \path{Pot}, \path{Part}, and \path{Ener} \\
    \path{Y_eq, Y_tau} & Results of equal-time and time-displaced measurements of correlation functions. The placeholder \path{Y} stands for \path{Green}, \path{SpinZ}, \path{SpinXY}, \path{Den}, etc. \\   
    \path{Y_eq_info, Y_tau_info} & Additional info, like Bravais lattice and unit cell, for equal-time and time-displaced observables \\
-   \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and Ising configuration \\\bottomrule
+   \path{confout_<thread number>} & Output files (one per MPI instance) for the HS and bosonic configuration \\\bottomrule
    \end{tabular}
    \caption{Overview of the standard output files. See Sec.~\ref{sec:obs} for the definitions of observables and correlation functions. \label{table:output}}
 \end{center}
