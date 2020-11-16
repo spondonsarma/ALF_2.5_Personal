@@ -522,6 +522,7 @@
 
 #ifdef MPI
         Real (Kind=Kind(0.d0)) :: X
+        INTEGER                :: I
         INTEGER                :: STATUS(MPI_STATUS_SIZE), ISIZE, IRANK
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
