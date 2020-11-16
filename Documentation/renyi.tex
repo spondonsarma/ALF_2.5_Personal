@@ -31,7 +31,8 @@ Same as before, for a subsystem whose lattice degrees of freedom are flavor- and
 For every element \texttt{I} of \texttt{List}, the subsystem contains all degrees of freedom with site index \texttt{I}, any flavor index, and \texttt{1} \ldots \texttt{N\_SUN} color index.
 
 \begin{lstlisting}[style=fortran]
-Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
+Call Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,
+                             Renyi_c,Renyi_f,Renyi_cf)
 \end{lstlisting}
 This routine computes the second R\'enyi entropy observables needed to extract the mutual information between a subsystem $c$ and $f$. \texttt{List\_c}, and \texttt{Nsites} are input parameters describing the subsystem $c$, with the same convention as for \texttt{Calc\_Renyi\_Ent\_gen\_all}. \texttt{List\_f} and \texttt{Nsites\_f} are the corresponding input parameters for the subsystem $f$. \texttt{Renyi\_c}, \texttt{Renyi\_f}, and \texttt{Renyi\_cf} are the output variables, containing the R\'enyi observables for the subsystem $c$, $f$, and $c\cup f$. The mutual information between $c$ and $f$ is $I_2=-\ln \langle \texttt{Renyi\_c}\rangle -\ln \langle \texttt{Renyi\_f}\rangle +\ln \langle \texttt{Renyi\_cf}\rangle$.
 
@@ -44,3 +45,12 @@ This is the analog of \texttt{Calc\_Mutual\_Inf\_gen\_all} for two subsytems wit
 Call Calc_Mutual_Inf_indep(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
 \end{lstlisting}
 This is the analog of \texttt{Calc\_Mutual\_Inf\_gen\_all} for two subsytems with the same assumptions and convention of \texttt{Calc\_Renyi\_Ent\_indep}.
+
+For convenience, we also provide the interfaces \texttt{Calc\_Renyi\_Ent} and \texttt{Calc\_Mutual\_Inf} to the specialization listed above, respectively. The argument list provided in the call determines the specialization that is executed.
+
+Finally, the following wrappers can be used to add the R{\'e}nyi entropy and mutual information measurments to the according Observables \texttt{Obs}, with \texttt{N\_SUN} as an optional argument as explained in detail above:
+\begin{lstlisting}[style=fortran,breaklines=true]
+Call Predefined_Obs_scal_Renyi_Ent(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
+Call Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_c, Nsites_c, List_f, Nsites_f,
+                                          N_SUN, ZS, ZP, Obs )
+\end{lstlisting}
