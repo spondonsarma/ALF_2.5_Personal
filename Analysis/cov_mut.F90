@@ -114,8 +114,8 @@
         DO IOBS = 1,NOBS
            WRITE(21,*)
            DO I = 1,Nbins_eff
-              EN  (I) = Real(OBS(I,IOBS), kind(0.d0))
-              SIGN(I) = Real(OBS(I,NOBS), kind(0.d0))
+              EN  (I) = dble(OBS(I,IOBS))
+              SIGN(I) = dble(OBS(I,NOBS))
            ENDDO
            IF (IOBS.EQ.NOBS  ) then
               CALL ERRCALCJ(EN,     XM,XERR,N_Rebin)
@@ -161,9 +161,10 @@
               enddo
               CLOSE(21)
             ENDDO
+            DEALLOCATE(AutoCorr)
         endif
          
-        DEALLOCATE (EN,SIGN,OBS)
+        DEALLOCATE (EN,SIGN,OBS,tmp)
          
       END Program Cov_vec
        
