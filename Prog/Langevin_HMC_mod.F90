@@ -493,8 +493,7 @@
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
            error stop 1
         case default
-           WRITE(error_unit,*) 'Unknown updating scheme'
-           error stop 1
+           this%Update_scheme        =  Global_update_scheme
         end select
         
       end SUBROUTINE Langevin_HMC_setup
@@ -553,8 +552,6 @@
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
            error stop 1
         case default
-           WRITE(error_unit,*) 'Unknown updating scheme'
-           error stop 1
         end select
       end SUBROUTINE Langevin_HMC_clear
 
