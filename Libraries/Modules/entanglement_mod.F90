@@ -1,4 +1,4 @@
-!  Copyright (C) 2018 The ALF project
+!  Copyright (C) 2020 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
-     Module entanglement
+Module entanglement_mod
 
 !--------------------------------------------------------------------
 !> @author 
@@ -39,10 +39,16 @@
 !> This module generates one and two dimensional Bravais lattices.
 !
 !--------------------------------------------------------------------
-
       ! Used for MPI
-      INTEGER :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      INTEGER, save, private :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      Real (kind=kind(0.d0)), save, private :: weight
 
+      INTERFACE Calc_Renyi_Ent
+        MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
+      END INTERFACE
+      INTERFACE Calc_Mutual_Inf
+        MODULE PROCEDURE Calc_Mutual_Inf_indep, Calc_Mutual_Inf_gen_fl, Calc_Mutual_Inf_gen_all
+      END INTERFACE
       Contains
 !========================================================================
 
@@ -64,6 +70,7 @@
           Norm=ISIZE/2 ! number of pairs
           norm=2*norm ! but each task of pair contributes
           group=Group_Comm
+          weight=dble(ISIZE)/dble(Norm)
 #endif
           
         end Subroutine Init_Entanglement_replicas
@@ -72,17 +79,15 @@
         ! Calculation of the Renyi entanglement entropy
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
-        ! (n, n+1), with n=0,2,...
-        Subroutine Calc_Mutual_Inf(GRC,Phase,Ntau,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
+        ! ! (n, n+1), with n=0,2,...
+        Subroutine Calc_Mutual_Inf_indep(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
-          Complex (Kind=8), Intent(IN)      :: PHASE
-          Integer, INTENT(IN)               :: Ntau
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
           Integer, Dimension(:), INTENT(IN) :: List_c, List_f
-          Integer, INTENT(IN)               :: Nsites_c ,Nsites_f
-          Complex (Kind=8), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+          Integer, INTENT(IN)               :: Nsites_c ,Nsites_f, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
           Integer, Dimension(:), Allocatable :: List_cf
           Integer          :: I, J, IERR, INFO, Nsites_cf
@@ -98,41 +103,232 @@
              List_cf(I+Nsites_c) = List_f(I)
           END DO
           
-          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_c,Nsites_c,Renyi_c)
-          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_f,Nsites_f,Renyi_f)
-          Call Calc_Renyi_Ent(GRC,Phase,Ntau,List_cf,Nsites_cf,Renyi_cf)
+          Renyi_c  = Calc_Renyi_Ent_indep(GRC,List_c,Nsites_c,N_SUN)
+          Renyi_f  = Calc_Renyi_Ent_indep(GRC,List_f,Nsites_f,N_SUN)
+          Renyi_cf = Calc_Renyi_Ent_indep(GRC,List_cf,Nsites_cf,N_SUN)
           
           deallocate(List_cf)
           
-        End Subroutine Calc_Mutual_Inf
-        
-        
-        Subroutine Calc_Renyi_Ent(GRC,Phase,Ntau,List,Nsites,Renyi)
-#ifdef MPI
-          Use mpi
-#endif
+        End Subroutine Calc_Mutual_Inf_indep
+          
+!========================================================================
+        ! Calculation of the Renyi entanglement entropy
+        ! The algorithm works only for an MPI program
+        ! We partition the nodes into groups of 2 replicas:
+        ! ! (n, n+1), with n=0,2,...
+        Subroutine Calc_Mutual_Inf_gen_fl(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
 
           Implicit none
           
-          Complex (Kind=8), INTENT(IN)      :: GRC(:,:,:)
-          Complex (Kind=8), Intent(IN)      :: PHASE
-          Integer, INTENT(IN)               :: Ntau
-          Integer, Dimension(:), INTENT(IN) :: List
-          Integer, INTENT(IN)               :: Nsites
-          Complex (Kind=8), INTENT(OUT)   :: Renyi
+          Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
+          Integer, Dimension(:,:), INTENT(IN)      :: List_c, List_f
+          Integer, Dimension(:), INTENT(IN)        :: Nsites_c ,Nsites_f, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
 
-          Complex (Kind=8), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
-          Integer, Dimension(:), Allocatable :: PIVOT
-          Complex (Kind=8) :: DET, PRODDET, alpha, beta
-          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half
+          Integer, Allocatable :: List_cf(:,:), Nsites_cf(:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max
+
+          N_FL=size(GRC,3)
+          Nsites_cf_max=0
+          do I=1,N_FL
+            Nsites_cf(I)=Nsites_c(I)+Nsites_f(I)
+            if (Nsites_cf(I)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I)
+          enddo
+          
+          allocate(List_cf(Nsites_cf_max,N_FL))
+          
+          do J=1,N_FL
+            DO I = 1, Nsites_c(J)
+              List_cf(I,J) = List_c(I,J)
+            END DO
+            DO I = 1, Nsites_f(J)
+              List_cf(I+Nsites_c(J),J) = List_f(I,J)
+            END DO
+          enddo
+          
+          Renyi_c  = Calc_Renyi_Ent_gen_fl(GRC,List_c,Nsites_c,N_SUN)
+          Renyi_f  = Calc_Renyi_Ent_gen_fl(GRC,List_f,Nsites_f,N_SUN)
+          Renyi_cf = Calc_Renyi_Ent_gen_fl(GRC,List_cf,Nsites_cf,N_SUN)
+          
+          deallocate(List_cf)
+          
+        End Subroutine Calc_Mutual_Inf_gen_fl
+          
+!========================================================================
+        ! Calculation of the Renyi entanglement entropy
+        ! The algorithm works only for an MPI program
+        ! We partition the nodes into groups of 2 replicas:
+        ! ! (n, n+1), with n=0,2,...
+        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
+
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
+          Integer, Dimension(:,:,:), INTENT(IN)      :: List_c, List_f
+          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_c ,Nsites_f
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+
+          Integer, Allocatable :: List_cf(:,:,:), Nsites_cf(:,:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max, nc, num_nc
+
+          N_FL=size(GRC,3)
+          num_nc=size(List_f,3)
+          Nsites_cf_max=0
+          do nc=1,num_nc
+            do I=1,N_FL
+              Nsites_cf(I,nc)=Nsites_c(I,nc)+Nsites_f(I,nc)
+              if (Nsites_cf(I,nc)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I,nc)
+            enddo
+          enddo
+          
+          allocate(List_cf(Nsites_cf_max,N_FL,num_nc))
+          
+          do nc=1, num_nc
+            do J=1,N_FL
+              DO I = 1, Nsites_c(J,nc)
+                List_cf(I,J,nc) = List_c(I,J,nc)
+              END DO
+              DO I = 1, Nsites_f(J,nc)
+                List_cf(I+Nsites_c(J,nc),J,nc) = List_f(I,J,nc)
+              END DO
+            enddo
+          enddo
+          
+          Renyi_c  = Calc_Renyi_Ent_gen_all(GRC,List_c,Nsites_c)
+          Renyi_f  = Calc_Renyi_Ent_gen_all(GRC,List_f,Nsites_f)
+          Renyi_cf = Calc_Renyi_Ent_gen_all(GRC,List_cf,Nsites_cf)
+          
+          deallocate(List_cf)
+          
+        End Subroutine Calc_Mutual_Inf_gen_all
+
+          Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN)
+#ifdef MPI
+          Use mpi
+#endif
+  
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          Integer, INTENT(IN)               :: List(:)
+          Integer, INTENT(IN)               :: Nsites, N_SUN
+
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          ! Integer, Dimension(:), Allocatable :: PIVOT
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
+          Integer          :: J, IERR, INFO, N_FL, nf, N_FL_half
+          Integer         , Dimension(:,:), Allocatable :: List_tmp
+          Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
           
           EXTERNAL ZGEMM
           EXTERNAL ZGETRF
           
           N_FL = size(GRC,3)
           N_FL_half = N_FL/2
+            
+          Calc_Renyi_Ent_indep=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
+
+          if (Nsites==0) then
+            Calc_Renyi_Ent_indep=0.d0
+            return
+          endif
+            
+#ifdef MPI
+          ! Check if entanglement replica group is of size 2 such that the second renyi entropy can be calculated
+          if(ENT_SIZE==2) then
           
-          Renyi=CMPLX(1.d0,0.d0,kind(0.d0))
+            allocate(List_tmp(NSITES,2))
+            Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites)) ! new
+
+            DO J = 1, 2
+              List_tmp(:,J)=List(:)
+              Nsites_tmp(J) = Nsites
+              N_SUN_tmp(J) = N_SUN
+            enddo
+
+            DO nf=1,N_FL_half
+              
+              DO J = 1, 2
+                nf_list(J) = 2*nf-2+J
+              enddo
+              PRODET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
+              
+            Enddo
+              
+            if (N_FL/=2*N_FL_half) then
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
+            
+            endif
+            
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
+            
+          else
+            ! if there had been an odd number of task in tempering group / world, set renyi to 0
+            Calc_Renyi_Ent_indep=CMPLX(0.d0,0.d0,kind(0.d0))
+          endif
+          
+          ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
+          Calc_Renyi_Ent_indep=Calc_Renyi_Ent_indep*weight
+          ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
+          ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+#endif
+              
+          End function Calc_Renyi_Ent_indep
+        
+        
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN)
+#ifdef MPI
+          Use mpi
+#endif
+
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          !Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          Integer, INTENT(IN) :: List(:,:)
+          Integer, INTENT(IN)               :: Nsites(:), N_SUN(:) ! new
+
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          ! Integer, Dimension(:), Allocatable :: PIVOT
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
+          Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
+          Integer         , Dimension(:,:), Allocatable :: List_tmp
+          Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
+          
+          EXTERNAL ZGEMM
+          EXTERNAL ZGETRF
+          
+          N_FL = size(GRC,3)
+
+          Allocate(SortedFlavors(N_FL)) ! new
+
+          ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
+          start_flav=0
+          if (Nsites(1)==0) start_flav = 1
+          SortedFlavors(1) = 1
+          DO I=2,N_FL
+            x = Nsites(I)
+            if (x==0) start_flav = start_flav + 1
+            J = I-1
+            DO while(J >= 1)
+              if(Nsites(J) <= x) exit
+              SortedFlavors(J+1) = J 
+              J = J - 1
+            end do
+            SortedFlavors(J+1) = I
+          END DO
+          if(start_flav==N_FL) then
+            Calc_Renyi_Ent_gen_fl=0.0d0
+            return
+          endif
+          N_FL_half = (N_FL-start_flav)/2
+          
+          Calc_Renyi_Ent_gen_fl=CMPLX(1.d0,0.d0,kind(0.d0))
           alpha=CMPLX(2.d0,0.d0,kind(0.d0))
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
@@ -140,132 +336,323 @@
           ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
           if(ENT_SIZE==2) then
           
-            Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
+            !Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
+            dim = Nsites(SortedFlavors(N_FL)) ! new
+            allocate(List_tmp(dim,2))
+            Allocate(GreenA(dim,2*dim),GreenA_tmp(dim,2*dim),IDA(dim,dim)) ! new
 
             DO nf=1,N_FL_half
-              ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
-              ! and GreenA_f_tmp (f electrons)
-              ! The first Nsites columns contains the spin up sector,
-              ! the last Nsites column the spin down sector
-              DO J = 1, Nsites
-                DO I = 1, Nsites
-                    GreenA_tmp(I,J) = GRC(List(I), List(J), 2*nf-1)
-                END DO
-              END DO
-              DO J = 1, Nsites
-                DO I = 1, Nsites
-                    GreenA_tmp(I,J+Nsites) = GRC(List(I), List(J), 2*nf)
-                END DO
-              END DO
-              ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
-              ! such that GreenA contains the reduced Green's function for two replicas
-              ! and a fixed spin sector.
-              CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
 
-              ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
-              IDA = - GreenA(1:Nsites, 1:Nsites) - GreenA(1:Nsites, Nsites+1:2*Nsites)
-              DO I = 1, Nsites
-                  IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
-              END DO
-              CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, alpha, GreenA(1, 1), &
-                  & Nsites, GreenA(1, Nsites+1), Nsites, beta, IDA, Nsites)
-              ! Compute determinant
-              SELECT CASE(Nsites)
-              CASE (1)
-                DET = IDA(1,1)
-              CASE (2)
-                DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
-              CASE DEFAULT
-                Allocate(PIVOT(Nsites))
-                CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
-                DET = cmplx(1.D0,0.D0,KIND(0.D0))
-                DO I = 1, Nsites
-                    IF (PIVOT(I).NE.I) THEN
-                      DET = -DET * IDA(I,I)
-                    ELSE
-                      DET = DET * IDA(I,I)
-                    END IF
-                ENDDO
-                Deallocate(PIVOT)
-              END SELECT
-              ! Compute the product of determinants for up and down spin sectors.
-              CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
-              ! Now each thread contains in PRODDET the full determinant, as obtained by
-              ! a pair of replicas.
-              Renyi = Renyi * PRODDET
+              DO J = 1, 2
+                nf_eff = SortedFlavors(start_flav+2*nf-2+J)
+                Nsites_tmp(J)=Nsites(nf_eff)
+                List_tmp(:,J)=List(:,nf_eff)
+                N_sun_tmp(J)=N_SUN(nf_eff)
+                nf_list(J)=nf_eff
+              enddo
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
               
             Enddo
               
-            if (N_FL/=2*N_FL_half) then
-            
-              ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
-              ! and GreenA_f_tmp (f electrons)
-              ! The first Nsites columns contains the last flavour sector,
-              ! the last Nsites column are old (Nf>2) or random, but they won't be used
-              DO J = 1, Nsites
-                DO I = 1, Nsites
-                    GreenA_tmp(I,J) = GRC(List(I), List(J), N_FL)
-                END DO
-              END DO
-              
-              ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
-              ! such that GreenA contains the reduced Green's function for two replicas
-              ! and a fixed spin sector.
-              CALL MPI_ALLTOALL(GreenA_tmp, Nsites**2, MPI_COMPLEX16, GreenA, Nsites**2, MPI_COMPLEX16, ENTCOMM, IERR)
-              
-              DET = cmplx(1.D0,0.D0,KIND(0.D0))
-              if(ENT_RANK==0) then
+            if (N_FL/=2*N_FL_half+start_flav) then
 
-                ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
-                IDA = - GreenA(1:Nsites, 1:Nsites) - GreenA(1:Nsites, Nsites+1:2*Nsites)
-                DO I = 1, Nsites
-                    IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
-                END DO
-                CALL ZGEMM('n', 'n', Nsites, Nsites, Nsites, alpha, GreenA(1, 1), &
-                    & Nsites, GreenA(1, Nsites+1), Nsites, beta, IDA, Nsites)
-                ! Compute determinant
-                SELECT CASE(Nsites)
-                CASE (1)
-                  DET = IDA(1,1)
-                CASE (2)
-                  DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
-                CASE DEFAULT
-                  Allocate(PIVOT(Nsites))
-                  CALL ZGETRF(Nsites, Nsites, IDA, Nsites, PIVOT, INFO)
-                  DO I = 1, Nsites
-                      IF (PIVOT(I).NE.I) THEN
-                        DET = -DET * IDA(I,I)
-                      ELSE
-                        DET = DET * IDA(I,I)
-                      END IF
-                  ENDDO
-                  Deallocate(PIVOT)
-                END SELECT
-              endif
-                
-              ! Compute the product of determinants for up and down spin sectors.
-              CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
-              ! Now each thread contains in PRODDET the full determinant, as obtained by
-              ! a pair of replicas.
-              
-              Renyi = Renyi * PRODDET
+              nf_eff = SortedFlavors(N_fl)
+              List_tmp(:,1)=List(:,nf_eff)
+            
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
             
             endif
             
-            Deallocate(GreenA,GreenA_tmp,IDA)
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
             
           else
             ! if there had been an odd number of task in tempering group / world, set renyi to 0
-            Renyi=CMPLX(0.d0,0.d0,kind(0.d0))
+            Calc_Renyi_Ent_gen_fl=CMPLX(0.d0,0.d0,kind(0.d0))
           endif
           
           ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
-          CALL MPI_ALLREDUCE(Renyi, PRODDET, 1, MPI_COMPLEX16, MPI_SUM, group, IERR)
-          Renyi=PRODDET/dble(norm)
+          Calc_Renyi_Ent_gen_fl=Calc_Renyi_Ent_gen_fl*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
 #endif
             
-        End Subroutine Calc_Renyi_Ent
+        End function Calc_Renyi_Ent_gen_fl
+
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_all(GRC,List,Nsites)
+#ifdef MPI
+          Use mpi
+#endif
+
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          Integer, Dimension(:,:,:), INTENT(IN) :: List
+          Integer, INTENT(IN)               :: Nsites(:,:)
+
+          Complex (kind=kind(0.d0)), Dimension(:,:), Allocatable :: GreenA, GreenA_tmp, IDA
+          ! Integer, Dimension(:), Allocatable :: PIVOT
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
+          Integer          :: nc, num_nc
+          Integer         , Dimension(:), Allocatable :: SortedFlavors,N_SUN_fl,df_list
+          Integer         , Dimension(:,:), Allocatable :: List_tmp, eff_ind, eff_ind_inv
+          Integer         , Dimension(2)              :: Nsites_tmp,nf_list,N_SUN_tmp
+          
+          EXTERNAL ZGEMM
+          EXTERNAL ZGETRF
+          
+          N_FL = size(GRC,3)
+          num_nc = size(List,3)
+          Allocate(SortedFlavors(num_nc*N_FL),N_SUN_fl(num_nc*N_FL),eff_ind(N_FL,num_nc),eff_ind_inv(2,N_FL*num_nc))
+
+          I=0
+          do nc=1,num_nc
+            do nf=1,N_FL
+              I=I+1
+              eff_ind(nf,nc)=i
+              eff_ind_inv(1,I)=nf
+              eff_ind_inv(2,I)=nc
+            enddo
+          enddo
+          N_SUN_fl=1
+
+          ! insertion sort for small number of elements, SortedFlavors lists flavors in order of size
+          start_flav=0
+          if (Nsites(1,1)==0) start_flav = 1
+          SortedFlavors(1) = 1
+          ! might have an update in the future to exchange color and flavor loops--optimization
+          DO I=2,N_FL*num_nc
+            x = Nsites(eff_ind_inv(1,I),eff_ind_inv(2,I))
+            if (x==0) start_flav = start_flav + 1
+            J = I-1
+            DO while(J >= 1)
+              if(Nsites(eff_ind_inv(1,J),eff_ind_inv(2,J)) <= x) exit
+              SortedFlavors(J+1) = J 
+              J = J - 1
+            end do
+            SortedFlavors(J+1) = I
+          END DO
+
+          if(start_flav==N_FL*num_nc) then
+            Calc_Renyi_Ent_gen_all=0.0d0
+            return
+          endif
+
+          N_FL_half = (N_FL*num_nc-start_flav)/2
+          
+          Calc_Renyi_Ent_gen_all=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
+            
+#ifdef MPI
+          ! Check if entanglement replica group is of size 2 such that the second reny entropy can be calculated
+          if(ENT_SIZE==2) then
+          
+            !Allocate(GreenA(Nsites,2*Nsites),GreenA_tmp(Nsites,2*Nsites),IDA(Nsites,Nsites))
+            nf=eff_ind_inv(1,SortedFlavors(N_FL*num_nc))
+            nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
+            dim = Nsites(nf,nc) ! new
+            allocate(List_tmp(dim,2))
+            Allocate(GreenA(dim,2*dim),GreenA_tmp(dim,2*dim),IDA(dim,dim)) ! new
+
+            DO I=1,N_FL_half
+
+              DO J = 1, 2
+                nf=eff_ind_inv(1,SortedFlavors(start_flav+2*I-2+J))
+                nc=eff_ind_inv(2,SortedFlavors(start_flav+2*I-2+J))
+                Nsites_tmp(J)=Nsites(nf,nc)
+                List_tmp(:,J)=List(:,nf,nc)
+                N_sun_tmp(J)=1
+                nf_list(J)=nf
+              enddo
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
+              
+            Enddo
+              
+            if (N_FL*num_nc/=2*N_FL_half+start_flav) then
+
+              nf=eff_ind_inv(1,SortedFlavors(N_FL*num_nc))
+              nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
+              List_tmp(:,1)=List(:,nf,nc)
+            
+              proddet = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,PRODDET,GreenA, GreenA_tmp, IDA)
+              Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
+            
+            endif
+            
+            Deallocate(GreenA,GreenA_tmp,IDA,List_tmp)
+              
+          else
+            ! if there had been an odd number of task in tempering group / world, set renyi to 0
+            Calc_Renyi_Ent_gen_all=CMPLX(0.d0,0.d0,kind(0.d0))
+          endif
+            
+          ! average over all pairs of replicas, the single task contributes nothing even so it takes part in the call
+          Calc_Renyi_Ent_gen_all=Calc_Renyi_Ent_gen_all*weight
+
+          ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
+          ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+#endif
+
+            
+        End function Calc_Renyi_Ent_gen_all
         
-      end Module entanglement
+#ifdef MPI
+        Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_pair(GRC,List,Nsites,nf_list,N_SUN,GreenA, GreenA_tmp, IDA)
+          Use mpi
+
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          Integer, Dimension(:,:), INTENT(IN) :: List ! new
+          Integer, INTENT(IN)               :: Nsites(2), N_SUN(2),nf_list(2) ! new
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+
+          Integer, Dimension(:), Allocatable :: PIVOT
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
+          Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
+
+
+          Calc_Renyi_Ent_pair=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
+          
+          dim=size(IDA,1)
+          ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
+          ! and GreenA_f_tmp (f electrons)
+          ! The first Nsites columns contains the spin up sector,
+          ! the last Nsites column the spin down sector
+          nf_eff = nf_list(1)
+
+          DO J = 1, Nsites(1)
+            Do I = 1, Nsites(1)
+              GreenA_tmp(I,J) = GRC(List(I,1),List(J,1),nf_eff)
+            END DO
+          END Do
+
+          nf_eff = nf_list(2)
+          DO J = 1, Nsites(2)
+            DO I = 1, Nsites(2)
+                GreenA_tmp(I,J+dim) = GRC(List(I,2), List(J,2), nf_eff)
+            END DO
+          END DO
+          ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
+          ! such that GreenA contains the reduced Green's function for two replicas
+          ! and a fixed spin sector.
+          CALL MPI_ALLTOALL(GreenA_tmp, dim**2, MPI_COMPLEX16, GreenA, dim**2, MPI_COMPLEX16, ENTCOMM, IERR)
+
+          ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
+          dim_eff = Nsites(1+ENT_RANK)
+          IDA(1:dim_eff,1:dim_eff) = - GreenA(1:dim_eff, 1:dim_eff) - GreenA(1:dim_eff, dim+1:dim+dim_eff)
+          DO I = 1, dim_eff
+              IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
+          END DO
+          CALL ZGEMM('n', 'n', dim_eff, dim_eff, dim_eff, alpha, GreenA(1, 1), &
+              & dim, GreenA(1, dim+1), dim, beta, IDA, dim)
+          ! Compute determinant
+          SELECT CASE(dim_eff)
+          CASE (1)
+            DET = IDA(1,1)
+          CASE (2)
+            DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
+          CASE DEFAULT
+            Allocate(PIVOT(dim_eff))
+            CALL ZGETRF(dim_eff, dim_eff, IDA, dim, PIVOT, INFO)
+            DET = cmplx(1.D0,0.D0,KIND(0.D0))
+            DO I = 1, dim_eff
+                IF (PIVOT(I).NE.I) THEN
+                  DET = -DET * IDA(I,I)
+                ELSE
+                  DET = DET * IDA(I,I)
+                END IF
+            ENDDO
+            Deallocate(PIVOT)
+          END SELECT
+          DET=DET**N_SUN(1+ENT_RANK)  !! ATTENTION take care of this!!!
+          ! Compute the product of determinants for up and down spin sectors.
+          CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
+          ! Now each thread contains in PRODDET the full determinant, as obtained by
+          ! a pair of replicas.
+          Calc_Renyi_Ent_pair = Calc_Renyi_Ent_pair * PRODDET
+        end function Calc_Renyi_Ent_pair
+
+        Complex (Kind=8) function Calc_Renyi_Ent_single(GRC,List,Nsites,nf_eff,N_SUN,GreenA, GreenA_tmp, IDA)
+          Use mpi
+          
+          Implicit none
+          
+          Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
+          Integer, Dimension(:), INTENT(IN) :: List ! new
+          Integer, INTENT(IN)               :: Nsites, N_SUN,nf_eff ! new
+          Complex (kind=kind(0.d0)), INTENT(OUT), Dimension(:,:) :: GreenA, GreenA_tmp, IDA
+
+          Integer, Dimension(:), Allocatable :: PIVOT
+          Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
+          Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
+
+          Calc_Renyi_Ent_single=CMPLX(1.d0,0.d0,kind(0.d0))
+          alpha=CMPLX(2.d0,0.d0,kind(0.d0))
+          beta =CMPLX(1.d0,0.d0,kind(0.d0))
+          
+          dim=size(IDA,1)
+          ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
+          ! and GreenA_f_tmp (f electrons)
+          ! The first Nsites columns contains the last flavour sector,
+          ! the last Nsites column are old (Nf>2) or random, but they won't be used
+          DO J = 1, Nsites
+            DO I = 1, Nsites
+                GreenA_tmp(I,J) = GRC(List(I), List(J), nf_eff)
+            END DO
+          END DO
+          
+          ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
+          ! such that GreenA contains the reduced Green's function for two replicas
+          ! and a fixed spin sector.
+          CALL MPI_ALLTOALL(GreenA_tmp, dim**2, MPI_COMPLEX16, GreenA, dim**2, MPI_COMPLEX16, ENTCOMM, IERR)
+          
+          DET = cmplx(1.D0,0.D0,KIND(0.D0))
+          if(ENT_RANK==0) then
+            dim_eff = NSites
+            ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
+            IDA = - GreenA(1:dim_eff, 1:dim_eff) - GreenA(1:dim_eff, dim+1:dim+dim_eff)
+            DO I = 1, dim_eff
+                IDA(I,I) = IDA(I,I) + CMPLX(1.d0,0.d0,kind(0.d0))
+            END DO
+            CALL ZGEMM('n', 'n', dim_eff, dim_eff, dim_eff, alpha, GreenA(1, 1), &
+                & dim, GreenA(1, dim+1), dim, beta, IDA, dim)
+            ! Compute determinant
+            SELECT CASE(dim_eff)
+            CASE (1)
+              DET = IDA(1,1)
+            CASE (2)
+              DET = IDA(1,1) * IDA(2,2) - IDA(1,2) * IDA(2,1)
+            CASE DEFAULT
+              Allocate(PIVOT(dim_eff))
+              CALL ZGETRF(dim_eff, dim_eff, IDA, dim, PIVOT, INFO)
+              DO I = 1, dim_eff
+                  IF (PIVOT(I).NE.I) THEN
+                    DET = -DET * IDA(I,I)
+                  ELSE
+                    DET = DET * IDA(I,I)
+                  END IF
+              ENDDO
+              Deallocate(PIVOT)
+            END SELECT
+            Det=Det**N_SUN
+          endif
+          
+          ! Compute the product of determinants for up and down spin sectors.
+          CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
+          ! Now each thread contains in PRODDET the full determinant, as obtained by
+          ! a pair of replicas.
+          Calc_Renyi_Ent_single = Calc_Renyi_Ent_single * PRODDET
+        end function Calc_Renyi_Ent_single
+#endif
+        
+      end Module entanglement_mod
+      
