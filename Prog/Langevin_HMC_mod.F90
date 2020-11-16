@@ -46,7 +46,7 @@
         Public :: Langevin_HMC, Langevin_HMC_type
         
         Type Langevin_HMC_type
-        private
+           private
            Character (Len=64)                      :: Update_scheme
            Logical                                 :: L_Forces
            Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
@@ -60,6 +60,7 @@
            procedure  ::    Update      => Langevin_HMC_update
            procedure  ::    set_L_Forces         => Langevin_HMC_set_L_Forces
            procedure  ::    get_Update_scheme    => Langevin_HMC_get_Update_scheme
+           procedure  ::    set_Update_scheme    => Langevin_HMC_set_Update_scheme
            procedure  ::    get_Delta_t_running  => Langevin_HMC_get_Delta_t_running
         end type Langevin_HMC_type
 
@@ -457,7 +458,7 @@
 !> ALF Collaboration
 !>
 !> @brief
-!>       Deallocates space for forces 
+!>       Deallocates space for forces  and prints out running time step
 !--------------------------------------------------------------------
 
       SUBROUTINE  Langevin_HMC_clear(this) 
@@ -465,6 +466,7 @@
         
         class (Langevin_HMC_type) :: this
         if (Trim(this%Update_scheme) == "Langevin" ) Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
+
         
       end SUBROUTINE Langevin_HMC_clear
 
@@ -494,10 +496,31 @@
         Implicit none
         
         class (Langevin_HMC_type) :: this
+        
         Character (Len=64) :: Langevin_HMC_get_Update_scheme
-        Langevin_HMC_get_Update_scheme = Langevin_HMC%get_Update_scheme()
+        
+        Langevin_HMC_get_Update_scheme =  this%Update_scheme
+        
       end function Langevin_HMC_get_Update_scheme
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!>       Sets the update_scheme
+!--------------------------------------------------------------------
+      subroutine Langevin_HMC_set_Update_scheme(this, Update_scheme )
+        Implicit none
+        
+        class (Langevin_HMC_type) :: this
+        
+        Character (Len=64), Intent(In) :: Update_scheme
+        
+        this%Update_scheme        =  Update_scheme
+
+      end subroutine Langevin_HMC_set_Update_scheme
+      
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration

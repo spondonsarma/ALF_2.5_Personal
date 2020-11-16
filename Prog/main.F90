@@ -474,10 +474,12 @@ Program Main
 #endif
 
         Sequential = .true.
-           
+        
         if ( Trim(Global_update_scheme) == "Langevin" ) then
            Call Langevin_HMC%make(Global_update_scheme, Delta_t_Langevin_HMC, Max_Force)
            Sequential = .False.
+        else
+           Call Langevin_HMC%set_Update_scheme(Global_update_scheme)
         endif
         
         !Call Test_Hamiltonian
