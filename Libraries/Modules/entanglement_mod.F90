@@ -572,7 +572,7 @@ Module entanglement_mod
             ENDDO
             Deallocate(PIVOT)
           END SELECT
-          DET=DET**N_SUN(1+ENT_RANK)  !! ATTENTION take care of this!!!
+          DET=DET**N_SUN(1+ENT_RANK)
           ! Compute the product of determinants for up and down spin sectors.
           CALL MPI_ALLREDUCE(DET, PRODDET, 1, MPI_COMPLEX16, MPI_PROD, ENTCOMM, IERR)
           ! Now each thread contains in PRODDET the full determinant, as obtained by
