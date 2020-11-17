@@ -423,7 +423,7 @@
 !--------------------------------------------------------------------
 
       
-      SUBROUTINE  Langevin_HMC_setup(this,Global_update_scheme, Delta_t_Langevin_HMC, Max_Force )
+      SUBROUTINE  Langevin_HMC_setup(this,Langevin,HMC, Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps )
 #ifdef MPI
         Use mpi
 #endif
@@ -435,7 +435,8 @@
 
         class (Langevin_HMC_type) :: this
 
-        Character (Len=64), Intent(in)          :: Global_Update_scheme
+        Logical                  , Intent(in)   :: Langevin, HMC
+        Integer                  , Intent(in)   :: Leapfrog_steps
         Real    (Kind=Kind(0.d0)), Intent(in)   :: Delta_t_Langevin_HMC, Max_Force
 
         !Local
@@ -449,8 +450,7 @@
 #endif
         
 
-        select case (Global_update_scheme)
-        case("Langevin")
+        If (Langevin) then 
            !  Check that all  fields are of type 3
            Do i = 1, Nr
               if ( nsigma%t(i) /= 3 ) then
@@ -461,7 +461,7 @@
            Nr = size(nsigma%f,1)
            Nt = size(nsigma%f,2)
            Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
-           this%Update_scheme        =  Global_update_scheme
+           this%Update_scheme        =  "Langevin"
            this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
            this%Max_Force            =  Max_Force
            this%L_Forces             = .False.
@@ -489,12 +489,12 @@
            else
               this%Delta_t_running      =  Delta_t_Langevin_HMC
            endif
-        case ("HMC")
+        elseif (HMC) then
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
            error stop 1
-        case default
-           this%Update_scheme        =  Global_update_scheme
-        end select
+        else
+           this%Update_scheme        =  "None"
+        endif
         
       end SUBROUTINE Langevin_HMC_setup
 
@@ -595,14 +595,21 @@
 !> @brief
 !>       Sets the update_scheme
 !--------------------------------------------------------------------
-      subroutine Langevin_HMC_set_Update_scheme(this, Update_scheme )
+      subroutine Langevin_HMC_set_Update_scheme(this, Langevin, HMC )
         Implicit none
         
         class (Langevin_HMC_type) :: this
         
-        Character (Len=64), Intent(In) :: Update_scheme
-        
-        this%Update_scheme        =  Update_scheme
+        Logical, intent(in) :: Langevin, HMC
+
+        If (Langevin) then
+           this%Update_scheme        =  "Langevin"
+        elseif (HMC)  then
+           this%Update_scheme        =  "HMC"
+        else
+           this%Update_scheme        =  "None"
+        endif
+           
 
       end subroutine Langevin_HMC_set_Update_scheme
       

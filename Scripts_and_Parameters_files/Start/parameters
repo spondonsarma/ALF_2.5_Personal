@@ -44,10 +44,11 @@ Nt_sequential_start  = 0    ! One can combine sequential and global moves on a t
 Nt_sequential_end    = -1   ! The program then carries out sequential local moves in the
                             ! range [Nt_sequential_start, Nt_sequential_end] followed by
                             ! N_Global_tau global moves
-Global_update_scheme = "Langevin"   ! Langevin or HMC
-Delta_t_Langevin_HMC = 0.01 ! Default time step for Langevin and HMC updates
-Max_Force            = 1.5  ! Max Force for  Langevin
-
+Langevin            = .F.   ! Langevin update
+Delta_t_Langevin_HMC=0.1    ! Default time step for Langevin and HMC updates
+Max_Force           = 5.0   ! Max Force for  Langevin
+HMC                 = .F.   ! HMC update
+Leapfrog_steps      = 0     ! Number of leapfrog interations
 /
 
 &VAR_errors                !! Variables for analysis programs
