@@ -36,15 +36,15 @@ The predefined measurements methods take as input Green functions \texttt{GR}, \
 			\texttt{Obs}                  & \texttt{Obser\_Latt} & \textbf{Output}: one or more measurement result\\
 			\bottomrule
 		\end{tabular}
-		\caption{Arguments taken by the subroutines in the module \texttt{Predefined\_Obs}. Note that a given method makes use of only a subset of this list, as specified in their calls described below.
-		   Note also that we use the superindex $i = (\ve{i}, n_{\ve{i}})$  where $\ve{i}$ denotes the unit cell and $n_{\ve{i}}$ the orbital. }		\label{table:predefined_obs}
+		\caption{Arguments taken by the subroutines in the module \texttt{Predefined\_Obs}. Note that a given method makes use of only a subset of this list, as described in this section.
+		Note also that we use the superindex $i = (\ve{i}, n_{\ve{i}})$  where $\ve{i}$ denotes the unit cell and $n_{\ve{i}}$ the orbital. }		\label{table:predefined_obs}
 	\end{center}
 \end{table}
 
 
-\subsubsection{Equal-time $SU(N)$ spin-spin correlations}
+\subsubsection{Equal-time SU(N) spin-spin correlations}
 \label{SU_N_equal_time.sec}
-A measurement of $SU(N)$ spin-spin correlations can be obtained by:
+A measurement of SU(N) spin-spin correlations can be obtained through:
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_eq_SpinSUN_measure(Latt, Latt_unit, List, GR, GRC, N_SUN, ZS, ZP, Obs)
 \end{lstlisting}
@@ -53,11 +53,11 @@ If \texttt{N\_FL = 1} then  this routine returns
 \begin{align}
 \texttt{Obs}(\ve{i}-\ve{j},n_{\ve{i}}, n_{\ve{j}})  = \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle \langle \ve{\hat{c}}^{\dagger}_{\vec{i}, n_{\ve{i}}} T^a \ve{\hat{c}}^{\phantom\dagger}_{\vec{i},n_{\ve{i}}}   \;   \ve{\hat{c}}^{\dagger}_{\vec{j},n_{\ve{j}}} T^a  \ve{\hat{c}}^{\phantom\dagger}_{\vec{j},n_{\ve{j}}}\rangle\rangle_C,
 \end{align}
-where $T^a$ are the generators of $SU(N)$ satisfying the normalization conditions  $\Tr [ T^a  T^b ]= \delta_{a,b}/2$ , $\Tr [ T^a ] = 0 $,    
+where $T^a$ are the generators of SU(N) satisfying the normalization conditions  $\Tr [ T^a  T^b ]= \delta_{a,b}/2$ , $\Tr [ T^a ] = 0 $,    
 $ \ve{\hat{c}}^{\dagger}_{\ve{j},n_{\ve{j}}}   =  \left(   \hat{c}^{\dagger}_{\ve{j}, n_{\ve{j}},1},   \cdots, \hat{c}^{\dagger}_{\ve{j},n_{\ve{j}},N}  \right)    $     is an N-flavored spinor,  
 $\ve{j}$   corresponds to the unit-cell index and $n_{\ve{j}}$    labels the orbital.
 
-Using  Wick's theorem,  valid for a given  configuration of   fields,  we  obtain
+Using Wick's theorem, valid for a given configuration of fields, we obtain
 \begin{multline}
  \texttt{Obs} =   \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}   \sum_{\alpha,\beta,\gamma, \delta = 1}^{N}     T^a_{\alpha,\beta}  T^a_{\gamma,\delta}   \times  \\
   \left( \langle \langle \hat{c}^{\dagger}_{\vec{i},n_{\ve{i}},\alpha} \hat{c}^{\phantom\dagger}_{\vec{i},n_{\ve{i}}, \beta }  \rangle\rangle_C  \langle \langle     \hat{c}^{\dagger}_{\vec{j}, n_{\ve{j}},\gamma}  \hat{c}^{\phantom\dagger}_{\vec{j},n_{\ve{j}},\delta}\rangle\rangle_C        +  
@@ -66,7 +66,7 @@ Using  Wick's theorem,  valid for a given  configuration of   fields,  we  obtai
 % \\
 %\sum_{a=1}^{N^2 - 1 }  \left\langle \hat{c}^{\dagger}_i T^a c_i  c^{\dagger}_j T^a  c_j\right\rangle   = \sum_{a} \Tr{T^a T^a} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle = \frac{N^2 -1}{2} \langle c^{\dagger}_i c_j\rangle \langle c_i c^{\dagger}_j\rangle.
 \end{multline}
-For this $SU(N)$ symmetric code, the  Green function  is diagonal  in the spin  index and spin independent: 
+For this SU(N) symmetric code, the  Green function  is diagonal  in the spin  index and spin independent: 
 \begin{equation}
  \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}},\alpha} \hat{c}^{}_{\vec{j},  n_{\ve{j}}, \beta }  \rangle\rangle_C  =  \delta_{\alpha,\beta}  \langle \langle \hat{c}^{\dagger}_{\vec{i},  n_{\ve{i}}} \hat{c}^{}_{\vec{j} ,  n_{\ve{j}}}  \rangle\rangle_C.
 \end{equation}
@@ -111,7 +111,7 @@ i & 0
 1 & 0 \\
 0 & -1 
 \end{bmatrix}
-\right) 
+\right) \label{eq:vecPaulimat}
  \end{equation}
  the Pauli spin  matrices. 
  {\color{red}  Add this to the code since you are not assuming SU(2) spin symmetry.}
@@ -159,10 +159,10 @@ Which returns:
 \end{align}
 
 
-\subsubsection{Time-displaced $SU(N)$ spin-spin correlations}
+\subsubsection{Time-displaced SU(N) spin-spin correlations}
 
 
-A measurement of time-displaced spin-spin correlations for $SU(N)$ models ($N_\text{fl} = 1$) can be obtained by:
+A measurement of time-displaced spin-spin correlations for SU(N) models ($N_\text{fl} = 1$) can be obtained by:
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_tau_SpinSUN_measure(Latt, Latt_unit, List, NT, GT0, G0T, G00, GTT, 
                                         N_SUN, ZS, ZP, Obs)
@@ -171,7 +171,7 @@ Call Predefined_Obs_tau_SpinSUN_measure(Latt, Latt_unit, List, NT, GT0, G0T, G00
 \texttt{Obs}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} )= \frac{2N}{N^2-1}\sum_{a=1}^{N^2 - 1}  \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  \;
     \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} T^a \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}    \rangle  \rangle_{C}
 \end{align}
-where $T^a$ are the generators of $SU(N)$ (see Sec.~\ref{SU_N_equal_time.sec}  for more details).
+where $T^a$ are the generators of SU(N) (see Sec.~\ref{SU_N_equal_time.sec}  for more details).
 
 
 \subsubsection{Time-displaced spin correlations}
@@ -195,7 +195,7 @@ Which calculates the following observables:
 
 \subsubsection{Time-displaced density-density correlations}
 
-A measurement of time-displaced density-density correlations for general $SU(N)$ models is given by:
+A measurement of time-displaced density-density correlations for general SU(N) models is given by:
 \begin{lstlisting}[style=fortran]
 Call Predefined_Obs_tau_Den_measure(Latt, Latt_unit, List,  NT, GT0, G0T, G00, GTT,
                                     N_SUN, ZS, ZP,  Obs)

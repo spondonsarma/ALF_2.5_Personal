@@ -119,7 +119,7 @@ All in all, the partition function is given by:
      & \equiv  \sum_{C} e^{-S(C) } + \mathcal{O}(\Delta\tau^{2})\;.
 \end{align}
 In the above, one notices that the weight factorizes in  the flavor index. The color index raises the determinant to the power $N_{\mathrm{col}}$. 
-This corresponds to  an explicit $SU(N_{\mathrm{col}})$ symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions are color independent, again for each given  configuration $C$.
+This corresponds to  an explicit SU($N_{\mathrm{col}}$) symmetry   for each  configuration. This symmetry is manifest in the fact that the single particle  Green functions are color independent, again for each given  configuration $C$.
 
 %------------------------------------------------------------
 \subsubsection{Observables}\label{sec:Observables.General}
@@ -141,7 +141,7 @@ where $ \mathcal{T} $ denotes the imaginary-time ordering operator.   The  corre
 \begin{equation}
        G( x,\sigma,s, \tau |    x',\sigma',s', \tau)   =       \langle \langle  \hat{c}^{\phantom\dagger}_{x \sigma s} (\tau)  \hat{c}^{\dagger}_{x' \sigma' s'} (\tau) \rangle \rangle_{C}.
 \end{equation}
-Since, for a given HS field, translation invariance in imaginary-time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent of the color index. The latter reflects the  explicit $SU(N)$   color symmetry present at the level of individual HS configurations.   As an example,  one can show that the equal-time Green function at $\tau = 0$ reads \cite{Assaad08_rev}:
+Since, for a given HS field, translation invariance in imaginary-time is broken, the Green function has an explicit $\tau$ and $\tau'$ dependence.   On the other hand it is diagonal in the flavor index, and independent of the color index. The latter reflects the  explicit SU(N) color symmetry present at the level of individual HS configurations.   As an example,  one can show that the equal-time Green function at $\tau = 0$ reads \cite{Assaad08_rev}:
 \begin{equation}\label{eqn:Green_eq}
 G(x,\sigma,s,0| x',\sigma,s,0 )  =   \left(  \mathds{1}  +  \prod_{\tau = 1}^{L_{\text{Trotter}}}  \bm{B}_{\tau}^{(s)}   \right)^{-1}_{x,x'}
 \end{equation}
@@ -219,6 +219,7 @@ and we have  $\langle \sgn \rangle_{\overline{P}} \in \mathbb{R}$ per definition
 The Monte Carlo simulation samples the probability distribution 
 \begin{equation}  
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
+\label{Eq:Pbar}
 \end{equation}
 such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be computed.   
 
