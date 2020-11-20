@@ -202,6 +202,32 @@ Module entanglement_mod
           
         End Subroutine Calc_Mutual_Inf_gen_all
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Compute the Renyi entropy for patches of the same N sites for each 
+!> flavor and color degree of freedom. Returns expontiated Renyi entropy.
+!> @details
+!> @param [IN] GRC Complex(:,:,:)
+!> \verbatim
+!>  Greens function
+!> \endverbatim
+!> @param [IN] List  Integer(:)
+!> \verbatim
+!>  List of sites that each patch will use.
+!> \endverbatim
+!> @param [IN] Nsites   Integer
+!> \verbatim
+!>  Number of sites in each patch.
+!> \endverbatim
+!> @param [IN] N_SUN   Integer
+!> \verbatim
+!>  Number of color degrees of freedom.
+!> \endverbatim
+!-------------------------------------------------------------------
+
           Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN)
 #ifdef MPI
           Use mpi
@@ -278,7 +304,33 @@ Module entanglement_mod
 #endif
               
           End function Calc_Renyi_Ent_indep
-        
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Compute the Renyi entropy for a list of site patches that may differ for
+!> each flavor, but each given flavor patch f will be the same across
+!> NSUN(f) color degrees of freedom. Returns expontiated Renyi entropy.
+!> @details
+!> @param [IN] GRC Complex(:,:,:)
+!> \verbatim
+!>  Greens function
+!> \endverbatim
+!> @param [IN] List  Integer(:,:)
+!> \verbatim
+!>  List(:,f) gives the list of sites that the flavor patch i contains.
+!> \endverbatim
+!> @param [IN] Nsites(:)   Integer
+!> \verbatim
+!>  Number of sites in each flavor patch.
+!> \endverbatim
+!> @param [IN] N_SUN(:)   Integer
+!> \verbatim
+!>  Number of color degrees of freedom for each flavor patch.
+!> \endverbatim
+!-------------------------------------------------------------------        
         
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN)
 #ifdef MPI
@@ -379,6 +431,31 @@ Module entanglement_mod
 #endif
             
         End function Calc_Renyi_Ent_gen_fl
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Compute the Renyi entropy for a generic set of site patches that may differ
+!> for each flavor and color degree of freedom combination.
+!> Returns expontiated Renyi entropy.
+!> @details
+!> @param [IN] GRC Complex(:,:,:)
+!> \verbatim
+!>  Greens function
+!> \endverbatim
+!> @param [IN] List  Integer(:,:,:)
+!> \verbatim
+!>  List(:,f,c) gives the list of sites that the patch with flavor index f and
+!>  color index c contains.
+!> \endverbatim
+!> @param [IN] Nsites(:,:)   Integer
+!> \verbatim
+!>  Nsites(f,c) gives the number of sites in the patch for flavor f and color c.
+!> \endverbatim
+!-------------------------------------------------------------------   
 
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_all(GRC,List,Nsites)
 #ifdef MPI
