@@ -279,13 +279,13 @@ Module entanglement_mod
               DO J = 1, 2
                 nf_list(J) = 2*nf-2+J
               enddo
-              PRODET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
               
             Enddo
               
             if (N_FL/=2*N_FL_half) then
-              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,PRODDET,GreenA, GreenA_tmp, IDA)
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites,N_fl,N_SUN,GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_indep = Calc_Renyi_Ent_indep * PRODDET
             
             endif
@@ -402,7 +402,7 @@ Module entanglement_mod
                 N_sun_tmp(J)=N_SUN(nf_eff)
                 nf_list(J)=nf_eff
               enddo
-              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,PRODDET,GreenA, GreenA_tmp, IDA)
+              PRODDET = Calc_Renyi_Ent_pair(GRC,List_tmp,Nsites_tmp,nf_list,N_SUN_tmp,GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
               
             Enddo
@@ -412,7 +412,7 @@ Module entanglement_mod
               nf_eff = SortedFlavors(N_fl)
               List_tmp(:,1)=List(:,nf_eff)
             
-              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),PRODDET,GreenA, GreenA_tmp, IDA)
+              PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
             
             endif
@@ -555,7 +555,7 @@ Module entanglement_mod
               nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
               List_tmp(:,1)=List(:,nf,nc)
             
-              proddet = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,PRODDET,GreenA, GreenA_tmp, IDA)
+              proddet = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
             
             endif
