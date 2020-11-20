@@ -11,7 +11,7 @@ This can be achieved through the maximum entropy method (MaxEnt), which generica
 \begin{equation}
 g(\tau) =  \int_{\omega_\mathrm{start}}^{\omega_\mathrm{end}} \d{\omega} K(\tau,\omega) A(\omega).
 \end{equation} 
-The  ALF package includes a standard implementation of the stochastic MaxEnt, as formulated in the article of K. Beach~\cite{Beach04a}, in the module \texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90}. Its wrapper is contained in \texttt{Analysis/Max\_SAC.F90} and the Green function is read from the
+The  ALF package includes a standard implementation of the stochastic MaxEnt, as formulated in the article of K. Beach~\cite{Beach04a}, in the module \texttt{Libraries/Modules/\allowbreak{}maxent\_stoch\_mod.F90}. Its wrapper is found in \texttt{Analysis/Max\_SAC.F90} and the Green function is read from the
 %file \texttt{g\_dat}, corresponding to the 
 output of the \texttt{cov\_tau.F90} analysis program.
 %Here we will comment on the method's workflow.
@@ -23,7 +23,7 @@ The stochastic MaxEnt is essentially a parallel-tempering Monte Carlo simulation
   \chi^{2}(A) =  \sum_{i,j=1}^{n}   \left[ g(\tau_i)  -  \overline{g(\tau_i)} \right] C^{-1}(\tau_i,\tau_j) \left[    g(\tau_j)  -  \overline{g(\tau_j)} \right] ,
 \end{equation}
 with $ \overline{g(\tau_i)} =\int \d{\omega} K(\tau_{i},\omega)  A(\omega)$ and  $C$ the covariance matrix. 
-The set of inverse temperatures considered in the parallel tempering is given by
+The set of $N_{\alpha}$ inverse temperatures considered in the parallel tempering is given by
 $ \alpha_m = \alpha_{st}  R^{m}$, for $m = 1 \cdots N_{\alpha} $ and a constant $R$. The phase space corresponds to all possible spectral functions satisfying a given sum rule and the required positivity.  Finally, the partition function reads
 $Z =  \int\mathcal{D}\!A\; e^{-\alpha \chi^{2}(A)}$ \cite{Beach04a}.
 
@@ -38,7 +38,7 @@ Besides the parameters included in the namelist \texttt{VAR\_Max\_Stoch} set in 
 \subsubsection*{Input files} 
 Aside for the aforementioned parameter file, the MaxEnt program requires the output of the  analysis of the time displaced functions. After running \texttt{Anaylsis/ana.out} a directory named    \texttt{\$\{Variable\_name\}}\texttt{\_\$\{kx\}\_\$\{ky\}}   is  generate for each $k$-point.  In this directory  the file \texttt{g\_\$\{kx\}\_\$\{ky\}} contains the  required information for the MaxEnt code  and is  formatted as follows:
 \begin{alltt}
- < # tau-points >  <# of bins >  <beta>  <Norb>  <Channel>
+< # tau-points >  <# of bins >  <beta>  <Norb>  <Channel>
 do tau = 1,  # tau-points
    \( \tau \),  \( \sum\sb{\alpha}\langle{S}\sb{\alpha,\alpha}\sp{(\mathrm{corr})}(k,\tau)\rangle\),   error
 enddo

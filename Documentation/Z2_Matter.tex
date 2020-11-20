@@ -44,13 +44,13 @@ and  $\Ztwo$ matter fields:
 \begin{bmatrix}
 1 & 0 \\
 0 & -1 
-\end{bmatrix},  
+\end{bmatrix},\quad
 \hat{\tau}^{x}_{\vec{i} }  = 
 \begin{bmatrix}
 0 & 1 \\
 1 & 0 
-\end{bmatrix}, 
-\left\{ \hat{\tau}^{z}_{ \vec{i} } , \hat{\tau}^x_{\vec{i}'} \right\}  =  2 \left( 1 -  \delta_{ \vec{i}, \vec{i}' } \right) 
+\end{bmatrix},\quad 
+\left\{ \hat{\tau}^{z}_{ \vec{i} }, \hat{\tau}^x_{\vec{i}'} \right\}  =  2 \left( 1 -  \delta_{ \vec{i}, \vec{i}' } \right) 
 \hat{\tau}^{z}_{ \vec{i} }  \hat{\tau}^x_{ \vec{i}' }.
 \end{align}
  Fermions,  gauge fields and $\Ztwo$ matter fields commute with each other. 
@@ -125,8 +125,8 @@ Note that $\left\{ \hat{\mu}^{z}_{\langle \vec{i}, \vec{j} \rangle} , \hat{\mu}^
 
 The model  can then be written as:
 \begin{align}
-	\hat{H} =& -  t_{\Ztwo} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{\sigma}^z_{\langle \vec{i}, \vec{j} \rangle}
-	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
+	\hat{H} =& - t_{\Ztwo}\! \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \hat{\sigma}^z_{\langle \vec{i}, \vec{j} \rangle}
+	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} \!+ h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  
 	-g \sum_{\langle \vec{i}, \vec{j} \rangle } \hat{\sigma}^{x}_{\langle \vec{i}, \vec{j} \rangle }  +
 	  K \sum_{\square} \prod_{\langle \vec{i}, \vec{j} \rangle \in \partial \square} \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}  \nonumber \\
 	& + J  \sum_{\langle \vec{i}, \vec{j} \rangle}  \hat{\mu}^z_{ \langle \pmb{i}, \ve{j} \rangle }  \hat{\sigma}^{z}_{\langle \vec{i}, \vec{j} \rangle}    
@@ -134,7 +134,7 @@ The model  can then be written as:
 	         \hat{\mu}^{x}_{\ve{i} + \ve{a}_y, \ve{i}  }	\nonumber  \\      
 	&        - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \hat{\mu}^z_{\pmb{i},\ve{j}}    \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right) + \frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2 
 \end{align}  
-subject to the constraint of Eq.~\ref{zero_flux.eq}.  
+subject to the constraint of Eq.~\eqref{zero_flux.eq}.  
 
 To formulate the Monte Carlo, we work in a basis in which  $\hat{\mu}^{z}_{ \langle  \ve{i}, \ve{j} \rangle }$,  $ \hat{\tau}^{z}_{   \ve{0} } $  and  $ \hat{\sigma}^{z}_{ \langle  \ve{i}, \ve{j} \rangle }$    are diagonal: 
 \begin{align}
@@ -145,7 +145,7 @@ To formulate the Monte Carlo, we work in a basis in which  $\hat{\mu}^{z}_{ \lan
 with $ \underline{s} = \left( \left\{  \mu_{ \langle  \ve{i}, \ve{j} \rangle }  \right\},  \left\{  \sigma_{ \langle  \ve{i}, \ve{j} \rangle }  \right\},  \tau_{\ve{0}}  \right) $. 
 In this basis,
 \begin{equation}
-   Z  =  \sum_{\underline {s}_1, \cdots, \underline {s}_{L_{\tau}}}  e^{-S_0( \left\{ \underline{s}_\tau \right\})} \text{Tr}_F   \left[    \prod_{\tau=1}^{L_{\tau}} e^{- \Delta \tau \hat{H}_F(\underline{s}_{\tau}) } \right]
+   Z  =  \sum_{\underline {s}_1, \cdots, \underline {s}_{L_{\tau}}}  e^{-S_0( \left\{ \underline{s}_\tau \right\})} \text{Tr}_F   \left[    \prod_{\tau=1}^{L_{\tau}} e^{- \Delta \tau \hat{H}_F(\underline{s}_{\tau}) } \right],
  \end{equation}
  where 
  \begin{align*}
@@ -160,11 +160,10 @@ In this basis,
 and 
  \begin{align*}
    \hat{H}_F(\underline{s})  = 
-   	     & -  t_{\Ztwo} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \sigma_{\langle \vec{i}, \vec{j} \rangle}
-	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}     
-         - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \mu_{\pmb{i},\ve{j}}    \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)  
-         \\
-         & +\frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2. 
+   	     & - t_{\Ztwo} \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma } \sigma_{\langle \vec{i}, \vec{j} \rangle}
+	\left(\hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma}   + h.c. \right) - \mu \sum_{\vec{i},\sigma} \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{i},\sigma}  \\
+         & - t  \sum_{\langle \vec{i}, \vec{j} \rangle, \sigma }   \mu_{\pmb{i},\ve{j}}    \left( \hat{\Psi}^{\dagger}_{\vec{i},\sigma} \hat{\Psi}^{\phantom{\dagger}}_{\vec{j},\sigma} 	+ h.c. \right)  
+         +\frac{U}{N}\sum_{\ve{i}} \left[ \sum_{\sigma}  ( \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\Psi}^{\phantom\dagger}_{\ve{i},\sigma} - 1/2 ) \right]^2. 
  \end{align*}
 In the above, $  | \underline{s}_{L_\tau+1}  \rangle  = | \underline{s}_{1}  \rangle   $.  With a further  HS transformation of the Hubbard term (see Sec.~\ref{Hubbard_SUN_HS.eq})  the model is readily implemented in the ALF.    Including this HS field, $l$,  [see Eq.~\eqref{HS_squares}] yields  the configuration space: 
 \begin{equation}
@@ -190,11 +189,11 @@ For the fermion part we use a Fermi sea with small dimerization to avoid the neg
 An alternative  choice would  be to choose a  charge density wave  fermionic trial wave function.     This   violates the partial particle-hole symmetry of the model at $U=\mu=0$ and effectively imposes the constraint $\hat{Q}_{\ve{i}} =1 $.
 
 \subsubsection{Observables} 
-Aside from the  standard  observables discussed in Sec.~\ref{sec:predefined_observales}  the code  computes  
-\begin{equation} 
-	\big\langle  \hat{\sigma}^{x}_{ \langle \ve{i},\ve{j} \rangle } \big\rangle    \quad\text{and}\quad  \big\langle  \hat{\tau}^{x}_{ \ve{j}  } \big\rangle    \nonumber
-\end{equation}
-(file  \texttt{X\_scal}), 
+Apart from the  standard  observables discussed in Sec.~\ref{sec:predefined_observales}  the code computes additionally  
+\begin{equation*} 
+	\big\langle  \hat{\sigma}^{x}_{ \langle \ve{i},\ve{j} \rangle } \big\rangle    \quad\text{and}\quad  \big\langle  \hat{\tau}^{x}_{ \ve{j}  } \big\rangle,
+\end{equation*}
+which are written to file  \texttt{X\_scal}; 
 \begin{equation*}
 	\big\langle  \hat{\sigma}^{z}_{ \langle \ve{i},\ve{i} + \ve{a}_x \rangle }   \hat{\sigma}^{z}_{ \langle \ve{i} + \ve{a}_x ,\ve{i} + \ve{a}_x +  \ve{a}_y   \rangle }  
 	\hat{\sigma}^{z}_{ \langle \ve{i}+ \ve{a}_x +  \ve{a}_y ,\ve{i} + \ve{a}_y \rangle }   \hat{\sigma}^{z}_{ \langle \ve{i} + \ve{a}_y,\ve{i}  \rangle }   \big\rangle
@@ -202,9 +201,9 @@ Aside from the  standard  observables discussed in Sec.~\ref{sec:predefined_obse
 	and
 \begin{equation*}
 	\big\langle  \hat{\mu}^{z}_{ \langle \ve{i},\ve{i} + \ve{a}_x \rangle }   \hat{\mu}^{z}_{ \langle \ve{i} + \ve{a}_x ,\ve{i} + \ve{a}_x +  \ve{a}_y   \rangle }  
-	\hat{\mu}^{z}_{ \langle \ve{i}+ \ve{a}_x +  \ve{a}_y ,\ve{i} + \ve{a}_y \rangle }   \hat{\mu}^{z}_{ \langle  \ve{i} + \ve{a}_y,\ve{i}  \rangle }   \big\rangle
+	\hat{\mu}^{z}_{ \langle \ve{i}+ \ve{a}_x +  \ve{a}_y ,\ve{i} + \ve{a}_y \rangle }   \hat{\mu}^{z}_{ \langle  \ve{i} + \ve{a}_y,\ve{i}  \rangle }   \big\rangle,
 \end{equation*}
-(file \texttt{Flux\_scal} ), as well as $ \langle \hat{Q}_{\ve{i}} \rangle $ (file \texttt{Q\_scal}).  Note that the flux over a plaquette  of the $\hat{\mu}^{z}_{ \langle \ve{i},\ve{j} \rangle  } $   is equal to unity by construction  so that this observable  provides a sanity check.    The file \texttt{Q\_eq} contains the two-point correlation $ \langle \hat{Q}_{\ve{i}} \hat{Q}_{\ve{j}} \rangle -  \langle \hat{Q}_{\ve{i}} \rangle \langle \hat{Q}_{\ve{j}} \rangle $  and \texttt{Greenf\_eq}  the equal-time fermion   Green function 
+written to file \texttt{Flux\_scal}; and also $ \langle \hat{Q}_{\ve{i}} \rangle $ (file \texttt{Q\_scal}).  Note that the flux over a plaquette  of the $\hat{\mu}^{z}_{ \langle \ve{i},\ve{j} \rangle  } $   is equal to unity by construction  so that this observable  provides a sanity check.    The file \texttt{Q\_eq} contains the two-point correlation $ \langle \hat{Q}_{\ve{i}} \hat{Q}_{\ve{j}} \rangle -  \langle \hat{Q}_{\ve{i}} \rangle \langle \hat{Q}_{\ve{j}} \rangle $  and \texttt{Greenf\_eq}  the equal-time fermion   Green function 
 $ \langle  \hat{\tau}^{z}_{\ve{i}}  \hat{\Psi}^{\dagger}_{\ve{i},\sigma}  \hat{\tau}^{z}_{\ve{j}}  \hat{\Psi}^{\phantom\dagger}_{\ve{j},\sigma}   \rangle $.
 
 
@@ -239,20 +238,20 @@ has to be imposed locally. Since $\left(  \tau^{x}_{\vec{i}}\right)^2 = 1 $, the
  \begin{equation}
         \left[ \hat{H}_{\Ztwo}, \hat{Q}_{\vec{i}} \right] = 0.
  \end{equation}
-Hence  one can foresee that the constraint will be dynamically imposed (we expect a finite temperature Ising phase  transitions  below which $\hat{Q}_{\ve{i}} $  orders) and that at  $T=0$ on a finite lattice both models should give the same results.
+Hence  one can foresee that the constraint will be dynamically imposed (we expect a finite-temperature Ising phase  transition below which $\hat{Q}_{\ve{i}}$ orders) and that at  $T=0$ on a finite lattice both models should give the same results.
 
 
 A test run for the $8\times 8 $ lattice at $U/t = 4$ and $\beta t = 40$ gives:
 \begin{center}
 \begin{tabular}{@{} c c c @{}}
  \toprule
-   k   &  $\langle n_k \rangle_{H} $  &  $\langle n_k \rangle_{H_{\Ztwo}} $ \\
+   k                      & $\langle n_k \rangle_{H} $     &  $\langle n_k \rangle_{H_{\Ztwo}}$\\
   \midrule
-   $(0,0)$                      & $1.93348548    \pm    0.00011322$  &   $ 1.93333895   \pm     0.00010405 $ \\
-   $(\pi/4, \pi/4)$             & $1.90120688     \pm   0.00014854$  &  $1.90203726  \pm      0.00017943 $ \\
-   $(\pi/2, \pi/2)$             & $0.99942957     \pm   0.00091377$  & $1.00000000    \pm     0.00000000$\\
-   $(3\pi/4, 3\pi/4)$         &  $0.09905425     \pm   0.00015940$ & $ 0.09796274   \pm     0.00017943 $ \\
-   $(\pi,\pi)$                   & $0.06651452     \pm   0.00011321$  &  $ 0.06666105     \pm  0.00010405   $ \\
+   $(0,0)$                & $1.93348548  \pm  0.00011322$  &  $ 1.93333895  \pm  0.00010405 $ \\
+   $(\pi/4, \pi/4)$       & $1.90120688  \pm  0.00014854$  &  $ 1.90203726  \pm  0.00017943 $ \\
+   $(\pi/2, \pi/2)$       & $0.99942957  \pm  0.00091377$  &  $ 1.00000000  \pm  0.00000000 $ \\
+   $(3\pi/4, 3\pi/4)$     & $0.09905425  \pm  0.00015940$  &  $ 0.09796274  \pm  0.00017943 $ \\
+   $(\pi,\pi)$            & $0.06651452  \pm  0.00011321$  &  $ 0.06666105  \pm  0.00010405 $ \\
   \bottomrule
 \end{tabular}
 
@@ -260,7 +259,7 @@ A test run for the $8\times 8 $ lattice at $U/t = 4$ and $\beta t = 40$ gives:
 \vspace*{0.5cm}
 Here a Trotter time step of  $\Delta \tau t = 0.05$ was used in order to minimize the systematic error   which should be different  between the two codes.   The Hamiltonian is invariant under a partial particle-hole transformation (see Ref.~\cite{Assaad16}).
 Since $\hat{Q}_{\ve{i}} $ is odd under this  transformation, $\langle \hat{Q}_{\ve{i}}  \rangle =0$.
- To asses if the constraint is well imposed,  the code,  for this special case, computes the correlation function:
+ To asses whether the constraint is well imposed,  the code,  for this special case, computes the correlation function:
 \begin{equation}
 	   S_Q(\ve{q})  = \sum_{\ve{i}}    \langle \hat{Q}_{\ve{i}} \hat{Q}_{\ve{0}}   \rangle.
 \end{equation}
