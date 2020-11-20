@@ -8,49 +8,35 @@
 %-----------------------------------------------------------------------------------
 \subsubsection{R{\'e}nyi Entropy}
 %-----------------------------------------------------------------------------------
-The provided module \texttt{entanglement\_mod.F90} allows to compute the $2^{\rm o}$ R\'enyi entropy $S_2$ for a subsystem. Only real-space partitions are currently supported.
+The provided module \texttt{entanglement\_mod.F90} allows to compute the $2^{\rm o}$ R\'enyi entropy $S_2$ for a subsystem.
+This is obtained by sampling an observable constructed from two independent simulations of the model \cite{Grover13}
+\begin{equation}
+e^{-S_2} = \sum_{C_1,C_2} P(C_2) P(C_1) {\rm det}\left[G_A(C_1)G_A(C_2)-(\mathds{1} - G_A(C_1))(\mathds{1} - G_A(C_2))\right],
+\label{renyi_obs}
+\end{equation}
+where $G_A(C_i)$, $i=1$, $2$ is the Green's function matrix restricted to the subsystem $A$ in exam, depending on the configuration $C_i$ of the replica $i$.
+Due to the formulation, sampling of $S_2$ requires a MPI simulation with at least $2$ tasks.
+Only real-space partitions are currently supported.
 The degrees of freedom defining the subsystem are identified by the lattice site, flavor, and color indexes.
-Routines with different level of specialization, are provided.
 
 \begin{lstlisting}[style=fortran]
-Obs = Calc_Renyi_Ent_gen_all(GRC,List,Nsites)
+Call Predefined_Obs_scal_Renyi_Ent(GRC, List, Nsites, N_SUN, ZS, ZP, Obs)
 \end{lstlisting}
+This subroutine returns an observable \texttt{Obs} such that $\langle\texttt{Obs}\rangle=e^{-S_2}$.
+It can be called for different levels of specialization.
 
-This returns an observable \texttt{Obs} such that $\langle\texttt{Obs}\rangle=e^{-S_2}$. \texttt{List(:, N\_FL, N\_SUN)} is a three-dimensional array that contains, for every flavor and color index the list of lattice sites pertaining to the subsystem. \texttt{Nsites(N\_FL, N\_SUN)} is a bidimensional array that provides the number of lattice sites in the subsystem for every flavor and color index.
+In the most general case, \texttt{List(:, N\_FL, N\_SUN)} is a three-dimensional array that contains, for every flavor and color index, the list of lattice sites pertaining to the subsystem. \texttt{Nsites(N\_FL, N\_SUN)} is a bidimensional array that provides the number of lattice sites in the subsystem for every flavor and color index. \texttt{N\_SUN} must be omitted.
 
-\begin{lstlisting}[style=fortran]
-Obs = Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN)
-\end{lstlisting}
-This computes the observable for the R\'enyi entropy for a subsystem whose degrees of freedom, for a given flavor index, have a common value of color indexes. \texttt{List(:, N\_FL)} is a bidimensional array that contains, for every flavor index, the list of lattice sites of the subsystem. \texttt{Nsites(N\_FL)} contains the number of sites in the subsystem for any given flavor index. \texttt{N\_SUN(N\_FL)} contains the number of color indexes for a given flavor index.
+For a subsystem whose degrees of freedom, for a given flavor index, have a common value of color indexes, \texttt{Predefined\_Obs\_scal\_Renyi\_Ent} can be called by providing in \texttt{List(:, N\_FL)} a bidimensional array that contains the list of lattice sites for every flavor index. In this case, \texttt{Nsites(N\_FL)} provides the number of sites in the subsystem for any given flavor index, while \texttt{N\_SUN(N\_FL)} contains the number of color indexes for a given flavor index.
 
-\begin{lstlisting}[style=fortran]
-Obs = Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN)
-\end{lstlisting}
-Same as before, for a subsystem whose lattice degrees of freedom are flavor- and color-independent. \texttt{List(:)} is a one-dimensional array containing the lattice sites of the subsystem.
-\texttt{N\_SUN} is the number of color indexes belonging to the subsystem.
-For every element \texttt{I} of \texttt{List}, the subsystem contains all degrees of freedom with site index \texttt{I}, any flavor index, and \texttt{1} \ldots \texttt{N\_SUN} color index.
-
-\begin{lstlisting}[style=fortran]
-Call Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,
-                             Renyi_c,Renyi_f,Renyi_cf)
-\end{lstlisting}
-This routine computes the second R\'enyi entropy observables needed to extract the mutual information between a subsystem $c$ and $f$. \texttt{List\_c}, and \texttt{Nsites} are input parameters describing the subsystem $c$, with the same convention as for \texttt{Calc\_Renyi\_Ent\_gen\_all}. \texttt{List\_f} and \texttt{Nsites\_f} are the corresponding input parameters for the subsystem $f$. \texttt{Renyi\_c}, \texttt{Renyi\_f}, and \texttt{Renyi\_cf} are the output variables, containing the R\'enyi observables for the subsystem $c$, $f$, and $c\cup f$. The mutual information between $c$ and $f$ is $I_2=-\ln \langle \texttt{Renyi\_c}\rangle -\ln \langle \texttt{Renyi\_f}\rangle +\ln \langle \texttt{Renyi\_cf}\rangle$.
+Finally, an additional specialization exists for a subsystem whose lattice degrees of freedom are flavor- and color-independent. In this case, \texttt{List(:)} is a one-dimensional array containing the lattice sites of the subsystem. \texttt{Nsites} is the number of sites, and \texttt{N\_SUN} is the number of color indexes belonging to the subsystem.
+Accordingly, for every element \texttt{I} of \texttt{List}, the subsystem contains all degrees of freedom with site index \texttt{I}, any flavor index, and \texttt{1} \ldots \texttt{N\_SUN} color index.
 
 \begin{lstlisting}[style=fortran,breaklines=true]
-Calc_Mutual_Inf_gen_fl(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
-\end{lstlisting}
-This is the analog of \texttt{Calc\_Mutual\_Inf\_gen\_all} for two subsytems with the same assumptions and convention of \texttt{Calc\_Renyi\_Ent\_gen\_fl}. Notice that \texttt{N\_SUN} is assumed to be identical for both subsystems.
-
-\begin{lstlisting}[style=fortran,breaklines=true]
-Call Calc_Mutual_Inf_indep(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
-\end{lstlisting}
-This is the analog of \texttt{Calc\_Mutual\_Inf\_gen\_all} for two subsytems with the same assumptions and convention of \texttt{Calc\_Renyi\_Ent\_indep}.
-
-For convenience, we also provide the interfaces \texttt{Calc\_Renyi\_Ent} and \texttt{Calc\_Mutual\_Inf} to the specialization listed above, respectively. The argument list provided in the call determines the specialization that is executed.
-
-Finally, the following wrappers can be used to add the R{\'e}nyi entropy and mutual information measurments to the according Observables \texttt{Obs}, with \texttt{N\_SUN} as an optional argument as explained in detail above:
-\begin{lstlisting}[style=fortran,breaklines=true]
-Call Predefined_Obs_scal_Renyi_Ent(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
-Call Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_c, Nsites_c, List_f, Nsites_f,
+Call Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B,
                                           N_SUN, ZS, ZP, Obs )
 \end{lstlisting}
+This routine computes the observables for the second R\'enyi entropies, which are needed to extract the mutual information between two subsystems $A$ and $B$.
+\texttt{List\_A} and \texttt{Nsites\_A} are input parameters describing the subsystem $A$, with the same conventions and specializations described above.
+\texttt{List\_B} and \texttt{Nsites\_B} are the corresponding input parameters for the subsystem $B$. \texttt{N\_SUN} is assumed to be identical for $A$ and $B$.
+\texttt{Renyi\_A}, \texttt{Renyi\_B}, and \texttt{Renyi\_AB} are the output observables, pertaining to $A$, $B$, and $A\cup B$. The mutual information between $A$ and $B$ is $I_2=-\ln \langle \texttt{Renyi\_A}\rangle -\ln \langle \texttt{Renyi\_B}\rangle +\ln \langle \texttt{Renyi\_AB}\rangle$.
