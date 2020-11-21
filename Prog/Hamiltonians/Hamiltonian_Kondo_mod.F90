@@ -28,8 +28,6 @@
 !
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version
-
-
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -164,6 +162,8 @@
 
 
 !>    Privat Observables
+      Type (Unit_cell),   private, Target  :: Latt_unit_Grf  ! Unit cell for Greenf correlation functions
+                                                             ! Lattice is the same.
       Type (Obser_Vec ),  private, dimension(:), allocatable ::   Obs_scal
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
@@ -351,9 +351,22 @@
           Use Predefined_Lattices
 
           Implicit none
+          Integer :: n
           ! Use predefined stuctures or set your own lattice.
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
-
+          Select case (Lattice_type)
+          Case ("Bilayer_square")
+             Latt_Unit_Grf%Norb      = 1
+             Allocate (Latt_Unit_Grf%Orb_pos_p(1,2))
+             Latt_Unit_Grf%Orb_pos_p(1,:) = 0.d0
+          Case ("Bilayer_honeycomb")
+             Latt_Unit_Grf%Norb    = 2
+             Latt_Unit_Grf%N_coord = 3
+             Allocate (Latt_Unit_Grf%Orb_pos_p(2,2))
+             Latt_Unit%Orb_pos_p(1,:) = 0.d0
+             Latt_Unit%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
+          end Select
+          
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
 !> @author
@@ -477,7 +490,7 @@
 
           N_ops = 0
           if (abs(Ham_Uc)  > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
-          if (abs(Ham_Uf) > Zero ) N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
+          if (abs(Ham_Uf) > Zero )  N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
           if (abs(Ham_JK) > Zero ) Then
              if (N_SUN == 2 ) then
                 N_ops = N_ops + Latt%N*Latt_Unit%Norb/2
@@ -552,6 +565,7 @@
           Character (len=64) ::  Filename
           Character (len=2)  ::  Channel
 
+          
 
           ! Scalar observables
           Allocate ( Obs_scal(5) )
@@ -594,7 +608,7 @@
 
           If (Ltau == 1) then
              ! Equal time correlators
-             Allocate ( Obs_tau(3) )
+             Allocate ( Obs_tau(4) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
@@ -603,12 +617,18 @@
                    Channel = 'PH'; Filename = "SpinZ"
                 case (3)
                    Channel = 'PH'; Filename = "Den"
+                case (4)
+                   Channel = 'P'; Filename = "Greenf"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
                 Nt = Ltrot+1-2*Thtrot
                 If(Projector) Channel = 'T0'
-                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+                if (I == 4 ) then
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_Grf, Channel, dtau)
+                else
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+                endif
              enddo
           endif
 
@@ -773,7 +793,7 @@
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS, ZZ, ZXY
           Real    (Kind=Kind(0.d0)) :: X
-          Integer :: IMJ, I, J, I1, J1, no_I, no_J
+          Integer :: IMJ, I_c, I_f, J_c, J_f, I,J, no_I, no_J
 
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
@@ -785,6 +805,26 @@
           Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
           Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
+          ! Greenf correlations
+          If (NT == 0 ) then
+             obs_tau(4)%N        = obs_tau(4)%N + 1
+             obs_tau(4)%Ave_sign = obs_tau(4)%Ave_sign + real(ZS,kind(0.d0))
+          endif
+          Do I = 1,Latt%N
+             do no_I  = 1, Latt_unit%Norb / 2
+                I_c = List(I,no_I)
+                I_f = List(I,no_I + Latt_unit%Norb / 2 ) 
+                Do J = 1,Latt%N
+                   Imj = latt%imj(I,J)
+                   do no_J  = 1, Latt_unit%Norb / 2
+                      J_c = List(J,no_J)
+                      J_f = List(J,no_J + Latt_unit%Norb / 2 )
+                      Z  = Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
+                      obs_tau(4)%Obs_Latt(imj,NT+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,NT+1,no_I,no_J) + Z*ZP*ZS
+                   enddo
+                enddo
+             enddo
+          enddo
         end Subroutine OBSERT
 
 #include "Hamiltonian_Hubbard_include.h"
