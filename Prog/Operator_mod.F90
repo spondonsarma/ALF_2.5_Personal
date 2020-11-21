@@ -714,21 +714,21 @@ Contains
   end Subroutine Op_Wrapdo
   
   function Op_is_real(Op) result(retval)
-  Implicit None
-  
-  Type (Operator) , INTENT(IN)   :: Op
-  Logical ::retval
-  Real (Kind=Kind(0.d0)) :: myzero
-  integer :: i,j
-  
-  retval = (Abs(aimag(Op%g)) < Abs(Op%g)*epsilon(1.D0))
-  ! calculate a matrix scale
-  myzero = maxval(abs(Op%E))*epsilon(Op%E)
-  
-  do i = 1, Op%N
-    do j = 1, Op%N
-    retval = retval .and. (Abs(aimag(Op%O(i,j))) < myzero)
+    Implicit None
+    
+    Type (Operator) , INTENT(IN)   :: Op
+    Logical ::retval
+    Real (Kind=Kind(0.d0)) :: myzero
+    integer :: i,j
+    
+    retval = (Abs(aimag(Op%g)) < Abs(Op%g)*epsilon(1.D0))
+    ! calculate a matrix scale
+    myzero = maxval(abs(Op%E))*epsilon(Op%E)
+    
+    do i = 1, Op%N
+      do j = 1, Op%N
+        retval = retval .and. (Abs(aimag(Op%O(i,j))) < myzero)
+      enddo
     enddo
-  enddo
   end function Op_is_real
 end Module Operator_mod

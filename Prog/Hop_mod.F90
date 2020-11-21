@@ -203,7 +203,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  1, Ncheck
-                dummy => vec(nf)%at(nc)
+            dummy => vec(nf)%at(nc)
             call dummy%rmult(In)
           Enddo
 
