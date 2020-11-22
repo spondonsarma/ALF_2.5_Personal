@@ -34,6 +34,9 @@ module OpTTypes_mod
     use ContainerElementBase_mod
     use Operator_mod
     implicit none
+
+    private
+    public :: RealOpT, CmplxOpT
     
     !--------------------------------------------------------------------
     !> @author
