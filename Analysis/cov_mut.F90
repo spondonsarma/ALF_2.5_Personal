@@ -125,13 +125,13 @@
            WRITE(21,2001) IOBS, XM,  XERR
         ENDDO
         If (Nobs==4) then
-          write(*,*) "you should not be here"
           WRITE(21,*)
-          CALL ERRCALCJ(Obs(1:Nbins_eff,:),SIGN,XM,XERR,N_Rebin,mutinf)
-          WRITE(21,2001) IOBS, XM,  XERR
+          CALL ERRCALCJ(Obs(1:Nbins_eff,1:3),SIGN,XM,XERR,N_Rebin,mutinf)
+          WRITE(21,2002) Nobs+1, XM,  XERR
         endif
         CLOSE(21)
 2001    FORMAT('OBS : ', I4,4x,E16.6,2X, E16.6)
+2002    FORMAT('Mut : ', I4,4x,E16.6,2X, E16.6)
         
         if(N_auto>0) then
             ALLOCATE(AutoCorr(N_auto))
