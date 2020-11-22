@@ -576,8 +576,59 @@ Module entanglement_mod
 
             
         End function Calc_Renyi_Ent_gen_all
-        
+       
+       
 #ifdef MPI
+! The following two helper function cannot do meaningfull calculatios without MPI.
+! Hence they are only declared and defined when MPI is present.
+! They are designed as helper functions within this module and won't be called here if MPI isn't defined
+! However, they are currently still public such that a user may call them directly,
+! with the neccessary MPI protection clauses.
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Compute the Renyi entropy for a generic pair of patches.
+!> Returns expontiated Renyi entropy.
+!> @details
+!> @param [IN] GRC Complex(:,:,:)
+!> \verbatim
+!>  Greens function
+!> \endverbatim
+!> @param [IN] List  Integer(:,:)
+!> \verbatim
+!>  List(:,1:2) gives the list of sites of the first/second patch of the pair.
+!> \endverbatim
+!> @param [IN] Nsites(2)   Integer
+!> \verbatim
+!>  Nsites(1:2) gives the number of sites in the patches of the pair.
+!> \endverbatim
+!> @param [IN] nf_list(2)   Integer
+!> \verbatim
+!>  nf_list(1:2) gives the flavor of the patches in the pair.
+!> \endverbatim
+!> @param [IN] N_SUN(2)   Integer
+!> \verbatim
+!>  N_SUN(1:2) gives the number of colors of the patches in the pair.
+!> \endverbatim
+!> @param [IN] GreenA Complex(:,:)
+!> \verbatim
+!>  temporary Greens function storage of dimension (dim,2*dim).
+!>  Dim has to be larger or equal to the larger patch size.
+!> \endverbatim
+!> @param [IN] GreenA_tmp Complex(:,:)
+!> \verbatim
+!>  same as GreenA.
+!> \endverbatim
+!> @param [IN] IDA Complex(:,:)
+!> \verbatim
+!>  temporary Greens function storage of dimension (dim,dim).
+!>  Dim has to be the same as in GreenA and GreenA_tmp.
+!> \endverbatim
+!-------------------------------------------------------------------   
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_pair(GRC,List,Nsites,nf_list,N_SUN,GreenA, GreenA_tmp, IDA)
           Use mpi
 
@@ -657,6 +708,49 @@ Module entanglement_mod
           Calc_Renyi_Ent_pair = Calc_Renyi_Ent_pair * PRODDET
         end function Calc_Renyi_Ent_pair
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Compute the Renyi entropy for a single unpaired patches.
+!> Returns expontiated Renyi entropy.
+!> @details
+!> @param [IN] GRC Complex(:,:,:)
+!> \verbatim
+!>  Greens function
+!> \endverbatim
+!> @param [IN] List  Integer(:)
+!> \verbatim
+!>  List(:,1:2) gives the list of sites of the patch.
+!> \endverbatim
+!> @param [IN] Nsites   Integer
+!> \verbatim
+!>  Nsites gives the number of sites in the patch.
+!> \endverbatim
+!> @param [IN] nf_list   Integer
+!> \verbatim
+!>  nf_list gives the flavor of the patch.
+!> \endverbatim
+!> @param [IN] N_SUN   Integer
+!> \verbatim
+!>  N_SUN gives the number of colors of the patch.
+!> \endverbatim
+!> @param [IN] GreenA Complex(:,:)
+!> \verbatim
+!>  temporary Greens function storage of dimension (dim,2*dim).
+!>  Dim has to be larger or equal to the larger patch size.
+!> \endverbatim
+!> @param [IN] GreenA_tmp Complex(:,:)
+!> \verbatim
+!>  same as GreenA.
+!> \endverbatim
+!> @param [IN] IDA Complex(:,:)
+!> \verbatim
+!>  temporary Greens function storage of dimension (dim,dim).
+!>  Dim has to be the same as in GreenA and GreenA_tmp.
+!> \endverbatim
+!-------------------------------------------------------------------   
         Complex (Kind=8) function Calc_Renyi_Ent_single(GRC,List,Nsites,nf_eff,N_SUN,GreenA, GreenA_tmp, IDA)
           Use mpi
           
