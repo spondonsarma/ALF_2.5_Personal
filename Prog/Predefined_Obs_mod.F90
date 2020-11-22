@@ -528,7 +528,7 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Renyi_Ent_indep
       
@@ -546,7 +546,7 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_fl
       
@@ -564,7 +564,7 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all
       
@@ -582,9 +582,9 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_indep
       
@@ -602,9 +602,9 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl
       
@@ -622,9 +622,9 @@
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all
 

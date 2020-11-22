@@ -131,6 +131,7 @@ Module entanglement_mod
           Integer          :: I, J, IERR, INFO, N_FL, Nsites_AB_max
 
           N_FL=size(GRC,3)
+          Allocate(Nsites_AB(N_FL))
           Nsites_AB_max=0
           do I=1,N_FL
             Nsites_AB(I)=Nsites_A(I)+Nsites_B(I)
@@ -152,7 +153,7 @@ Module entanglement_mod
           Renyi_B  = Calc_Renyi_Ent_gen_fl(GRC,List_B,Nsites_B,N_SUN)
           Renyi_AB = Calc_Renyi_Ent_gen_fl(GRC,List_AB,Nsites_AB,N_SUN)
           
-          deallocate(List_AB)
+          deallocate(List_AB,Nsites_AB)
           
         End Subroutine Calc_Mutual_Inf_gen_fl
           
@@ -175,6 +176,7 @@ Module entanglement_mod
 
           N_FL=size(GRC,3)
           num_nc=size(List_B,3)
+          Allocate(Nsites_AB(N_FL,num_nc))
           Nsites_AB_max=0
           do nc=1,num_nc
             do I=1,N_FL
@@ -200,7 +202,7 @@ Module entanglement_mod
           Renyi_B  = Calc_Renyi_Ent_gen_all(GRC,List_B,Nsites_B)
           Renyi_AB = Calc_Renyi_Ent_gen_all(GRC,List_AB,Nsites_AB)
           
-          deallocate(List_AB)
+          deallocate(List_AB,Nsites_AB)
           
         End Subroutine Calc_Mutual_Inf_gen_all
 
@@ -400,7 +402,7 @@ Module entanglement_mod
               DO J = 1, 2
                 nf_eff = SortedFlavors(start_flav+2*nf-2+J)
                 Nsites_tmp(J)=Nsites(nf_eff)
-                List_tmp(:,J)=List(:,nf_eff)
+                List_tmp(:,J)=List(1:dim,nf_eff)
                 N_sun_tmp(J)=N_SUN(nf_eff)
                 nf_list(J)=nf_eff
               enddo
@@ -412,7 +414,7 @@ Module entanglement_mod
             if (N_FL/=2*N_FL_half+start_flav) then
 
               nf_eff = SortedFlavors(N_fl)
-              List_tmp(:,1)=List(:,nf_eff)
+              List_tmp(:,1)=List(1:dim,nf_eff)
             
               PRODDET = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf_eff),nf_eff,N_SUN(nf_eff),GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_gen_fl = Calc_Renyi_Ent_gen_fl * PRODDET
@@ -542,7 +544,7 @@ Module entanglement_mod
                 nf=eff_ind_inv(1,SortedFlavors(start_flav+2*I-2+J))
                 nc=eff_ind_inv(2,SortedFlavors(start_flav+2*I-2+J))
                 Nsites_tmp(J)=Nsites(nf,nc)
-                List_tmp(:,J)=List(:,nf,nc)
+                List_tmp(:,J)=List(1:dim,nf,nc)
                 N_sun_tmp(J)=1
                 nf_list(J)=nf
               enddo
@@ -555,7 +557,7 @@ Module entanglement_mod
 
               nf=eff_ind_inv(1,SortedFlavors(N_FL*num_nc))
               nc=eff_ind_inv(2,SortedFlavors(N_FL*num_nc))
-              List_tmp(:,1)=List(:,nf,nc)
+              List_tmp(:,1)=List(1:dim,nf,nc)
             
               proddet = Calc_Renyi_Ent_single(GRC,List_tmp(:,1),Nsites(nf,nc),nf,1,GreenA, GreenA_tmp, IDA)
               Calc_Renyi_Ent_gen_all = Calc_Renyi_Ent_gen_all * PRODDET
