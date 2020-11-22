@@ -44,9 +44,11 @@ Module entanglement_mod
       Real (kind=kind(0.d0)), save, private :: weight
 
       INTERFACE Calc_Renyi_Ent
+        !> Interface to Calc_Renyi_Ent function.
         MODULE PROCEDURE Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl
       END INTERFACE
       INTERFACE Calc_Mutual_Inf
+        !> Interface to Calc_Mutual_Inf Subroutine.
         MODULE PROCEDURE Calc_Mutual_Inf_indep, Calc_Mutual_Inf_gen_fl, Calc_Mutual_Inf_gen_all
       END INTERFACE
       Contains
