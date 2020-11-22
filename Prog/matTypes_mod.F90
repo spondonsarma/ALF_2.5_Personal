@@ -34,6 +34,9 @@ module matTypes_mod
     use ContainerElementBase_mod
     implicit none
 
+    private
+    public :: RealMat, CmplxMat
+
     type, extends(ContainerElementBase) :: RealMat
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat
         Integer :: m, n

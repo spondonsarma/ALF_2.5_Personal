@@ -34,6 +34,9 @@
 module ContainerElementBase_mod
     implicit none
 
+    private
+    public :: ContainerElementBase
+
     ! Base for defining the interface
     type, abstract :: ContainerElementBase
     contains
