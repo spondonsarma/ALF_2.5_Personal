@@ -37,6 +37,9 @@ module DynamicMatrixArray_mod
     Use ContainerElementBase_mod
     implicit none
 
+    private
+    public :: DynamicMatrixArray
+
     type :: OpTBasePtrWrapper
         class(ContainerElementBase), pointer :: dat => null()
     end type
