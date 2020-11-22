@@ -645,7 +645,7 @@ Module entanglement_mod
 
           Integer, Dimension(:), Allocatable :: PIVOT
           Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
-          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, nf_eff, start_flav, dim_sq
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
 
@@ -654,6 +654,7 @@ Module entanglement_mod
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
           dim=size(IDA,1)
+          dim_sq=dim*dim
           ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
           ! and GreenA_f_tmp (f electrons)
           ! The first Nsites columns contains the spin up sector,
@@ -675,7 +676,7 @@ Module entanglement_mod
           ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
           ! such that GreenA contains the reduced Green's function for two replicas
           ! and a fixed spin sector.
-          CALL MPI_ALLTOALL(GreenA_tmp, dim**2, MPI_COMPLEX16, GreenA, dim**2, MPI_COMPLEX16, ENTCOMM, IERR)
+          CALL MPI_ALLTOALL(GreenA_tmp, dim_sq, MPI_COMPLEX16, GreenA, dim_sq, MPI_COMPLEX16, ENTCOMM, IERR)
 
           ! Compute Identity - GreenA(replica=1) - GreenA(replica=2) + 2 GreenA(replica=1) * GreenA(replica=2)
           dim_eff = Nsites(1+ENT_RANK)
@@ -767,7 +768,7 @@ Module entanglement_mod
 
           Integer, Dimension(:), Allocatable :: PIVOT
           Complex (kind=kind(0.d0)) :: DET, PRODDET, alpha, beta
-          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav
+          Integer          :: I, J, IERR, INFO, N_FL, nf, N_FL_half, x, dim, dim_eff, start_flav, dim_sq
           Integer         , Dimension(:), Allocatable :: SortedFlavors ! new
 
           Calc_Renyi_Ent_single=CMPLX(1.d0,0.d0,kind(0.d0))
@@ -775,6 +776,7 @@ Module entanglement_mod
           beta =CMPLX(1.d0,0.d0,kind(0.d0))
           
           dim=size(IDA,1)
+          dim_sq=dim*dim
           ! We store the reduced Green's function in GreenA_c_tmp (c electrons)
           ! and GreenA_f_tmp (f electrons)
           ! The first Nsites columns contains the last flavour sector,
@@ -788,7 +790,7 @@ Module entanglement_mod
           ! This exchange the last Nsites columns of GreenA_c_tmp between the two replicas
           ! such that GreenA contains the reduced Green's function for two replicas
           ! and a fixed spin sector.
-          CALL MPI_ALLTOALL(GreenA_tmp, dim**2, MPI_COMPLEX16, GreenA, dim**2, MPI_COMPLEX16, ENTCOMM, IERR)
+          CALL MPI_ALLTOALL(GreenA_tmp, dim_sq, MPI_COMPLEX16, GreenA, dim_sq, MPI_COMPLEX16, ENTCOMM, IERR)
           
           DET = cmplx(1.D0,0.D0,KIND(0.D0))
           if(ENT_RANK==0) then
