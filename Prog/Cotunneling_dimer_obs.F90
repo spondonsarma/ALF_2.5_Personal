@@ -20,7 +20,7 @@
         Complex  (Kind=Kind(0.d0))   ::  G(3,3), G1(3,3,2), Z
 
         Predefined_Obs_Cotunneling  = cmplx(0.d0,0.d0,kind(0.d0))
-        If (N_FL == 2)  then
+        If (N_FL == 1)  then
            G(1,1)  = 1.d0 - GTT(I_f,I_f,1)
            G(1,2)  = -G0T(J_c,I_f,1)
            G(1,3)  = -G0T(J_f,I_f,1)
