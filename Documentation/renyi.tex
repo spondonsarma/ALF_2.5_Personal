@@ -33,8 +33,8 @@ Finally, an additional specialization exists for a subsystem whose lattice degre
 Accordingly, for every element \texttt{I} of \texttt{List}, the subsystem contains all degrees of freedom with site index \texttt{I}, any flavor index, and \texttt{1} \ldots \texttt{N\_SUN} color index.
 
 \begin{lstlisting}[style=fortran,breaklines=true]
-Call Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B,
-                                          N_SUN, ZS, ZP, Obs )
+Call Predefined_Obs_scal_Mutual_Inf(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, 
+                                    ZS, ZP, Obs )
 \end{lstlisting}
 This routine computes the observables for the second R\'enyi entropies, which are needed to extract the mutual information between two subsystems $A$ and $B$.
 \texttt{List\_A} and \texttt{Nsites\_A} are input parameters describing the subsystem $A$, with the same conventions and specializations described above.
