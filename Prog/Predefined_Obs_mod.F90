@@ -568,63 +568,63 @@
         
       end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all
       
-      Subroutine Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_c, Nsites_c, List_f, Nsites_f, N_SUN, ZS, ZP, Obs )
+      Subroutine Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
 
         Implicit none
-        Integer, Dimension(:), INTENT(IN)     :: List_c, List_f
-        Integer, INTENT(IN)                   :: Nsites_c ,Nsites_f, N_SUN
+        Integer, Dimension(:), INTENT(IN)     :: List_A, List_B
+        Integer, INTENT(IN)                   :: Nsites_A ,Nsites_B, N_SUN
         Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
         Type (Obser_Vec),    Intent(inout)   :: Obs
         
-        Complex (kind=kind(0.d0))  :: Renyi_c, Renyi_f, Renyi_cf
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
 
-        call Calc_Mutual_Inf_indep(GRC, List_c, Nsites_c, List_f, Nsites_f, N_SUN, Renyi_c, Renyi_f, Renyi_cf)
+        call Calc_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_c* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_f* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_cf* ZP*ZS
+        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_indep
       
-      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl(GRC, List_c, Nsites_c, List_f, Nsites_f, N_SUN, ZS, ZP, Obs )
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
 
         Implicit none
-        Integer, Dimension(:,:), INTENT(IN)   :: List_c, List_f
-        Integer, Dimension(:), INTENT(IN)     :: Nsites_c ,Nsites_f, N_SUN
+        Integer, Dimension(:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:), INTENT(IN)     :: Nsites_A ,Nsites_B, N_SUN
         Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
         Type (Obser_Vec),    Intent(inout)   :: Obs
         
-        Complex (kind=kind(0.d0))  :: Renyi_c, Renyi_f, Renyi_cf
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
 
-        call Calc_Mutual_Inf_gen_fl(GRC, List_c, Nsites_c, List_f, Nsites_f, N_SUN, Renyi_c, Renyi_f, Renyi_cf)
+        call Calc_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_c* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_f* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_cf* ZP*ZS
+        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl
       
-      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all(GRC, List_c, Nsites_c, List_f, Nsites_f, ZS, ZP, Obs )
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, ZS, ZP, Obs )
 
         Implicit none
-        Integer, Dimension(:,:,:), INTENT(IN)   :: List_c, List_f
-        Integer, Dimension(:,:), INTENT(IN)     :: Nsites_c ,Nsites_f
+        Integer, Dimension(:,:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:,:), INTENT(IN)     :: Nsites_A ,Nsites_B
         Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
         Type (Obser_Vec),    Intent(inout)   :: Obs
         
-        Complex (kind=kind(0.d0))  :: Renyi_c, Renyi_f, Renyi_cf
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
 
-        call Calc_Mutual_Inf_gen_all(GRC, List_c, Nsites_c, List_f, Nsites_f, Renyi_c, Renyi_f, Renyi_cf)
+        call Calc_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, Renyi_A, Renyi_B, Renyi_AB)
         
         Obs%N        = Obs%N + 1
         Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
-        Obs%Obs_vec(1)   = Renyi_c* ZP*ZS
-        Obs%Obs_vec(2)   = Renyi_f* ZP*ZS
-        Obs%Obs_vec(3)   = Renyi_cf* ZP*ZS
+        Obs%Obs_vec(1)   = Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Renyi_AB* ZP*ZS
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all
 

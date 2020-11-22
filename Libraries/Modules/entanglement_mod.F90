@@ -80,34 +80,34 @@ Module entanglement_mod
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
         ! ! (n, n+1), with n=0,2,...
-        Subroutine Calc_Mutual_Inf_indep(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
+        Subroutine Calc_Mutual_Inf_indep(GRC,List_A,Nsites_A,List_B,Nsites_B,N_SUN,Renyi_A,Renyi_B,Renyi_AB)
 
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
-          Integer, Dimension(:), INTENT(IN) :: List_c, List_f
-          Integer, INTENT(IN)               :: Nsites_c ,Nsites_f, N_SUN
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+          Integer, Dimension(:), INTENT(IN) :: List_A, List_B
+          Integer, INTENT(IN)               :: Nsites_A ,Nsites_B, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_A, Renyi_B, Renyi_AB
 
-          Integer, Dimension(:), Allocatable :: List_cf
-          Integer          :: I, J, IERR, INFO, Nsites_cf
+          Integer, Dimension(:), Allocatable :: List_AB
+          Integer          :: I, J, IERR, INFO, Nsites_AB
 
-          Nsites_cf=Nsites_c+Nsites_f
+          Nsites_AB=Nsites_A+Nsites_B
           
-          allocate(List_cf(Nsites_cf))
+          allocate(List_AB(Nsites_AB))
           
-          DO I = 1, Nsites_c
-             List_cf(I) = List_c(I)
+          DO I = 1, Nsites_A
+             List_AB(I) = List_A(I)
           END DO
-          DO I = 1, Nsites_f
-             List_cf(I+Nsites_c) = List_f(I)
+          DO I = 1, Nsites_B
+             List_AB(I+Nsites_A) = List_B(I)
           END DO
           
-          Renyi_c  = Calc_Renyi_Ent_indep(GRC,List_c,Nsites_c,N_SUN)
-          Renyi_f  = Calc_Renyi_Ent_indep(GRC,List_f,Nsites_f,N_SUN)
-          Renyi_cf = Calc_Renyi_Ent_indep(GRC,List_cf,Nsites_cf,N_SUN)
+          Renyi_A  = Calc_Renyi_Ent_indep(GRC,List_A,Nsites_A,N_SUN)
+          Renyi_B  = Calc_Renyi_Ent_indep(GRC,List_B,Nsites_B,N_SUN)
+          Renyi_AB = Calc_Renyi_Ent_indep(GRC,List_AB,Nsites_AB,N_SUN)
           
-          deallocate(List_cf)
+          deallocate(List_AB)
           
         End Subroutine Calc_Mutual_Inf_indep
           
@@ -116,41 +116,41 @@ Module entanglement_mod
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
         ! ! (n, n+1), with n=0,2,...
-        Subroutine Calc_Mutual_Inf_gen_fl(GRC,List_c,Nsites_c,List_f,Nsites_f,N_SUN,Renyi_c,Renyi_f,Renyi_cf)
+        Subroutine Calc_Mutual_Inf_gen_fl(GRC,List_A,Nsites_A,List_B,Nsites_B,N_SUN,Renyi_A,Renyi_B,Renyi_AB)
 
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
-          Integer, Dimension(:,:), INTENT(IN)      :: List_c, List_f
-          Integer, Dimension(:), INTENT(IN)        :: Nsites_c ,Nsites_f, N_SUN
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+          Integer, Dimension(:,:), INTENT(IN)      :: List_A, List_B
+          Integer, Dimension(:), INTENT(IN)        :: Nsites_A ,Nsites_B, N_SUN
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_A, Renyi_B, Renyi_AB
 
-          Integer, Allocatable :: List_cf(:,:), Nsites_cf(:)
-          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max
+          Integer, Allocatable :: List_AB(:,:), Nsites_AB(:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_AB_max
 
           N_FL=size(GRC,3)
-          Nsites_cf_max=0
+          Nsites_AB_max=0
           do I=1,N_FL
-            Nsites_cf(I)=Nsites_c(I)+Nsites_f(I)
-            if (Nsites_cf(I)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I)
+            Nsites_AB(I)=Nsites_A(I)+Nsites_B(I)
+            if (Nsites_AB(I)>Nsites_AB_max) Nsites_AB_max=Nsites_AB(I)
           enddo
           
-          allocate(List_cf(Nsites_cf_max,N_FL))
+          allocate(List_AB(Nsites_AB_max,N_FL))
           
           do J=1,N_FL
-            DO I = 1, Nsites_c(J)
-              List_cf(I,J) = List_c(I,J)
+            DO I = 1, Nsites_A(J)
+              List_AB(I,J) = List_A(I,J)
             END DO
-            DO I = 1, Nsites_f(J)
-              List_cf(I+Nsites_c(J),J) = List_f(I,J)
+            DO I = 1, Nsites_B(J)
+              List_AB(I+Nsites_A(J),J) = List_B(I,J)
             END DO
           enddo
           
-          Renyi_c  = Calc_Renyi_Ent_gen_fl(GRC,List_c,Nsites_c,N_SUN)
-          Renyi_f  = Calc_Renyi_Ent_gen_fl(GRC,List_f,Nsites_f,N_SUN)
-          Renyi_cf = Calc_Renyi_Ent_gen_fl(GRC,List_cf,Nsites_cf,N_SUN)
+          Renyi_A  = Calc_Renyi_Ent_gen_fl(GRC,List_A,Nsites_A,N_SUN)
+          Renyi_B  = Calc_Renyi_Ent_gen_fl(GRC,List_B,Nsites_B,N_SUN)
+          Renyi_AB = Calc_Renyi_Ent_gen_fl(GRC,List_AB,Nsites_AB,N_SUN)
           
-          deallocate(List_cf)
+          deallocate(List_AB)
           
         End Subroutine Calc_Mutual_Inf_gen_fl
           
@@ -159,46 +159,46 @@ Module entanglement_mod
         ! The algorithm works only for an MPI program
         ! We partition the nodes into groups of 2 replicas:
         ! ! (n, n+1), with n=0,2,...
-        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_c,Nsites_c,List_f,Nsites_f,Renyi_c,Renyi_f,Renyi_cf)
+        Subroutine Calc_Mutual_Inf_gen_all(GRC,List_A,Nsites_A,List_B,Nsites_B,Renyi_A,Renyi_B,Renyi_AB)
 
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)    :: GRC(:,:,:)
-          Integer, Dimension(:,:,:), INTENT(IN)      :: List_c, List_f
-          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_c ,Nsites_f
-          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_c, Renyi_f, Renyi_cf
+          Integer, Dimension(:,:,:), INTENT(IN)      :: List_A, List_B
+          Integer, Dimension(:,:), INTENT(IN)        :: Nsites_A ,Nsites_B
+          Complex (kind=kind(0.d0)), INTENT(OUT)   :: Renyi_A, Renyi_B, Renyi_AB
 
-          Integer, Allocatable :: List_cf(:,:,:), Nsites_cf(:,:)
-          Integer          :: I, J, IERR, INFO, N_FL, Nsites_cf_max, nc, num_nc
+          Integer, Allocatable :: List_AB(:,:,:), Nsites_AB(:,:)
+          Integer          :: I, J, IERR, INFO, N_FL, Nsites_AB_max, nc, num_nc
 
           N_FL=size(GRC,3)
-          num_nc=size(List_f,3)
-          Nsites_cf_max=0
+          num_nc=size(List_B,3)
+          Nsites_AB_max=0
           do nc=1,num_nc
             do I=1,N_FL
-              Nsites_cf(I,nc)=Nsites_c(I,nc)+Nsites_f(I,nc)
-              if (Nsites_cf(I,nc)>Nsites_cf_max) Nsites_cf_max=Nsites_cf(I,nc)
+              Nsites_AB(I,nc)=Nsites_A(I,nc)+Nsites_B(I,nc)
+              if (Nsites_AB(I,nc)>Nsites_AB_max) Nsites_AB_max=Nsites_AB(I,nc)
             enddo
           enddo
           
-          allocate(List_cf(Nsites_cf_max,N_FL,num_nc))
+          allocate(List_AB(Nsites_AB_max,N_FL,num_nc))
           
           do nc=1, num_nc
             do J=1,N_FL
-              DO I = 1, Nsites_c(J,nc)
-                List_cf(I,J,nc) = List_c(I,J,nc)
+              DO I = 1, Nsites_A(J,nc)
+                List_AB(I,J,nc) = List_A(I,J,nc)
               END DO
-              DO I = 1, Nsites_f(J,nc)
-                List_cf(I+Nsites_c(J,nc),J,nc) = List_f(I,J,nc)
+              DO I = 1, Nsites_B(J,nc)
+                List_AB(I+Nsites_A(J,nc),J,nc) = List_B(I,J,nc)
               END DO
             enddo
           enddo
           
-          Renyi_c  = Calc_Renyi_Ent_gen_all(GRC,List_c,Nsites_c)
-          Renyi_f  = Calc_Renyi_Ent_gen_all(GRC,List_f,Nsites_f)
-          Renyi_cf = Calc_Renyi_Ent_gen_all(GRC,List_cf,Nsites_cf)
+          Renyi_A  = Calc_Renyi_Ent_gen_all(GRC,List_A,Nsites_A)
+          Renyi_B  = Calc_Renyi_Ent_gen_all(GRC,List_B,Nsites_B)
+          Renyi_AB = Calc_Renyi_Ent_gen_all(GRC,List_AB,Nsites_AB)
           
-          deallocate(List_cf)
+          deallocate(List_AB)
           
         End Subroutine Calc_Mutual_Inf_gen_all
 
