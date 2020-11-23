@@ -1013,7 +1013,7 @@
    Real (Kind=Kind(0.d0)) function mutinf(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(3)
+      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
 
       mutinf = log(X(3)/(X(1)*X(2)))
 
@@ -1022,7 +1022,7 @@
    Real (Kind=Kind(0.d0)) function identity(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(1)
+      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
 
       identity = X(1)
 
@@ -1031,7 +1031,7 @@
    Real (Kind=Kind(0.d0)) function entanglement(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(1)
+      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
 
       entanglement = -log(X(1))
 
