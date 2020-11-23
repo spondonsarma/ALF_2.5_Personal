@@ -452,14 +452,14 @@
 
         If (Langevin) then 
            !  Check that all  fields are of type 3
+           Nr = size(nsigma%f,1)
+           Nt = size(nsigma%f,2)
            Do i = 1, Nr
               if ( nsigma%t(i) /= 3 ) then
                  WRITE(error_unit,*) 'For the Langevin runs, all fields have to be of type 3'
                  error stop 1
               endif
            enddo
-           Nr = size(nsigma%f,1)
-           Nt = size(nsigma%f,2)
            Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
            this%Update_scheme        =  "Langevin"
            this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
