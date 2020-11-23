@@ -874,24 +874,25 @@
       Character (len=64)                     :: analysis_mode
 
       call read_vec(file, sgn_raw, bins_raw, analysis_mode)
-      call ana_vec(file, sgn_raw, bins_raw)
+      call ana_vec(file, sgn_raw, bins_raw, analysis_mode)
 
    END subroutine Cov_vec
 
 !==============================================================================
 
-   subroutine ana_vec(name, sgn_raw, bins_raw)
+   subroutine ana_vec(name, sgn_raw, bins_raw, analysis_mode)
       Implicit none
       Character (len=64), intent(in) :: name
       Real    (Kind=Kind(0.d0)), allocatable, intent(inout) :: sgn_raw(:)
       Complex (Kind=Kind(0.d0)), pointer,     intent(inout) :: bins_raw(:,:)
+      Character (len=64),                     intent(in)    :: analysis_mode
 
       REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, sgn
       REAL    (Kind=Kind(0.d0)) :: XM, XERR
 
       Complex (Kind=Kind(0.d0)), Allocatable  :: Bins(:,:)
       REAL    (Kind=Kind(0.d0)), Allocatable  :: AutoCorr(:)
-      Integer :: Nobs
+      Integer :: Nobs, Nobs_output, data_range
       Integer :: Nbins, Nbins_eff, I, IOBS, N_Back
 
       Integer :: N_skip, N_rebin, N_Cov, ierr, N_auto
@@ -900,6 +901,15 @@
 
       !New Stuff for Autocorrelation
       REAL(Kind=Kind(0.d0)), DIMENSION(:)  , ALLOCATABLE :: vec, vec_err
+      
+      abstract interface
+         function func (X)
+            real (Kind=Kind(0.d0)) :: func
+            real (Kind=Kind(0.d0)), intent (in) :: X(:)
+         end function func
+      end interface
+      
+      procedure (func), pointer :: f_ptr => null ()
 
       N_skip = 1
       N_rebin = 1
@@ -916,6 +926,31 @@
 
       Nobs  = size(bins_raw, 1)
       Nbins = size(bins_raw, 2)
+      
+      if (analysis_mode=='identity') then
+         f_ptr => identity
+         Nobs_output = Nobs
+         data_range  = 0
+      elseif(analysis_mode=='renyi_entropie') then
+         f_ptr => entanglement
+         Nobs_output = Nobs
+         data_range  = 0
+      elseif(analysis_mode=='mutual_information') then
+         if (Nobs .ne. 3) then
+            Write(error_unit,*) 'Evaluating the mutual information between A and B requires the entanglement entropies of A, B and the union of A and B, i.e. Nobs=4 (3 + 1 for the phase)'
+            error stop 1
+         endif
+         f_ptr => mutinf
+         Nobs_output = 1
+         data_range  = 2
+     else
+         Write(error_unit,*) 'Unknown observable function! Continue with identity operation.'
+         f_ptr => identity
+         Nobs_output = Nobs
+         data_range  = 0
+     endif
+     
+         
 
       Write(6, '(A22, I0)') "# of bins: ", Nbins
       Nbins_eff  = Nbins - n_skip
@@ -938,9 +973,9 @@
       OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
       WRITE(21,*) 'Effective number of bins, and bins: ', Nbins_eff/N_rebin, Nbins
       ALLOCATE (EN(Nbins_eff), vec(NOBS), vec_err(NOBS))
-      DO IOBS = 1,NOBS
-         EN(:) = Real(Bins(IOBS,:), kind(0.d0))
-         CALL ERRCALCJ(EN,sgn,XM,XERR,N_Rebin)
+      DO IOBS = 1,Nobs_output
+         EN(:) = Real(Bins(IOBS,:), kind(0.d0)) ! not used any more, too be deleted
+         CALL ERRCALCJ(Real(Bins(IOBS:IOBS+data_range,:), kind(0.d0)),sgn,XM,XERR,N_Rebin,f_ptr)
          vec    (IOBS) = XM
          vec_err(IOBS) = XERR
          WRITE(21,*)
@@ -948,7 +983,7 @@
       ENDDO
       CALL ERRCALCJ(sgn, XM,XERR,N_Rebin)
       WRITE(21,*)
-      WRITE(21,2001) NOBS+1, XM,  XERR
+      WRITE(21,2001) Nobs_output+1, XM,  XERR
       CLOSE(21)
 2001    FORMAT('OBS : ', I4,4x,F12.6,2X, F12.6)
 !2001  FORMAT('OBS : ', I4,4x,ES12.5,2X, ES12.5)
@@ -974,4 +1009,31 @@
       DEALLOCATE (EN,vec,vec_err,sgn_raw,sgn,Bins_raw,Bins)
 
    END subroutine ana_vec
+   
+   Real (Kind=Kind(0.d0)) function mutinf(X)
+       
+      Implicit None
+      Real (Kind=Kind(0.d0)), intent (in) :: X(3)
+
+      mutinf = log(X(3)/(X(1)*X(2)))
+
+   end function mutinf
+       
+   Real (Kind=Kind(0.d0)) function identity(X)
+       
+      Implicit None
+      Real (Kind=Kind(0.d0)), intent (in) :: X(1)
+
+      identity = X(1)
+
+   end function identity
+
+   Real (Kind=Kind(0.d0)) function entanglement(X)
+       
+      Implicit None
+      Real (Kind=Kind(0.d0)), intent (in) :: X(1)
+
+      entanglement = -log(X(1))
+
+   end function entanglement
 end module ana_mod
