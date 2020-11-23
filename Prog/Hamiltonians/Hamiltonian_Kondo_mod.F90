@@ -162,8 +162,7 @@
 
 
 !>    Privat Observables
-      Type (Unit_cell),   private, Target  :: Latt_unit_Grf  ! Unit cell for Greenf correlation functions
-                                                             ! Lattice is the same.
+      Type (Unit_cell),   private, Target  :: Latt_unit_f    ! Unit cell for f  correlation functions
       Type (Obser_Vec ),  private, dimension(:), allocatable ::   Obs_scal
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
       Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
@@ -356,15 +355,16 @@
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
           Select case (Lattice_type)
           Case ("Bilayer_square")
-             Latt_Unit_Grf%Norb      = 1
-             Allocate (Latt_Unit_Grf%Orb_pos_p(1,2))
-             Latt_Unit_Grf%Orb_pos_p(1,:) = 0.d0
+             Latt_Unit_f%Norb       = 1
+             Latt_Unit_f%N_coord    = 2
+             Allocate (Latt_Unit_f%Orb_pos_p(1,2))
+             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
           Case ("Bilayer_honeycomb")
-             Latt_Unit_Grf%Norb    = 2
-             Latt_Unit_Grf%N_coord = 3
-             Allocate (Latt_Unit_Grf%Orb_pos_p(2,2))
-             Latt_Unit%Orb_pos_p(1,:) = 0.d0
-             Latt_Unit%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
+             Latt_Unit_f%Norb    = 2
+             Latt_Unit_f%N_coord = 3
+             Allocate (Latt_Unit_f%Orb_pos_p(2,2))
+             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
+             Latt_Unit_f%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
           end Select
           
         end Subroutine Ham_Latt
@@ -589,7 +589,7 @@
 
           ! Equal time correlators
           ! Equal time correlators
-          Allocate ( Obs_eq(3) )
+          Allocate ( Obs_eq(4) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
@@ -598,12 +598,18 @@
                 Filename = "SpinZ"
              case (3)
                 Filename = "Den"
+             case (4)
+                Filename = "Dimer"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
              Nt = 1
              Channel = '--'
-             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+             if (I == 4 ) then
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit_f, Channel, dtau)
+             else
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit  , Channel, dtau)
+             endif
           enddo
 
           If (Ltau == 1) then
@@ -625,7 +631,7 @@
                 Nt = Ltrot+1-2*Thtrot
                 If(Projector) Channel = 'T0'
                 if (I == 4 ) then
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_Grf, Channel, dtau)
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_f, Channel, dtau)
                 else
                    Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 endif
@@ -669,7 +675,7 @@
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
           Complex (Kind=Kind(0.d0)) :: Zrho, Zkin, Zhubc, ZCon, ZJ, Z, ZP,ZS, ZZ, ZXY
-          Integer :: I,J, no, n, I_c,I_f, nf
+          Integer :: I,J, no, n, I_c,I_f, nf, J_c, J_f, no_I, no_J, imj
           Real    (Kind=Kind(0.d0)) :: X
 
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -753,6 +759,28 @@
           Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(3) )
 
 
+          ! Dimer correlations
+          obs_eq(4)%N        = obs_eq(4)%N + 1
+          obs_eq(4)%Ave_sign = obs_eq(4)%Ave_sign + real(ZS,kind(0.d0))
+          Do I = 1,Latt%N
+             do no_I  = 1, Latt_unit%Norb / 2
+                I_c = List(I,no_I)
+                I_f = List(I,no_I + Latt_unit%Norb / 2 ) 
+                Do J = 1,Latt%N
+                   Imj = latt%imj(I,J)
+                   do no_J  = 1, Latt_unit%Norb / 2
+                      J_c = List(J,no_J)
+                      J_f = List(J,no_J + Latt_unit%Norb / 2 )
+                      Z  = Predefined_Obs_dimer_eq(I_c,I_f,J_c,J_f, GR, GRC, N_SUN, N_FL) 
+                      obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + Z*ZP*ZS
+                   enddo
+                enddo
+                Obs_eq(4)%Obs_Latt0(no_I) =  Obs_eq(4)%Obs_Latt0(no_I) +  &
+                     &  Predefined_Obs_dimer0_eq(I_c,I_f, GR, N_SUN, N_FL) * ZP*ZS
+             enddo
+          enddo
+
+          
         end Subroutine Obser
 !--------------------------------------------------------------------
 !> @author
