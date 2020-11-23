@@ -264,10 +264,6 @@
            
       end function Predefined_Obs_dimer_eq
 
-  
-    
-
-
 
 !-------------------------------------------------------------------
 !> @author
@@ -360,7 +356,7 @@
            end select
            Predefined_Obs_Cotunneling  = Z
            
-        elseif (N_FL == 2 )   then  !  This works only for N_SUN = 1
+        elseif (N_FL == 2 )   then  !  This works only for N_SUN = 1 
            do  ns = 1,2
               G1(1,1,ns)  = 1.d0 - GTT(I_f,I_f,ns)
               G1(1,2,ns)  = -G0T(J_c,I_f,ns)
