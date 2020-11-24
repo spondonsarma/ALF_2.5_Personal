@@ -42,7 +42,7 @@ module OpTTypes_mod
     !> @author
     !> ALF-project
     !> @brief
-    !> Encapsulates operations for real OpTs.
+    !> Encapsulates operations for real exponentiated OpTs.
     !>
     !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: RealExpOpT
