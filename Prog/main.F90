@@ -124,7 +124,6 @@ Program Main
         Use UDV_State_mod
         Use Wrapgr_mod
         Use Fields_mod
-        Use OpTTypes_mod
         use iso_fortran_env, only: output_unit, error_unit
         Use Langevin_HMC_mod
 
