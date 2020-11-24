@@ -146,8 +146,6 @@ contains
     subroutine RealExpOpT_rmult(this, arg)
         class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
-        Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
-        Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
         Integer :: n1, n2
         
         n1 = size(arg,1)
