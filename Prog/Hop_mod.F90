@@ -81,8 +81,8 @@
             Type(DynamicMatrixArray), intent(inout) :: vec
             Type(Operator), intent(in) :: op
             
-            class(CmplxExpOpT), pointer :: cmplxexp
-            class(RealExpOpT), pointer :: realexp
+            class(CmplxExpOpT), pointer :: cmplxexp => null()
+            class(RealExpOpT), pointer :: realexp => null()
             
             if (Op_is_real(op)) then
                 ! branch for real operators
