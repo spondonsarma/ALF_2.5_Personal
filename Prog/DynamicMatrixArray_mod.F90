@@ -111,10 +111,10 @@ end subroutine
 !> The ALF Project contributors
 !
 !> @brief
-!> return a pointer to the object stored at position i
+!> return a pointer to the object stored at position i.
 !>
-!> @param[in]  i the index
-!> @param[out] the content stored at the position i
+!> @param[in]  i the index.
+!> @param[out] the content stored at the position i.
 !
 !--------------------------------------------------------------------
 function DynamicMatrixArray_at(this, pos) result(itm)
@@ -124,12 +124,34 @@ function DynamicMatrixArray_at(this, pos) result(itm)
     itm => this%data(pos)%dat
 end function
 
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> returns the pointer to the last element
+!>
+!> @param[inout] this the vector.
+!> @param[out] itm the element at the end of the vector.
+!
+!--------------------------------------------------------------------
 subroutine DynamicMatrixArray_back(this, itm)
     class(DynamicMatrixArray), intent(in) :: this
     class(ContainerElementBase), intent(out), pointer :: itm
     itm => this%data(this%tail-1)%dat
 end subroutine
 
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> Inquire the length of the vector.
+!>
+!> @param[inout] this the vector
+!> @return the current length of the vector
+!
+!--------------------------------------------------------------------
 function DynamicMatrixArray_length(this) result(l)
     class(DynamicMatrixArray) :: this
     integer :: l
