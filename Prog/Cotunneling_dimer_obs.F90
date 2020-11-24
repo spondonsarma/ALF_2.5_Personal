@@ -24,7 +24,7 @@
         if (N_FL == 1 ) then
            Z  = ZN  *  ( 0.5d0  - GR(I,I,1) ) * (  0.5D0 - GR(M,M,1) )  + &
                 &   ZN*ZN* (ZK  - GR(M,I,1))*GR(I,M,1)
-        elseif (N_FL == 2)  then  !N_SUN = 1
+        elseif (N_FL == 2)  then  ! N_SUN = 1
            Z  =  ( 0.5d0  - GR(I,I,1) ) * (  0.5D0 - GR(M,M,1) )  + &
               &  ( 0.5d0  - GR(I,I,2) ) * (  0.5D0 - GR(M,M,2) )  + &
               &  ( 2.d0*ZK - GR(M,I,1)  - GR(M,I,2)  ) *  ( GR(I,M,1)  + GR(I,M,2))
