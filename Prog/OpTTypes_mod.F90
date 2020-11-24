@@ -66,7 +66,7 @@ module OpTTypes_mod
     !> @author
     !> ALF-project
     !> @brief
-    !> Encapsulates operations for complex OpTs.
+    !> Encapsulates operations for complex exponentiated OpTs.
     !>
     !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: CmplxExpOpT
