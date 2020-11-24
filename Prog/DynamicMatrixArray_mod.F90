@@ -47,7 +47,7 @@ module DynamicMatrixArray_mod
     type :: DynamicMatrixArray
         integer :: avamem ! amount of available space
         integer :: tail ! last index
-        Type(OpTbasePtrWrapper), allocatable, dimension(:) :: data
+        Type(OpTbasePtrWrapper), allocatable, dimension(:) :: data ! actual effective array of the pointers
     contains
         procedure :: init => DynamicMatrixArray_init
         procedure :: dealloc => DynamicMatrixArray_dealloc
@@ -60,6 +60,15 @@ module DynamicMatrixArray_mod
 
 contains
 
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> set up initial state of the vector.
+!>
+!> @param[inout] this the vector
+!--------------------------------------------------------------------
 subroutine DynamicMatrixArray_init(this)
     class(DynamicMatrixArray) :: this
     type(OpTbasePtrWrapper) :: temp
@@ -68,6 +77,15 @@ subroutine DynamicMatrixArray_init(this)
     allocate(this%data(this%avamem))
 end subroutine DynamicMatrixArray_init
 
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> Deallocates internal storage. Pointees are not deleted!
+!>
+!> @param[inout] this the vector
+!--------------------------------------------------------------------
 subroutine DynamicMatrixArray_dealloc(this)
     class(DynamicMatrixArray) :: this
     deallocate(this%data)
