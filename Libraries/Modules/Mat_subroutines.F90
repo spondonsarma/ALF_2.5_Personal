@@ -960,7 +960,7 @@ end subroutine ZSLHEMM
 
 
 subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
-! Small Large symmetric matrix multiplication
+! Mixed Complex-Real Small Large symmetric matrix multiplication
 
 !--------------------------------------------------------------------
 !> @author
@@ -981,8 +981,6 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
 !>
 !--------------------------------------------------------------------
         use iso_fortran_env, only: output_unit, error_unit
-
-!FIXME: UPLO is in the general cases ignored! (sufficient for the current use in Hop_mod)
 
         IMPLICIT NONE
         CHARACTER (1)            , INTENT(IN) :: side, uplo
@@ -1005,6 +1003,9 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         !identify possible block structure
         !only used in default case for n>4
         IF(N > 8) THEN
+          IF(uplo=='L' .or. uplo=='l') THEN ! uplo == l unimplemented and never used in this case
+            ERROR STOP
+          ENDIF
           COMPACT = .TRUE.
           L = 1
           IDX = 1
