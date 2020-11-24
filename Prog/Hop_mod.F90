@@ -77,8 +77,8 @@
             Type(DynamicMatrixArray), intent(inout) :: vec
             Type(Operator), intent(in) :: op
             
-            class(CmplxOpT), pointer :: cmplxexp
-            class(RealOpT), pointer :: realexp
+            class(CmplxExpOpT), pointer :: cmplxexp
+            class(RealExpOpT), pointer :: realexp
             
             if (Op_is_real(op)) then
                 ! branch for real operators
@@ -109,9 +109,6 @@
 
           Integer :: nc, nf, i,j
           Complex (Kind=Kind(0.d0)) :: g
-          class(CmplxOpT), pointer :: cmplxexp
-          class(RealOpT), pointer :: realexp
-
 
           Ncheck = size(Op_T,1)
           If ( size(Op_T,2) /= N_FL ) then

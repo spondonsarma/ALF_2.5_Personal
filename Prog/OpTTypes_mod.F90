@@ -36,61 +36,61 @@ module OpTTypes_mod
     implicit none
 
     private
-    public :: RealOpT, CmplxOpT
+    public :: RealExpOpT, CmplxExpOpT
     
     !--------------------------------------------------------------------
     !> @author
     !> ALF-project
     !> @brief
-    !> Encapsulates Operations for real OpTs
+    !> Encapsulates operations for real OpTs.
     !>
     !--------------------------------------------------------------------
-    type, extends(ContainerElementBase) :: RealOpT
+    type, extends(ContainerElementBase) :: RealExpOpT
         Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Real(kind=kind(0.d0)) :: g, Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
         
     contains
-        procedure :: init => RealOpT_init ! initialize and allocate matrices
-        procedure :: dealloc => RealOpT_dealloc ! dealloc matrices
-        procedure :: rmult => RealOpT_rmult ! right multiplication with Op_T
-        procedure :: lmult => RealOpT_lmult
-        procedure :: rmultinv => RealOpT_rmultinv ! right multiplication with Op_T inverse
-        procedure :: lmultinv => RealOpT_lmultinv
-        procedure :: adjointaction => RealOpT_adjointaction
-        procedure :: dump => RealOpT_dump ! dump matrices for debugging to screen
-    end type RealOpT
+        procedure :: init => RealExpOpT_init ! initialize and allocate matrices
+        procedure :: dealloc => RealExpOpT_dealloc ! dealloc matrices
+        procedure :: rmult => RealExpOpT_rmult ! right multiplication with Op_T
+        procedure :: lmult => RealExpOpT_lmult
+        procedure :: rmultinv => RealExpOpT_rmultinv ! right multiplication with Op_T inverse
+        procedure :: lmultinv => RealExpOpT_lmultinv
+        procedure :: adjointaction => RealExpOpT_adjointaction
+        procedure :: dump => RealExpOpT_dump ! dump matrices for debugging to screen
+    end type RealExpOpT
 
     !--------------------------------------------------------------------
     !> @author
     !> ALF-project
     !> @brief
-    !> Encapsulates Operations for complex OpTs
+    !> Encapsulates operations for complex OpTs.
     !>
     !--------------------------------------------------------------------
-    type, extends(ContainerElementBase) :: CmplxOpT
-        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
+    type, extends(ContainerElementBase) :: CmplxExpOpT
+        Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
         Complex(kind=kind(0.d0)) :: g
         Real(kind=kind(0.d0)) :: Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
     contains
-        procedure :: init => CmplxOpT_init ! initialize and allocate matrices
-        procedure :: dealloc => CmplxOpT_dealloc ! dealloc matrices
-        procedure :: rmult => CmplxOpT_rmult ! right multiplication with Op_T
-        procedure :: lmult => CmplxOpT_lmult
-        procedure :: rmultinv => CmplxOpT_rmultinv ! right multiplication with Op_T inverse
-        procedure :: lmultinv => CmplxOpT_lmultinv
-        procedure :: adjointaction => CmplxOpT_adjointaction
-        procedure :: dump => CmplxOpT_dump ! dump matrices for debugging to screen
-    end type CmplxOpT
+        procedure :: init => CmplxExpOpT_init ! initialize and allocate matrices
+        procedure :: dealloc => CmplxExpOpT_dealloc ! dealloc matrices
+        procedure :: rmult => CmplxExpOpT_rmult ! right multiplication with Op_T
+        procedure :: lmult => CmplxExpOpT_lmult
+        procedure :: rmultinv => CmplxExpOpT_rmultinv ! right multiplication with Op_T inverse
+        procedure :: lmultinv => CmplxExpOpT_lmultinv
+        procedure :: adjointaction => CmplxExpOpT_adjointaction
+        procedure :: dump => CmplxExpOpT_dump ! dump matrices for debugging to screen
+    end type CmplxExpOpT
 
 contains
-    subroutine RealOpT_init(this, Op_T)
-        class(RealOpT) :: this
+    subroutine RealExpOpT_init(this, Op_T)
+        class(RealExpOpT) :: this
         Type(Operator), intent(in) :: Op_T
-        Complex(kind=kind(0.d0)),allocatable, dimension(:,:) :: cmat, cinvmat
+        Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: cmat, cinvmat
         Complex(kind=kind(0.d0)) :: cg
         Integer :: i, j
         
@@ -101,17 +101,17 @@ contains
         allocate(cmat(this%Ndim_hop, this%Ndim_hop), cinvmat(this%Ndim_hop, this%Ndim_hop))
 
         cg = -Op_T%g
-        Call  Op_exp(cg, Op_T, cinvmat)
+        Call Op_exp(cg, Op_T, cinvmat)
         cg = Op_T%g
-        Call  Op_exp(cg, Op_T, cmat)
+        Call Op_exp(cg, Op_T, cmat)
         ! copy over the data to the real storage
         this%mat = DBLE(cmat)
         this%invmat = DBLE(cinvmat)
         
         cg = -Op_T%g/2.0
-        Call  Op_exp(cg, Op_T, cinvmat)
+        Call Op_exp(cg, Op_T, cinvmat)
         cg = Op_T%g/2.0
-        Call  Op_exp(cg, Op_T, cmat)
+        Call Op_exp(cg, Op_T, cmat)
         ! copy over the data to the real storage
         this%mat_1D2 = DBLE(cmat)
         this%invmat_1D2 = DBLE(cinvmat)
@@ -130,8 +130,8 @@ contains
         deallocate(cmat, cinvmat)
     end subroutine
     
-    subroutine RealOpT_adjointaction(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_adjointaction(this, arg)
+        class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
@@ -143,8 +143,8 @@ contains
         Endif
     end subroutine
     
-    subroutine RealOpT_rmult(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_rmult(this, arg)
+        class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         Complex(kind=kind(0.D0)), allocatable, dimension(:,:) :: out
         Real(kind=kind(0.D0)), allocatable, dimension(:) :: rwork
@@ -157,8 +157,8 @@ contains
         Endif
     end subroutine
     
-    subroutine RealOpT_rmultinv(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_rmultinv(this, arg)
+        class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         Integer :: n1, n2
         
@@ -169,8 +169,8 @@ contains
         Endif
     end subroutine
     
-    subroutine RealOpT_lmult(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_lmult(this, arg)
+        class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout),  dimension(:,:) :: arg
         integer :: n1, n2
         
@@ -182,8 +182,8 @@ contains
         Endif
     end subroutine
     
-    subroutine RealOpT_lmultinv(this, arg)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_lmultinv(this, arg)
+        class(RealExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         integer :: n1, n2
         
@@ -194,8 +194,8 @@ contains
         Endif
     end subroutine
     
-    subroutine CmplxOpT_init(this, Op_T)
-        class(CmplxOpT) :: this
+    subroutine CmplxExpOpT_init(this, Op_T)
+        class(CmplxExpOpT) :: this
         Type(Operator), intent(in) :: Op_T
         Integer :: i, j
         
@@ -228,8 +228,8 @@ contains
 
     end subroutine
 
-    subroutine CmplxOpT_adjointaction(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxExpOpT_adjointaction(this, arg)
+        class(CmplxExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
 
@@ -242,8 +242,8 @@ contains
         
     end subroutine
     
-    subroutine CmplxOpT_rmult(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxExpOpT_rmult(this, arg)
+        class(CmplxExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
@@ -255,8 +255,8 @@ contains
         Endif
     end subroutine
     
-        subroutine CmplxOpT_rmultinv(this, arg)
-        class(CmplxOpT), intent(in) :: this
+        subroutine CmplxExpOpT_rmultinv(this, arg)
+        class(CmplxExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         Integer :: n1, n2
         
@@ -268,8 +268,8 @@ contains
         Endif
     end subroutine
     
-    subroutine CmplxOpT_lmult(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxExpOpT_lmult(this, arg)
+        class(CmplxExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         integer :: n1, n2
         
@@ -281,8 +281,8 @@ contains
         Endif
     end subroutine
     
-    subroutine CmplxOpT_lmultinv(this, arg)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxExpOpT_lmultinv(this, arg)
+        class(CmplxExpOpT), intent(in) :: this
         Complex(kind=kind(0.D0)), intent(inout), dimension(:,:) :: arg
         integer :: n1, n2
         n1 = size(arg,1)
@@ -292,8 +292,8 @@ contains
         Endif
     end subroutine
 
-    subroutine CmplxOpT_dump(this)
-        class(CmplxOpT), intent(in) :: this
+    subroutine CmplxExpOpT_dump(this)
+        class(CmplxExpOpT), intent(in) :: this
         integer :: i,j
 
         do i = 1, size(this%mat, 1)
@@ -305,8 +305,8 @@ contains
         enddo
     end subroutine
 
-    subroutine RealOpT_dump(this)
-        class(RealOpT), intent(in) :: this
+    subroutine RealExpOpT_dump(this)
+        class(RealExpOpT), intent(in) :: this
         integer :: i,j
 
         do i = 1, size(this%mat, 1)
@@ -318,14 +318,14 @@ contains
         enddo
     end subroutine
     
-        subroutine CmplxOpT_dealloc(this)
-        class(CmplxOpT), intent(inout) :: this
+        subroutine CmplxExpOpT_dealloc(this)
+        class(CmplxExpOpT), intent(inout) :: this
         
         deallocate(this%mat, this%invmat, this%mat_1D2, this%invmat_1D2)
     end subroutine
 
-    subroutine RealOpT_dealloc(this)
-        class(RealOpT), intent(inout) :: this
+    subroutine RealExpOpT_dealloc(this)
+        class(RealExpOpT), intent(inout) :: this
         
         deallocate(this%mat, this%invmat, this%mat_1D2, this%invmat_1D2)
     end subroutine
