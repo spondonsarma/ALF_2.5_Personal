@@ -73,7 +73,18 @@ subroutine DynamicMatrixArray_dealloc(this)
     deallocate(this%data)
 end subroutine
 
-!itm gets deallocated in the process
+!--------------------------------------------------------------------
+!> @author
+!> The ALF Project contributors
+!
+!> @brief
+!> Attach a pointer to the object givenby itm at the end of the vector.
+!> If out of space the vector grows.
+!>
+!> @param[inout] this the vector
+!> @param[in] itm the object that we like to store a pointer to.
+!
+!--------------------------------------------------------------------
 subroutine DynamicMatrixArray_pushback(this, itm)
     class(DynamicMatrixArray) :: this
     class(ContainerElementBase), intent(in), target :: itm ! Type(...) always has to match exactly, class(...) allows for polymorphism
