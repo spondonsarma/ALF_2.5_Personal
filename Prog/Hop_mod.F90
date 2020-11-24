@@ -66,8 +66,12 @@
 !> ALF-project
 !
 !> @brief
-!> This function serves as a central entry point to collect all 
-!> post-processing.
+!> This function serves as a central entry point to collect the 
+!> processing that occurs in mapping an OpT input matrix to internal
+!> matrix-like data structure.
+!
+!> @param vec[inout] a DynamicMatrixArray structure to which we append new elements.
+!> @param op[in] an Operator that describes an OpT hopping matrix.
 !
 !--------------------------------------------------------------------
         subroutine OpT_postprocess(vec, op)
