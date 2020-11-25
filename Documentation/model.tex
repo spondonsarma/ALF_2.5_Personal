@@ -175,6 +175,15 @@ To compute equal-time, as well as time-displaced observables, one can make use o
 \end{multline}
 Here, we have defined the super-index $\underline{ x} = \left\{   x,\sigma,s \right\}$.
 
+Wick's theorem can be also used to express a reduced density matrix, i.e., the density matrix for a subsystem, in terms of its correlations \cite{Peschel03}.
+Within the framework of Auxiliary-Field QMC, this allows to express a reduced density matrix $\hat{\rho}_A$ for a subsystem $A$ as \cite{Grover13}
+\begin{equation}
+\hat{\rho}_A = \sum_C P(C){\rm det}(\mathds{1}-G_A(\tau_0; C))e^{-c^{\dagger}_{\underline x} H^{(A)}_{{\underline x}, {\underline x}'}c^{\phantom\dagger}_{{\underline x}'}},\qquad H^{(A)} \equiv \ln\left\{\left[\left(G_A(\tau_0; C)\right)^T\right]^{-1}-\mathds{1}\right\},
+\label{rhoA}
+\end{equation}
+where $G_A(\tau_0; C)$ is the equal-time Green's function matrix restricted on the subsystem $A$ and at a given time-slice $\tau_0$. In Eq.~(\ref{rhoA}) an implicit summation over repeated indexes ${\underline x}, {\underline x}' \in A$ is assumed. Eq.~(\ref{rhoA}) is the starting point for computing the entanglement Hamiltonian \cite{Toldin18} and the R\'enyi entropies \cite{Grover13,Assaad13a}. ALF provides predefined observables to compute the second R\'enyi entropy and its associated mutual information, see Sec.~\ref{sec:renyi}.
+
+
 % Removed to refer to predefined obs. instead: In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples_mod.F90} (see Sec.~\ref{sec:obs}) the user is provided with
 In Sec.~\ref{sec:predefined_observales} we describe the equal-time and time-displaced correlation functions that come predefined in ALF.
 Using the  above  formulation  of  Wick's theorem, arbitrary  correlation functions can be computed. We note, however, that the program is limited to the calculation of observables that contain only two different imaginary times.  
