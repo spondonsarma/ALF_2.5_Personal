@@ -1,12 +1,12 @@
 program test
 Use DynamicMatrixArray_mod
 Use ContainerElementBase_mod
-Use matTypes_mod
+Use OpTTypes_mod
 implicit none
 
 Type(DynamicMatrixArray) :: vec
-Type(RealMat), allocatable :: remat
-Type(CmplxMat), allocatable:: complexmat
+Type(RealExpOpT), allocatable :: remat
+Type(CmplxExpOpT), allocatable:: complexmat
 class(ContainerElementBase), allocatable :: dummy
 Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: res, ctmp
 Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: rtmp
