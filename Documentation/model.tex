@@ -221,7 +221,9 @@ The Monte Carlo simulation samples the probability distribution
 	 \overline{P}(C) = \frac{ \left|  \Re \left[ e^{-S(C)} \right] \right| }{\sum_C \left|  \Re \left[ e^{-S(C)} \right]  \right| }\;.
 \label{Eq:Pbar}
 \end{equation}
-such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be computed.   
+such that the nominator and denominator of  Eq.~(\ref{eqn:obs_rw})  can be computed.
+
+Notice that, for the Langevin updating scheme with variable Langevin time step, a straightforward generalization of the equations above is used, see Sec.~\ref{sec:langevin}.
 
 The negative sign problem is still an issue because the average sign is a ratio of two partition functions and one can argue that 
 \begin{equation}
