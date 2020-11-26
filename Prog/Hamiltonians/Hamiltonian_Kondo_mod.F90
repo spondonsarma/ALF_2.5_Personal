@@ -614,7 +614,7 @@
 
           If (Ltau == 1) then
              ! Equal time correlators
-             Allocate ( Obs_tau(4) )
+             Allocate ( Obs_tau(5) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
                 case (1)
@@ -624,13 +624,15 @@
                 case (3)
                    Channel = 'PH'; Filename = "Den"
                 case (4)
-                   Channel = 'P'; Filename = "Greenf"
+                   Channel = 'P' ; Filename = "Greenf"
+                case (5)
+                   Channel = 'PH'; Filename = "Dimer"
                 case default
                    Write(6,*) ' Error in Alloc_obs '
                 end select
                 Nt = Ltrot+1-2*Thtrot
                 If(Projector) Channel = 'T0'
-                if (I == 4 ) then
+                if (I == 4 .or.  I == 5 ) then
                    Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_f, Channel, dtau)
                 else
                    Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
@@ -764,13 +766,13 @@
           obs_eq(4)%Ave_sign = obs_eq(4)%Ave_sign + real(ZS,kind(0.d0))
           Do I = 1,Latt%N
              do no_I  = 1, Latt_unit%Norb / 2
-                I_c = List(I,no_I)
-                I_f = List(I,no_I + Latt_unit%Norb / 2 ) 
+                I_c = Invlist(I,no_I)
+                I_f = Invlist(I,no_I + Latt_unit%Norb/2 ) 
                 Do J = 1,Latt%N
                    Imj = latt%imj(I,J)
                    do no_J  = 1, Latt_unit%Norb / 2
-                      J_c = List(J,no_J)
-                      J_f = List(J,no_J + Latt_unit%Norb / 2 )
+                      J_c = Invlist(J,no_J)
+                      J_f = Invlist(J,no_J + Latt_unit%Norb / 2 )
                       Z  = Predefined_Obs_dimer_eq(I_c,I_f,J_c,J_f, GR, GRC, N_SUN, N_FL) 
                       obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) =  Obs_eq(4)%Obs_Latt(imj,1,no_I,no_J) + Z*ZP*ZS
                    enddo
@@ -837,20 +839,26 @@
           If (NT == 0 ) then
              obs_tau(4)%N        = obs_tau(4)%N + 1
              obs_tau(4)%Ave_sign = obs_tau(4)%Ave_sign + real(ZS,kind(0.d0))
+             obs_tau(5)%N        = obs_tau(5)%N + 1
+             obs_tau(5)%Ave_sign = obs_tau(5)%Ave_sign + real(ZS,kind(0.d0))
           endif
           Do I = 1,Latt%N
              do no_I  = 1, Latt_unit%Norb / 2
-                I_c = List(I,no_I)
-                I_f = List(I,no_I + Latt_unit%Norb / 2 ) 
+                I_c = Invlist(I,no_I)
+                I_f = Invlist(I,no_I + Latt_unit%Norb / 2 ) 
                 Do J = 1,Latt%N
                    Imj = latt%imj(I,J)
                    do no_J  = 1, Latt_unit%Norb / 2
-                      J_c = List(J,no_J)
-                      J_f = List(J,no_J + Latt_unit%Norb / 2 )
+                      J_c = Invlist(J,no_J)
+                      J_f = Invlist(J,no_J + Latt_unit%Norb / 2 )
                       Z  = Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
                       obs_tau(4)%Obs_Latt(imj,NT+1,no_I,no_J) =  Obs_tau(4)%Obs_Latt(imj,NT+1,no_I,no_J) + Z*ZP*ZS
+                      Z  = Predefined_Obs_dimer_tau(I_c, I_f, J_c, J_f, GT0,G0T,G00,GTT, N_SUN, N_FL) 
+                      obs_tau(5)%Obs_Latt(imj,NT+1,no_I,no_J) =  Obs_tau(5)%Obs_Latt(imj,NT+1,no_I,no_J) + Z*ZP*ZS
                    enddo
                 enddo
+                Z = Predefined_Obs_dimer0_eq(I_c,I_f, GTT, N_SUN, N_FL)
+                Obs_tau(5)%Obs_Latt0(no_I) =  Obs_tau(5)%Obs_Latt0(no_I) +  Z*ZP*ZS
              enddo
           enddo
         end Subroutine OBSERT
