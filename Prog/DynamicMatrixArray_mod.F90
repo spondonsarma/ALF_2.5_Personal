@@ -109,7 +109,7 @@ subroutine DynamicMatrixArray_pushback(this, itm)
     type(OpTbasePtrWrapper), allocatable, dimension(:) :: temp
     integer :: i
 
-    if (this%tail == this%avamem) then ! check if this still works the same as for plain ints.
+    if (this%tail == this%avamem) then
         ! reallocate the memory
         write (*,*) "not enough space -> growing."
         call MOVE_ALLOC(this%data, temp)
