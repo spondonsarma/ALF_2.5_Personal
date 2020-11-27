@@ -46,7 +46,7 @@ module OpTTypes_mod
     !>
     !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: RealExpOpT
-        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
+        Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !>We store the matrix in the class
         Real(kind=kind(0.d0)) :: g, Zero
         integer, pointer :: P(:)
         Integer :: m, n, Ndim_hop
@@ -70,7 +70,7 @@ module OpTTypes_mod
     !>
     !--------------------------------------------------------------------
     type, extends(ContainerElementBase) :: CmplxExpOpT
-        Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !> We store the matrix here in the class
+        Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: mat, invmat, mat_1D2, invmat_1D2 !>We store the matrix inclass
         Complex(kind=kind(0.d0)) :: g
         Real(kind=kind(0.d0)) :: Zero
         integer, pointer :: P(:)

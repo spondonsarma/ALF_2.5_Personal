@@ -420,7 +420,6 @@ Contains
 !--------------------------------------------------------------------
   subroutine Op_mmultL(Mat,Op,spin,cop)
     Implicit none 
-    Integer :: Ndim
     Type (Operator)          , INTENT(IN)    :: Op
     Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Mat (:,:)
     Real    (Kind=Kind(0.d0)), INTENT(IN)    :: spin
