@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8.11)
 Project(matmod.tests C Fortran)
 
 add_subdirectory(matmod.tests)
