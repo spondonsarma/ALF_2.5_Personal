@@ -67,7 +67,7 @@
 !
 !> @brief
 !> This function serves as a central entry point to collect the 
-!> processing that occurs in mapping an OpT input matrix to internal
+!> processing that occurs in mapping an OpT input matrix to the internal
 !> matrix-like data structure.
 !
 !> @param vec[inout] a DynamicMatrixArray structure to which we append new elements.
@@ -81,8 +81,8 @@
             Type(DynamicMatrixArray), intent(inout) :: vec
             Type(Operator), intent(in) :: op
             
-            class(CmplxExpOpT), pointer :: cmplxexp => null()
-            class(RealExpOpT), pointer :: realexp => null()
+            Class(CmplxExpOpT), pointer :: cmplxexp => null()
+            Class(RealExpOpT), pointer :: realexp => null()
             
             if (Op_is_real(op)) then
                 ! branch for real operators
