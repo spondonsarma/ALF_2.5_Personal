@@ -717,7 +717,7 @@ Contains
     Implicit None
     
     Type (Operator) , INTENT(IN)   :: Op
-    Logical ::retval
+    Logical :: retval
     Real (Kind=Kind(0.d0)) :: myzero
     integer :: i,j
     
