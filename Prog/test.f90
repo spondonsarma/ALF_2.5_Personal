@@ -2,50 +2,60 @@ program test
 Use DynamicMatrixArray_mod
 Use ContainerElementBase_mod
 Use OpTTypes_mod
+Use Operator_mod
 implicit none
 
 Type(DynamicMatrixArray) :: vec
-Type(RealExpOpT), allocatable :: remat
-Type(CmplxExpOpT), allocatable:: complexmat
-class(ContainerElementBase), allocatable :: dummy
+Type(Operator), dimension(:), allocatable :: Op_T
+Class(RealExpOpT), pointer :: reopt => null()
+Class(CmplxExpOpT), pointer :: cmplxopt => null()
+Class(ContainerElementBase), allocatable :: dummy
 Complex(kind=kind(0.d0)), allocatable, dimension(:,:) :: res, ctmp
 Real(kind=kind(0.d0)), allocatable, dimension(:,:) :: rtmp
 Complex(kind=kind(0.d0)) :: alpha, zero
-Integer :: i,j,k,l, nmax
+Integer :: i,j,k,l, nmax, ndimmax
 
 nmax = 5
-allocate (res(nmax, nmax), ctmp(nmax, nmax), rtmp(nmax, nmax))
+ndimmax = 5
+allocate (res(ndimmax, ndimmax), ctmp(ndimmax, ndimmax), rtmp(ndimmax, ndimmax))
 call vec%init()
 
 alpha = 1.0
 zero = 0.0
-call zlaset('A', nmax, nmax, zero, alpha, res, nmax)
+! initialize res as unit matrix
+call zlaset('A', ndimmax, ndimmax, zero, alpha, res, ndimmax)
 
-allocate(remat, complexmat)
+allocate(Op_T(2*nmax))
 
-do i = 1, 5
-    ! create some complex dummy data
-    call zlaset('A', nmax, nmax, zero, alpha, ctmp, nmax)
-    do j = 1, nmax
-    ctmp(j,j) = i
-    enddo
-
-    !pushback
-    call complexmat%init(ctmp)
-    call vec%pushback(complexmat)
-
-    ! create some real dummy data
-    call dlaset('A', nmax, nmax, zero, alpha, rtmp, nmax)
-    do j = 1, nmax
-    rtmp(j,j) = i+j
-    enddo
-    ! push_back
-    call remat%init(rtmp)
-    call vec%pushback(remat)
+do i = 1, nmax
+             Call Op_make(Op_T(i), Ndimmax)
+             Call Op_make(Op_T(nmax + i), Ndimmax)
+             Op_T(i)%O = 0
+             Op_T(nmax + i)%O = 0
+             Do j = 1, ndimmax
+                Op_T(i)%P(j) = j
+                Op_T(nmax + i)%P(j) = j
+             Enddo
+             Op_T(i)%g      = 1
+             Op_T(i)%alpha = cmplx(0.d0,0.d0, kind(0.D0))
+             Op_T(nmax + i)%g      = 1
+             Op_T(nmax + i)%alpha = cmplx(0.d0,0.d0, kind(0.D0))
+             ! fill with some data
+             do j = 1, ndimmax
+             Op_T(i)%O(j,j) = j
+             Op_T(nmax + i)%O(j,j) = cmplx(j, j, kind(0.D0))
+             enddo
+             
+            Call Op_set(Op_T(i))
+            Call Op_set(Op_T(nmax + i))
+            
+            allocate(reopt, cmplxopt)
+            call reopt%init(Op_T(i))
+            call cmplxopt%init(Op_T(nmax + i))
+            call vec%pushback(reopt)
+            call vec%pushback(cmplxopt)
 enddo
-! tidy up auxiliary structures
-deallocate(remat, complexmat)
-deallocate(ctmp, rtmp)
+
 
 ! execute a loop over all stored objects
 do i= 1, vec%length()
