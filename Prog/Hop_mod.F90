@@ -54,7 +54,7 @@
       use iso_fortran_env, only: output_unit, error_unit
 
       ! Private variables
-      Type(DynamicMatrixArray), private, allocatable :: vec(:) ! for now we have for simplicity for each flavour a vector
+      Type(DynamicMatrixArray), private, allocatable :: ExpOpT_vec(:) ! for now we have for simplicity for each flavour a vector
       Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
       Integer, private, save ::  Ncheck, Ndim_hop
       Real (Kind=Kind(0.d0)), private, save  :: Zero
@@ -70,15 +70,15 @@
 !> processing that occurs in mapping an OpT input matrix to the internal
 !> matrix-like data structure.
 !
-!> @param vec[inout] a DynamicMatrixArray structure to which we append new elements.
+!> @param ExpOpT_vec[inout] a DynamicMatrixArray structure to which we append new elements.
 !> @param op[in] an Operator that describes an OpT hopping matrix.
 !
 !--------------------------------------------------------------------
-        subroutine OpT_postprocess(vec, op)
+        subroutine OpT_postprocess(ExpOpT_vec, op)
             use Operator_mod
             implicit none
             
-            Type(DynamicMatrixArray), intent(inout) :: vec
+            Type(DynamicMatrixArray), intent(inout) :: ExpOpT_vec
             Type(Operator), intent(in) :: op
             
             Class(CmplxExpOpT), pointer :: cmplxexp => null()
@@ -88,12 +88,12 @@
                 ! branch for real operators
                     allocate(realexp) ! Yep, this is a manifest memory leak. Using the ptr we can allocate onto the same variable
                     call realexp%init(op)
-                    call vec%pushback(realexp)
+                    call ExpOpT_vec%pushback(realexp)
                 else
                 ! branch for complex operators
                     allocate(cmplxexp)
                     call cmplxexp%init(op)
-                    call vec%pushback(cmplxexp)
+                    call ExpOpT_vec%pushback(cmplxexp)
                 endif
         end subroutine
         
@@ -130,7 +130,7 @@
              enddo
           enddo
           
-          allocate(vec(N_FL))
+          allocate(ExpOpT_vec(N_FL))
 
           Allocate ( V_Hlp(Ndim_hop,Ndim) )
           Allocate ( V_Hlp1(Ndim_hop,Ndim) )
@@ -138,9 +138,9 @@
           Allocate ( U_Hlp1(Ndim, Ndim_hop) )
 
           do nf = 1,N_FL
-             call vec(nf)%init()
+             call ExpOpT_vec(nf)%init()
              do nc = 1,Ncheck
-                call OpT_postprocess(vec(nf), Op_T(nc, nf))
+                call OpT_postprocess(ExpOpT_vec(nf), Op_T(nc, nf))
              enddo
           enddo
 
@@ -163,7 +163,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  Ncheck,1,-1
-            dummy => vec(nf)%at(nc)
+            dummy => ExpOpT_vec(nf)%at(nc)
             call dummy%lmult(In)
           Enddo
         end Subroutine Hop_mod_mmthr
@@ -182,7 +182,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  1,Ncheck
-            dummy => vec(nf)%at(nc)
+            dummy => ExpOpT_vec(nf)%at(nc)
             call dummy%lmultinv(In)
           Enddo
 
@@ -204,7 +204,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  1, Ncheck
-            dummy => vec(nf)%at(nc)
+            dummy => ExpOpT_vec(nf)%at(nc)
             call dummy%rmult(In)
           Enddo
 
@@ -226,7 +226,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  1, Ncheck
-            dummy => vec(nf)%at(nc)
+            dummy => ExpOpT_vec(nf)%at(nc)
             call dummy%lmult(In)
           Enddo
 
@@ -248,7 +248,7 @@
           class(ContainerElementBase), pointer :: dummy
 
           do nc =  Ncheck,1,-1
-            dummy => vec(nf)%at(nc)
+            dummy => ExpOpT_vec(nf)%at(nc)
             call dummy%rmultinv(In)
           Enddo
 
@@ -293,7 +293,7 @@
           Out = In
           Do nf = 1, size(In,3)
              do nc =  Ncheck,1,-1
-                dummy => vec(nf)%at(nc)
+                dummy => ExpOpT_vec(nf)%at(nc)
                 call dummy%adjointaction(Out(:, :, nf))
              enddo
           enddo
