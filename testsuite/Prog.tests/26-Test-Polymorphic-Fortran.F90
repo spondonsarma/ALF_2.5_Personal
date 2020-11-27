@@ -72,9 +72,9 @@ program test
 !     write (*,*) "============"
     enddo
 
-     do i = 1, ndimmax
-         write (*,*) (res(i,j), j = 1,ndimmax )
-     enddo
+!     do i = 1, ndimmax
+!         write (*,*) (res(i,j), j = 1,ndimmax )
+!     enddo
     if (abs(dble(res(ndimmax,ndimmax-1)) - 559995.58637168515D00) > 559995.58637168515D00*1D-15) then
         write (*,*) "error in OpT mult.", abs(dble(res(ndimmax,ndimmax-1))-559995.58637168515D00), 559995.58637168515D00*1D-15
         stop 1
