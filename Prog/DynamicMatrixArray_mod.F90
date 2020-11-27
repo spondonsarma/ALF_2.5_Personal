@@ -46,7 +46,7 @@ module DynamicMatrixArray_mod
 
     type :: DynamicMatrixArray
         integer :: avamem ! amount of available space
-        integer :: tail ! last index
+        integer :: tail ! last valid Fortran index
         Type(OpTbasePtrWrapper), allocatable, dimension(:) :: data ! actual effective array of the pointers
     contains
         procedure :: init => DynamicMatrixArray_init
@@ -72,7 +72,7 @@ contains
 subroutine DynamicMatrixArray_init(this)
     class(DynamicMatrixArray) :: this
     type(OpTbasePtrWrapper) :: temp
-    this%tail = 1
+    this%tail = 0 !when the vector has no content this is invalid memory
     this%avamem = 4096/(STORAGE_SIZE(temp)/8) ! allocate a page of memory ! Note STORAGE_SIZE: F2008, SIZEOF: GCC Extension
     allocate(this%data(this%avamem))
 end subroutine DynamicMatrixArray_init
@@ -96,7 +96,7 @@ end subroutine
 !> The ALF Project contributors
 !
 !> @brief
-!> Attach a pointer to the object givenby itm at the end of the vector.
+!> Attach a pointer to the object given by itm at the end of the vector.
 !> If out of space the vector grows.
 !>
 !> @param[inout] this the vector
@@ -120,8 +120,8 @@ subroutine DynamicMatrixArray_pushback(this, itm)
         deallocate(temp)
         this%avamem = 2*this%avamem
     endif
-    this%data(this%tail)%dat => itm ! let the pointer point to the object
     this%tail = this%tail + 1
+    this%data(this%tail)%dat => itm ! let the pointer point to the object
 end subroutine
 
 !--------------------------------------------------------------------
@@ -150,14 +150,14 @@ end function
 !> returns the pointer to the last element
 !>
 !> @param[inout] this the vector.
-!> @param[out] itm the element at the end of the vector.
+!> @return itm the element at the end of the vector.
 !
 !--------------------------------------------------------------------
-subroutine DynamicMatrixArray_back(this, itm)
+function DynamicMatrixArray_back(this) result(itm)
     class(DynamicMatrixArray), intent(in) :: this
-    class(ContainerElementBase), intent(out), pointer :: itm
-    itm => this%data(this%tail-1)%dat
-end subroutine
+    class(ContainerElementBase), pointer :: itm
+    itm => this%data(this%tail)%dat
+end function
 
 !--------------------------------------------------------------------
 !> @author
@@ -173,7 +173,7 @@ end subroutine
 function DynamicMatrixArray_length(this) result(l)
     class(DynamicMatrixArray) :: this
     integer :: l
-    l = this%tail-1
+    l = this%tail
 end function
 
 end module DynamicMatrixArray_mod
