@@ -55,7 +55,6 @@
 
       ! Private variables
       Type(DynamicMatrixArray), private, allocatable :: ExpOpT_vec(:) ! for now we have for simplicity for each flavour a vector
-      Complex (Kind=Kind(0.d0)), allocatable, private :: U_HLP(:,:), U_HLP1(:,:),  V_HLP(:,:), V_HLP1(:,:)
       Integer, private, save ::  Ncheck, Ndim_hop
       Real (Kind=Kind(0.d0)), private, save  :: Zero
 
