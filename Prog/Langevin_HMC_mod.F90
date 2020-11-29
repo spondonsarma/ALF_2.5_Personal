@@ -365,6 +365,7 @@
 
         select case (trim(this%Update_scheme))
         case("Langevin")
+           Calc_Obser_eq = .True.
            If (LTAU == 1)   Calc_Obser_eq = .false.
            If ( .not. this%L_Forces) &
                 &  Call Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
