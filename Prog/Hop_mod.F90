@@ -55,7 +55,7 @@
 
       ! Private variables
       Type(DynamicMatrixArray), private, allocatable :: ExpOpT_vec(:) ! for now we have for simplicity for each flavour a vector
-      Integer, private, save ::  Ncheck, Ndim_hop
+      Integer, private, save ::  Ncheck
       Real (Kind=Kind(0.d0)), private, save  :: Zero
 
       Contains
@@ -107,28 +107,16 @@
 !
 !--------------------------------------------------------------------
         subroutine Hop_mod_init
-
           Implicit none
 
-          Integer :: nc, nf, i,j
-          Complex (Kind=Kind(0.d0)) :: g
+          Integer :: nc, nf
 
           Ncheck = size(Op_T,1)
           If ( size(Op_T,2) /= N_FL ) then
              Write(error_unit,*) 'Hop_mod_init: Error in the number of flavors.'
              error stop 1
           Endif
-          Ndim_hop = Op_T(1,1)%N
-          !Write(6,*) 'In Hop_mod: ', Ndim, Ndim_hop, Ncheck
-          Do nc = 1, Ncheck
-             do nf = 1,N_FL
-                if ( Ndim_hop /= Op_T(nc,nf)%N ) Then
-                   Write(error_unit,*) 'Hop_mod_init: Different size of Hoppings not implemented '
-                   error stop 1
-                endif
-             enddo
-          enddo
-          
+
           allocate(ExpOpT_vec(N_FL))
 
           do nf = 1,N_FL
