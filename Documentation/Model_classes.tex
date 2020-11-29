@@ -35,7 +35,7 @@ In the above listing, \texttt{ham\_T} and \texttt{ham\_T2} correspond to the hop
     \hat{c}^{\phantom\dagger}_{(\vec{i}, \ve{\delta}),\sigma }  - 1/2  \right] \right)^2
     - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } .
 \end{multline}
-The  generic hopping is taken fron Eq.~\ref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}.  The index $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1$ to $N$  and encodes the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian. The chemical potential $\mu$ is relevant only for the finite temperature code. 
+The  generic hopping is taken fron Eq.~\eqref{generic_hopping.eq}   with appropriate boundary conditions given by Eq.~\eqref{generic_boundary.eq}.  The index $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1$ to $N$  and encodes the SU(N) symmetry.    Note that  $N$ corresponds to \texttt{N\_SUN}  in the code.  The flavor index is set to  unity such that it does not appear in the  Hamiltonian. The chemical potential $\mu$ is relevant only for the finite temperature code. 
 
 If the variable \texttt{Mz} is set to \texttt{.True.}, then the code requires  \texttt{N\_SUN}  to be even and simulates the following Hamiltonian: 
 \begin{align}
@@ -107,7 +107,7 @@ The model is then defined as follows:
 + \sum_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \frac{V_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}}{N} \left(  \hat{b}_{\langle (\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}') \rangle}  \right)^2  \nonumber \\
 & - \mu \sum_{(\ve{i},\ve{\delta})}  \sum_{\sigma =1}^{N} \hat{c}^{\dagger}_{(\vec{i},\ve{\delta}),\sigma } \hat{c}^{\phantom\dagger}_{(\vec{i},\ve{\delta}),\sigma } \,.
 \end{align}
-The generic hopping is taken from Eq.~\ref{generic_hopping.eq} with appropriate boundary conditions given by Eq.~\ref{generic_boundary.eq}. The index $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1$ to $N$,  encoding the SU(N) symmetry.
+The generic hopping is taken from Eq.~\eqref{generic_hopping.eq} with appropriate boundary conditions given by Eq.~\eqref{generic_boundary.eq}. The index $\ve{i}$ runs over the unit cells, $\ve{\delta}$ over the orbitals in each unit cell and $\sigma$  from $1$ to $N$,  encoding the SU(N) symmetry.
 Note that $N$ corresponds to \texttt{N\_SUN}  in the code.
 The flavor index is set to unity such that it does not appear in the  Hamiltonian.
 The chemical potential $\mu$ is relevant only for the finite temperature code.

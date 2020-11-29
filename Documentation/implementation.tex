@@ -97,13 +97,13 @@ The partition function (see Sec.~\ref{sec:method}) consists of terms which, in g
 The ALF includes three different types of fields:
 \begin{itemize}
 \item[\texttt{t=1}]   This type is for an  Ising field, therefore $\gamma= 1$ and $ \phi = \pm 1$,
-\item[\texttt{t=2}]   This type is for the generic HS  transformation of Eq.~\ref{HS_squares} where  $\gamma \equiv \gamma(l) $  and $ \phi = \eta(l)$  with $l = \pm 1, \pm 2$ (see Eq.~\ref{eta_gamma_fields}),
+\item[\texttt{t=2}]   This type is for the generic HS  transformation of Eq.~\eqref{HS_squares} where  $\gamma \equiv \gamma(l) $  and $ \phi = \eta(l)$  with $l = \pm 1, \pm 2$ [see Eq.~\eqref{eta_gamma_fields}],
 \item[\texttt{t=3}]   This type is for continuous fields, i.e., $\gamma= 1$  and $ \phi  \in \mathbb{R}$.
 \end{itemize}
 %For an Ising term, we store type \texttt{t=1}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=s_{k,\tau} = \pm 1$. 
 %In the case of a perfect-square term, the fields results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{t=2}, which sets $\gamma_{k,\tau} = s_{k,\tau}$ and $\phi_{k,\tau}=\eta_{k,\tau}$ ). For continuous real fields $f$ we store \texttt{t=3}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=f$.
 
-For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly. Before using this variable type, the routine \texttt{Fields\_init(del)} should be called (its argument is optional), in order for internal variables such as  $\eta(l)$ and $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}) to be initialized.
+For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly. Before using this variable type, the routine \texttt{Fields\_init(del)} should be called (its argument is optional), in order for internal variables such as  $\eta(l)$ and $\gamma(l)$  [see Eq.~\eqref{eta_gamma_fields}] to be initialized.
 
 
 %
@@ -117,7 +117,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 		\texttt{del}                       & \texttt{dble}  & Width $\Delta x$ of box distribution for initial \texttt{t=3} fields, with a default value of \texttt{1} \\
 		\texttt{amplitude}                 & \texttt{dble}  & Random flip width for fields of type \texttt{t=3}, defaults to \texttt{1} \vspace{8pt} \\ 
 		\multicolumn{2}{@{}l@{}}{ \textbf{Method(arguments)}}         &    \\ \midrule
-		%\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}         & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}); the variable $\texttt{del}=\Delta x$ (see above) is optional  \\
+		%\multicolumn{2}{@{}l@{}}{ \texttt{Fields\_init(del)}}         & Initializes internal variables such as  $\eta(l)$, $\gamma(l)$  [see Eq.~\eqref{eta_gamma_fields}]; the variable $\texttt{del}=\Delta x$ (see above) is optional  \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%make(n\_op,Ltrot)}}  & Reserves memory for the field \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%clear()}}            & Clears field from memory \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%set()}}              & Sets a random configuration \\
@@ -131,7 +131,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 		 Here \texttt{np} is the rank number of the process  \\
 		\multicolumn{2}{@{}l@{}}{ \texttt{Field\%out(Group\_Comm)}}   & Writes out the field configuration  \\\bottomrule
 	\end{tabular}
-	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.  The routine \texttt{Fields\_init(del)} should be called before the use of this variable type, since it initializes necessary internal variables such as  $\eta(l)$, $\gamma(l)$  (see Eq.~\ref{eta_gamma_fields}). Note that \texttt{del}  and \texttt{amplitude}  are private variables of the fields module. The integers \texttt{n\_op} and \texttt{Ltrot} are the number of interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) is an MPI communicator defined by the main program, and the optional \texttt{In\_field} stores the initial field configuration.}
+	\caption{Components of a variable of type \texttt{Fields} named \texttt{Field}.  The routine \texttt{Fields\_init(del)} should be called before the use of this variable type, since it initializes necessary internal variables such as  $\eta(l)$, $\gamma(l)$  [see Eq.~\eqref{eta_gamma_fields}]. Note that \texttt{del}  and \texttt{amplitude}  are private variables of the fields module. The integers \texttt{n\_op} and \texttt{Ltrot} are the number of interacting operators  per time slice and time slices, respectively, \texttt{Group\_Comm} (integer) is an MPI communicator defined by the main program, and the optional \texttt{In\_field} stores the initial field configuration.}
     \end{center}
 	\label{table:Fields}
 \end{table}
@@ -202,8 +202,8 @@ such that
     \texttt{Latt\%nnlist}                              & \texttt{int}   &  Nearest neighbor indices: $j = \texttt{nnlist} (i, n_1, n_2) $, \\
                                                        &                &  $n_1, n_2 \in [-1,1] $, $\vec{R}_j = \vec{R}_i + n_1 \vec{a}_1  + n_2 \vec{a}_2 $ \\
    \texttt{Latt\%imj}                                  & \texttt{int}   &  $\vec{R}_{\mathrm{imj}(i,j)}  =  \vec{R}_i -  \vec{R}_j$, with  $\mathrm{imj}, i, j \in  1,\cdots, N_{\text{unit-cell}}$ \\
-    \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}       & \texttt{dble}  & Reciprocal space vectors $\vec{g}_i$   (See Eq.~\ref{Latt.G.eq}) \\
-    \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}         & \texttt{dble}  &  $k$-quantization (See Eq.~\ref{k.quant.eq}) \\
+    \texttt{Latt\%BZ1\_p}, \texttt{Latt\%BZ2\_p}       & \texttt{dble}  & Reciprocal space vectors $\vec{g}_i$   [See Eq.~\eqref{Latt.G.eq}] \\
+    \texttt{Latt\%b1\_p}, \texttt{Latt\%b1\_p}         & \texttt{dble}  &  $k$-quantization [See Eq.~\eqref{k.quant.eq}] \\
     \texttt{Latt\%listk}                               & \texttt{int}   &  Maps each reciprocal lattice point $k=1,\cdots, N_{\text{unit-cell}}$\\
                                                                    &    & to a reciprocal space vector\\
                                                                    &    & $\vec{k}_k= \texttt{listk(k,1)} \vec{b}_1 +  \texttt{listk(k,2)} \vec{b}_2  \equiv k_1  \vec{b}_1 +   k_2  \vec{b}_2 $ \\
