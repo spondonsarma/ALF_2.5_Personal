@@ -131,11 +131,6 @@
           
           allocate(ExpOpT_vec(N_FL))
 
-          Allocate ( V_Hlp(Ndim_hop,Ndim) )
-          Allocate ( V_Hlp1(Ndim_hop,Ndim) )
-          Allocate ( U_Hlp (Ndim, Ndim_hop) )
-          Allocate ( U_Hlp1(Ndim, Ndim_hop) )
-
           do nf = 1,N_FL
              call ExpOpT_vec(nf)%init()
              do nc = 1,Ncheck
