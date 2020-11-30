@@ -47,7 +47,27 @@
         REAL    (Kind=Kind(0.d0)), DIMENSION(:,:), ALLOCATABLE :: OBS
         REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, SIGN
         REAL    (Kind=Kind(0.d0)) :: XM, XERR, X
-        REAL    (Kind=Kind(0.d0)), External :: mutinf, entanglement
+!         REAL    (Kind=Kind(0.d0)), External :: mutinf, entanglement
+        abstract interface
+            function func (X)
+                real (Kind=Kind(0.d0)) :: func
+                real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+            end function func
+        end interface
+        interface
+            function mutinf (X)
+                real (Kind=Kind(0.d0)) :: mutinf
+                real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+            end function mutinf
+        end interface
+        interface
+            function entanglement (X)
+                real (Kind=Kind(0.d0)) :: entanglement
+                real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+            end function entanglement
+        end interface
+        
+        procedure (func), pointer :: f_ptr
 
         ! Complex (Kind=Kind(0.d0)) Z1,Z2,Z3,Z4,Z5
         Complex (Kind=Kind(0.d0)), Allocatable  :: Tmp(:)
@@ -86,7 +106,7 @@
         Write(6,*) "# of bins: ", Nbins
         Close(10) 
         
-        ALLOCATE(OBS(Nbins,NOBS))
+        ALLOCATE(OBS(NOBS,Nbins))
 
         OPEN (UNIT=20, FILE='Var_scal', STATUS='old')
         Nbins_eff = 0
@@ -95,7 +115,7 @@
               Nbins_eff = Nbins_eff + 1
               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)-1),X 
               Tmp(NOBS) = cmplx(X,0.d0,kind(0.d0))
-              OBS(Nbins_eff,:) = dble(Tmp(:)) 
+              OBS(:,Nbins_eff) = dble(Tmp(:)) 
            ELSE
               READ(20,*) N1, (Tmp(I), I=1,size(Tmp,1)-1),X 
            ENDIF
@@ -114,19 +134,21 @@
         DO IOBS = 1,NOBS
            WRITE(21,*)
            DO I = 1,Nbins_eff
-              EN  (I) = dble(OBS(I,IOBS))
-              SIGN(I) = dble(OBS(I,NOBS))
+              EN  (I) = dble(OBS(IOBS,I))
+              SIGN(I) = dble(OBS(NOBS,I))
            ENDDO
            IF (IOBS.EQ.NOBS  ) then
               CALL ERRCALCJ(EN,     XM,XERR,N_Rebin)
            else
-              CALL ERRCALCJ(Obs(1:Nbins_eff,Iobs:Iobs),SIGN,XM,XERR,N_Rebin,entanglement)
+              f_ptr => entanglement
+              CALL ERRCALCJ(Obs(Iobs:Iobs,1:Nbins_eff),SIGN,XM,XERR,N_Rebin,f_ptr)
            endif
            WRITE(21,2001) IOBS, XM,  XERR
         ENDDO
         If (Nobs==4) then
           WRITE(21,*)
-          CALL ERRCALCJ(Obs(1:Nbins_eff,1:3),SIGN,XM,XERR,N_Rebin,mutinf)
+          f_ptr => mutinf
+          CALL ERRCALCJ(Obs(1:3,1:Nbins_eff),SIGN,XM,XERR,N_Rebin,f_ptr)
           WRITE(21,2002) Nobs+1, XM,  XERR
         endif
         CLOSE(21)
@@ -141,7 +163,7 @@
               OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
               WRITE(21,*)
               DO I = 1,Nbins_eff
-                  EN  (I) = Real(OBS(I,IOBS), kind(0.d0))
+                  EN  (I) = Real(OBS(IOBS,I), kind(0.d0))
               ENDDO
               Call AUTO_COR(EN,AutoCorr)
               do i = 1,N_auto
@@ -172,7 +194,7 @@
      REAL    (Kind=Kind(0.d0)) function mutinf(X)
        
        Implicit None
-       REAL    (Kind=Kind(0.d0)) :: X(3)
+       REAL    (Kind=Kind(0.d0)), allocatable :: X(:)
 
        mutinf = log(X(3)/(X(1)*X(2)))
 
@@ -182,7 +204,7 @@
      REAL    (Kind=Kind(0.d0)) function entanglement(X)
        
        Implicit None
-       REAL    (Kind=Kind(0.d0)) :: X(1)
+       REAL    (Kind=Kind(0.d0)), allocatable :: X(:)
 
        entanglement = -log(X(1))
 

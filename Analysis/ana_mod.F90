@@ -888,6 +888,7 @@
       Character (len=64),                     intent(in)    :: analysis_mode
 
       REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, sgn
+      REAL    (Kind=Kind(0.d0)), DIMENSION(:,:),   ALLOCATABLE :: EN_f_arg
       REAL    (Kind=Kind(0.d0)) :: XM, XERR
 
       Complex (Kind=Kind(0.d0)), Allocatable  :: Bins(:,:)
@@ -905,7 +906,7 @@
       abstract interface
          function func (X)
             real (Kind=Kind(0.d0)) :: func
-            real (Kind=Kind(0.d0)), intent (in) :: X(:)
+            real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
          end function func
       end interface
       
@@ -972,10 +973,12 @@
       write(File_out,'(A,A)') trim(name), "J"
       OPEN (UNIT=21, FILE=File_out, STATUS='unknown')
       WRITE(21,*) 'Effective number of bins, and bins: ', Nbins_eff/N_rebin, Nbins
-      ALLOCATE (EN(Nbins_eff), vec(NOBS), vec_err(NOBS))
+      ALLOCATE (EN(Nbins_eff), EN_f_arg(data_range+1,Nbins_eff), vec(NOBS), vec_err(NOBS))
       DO IOBS = 1,Nobs_output
          EN(:) = Real(Bins(IOBS,:), kind(0.d0)) ! not used any more, too be deleted
-         CALL ERRCALCJ(Real(Bins(IOBS:IOBS+data_range,:), kind(0.d0)),sgn,XM,XERR,N_Rebin,f_ptr)
+         EN_f_arg(:,:) = Real(Bins(IOBS:IOBS+data_range,:), kind(0.d0)) !+data_range
+         CALL ERRCALCJ(EN_f_arg,sgn,XM,XERR,N_Rebin,f_ptr)
+!          CALL ERRCALCJ(EN,sgn,XM,XERR,N_Rebin)
          vec    (IOBS) = XM
          vec_err(IOBS) = XERR
          WRITE(21,*)
@@ -1006,14 +1009,14 @@
          DEALLOCATE(AutoCorr)
       endif
 
-      DEALLOCATE (EN,vec,vec_err,sgn_raw,sgn,Bins_raw,Bins)
+      DEALLOCATE (EN, EN_f_arg,vec,vec_err,sgn_raw,sgn,Bins_raw,Bins)
 
    END subroutine ana_vec
    
    Real (Kind=Kind(0.d0)) function mutinf(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
+      Real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
 
       mutinf = log(X(3)/(X(1)*X(2)))
 
@@ -1022,7 +1025,7 @@
    Real (Kind=Kind(0.d0)) function identity(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
+      Real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
 
       identity = X(1)
 
@@ -1031,7 +1034,7 @@
    Real (Kind=Kind(0.d0)) function entanglement(X)
        
       Implicit None
-      Real (Kind=Kind(0.d0)), intent (in) :: X(:)
+      Real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
 
       entanglement = -log(X(1))
 

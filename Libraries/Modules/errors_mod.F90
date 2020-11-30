@@ -315,16 +315,24 @@
 !          The input are the bins
 
            IMPLICIT NONE
+           
+           abstract interface
+               function func (Z)
+                   real (Kind=Kind(0.d0)) :: func
+                   real (Kind=Kind(0.d0)), allocatable, intent (in) :: Z(:)
+               end function func
+           end interface
 
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:) ::  EN
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  SI
            REAL (Kind=Kind(0.d0))               ::  XM, XERR, XS, XShelp
-           REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
+!            REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
+           procedure (func), pointer:: f
            REAL (Kind=Kind(0.d0)), ALLOCATABLE  :: EN1(:), Xhelp(:),X(:)
            INTEGER                     ::  N, N1, NP, NP1, Nobs
 
-           NP = SIZE(EN,1)
-           Nobs = SIZE(EN,2)
+           NP = SIZE(EN,2)
+           Nobs = SIZE(EN,1)
            NP1= SIZE(SI)
            IF (NP1.NE.NP) THEN
               WRITE(6,*) 'Error in Errcalc_JS'
@@ -337,13 +345,14 @@
            Xhelp  = 0.D0
            XShelp = 0.D0
            DO N1 = 1,NP
-              Xhelp  = Xhelp  + EN(N1,:)
+              Xhelp  = Xhelp  + EN(:,N1)
               XShelp = XShelp + SI(N1)
            ENDDO
 
            DO N = 1,NP
               XS = XShelp - SI(N)
-              X  = (Xhelp  - EN(N,:))/Xs
+              X  = (Xhelp  - EN(:,N))/Xs
+              write(*,*) X
               EN1(N) = f(X)
            ENDDO
            CALL ERRCALC(EN1,XM,XERR)
@@ -399,16 +408,24 @@
 !          The input are the bins
 
            IMPLICIT NONE
+           
+           abstract interface
+               function func (Y)
+                   COMPLEX (Kind=Kind(0.d0)) :: func
+                   COMPLEX (Kind=Kind(0.d0)), allocatable, intent (in) :: Y(:)
+               end function func
+           end interface
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:) ::  EN
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  SI
            COMPLEX (Kind=Kind(0.d0))               ::  XM, XERR, XS, XShelp
-           COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
+!            COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
+           procedure (func), pointer:: f
            COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE  :: EN1(:), Xhelp(:),X(:)
            INTEGER                     ::  N, N1, NP, NP1, Nobs
 
-           NP = SIZE(EN,1)
-           Nobs = SIZE(EN,2)
+           NP = SIZE(EN,2)
+           Nobs = SIZE(EN,1)
            NP1= SIZE(SI)
            IF (NP1.NE.NP) THEN
               WRITE(6,*) 'Error in Errcalc_JS'
@@ -421,13 +438,13 @@
            Xhelp  = CMPLX(0.D0, 0.D0, kind(0.D0))
            XShelp = CMPLX(0.D0, 0.D0, kind(0.D0))
            DO N1 = 1,NP
-              Xhelp  = Xhelp  + EN(N1,:)
+              Xhelp  = Xhelp  + EN(:,N1)
               XShelp = XShelp + SI(N1)
            ENDDO
 
            DO N = 1,NP
               XS = XShelp - SI(N)
-              X  = (Xhelp  - EN(N,:))/Xs
+              X  = (Xhelp  - EN(:,N))/Xs
               EN1(N) = f(X)
            ENDDO
            CALL ERRCALC(EN1,XM,XERR)
@@ -485,17 +502,25 @@
 !          The input are the bins.
            
            IMPLICIT NONE
+           
+           abstract interface
+               function func (Z)
+                   real (Kind=Kind(0.d0)) :: func
+                   real (Kind=Kind(0.d0)), allocatable, intent (in) :: Z(:)
+               end function func
+           end interface
 
            REAL (Kind=Kind(0.d0))               ::  EN(:,:), SI(:)
-           REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
+!            REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
+           procedure (func), pointer:: f
            REAL (Kind=Kind(0.d0))               ::  XM, XERR, Y
            REAL (Kind=Kind(0.d0)), ALLOCATABLE  ::  EN1(:,:), SI1(:), X(:)
            INTEGER :: NREBIN, NC, N, NB, NP, NP1, nobs
  
-           NP = SIZE(EN,1)
-           Nobs = SIZE(EN,2)
+           NP = SIZE(EN,2)
+           Nobs = SIZE(EN,1)
            NP1 = NP/NREBIN
-           ALLOCATE (EN1(NP1,nobs), X(nobs))
+           ALLOCATE (EN1(nobs,NP1), X(nobs))
            ALLOCATE (SI1(NP1))
            
            ! Rebin
@@ -504,12 +529,12 @@
               X = 0.D0; Y = 0.D0
               DO NB = 1,NREBIN
                  NC = NC + 1
-                 X = X + EN(NC,:)
+                 X = X + EN(:,NC)
                  Y = Y + SI(NC)
               ENDDO
               X = X/DBLE(NREBIN)
               Y = Y/DBLE(NREBIN)
-              EN1(N,:) = X
+              EN1(:,N) = X
               SI1(N) = Y
            ENDDO
            CALL ERRCALC_JS_F(EN1,SI1,XM,XERR,f)
@@ -562,17 +587,25 @@
 !          The input are the bins.
            
            IMPLICIT NONE
+           
+           abstract interface
+               function func (X)
+                   COMPLEX (Kind=Kind(0.d0)) :: func
+                   COMPLEX (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+               end function func
+           end interface
 
            COMPLEX (Kind=Kind(0.d0))               ::  EN(:,:), SI(:)
            COMPLEX (Kind=Kind(0.d0))               ::  XM, XERR, Y
-           COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
+!            COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
+           procedure (func), pointer:: f
            COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE  ::  EN1(:,:), SI1(:), X(:)
            INTEGER :: NREBIN, NC, N, NB, NP, NP1, nobs
  
-           NP = SIZE(EN,1)
-           Nobs = SIZE(EN,2)
+           Nobs = SIZE(EN,1)
+           NP = SIZE(EN,2)
            NP1 = NP/NREBIN
-           ALLOCATE (EN1(NP1,nobs))
+           ALLOCATE (EN1(nobs,NP1))
            ALLOCATE (SI1(NP1), X(nobs))
            
            ! Rebin
@@ -581,12 +614,12 @@
               X = cmplx(0.D0,0.d0,kind(0.d0)); Y = cmplx(0.D0,0.D0,kind(0.d0))
               DO NB = 1,NREBIN
                  NC = NC + 1
-                 X = X + EN(NC,:)
+                 X = X + EN(:,NC)
                  Y = Y + SI(NC)
               ENDDO
               X = X/DBLE(NREBIN)
               Y = Y/DBLE(NREBIN)
-              EN1(N,:) = X
+              EN1(:,N) = X
               SI1(N) = Y
            ENDDO
            CALL ERRCALC_JS_C_F(EN1,SI1,XM,XERR,f)
