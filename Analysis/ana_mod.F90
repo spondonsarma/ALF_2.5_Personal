@@ -903,14 +903,14 @@
       !New Stuff for Autocorrelation
       REAL(Kind=Kind(0.d0)), DIMENSION(:)  , ALLOCATABLE :: vec, vec_err
       
-      abstract interface
-         function func (X)
-            real (Kind=Kind(0.d0)) :: func
-            real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
-         end function func
-      end interface
+!       abstract interface
+!          function func (X)
+!             real (Kind=Kind(0.d0)) :: func
+!             real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+!          end function func
+!       end interface
       
-      procedure (func), pointer :: f_ptr => null ()
+      procedure (func_r), pointer :: f_ptr => null ()
 
       N_skip = 1
       N_rebin = 1

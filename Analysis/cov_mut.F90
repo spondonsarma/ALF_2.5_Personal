@@ -48,12 +48,12 @@
         REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, SIGN
         REAL    (Kind=Kind(0.d0)) :: XM, XERR, X
 !         REAL    (Kind=Kind(0.d0)), External :: mutinf, entanglement
-        abstract interface
-            function func (X)
-                real (Kind=Kind(0.d0)) :: func
-                real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
-            end function func
-        end interface
+!         abstract interface
+!             function func (X)
+!                 real (Kind=Kind(0.d0)) :: func
+!                 real (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+!             end function func
+!         end interface
         interface
             function mutinf (X)
                 real (Kind=Kind(0.d0)) :: mutinf
@@ -67,7 +67,7 @@
             end function entanglement
         end interface
         
-        procedure (func), pointer :: f_ptr
+        procedure (func_r), pointer :: f_ptr
 
         ! Complex (Kind=Kind(0.d0)) Z1,Z2,Z3,Z4,Z5
         Complex (Kind=Kind(0.d0)), Allocatable  :: Tmp(:)
@@ -194,7 +194,7 @@
      REAL    (Kind=Kind(0.d0)) function mutinf(X)
        
        Implicit None
-       REAL    (Kind=Kind(0.d0)), allocatable :: X(:)
+       REAL    (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
 
        mutinf = log(X(3)/(X(1)*X(2)))
 
@@ -204,7 +204,7 @@
      REAL    (Kind=Kind(0.d0)) function entanglement(X)
        
        Implicit None
-       REAL    (Kind=Kind(0.d0)), allocatable :: X(:)
+       REAL    (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
 
        entanglement = -log(X(1))
 

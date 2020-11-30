@@ -79,14 +79,14 @@
        abstract interface
            function func_r (Z)
                real (Kind=Kind(0.d0)) :: func_r
-               real (Kind=Kind(0.d0)), intent (in) :: Z(:)
+               real (Kind=Kind(0.d0)), allocatable, intent (in) :: Z(:)
            end function func_r
        end interface
        
        abstract interface
            function func_c (X)
                COMPLEX (Kind=Kind(0.d0)) :: func_c
-               COMPLEX (Kind=Kind(0.d0)), intent (in) :: X(:)
+               COMPLEX (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
            end function func_c
        end interface
 
