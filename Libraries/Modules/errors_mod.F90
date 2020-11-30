@@ -75,6 +75,20 @@
        INTERFACE Bootstrap_fluc
           MODULE PROCEDURE  BootstrapC_fluc
        END INTERFACE
+       
+       abstract interface
+           function func_r (Z)
+               real (Kind=Kind(0.d0)) :: func_r
+               real (Kind=Kind(0.d0)), intent (in) :: Z(:)
+           end function func_r
+       end interface
+       
+       abstract interface
+           function func_c (X)
+               COMPLEX (Kind=Kind(0.d0)) :: func_c
+               COMPLEX (Kind=Kind(0.d0)), intent (in) :: X(:)
+           end function func_c
+       end interface
 
        CONTAINS
 !***********
@@ -315,19 +329,12 @@
 !          The input are the bins
 
            IMPLICIT NONE
-           
-           abstract interface
-               function func (Z)
-                   real (Kind=Kind(0.d0)) :: func
-                   real (Kind=Kind(0.d0)), allocatable, intent (in) :: Z(:)
-               end function func
-           end interface
 
            REAL (Kind=Kind(0.d0)), DIMENSION(:,:) ::  EN
            REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  SI
            REAL (Kind=Kind(0.d0))               ::  XM, XERR, XS, XShelp
 !            REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
-           procedure (func), pointer:: f
+           procedure (func_r), pointer:: f
            REAL (Kind=Kind(0.d0)), ALLOCATABLE  :: EN1(:), Xhelp(:),X(:)
            INTEGER                     ::  N, N1, NP, NP1, Nobs
 
@@ -408,19 +415,12 @@
 !          The input are the bins
 
            IMPLICIT NONE
-           
-           abstract interface
-               function func (Y)
-                   COMPLEX (Kind=Kind(0.d0)) :: func
-                   COMPLEX (Kind=Kind(0.d0)), allocatable, intent (in) :: Y(:)
-               end function func
-           end interface
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:,:) ::  EN
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  SI
            COMPLEX (Kind=Kind(0.d0))               ::  XM, XERR, XS, XShelp
 !            COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
-           procedure (func), pointer:: f
+           procedure (func_c), pointer:: f
            COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE  :: EN1(:), Xhelp(:),X(:)
            INTEGER                     ::  N, N1, NP, NP1, Nobs
 
@@ -502,17 +502,10 @@
 !          The input are the bins.
            
            IMPLICIT NONE
-           
-           abstract interface
-               function func (Z)
-                   real (Kind=Kind(0.d0)) :: func
-                   real (Kind=Kind(0.d0)), allocatable, intent (in) :: Z(:)
-               end function func
-           end interface
 
            REAL (Kind=Kind(0.d0))               ::  EN(:,:), SI(:)
 !            REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
-           procedure (func), pointer:: f
+           procedure (func_r), pointer:: f
            REAL (Kind=Kind(0.d0))               ::  XM, XERR, Y
            REAL (Kind=Kind(0.d0)), ALLOCATABLE  ::  EN1(:,:), SI1(:), X(:)
            INTEGER :: NREBIN, NC, N, NB, NP, NP1, nobs
@@ -587,18 +580,11 @@
 !          The input are the bins.
            
            IMPLICIT NONE
-           
-           abstract interface
-               function func (X)
-                   COMPLEX (Kind=Kind(0.d0)) :: func
-                   COMPLEX (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
-               end function func
-           end interface
 
            COMPLEX (Kind=Kind(0.d0))               ::  EN(:,:), SI(:)
            COMPLEX (Kind=Kind(0.d0))               ::  XM, XERR, Y
 !            COMPLEX (Kind=Kind(0.d0)), EXTERNAL     ::  f
-           procedure (func), pointer:: f
+           procedure (func_c), pointer:: f
            COMPLEX (Kind=Kind(0.d0)), ALLOCATABLE  ::  EN1(:,:), SI1(:), X(:)
            INTEGER :: NREBIN, NC, N, NB, NP, NP1, nobs
  
