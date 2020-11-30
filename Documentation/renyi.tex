@@ -12,10 +12,10 @@
 The provided module \texttt{entanglement\_mod.F90} allows to compute the $2^{\rm o}$ R\'enyi entropy $S_2$ for a subsystem.
 Using Eq.~(\ref{rhoA}), $S_2$ can be expressed as a stochastic average of an observable constructed from two independent simulations of the model \cite{Grover13}
 \begin{equation}
-e^{-S_2} = \sum_{C_1,C_2} P(C_2) P(C_1) {\rm det}\left[G_A(C_1; \tau_0)G_A(C_2; \tau_0)-(\mathds{1} - G_A(C_1; \tau_0))(\mathds{1} - G_A(C_2; \tau_0))\right],
+e^{-S_2} = \sum_{C_1,C_2} P(C_2) P(C_1) {\rm det}\left[G_A(\tau_0; C_1)G_A(\tau_0; C_2)-(\mathds{1} - G_A(\tau_0; C_1))(\mathds{1} - G_A(\tau_0; C_2))\right],
 \label{renyi_obs}
 \end{equation}
-where $G_A(C_i; \tau_0)$, $i=1$, $2$ is the Green's function matrix restricted to the subsystem $A$ in exam and at a given time-slice $\tau_0$, depending on the configuration $C_i$ of the replica $i$.
+where $G_A(\tau_0; C_i)$, $i=1$, $2$ is the Green's function matrix restricted to the subsystem $A$ in exam and at a given time-slice $\tau_0$, depending on the configuration $C_i$ of the replica $i$.
 Due to the formulation, sampling of $S_2$ requires a MPI simulation with at least $2$ tasks.
 Only real-space partitions are currently supported.
 The degrees of freedom defining the subsystem are identified by the lattice site, flavor, and color indexes.
