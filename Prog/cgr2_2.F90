@@ -28,7 +28,10 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
-
+module cgr2_2_mod
+  private
+  public :: CGR2_2
+contains
 
 !--------------------------------------------------------------------
 !> @author
@@ -413,3 +416,5 @@
         DEALLOCATE(MYU2, V1INV, HLPB1, HLPB2, WORK, IPVT, TAU, D3, D1m, D2m)
 #endif
       END SUBROUTINE CGR2_2
+
+end module cgr2_2_mod

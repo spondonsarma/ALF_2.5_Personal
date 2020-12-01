@@ -28,6 +28,8 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
+module wrapul_mod
+contains
       
       SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
 
@@ -122,3 +124,4 @@
 #endif
       END SUBROUTINE WRAPUL
       
+end module wrapul_mod

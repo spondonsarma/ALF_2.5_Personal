@@ -36,6 +36,9 @@
         Use UDV_State_mod
         Use Control
         Use Hop_mod
+        use wrapul_mod
+        use wrapur_mod
+        use cgr1_mod
         Use iso_fortran_env, only: output_unit, error_unit
 
         
@@ -85,33 +88,6 @@
         
       SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN,Calc_Obser_eq)
         Implicit none
-        
-        Interface
-           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUR
-           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
         
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
         CLASS(UDV_State), intent(in), allocatable, dimension(:,:)    :: udvst
@@ -248,33 +224,6 @@
       Subroutine Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
 
         Implicit none
-        
-        Interface
-           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUR
-           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
         
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
         CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst

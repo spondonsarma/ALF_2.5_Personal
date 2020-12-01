@@ -39,6 +39,8 @@
 !> sets the random number generator.
 !
 !--------------------------------------------------------------------
+module set_random_mod
+contains
 
      Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
 
@@ -98,3 +100,5 @@
 #endif
        
      end Subroutine Set_Random_number_Generator
+
+end module set_random_mod

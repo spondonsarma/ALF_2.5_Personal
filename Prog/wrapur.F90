@@ -29,6 +29,8 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
+module wrapur_mod
+contains
  
      SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
 
@@ -116,3 +118,5 @@
 #endif
         
       END SUBROUTINE WRAPUR
+
+end module wrapur_mod

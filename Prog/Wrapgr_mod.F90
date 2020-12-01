@@ -89,27 +89,8 @@ Contains
  
     Use Hamiltonian
     Use Hop_mod
+    use upgrade_mod
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    end Interface
     
     ! Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  GR(:,:,:)
@@ -188,27 +169,8 @@ Contains
     Use Hamiltonian
     Use MyMats
     Use Hop_mod
+    use upgrade_mod
     Implicit None
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    End Interface
     
     ! Given GREEN at time NTAU => GREEN at time NTAU - 1,
     ! Upgrade NTAU  [LTROT:1]
@@ -375,28 +337,8 @@ Contains
 !>        direction = d -->  On output Green on m_min if accepted. Green is on m_max if not accepted.
 !--------------------------------------------------------------------
         
+    use upgrade_mod
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Op_dim,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt, Op_dim
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-
-    end Interface
 
     ! Arguments 
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR
