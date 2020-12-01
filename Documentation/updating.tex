@@ -23,11 +23,11 @@ Predicting how efficient a certain Monte Carlo update scheme will turn out to be
 		Updating schemes             & Type             & Description \\
 		\midrule
 		\texttt{Sequential}          & \texttt{logical} & (internal variable) If true, the configurations moves through sequential, single spin flips  \\
-		\texttt{Propose\_S0}         & \texttt{logical} & If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the free bosonic action\\
+		\texttt{Propose\_S0}         & \texttt{logical} & If true, proposes sequential local moves according to the probability $e^{-S_0}$, where $S_0$ is the free Ising action\\
 		\texttt{Global\_tau\_moves}  & \texttt{logical} & Whether to carry out  global moves on a single time slice.
 		For a given time slice the user can define which part of the operator string is to be computed sequentially. This is specified by the  variable  \texttt{N\_sequential\_start} and \texttt{N\_sequential\_end}. A number of   \texttt{N\_tau\_Global} user-defined global moves on the given time slice  will then be carried out   \\
 		\texttt{Global\_moves}       & \texttt{logical} & If true, allows for global moves in space and time.   A user-defined number \texttt{N\_Global} of global moves in space and time  will be carried out at the end of each sweep \\
-		\texttt{Langevin}            & \texttt{logical} & If true, Langevin dynamics is used instead of sequential, single flips \\
+		\texttt{Langevin}            & \texttt{logical} & If true, Langevin dynamics is used exclusively (i.e., can only be used in association with tempering) \\
 		\texttt{Tempering}           & Compiling option & Requires MPI and runs the code in a parallel tempering mode, also see Sec.~\ref{Parallel_tempering.sec},~\ref{sec:compilation} \\
 		\bottomrule
 	\end{tabular}
