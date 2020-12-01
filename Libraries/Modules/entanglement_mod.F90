@@ -31,6 +31,10 @@
  
 Module entanglement_mod
 
+#ifndef MPI
+#warning "You are compiling entanglement without MPI. No results possible"
+#endif
+
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -305,6 +309,8 @@ Module entanglement_mod
           Calc_Renyi_Ent_indep=Calc_Renyi_Ent_indep*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+#else
+          Calc_Renyi_Ent_indep=0.0d0
 #endif
               
           End function Calc_Renyi_Ent_indep
@@ -432,6 +438,8 @@ Module entanglement_mod
           Calc_Renyi_Ent_gen_fl=Calc_Renyi_Ent_gen_fl*weight
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+#else
+          Calc_Renyi_Ent_gen_fl=0.0d0
 #endif
             
         End function Calc_Renyi_Ent_gen_fl
@@ -576,6 +584,8 @@ Module entanglement_mod
 
           ! At this point, each task of the temepering group / world returns the same averaged value of the pairs, including the possible "free"/ unpaired one.
           ! This mechanisms leads to some syncronization, but I (Johannes) am lacking a better way to treat odd number of tasks.
+#else
+          Calc_Renyi_Ent_gen_all=0.0d0
 #endif
 
             
