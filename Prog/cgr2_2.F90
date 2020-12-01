@@ -30,7 +30,7 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 module cgr2_2_mod
   private
-  public :: CGR2_2
+  public :: CGR2_2, solve_extended_System, get_blocks
 contains
 
 !--------------------------------------------------------------------

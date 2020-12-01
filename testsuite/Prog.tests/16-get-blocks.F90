@@ -6,6 +6,7 @@
 Program TESTGETMATRIXSUBBLOCKS
 
 Use MyMats
+use cgr2_2_mod
 
 
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(10,10) :: V
