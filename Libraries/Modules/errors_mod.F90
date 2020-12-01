@@ -359,7 +359,6 @@
            DO N = 1,NP
               XS = XShelp - SI(N)
               X  = (Xhelp  - EN(:,N))/Xs
-              write(*,*) X
               EN1(N) = f(X)
            ENDDO
            CALL ERRCALC(EN1,XM,XERR)
