@@ -164,7 +164,7 @@ In the last two lines, we have set the hopping matrix element  for each bond to 
 \texttt{Phi\_x, Phi\_y}  to zero and  looping over \texttt{N\_phi}    from $ 1 \cdots L^2 $   produces  the single particle spectrum of  Fig.~\ref{But.fig}(a).  
 
 For the honeycomb lattice  the checkerboard decomposition  for the nearest neighbor hopping consists of three  sets:  \texttt{N\_Fam = 3}  each of length   corresponding  to the number of unit cells.  In  Fig.~\ref{fig_predefined_lattices}(d)  
-the bond elements of these three sets are color coded. In the code, the elements of the sets are specified as:
+these sets are denoted by different colors. In the code, the elements of the sets are specified as:
 
 \begin{lstlisting}[style=fortran] 
 do I = 1,Latt%N
@@ -186,8 +186,8 @@ The  module provides hopping and checkerboard decompositions, defining a  \path{
 \subsubsection*{Square}
 The call:
 \begin{lstlisting}[style=fortran]
- Call Set_Default_hopping_parameters_square(Hopping_Matrix, T_vec, Chem_vec, Phi_X_vec,  
-          Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
+Call Set_Default_hopping_parameters_square(Hopping_Matrix, T_vec, Chem_vec, Phi_X_vec,  
+         Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
 \end{lstlisting}
 defines  the  \path{Hopping_Matrix} for the square  lattice: 
 \begin{equation}
@@ -198,21 +198,21 @@ The vectors  \path{T_vec} and \path{Chem_vec} have  length \texttt{N\_FL} and sp
 
 \subsubsection*{Honeycomb}
 The call: 
- \begin{lstlisting}[style=fortran]
- Call Set_Default_hopping_parameters_honeycomb(Hopping_Matrix,T_vec, Chem_vec, Phi_X_vec,
-          Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
+\begin{lstlisting}[style=fortran]
+Call Set_Default_hopping_parameters_honeycomb(Hopping_Matrix,T_vec, Chem_vec, Phi_X_vec,
+         Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
 \end{lstlisting}
 defines  the  \path{Hopping_Matrix} for the  honeycomb lattice: 
 \begin{align}
 \hat{H}_T  &=  \sum_{\ve{i}, \sigma, s}  \left(  \sum_{ \ve{\delta} = \left\{ \ve{\delta}_1, \ve{\delta}_2, \ve{\delta}_3\right\} }    - t^{(s)} \hat{c}^{\dagger}_{\ve{i},s,\sigma}   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i}}^{\ve{i}+ \ve{\delta}}  \vec{A}^{(s)}(\vec{l})  d \vec{l}}   \hat{c}^{}_{\ve{i} + \ve{\delta},s,\sigma} +  H.c. \right)   \nonumber \\   
     &=  \sum_{\ve{i}, \sigma, s}   -  \mu^{(s)} \left( \hat{c}^{\dagger}_{\ve{i},s,\sigma} \hat{c}^{}_{\ve{i},s,\sigma}   +  \hat{c}^{\dagger}_{\ve{i} + \ve{\delta}_1,s,\sigma} \hat{c}^{}_{\ve{i} + \ve{\delta}_1,s,\sigma}   \right),
 \end{align}
-where the \path{T_vec} and \path{Chem_vec} have  length \texttt{N\_FL} and specify the hopping and the chemical potentials, while the  vectors \path{Phi_X_vec},  \path{Phi_Y_vec} and \path{N_Phi_vec},  also of  length  \texttt{N\_FL}, define the vector potential.  Here $\ve{i}$  runs over  sublattice  A, and $\ve{i} + \ve{\delta}$  over the three nearest neighbors of site $\ve{i}$
+where the \path{T_vec} and \path{Chem_vec} have  length \texttt{N\_FL} and specify the hopping and the chemical potentials, while the  vectors \path{Phi_X_vec},  \path{Phi_Y_vec} and \path{N_Phi_vec},  also of  length  \texttt{N\_FL}, define the vector potential.  Here $\ve{i}$  runs over  sublattice  A, and $\ve{i} + \ve{\delta}$  over the three nearest neighbors of site $\ve{i}$.
 
 
 \subsubsection*{Square bilayer}
 The call:
- \begin{lstlisting}[style=fortran]
+\begin{lstlisting}[style=fortran]
 Call Set_Default_hopping_parameters_Bilayer_square(Hopping_Matrix, T1_vec, T2_vec,
          Tperp_vec, Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist,
          Latt, Latt_unit)
@@ -227,7 +227,7 @@ where the additional  index  $n$  labels the layers.
 
 \subsubsection*{Honeycomb  bilayer}
 The call:
- \begin{lstlisting}[style=fortran]
+\begin{lstlisting}[style=fortran]
 Call Set_Default_hopping_parameters_Bilayer_honeycomb(Hopping_Matrix, T1_vec, T2_vec,
          Tperp_vec, Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist,
          Latt, Latt_unit)
@@ -244,7 +244,7 @@ Here, the additional  index  $n$  labels the layer.   $\ve{i} $   runs over the 
 
 \subsubsection*{N-leg ladder}
 The call:
- \begin{lstlisting}[style=fortran]
+\begin{lstlisting}[style=fortran]
 Call Set_Default_hopping_parameters_n_lag_ladder(Hopping_Matrix, T_vec, Tperp_vec,
     Chem_vec, Phi_X_vec, Phi_Y_vec, Bulk, N_Phi_vec, N_FL, List, Invlist, Latt, Latt_unit)
 \end{lstlisting}  

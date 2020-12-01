@@ -501,6 +501,27 @@ C.~W. Gardiner,
 \newblock \emph{Handbook of Stochastic Methods},
 \newblock Springer (1985).
 
+\bibitem{Batrouni85}
+G.~G. Batrouni, G.~R. Katz, A.~S. Kronfeld, G.~P. Lepage, B.~Svetitsky and
+  K.~G. Wilson,
+\newblock \emph{Langevin simulations of lattice field theories},
+\newblock Phys. Rev. D \textbf{32}, 2736 (1985),
+\newblock \doi{10.1103/PhysRevD.32.2736}.
+
+\bibitem{Batrouni19}
+G.~G. Batrouni and R.~T. Scalettar,
+\newblock \emph{Langevin simulations of a long-range electron-phonon model},
+\newblock Phys. Rev. B \textbf{99}, 035114 (2019),
+\newblock \doi{10.1103/PhysRevB.99.035114}.
+
+\bibitem{Davies86}
+C.~Davies, G.~Batrouni, G.~Katz, A.~Kronfeld, P.~Lepage, P.~Rossi, B.~Svetitsky
+  and K.~Wilson,
+\newblock \emph{Langevin simulations of lattice field theories using fourier
+  acceleration},
+\newblock Journal of Statistical Physics \textbf{43}(5), 1073 (1986),
+\newblock \doi{10.1007/BF02628331}.
+
 \bibitem{Beyl_thesis}
 S.~Beyl,
 \newblock \emph{Hybrid Quantum Monte Carlo for Condensed Matter Models},
@@ -557,8 +578,10 @@ C.~J. Geyer,
 
 \bibitem{neal1993}
 R.~M. Neal,
-\newblock \emph{Probabilistic inference using markov chain monte carlo methods}
-   (1993).
+\newblock \emph{Probabilistic inference using Markov chain Monte Carlo
+  methods},
+\newblock Department of Computer Science, University of Toronto Toronto,
+  Ontario, Canada (1993).
 
 \bibitem{Bercx17}
 M.~Bercx, J.~S. Hofmann, F.~F. Assaad and T.~C. Lang,
