@@ -10,7 +10,7 @@ Program TESTOPMAKE
         subroutine Op_exp_FFA(g,Op,Mat)
             Use Operator_mod
             Type (Operator), Intent(IN)  :: Op
-            Complex (Kind=8), Dimension(:,:), INTENT(OUT) :: Mat
+            Complex (Kind=8), allocatable, INTENT(INOUT) :: Mat(:,:)
             Complex (Kind=8), INTENT(IN) :: g
          End Subroutine
       End Interface
@@ -76,7 +76,7 @@ End Program TESTOPMAKE
     Use Operator_mod
     Implicit none 
     Type (Operator), Intent(IN)  :: Op
-    Complex (Kind=8), Dimension(:,:), INTENT(OUT) :: Mat
+    Complex (Kind=8), allocatable, INTENT(INOUT) :: Mat(:,:)
     Complex (Kind=8), INTENT(IN) :: g
     Complex (Kind=8) :: Z, Z1
 
