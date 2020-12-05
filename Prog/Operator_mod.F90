@@ -52,8 +52,8 @@ Module Operator_mod
   Type Operator
      Integer          :: N, N_non_zero
      logical          :: diag
-     complex (Kind=Kind(0.d0)), pointer :: O(:,:), U (:,:), M_exp(:,:,:), E_exp(:,:)
-     Real    (Kind=Kind(0.d0)), pointer :: E(:)
+     complex (Kind=Kind(0.d0)), allocatable :: O(:,:), U (:,:), M_exp(:,:,:), E_exp(:,:)
+     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
      Integer, pointer :: P(:)
      complex (Kind=Kind(0.d0)) :: g
      complex (Kind=Kind(0.d0)) :: alpha
