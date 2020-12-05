@@ -92,6 +92,7 @@ Program OPWRAPDO
                End Do
             End Do
 !
+            call Op_clear(Op,opn)
             Deallocate (VH, matnew, matold, Expop, ExpMop)
          End Do
       End Do
