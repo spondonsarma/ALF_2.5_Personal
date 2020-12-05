@@ -53,8 +53,8 @@ Module Operator_mod
      Integer          :: N, N_non_zero
      logical          :: diag
      complex (Kind=Kind(0.d0)), allocatable :: O(:,:), U (:,:), M_exp(:,:,:), E_exp(:,:)
-     Real    (Kind=Kind(0.d0)), allocatable :: E(:)
-     Integer, pointer :: P(:)
+     Real    (Kind=Kind(0.d0)), allocatable :: E(:) ! allocatable members are part of F2003
+     Integer, allocatable :: P(:)
      complex (Kind=Kind(0.d0)) :: g
      complex (Kind=Kind(0.d0)) :: alpha
      Integer          :: Type 
