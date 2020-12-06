@@ -62,7 +62,7 @@
        Private
        Real (Kind=Kind(0.d0))  :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
        Real (Kind=Kind(0.d0))  :: Del, FLIP_st(-2:2,3)
-       Real (Kind=Kind(0.d0))  :: Amplitude=5.d0
+       Real (Kind=Kind(0.d0))  :: Amplitude=1.d0
 
        Type Fields
           Real    (Kind=Kind(0.d0)), allocatable    :: f(:,:)
@@ -212,7 +212,7 @@
         !Local
         Integer :: n
 
-        Del = 0.d0
+        Del = 1.d0
         If (Present(Delta_X)) Del = Delta_X
 
         Phi_st = 0.d0
@@ -262,9 +262,10 @@
 !> @details
 !> Reads in the field configuration and seeds if present so as to
 !> pursue a run. If  the configuration is not present  the
-!> routine will generate one based on the seeds read in from the file
-!> seeds
-!
+!> routine will generate one randomly. Note that the random number generator is 
+!> initialized from the  seeds file in the routine Set_Random_number_Generator  of the 
+!> module random_wrap_mod.F90
+!>
 !> @param [INOUT] this
 !> \verbatim
 !> Type Fields
@@ -342,26 +343,28 @@
                CLOSE(10)
                DEALLOCATE(SEED_VEC)
             ELSE
-               IF (IRANK == 0) THEN
-                  WRITE(6,*) 'No initial configuration'
-                  OPEN(UNIT=5,FILE='seeds',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
-                  IF (IERR /= 0) THEN
-                     WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
-                     error stop 1
-                  END IF
-                  DO I = ISIZE-1,1,-1
-                     READ (5,*) SEED_IN
-                     CALL MPI_SEND(SEED_IN,1,MPI_INTEGER, I, I+1024, MPI_COMM_WORLD,IERR)
-                  ENDDO
-                  READ(5,*) SEED_IN
-                  CLOSE(5)
-               ELSE
-                  CALL MPI_RECV(SEED_IN, 1, MPI_INTEGER,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
-               ENDIF
-               ALLOCATE (SEED_VEC(1))
-               SEED_VEC(1) = SEED_IN
-               CALL RANSET(SEED_VEC)
-               DEALLOCATE (SEED_VEC)
+               
+!!$               IF (IRANK == 0) THEN
+!!$                  WRITE(6,*) 'No initial configuration'
+!!$                  OPEN(UNIT=5,FILE='seeds',STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+!!$                  IF (IERR /= 0) THEN
+!!$                     WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
+!!$                     error stop 1
+!!$                  END IF
+!!$                  DO I = ISIZE-1,1,-1
+!!$                     READ (5,*) SEED_IN
+!!$                     CALL MPI_SEND(SEED_IN,1,MPI_INTEGER, I, I+1024, MPI_COMM_WORLD,IERR)
+!!$                  ENDDO
+!!$                  READ(5,*) SEED_IN
+!!$                  CLOSE(5)
+!!$               ELSE
+!!$                  CALL MPI_RECV(SEED_IN, 1, MPI_INTEGER,0,  IRANK + 1024,  MPI_COMM_WORLD,STATUS,IERR)
+!!$               ENDIF
+!!$               ALLOCATE (SEED_VEC(1))
+!!$               SEED_VEC(1) = SEED_IN
+!!$               CALL RANSET(SEED_VEC)
+!!$               DEALLOCATE (SEED_VEC)
+               
                If (Present(Initial_field)) then
                   this%f = Initial_field
                else
@@ -374,7 +377,7 @@
                   FILE_info="info"
 #endif
                   Open (Unit = 50,file=FILE_info,status="unknown",position="append")
-                  WRITE(50,*) 'No initial configuration, Seed_in', SEED_IN
+                  WRITE(50,*) 'No initial configuration'
                   Close(50)
                endif
          ENDIF
@@ -400,23 +403,25 @@
             Enddo
             DEALLOCATE(SEED_VEC)
          ELSE
-            FILE_seeds="seeds"
-            OPEN(UNIT=5,FILE=FILE_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
-            IF (IERR /= 0) THEN
-               WRITE(*,*) 'Fields_in: unable to open <seeds>',IERR
-               error stop 1
-            END IF
-            READ (5,*) SEED_IN
-            CLOSE(5)
+            
+!!$            FILE_seeds="seeds"
+!!$            OPEN(UNIT=5,FILE=FILE_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
+!!$            IF (IERR /= 0) THEN
+!!$               WRITE(*,*) 'Fields_in: unable to open <seeds>',IERR
+!!$               error stop 1
+!!$            END IF
+!!$            READ (5,*) SEED_IN
+!!$            CLOSE(5)
+!!$            ALLOCATE(SEED_VEC(1))
+!!$            SEED_VEC(1) = SEED_IN
+!!$            CALL RANSET (SEED_VEC)
+!!$            DEALLOCATE  (SEED_VEC)
+            
             FILE_info="info"
             Open (Unit = 50,file=FILE_info,status="unknown",position="append")
-            WRITE(50,*) 'No initial configuration, Seed_in', SEED_IN
+            WRITE(50,*) 'No initial configuration'
             Close(50)
-
-            ALLOCATE(SEED_VEC(1))
-            SEED_VEC(1) = SEED_IN
-            CALL RANSET (SEED_VEC)
-            DEALLOCATE  (SEED_VEC)
+            
             If (Present(Initial_field)) then
                this%f = Initial_field
             else
@@ -543,7 +548,7 @@
                   this%f(I,nt)  = 1.d0
                   if ( ranf_wrap() > 0.5D0 ) this%f(I,nt) = -1.d0
                else
-                  this%f(I,nt)  = ranf_wrap() - 0.5d0
+                  this%f(I,nt)  = del*(ranf_wrap() - 0.5d0)
                endif
             enddo
          enddo
