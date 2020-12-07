@@ -42,6 +42,10 @@
        Use MyMats
        Use Random_Wrap
        use iso_fortran_env, only: output_unit, error_unit
+       implicit none
+       private
+       public :: ERRCALC, ERRCALCJ, COV, COV_ERR, INTERGRATE_F, INTERGRATE, &
+                 FIT, AUTO_COR, Bootstrap, Bootstrap_fluc
 
        INTERFACE ERRCALC
           MODULE PROCEDURE ERRCALC, ERRCALC_C

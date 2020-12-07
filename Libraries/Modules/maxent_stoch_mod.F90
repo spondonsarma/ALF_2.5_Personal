@@ -4,6 +4,9 @@ Module MaxEnt_stoch_mod
        Use MyMats
        Use Random_Wrap
        Use Files_mod
+       implicit none
+       private
+       public :: MaxEnt_stoch
        
        Integer, private :: NTAU, nt, Ngamma, ng, Ndis, nd,  L_seed
        Integer, private, allocatable:: Iseed_vec(:)
