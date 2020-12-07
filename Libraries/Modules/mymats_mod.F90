@@ -45,7 +45,7 @@
       implicit none
       private
       public :: MMULT, INITD, COMPARE, DET, CT, INV, UDV, QR, SVD, DIAG, DIAG_GEN, SECONDS, &
-                DET_C
+                DET_C, DET_C_LU
 
        INTERFACE MMULT
           !C = A*B MMULT(C, A, B)

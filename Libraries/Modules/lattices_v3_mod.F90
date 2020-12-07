@@ -44,7 +44,7 @@
            implicit none
            private
            public :: Unit_cell, Lattice, Make_lattice, Fourier_K_to_R, &
-                     Fourier_R_to_K, Inv_K, Inv_R, Iscalar, npbc, Xnorm
+                     Fourier_R_to_K, Inv_K, Inv_R, Iscalar, npbc, Xnorm, Print_latt
 
          Type Unit_cell
             !> Number of orbitals
