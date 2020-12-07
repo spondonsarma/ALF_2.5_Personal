@@ -31,7 +31,8 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-
+module mat_subroutines
+contains
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -1418,3 +1419,5 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         ENDIF
 
 end subroutine ZDSLSYMM
+
+end module mat_subroutines

@@ -44,6 +44,7 @@ Module Operator_mod
 
   Use MyMats
   Use Fields_mod
+  use mat_subroutines
 
   Implicit none
 
