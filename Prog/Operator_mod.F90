@@ -213,7 +213,10 @@ Contains
     Integer, Intent(IN) :: N
     Deallocate (Op%O, Op%P )
 
-    If ( Op%Type >= 1)   deallocate(OP%M_exp,OP%E_exp,  OP%U, OP%E)
+    If ( allocated(OP%M_exp) ) deallocate(OP%M_exp)
+    If ( allocated(OP%E_exp) ) deallocate(OP%E_exp)
+    If ( allocated(OP%U) ) deallocate(OP%U)
+    If ( allocated(OP%E) ) deallocate(OP%E)
 
   end subroutine Op_clear
 
