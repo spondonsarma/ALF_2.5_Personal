@@ -195,6 +195,10 @@ Contains
     Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
     Op%diag  = .false.
     Op%type = 0
+    Op%M_exp => null()
+    Op%E_exp => null()
+    Op%E => null()
+    Op%U => null()
   end subroutine Op_make
 
 !--------------------------------------------------------------------
@@ -213,10 +217,10 @@ Contains
     Integer, Intent(IN) :: N
     Deallocate (Op%O, Op%P )
 
-    If ( allocated(OP%M_exp) ) deallocate(OP%M_exp)
-    If ( allocated(OP%E_exp) ) deallocate(OP%E_exp)
-    If ( allocated(OP%U) ) deallocate(OP%U)
-    If ( allocated(OP%E) ) deallocate(OP%E)
+    If ( ASSOCIATED(OP%M_exp) ) deallocate(OP%M_exp)
+    If ( ASSOCIATED(OP%E_exp) ) deallocate(OP%E_exp)
+    If ( ASSOCIATED(OP%U) ) deallocate(OP%U)
+    If ( ASSOCIATED(OP%E) ) deallocate(OP%E)
 
   end subroutine Op_clear
 

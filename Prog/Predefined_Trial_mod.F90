@@ -385,7 +385,6 @@
            enddo
         endif
         Do nf = 1,N_FL
-           Deallocate(Op_tmp(1,nf)%U, Op_tmp(1,nf)%E)
            Call Op_clear(OP_tmp(1,nf),Ndim)
         enddo
         Deallocate (OP_tmp)
