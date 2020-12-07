@@ -195,10 +195,6 @@ Contains
     Op%alpha = cmplx(0.d0,0.d0, kind(0.D0))
     Op%diag  = .false.
     Op%type = 0
-!     Op%M_exp => null()
-!     Op%E_exp => null()
-!     Op%E => null()
-!     Op%U => null()
   end subroutine Op_make
 
 !--------------------------------------------------------------------
