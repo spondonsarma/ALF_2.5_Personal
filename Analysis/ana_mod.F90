@@ -874,17 +874,18 @@
       Character (len=64)                     :: analysis_mode
 
       call read_vec(file, sgn_raw, bins_raw, analysis_mode)
-      call ana_vec(file, sgn_raw, bins_raw)
+      call ana_vec(file, sgn_raw, bins_raw, analysis_mode)
 
    END subroutine Cov_vec
 
 !==============================================================================
 
-   subroutine ana_vec(name, sgn_raw, bins_raw)
+   subroutine ana_vec(name, sgn_raw, bins_raw, analysis_mode)
       Implicit none
       Character (len=64), intent(in) :: name
       Real    (Kind=Kind(0.d0)), allocatable, intent(inout) :: sgn_raw(:)
       Complex (Kind=Kind(0.d0)), pointer,     intent(inout) :: bins_raw(:,:)
+      Character (len=64), intent(in) :: analysis_mode
 
       REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, sgn
       REAL    (Kind=Kind(0.d0)) :: XM, XERR
