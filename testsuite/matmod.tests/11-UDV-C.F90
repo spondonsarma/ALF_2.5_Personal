@@ -18,7 +18,7 @@ do j = 1, ndim
 a(i, j) = 1.D0/(i+j)
 enddo
 enddo
-call UDV_C(a, u, d, v, ncon)
+call UDV(a, u, d, v, ncon)
 ! check decomposition
            DO J = 1,ndim
               DO I = 1,ndim
