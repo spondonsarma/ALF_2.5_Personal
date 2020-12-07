@@ -17,7 +17,7 @@ Program Test3
         A(1,2) = 1
         A(2,2) = 20
         A(3,3) = 100
-        call INV_R_VARIABLE(A, AI, myDET, 2)
+        call INV(A, AI, myDET, 2)  ! This calls INV_R_VARIABLE
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(mydet - 199) > 1E-11) then
         write (*,*) ABS(mydet - 199)
