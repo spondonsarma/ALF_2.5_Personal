@@ -462,6 +462,24 @@ N.~{Bl{\"u}mer},
 \newblock arXiv:0801.1222  (2008),
 \newblock \eprint{0801.1222}.
 
+\bibitem{Wang16}
+L.~Wang, Y.-H. Liu and M.~Troyer,
+\newblock \emph{Stochastic series expansion simulation of the $t-v$ model},
+\newblock Phys. Rev. B \textbf{93}, 155117 (2016),
+\newblock \doi{10.1103/PhysRevB.93.155117}.
+
+\bibitem{Huffman17}
+E.~Huffman and S.~Chandrasekharan,
+\newblock \emph{Fermion bag approach to hamiltonian lattice field theories in
+  continuous time},
+\newblock Phys. Rev. D \textbf{96}, 114502 (2017),
+\newblock \doi{10.1103/PhysRevD.96.114502}.
+
+\bibitem{huffman2019}
+E.~Huffman and S.~Chandrasekharan,
+\newblock \emph{Fermion-bag inspired hamiltonian lattice field theory for
+  fermionic quantum criticality} (2019), \eprint{1912.12823}.
+
 \bibitem{goth2020}
 F.~Goth,
 \newblock \emph{Higher order auxiliary field quantum monte carlo methods},

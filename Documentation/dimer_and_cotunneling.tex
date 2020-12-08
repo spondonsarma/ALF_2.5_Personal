@@ -6,7 +6,7 @@
 
 % !TEX root = doc.tex
 
-\subsubsection{   Dimer-Dimer correlations }
+\subsubsection{Dimer-Dimer correlations }
 Let  
 \begin{equation}
 	\hat{S}^{\mu}_{\, \,  \nu} (x)  =  \hat{c}^{\dagger}_{x,\mu} \hat{c}^{}_{x,\nu}    - \delta_{\mu,\nu} \frac{1}{N}  \sum_{\alpha = 1}^{N} \hat{c}^{\dagger}_{x,\alpha} \hat{c}^{}_{x,\alpha}.   
@@ -48,11 +48,11 @@ returns
  \langle \langle \hat{S}^{\mu}_{\, \,  \nu} (x,\tau)   \hat{S}^{\nu}_{\, \,  \mu} (y,\tau)  \rangle   \rangle_C 
 \end{equation} 
 
-All routines  are programmed  for \texttt{N\_SUN = 2,4,6,8} at \texttt{N\_FL=1}.   The routines also handles the case of broken SU(2)  spin symmetry corresponding  to  \texttt{N\_FL =1 }  and \texttt{N\_SUN=1}.   To carry out the Wick decomposition  and sums over  spin indices,  we use the  Mathematica  notebooks 
+All routines  are programmed  for \texttt{N\_SUN = 2,4,6,8} at \texttt{N\_FL=1}.   The routines also handles the case of broken SU(2)  spin symmetry corresponding  to  \texttt{N\_FL =2 }  and \texttt{N\_SUN=1}.   To carry out the Wick decomposition  and sums over  spin indices,  we use the  Mathematica  notebooks 
  \texttt{Dimer\-Dimer\_SU2\_NFL\_2.nb}  and \texttt{Dimer\-Dimer\_SUN\_NFL\_1.nb}.
 
 
-\subsubsection{ Cotunneling   for Kondo models}
+\subsubsection{Cotunneling for Kondo models}
 
 The  Kondo lattice model (KLM), $\hat{H}_{KLM}$   is obtained by carrying out a   canonical Schrieffer-Wolf  \cite{Schrieffer66}  transformation  of the   periodic Anderson model (PAM), $\hat{H}_{PAM}$.    Hence, $e^{\hat{S}}  $ $\hat{H}_{PAM} $$ e^{-S}   = \hat{H}_{KLM}$  with  $\hat{S}^\dagger = - \hat{S}$.     Let $\hat{f}_{x,\sigma} $  create an  electron on the   correlation f-orbital of the   PAM.  Then, 
 \begin{equation}
