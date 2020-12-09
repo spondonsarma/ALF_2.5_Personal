@@ -303,6 +303,7 @@ At the end of each bin the main program calls the routine \texttt{ Pr\_obs(LTAU)
 This subroutine is called by the main program at the beginning of each sweep, provided that \texttt{LTAU}  is set to $1$. The variable \texttt{NT} runs from \texttt{0}  to \texttt{Ltrot} and denotes the imaginary time difference. For a given time  displacement, the main program provides:
 \begin{align}
 \begin{aligned}
+\label{Time_displaced_green.eq}
 \texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle \;=\; \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (Nt \Delta \tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle   \\
 \texttt{G0T(x,y,s) }   &=  -   \langle \langle   \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)    \hat{c}^{\phantom\dagger}_{x,s} (0)    \rangle \rangle \;=\;
     \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (0)    \hat{c}^{\dagger}_{y,s} (Nt \Delta \tau)   \rangle \rangle    \\
