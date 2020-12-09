@@ -283,21 +283,28 @@ Scalar observables are stored in the data type \texttt{Obser\_vec}, described in
 %
 \begin{table}[h!]
 	\begin{center}
-   \begin{tabular}{@{} p{0.19\columnwidth} @{ } p{0.06\columnwidth} p{0.39\columnwidth} l @{}}\toprule
-    Variable  &  Type      &  Description &  Contribution \\\midrule
-    \texttt{Obs\%N}                       & \texttt{int}   &    Number of measurements &    $+1$ \\
-    \texttt{Obs\%Ave\_sign}               & \texttt{dble}  &    Cumulated average sign [Eq.~\eqref{eqn:sign_rw}] & $\sgn(C)$  \\
-    \texttt{Obs\%Obs\_vec(:)}  		      & \texttt{cmplx} &    Cumulated vector of observables [Eq.~\eqref{eqn:obs_rw}] &
+   \begin{tabular}{@{} p{0.19\columnwidth} @{ } p{0.06\columnwidth} p{0.39\columnwidth} l @{}}
+   \toprule
+    Variable                 &  Type          & Description &  Contribution \\
+    \midrule
+    \texttt{N}               & \texttt{int}   & Number of measurements &    $+1$ \\
+    \texttt{Ave\_sign}       & \texttt{dble}  & Cumulated average sign [Eq.~\eqref{eqn:sign_rw}] & $\sgn(C)$  \\
+    \texttt{Obs\_vec(:)}  	  & \texttt{cmplx} & Cumulated vector of observables [Eq.~\eqref{eqn:obs_rw}] &
            $ \langle \langle \hat{O}(:) \rangle \rangle_{C}\frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]} \sgn(C) $ \\
-     \texttt{Obs\%File\_Vec}           & \texttt{char}   &    Name of output file  &\\\bottomrule
+     \texttt{File\_Vec}      & \texttt{char} & Name of output file  &\\
+     \texttt{analysis\_mode} & \texttt{char} & How to analyze the observable &\\
+                             &               & Default value: "identity" &\\
+     \texttt{description(:)} & \texttt{char} & Optional description. Arbitrary number of 64-character lines &\\
+     \bottomrule     
    \end{tabular}
-   \caption{Components of a variable of type \texttt{Obser\_vec} named \texttt{Obs}. The contribution listed is that of each configuration $C$.}
+   \caption{Components of a variable of type \texttt{Obser\_vec}. The contribution listed is that of each configuration $C$.}
          \label{table:Obser_vec}
      \end{center}
 \end{table}
 %
-At the end of the bin, a call to  \texttt{Print\_bin\_Vec}   in  module \texttt{observables\_mod.F90}  will  append the result of the bin in the file  \texttt{File\_Vec}\emph{\_scal}.  Note that this subroutine will automatically append the suffix \emph{\_scal} to the the filename \texttt{File\_Vec}.
-This suffix  is important to facilitate automatic analyses of the data at the end of the run. 
+At the end of the bin, a call to \texttt{Print\_bin\_Vec} in module \texttt{observables\_mod.F90} will append the result of the bin in the file \texttt{File\_Vec}\emph{\_scal}.  Note that this subroutine will automatically append the suffix \emph{\_scal} to the the filename \texttt{File\_Vec}.
+This suffix  is important to facilitate automatic analyses of the data at the end of the run.
+Furthermore, the file \texttt{File\_Vec}\emph{\_scal\_info} is created (if it does not exist yet), which contains a string that specifies how to analyze the observable and an optional description.
 
 %------------------------------------------------------------
 \subsubsection{Equal-time and time-displaced correlation functions}
