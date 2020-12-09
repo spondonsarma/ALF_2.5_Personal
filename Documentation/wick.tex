@@ -61,25 +61,4 @@ Using the formulation of Wicks theorem of Eq.~\ref{Wick.eq},  Eq.~\ref{Time_disp
      G(n,n,s_n) \delta_{s_n,s'_n} \delta_{\sigma_n,\sigma'_n}   - \alpha_n  
  \end{bmatrix}.   \nonumber 
 \end{align}
-The  symbolic evaluation of the  determinant   as well as the sum over the color and flavor indices can be carried out with Mathematica.  This  produces a  long expression in terms of the   functions $G(I,J,s)$ that can then be  included in the code.   The Mathematica notebooks  that we use  can be found in the directory  \texttt{Mathematica}  of  the ALF.   As an open source alternative to Mathematica, the user can use the  Sympy  Python library   to  evaluate   the above equation. 
-
-
-\begin{multline}
-\langle \langle 	\mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
-\cdots c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n}) 
-\rangle \rangle_{C} = \\
-\det  
-\begin{bmatrix}
-   \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C} & 
-    \langle \langle  \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots   &   
-    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}  \\
-    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}  & 
-      \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}  & \dots  &
-       \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{2}}(\tau_{2}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}   \\
-    \vdots & \vdots &  \ddots & \vdots \\
-    \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  \rangle \rangle_{C}   & 
-     \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{2}}(\tau'_{2})  \rangle \rangle_{C}   & \dots  & 
-     \langle \langle   \mathcal{T}   c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n})  \rangle \rangle_{C}
- \end{bmatrix}.
-\end{multline}
-Here, we have defined the super-index $\underline{ x} = \left\{   x,\sigma,s \right\}$.
+The  symbolic evaluation of the  determinant   as well as the sum over the color and flavor indices can be carried out with Mathematica.  This  produces a  long expression in terms of the   functions $G(I,J,s)$ that can then be  included in the code.   The Mathematica notebooks  that we use  can be found in the directory  \texttt{Mathematica}  of  the ALF  directory.   As an open source alternative to Mathematica, the user can use the  Sympy  Python library. 
