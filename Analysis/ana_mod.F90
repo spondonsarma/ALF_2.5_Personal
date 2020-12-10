@@ -47,7 +47,7 @@
 
    contains
 
-   Subroutine read_vec(file, sgn, bins)
+   Subroutine read_vec(file, sgn, bins, analysis_mode)
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -67,16 +67,33 @@
 !> \verbatim
 !>  Monte Carlo bins
 !> \endverbatim
+!> @param [OUT] analysis_mode Character(len=64)
+!> \verbatim
+!>  How to analyze the observable
+!> \endverbatim
 !-------------------------------------------------------------------
       Implicit none
       Character (len=64), intent(in) :: file
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins(:,:)
+      Character (len=64), intent(out) :: analysis_mode
 
       Integer :: N, N1, I, Nobs, Nbins, stat
       Real    (Kind=Kind(0.d0)) :: X
       Complex (Kind=Kind(0.d0)), Allocatable  :: tmp(:)
+      Character (len=64) :: file_aux
+      logical :: file_exists
 
+      write(file_aux, '(A,A)') trim(file), "_info"
+      inquire(file=file_aux, exist=file_exists)
+      if(file_exists) then
+        open(Unit=10, File=file_aux, status="old", action='read')
+        read(10, *)
+        read(10, '(A)') analysis_mode
+        close(10)
+      else
+        analysis_mode = 'identity'
+      endif
 
       open(Unit=10, File=file, status="old", action='read')
       read(10,*) NOBS
@@ -854,19 +871,21 @@
 
       Real    (Kind=Kind(0.d0)), allocatable :: sgn_raw(:)
       Complex (Kind=Kind(0.d0)), pointer     :: Bins_raw(:,:)
+      Character (len=64)                     :: analysis_mode
 
-      call read_vec(file, sgn_raw, bins_raw)
-      call ana_vec(file, sgn_raw, bins_raw)
+      call read_vec(file, sgn_raw, bins_raw, analysis_mode)
+      call ana_vec(file, sgn_raw, bins_raw, analysis_mode)
 
    END subroutine Cov_vec
 
 !==============================================================================
 
-   subroutine ana_vec(name, sgn_raw, bins_raw)
+   subroutine ana_vec(name, sgn_raw, bins_raw, analysis_mode)
       Implicit none
       Character (len=64), intent(in) :: name
       Real    (Kind=Kind(0.d0)), allocatable, intent(inout) :: sgn_raw(:)
       Complex (Kind=Kind(0.d0)), pointer,     intent(inout) :: bins_raw(:,:)
+      Character (len=64), intent(in) :: analysis_mode
 
       REAL    (Kind=Kind(0.d0)), DIMENSION(:),   ALLOCATABLE :: EN, sgn
       REAL    (Kind=Kind(0.d0)) :: XM, XERR
