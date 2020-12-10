@@ -41,14 +41,21 @@
 !--------------------------------------------------------------------
 
     Module Predefined_Hoppings
+      use iso_fortran_env, only: output_unit, error_unit
 
       Use Lattices_v3
+      Use MyMats
+      
       Use Operator_mod
       Use WaveFunction_mod
-      Use MyMats
-      use iso_fortran_env, only: output_unit, error_unit
       Implicit none
 
+      private
+      public :: Hopping_Matrix_type, Predefined_hoppings_clear, inquire_hop, &
+        Set_Default_hopping_parameters_square, Set_Default_hopping_parameters_N_Leg_Ladder, &
+        Set_Default_hopping_parameters_honeycomb, Set_Default_hopping_parameters_Bilayer_square, &
+        Set_Default_hopping_parameters_Bilayer_honeycomb, Symmetrize_Families, &
+        Predefined_Hoppings_set_OPT, Predefined_Hoppings_Compute_Kin, Generic_hopping, Chi
 
       Type Hopping_Matrix_type
          Integer                   :: N_bonds

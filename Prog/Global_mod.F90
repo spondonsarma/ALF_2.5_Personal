@@ -42,21 +42,27 @@
 !
 !--------------------------------------------------------------------
 Module Global_mod
-
-      Use Hamiltonian
-      Use MyMats
-      Use Operator_mod
-      Use Control
-      Use Observables
-      Use Fields_mod
-      use cgr1_mod
-      use wrapul_mod
       use iso_fortran_env, only: output_unit, error_unit
-
+      
+      Use MyMats
+      Use Random_Wrap !, only: ranf_wrap
+      
+      use cgr1_mod
+      Use Control
+      Use Fields_mod
+      Use Observables
+      Use Operator_mod
+      use wrapul_mod
+      Use Hamiltonian
       Implicit none
 
-      Type (Obser_Vec ),  private  ::   Tempering_acceptance
+      private
+      public :: Global_Updates
+#if defined(TEMPERING)
+      public :: Exchange_Step, global_tempering_setup, Global_Tempering_init_obs, Global_Tempering_Pr
+#endif
 
+      Type (Obser_Vec), save :: Tempering_acceptance
 
     Contains
 #if defined(TEMPERING)

@@ -43,10 +43,16 @@
 !--------------------------------------------------------------------
 
 module Control
+    use iso_fortran_env, only: output_unit, error_unit
 
     Use MyMats
-    use iso_fortran_env, only: output_unit, error_unit
     Implicit none
+
+    private
+    public :: control_init, Control_Langevin, Control_upgrade, Control_upgrade_eff, &
+              Control_upgrade_Temp, Control_upgrade_Glob, Control_PrecisionG, &
+              Control_Precision_tau, Control_PrecisionP, Control_PrecisionP_Glob, &
+              Control_Print, make_truncation
 
     real    (Kind=Kind(0.d0)), private, save :: XMEANG, XMAXG, XMAXP,  Xmean_tau, Xmax_tau
     Integer (Kind=Kind(0.d0)), private, save :: count_CPU_start,count_CPU_end,count_rate,count_max

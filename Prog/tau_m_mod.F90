@@ -41,15 +41,19 @@
 !
 !--------------------------------------------------------------------
      Module Tau_m_mod
-       Use Hamiltonian 
-       Use Operator_mod
+       use cgr2_2_mod
        Use Control
        Use Hop_mod
-       Use UDV_State_mod
        Use Langevin_HMC_mod
+       Use Operator_mod
+       Use UDV_State_mod
        use wrapur_mod
-       use cgr2_2_mod
+       Use Hamiltonian 
        
+       implicit none
+       
+       private
+       public :: TAU_M, PROPR, PROPRM1
 
        Contains
 

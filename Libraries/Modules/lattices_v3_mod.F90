@@ -39,7 +39,7 @@
 !> This module generates one and two dimensional Bravais lattices and the unit cell
 !
 !--------------------------------------------------------------------
-         Use Matrix
+           Use Matrix
            use iso_fortran_env, only: output_unit, error_unit
            implicit none
            private

@@ -111,24 +111,28 @@
 !--------------------------------------------------------------------
 
 Program Main
-
-        Use Operator_mod
-        Use Lattices_v3
+  
+        use iso_fortran_env, only: output_unit, error_unit
+        
         Use MyMats
-        Use Hamiltonian
+        
+        use cgr1_mod
         Use Control
+        Use Fields_mod
+        Use Global_mod
+        Use Hop_mod
+        Use Langevin_HMC_mod
+        Use Lattices_v3
+        Use Operator_mod
+        use set_random_mod
         Use Tau_m_mod
         Use Tau_p_mod
-        Use Hop_mod
-        Use Global_mod
         Use UDV_State_mod
+        Use WaveFunction_mod, only: WF_clear
         Use Wrapgr_mod
-        Use Fields_mod
-        use iso_fortran_env, only: output_unit, error_unit
-        Use Langevin_HMC_mod
         use wrapul_mod
         use wrapur_mod
-        use set_random_mod
+        Use Hamiltonian
 
 #ifdef MPI
         Use mpi

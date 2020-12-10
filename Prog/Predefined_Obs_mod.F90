@@ -40,13 +40,19 @@
 !--------------------------------------------------------------------
 
     Module Predefined_Obs
+      use iso_fortran_env, only: output_unit, error_unit
+      
+      Use Lattices_v3
 
       Use Observables
-      Use Lattices_v3
-      use iso_fortran_env, only: output_unit, error_unit
 
       Implicit none
-
+      
+      private
+      public :: Predefined_Obs_eq_SpinSUN_measure, Predefined_Obs_eq_SpinMz_measure, &
+        Predefined_Obs_eq_Green_measure, Predefined_Obs_eq_Den_measure, &
+        Predefined_Obs_tau_Green_measure, Predefined_Obs_tau_SpinSUN_measure, &
+        Predefined_Obs_tau_SpinMz_measure, Predefined_Obs_tau_Den_measure
 
     contains
 !-------------------------------------------------------------------

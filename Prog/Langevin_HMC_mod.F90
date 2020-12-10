@@ -31,16 +31,18 @@
 
 
       Module Langevin_HMC_mod
+        Use iso_fortran_env, only: output_unit, error_unit
         
-        Use Hamiltonian
-        Use UDV_State_mod
+        Use Random_Wrap, only: rang_wrap
+        
+        use cgr1_mod
         Use Control
         Use Hop_mod
+        Use Operator_mod
+        Use UDV_State_mod
         use wrapul_mod
         use wrapur_mod
-        use cgr1_mod
-        Use iso_fortran_env, only: output_unit, error_unit
-
+        Use Hamiltonian
         
         Implicit none
 

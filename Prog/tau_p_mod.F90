@@ -40,15 +40,22 @@
 !--------------------------------------------------------------------
 
      Module Tau_p_mod
-       Use Hamiltonian
-       Use Operator_mod
+       Use MyMats !, only: MMULT
+       
+       use cgr1_mod
        Use Control
        Use Hop_mod
-       Use UDV_State_mod
        Use Langevin_HMC_mod
-       Use tau_m_mod  !, only propr, proprm1
+       Use Operator_mod
+       Use tau_m_mod, only: propr, proprm1
+       Use UDV_State_mod
        use wrapur_mod
-       use cgr1_mod
+       Use Hamiltonian
+       
+       implicit none
+       
+       private
+       public :: Tau_p
 
      Contains
 

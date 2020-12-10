@@ -41,17 +41,21 @@
 !--------------------------------------------------------------------
 
 Module Wrapgr_mod
-
-
-  Use Hamiltonian
-  Use MyMats 
-  Use Operator_mod
-  Use Control
+  
+  Use MyMats
   Use Random_Wrap
+  
+  Use Control
   Use Fields_mod
+  Use Hop_mod
+  Use Operator_mod
+  use upgrade_mod
+  Use Hamiltonian
 
   Implicit none
-
+  
+  private
+  public :: Wrapgr_alloc, Wrapgr_dealloc, WRAPGRUP, WRAPGRDO
   
   !> Privat 
   Complex (Kind=Kind(0.d0)),  private, allocatable ::  GR_ST(:,:,:)
@@ -86,10 +90,6 @@ Contains
 !> NTAU: [0:LTROT-1]
 !
 !--------------------------------------------------------------------
- 
-    Use Hamiltonian
-    Use Hop_mod
-    use upgrade_mod
     Implicit none
     
     ! Arguments
@@ -166,10 +166,6 @@ Contains
 !> NTAU: [LTROT:1]
 !
 !--------------------------------------------------------------------    
-    Use Hamiltonian
-    Use MyMats
-    Use Hop_mod
-    use upgrade_mod
     Implicit None
     
     ! Given GREEN at time NTAU => GREEN at time NTAU - 1,
@@ -336,8 +332,6 @@ Contains
 !>        direction = u -->  On output Green on m_max is accepted. Green is on m_min if not accepted. 
 !>        direction = d -->  On output Green on m_min if accepted. Green is on m_max if not accepted.
 !--------------------------------------------------------------------
-        
-    use upgrade_mod
     Implicit none
 
     ! Arguments 

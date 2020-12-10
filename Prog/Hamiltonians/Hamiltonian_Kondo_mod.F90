@@ -116,19 +116,20 @@
 !--------------------------------------------------------------------
 
     Module Hamiltonian
-
-      Use Operator_mod
-      Use WaveFunction_mod
+      use iso_fortran_env, only: output_unit, error_unit
+      
+      Use Files_mod
       Use Lattices_v3
+      Use Matrix
       Use MyMats
       Use Random_Wrap
-      Use Files_mod
-      Use Matrix
-      Use Observables
+      
       Use Fields_mod
-      Use Predefined_Hoppings
       Use LRC_Mod
-      use iso_fortran_env, only: output_unit, error_unit
+      Use Operator_mod
+      Use Observables
+      Use Predefined_Hoppings
+      Use WaveFunction_mod
 
       Implicit none
 
