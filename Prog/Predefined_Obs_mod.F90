@@ -504,5 +504,8 @@
 
       end Subroutine Predefined_Obs_tau_Den_measure
 
+#include  "Cotunneling_dimer_obs.F90"
 
-    end Module Predefined_Obs
+
+      
+    End Module Predefined_Obs

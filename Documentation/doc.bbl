@@ -635,6 +635,31 @@ A.~Parola, S.~Sorella, M.~Parrinello and E.~Tosatti,
 \newblock Phys. Rev. B \textbf{43}, 6190 (1991),
 \newblock \doi{10.1103/PhysRevB.43.6190}.
 
+\bibitem{Schrieffer66}
+J.~R. Schrieffer and P.~A. Wolff,
+\newblock \emph{Relation between the anderson and kondo hamiltonians},
+\newblock Phys. Rev. \textbf{149}, 491 (1966),
+\newblock \doi{10.1103/PhysRev.149.491}.
+
+\bibitem{Costi00}
+T.~A. Costi,
+\newblock \emph{Kondo effect in a magnetic field and the magnetoresistivity of
+  kondo alloys},
+\newblock Phys. Rev. Lett. \textbf{85}, 1504 (2000),
+\newblock \doi{10.1103/PhysRevLett.85.1504}.
+
+\bibitem{Raczkowski18}
+M.~Raczkowski and F.~F. Assaad,
+\newblock \emph{Emergent coherent lattice behavior in kondo nanosystems},
+\newblock Phys. Rev. Lett. \textbf{122}, 097203 (2019),
+\newblock \doi{10.1103/PhysRevLett.122.097203}.
+
+\bibitem{Maltseva09}
+M.~Maltseva, M.~Dzero and P.~Coleman,
+\newblock \emph{Electron cotunneling into a kondo lattice},
+\newblock Phys. Rev. Lett. \textbf{103}, 206402 (2009),
+\newblock \doi{10.1103/PhysRevLett.103.206402}.
+
 \bibitem{Vekic95}
 M.~Veki\ifmmode~\acute{c}\else \'{c}\fi{}, J.~W. Cannon, D.~J. Scalapino, R.~T.
   Scalettar and R.~L. Sugar,
