@@ -138,8 +138,8 @@
       Implicit none
       
       private
-      public :: Ham_set, Alloc_obs, Obser, ObserT, Pr_obs, Init_obs, Global_move_tau, \
-        Hamiltonian_set_nsigma, Overide_global_tau_sampling_parameters, \
+      public :: Ham_set, Alloc_obs, Obser, ObserT, Pr_obs, Init_obs, Global_move_tau, &
+        Hamiltonian_set_nsigma, Overide_global_tau_sampling_parameters, &
         Global_move, Delta_S0_global, S0, ham_langevin_hmc_s0
 
       Type (Operator),     dimension(:,:), allocatable, public :: Op_V
