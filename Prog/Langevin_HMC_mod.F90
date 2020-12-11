@@ -31,6 +31,9 @@
 
 
       Module Langevin_HMC_mod
+#ifdef MPI
+        Use mpi
+#endif
         Use iso_fortran_env, only: output_unit, error_unit
         
         Use Random_Wrap, only: rang_wrap
@@ -376,10 +379,6 @@
 
       
       SUBROUTINE  Langevin_HMC_setup(this,Langevin,HMC, Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps )
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         
@@ -459,11 +458,6 @@
 !--------------------------------------------------------------------
 
       SUBROUTINE  Langevin_HMC_clear(this) 
-
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         class (Langevin_HMC_type) :: this

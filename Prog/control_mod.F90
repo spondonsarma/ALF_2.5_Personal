@@ -43,6 +43,9 @@
 !--------------------------------------------------------------------
 
 module Control
+#ifdef MPI
+    use mpi
+#endif
     use iso_fortran_env, only: output_unit, error_unit
 
     Use MyMats
@@ -223,9 +226,6 @@ module Control
 
 
       Subroutine Control_Print(Group_Comm, Global_update_scheme)
-#ifdef MPI
-        Use mpi
-#endif
         Implicit none
 
         Integer, Intent(IN) :: Group_Comm
@@ -372,10 +372,6 @@ module Control
       ! This subroutine checks if the conditions for a controlled termination of the program are met.
       ! The subroutine contains a hard-coded threshold (in unit of bins):
       ! if time_remain/time_bin_duration < threshold the program terminates.
-
-#ifdef MPI
-      Use mpi
-#endif
 
       logical, intent(out)                 :: prog_truncation
       real(kind=kind(0.d0)), intent(in)    :: cpu_max

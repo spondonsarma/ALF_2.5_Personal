@@ -52,6 +52,9 @@
 !--------------------------------------------------------------------
 
      Module Fields_mod
+#ifdef MPI
+       use mpi
+#endif
        use iso_fortran_env, only: output_unit, error_unit
 
        Use Random_Wrap
@@ -60,9 +63,9 @@
        private
        public :: Fields, Fields_init
 
-       Real (Kind=Kind(0.d0))  :: Phi_st(-2:2,2),  Gama_st(-2:2,2)
-       Real (Kind=Kind(0.d0))  :: Del, FLIP_st(-2:2,3)
-       Real (Kind=Kind(0.d0))  :: Amplitude=1.d0
+       Real (Kind=Kind(0.d0)), save :: Phi_st(-2:2,2), Gama_st(-2:2,2)
+       Real (Kind=Kind(0.d0)), save :: Del, FLIP_st(-2:2,3)
+       Real (Kind=Kind(0.d0)), save :: Amplitude=1.d0
 
        Type Fields
           Real    (Kind=Kind(0.d0)), allocatable    :: f(:,:)
@@ -284,10 +287,6 @@
 !--------------------------------------------------------------------
       Subroutine Fields_in(this,Group_Comm,Initial_field)
 
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         Class (Fields)        , INTENT(INOUT) :: this
@@ -451,10 +450,6 @@
 !--------------------------------------------------------------------
 
        SUBROUTINE Fields_out(this,Group_Comm)
-
-#ifdef MPI
-         Use mpi
-#endif
          IMPLICIT NONE
 
          Class (Fields), INTENT(INOUT) :: this

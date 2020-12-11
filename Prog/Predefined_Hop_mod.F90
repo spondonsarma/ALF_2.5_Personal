@@ -1366,8 +1366,6 @@
 !--------------------------------------------------------------------
 
       complex  (Kind=kind(0.d0)) function Generic_hopping(i,no_i, del_1, del_2, no_j, N_Phi, Flux_1,Flux_2, Bulk, Latt, Latt_Unit)
-
-        Use Lattices_v3
         Implicit none
 
 

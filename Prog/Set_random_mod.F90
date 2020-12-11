@@ -40,6 +40,9 @@
 !
 !--------------------------------------------------------------------
 module set_random_mod
+#ifdef MPI
+  Use mpi
+#endif
   Use iso_fortran_env, only: output_unit, error_unit
 
   Use Random_Wrap
@@ -50,12 +53,6 @@ module set_random_mod
 contains
 
      Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
-
-       
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         Character (LEN=64), Intent(IN) :: File_seeds

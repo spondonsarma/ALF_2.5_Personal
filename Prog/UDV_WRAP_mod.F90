@@ -41,6 +41,9 @@
 !--------------------------------------------------------------------
 
 Module UDV_Wrap_mod
+#if defined(MPI)
+     Use mpi
+#endif
 
      Use MyMats
      Use Files_mod
@@ -51,8 +54,7 @@ Module UDV_Wrap_mod
      private
      public :: UDV_Wrap_Pivot, UDV_Wrap
 
-   Contains
-
+contains
 
 !***************************************************************
 
@@ -214,10 +216,6 @@ Module UDV_Wrap_mod
 
 !***************************************************************
      Subroutine UDV_Wrap(A,U,D,V,NCON)
-#ifdef MPI
-       USE mpi
-#endif
-
        Implicit None
 
        COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A

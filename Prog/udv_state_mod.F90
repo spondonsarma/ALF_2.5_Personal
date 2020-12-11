@@ -42,6 +42,9 @@
 
 
 MODULE UDV_State_mod
+#if defined(MPI)
+    Use mpi
+#endif
     use iso_fortran_env, only: output_unit, error_unit
     
     Use MyMats
@@ -555,7 +558,6 @@ CONTAINS
 
 #if defined(MPI)
      SUBROUTINE MPI_Sendrecv_UDV_state(this, dest, sendtag, source, recvtag, STATUS, IERR)
-       Use mpi
        Implicit None
 
        CLASS(UDV_State), INTENT(INOUT) :: this

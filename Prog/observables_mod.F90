@@ -39,6 +39,9 @@
 !
 !--------------------------------------------------------------------
      Module Observables
+#ifdef MPI
+       use mpi
+#endif
        use iso_fortran_env, only: output_unit, error_unit
 
        Use Lattices_v3, only: Unit_cell, Lattice, fourier_r_to_k
@@ -196,9 +199,6 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Latt(Obs, Group_Comm)
-#ifdef MPI
-           Use mpi
-#endif
            Implicit none
 
            Type (Obser_Latt),        Intent(Inout)   :: Obs
@@ -333,9 +333,6 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
-#ifdef MPI
-           Use mpi
-#endif
            Implicit none
 
            Type (Obser_vec), intent(Inout) :: Obs

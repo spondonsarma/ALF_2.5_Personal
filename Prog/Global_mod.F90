@@ -42,16 +42,21 @@
 !
 !--------------------------------------------------------------------
 Module Global_mod
+#if defined(TEMPERING)
+      use mpi
+#endif
       use iso_fortran_env, only: output_unit, error_unit
       
       Use MyMats
-      Use Random_Wrap !, only: ranf_wrap
+      Use Random_Wrap, only: ranf_wrap
       
       use cgr1_mod
       Use Control
       Use Fields_mod
       Use Observables
       Use Operator_mod
+      Use UDV_State_mod
+      Use UDV_Wrap_mod
       use wrapul_mod
       Use Hamiltonian
       Implicit none
@@ -110,10 +115,7 @@ Module Global_mod
 !> \endverbatim
 !>
 !--------------------------------------------------------------------
-      Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
-        Use UDV_State_mod
-        use wrapul_mod
-        Use mpi
+      Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det
         Implicit none
 
         !  Arguments
@@ -439,9 +441,6 @@ Module Global_mod
 !>
 !--------------------------------------------------------------------
       Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
-
-        Use UDV_State_mod
-        use wrapul_mod
         Implicit none
 
         !  Arguments
@@ -731,10 +730,6 @@ Module Global_mod
 !--------------------------------------------------------------------
       Subroutine Compute_Fermion_Det(Phase_det,Det_Vec, udvl, udvst, Stab_nt, storage)
 !--------------------------------------------------------------------
-
-        Use  UDV_Wrap_mod
-        Use UDV_State_mod
-        use wrapul_mod
 
         Implicit none
 

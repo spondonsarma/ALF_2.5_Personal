@@ -65,7 +65,7 @@ control_mod.o:
 DynamicMatrixArray_mod.o: ContainerElementBase_mod.o
 Fields_mod.o: 
 Global_mod.o: cgr1_mod.o control_mod.o Fields_mod.o observables_mod.o \
-	Operator_mod.o wrapul_mod.o $(HAMILTONIAN)
+	Operator_mod.o udv_state_mod.o UDV_WRAP_mod.o wrapul_mod.o $(HAMILTONIAN)
 Hop_mod.o: ContainerElementBase_mod.o DynamicMatrixArray_mod.o OpTTypes_mod.o \
 	Operator_mod.o $(HAMILTONIAN)
 Langevin_HMC_mod.o: cgr1_mod.o control_mod.o Hop_mod.o udv_state_mod.o \
