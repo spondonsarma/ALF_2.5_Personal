@@ -91,6 +91,7 @@ write (*,*) "success"
 end Program TESTCGR
 
       SUBROUTINE CGRold(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
+      use MyMats
 
       Use UDV_Wrap_mod
       
