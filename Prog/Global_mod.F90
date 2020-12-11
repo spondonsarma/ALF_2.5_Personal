@@ -115,7 +115,7 @@ Module Global_mod
 !> \endverbatim
 !>
 !--------------------------------------------------------------------
-      Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det
+      Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
         Implicit none
 
         !  Arguments
