@@ -486,6 +486,19 @@ F.~Goth,
 \newblock arXiv:2009.04491  (2020),
 \newblock \eprint{2009.04491}.
 
+\bibitem{Peschel03}
+I.~Peschel,
+\newblock \emph{Calculation of reduced density matrices from correlation
+  functions},
+\newblock Journal of Physics A: Mathematical and General \textbf{36}(14), L205
+  (2003).
+
+\bibitem{Toldin18}
+F.~Parisen~Toldin and F.~F. Assaad,
+\newblock \emph{Entanglement hamiltonian of interacting fermionic models},
+\newblock Phys. Rev. Lett. \textbf{121}, 200602 (2018),
+\newblock \doi{10.1103/PhysRevLett.121.200602}.
+
 \bibitem{Hukushima96}
 K.~Hukushima and K.~Nemoto,
 \newblock \emph{Exchange monte carlo method and application to spin glass

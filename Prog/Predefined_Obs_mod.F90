@@ -43,10 +43,19 @@
 
       Use Observables
       Use Lattices_v3
+      Use entanglement_mod
       use iso_fortran_env, only: output_unit, error_unit
 
       Implicit none
-
+      
+      INTERFACE Predefined_Obs_scal_Renyi_Ent
+        MODULE PROCEDURE Predefined_Obs_scal_Renyi_Ent_gen_all, Predefined_Obs_scal_Renyi_Ent_indep, &
+        & Predefined_Obs_scal_Renyi_Ent_gen_fl
+      END INTERFACE
+      INTERFACE Predefined_Obs_scal_Mutual_Inf
+        MODULE PROCEDURE Predefined_Obs_scal_Mutual_Inf_indep, Predefined_Obs_scal_Mutual_Inf_gen_fl, &
+        & Predefined_Obs_scal_Mutual_Inf_gen_all
+      END INTERFACE
 
     contains
 !-------------------------------------------------------------------
@@ -503,8 +512,122 @@
         enddo
 
       end Subroutine Predefined_Obs_tau_Den_measure
-
+      
 #include  "Cotunneling_dimer_obs.F90"
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_indep(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:), INTENT(IN)     :: List
+        Integer, INTENT(IN)                   :: Nsites, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_indep(GRC, List, Nsites, N_SUN)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_indep
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_gen_fl(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:), INTENT(IN)   :: List
+        Integer, Dimension(:), INTENT(IN)     :: Nsites, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_gen_fl(GRC, List, Nsites, N_SUN)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_fl
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all(GRC, List, Nsites, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:,:), INTENT(IN)   :: List
+        Integer, Dimension(:,:), INTENT(IN)     :: Nsites
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_gen_all(GRC, List, Nsites)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:), INTENT(IN)     :: List_A, List_B
+        Integer, INTENT(IN)                   :: Nsites_A ,Nsites_B, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_indep
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:), INTENT(IN)     :: Nsites_A ,Nsites_B, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:,:), INTENT(IN)     :: Nsites_A ,Nsites_B
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all
 
 
       
