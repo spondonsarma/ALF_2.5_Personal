@@ -513,6 +513,7 @@
 
       end Subroutine Predefined_Obs_tau_Den_measure
       
+#include  "Cotunneling_dimer_obs.F90"
       
       Subroutine Predefined_Obs_scal_Renyi_Ent_indep(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
 
@@ -628,4 +629,6 @@
         
       end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all
 
-    end Module Predefined_Obs
+
+      
+    End Module Predefined_Obs

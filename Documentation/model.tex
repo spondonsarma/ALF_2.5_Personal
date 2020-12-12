@@ -28,7 +28,7 @@ and define the space of configurations  $C$. Note that the chemical potential te
 The essential ingredients of the auxiliary-field quantum Monte Carlo implementation in the ALF package are the following:
 \begin{itemize}
 \item  We discretize the imaginary time propagation: $\beta = \Delta \tau L_{\text{Trotter}} $. Generically this introduces a systematic Trotter error of $\mathcal{O}(\Delta \tau)^2$  \cite{Fye86}. 
-We note that there has been considerable effort at getting rid of the Trotter systematic error and to formulate a genuine continuous-time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} and face two issues. The first one is that they are restricted to a class of models with Hubbard-type interactions
+We note that there has been considerable effort at getting rid of the Trotter systematic error and to formulate a genuine continuous-time BSS  algorithm \cite{Iazzi15}.   To date, efforts in this direction that are based on a CT-AUX type formulation \cite{Rombouts99,Gull08} face two issues. The first one is that they are restricted to a class of models with Hubbard-type interactions
 \begin{align}
         (\hat{n}_{i}- 1)^{2}  = (\hat{n}_{i}- 1)^{4} ,
 \end{align}
@@ -37,7 +37,13 @@ in order for the basic CT-AUX equation \cite{Rombouts98},
           1   + \frac{U}{K} \left(  \hat{n}_{i}- 1\right)^{2}    = \frac{1}{2}\sum_{s=\pm 1}   e^{ \alpha s \left(  \hat{n}_{i}- 1\right) }  \; \text{ with  }  \;  \frac{U}{K} = \cosh(\alpha) -1 \; \text{ and  }  \; K\in\mathbb{R},
 \end{equation}
 to hold.
-The second issue is that in the continuous-time  approach it is hard to formulate a  computationally efficient algorithm.  Given this situation, if eliminating the Trotter systematic error is required, it turns out that extrapolating to small imaginary-time steps using the multi-grid method \cite{Rost12,Rost13,Bluemer08} is a more efficient scheme.
+The second issue is that it is hard to formulate a  computationally efficient algorithm.  Given this situation, if eliminating the Trotter systematic error is required, it turns out that extrapolating to small imaginary-time steps using the multi-grid method \cite{Rost12,Rost13,Bluemer08} is a more efficient scheme.
+
+There has also been progress in efficient continuous-time methods using techniques that draw from the Stochastic Series Expansion \cite{Wang16} which can be combined with fermion bag ideas \cite{Huffman17}. However, these techniques are even more restricted to a specific class of Hamiltonians, those that can be expressed as sums of exponentiated fermionic bilinear terms $\hat{H} = \sum_i \hat{h}^i$, where
+\begin{equation}
+\hat{h}^i = -\alpha^i e^{\sum_{jk} \alpha^i_{jk} \hat{c}^\dagger_j + \hat{c}_k + \mathrm{h.c.} }
+\end{equation}
+Stabilization can also be costly depending on the parameters, particularly for large $\gamma$ values \cite{huffman2019}.
 \item  Having isolated the two-body term, we apply Gau\ss{}-Hermite quadrature \cite{goth2020} to the 
 continuous HS transform and obtain the discrete HS transformation \cite{Motome97,Assaad97}:
 \begin{equation}
@@ -156,6 +162,7 @@ with
 
 To compute equal-time, as well as time-displaced observables, one can make use of Wick's theorem. A convenient formulation of this theorem for QMC simulations reads: 
 \begin{multline}
+\label{Wick.eq}
 \langle \langle 	\mathcal{T}   c^{\dagger}_{\underline x_{1}}(\tau_{1}) c^{\phantom\dagger}_{{\underline x}'_{1}}(\tau'_{1})  
 \cdots c^{\dagger}_{\underline x_{n}}(\tau_{n}) c^{\phantom\dagger}_{{\underline x}'_{n}}(\tau'_{n}) 
 \rangle \rangle_{C} = \\
