@@ -72,8 +72,7 @@
            procedure  ::    get_Delta_t_running  => Langevin_HMC_get_Delta_t_running
         end type Langevin_HMC_type
 
-        Type (Langevin_HMC_type) :: Langevin_HMC
-
+        Type (Langevin_HMC_type), save :: Langevin_HMC
            
       Contains
 

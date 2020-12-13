@@ -58,7 +58,7 @@ Module Wrapgr_mod
   public :: Wrapgr_alloc, Wrapgr_dealloc, WRAPGRUP, WRAPGRDO
   
   !> Privat 
-  Complex (Kind=Kind(0.d0)),  private, allocatable ::  GR_ST(:,:,:)
+  Complex (Kind=Kind(0.d0)), private, allocatable, save :: GR_ST(:,:,:)
   
 Contains
 !--------------------------------------------------------------------
