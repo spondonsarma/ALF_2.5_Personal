@@ -26,9 +26,9 @@ Here,  $ \sigma $ is a color  index and $s$ a flavor index such that
 That is, the single-particle Green function is diagonal in the flavor index  and color  independent.   To  define the time ordering we will assume  that all times differ  but that $  \lim_{\epsilon \rightarrow 0 }    \tau_{n,\epsilon}  $   as well as $ \lim_{\epsilon \rightarrow 0 }    \tau'_{n,\epsilon} $  take the values $0$  or $\tau$.  
 Let
 \begin{equation}
-	G(I,J,s)   =  \lim_{\epsilon \rightarrow 0 }\langle \langle   \mathcal{T}   c^{\dagger}_{x_I,s}(\tau_{I,\epsilon}) c^{\phantom\dagger}_{x'_{J},s}(\tau'_{J,\epsilon})  \rangle \rangle_{C} .
+	G_s(I,J)   =  \lim_{\epsilon \rightarrow 0 }\langle \langle   \mathcal{T}   c^{\dagger}_{x_I,s}(\tau_{I,\epsilon}) c^{\phantom\dagger}_{x'_{J},s}(\tau'_{J,\epsilon})  \rangle \rangle_{C} .
 \end{equation}
-The $G(I,J,s)  $  are  uniquely defined by the time-displaced correlation   functions  that enter  the \texttt{ObserT}   routine in the Hamiltonian files.  They are defined in Eq.~\eqref{Time_displaced_green.eq} and read: 
+The $G_s(I,J)  $  are  uniquely defined by the time-displaced correlation   functions  that enter  the \texttt{ObserT}   routine in the Hamiltonian files.  They are defined in Eq.~\eqref{Time_displaced_green.eq} and read: 
 \begin{align}
 \begin{aligned}
 \texttt{GT0(x,y,s) }  &=   \phantom{+} \langle \langle \hat{c}^{\phantom\dagger}_{x,s} (\tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle_C \;=\; \langle \langle \mathcal{T} \hat{c}^{\phantom\dagger}_{x,s} (\tau)   \hat{c}^{\dagger}_{y,s} (0)   \rangle \rangle_C   \\
@@ -40,7 +40,7 @@ The $G(I,J,s)  $  are  uniquely defined by the time-displaced correlation   func
 \end{align}
 For instance, let  $\tau_{I,\epsilon}   > \tau'_{J,\epsilon}  $  and $ \lim_{\epsilon \rightarrow 0 } \tau_{I,\epsilon}   = \lim_{\epsilon \rightarrow 0 }\tau'_{J,\epsilon} = \tau$. Then 
 \begin{equation}
-	G(I,J,s)   =  \langle \langle  c^{\dagger}_{x_I,s}(\tau) c^{\phantom\dagger}_{x'_{J},s}(\tau)  \rangle \rangle_{C}  =   \delta_{x_I,x'_J} -  GTT(x'_J,x_I,s).
+	G_s(I,J)   =  \langle \langle  c^{\dagger}_{x_I,s}(\tau) c^{\phantom\dagger}_{x'_{J},s}(\tau)  \rangle \rangle_{C}  =   \delta_{x_I,x'_J} -  GTT(x'_J,x_I,s).
 \end{equation}
 
 Using the formulation of Wick's theorem of Eq.~\eqref{Wick.eq},  Eq.~\eqref{Time_dispalced_gen.eq}  reads: 
@@ -49,16 +49,16 @@ Using the formulation of Wick's theorem of Eq.~\eqref{Wick.eq},  Eq.~\eqref{Time
 	\\
 	& \det  
 \begin{bmatrix}
-   G(1,1,s_1) \delta_{s_1,s'_1} \delta_{\sigma_1,\sigma'_1} - \alpha_1 & 
-   G(1,2,s_1) \delta_{s_1,s'_2} \delta_{\sigma_1,\sigma'_2}   \phantom{ - \alpha_1}         & \dots   &   
-   G(1,n,s_1) \delta_{s_1,s'_n} \delta_{\sigma_1,\sigma'_n}   \phantom{ - \alpha_1} \\
-   G(2,1,s_2) \delta_{s_2,s'_1} \delta_{\sigma_2,\sigma'_1}  \phantom{ - \alpha_1} &   
-   G(2,2,s_2) \delta_{s_2,s'_2} \delta_{\sigma_2,\sigma'_2} - \alpha_2  & \dots  &
-    G(2,n,s_2) \delta_{s_2,s'_n} \delta_{\sigma_2,\sigma'_n} \phantom{ - \alpha_2}  \\
-    \vdots & \vdots &  \ddots & \vdots \\
-    G(n,1,s_n) \delta_{s_n,s'_1} \delta_{\sigma_n,\sigma'_1}   \phantom{- \alpha_n} & 
-    G(n,2,s_n) \delta_{s_n,s'_2} \delta_{\sigma_n,\sigma'_2}   \phantom{- \alpha_n} & \dots  & 
-     G(n,n,s_n) \delta_{s_n,s'_n} \delta_{\sigma_n,\sigma'_n}   - \alpha_n  
+   G_{s_1}(1,1) \delta_{s_1,s'_1} \delta_{\sigma_1,\sigma'_1}  {- \alpha_1} & 
+   G_{s_1}(1,2) \delta_{s_1,s'_2} \delta_{\sigma_1,\sigma'_2}   \phantom{ - \alpha_1}         &\! \dots  \!    &   
+   G_{s_1}(1,n) \delta_{s_1,s'_n} \delta_{\sigma_1,\sigma'_n}   \phantom{ - \alpha_1} \\
+   G_{s_2}(2,1) \delta_{s_2,s'_1} \delta_{\sigma_2,\sigma'_1}  \phantom{ - \alpha_1} &   
+   G_{s_2}(2,2) \delta_{s_2,s'_2} \delta_{\sigma_2,\sigma'_2}  {- \alpha_2}  & \! \dots  \! &
+    G_{s_2}(2,n) \delta_{s_2,s'_n} \delta_{\sigma_2,\sigma'_n} \phantom{ - \alpha_2}  \\
+    \vdots & \vdots & \!   \ddots  \!  & \vdots \\
+    G_{s_n}(n,1) \delta_{s_n,s'_1} \delta_{\sigma_n,\sigma'_1}   \phantom{- \alpha_n} & 
+    G_{s_n}(n,2) \delta_{s_n,s'_2} \delta_{\sigma_n,\sigma'_2}   \phantom{- \alpha_n} & \! \dots   \!  & 
+    G_{s_n}(n,n) \delta_{s_n,s'_n} \delta_{\sigma_n,\sigma'_n}   {- \alpha_n } 
  \end{bmatrix}.   \nonumber 
 \end{align}
 The  symbolic evaluation of the  determinant   as well as the sum over the color and flavor indices can be carried out with Mathematica.  This  produces a  long expression in terms of the   functions $G(I,J,s)$ that can then be  included in the code.   The Mathematica notebooks  that we use  can be found in the directory  \texttt{Mathematica}  of  the ALF  directory.   As an open source alternative to Mathematica, the user can consider the Sympy Python library. 
