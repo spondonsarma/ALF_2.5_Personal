@@ -237,13 +237,13 @@ The calculation is carried out  for the self-adjoint antisymmetric  representati
 The  function 
 \begin{lstlisting}[style=fortran]
 Complex (Kind=Kind(0.d0)) function Predefined_Obs_dimer_tau(x, y, w, z, GT0, G0T, G00,
-GTT, N_SUN, N_FL)  
+                                                            GTT, N_SUN, N_FL)  
 \end{lstlisting}
 returns the   value of the time-displaced dimer-dimer correlation function. 
 The  function 
 \begin{lstlisting}[style=fortran]
 Complex (Kind=Kind(0.d0)) function Predefined_Obs_dimer_eq(x, y, w, z, GR, GRC, N_SUN,
-N_FL)
+                                                           N_FL)
 \end{lstlisting}
 returns the   value of the equal time  dimer-dimer correlation function:
 \begin{equation}
@@ -283,7 +283,7 @@ where $\ve{\sigma}$  denotes  the vector of Pauli spin matrices.    With the abo
 The  function 
 \begin{lstlisting}[style=fortran]
 Complex (Kind=Kind(0.d0)) function Predefined_Obs_Cotunneling(x_c, x, y_c, y, GT0, G0T,
-G00, GTT, N_SUN, N_FL)
+                                                              G00, GTT, N_SUN, N_FL)
 \end{lstlisting}
 returns the   value of the time displaced correlation function: 
 \begin{equation}
@@ -332,7 +332,7 @@ where \texttt{Renyi\_A}, \texttt{Renyi\_B}, and \texttt{Renyi\_AB} are the secon
 The measurements necessary for computing $I_2$ are obtained by:
 \begin{lstlisting}[style=fortran,breaklines=true]
 Call Predefined_Obs_scal_Mutual_Inf(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, 
-ZS, ZP, Obs)
+                                    ZS, ZP, Obs)
 \end{lstlisting}
 which returns the second R\'enyi entropies mentioned above, stored in the variable \texttt{Obs}. Here, \texttt{List\_A} and \texttt{Nsites\_A} are input parameters describing the subsystem $A$ -- with the same conventions and specializations described above -- and
 \texttt{List\_B} and \texttt{Nsites\_B} are the corresponding input parameters for the subsystem $B$, while \texttt{N\_SUN} is assumed to be identical for $A$ and $B$.
