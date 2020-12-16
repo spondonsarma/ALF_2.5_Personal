@@ -462,11 +462,42 @@ N.~{Bl{\"u}mer},
 \newblock arXiv:0801.1222  (2008),
 \newblock \eprint{0801.1222}.
 
+\bibitem{Wang16}
+L.~Wang, Y.-H. Liu and M.~Troyer,
+\newblock \emph{Stochastic series expansion simulation of the $t-v$ model},
+\newblock Phys. Rev. B \textbf{93}, 155117 (2016),
+\newblock \doi{10.1103/PhysRevB.93.155117}.
+
+\bibitem{Huffman17}
+E.~Huffman and S.~Chandrasekharan,
+\newblock \emph{Fermion bag approach to hamiltonian lattice field theories in
+  continuous time},
+\newblock Phys. Rev. D \textbf{96}, 114502 (2017),
+\newblock \doi{10.1103/PhysRevD.96.114502}.
+
+\bibitem{huffman2019}
+E.~Huffman and S.~Chandrasekharan,
+\newblock \emph{Fermion-bag inspired hamiltonian lattice field theory for
+  fermionic quantum criticality} (2019), \eprint{1912.12823}.
+
 \bibitem{goth2020}
 F.~Goth,
 \newblock \emph{Higher order auxiliary field quantum monte carlo methods},
 \newblock arXiv:2009.04491  (2020),
 \newblock \eprint{2009.04491}.
+
+\bibitem{Peschel03}
+I.~Peschel,
+\newblock \emph{Calculation of reduced density matrices from correlation
+  functions},
+\newblock Journal of Physics A: Mathematical and General \textbf{36}(14), L205
+  (2003).
+
+\bibitem{Toldin18}
+F.~Parisen~Toldin and F.~F. Assaad,
+\newblock \emph{Entanglement hamiltonian of interacting fermionic models},
+\newblock Phys. Rev. Lett. \textbf{121}, 200602 (2018),
+\newblock \doi{10.1103/PhysRevLett.121.200602}.
 
 \bibitem{Hukushima96}
 K.~Hukushima and K.~Nemoto,
@@ -616,6 +647,31 @@ A.~Parola, S.~Sorella, M.~Parrinello and E.~Tosatti,
   model},
 \newblock Phys. Rev. B \textbf{43}, 6190 (1991),
 \newblock \doi{10.1103/PhysRevB.43.6190}.
+
+\bibitem{Schrieffer66}
+J.~R. Schrieffer and P.~A. Wolff,
+\newblock \emph{Relation between the anderson and kondo hamiltonians},
+\newblock Phys. Rev. \textbf{149}, 491 (1966),
+\newblock \doi{10.1103/PhysRev.149.491}.
+
+\bibitem{Costi00}
+T.~A. Costi,
+\newblock \emph{Kondo effect in a magnetic field and the magnetoresistivity of
+  kondo alloys},
+\newblock Phys. Rev. Lett. \textbf{85}, 1504 (2000),
+\newblock \doi{10.1103/PhysRevLett.85.1504}.
+
+\bibitem{Raczkowski18}
+M.~Raczkowski and F.~F. Assaad,
+\newblock \emph{Emergent coherent lattice behavior in kondo nanosystems},
+\newblock Phys. Rev. Lett. \textbf{122}, 097203 (2019),
+\newblock \doi{10.1103/PhysRevLett.122.097203}.
+
+\bibitem{Maltseva09}
+M.~Maltseva, M.~Dzero and P.~Coleman,
+\newblock \emph{Electron cotunneling into a kondo lattice},
+\newblock Phys. Rev. Lett. \textbf{103}, 206402 (2009),
+\newblock \doi{10.1103/PhysRevLett.103.206402}.
 
 \bibitem{Vekic95}
 M.~Veki\ifmmode~\acute{c}\else \'{c}\fi{}, J.~W. Cannon, D.~J. Scalapino, R.~T.

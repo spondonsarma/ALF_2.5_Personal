@@ -1,8 +1,10 @@
 LIB=modules_90.a
-OBJS=errors_mod.o files_mod.o   fourier_mod.o histograms_mod.o histograms_v2_mod.o lattices_v3_mod.o \
+OBJS=entanglement_mod.o   errors_mod.o files_mod.o   fourier_mod.o histograms_mod.o \
+	histograms_v2_mod.o lattices_v3_mod.o \
 	log_mesh_mod.o mymats_mod.o matrix_mod.o maxent_mod.o   maxent_stoch_mod.o   \
 	natural_constants_mod.o  Mat_subroutines_mod.o precdef_mod.o random_wrap_mod.o
-MODS=errors.mod   files_mod.mod fourier.mod   histograms.mod   histograms_v2.mod   lattices_v3.mod \
+MODS=entanglement_mod.mod errors.mod   files_mod.mod fourier.mod   histograms.mod \
+	histograms_v2.mod   lattices_v3.mod \
 	log_mesh.mod   mymats.mod   matrix.mod   maxent_mod.mod maxent_stoch_mod.mod \
 	natural_constants.mod    mat_subroutines.mod   precdef.mod   random_wrap.mod
 
@@ -15,6 +17,7 @@ $(LIB): $(OBJS)
 clean:
 	rm -f $(OBJS) $(MODS) $(LIB)
 
+entanglement_mod.o: 
 errors_mod.o: mymats_mod.o random_wrap_mod.o
 files_mod.o: 
 fourier_mod.o: maxent_mod.o maxent_stoch_mod.o matrix_mod.o
