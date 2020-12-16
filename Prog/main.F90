@@ -262,6 +262,7 @@ Program Main
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
+        CALL mpi_shared_memory_init(Group_Comm)
 #endif
         !Initialize entanglement pairs of MPI jobs
         !This routine can and should also be called if MPI is not activated
@@ -755,6 +756,14 @@ Program Main
         If (N_Global_tau > 0) then
            Call Wrapgr_dealloc
         endif
+        do nf = 1, N_FL
+          do n = 1, size(OP_V,1)
+            call Op_clear(Op_V(n,nf),Op_V(n,nf)%N)
+          enddo
+          do n = 1, size(OP_T,1)
+            call Op_clear(Op_T(n,nf),Op_T(n,nf)%N)
+          enddo
+        enddo
 
         Call Control_Print(Group_Comm, Langevin_HMC%get_Update_scheme())
 
