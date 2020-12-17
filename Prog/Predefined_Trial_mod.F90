@@ -40,16 +40,19 @@
 !--------------------------------------------------------------------
 
     Module Predefined_Trial
-
-      Use Lattices_v3
-      Use Operator_mod
-      Use WaveFunction_mod
-      Use MyMats
-      Use Predefined_Hoppings
       use iso_fortran_env, only: output_unit, error_unit
 
-      Implicit none
+      Use Lattices_v3
+      Use MyMats
+      
+      Use Operator_mod
+      Use Predefined_Hoppings
+      Use WaveFunction_mod
 
+      Implicit none
+      
+      private
+      public :: Predefined_TrialWaveFunction
 
     contains
 

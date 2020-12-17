@@ -41,20 +41,24 @@
 !--------------------------------------------------------------------
 
 Module Wrapgr_mod
-
-
-  Use Hamiltonian
-  Use MyMats 
-  Use Operator_mod
-  Use Control
+  
+  Use MyMats
   Use Random_Wrap
+  
+  Use Control
   Use Fields_mod
+  Use Hop_mod
+  Use Operator_mod
+  use upgrade_mod
+  Use Hamiltonian
 
   Implicit none
-
+  
+  private
+  public :: Wrapgr_alloc, Wrapgr_dealloc, WRAPGRUP, WRAPGRDO
   
   !> Privat 
-  Complex (Kind=Kind(0.d0)),  private, allocatable ::  GR_ST(:,:,:)
+  Complex (Kind=Kind(0.d0)), private, allocatable, save :: GR_ST(:,:,:)
   
 Contains
 !--------------------------------------------------------------------
@@ -86,30 +90,7 @@ Contains
 !> NTAU: [0:LTROT-1]
 !
 !--------------------------------------------------------------------
- 
-    Use Hamiltonian
-    Use Hop_mod
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    end Interface
     
     ! Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  GR(:,:,:)
@@ -185,30 +166,7 @@ Contains
 !> NTAU: [LTROT:1]
 !
 !--------------------------------------------------------------------    
-    Use Hamiltonian
-    Use MyMats
-    Use Hop_mod
     Implicit None
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    End Interface
     
     ! Given GREEN at time NTAU => GREEN at time NTAU - 1,
     ! Upgrade NTAU  [LTROT:1]
@@ -374,29 +332,7 @@ Contains
 !>        direction = u -->  On output Green on m_max is accepted. Green is on m_min if not accepted. 
 !>        direction = d -->  On output Green on m_min if accepted. Green is on m_max if not accepted.
 !--------------------------------------------------------------------
-        
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-
-    end Interface
 
     ! Arguments 
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR

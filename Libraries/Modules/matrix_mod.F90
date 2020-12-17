@@ -1,5 +1,5 @@
 
-!  Copyright (C) 2018 The ALF project
+!  Copyright (C) 2018 - 2020 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.   
      MODULE Matrix
-
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -39,6 +38,9 @@
 !> Definition of a matrix type. 
 !> 
 !--------------------------------------------------------------------
+    implicit none
+    private
+    public :: Mat_C, Mat_R, Make_Mat, Clear_Mat
 
        
        Type Mat_C

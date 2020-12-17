@@ -31,13 +31,21 @@
 
 
       Module Langevin_HMC_mod
+#ifdef MPI
+        Use mpi
+#endif
+        Use iso_fortran_env, only: output_unit, error_unit
         
-        Use Hamiltonian
-        Use UDV_State_mod
+        Use Random_Wrap, only: rang_wrap
+        
+        use cgr1_mod
         Use Control
         Use Hop_mod
-        Use iso_fortran_env, only: output_unit, error_unit
-
+        Use Operator_mod
+        Use UDV_State_mod
+        use wrapul_mod
+        use wrapur_mod
+        Use Hamiltonian
         
         Implicit none
 
@@ -64,8 +72,7 @@
            procedure  ::    get_Delta_t_running  => Langevin_HMC_get_Delta_t_running
         end type Langevin_HMC_type
 
-        Type (Langevin_HMC_type) :: Langevin_HMC
-
+        Type (Langevin_HMC_type), save :: Langevin_HMC
            
       Contains
 
@@ -85,33 +92,6 @@
         
       SUBROUTINE  Langevin_HMC_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, LOBS_ST, LOBS_EN,Calc_Obser_eq)
         Implicit none
-        
-        Interface
-           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUR
-           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
         
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
         CLASS(UDV_State), intent(in), allocatable, dimension(:,:)    :: udvst
@@ -248,33 +228,6 @@
       Subroutine Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
 
         Implicit none
-        
-        Interface
-           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUR
-           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
         
         CLASS(UDV_State), intent(inout), allocatable, dimension(:  ) :: udvl, udvr
         CLASS(UDV_State), intent(inout), allocatable, dimension(:,:) :: udvst
@@ -425,10 +378,6 @@
 
       
       SUBROUTINE  Langevin_HMC_setup(this,Langevin,HMC, Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps )
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         
@@ -508,11 +457,6 @@
 !--------------------------------------------------------------------
 
       SUBROUTINE  Langevin_HMC_clear(this) 
-
-#ifdef MPI
-        Use mpi
-#endif
-
         Implicit none
 
         class (Langevin_HMC_type) :: this

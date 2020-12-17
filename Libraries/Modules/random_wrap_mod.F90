@@ -39,6 +39,9 @@ Module Random_Wrap
 !> Wrappers for random number generator
 !
 !--------------------------------------------------------------------
+   implicit none
+   private
+   public :: Get_seed_Len, Ranset, Ranget, lcg, ranf_wrap, rang_wrap, nranf
    contains
 
      

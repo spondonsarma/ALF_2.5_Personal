@@ -40,14 +40,17 @@
 !
 !--------------------------------------------------------------------
 Module Operator_mod
-
-
+  use mat_subroutines
   Use MyMats
+  
   Use Fields_mod
 
   Implicit none
 
+  private
   
+  public :: Operator, Op_phase, Op_make, Op_clear, Op_set, Op_exp, Op_mmultL, &
+            Op_mmultR, Op_Wrapup, Op_Wrapdo, Op_is_real
 
   Type Operator
      Integer          :: N, N_non_zero

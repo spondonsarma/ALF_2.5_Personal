@@ -39,9 +39,18 @@
 !
 !--------------------------------------------------------------------
      Module Observables
-
-       Use Lattices_v3, only: Unit_cell, Lattice
+#ifdef MPI
+       use mpi
+#endif
        use iso_fortran_env, only: output_unit, error_unit
+
+       Use Lattices_v3, only: Unit_cell, Lattice, fourier_r_to_k
+       
+       implicit none
+       
+       private
+       public :: Obser_Latt, Obser_Latt_make, Obser_Latt_Init, Print_bin_Latt, &
+                 Obser_Vec,  Obser_Vec_make,  Obser_Vec_Init,  Print_bin_Vec
 
        Type Obser_Vec
 !>  Data structure for
@@ -232,10 +241,6 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Latt(Obs, Group_Comm)
-           Use Lattices_v3
-#ifdef MPI
-           Use mpi
-#endif
            Implicit none
 
            Type (Obser_Latt),        Intent(Inout)   :: Obs
@@ -370,9 +375,6 @@
 !--------------------------------------------------------------------
 
          Subroutine  Print_bin_Vec(Obs,Group_Comm)
-#ifdef MPI
-           Use mpi
-#endif
            Implicit none
 
            Type (Obser_vec), intent(Inout) :: Obs

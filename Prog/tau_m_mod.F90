@@ -41,39 +41,25 @@
 !
 !--------------------------------------------------------------------
      Module Tau_m_mod
-       Use Hamiltonian 
-       Use Operator_mod
+       use cgr2_2_mod
        Use Control
        Use Hop_mod
-       Use UDV_State_mod
        Use Langevin_HMC_mod
+       Use Operator_mod
+       Use UDV_State_mod
+       use wrapur_mod
+       Use Hamiltonian 
        
+       implicit none
+       
+       private
+       public :: TAU_M, PROPR, PROPRM1
 
        Contains
 
          SUBROUTINE TAU_M(udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN) 
            
            Implicit none
-
-           Interface
-              SUBROUTINE WRAPUR(NTAU1, NTAU, udvr)
-                Use Hamiltonian
-                Use UDV_State_mod
-                Implicit none
-                CLASS(UDV_State), intent(inout), ALLOCATABLE, dimension(:) :: UDVr
-                Integer :: NTAU1, NTAU
-              END SUBROUTINE WRAPUR
-              SUBROUTINE CGR2_2(GRT0, GR00, GRTT, GR0T, udv2, udv1, LQ)
-                Use MyMats
-                Use UDV_WRAP_mod
-                Use UDV_State_mod
-                Implicit none
-                !  Arguments
-                Integer,  intent(in) :: LQ
-                CLASS(UDV_State), intent(in) :: udv1, udv2
-                Complex (Kind=Kind(0.d0)), intent(inout) :: GRT0(LQ,LQ), GR0T(LQ,LQ), GR00(LQ,LQ), GRTT(LQ,LQ)
-              end SUBROUTINE CGR2_2
-           end Interface
      
            Integer, Intent(In) :: NSTM, NWRAP
            CLASS(UDV_State), Dimension(:,:), ALLOCATABLE, INTENT(IN) :: udvst

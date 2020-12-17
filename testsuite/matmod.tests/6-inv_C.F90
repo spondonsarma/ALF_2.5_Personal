@@ -17,7 +17,7 @@ Program Test6
         A(1,2) = 1
         A(2,2) = 20
         A(3,3) = 100
-        call INV_C(A, AI, myDET)
+        call INV(A, AI, myDET)  ! This calls INV_C
         if (ABS(mydet - 19900) > 19900*10*EPSILON(1.d0)) then
         write (*,*) "ERROR", ABS(mydet - 19900)
         STOP 2

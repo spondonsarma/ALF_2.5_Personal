@@ -39,17 +39,20 @@
 !> sets the random number generator.
 !
 !--------------------------------------------------------------------
+module set_random_mod
+#ifdef MPI
+  Use mpi
+#endif
+  Use iso_fortran_env, only: output_unit, error_unit
+
+  Use Random_Wrap
+
+  implicit none
+  private
+  public :: Set_Random_number_Generator
+contains
 
      Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
-
-       
-#ifdef MPI
-        Use mpi
-#endif
-        Use Random_Wrap
-
-        Use iso_fortran_env, only: output_unit, error_unit
-
         Implicit none
 
         Character (LEN=64), Intent(IN) :: File_seeds
@@ -98,3 +101,5 @@
 #endif
        
      end Subroutine Set_Random_number_Generator
+
+end module set_random_mod

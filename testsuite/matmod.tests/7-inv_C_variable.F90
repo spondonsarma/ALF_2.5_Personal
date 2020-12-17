@@ -17,7 +17,7 @@ Program Test7
         A(1,2) = 1
         A(2,2) = 20
         A(3,3) = 100
-        call INV_C_VARIABLE(A, AI, myDET, 2)
+        call INV(A, AI, myDET, 2)  ! This calls INV_C_VARIABLE
 ! Yes 1E-11 is really the precission that is achievable here using the linpack routines
         if (ABS(mydet - 199) > 199*10*EPSILON(1.d0)) then
         write (*,*) "ERROR", ABS(mydet - 199)

@@ -38,6 +38,9 @@
 !> This constructs a decompostion Mat = Q D R P^* using a pivoted QR decomposition
 !--------------------------------------------------------------------
 Module QDRP_mod
+  implicit none
+  private
+  public :: QDRP_decompose, Pivot_phase
 
 Contains
 

@@ -28,7 +28,20 @@
 !
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
-
+module upgrade_mod
+  use iso_fortran_env, only: output_unit, error_unit
+  
+  Use MyMats, only: det
+  Use Random_wrap
+  
+  Use Control
+  Use Fields_mod
+  Use Hamiltonian
+  
+  implicit none
+  private
+  public :: Upgrade2
+contains
 
 !--------------------------------------------------------------------
 !> @author
@@ -99,12 +112,6 @@
 
       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode)
 !--------------------------------------------------------------------
-
-        Use Hamiltonian
-        Use Random_wrap
-        Use Control
-        Use Fields_mod
-        use iso_fortran_env, only: output_unit, error_unit
         Implicit none
 
         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
@@ -287,3 +294,5 @@
         Call nsigma_new%clear()
 
       End Subroutine Upgrade2
+
+end module upgrade_mod

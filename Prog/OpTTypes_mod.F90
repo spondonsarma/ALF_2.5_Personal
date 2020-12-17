@@ -31,6 +31,8 @@
 
 
 module OpTTypes_mod
+    use mat_subroutines
+
     use ContainerElementBase_mod
     use Operator_mod
     implicit none

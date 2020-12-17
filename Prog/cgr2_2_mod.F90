@@ -28,7 +28,17 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
+module cgr2_2_mod
+  Use MyMats
 
+  Use QDRP_mod
+  Use UDV_State_mod
+  Use UDV_WRAP_mod
+  implicit none
+
+  private
+  public :: CGR2_2, solve_extended_System, get_blocks
+contains
 
 !--------------------------------------------------------------------
 !> @author
@@ -89,7 +99,6 @@
 !> @param[in] LQ The dimension of the matrices UCT and V1INV
 !--------------------------------------------------------------------
            Subroutine solve_extended_System(HLP, UCT, VINV, U3, D3, V3, LQ)
-           Use MyMats
            Implicit none
            Integer, intent(in) :: LQ
            Complex (Kind=Kind(0.D0)), intent(in) :: U3(2*LQ, 2*LQ), D3(2*LQ), V3(2*LQ,2*LQ), UCT(LQ,LQ), VINV(LQ,LQ)
@@ -216,11 +225,8 @@
 !
 !--------------------------------------------------------------------
 
-        Use MyMats
-        Use UDV_State_mod
 #if (defined(STAB2) || defined(STAB1)) && !defined(LOG)   
 
-        Use UDV_WRAP_mod
         Implicit none
 
         !  Arguments
@@ -306,7 +312,6 @@
         Endif
         DEALLOCATE(MYU2, HLPB1, HLPB2, U3B, V3B)
 #else
-        Use QDRP_mod
         Implicit none
 
         !  Arguments
@@ -413,3 +418,5 @@
         DEALLOCATE(MYU2, V1INV, HLPB1, HLPB2, WORK, IPVT, TAU, D3, D1m, D2m)
 #endif
       END SUBROUTINE CGR2_2
+
+end module cgr2_2_mod

@@ -9,7 +9,7 @@ Program Test10
         COMPLEX (KIND=8) :: myx
         
         myx = (1.d0,1.d0)
-        CALL INITD_C(A,myx)
+        CALL INITD(A,myx)  ! This calls INITD_C
         IF(ABS(ABS(A(1,1)) - SQRT(2.D0)) > 10*EPSILON(1.D0)) THEN
         write (*,*) "ERROR", A
         STOP 2

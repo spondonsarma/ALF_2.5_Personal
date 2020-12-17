@@ -41,18 +41,25 @@
 !--------------------------------------------------------------------
 
 Module UDV_Wrap_mod
+#if defined(MPI)
+     Use mpi
+#endif
 
      Use MyMats
      Use Files_mod
+     
+     Use QDRP_mod
+     
+     implicit none
+     private
+     public :: UDV_Wrap_Pivot, UDV_Wrap
 
-   Contains
-
+contains
 
 !***************************************************************
 
 #if defined(STAB1) 
      Subroutine UDV_Wrap_Pivot(A,U,D,V,NCON,N1,N2)
-        Use QDRP_mod
        
        Implicit NONE
        COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
@@ -123,7 +130,6 @@ Module UDV_Wrap_mod
      End Subroutine UDV_Wrap_Pivot
 #else
      Subroutine UDV_Wrap_Pivot(A,U,D,V,NCON,N1,N2)
-        Use QDRP_mod
 
        Implicit NONE
        COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A
@@ -210,10 +216,6 @@ Module UDV_Wrap_mod
 
 !***************************************************************
      Subroutine UDV_Wrap(A,U,D,V,NCON)
-#ifdef MPI
-       USE mpi
-#endif
-
        Implicit None
 
        COMPLEX (Kind=Kind(0.d0)), INTENT(IN),    DIMENSION(:,:) :: A

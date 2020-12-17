@@ -31,7 +31,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-
+module mat_subroutines
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -41,6 +41,11 @@
 !> type.
 !
 !--------------------------------------------------------------------
+  use iso_fortran_env, only: error_unit
+  implicit none
+  private
+  public :: ZSLGEMM, ZSLHEMM, ZDSLSYMM
+contains
 
 subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
 ! Small Large general matrix multiplication
@@ -62,7 +67,6 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
 !> !!!!! Mat has dimensions M1,M2, N is dimension of A
 !>
 !--------------------------------------------------------------------
-        use iso_fortran_env, only: output_unit, error_unit
 
         IMPLICIT NONE
         CHARACTER (1)            , INTENT(IN) :: side, op
@@ -531,8 +535,6 @@ subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
 !> !!!!! Mat has dimensions M1,M2
 !>
 !--------------------------------------------------------------------
-        use iso_fortran_env, only: output_unit, error_unit
-
 
 
         IMPLICIT NONE
@@ -980,7 +982,6 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
 !> !!!!! Mat has dimensions M1,M2
 !>
 !--------------------------------------------------------------------
-        use iso_fortran_env, only: output_unit, error_unit
 
         IMPLICIT NONE
         CHARACTER (1)            , INTENT(IN) :: side, uplo
@@ -1418,3 +1419,5 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         ENDIF
 
 end subroutine ZDSLSYMM
+
+end module mat_subroutines
