@@ -682,6 +682,20 @@ I.~Peschel,
 \newblock Journal of Physics A: Mathematical and General \textbf{36}(14), L205
   (2003).
 
+\bibitem{Wan20}
+Z.-Q. Wan, S.-X. Zhang and H.~Yao,
+\newblock \emph{Mitigating sign problem by automatic differentiation},
+\newblock arXiv:2010.01141  (2020),
+\newblock \eprint{2010.01141}.
+
+\bibitem{Hangleiter20}
+D.~Hangleiter, I.~Roth, D.~Nagaj and J.~Eisert,
+\newblock \emph{Easing the monte carlo sign problem},
+\newblock Science Advances \textbf{6}(33) (2020),
+\newblock \doi{10.1126/sciadv.abb8341},
+\newblock
+  \eprint{https://advances.sciencemag.org/content/6/33/eabb8341.full.pdf}.
+
 \bibitem{Hukushima96}
 K.~Hukushima and K.~Nemoto,
 \newblock \emph{Exchange monte carlo method and application to spin glass
