@@ -113,6 +113,13 @@ V.~Ayyar and S.~Chandrasekharan,
 \newblock Phys. Rev. D \textbf{91}, 065035 (2015),
 \newblock \doi{10.1103/PhysRevD.91.065035}.
 
+\bibitem{Liu18}
+Y.~Liu, Z.~Wang, T.~Sato, M.~Hohenadler, C.~Wang, W.~Guo and F.~F. Assaad,
+\newblock \emph{Superconductivity from the condensation of topological defects
+  in a quantum spin-hall insulator},
+\newblock Nature Communications \textbf{10}(1), 2658 (2019),
+\newblock \doi{10.1038/s41467-019-10372-0}.
+
 \bibitem{Li15a}
 Z.-X. {Li}, Y.-F. {Jiang}, S.-K. {Jian} and H.~{Yao},
 \newblock \emph{{Fermion-induced quantum critical points: type-II
@@ -127,6 +134,54 @@ F.~F. Assaad and T.~Grover,
 \newblock Phys. Rev. X \textbf{6}, 041049 (2016),
 \newblock \doi{10.1103/PhysRevX.6.041049}.
 
+\bibitem{SatoT17}
+T.~Sato, M.~Hohenadler and F.~F. Assaad,
+\newblock \emph{Dirac fermions with competing orders: Non-landau transition
+  with emergent symmetry},
+\newblock Phys. Rev. Lett. \textbf{119}, 197203 (2017),
+\newblock \doi{10.1103/PhysRevLett.119.197203}.
+
+\bibitem{Gazit16}
+S.~Gazit, M.~Randeria and A.~Vishwanath,
+\newblock \emph{Emergent dirac fermions and broken symmetries in confined and
+  deconfined phases of z2 gauge theories},
+\newblock Nat Phys \textbf{13}(5), 484 (2017).
+
+\bibitem{Gazit18}
+S.~Gazit, F.~F. Assaad, S.~Sachdev, A.~Vishwanath and C.~Wang,
+\newblock \emph{Confinement transition of z2 gauge theories coupled to massless
+  fermions: Emergent quantum chromodynamics and so(5) symmetry},
+\newblock Proceedings of the National Academy of Sciences  (2018),
+\newblock \doi{10.1073/pnas.1806338115},
+\newblock
+  \eprint{http://www.pnas.org/content/early/2018/07/06/1806338115.full.pdf}.
+
+\bibitem{Xu18}
+X.~Y. Xu, Y.~Qi, L.~Zhang, F.~F. Assaad, C.~Xu and Z.~Y. Meng,
+\newblock \emph{Monte carlo study of lattice compact quantum electrodynamics
+  with fermionic matter: The parent state of quantum phases},
+\newblock Phys. Rev. X \textbf{9}, 021022 (2019),
+\newblock \doi{10.1103/PhysRevX.9.021022}.
+
+\bibitem{Hohenadler18}
+M.~Hohenadler and F.~F. Assaad,
+\newblock \emph{Fractionalized metal in a falicov-kimball model},
+\newblock Phys. Rev. Lett. \textbf{121}, 086601 (2018),
+\newblock \doi{10.1103/PhysRevLett.121.086601}.
+
+\bibitem{Hohenadler19}
+M.~Hohenadler and F.~F. Assaad,
+\newblock \emph{Orthogonal metal in the hubbard model with liberated slave
+  spins},
+\newblock Phys. Rev. B \textbf{100}, 125133 (2019),
+\newblock \doi{10.1103/PhysRevB.100.125133}.
+
+\bibitem{Gazit19}
+S.~{Gazit}, F.~F. {Assaad} and S.~{Sachdev},
+\newblock \emph{{Fermi-surface reconstruction without symmetry breaking}},
+\newblock arXiv:1906.11250 arXiv:1906.11250 (2019),
+\newblock \eprint{1906.11250}.
+
 \bibitem{Assaad99a}
 F.~F. Assaad,
 \newblock \emph{Quantum monte carlo simulations of the half-filled
@@ -139,6 +194,20 @@ S.~Capponi and F.~F. Assaad,
 \newblock \emph{Spin and charge dynamics of the ferromagnetic and
   antiferromagnetic two-dimensional half-filled kondo lattice model},
 \newblock Phys. Rev. B \textbf{63}, 155114 (2001).
+
+\bibitem{SatoT17_1}
+T.~Sato, F.~F. Assaad and T.~Grover,
+\newblock \emph{Quantum monte carlo simulation of frustrated kondo lattice
+  models},
+\newblock Phys. Rev. Lett. \textbf{120}, 107201 (2018),
+\newblock \doi{10.1103/PhysRevLett.120.107201}.
+
+\bibitem{Danu19}
+B.~Danu, F.~F. Assaad and F.~Mila,
+\newblock \emph{Exploring the kondo effect of an extended impurity with chains
+  of co adatoms in a magnetic field},
+\newblock Phys. Rev. Lett. \textbf{123}, 176601 (2019),
+\newblock \doi{10.1103/PhysRevLett.123.176601}.
 
 \bibitem{Schattner15}
 Y.~Schattner, S.~Lederer, S.~A. Kivelson and E.~Berg,
@@ -182,6 +251,20 @@ T.~C. Lang, Z.~Y. Meng, A.~Muramatsu, S.~Wessel and F.~F. Assaad,
 \newblock Phys. Rev. Lett. \textbf{111}, 066401 (2013),
 \newblock \doi{10.1103/PhysRevLett.111.066401}.
 
+\bibitem{Kim_F17}
+F.~H. Kim, K.~Penc, P.~Nataf and F.~Mila,
+\newblock \emph{Linear flavor-wave theory for fully antisymmetric su($n$)
+  irreducible representations},
+\newblock Phys. Rev. B \textbf{96}, 205142 (2017),
+\newblock \doi{10.1103/PhysRevB.96.205142}.
+
+\bibitem{Raczkowski20}
+M.~Raczkowski and F.~F. Assaad,
+\newblock \emph{Phase diagram and dynamics of the $\mathrm{SU}(n)$ symmetric
+  kondo lattice model},
+\newblock Phys. Rev. Research \textbf{2}, 013276 (2020),
+\newblock \doi{10.1103/PhysRevResearch.2.013276}.
+
 \bibitem{Hohenadler14}
 M.~Hohenadler, F.~Parisen~Toldin, I.~F. Herbut and F.~F. Assaad,
 \newblock \emph{Phase diagram of the kane-mele-coulomb model},
@@ -195,6 +278,23 @@ H.-K. Tang, E.~Laksono, J.~N.~B. Rodrigues, P.~Sengupta, F.~F. Assaad and
   graphene},
 \newblock Phys. Rev. Lett. \textbf{115}, 186602 (2015),
 \newblock \doi{10.1103/PhysRevLett.115.186602}.
+
+\bibitem{Tang17}
+H.-K. Tang, J.~N. Leaw, J.~N.~B. Rodrigues, I.~F. Herbut, P.~Sengupta, F.~F.
+  Assaad and S.~Adam,
+\newblock \emph{The role of electron-electron interactions in two-dimensional
+  dirac fermions},
+\newblock Science \textbf{361}(6402), 570 (2018),
+\newblock \doi{10.1126/science.aao2934},
+\newblock \eprint{http://science.sciencemag.org/content/361/6402/570.full.pdf}.
+
+\bibitem{Raczkowski17}
+M.~Raczkowski and F.~F. Assaad,
+\newblock \emph{Interplay between the edge-state magnetism and long-range
+  coulomb interaction in zigzag graphene nanoribbons: Quantum monte carlo
+  study},
+\newblock Phys. Rev. B \textbf{96}, 115155 (2017),
+\newblock \doi{10.1103/PhysRevB.96.115155}.
 
 \bibitem{Rigol03}
 M.~Rigol, A.~Muramatsu, G.~G. Batrouni and R.~T. Scalettar,
@@ -236,6 +336,12 @@ F.~F. Assaad,
   of interacting fermions},
 \newblock Phys. Rev. B \textbf{91}, 125146 (2015),
 \newblock \doi{10.1103/PhysRevB.91.125146}.
+
+\bibitem{Toldin18}
+F.~Parisen~Toldin and F.~F. Assaad,
+\newblock \emph{Entanglement hamiltonian of interacting fermionic models},
+\newblock Phys. Rev. Lett. \textbf{121}, 200602 (2018),
+\newblock \doi{10.1103/PhysRevLett.121.200602}.
 
 \bibitem{Wu04}
 C.~Wu and S.-C. Zhang,
@@ -493,12 +599,6 @@ I.~Peschel,
 \newblock Journal of Physics A: Mathematical and General \textbf{36}(14), L205
   (2003).
 
-\bibitem{Toldin18}
-F.~Parisen~Toldin and F.~F. Assaad,
-\newblock \emph{Entanglement hamiltonian of interacting fermionic models},
-\newblock Phys. Rev. Lett. \textbf{121}, 200602 (2018),
-\newblock \doi{10.1103/PhysRevLett.121.200602}.
-
 \bibitem{Hukushima96}
 K.~Hukushima and K.~Nemoto,
 \newblock \emph{Exchange monte carlo method and application to spin glass
@@ -681,51 +781,10 @@ M.~Veki\ifmmode~\acute{c}\else \'{c}\fi{}, J.~W. Cannon, D.~J. Scalapino, R.~T.
 \newblock Phys. Rev. Lett. \textbf{74}, 2367 (1995),
 \newblock \doi{10.1103/PhysRevLett.74.2367}.
 
-\bibitem{Raczkowski20}
-M.~Raczkowski and F.~F. Assaad,
-\newblock \emph{Phase diagram and dynamics of the $\mathrm{SU}(n)$ symmetric
-  kondo lattice model},
-\newblock Phys. Rev. Research \textbf{2}, 013276 (2020),
-\newblock \doi{10.1103/PhysRevResearch.2.013276}.
-
 \bibitem{Beach04}
 K.~S.~D. Beach, P.~A. Lee and P.~Monthoux,
 \newblock \emph{Field-induced antiferromagnetism in the kondo insulator},
 \newblock Phys. Rev. Lett. \textbf{92}, 026401 (2004).
-
-\bibitem{Gazit16}
-S.~Gazit, M.~Randeria and A.~Vishwanath,
-\newblock \emph{Emergent dirac fermions and broken symmetries in confined and
-  deconfined phases of z2 gauge theories},
-\newblock Nat Phys \textbf{13}(5), 484 (2017).
-
-\bibitem{Gazit18}
-S.~Gazit, F.~F. Assaad, S.~Sachdev, A.~Vishwanath and C.~Wang,
-\newblock \emph{Confinement transition of z2 gauge theories coupled to massless
-  fermions: Emergent quantum chromodynamics and so(5) symmetry},
-\newblock Proceedings of the National Academy of Sciences  (2018),
-\newblock \doi{10.1073/pnas.1806338115},
-\newblock
-  \eprint{http://www.pnas.org/content/early/2018/07/06/1806338115.full.pdf}.
-
-\bibitem{Gazit19}
-S.~{Gazit}, F.~F. {Assaad} and S.~{Sachdev},
-\newblock \emph{{Fermi-surface reconstruction without symmetry breaking}},
-\newblock arXiv:1906.11250 arXiv:1906.11250 (2019),
-\newblock \eprint{1906.11250}.
-
-\bibitem{Hohenadler18}
-M.~Hohenadler and F.~F. Assaad,
-\newblock \emph{Fractionalized metal in a falicov-kimball model},
-\newblock Phys. Rev. Lett. \textbf{121}, 086601 (2018),
-\newblock \doi{10.1103/PhysRevLett.121.086601}.
-
-\bibitem{Hohenadler19}
-M.~Hohenadler and F.~F. Assaad,
-\newblock \emph{Orthogonal metal in the hubbard model with liberated slave
-  spins},
-\newblock Phys. Rev. B \textbf{100}, 125133 (2019),
-\newblock \doi{10.1103/PhysRevB.100.125133}.
 
 \bibitem{Ruegg10}
 A.~R\"uegg, S.~D. Huber and M.~Sigrist,
