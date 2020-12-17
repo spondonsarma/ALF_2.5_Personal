@@ -209,6 +209,13 @@ B.~Danu, F.~F. Assaad and F.~Mila,
 \newblock Phys. Rev. Lett. \textbf{123}, 176601 (2019),
 \newblock \doi{10.1103/PhysRevLett.123.176601}.
 
+\bibitem{Danu20}
+B.~Danu, M.~Vojta, F.~F. Assaad and T.~Grover,
+\newblock \emph{Kondo breakdown in a spin-$1/2$ chain of adatoms on a dirac
+  semimetal},
+\newblock Phys. Rev. Lett. \textbf{125}, 206602 (2020),
+\newblock \doi{10.1103/PhysRevLett.125.206602}.
+
 \bibitem{Schattner15}
 Y.~Schattner, S.~Lederer, S.~A. Kivelson and E.~Berg,
 \newblock \emph{Ising nematic quantum critical point in a metal: A monte carlo
@@ -223,6 +230,15 @@ X.~Y. Xu, K.~Sun, Y.~Schattner, E.~Berg and Z.~Y. Meng,
 \newblock Phys. Rev. X \textbf{7}, 031058 (2017),
 \newblock \doi{10.1103/PhysRevX.7.031058}.
 
+\bibitem{LiuZH19}
+Z.~H. Liu, G.~Pan, X.~Y. Xu, K.~Sun and Z.~Y. Meng,
+\newblock \emph{Itinerant quantum critical point with fermion pockets and
+  hotspots},
+\newblock Proceedings of the National Academy of Sciences \textbf{116}(34),
+  16760 (2019),
+\newblock \doi{10.1073/pnas.1901751116},
+\newblock \eprint{https://www.pnas.org/content/116/34/16760.full.pdf}.
+
 \bibitem{Berg12}
 E.~Berg, M.~A. Metlitski and S.~Sachdev,
 \newblock \emph{Sign-problem--free quantum monte carlo of the onset of
@@ -236,6 +252,19 @@ H.-K. Tang, X.~Yang, J.~Sun and H.-Q. Lin,
 \newblock \emph{Berezinskii-kosterlitz-thoules phase transition of spin-orbit
   coupled fermi gas in optical lattice},
 \newblock Europhys. Lett. \textbf{107}(4), 40003 (2014).
+
+\bibitem{Hofmann20}
+J.~S. Hofmann, E.~Berg and D.~Chowdhury,
+\newblock \emph{Superconductivity, pseudogap, and phase separation in
+  topological flat bands},
+\newblock Phys. Rev. B \textbf{102}, 201112 (2020),
+\newblock \doi{10.1103/PhysRevB.102.201112}.
+
+\bibitem{Peri20}
+V.~Peri, Z.~Song, B.~A. Bernevig and S.~D. Huber,
+\newblock \emph{Fragile topology and flat-band superconductivity in the
+  strong-coupling regime},
+\newblock arXiv:2008.02288  (2020).
 
 \bibitem{Assaad04}
 F.~F. Assaad,
@@ -257,6 +286,13 @@ F.~H. Kim, K.~Penc, P.~Nataf and F.~Mila,
   irreducible representations},
 \newblock Phys. Rev. B \textbf{96}, 205142 (2017),
 \newblock \doi{10.1103/PhysRevB.96.205142}.
+
+\bibitem{WangD14}
+D.~Wang, Y.~Li, Z.~Cai, Z.~Zhou, Y.~Wang and C.~Wu,
+\newblock \emph{Competing orders in the 2d half-filled $\mathrm{SU}(2n)$
+  hubbard model through the pinning-field quantum monte carlo simulations},
+\newblock Phys. Rev. Lett. \textbf{112}, 156403 (2014),
+\newblock \doi{10.1103/PhysRevLett.112.156403}.
 
 \bibitem{Raczkowski20}
 M.~Raczkowski and F.~F. Assaad,
@@ -342,6 +378,53 @@ F.~Parisen~Toldin and F.~F. Assaad,
 \newblock \emph{Entanglement hamiltonian of interacting fermionic models},
 \newblock Phys. Rev. Lett. \textbf{121}, 200602 (2018),
 \newblock \doi{10.1103/PhysRevLett.121.200602}.
+
+\bibitem{Toldin18_1}
+F.~Parisen~Toldin, T.~Sato and F.~F. Assaad,
+\newblock \emph{Mutual information in heavy-fermion systems},
+\newblock Phys. Rev. B \textbf{99}, 155158 (2019),
+\newblock \doi{10.1103/PhysRevB.99.155158}.
+
+\bibitem{Chen18}
+C.~{Chen}, X.~Y. {Xu}, J.~{Liu}, G.~{Batrouni}, R.~{Scalettar} and Z.~Y.
+  {Meng},
+\newblock \emph{{Symmetry Enforced Self-Learning Monte Carlo Method Applied to
+  the Holstein Model}},
+\newblock ArXiv:1802.06177  (2018),
+\newblock \eprint{1802.06177}.
+
+\bibitem{Chen19}
+C.~Chen, X.~Y. Xu, Z.~Y. Meng and M.~Hohenadler,
+\newblock \emph{Charge-density-wave transitions of dirac fermions coupled to
+  phonons},
+\newblock Phys. Rev. Lett. \textbf{122}, 077601 (2019),
+\newblock \doi{10.1103/PhysRevLett.122.077601}.
+
+\bibitem{Bradley20}
+O.~Bradley, G.~G. Batrouni and R.~T. Scalettar,
+\newblock \emph{Superconductivity and charge density wave order in the 2d
+  holstein model},
+\newblock arXiv:2011.11703  (2020),
+\newblock \eprint{2011.11703}.
+
+\bibitem{Ippoliti18}
+M.~Ippoliti, R.~S.~K. Mong, F.~F. Assaad and M.~P. Zaletel,
+\newblock \emph{Half-filled landau levels: A continuum and sign-free
+  regularization for three-dimensional quantum critical points},
+\newblock Phys. Rev. B \textbf{98}, 235108 (2018),
+\newblock \doi{10.1103/PhysRevB.98.235108}.
+
+\bibitem{WangZ20}
+Z.~Wang, R.~S.~K. Mong and F.~F. Zaletel, Michael P. and.~Assaad,
+\newblock \emph{Phases of the (2+1) dimensional so(5) non-linear sigma model
+  with topological term},
+\newblock arXiv:20**** .
+
+\bibitem{Pan20}
+G.~Pan, W.~Wang, A.~Davis, Y.~Wang and Z.~Y. Meng,
+\newblock \emph{Yukawa-syk model and self-tuned quantum criticality},
+\newblock arXiv:2001.06586  (2020),
+\newblock \eprint{2001.06586}.
 
 \bibitem{Wu04}
 C.~Wu and S.-C. Zhang,
@@ -645,12 +728,6 @@ S.~Beyl,
 \newblock \emph{Hybrid Quantum Monte Carlo for Condensed Matter Models},
 \newblock Doctoral thesis, Universit{\"a}t W{\"u}rzburg,
 \newblock \doi{10.25972/OPUS-19122} (2020).
-
-\bibitem{WangZ20}
-Z.~Wang, R.~S.~K. Mong and F.~F. Zaletel, Michael P. and.~Assaad,
-\newblock \emph{Phases of the (2+1) dimensional so(5) non-linear sigma model
-  with topological term},
-\newblock arXiv:20**** .
 
 \bibitem{Bai2011}
 Z.~Bai, C.~Lee, R.-C. Li and S.~Xu,
