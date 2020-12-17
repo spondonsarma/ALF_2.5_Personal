@@ -32,7 +32,7 @@ Auxiliary-field methods  can be formulated in a number of very different ways.  
 where $\beta $ corresponds to the inverse temperature and $S$  is the action of non-interacting fermions subject to a  space-time fluctuating auxiliary field.    
 The high-dimensional  integration  over the fields is carried out stochastically.  In this formulation of many-body quantum systems, there is no reason for the action to be a real number.  Thereby $e^{-S(\mathcal{C})}$ cannot be interpreted as a weight. To circumvent this problem one can adopt   re-weighting schemes and sample $| e^{-S(\mathcal{C})}| $. This invariably leads to the so-called \emph{negative sign problem}, with the associated exponential computational scaling in system size and inverse temperature \cite{Troyer05}.  The sign problem is formulation dependent and, as mentioned above, there has been tremendous progress at identifying an increasing number of models not affected by the negative sign problem which cover a rich domain of collective emergent phenomena.  
 For continuous fields, the stochastic integrations can  be carried out with Langevin  dynamics or hybrid methods \cite{Duane85}.   However, for many  problems one can get away with discrete fields \cite{Hirsch83}. In this case,  Monte Carlo importance sampling will often be put to use \cite{Sokal89}.  
-We note that  due to  the non-locality of the fermion determinant (see below), cluster updates,  such as in the loop or stochastic series expansion algorithms for quantum spin systems  \cite{Evertz93,Sandvik99b,Sandvik02}, are hard to formulate for this class of problems.  The search for efficient updating schemes that quickly wander through the configuration space defines the ongoing challenges. 
+We note that  due to  the non-locality of the fermion determinant (see below), cluster updates,  such as in the loop or stochastic series expansion algorithms for quantum spin systems  \cite{Evertz93,Sandvik99b,Sandvik02}, are hard to formulate for this class of problems.  The search for efficient updating schemes that quickly wander through the configuration space defines ongoing challenges. 
 
 Formulations differ not only in the choice of the fields, continuous or discrete, and sampling strategy, but also by the formulation of the action itself.
 For a given field configuration, integrating out fermionic degrees of freedom generically leads to a fermionic determinant of dimension $\beta N$ where $N$ is the volume of the system.  Working  with this determinant leads to the  Hirsch-Fye approach \cite{HirschFye86}  and the computational effort scales\footnote{Here we implicitly assume the absence of negative sign problem.} as $\mathcal{O}\left( \beta N \right)^3$. The Hirsch-Fye  algorithm is the method of choice for impurity problems, but has  in general been outperformed by a class of so-called continuous-time quantum Monte Carlo approaches  
@@ -99,7 +99,7 @@ The indices and symbols used above have the following meaning:
 \begin{itemize}
 \item The number of fermion \emph{flavors} is set by $N_{\mathrm{fl}}$.  After the HS transformation, the action will be block diagonal in the flavor index. 
 \item The number of fermion \emph{colors} is set\footnote{Note that  in the code $ N_{\mathrm{col}} \equiv \texttt{N\_{SUN}} $.} by $N_{\mathrm{col}}$.    The Hamiltonian is invariant under  SU($N_{\mathrm{col}}$)  rotations.
-\item $N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit-cell}} N_{\mathrm{orbital}}$, where $N_{\text{unit-cell}}$ is the number of unit cells of the underlying Bravais lattice and $N_{\mathrm{orbital}}$ is the number of (spacial) orbitals per unit cell.
+\item $N_{\mathrm{dim}}$ is the total number of spacial vertices: $N_{\mathrm{dim}}=N_{\text{unit-cell}} N_{\mathrm{orbital}}$, where $N_{\text{unit-cell}}$ is the number of unit cells of the underlying Bravais lattice and $N_{\mathrm{orbital}}$ is the number of  orbitals per unit cell.
 \item The indices $x$ and $y$ label lattice sites where $x,y=1,\cdots, N_{\mathrm{dim}}$. 
 \item Therefore, the  matrices $\bm{T}^{(k s)}$, $\bm{V}^{(ks)}$  and $\bm{I}^{(ks)}$ are  of dimension $N_{\mathrm{dim}}\times N_{\mathrm{dim}}$.
 \item The number of interaction terms  is labeled by $M_V$   and $M_I$.   $M_T> 1 $ would allow for a checkerboard decomposition.
@@ -108,12 +108,14 @@ The indices and symbols used above have the following meaning:
 	\left\{ \hat{c}^{\dagger}_{y \sigma s},    \hat{c}^{\phantom\dagger}_{y' \sigma' s'}  \right\}   =   \delta_{xx'}  \delta_{ss'} \delta_{\sigma\sigma'},   
 	\; \text{ and } \left\{ \hat{c}^{\phantom\dagger}_{y \sigma s},    \hat{c}^{\phantom\dagger}_{y' \sigma' s'}  \right\}   =0.
 \end{equation}
-\item $\alpha_{k s}$ is a one-body operator with the background which gives fluctuations over the average.
+\item $\alpha_{k s}$ is a complex number.
 
 \end{itemize}
 The bosonic  part of the general Hamiltonian (\ref{eqn:general_ham}) is $\hat{\mathcal{H}}_{0,I}+ \hat{\mathcal{H}}_{I}$ and  has the following properties:
 \begin{itemize}
-\item $\hat{Z}_k$ couples to a general one-body term. It is a general operator, such as the Ising spin operator (which gives the term its index $I$) corresponding to the Pauli matrix $\hat{\sigma}_{z}$ or the position operator.  Generically,  we will work in a basis where this operator is diagonal:  $\hat{Z}_k | \phi \rangle  =  \phi_k | \phi \rangle $. $\phi_k$ is a real   or Ising variable. 
+\item $\hat{Z}_k$ couples to a general one-body term.  
+We will work in a basis where this operator is diagonal:  $\hat{Z}_k | \phi \rangle  =  \phi_k | \phi \rangle $. $\phi_k$ is a real  number   or an  Ising variable. 
+Hence   $\hat{Z}_k$ can correspond  to the Pauli matrix $\hat{\sigma}_{z}$ or to the position operator.  
 \item  The dynamics of the bosonic field  is given by $\hat{\mathcal{H}}_{0,I}$. This term is not specified here; 
 it has to be specified by the user and becomes relevant when the Monte Carlo update probability is computed in the code
 \end{itemize}
