@@ -3,9 +3,6 @@ Module MaxEnt_mod
         Use MyMats
         Use Errors
         use iso_fortran_env, only: output_unit, error_unit
-        implicit none
-        private
-        public :: MaxEnt
 
 
         Interface MaxEnt

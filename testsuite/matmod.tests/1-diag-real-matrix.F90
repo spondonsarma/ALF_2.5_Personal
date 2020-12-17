@@ -19,7 +19,7 @@ Program Main
         A(3,3) = 100
         D=0
         
-        call DIAG(A, U, W)  ! This calls DIAG_R
+        call DIAG_R(A, U, W)
         do i=1,3
         D(i,i) = W(i)
         enddo

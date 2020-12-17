@@ -45,11 +45,6 @@
       
       Implicit none
       
-      private
-      public :: Predefined_Int_U_SUN, Predefined_Int_U_SUN_continuous_HS, Predefined_Int_U_MZ, &
-        Predefined_Int_U_MZ_continuous_HS, Predefined_Int_V_SUN, Predefined_Int_VJ_SUN, &
-        Predefined_Int_Ising_SUN, Predefined_Int_LRC, Predefined_Int_Jz
-      
       
     contains
 !-------------------------------------------------------------------

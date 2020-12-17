@@ -3,9 +3,6 @@ Module  Fourier
   Use MaxEnt_stoch_mod
   Use Matrix
   use iso_fortran_env, only: output_unit, error_unit
-  implicit none
-  private
-  public :: Matz_tau, Matz_tau_Bose, Tau_Matz, Tau_Matz_Bose
 
   interface Matz_tau
      module procedure Matz_tau_T, Matz_tau_T0, Matz_tau_T0_all, Matz_tau_T_all, Matz_tau_T_all_C, &

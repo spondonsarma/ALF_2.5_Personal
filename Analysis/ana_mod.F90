@@ -44,9 +44,6 @@
       Use Matrix
       Use Lattices_v3, only: Unit_cell, Lattice, Make_lattice, Fourier_K_to_R
       Use Predefined_Lattices, only: Predefined_Latt
-      implicit none
-      private
-      public :: read_vec, read_latt, Cov_tau, ana_tau, Cov_eq, ana_eq, Cov_vec, ana_vec
 
    contains
 

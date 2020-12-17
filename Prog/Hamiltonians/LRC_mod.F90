@@ -43,15 +43,13 @@
 !--------------------------------------------------------------------
 
     Module LRC_mod
-      use iso_fortran_env, only: output_unit, error_unit
 
       Use Lattices_v3
       Use MyMats
       Use Random_wrap
+      use iso_fortran_env, only: output_unit, error_unit
 
       Implicit none
-      private
-      public :: LRC_V_int, LRC_S0, LRC_Print, LRC_Set_VIJ, LRC_draw_field
 
       !> Space for the interaction matrix, orthogonal transformation, and spectrum.
       Real (Kind=Kind(0.d0)), allocatable,  Private :: V_int(:,:),  U_int(:,:), E_int(:), A_tmp(:), V_int_m1(:,:)

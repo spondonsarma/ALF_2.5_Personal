@@ -7,7 +7,6 @@
 Program SOLVEXTENDEDSYSTEM
 Use MyMats
 Use QDRP_mod
-use cgr2_2_mod
 implicit none
 
         COMPLEX (KIND=KIND(0.D0)), DIMENSION(:,:), allocatable :: HLPo, HLPn, HLPB1

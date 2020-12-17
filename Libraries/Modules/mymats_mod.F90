@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2020 The ALF project
+!  Copyright (C) 2016 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -42,10 +42,6 @@
 !--------------------------------------------------------------------
     MODULE MyMats
       use iso_fortran_env, only: output_unit, error_unit
-      implicit none
-      private
-      public :: MMULT, INITD, COMPARE, DET, CT, INV, UDV, QR, SVD, DIAG, DIAG_GEN, SECONDS, &
-                DET_C, DET_C_LU
 
        INTERFACE MMULT
           !C = A*B MMULT(C, A, B)

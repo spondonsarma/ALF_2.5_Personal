@@ -116,45 +116,37 @@
 !--------------------------------------------------------------------
 
     Module Hamiltonian
-      use iso_fortran_env, only: output_unit, error_unit
-      
-      Use Files_mod
+
+      Use Operator_mod
+      Use WaveFunction_mod
       Use Lattices_v3
-      Use Matrix
       Use MyMats
       Use Random_Wrap
-      
-      Use Fields_mod
-      Use LRC_Mod
+      Use Files_mod
+      Use Matrix
       Use Observables
-      Use Operator_mod
+      Use Fields_mod
       Use Predefined_Hoppings
-      Use Predefined_Int
-      Use Predefined_Lattices
-      Use Predefined_Obs
-      Use Predefined_Trial
-      Use WaveFunction_mod
+      Use LRC_Mod
+      use iso_fortran_env, only: output_unit, error_unit
+
 
       Implicit none
-      
-      private
-      public :: Ham_set, Alloc_obs, Obser, ObserT, Pr_obs, Init_obs, Global_move_tau, &
-        Hamiltonian_set_nsigma, Overide_global_tau_sampling_parameters, &
-        Global_move, Delta_S0_global, S0, ham_langevin_hmc_s0
 
-      Type (Operator),     dimension(:,:), allocatable, public :: Op_V
-      Type (Operator),     dimension(:,:), allocatable, public :: Op_T
-      Type (WaveFunction), dimension(:),   allocatable, public :: WF_L
-      Type (WaveFunction), dimension(:),   allocatable, public :: WF_R
-      Type (Fields), public        :: nsigma
-      Integer      , public        :: Ndim
-      Integer      , public        :: N_FL
-      Integer      , public        :: N_SUN
-      Integer      , public        :: Ltrot
-      Integer      , public        :: Thtrot
-      Logical      , public        :: Projector
-      Integer      , public        :: Group_Comm
-      Logical      , public      :: Symm
+
+      Type (Operator),     dimension(:,:), allocatable :: Op_V
+      Type (Operator),     dimension(:,:), allocatable :: Op_T
+      Type (WaveFunction), dimension(:),   allocatable :: WF_L
+      Type (WaveFunction), dimension(:),   allocatable :: WF_R
+      Type (Fields)        :: nsigma
+      Integer              :: Ndim
+      Integer              :: N_FL
+      Integer              :: N_SUN
+      Integer              :: Ltrot
+      Integer              :: Thtrot
+      Logical              :: Projector
+      Integer              :: Group_Comm
+      Logical              :: Symm
 
 
       Type (Lattice),       private, target :: Latt
@@ -373,6 +365,8 @@
 !--------------------------------------------------------------------
         Subroutine Ham_Latt
 
+          Use Predefined_Lattices
+
           Implicit none
           ! Use predefined stuctures or set your own lattice.
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
@@ -453,6 +447,7 @@
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
 #endif
+          Use Predefined_Trial
 
           Implicit none
           Character (len=64), intent(in)  :: file_info
@@ -499,6 +494,7 @@
 !--------------------------------------------------------------------
         Subroutine Ham_V
 
+          Use Predefined_Int
           Implicit none
 
           Integer :: nf, I, I1, I2,  nc,  J, no,  N_ops
@@ -704,6 +700,7 @@
 !-------------------------------------------------------------------
         subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
+          Use Predefined_Obs
 
           Implicit none
 
@@ -817,6 +814,8 @@
 !> \endverbatim
 !-------------------------------------------------------------------
         Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE,  Mc_step_weight)
+
+          Use Predefined_Obs
 
           Implicit none
 

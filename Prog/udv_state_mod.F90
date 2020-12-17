@@ -42,14 +42,7 @@
 
 
 MODULE UDV_State_mod
-#if defined(MPI)
-    Use mpi
-#endif
     use iso_fortran_env, only: output_unit, error_unit
-    
-    Use MyMats
-    
-    Use QDRP_mod
 
     IMPLICIT NONE
     PRIVATE
@@ -406,6 +399,8 @@ CONTAINS
 !>
 !-------------------------------------------------------------------
      SUBROUTINE decompose_UDV_state(UDVR)
+       Use QDRP_mod
+       Use MyMats
        Implicit None
        CLASS(UDV_State), intent(inout) :: UDVR
        COMPLEX (Kind=Kind(0.d0)), allocatable, Dimension(:) :: TAU, WORK
@@ -558,6 +553,7 @@ CONTAINS
 
 #if defined(MPI)
      SUBROUTINE MPI_Sendrecv_UDV_state(this, dest, sendtag, source, recvtag, STATUS, IERR)
+       Use mpi
        Implicit None
 
        CLASS(UDV_State), INTENT(INOUT) :: this

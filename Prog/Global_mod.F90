@@ -42,32 +42,19 @@
 !
 !--------------------------------------------------------------------
 Module Global_mod
-#if defined(TEMPERING)
-      use mpi
-#endif
-      use iso_fortran_env, only: output_unit, error_unit
-      
-      Use MyMats
-      Use Random_Wrap, only: ranf_wrap
-      
-      use cgr1_mod
-      Use Control
-      Use Fields_mod
-      Use Observables
-      Use Operator_mod
-      Use UDV_State_mod
-      Use UDV_Wrap_mod
-      use wrapul_mod
+
       Use Hamiltonian
+      Use MyMats
+      Use Operator_mod
+      Use Control
+      Use Observables
+      Use Fields_mod
+      use iso_fortran_env, only: output_unit, error_unit
+
       Implicit none
 
-      private
-      public :: Global_Updates
-#if defined(TEMPERING)
-      public :: Exchange_Step, global_tempering_setup, Global_Tempering_init_obs, Global_Tempering_Pr
-#endif
+      Type (Obser_Vec ),  private  ::   Tempering_acceptance
 
-      Type (Obser_Vec), save :: Tempering_acceptance
 
     Contains
 #if defined(TEMPERING)
@@ -116,7 +103,28 @@ Module Global_mod
 !>
 !--------------------------------------------------------------------
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
+        Use UDV_State_mod
+        Use mpi
         Implicit none
+
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+             COMPLEX(Kind=Kind(0.d0)) :: PHASE
+             INTEGER         :: NVAR
+           END SUBROUTINE CGR
+        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                                :: Phase
@@ -441,7 +449,28 @@ Module Global_mod
 !>
 !--------------------------------------------------------------------
       Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
+
+        Use UDV_State_mod
         Implicit none
+
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+             COMPLEX(Kind=Kind(0.d0)) :: PHASE
+             INTEGER         :: NVAR
+           END SUBROUTINE CGR
+        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)),                                INTENT(INOUT) :: Phase
@@ -731,7 +760,20 @@ Module Global_mod
       Subroutine Compute_Fermion_Det(Phase_det,Det_Vec, udvl, udvst, Stab_nt, storage)
 !--------------------------------------------------------------------
 
+        Use  UDV_Wrap_mod
+        Use UDV_State_mod
+
         Implicit none
+
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+        end Interface
 
         REAL    (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT)  ::  Det_Vec
         Complex (Kind=Kind(0.d0)), Dimension(:)  , Intent(OUT)  ::  Phase_det

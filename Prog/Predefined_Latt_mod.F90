@@ -40,13 +40,11 @@
 !--------------------------------------------------------------------
 
     Module Predefined_Lattices
-      use iso_fortran_env, only: output_unit, error_unit
 
       Use Lattices_v3
+      use iso_fortran_env, only: output_unit, error_unit
       Implicit none
-      
-      private
-      public :: Predefined_Latt
+
 
     contains
 !--------------------------------------------------------------------

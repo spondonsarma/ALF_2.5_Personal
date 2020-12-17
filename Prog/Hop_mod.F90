@@ -45,21 +45,16 @@
 !--------------------------------------------------------------------
 
     Module Hop_mod
-      use iso_fortran_env, only: output_unit, error_unit
-      
-      Use ContainerElementBase_mod
-      Use DynamicMatrixArray_mod
-      use Operator_mod
-      Use OpTTypes_mod
-      Use Hamiltonian
-      Implicit none
 
-      private
-      public :: Hop_mod_init, Hop_mod_mmthr, Hop_mod_mmthr_m1, Hop_mod_mmthl, &
-                Hop_mod_mmthlc, Hop_mod_mmthl_m1, Hop_mod_Symm
+      Use Hamiltonian
+      Use Random_wrap
+      Use DynamicMatrixArray_mod
+      Use ContainerElementBase_mod
+      Use OpTTypes_mod
+      use iso_fortran_env, only: output_unit, error_unit
 
       ! Private variables
-      Type(DynamicMatrixArray), private, allocatable, save :: ExpOpT_vec(:) ! for now we have for simplicity for each flavour a vector
+      Type(DynamicMatrixArray), private, allocatable :: ExpOpT_vec(:) ! for now we have for simplicity for each flavour a vector
       Integer, private, save ::  Ncheck
       Real (Kind=Kind(0.d0)), private, save  :: Zero
 
@@ -79,6 +74,7 @@
 !
 !--------------------------------------------------------------------
         subroutine OpT_postprocess(ExpOpT_vec, op)
+            use Operator_mod
             implicit none
             
             Type(DynamicMatrixArray), intent(inout) :: ExpOpT_vec
