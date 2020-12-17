@@ -28,17 +28,6 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
-module wrapul_mod
-        Use Hop_mod
-        Use Operator_mod
-        Use UDV_State_mod
-        Use Hamiltonian
-        
-        implicit none
-        
-        private
-        public :: WRAPUL
-contains
       
       SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
 
@@ -60,7 +49,11 @@ contains
 !> \endverbatim
 !--------------------------------------------------------------------
 
+        Use UDV_State_mod
 #if defined(STAB2) ||  defined(STAB1) 
+        Use Hamiltonian
+        Use Hop_mod
+        Use UDV_Wrap_mod
 
         Implicit none
 
@@ -106,6 +99,7 @@ contains
         ENDDO
 
 #else
+        Use Hop_mod
         Implicit none
         
         ! Arguments
@@ -128,4 +122,3 @@ contains
 #endif
       END SUBROUTINE WRAPUL
       
-end module wrapul_mod

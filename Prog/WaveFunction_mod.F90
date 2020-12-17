@@ -47,8 +47,7 @@ Module WaveFunction_mod
 
   Implicit none
   
-  private
-  public :: WaveFunction, WF_overlap, WF_alloc, WF_clear
+
   
   Type WaveFunction
      !> P is an Ndim x N_part matrix. N_part is the number of particles

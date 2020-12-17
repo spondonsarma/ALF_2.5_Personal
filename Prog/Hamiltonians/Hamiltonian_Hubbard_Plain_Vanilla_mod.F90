@@ -116,18 +116,18 @@
 !--------------------------------------------------------------------
 
     Module Hamiltonian
-      Use Files_mod
+
+      Use Operator_mod
+      Use WaveFunction_mod
       Use Lattices_v3
-      Use Matrix
       Use MyMats
       Use Random_Wrap
-      
-      Use Fields_mod
-      Use LRC_Mod
+      Use Files_mod
+      Use Matrix
       Use Observables
-      Use Operator_mod
+      Use Fields_mod
       Use Predefined_Hoppings
-      Use WaveFunction_mod
+      Use LRC_Mod
 
 
       Implicit none

@@ -3,7 +3,6 @@
 
 Program TESTCGR
 USE UDV_State_mod
-use cgr1_mod
 implicit none
 interface
       SUBROUTINE CGRold(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
@@ -13,6 +12,14 @@ interface
         COMPLEX(Kind=8) :: PHASE
         INTEGER, Intent(In)         :: NVAR
         end subroutine CGRold
+        
+      SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+        USE UDV_State_mod
+        CLASS(UDV_State), INTENT(IN) :: udvr, udvl
+        COMPLEX(Kind=8), Dimension(:,:), Intent(INOUT) :: GRUP
+        COMPLEX(Kind=8) :: PHASE
+        INTEGER, Intent(In)         :: NVAR
+        end subroutine CGR
 end interface
 
         TYPE(UDV_State) :: udvr, udvl
@@ -91,7 +98,6 @@ write (*,*) "success"
 end Program TESTCGR
 
       SUBROUTINE CGRold(PHASE,NVAR, GRUP, URUP,DRUP,VRUP, ULUP,DLUP,VLUP)
-      use MyMats
 
       Use UDV_Wrap_mod
       

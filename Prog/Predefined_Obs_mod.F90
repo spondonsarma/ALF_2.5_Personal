@@ -40,30 +40,22 @@
 !--------------------------------------------------------------------
 
     Module Predefined_Obs
-      use iso_fortran_env, only: output_unit, error_unit
-      
-      use entanglement_mod
-      Use Lattices_v3
 
       Use Observables
+      Use Lattices_v3
+      Use entanglement_mod
+      use iso_fortran_env, only: output_unit, error_unit
 
       Implicit none
       
-      private
-      public :: Predefined_Obs_eq_SpinSUN_measure, Predefined_Obs_eq_SpinMz_measure, &
-        Predefined_Obs_eq_Green_measure, Predefined_Obs_eq_Den_measure, &
-        Predefined_Obs_tau_Green_measure, Predefined_Obs_tau_SpinSUN_measure, &
-        Predefined_Obs_tau_SpinMz_measure, Predefined_Obs_tau_Den_measure, &
-        Predefined_Obs_scal_Renyi_Ent, Predefined_Obs_scal_Mutual_Inf
-        
-        INTERFACE Predefined_Obs_scal_Renyi_Ent
-          MODULE PROCEDURE Predefined_Obs_scal_Renyi_Ent_gen_all, Predefined_Obs_scal_Renyi_Ent_indep, &
-          & Predefined_Obs_scal_Renyi_Ent_gen_fl
-        END INTERFACE
-        INTERFACE Predefined_Obs_scal_Mutual_Inf
-          MODULE PROCEDURE Predefined_Obs_scal_Mutual_Inf_indep, Predefined_Obs_scal_Mutual_Inf_gen_fl, &
-          & Predefined_Obs_scal_Mutual_Inf_gen_all
-        END INTERFACE
+      INTERFACE Predefined_Obs_scal_Renyi_Ent
+        MODULE PROCEDURE Predefined_Obs_scal_Renyi_Ent_gen_all, Predefined_Obs_scal_Renyi_Ent_indep, &
+        & Predefined_Obs_scal_Renyi_Ent_gen_fl
+      END INTERFACE
+      INTERFACE Predefined_Obs_scal_Mutual_Inf
+        MODULE PROCEDURE Predefined_Obs_scal_Mutual_Inf_indep, Predefined_Obs_scal_Mutual_Inf_gen_fl, &
+        & Predefined_Obs_scal_Mutual_Inf_gen_all
+      END INTERFACE
 
     contains
 !-------------------------------------------------------------------

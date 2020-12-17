@@ -41,7 +41,7 @@
 !
 !--------------------------------------------------------------------
        Use MaxEnt_stoch_mod
-       use Files_mod
+
        use iso_fortran_env, only: output_unit, error_unit
        Implicit  None
 

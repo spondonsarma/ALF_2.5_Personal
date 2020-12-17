@@ -111,29 +111,22 @@
 !--------------------------------------------------------------------
 
 Program Main
-  
-        use iso_fortran_env, only: output_unit, error_unit
-        
-        Use MyMats
-        
-        use cgr1_mod
-        Use Control
-        Use entanglement_mod
-        Use Fields_mod
-        Use Global_mod
-        Use Hop_mod
-        Use Langevin_HMC_mod
-        Use Lattices_v3
+
         Use Operator_mod
-        use set_random_mod
+        Use Lattices_v3
+        Use MyMats
+        Use Hamiltonian
+        Use Control
         Use Tau_m_mod
         Use Tau_p_mod
+        Use Hop_mod
+        Use Global_mod
         Use UDV_State_mod
-        Use WaveFunction_mod, only: WF_clear
         Use Wrapgr_mod
-        use wrapul_mod
-        use wrapur_mod
-        Use Hamiltonian
+        Use Fields_mod
+        use entanglement_mod
+        use iso_fortran_env, only: output_unit, error_unit
+        Use Langevin_HMC_mod
 
 #ifdef MPI
         Use mpi
@@ -141,6 +134,37 @@ Program Main
         Implicit none
 
 #include "git.h"
+
+        Interface
+           SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
+             Use Hamiltonian
+             Use UDV_State_mod
+             Implicit none
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUL
+           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), INTENT(IN) :: UDVL, UDVR
+             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
+             COMPLEX(Kind=Kind(0.d0)) :: PHASE
+             INTEGER         :: NVAR
+           END SUBROUTINE CGR
+           SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
+             Use Hamiltonian
+             Use UDV_Wrap_mod
+             Use UDV_State_mod
+             Implicit None
+             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
+             Integer :: NTAU1, NTAU
+           END SUBROUTINE WRAPUR
+           Subroutine Set_Random_number_Generator(File_seeds,Seed_in)
+             Character (LEN=64), Intent(IN) :: File_seeds
+             Integer,  Intent(out) :: SEED_IN
+           end Subroutine Set_Random_number_Generator
+        end Interface
 
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR, GR_Tilde

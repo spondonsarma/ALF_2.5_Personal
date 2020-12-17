@@ -40,22 +40,13 @@
 !--------------------------------------------------------------------
 
      Module Tau_p_mod
-       Use MyMats !, only: MMULT
-       
-       use cgr1_mod
+       Use Hamiltonian
+       Use Operator_mod
        Use Control
        Use Hop_mod
-       Use Langevin_HMC_mod
-       Use Operator_mod
-       Use tau_m_mod, only: propr, proprm1
        Use UDV_State_mod
-       use wrapur_mod
-       Use Hamiltonian
-       
-       implicit none
-       
-       private
-       public :: Tau_p
+       Use Langevin_HMC_mod
+       Use tau_m_mod  !, only propr, proprm1
 
      Contains
 
@@ -81,6 +72,24 @@
        SUBROUTINE Tau_p(udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST_IN, LOBS_ST, LOBS_EN )
 
          Implicit none
+
+         Interface
+            SUBROUTINE CGRP(PHASE, GRUP, udvr, udvl)
+              Use UDV_State_mod
+              use MyMats
+              CLASS(UDV_State), INTENT(IN) :: udvl, udvr
+              COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
+              COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+            End Subroutine CGRP
+            SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
+              Use Hamiltonian
+              Use UDV_Wrap_mod
+              Use UDV_State_mod
+              Implicit None
+              CLASS(UDV_State), allocatable, dimension(:), intent(inout) :: UDVR
+              Integer :: NTAU1, NTAU
+            END SUBROUTINE WRAPUR
+         End Interface
 
         ! Storage is full with U^{<} (left)  propagations.
 

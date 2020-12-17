@@ -30,6 +30,11 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
  
 Module entanglement_mod
+
+#ifndef MPI
+#warning "You are compiling entanglement without MPI. No results possible"
+#endif
+
 !--------------------------------------------------------------------
 !> @author 
 !> ALF-project
@@ -38,22 +43,9 @@ Module entanglement_mod
 !> This module generates one and two dimensional Bravais lattices.
 !
 !--------------------------------------------------------------------
-
-#ifndef MPI
-#warning "You are compiling entanglement without MPI. No results possible"
-#else
-      Use mpi
-#endif
-
-      implicit none
-      private
-      public :: Init_Entanglement_replicas, Calc_Renyi_Ent, Calc_Mutual_Inf, &
-        Calc_Renyi_Ent_gen_all, Calc_Renyi_Ent_indep, Calc_Renyi_Ent_gen_fl, &
-        Calc_Mutual_Inf_indep, Calc_Mutual_Inf_gen_fl, Calc_Mutual_Inf_gen_all
-
       ! Used for MPI
-      INTEGER, private, save :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
-      Real (kind=kind(0.d0)), private, save :: weight
+      INTEGER, save, private :: ENTCOMM, ENT_RANK, ENT_SIZE=0, Norm, group
+      Real (kind=kind(0.d0)), save, private :: weight
 
       INTERFACE Calc_Renyi_Ent
         !> Interface to Calc_Renyi_Ent function.
@@ -67,6 +59,9 @@ Module entanglement_mod
 !========================================================================
 
         Subroutine Init_Entanglement_replicas(Group_Comm)
+#ifdef MPI
+          Use mpi
+#endif
           Implicit none
           Integer, INTENT(IN)               :: Group_Comm
           
@@ -242,6 +237,9 @@ Module entanglement_mod
 !-------------------------------------------------------------------
 
           Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_indep(GRC,List,Nsites,N_SUN)
+#ifdef MPI
+          Use mpi
+#endif
   
           Implicit none
           
@@ -345,6 +343,9 @@ Module entanglement_mod
 !-------------------------------------------------------------------        
         
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_fl(GRC,List,Nsites,N_SUN)
+#ifdef MPI
+          Use mpi
+#endif
 
           Implicit none
           
@@ -469,6 +470,9 @@ Module entanglement_mod
 !-------------------------------------------------------------------   
 
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_gen_all(GRC,List,Nsites)
+#ifdef MPI
+          Use mpi
+#endif
 
           Implicit none
           
@@ -640,6 +644,8 @@ Module entanglement_mod
 !> \endverbatim
 !-------------------------------------------------------------------   
         Complex (kind=kind(0.d0)) function Calc_Renyi_Ent_pair(GRC,List,Nsites,nf_list,N_SUN,GreenA, GreenA_tmp, IDA)
+          Use mpi
+
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)
@@ -761,6 +767,8 @@ Module entanglement_mod
 !> \endverbatim
 !-------------------------------------------------------------------   
         Complex (Kind=8) function Calc_Renyi_Ent_single(GRC,List,Nsites,nf_eff,N_SUN,GreenA, GreenA_tmp, IDA)
+          Use mpi
+          
           Implicit none
           
           Complex (kind=kind(0.d0)), INTENT(IN)      :: GRC(:,:,:)

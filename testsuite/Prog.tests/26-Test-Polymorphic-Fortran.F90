@@ -3,7 +3,6 @@ program test
     Use ContainerElementBase_mod
     Use OpTTypes_mod
     Use Operator_mod
-    use mat_subroutines
     implicit none
 
     Type(DynamicMatrixArray) :: vec
