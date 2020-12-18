@@ -146,7 +146,7 @@ For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose com
 ALF's lattice module can generate one- and two-dimensional Bravais lattices.
 Both the lattice and the unit cell are defined in the module \texttt{Lattices\_v3\_mod.F90} and their components are detailed in Tables \ref{table:lattice} and \ref{table:unit_cell}. 
 As  its name suggest the module  \texttt{Predefined\_Latt\_mod.F90} also provides predefined lattices as  described in Sec.~\ref{sec:predefined_lattices}.
-The user who wishes to define his/her own lattice has to specify: 1) unit vectors $\vec{a}_1$ and $\vec{a}_2$, 2) the size of the lattice, characterized by the vectors $\vec{L}_1$ and $\vec{L}_2$ and 3) the  unit cell characterized be the number of orbitals and their positions.  The coordination number of the lattice is specified in the \texttt{Unit\_cell} data type.   The lattice is placed on a torus (periodic boundary conditions):
+The user who wishes to define his/her own lattice has to specify: 1) unit vectors $\vec{a}_1$ and $\vec{a}_2$, 2) the size and shape of the lattice, characterized by the vectors $\vec{L}_1$ and $\vec{L}_2$ and 3) the  unit cell characterized be the number of orbitals and their positions.  The coordination number of the lattice is specified in the \texttt{Unit\_cell} data type.   The lattice is placed on a torus (periodic boundary conditions):
 \begin{equation}
 	\hat{c}_{\vec{i} + \vec{L}_1 }  =  \hat{c}_{\vec{i} + \vec{L}_2 }  = \hat{c}_{\vec{i}}\;.
 \end{equation}
@@ -463,7 +463,7 @@ In this case $\bm{X}^{(ks)}=\bm{T}^{(ks)}$, and a single variable  \texttt{Op\_T
             \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x T_{xy}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  \;,
 \end{equation} 
 where $k=[1, M_{T}]$ and $s=[1, N_{\mathrm{fl}}]$. In the notation of the general expression (\ref{eqn:exponent_mat}), we set $g=-\Delta \tau$ (and $\alpha = 0$).
-In case of the hopping matrix, the type variable $\texttt{Op\_T\%type}$  is neglected by the code. 
+In case of the hopping matrix, the type variable  takes its default value  $\texttt{Op\_T\%type}=0$. 
 All in all, the corresponding array of structure variables is  \texttt{Op\_T(M$_T$,N$_{fl}$)}.
 
 \item For the interaction Hamiltonian (\ref{eqn:general_ham_v}), which is of perfect-square type, we have to set the exponentiated matrices $e^{  \sqrt{ -  \Delta \tau  U_k} \eta_{k\tau} {\bm V}^{(ks)} }$:\\
@@ -481,7 +481,8 @@ In this case, $\bm{X}  = \bm{I}^{(k,s)} $ and a single variable  \texttt{Op\_V} 
             \left( \sum_{x,y}^{N_{\mathrm{dim}}} \hat{c}^{\dagger}_x I_{xy}^{(ks)} \hat{c}^{\phantom{\dagger}}_{y}  \right)  \;,
 \end{equation} 
 where $k=[1, M_{I}]$ and $s=[1, N_{\mathrm{fl}}]$ and $g = -\Delta \tau$ (and $\alpha = 0$).
-An Ising interaction is specified by setting the type variable  $\texttt{Op\_V\%type=1}$. 
+It this operator couples to an Ising field, we specify the  type variable  $\texttt{Op\_V\%type=1}$.    On the other hand, if it couples to a scalar field (i.e. real number)   then we 
+specify $\texttt{Op\_V\%type=3}$.
 All in all, the required structure variables are contained in the array \texttt{Op\_V(M$_{I}$,N$_\mathrm{fl}$)}.
 
 \item In case of a full interaction [perfect-square term (\ref{eqn:general_ham_v}) and bosonic term (\ref{eqn:general_ham_i})],
