@@ -78,6 +78,13 @@ D.~Zheng, G.-M. Zhang and C.~Wu,
 \newblock Phys. Rev. B \textbf{84}, 205121 (2011),
 \newblock \doi{10.1103/PhysRevB.84.205121}.
 
+\bibitem{Hofmann19}
+J.~S. Hofmann, F.~F. Assaad, R.~Queiroz and E.~Khalaf,
+\newblock \emph{A search for correlation-induced adiabatic paths between
+  distinct topological insulators},
+\newblock arXiv:1912.07614  (2019),
+\newblock \eprint{1912.07614}.
+
 \bibitem{Assaad13}
 F.~F. Assaad and I.~F. Herbut,
 \newblock \emph{Pinning the order: The nature of quantum criticality in the
@@ -127,6 +134,14 @@ Z.-X. {Li}, Y.-F. {Jiang}, S.-K. {Jian} and H.~{Yao},
 \newblock ArXiv:1512.07908  (2015),
 \newblock \eprint{1512.07908}.
 
+\bibitem{Raczkowski2019}
+M.~Raczkowski, R.~Peters, T.~T. Ph\`ung, N.~Takemori, F.~F. Assaad, A.~Honecker
+  and J.~Vahedi,
+\newblock \emph{Hubbard model on the honeycomb lattice: From static and
+  dynamical mean-field theories to lattice quantum monte carlo simulations},
+\newblock Phys. Rev. B \textbf{101}, 125103 (2020),
+\newblock \doi{10.1103/PhysRevB.101.125103}.
+
 \bibitem{Assaad16}
 F.~F. Assaad and T.~Grover,
 \newblock \emph{Simple fermionic model of deconfined phases and phase
@@ -140,6 +155,21 @@ T.~Sato, M.~Hohenadler and F.~F. Assaad,
   with emergent symmetry},
 \newblock Phys. Rev. Lett. \textbf{119}, 197203 (2017),
 \newblock \doi{10.1103/PhysRevLett.119.197203}.
+
+\bibitem{Sato20}
+T.~{Sato}, M.~{Hohenadler}, T.~{Grover}, J.~{McGreevy} and F.~F. {Assaad},
+\newblock \emph{{Topological terms on topological defects: a quantum Monte
+  Carlo study}},
+\newblock arXiv e-prints arXiv:2005.08996 (2020),
+\newblock \eprint{2005.08996}.
+
+\bibitem{Wang20}
+Z.~{Wang}, Y.~{Liu}, T.~{Sato}, M.~{Hohenadler}, C.~{Wang}, W.~{Guo} and F.~F.
+  {Assaad},
+\newblock \emph{{Doping-induced quantum spin Hall insulator to superconductor
+  transition}},
+\newblock arXiv e-prints arXiv:2006.13239 (2020),
+\newblock \eprint{2006.13239}.
 
 \bibitem{Gazit16}
 S.~Gazit, M.~Randeria and A.~Vishwanath,
@@ -202,6 +232,13 @@ T.~Sato, F.~F. Assaad and T.~Grover,
 \newblock Phys. Rev. Lett. \textbf{120}, 107201 (2018),
 \newblock \doi{10.1103/PhysRevLett.120.107201}.
 
+\bibitem{Hofmann18}
+J.~S. Hofmann, F.~F. Assaad and T.~Grover,
+\newblock \emph{Fractionalized fermi liquid in a frustrated kondo lattice
+  model},
+\newblock Phys. Rev. B \textbf{100}, 035118 (2019),
+\newblock \doi{10.1103/PhysRevB.100.035118}.
+
 \bibitem{Danu19}
 B.~Danu, F.~F. Assaad and F.~Mila,
 \newblock \emph{Exploring the kondo effect of an extended impurity with chains
@@ -222,6 +259,12 @@ Y.~Schattner, S.~Lederer, S.~A. Kivelson and E.~Berg,
   study},
 \newblock Phys. Rev. X \textbf{6}, 031028 (2016),
 \newblock \doi{10.1103/PhysRevX.6.031028}.
+
+\bibitem{Grossman20}
+O.~{Grossman}, J.~S. {Hofmann}, T.~{Holder} and E.~{Berg},
+\newblock \emph{{Specific Heat of a Quantum Critical Metal}},
+\newblock arXiv e-prints arXiv:2009.11280 (2020),
+\newblock \eprint{2009.11280}.
 
 \bibitem{Xu16c}
 X.~Y. Xu, K.~Sun, Y.~Schattner, E.~Berg and Z.~Y. Meng,
@@ -294,6 +337,14 @@ D.~Wang, Y.~Li, Z.~Cai, Z.~Zhou, Y.~Wang and C.~Wu,
 \newblock Phys. Rev. Lett. \textbf{112}, 156403 (2014),
 \newblock \doi{10.1103/PhysRevLett.112.156403}.
 
+\bibitem{Kim_F18}
+F.~H. Kim, F.~F. Assaad, K.~Penc and F.~Mila,
+\newblock \emph{Dimensional crossover in the su(4) heisenberg model in the
+  six-dimensional antisymmetric self-conjugate representation revealed by
+  quantum monte carlo and linear flavor-wave theory},
+\newblock Phys. Rev. B \textbf{100}, 085103 (2019),
+\newblock \doi{10.1103/PhysRevB.100.085103}.
+
 \bibitem{Raczkowski20}
 M.~Raczkowski and F.~F. Assaad,
 \newblock \emph{Phase diagram and dynamics of the $\mathrm{SU}(n)$ symmetric
@@ -331,6 +382,15 @@ M.~Raczkowski and F.~F. Assaad,
   study},
 \newblock Phys. Rev. B \textbf{96}, 115155 (2017),
 \newblock \doi{10.1103/PhysRevB.96.115155}.
+
+\bibitem{Leaw19}
+J.~N. {Leaw}, H.-K. {Tang}, P.~{Sengupta}, F.~F. {Assaad}, I.~F. {Herbut} and
+  S.~{Adam},
+\newblock \emph{{Electronic ground state in bilayer graphene with realistic
+  Coulomb interactions}},
+\newblock Phys.~Rev.~B \textbf{100}(12), 125116 (2019),
+\newblock \doi{10.1103/PhysRevB.100.125116},
+\newblock \eprint{1903.06177}.
 
 \bibitem{Rigol03}
 M.~Rigol, A.~Muramatsu, G.~G. Batrouni and R.~T. Scalettar,
