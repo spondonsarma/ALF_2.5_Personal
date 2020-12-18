@@ -103,7 +103,7 @@ The ALF includes three different types of fields:
 %For an Ising term, we store type \texttt{t=1}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=s_{k,\tau} = \pm 1$. 
 %In the case of a perfect-square term, the fields results from the discrete HS transformation (\ref{HS_squares}) and we store \texttt{t=2}, which sets $\gamma_{k,\tau} = s_{k,\tau}$ and $\phi_{k,\tau}=\eta_{k,\tau}$ ). For continuous real fields $f$ we store \texttt{t=3}, which sets $\gamma_{k,\tau} = 1$ and $\phi_{k,\tau}=f$.
 
-For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly. Before using this variable type, the routine \texttt{Fields\_init(del)} should be called (its argument is optional), in order for internal variables such as  $\eta(l)$ and $\gamma(l)$  [see Eq.~\eqref{eta_gamma_fields}] to be initialized.
+For such auxiliary fields a dedicated type \texttt{Fields} is defined, whose components, listed in Table~\ref{table:Fields}, include the variables \texttt{Field\%f} and \texttt{Field\%t}, which store the field values and types, respectively, and functions such as \texttt{Field\%flip}, which flips the field values randomly. Before using this variable type, the routine \texttt{Fields\_init(Amplitude)} should be called (its argument is optional and the default value is of unity (see Sec.~\ref{sec:sequential}), in order for internal variables such as  $\eta(l)$ and $\gamma(l)$  [see Eq.~\eqref{eta_gamma_fields}] to be initialized.
 
 
 %

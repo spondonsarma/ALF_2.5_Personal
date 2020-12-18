@@ -41,9 +41,9 @@ Predicting how efficient a certain Monte Carlo update scheme will turn out to be
 \subsubsection{Sequential single spin flips}
 %------------------------------------------------------------
 %
-
+\label{sec:sequential}
 %If the boolean variable \texttt{Sequential\_Sweeps}  is set to true, then  the 
-The program adopts per default a sequential, single spin-flip strategy. It will visit sequentially each HS field in the space-time operator list and  propose a spin flip. Consider  the Ising spin $s_{i,\tau}$. By default (\texttt{Propose\_S0=.false.}), we will flip it with probability $1$, such that for  this local move  the  proposal matrix is symmetric.  If we are considering the HS field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.    For a continuous field, we  modify it with a box distribution of width \texttt{Amplitude=1} centered around the origin.   These updating rules are defined in the   \texttt{Fields\_mod.F90} module  (see Sec.~\ref{sec:fields}). Again, for these local moves, the proposal matrix is symmetric.  Hence in all cases we will accept or reject the move according to 
+The program adopts per default a sequential, single spin-flip strategy. It will visit sequentially each HS field in the space-time operator list and  propose a spin flip. Consider  the Ising spin $s_{i,\tau}$. By default (\texttt{Propose\_S0=.false.}), we will flip it with probability $1$, such that for  this local move  the  proposal matrix is symmetric.  If we are considering the HS field $l_{i,\tau}$  we will propose with probability $1/3$ one  of the other three  possible fields.    For a continuous field, we  modify it with a box distribution of width \texttt{Amplitude}  centered around the origin.   The default value of  \texttt{Amplitude} is set to unity. These updating rules are defined in the   \texttt{Fields\_mod.F90} module  (see Sec.~\ref{sec:fields}). Again, for these local moves, the proposal matrix is symmetric.  Hence in all cases we will accept or reject the move according to 
 \begin{equation}
 P(C \rightarrow C') =  \text{min}  \left( 1, \frac{ W(C')}{W(C)} \right).
 \end{equation}
