@@ -190,7 +190,9 @@ Within the framework of Auxiliary-Field QMC, this allows to express a reduced de
 \end{equation}
 where $G_A(\tau_0; C)$ is the equal-time Green's function matrix restricted on the subsystem $A$ and at a given time-slice $\tau_0$. In Eq.~(\ref{rhoA}) an implicit summation over repeated indexes ${\underline x}, {\underline x}' \in A$ is assumed.
 Interestingly, Eq.~(\ref{rhoA}) holds also when $A$ is the entire system: in this case, it provides an alternative expression for the density matrix, or the (normalized) partition function, as a superposition of Gaussian operators.
-Eq.~(\ref{rhoA}) is the starting point for computing the entanglement Hamiltonian \cite{Toldin18} and the R\'enyi entropies \cite{Grover13,Assaad13a,Assaad15}. ALF provides predefined observables to compute the second R\'enyi entropy and its associated mutual information, see Sec.~\ref{sec:renyi}.
+Eq.~(\ref{rhoA}) is the starting point for computing the entanglement Hamiltonian \cite{Toldin18} and the R\'enyi entropies \cite{Grover13,Assaad13a,Assaad15}.
+A short review on various computational approaches to quantum entanglement in interacting fermionic models can be found in Ref.~\cite{ParisenToldin19}.
+ALF provides predefined observables to compute the second R\'enyi entropy and its associated mutual information, see Sec.~\ref{sec:renyi}.
 
 
 % Removed to refer to predefined obs. instead: In the subroutines   \path{Obser}  and \path{ObserT} of  the module \path{Hamiltonian_Examples_mod.F90} (see Sec.~\ref{sec:obs}) the user is provided with
