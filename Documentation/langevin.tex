@@ -84,11 +84,11 @@ With the adaptive time  step,  averages are computed as:
 \end{equation}
 where  $\sgn(C_n)$   is defined in Eq.~\eqref{Sign.eq}.    In this context the adaptive time step corresponds to the variable \texttt{Mc\_step\_weight}  required for the measurement routines (see Sec.~\ref{sec:obs}). 
 
-A possible way to reduce autocorrelation times is to employ Fourier acceleration \cite{Batrouni85,Batrouni19}. As we see from Eq.~\eqref{eqn:langevin_solution}, the choice of the matrix $Q$ does not alter the probability distribution obtained from the Langevin equation. The main idea of Fourier acceleration is to exploit this freedom and use $Q$ to scale the Langevin time step $\delta t_l$ depending on the momentum of the fields $\vec{s}$. Namely, so that the field components with low momenta are multiplied by an effective larger step size compared to components with high momenta \cite{Davies86}. The modified Langevin equation reads:
+A possible way to reduce autocorrelation times is to employ Fourier acceleration \cite{Batrouni85,Batrouni19}. As we see from Eq.~\eqref{eqn:langevin_solution}, the choice of the matrix $Q$ does not alter the probability distribution obtained from the Langevin equation. The main idea of Fourier acceleration is to exploit this freedom and use $Q$ to enhance  (reduce) the Langevin time step $\delta t_l$ of slow (fast) modes of the fields $\vec{s}$ \cite{Davies86}. The modified Langevin equation reads:
 \begin{equation}
    \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \hat{F}^{-1} \left[ Q \hat{F}\left[\frac{\partial S( \ve{s}(\tl)) }{\partial    \ve{s}(\tl) } \right]   \delta \tl     +\sqrt{2 \delta \tl Q} \hat{F}\left[\ve{\eta}(\tl)\right] \right],
 \end{equation}
-with $\hat{F}$ being a Fourier transformation to momentum space. Currently an implementation of Fourier acceleration is not available in ALF, but can be included by the user.
+with $\hat{F}$ being a transformation to independent modes of the field. This generically corresponds to a Fourier transform, thus the name. Currently an implementation of Fourier acceleration is not available in ALF, but can be included by the user.
 
 In order to use Langevin dynamics the user also has to provide the Langevin time step \texttt{Delta\_t\_Langevin\_HMC},  the maximal force \texttt{Max\_Force},  set  \texttt{Global\_update\_scheme = Langevin} in the \texttt{parameter} file.  Furthermore, the   forces   $ \frac{ \partial S_{0}(C)}{\partial s_{k,\tau}}  $  are to be specified in the routine \texttt{Ham\_Langevin\_HMC\_S0}  of the Hamiltonian files.  The Langevin update   for a general Hamiltonian  is carried out in the module  \texttt{Langevin\_HMC\_mod.F90}.   In particular the  fermion forces, 
 \begin{equation}
