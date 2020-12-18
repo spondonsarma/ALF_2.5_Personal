@@ -24,10 +24,11 @@ ham_U     = 4.d0            ! Hubbard interaction
 ham_T2    = 1.d0            ! For bilayer systems
 ham_U2    = 4.d0            ! For bilayer systems
 ham_Tperp = 1.d0            ! For bilayer systems
+Continuous  = .F.           ! For continuous HS decompostion
 /
                
 \end{lstlisting}
-In the above listing, \texttt{ham\_T} and \texttt{ham\_T2} correspond to the hopping in the first and second layers respectively and  \texttt{ham\_Tperp} is to the interlayer hopping.   The Hubbard $U$ term has an orbital index, \texttt{ham\_U}  for the first and \texttt{ham\_U2} for the second layers.  Finall,  \texttt{ham\_chem}  corresponds to the chemical potential.    If the flag \texttt{Mz} is set to \texttt{.False.}, then the code simulates the following SU(N) symmetric Hubbard model:
+In the above listing, \texttt{ham\_T} and \texttt{ham\_T2} correspond to the hopping in the first and second layers respectively and  \texttt{ham\_Tperp} is to the interlayer hopping.   The Hubbard $U$ term has an orbital index, \texttt{ham\_U}  for the first and \texttt{ham\_U2} for the second layers.  Finally,  \texttt{ham\_chem}  corresponds to the chemical potential.    If the flag \texttt{Mz} is set to \texttt{.False.}, then the code simulates the following SU(N) symmetric Hubbard model:
 \begin{multline}
 \hat{H} = \sum_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}  \sum_{\sigma =1}^{N}  T_{(\ve{i},\ve{\delta}), (\ve{j},\ve{\delta}')}    \hat{c}^{\dagger}_{(\ve{i},\ve{\delta}), \sigma }   e^{\frac{2 \pi i}{\Phi_0} \int_{\ve{i} + \ve{\delta}}^{\ve{j} + \ve{\delta}'}  
      \vec{A}(\ve{l})  d \ve{l}} \hat{c}^{}_{(\ve{j},\ve{\delta}'),\sigma} \\
