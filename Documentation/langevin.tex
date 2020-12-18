@@ -82,7 +82,7 @@ With the adaptive time  step,  averages are computed as:
 \begin{equation} \label{eq:obs_varstep}
    \langle \hat{O} \rangle = \frac{ \sum_n (  \tilde{\delta \tl}  )_n  \sgn(C_n)   \frac{e^{-S(C_n)}}{\Re \left[e^{-S(C_n)} \right]}   \langle \langle \hat{O} \rangle   \rangle_{(C_n)} } {\sum_n (  \tilde{\delta \tl}  )_n  \sgn(C_n)  }. 
 \end{equation}
-where  $\sgn(C_n)$   is defined in Eq.~\eqref{Sign.eq}.    In this context the adaptive time step corresponds to the variable \texttt{Mc\_step\_weight}  required for the measurement routines (see Sec.~\ref{sec:obs}).  {\color{red}{FFA. We will have to update this section}}
+where  $\sgn(C_n)$   is defined in Eq.~\eqref{Sign.eq}.    In this context the adaptive time step corresponds to the variable \texttt{Mc\_step\_weight}  required for the measurement routines (see Sec.~\ref{sec:obs}). 
 
 A possible way to reduce autocorrelation times is to employ Fourier acceleration \cite{Batrouni85,Batrouni19}. As we see from Eq.~\eqref{eqn:langevin_solution}, the choice of the matrix $Q$ does not alter the probability distribution obtained from the Langevin equation. The main idea of Fourier acceleration is to exploit this freedom and use $Q$ to scale the Langevin time step $\delta t_l$ depending on the momentum of the fields $\vec{s}$. Namely, so that the field components with low momenta are multiplied by an effective larger step size compared to components with high momenta \cite{Davies86}. The modified Langevin equation reads:
 \begin{equation}

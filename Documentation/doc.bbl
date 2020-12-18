@@ -696,6 +696,19 @@ D.~Hangleiter, I.~Roth, D.~Nagaj and J.~Eisert,
 \newblock
   \eprint{https://advances.sciencemag.org/content/6/33/eabb8341.full.pdf}.
 
+\bibitem{LiuJ17}
+J.~Liu, Y.~Qi, Z.~Y. Meng and L.~Fu,
+\newblock \emph{Self-learning monte carlo method},
+\newblock Phys. Rev. B \textbf{95}, 041101 (2017),
+\newblock \doi{10.1103/PhysRevB.95.041101}.
+
+\bibitem{Xu17a}
+X.~Y. Xu, Y.~Qi, J.~Liu, L.~Fu and Z.~Y. Meng,
+\newblock \emph{Self-learning quantum monte carlo method in interacting fermion
+  systems},
+\newblock Phys. Rev. B \textbf{96}, 041119 (2017),
+\newblock \doi{10.1103/PhysRevB.96.041119}.
+
 \bibitem{Hukushima96}
 K.~Hukushima and K.~Nemoto,
 \newblock \emph{Exchange monte carlo method and application to spin glass
