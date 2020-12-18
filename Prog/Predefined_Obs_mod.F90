@@ -165,8 +165,9 @@
                  ObsZ  %Obs_Latt(imj,1,no_I,no_J) =  ObsZ  %Obs_Latt(imj,1,no_I,no_J) +  ZZ  *ZP*ZS
                  ObsXY %Obs_Latt(imj,1,no_I,no_J) =  ObsXY %Obs_Latt(imj,1,no_I,no_J) +  ZXY *ZP*ZS
                  ObsXYZ%Obs_Latt(imj,1,no_I,no_J) =  ObsXYZ%Obs_Latt(imj,1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
-
               enddo
+              ObsZ  %Obs_Latt0(no_I) =  ObsZ  %Obs_Latt0(no_I) +   (GRC(I1,I1,2) - GRC(I1,I1,1)) * ZP*ZS
+              ObsXYZ%Obs_Latt0(no_I) =  ObsXYZ%Obs_Latt0(no_I) +   (GRC(I1,I1,2) - GRC(I1,I1,1)) * ZP*ZS/sqrt(3.d0)
            enddo
         endif
       End Subroutine Predefined_Obs_eq_SpinMz_measure
@@ -444,6 +445,8 @@
               ObsXY %Obs_Latt(imj,NT+1,no_I,no_J) =  ObsXY%Obs_Latt(imj,NT+1,no_I,no_J)  +  ZXY*ZP*ZS
               ObsXYZ%Obs_Latt(imj,NT+1,no_I,no_J) =  ObsXYZ%Obs_Latt(imj,NT+1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
            enddo
+           ObsZ  %Obs_Latt0(no_I) =  ObsZ  %Obs_Latt0(no_I) +   (GTT(I1,I1,2) - GTT(I1,I1,1)) * ZP*ZS
+           ObsXYZ%Obs_Latt0(no_I) =  ObsXYZ%Obs_Latt0(no_I) +   (GTT(I1,I1,2) - GTT(I1,I1,1)) * ZP*ZS/sqrt(3.d0)
         enddo
 
       end Subroutine Predefined_Obs_tau_SpinMz_measure

@@ -33,6 +33,7 @@ with boundary conditions
 \hat{c}^{\dagger}_{(i + L_i,\delta) ,s,\sigma }   =  e^{- 2 \pi i\frac{\Phi_i^{(s)}}{\Phi_0}} \, e^{\frac{2 \pi i }{\Phi_0} \chi^{(s)}_{L_i} ( i + \delta ) } \, \hat{c}^{\dagger}_{(i,\delta) ,s,\sigma }.
 \label{generic_boundary.eq}
 \end{equation}
+Here $i$  labels the unit cell and $\delta$    the orbital.
 Both the twist and  vector  potential can have a flavor dependency. These and the other components of the generic Hopping Hamiltonian are described bellow. For now onwards we will  mostly omit the flavor index ${s}$.\\
 
 \noindent
@@ -64,7 +65,7 @@ Here
 \begin{equation}
 \vec{A}_{\phi} =\frac{  \phi_1  |\vec{a}_1|} { 2 \pi |\vec{L}_1| } \vec{b}_1 +  \frac{  \phi_2  |\vec{a}_2|}{2 \pi  |\vec{L}_2| } \vec{b}_2
 \end{equation}
-and $\vec{b}_i$  correspond to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  of inserting the twist angle. If \texttt{bulk=.true.} then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
+and $\vec{b}_i$  corresponds to the reciprocal lattice vectors satisfying  $ \vec{a}_i  \cdot  \vec{b}_j  = 2 \pi \delta_{i,j} $.   The logical variable $\texttt{bulk} $ chooses between these two  gauge equivalent ways  of inserting the twist angle. If \texttt{bulk=.true.} then  we use periodic boundary conditions  --  in the absence of an orbital field -- otherwise  twisted boundaries are used.  
 The above phase factors are computed  in the   module function: 
 \begin{lstlisting}[style=fortran]
 complex function Generic_hopping(i, no_i, n_1, n_2, no_j, N_Phi, Phi_1, Phi_2, Bulk, 
@@ -168,10 +169,10 @@ these sets are denoted by different colors. In the code, the elements of the set
 
 \begin{lstlisting}[style=fortran] 
 do I = 1,Latt%N
-Do nf = 1,N_FAM
-List_Fam(nf,I,1) = I  ! Unit cell
-List_Fam(nf,I,2) = nf ! The bond 
-Enddo
+   do nf = 1,N_FAM
+      List_Fam(nf,I,1) = I  ! Unit cell
+      List_Fam(nf,I,2) = nf ! The bond 
+   enddo
 enddo
 Multiplicity  = 3
 \end{lstlisting}        

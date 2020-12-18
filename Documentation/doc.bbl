@@ -816,12 +816,52 @@ S.~Beyl,
 \newblock Doctoral thesis, Universit{\"a}t W{\"u}rzburg,
 \newblock \doi{10.25972/OPUS-19122} (2020).
 
+\bibitem{Loh1989}
+E.~Loh, J.~Gubernatis, R.~Scalettar, R.~Sugar and S.~White,
+\newblock \emph{Stable matrix-multiplication algorithms for low-temperature
+  numerical simulations of fermions},
+\newblock In \emph{Interacting Electrons in Reduced Dimensions}, pp. 55--60.
+  Springer (1989).
+
+\bibitem{Loh2005}
+E.~Y. LOH, J.~E. GUBERNATIS, R.~T. SCALETTAR, S.~R. WHITE, D.~J. SCALAPINO and
+  R.~L. SUGAR,
+\newblock \emph{Numerical stability and the sign problem in the determinant
+  quantum monte carlo method},
+\newblock International Journal of Modern Physics C \textbf{16}(08), 1319
+  (2005),
+\newblock \doi{10.1142/S0129183105007911},
+\newblock \eprint{https://doi.org/10.1142/S0129183105007911}.
+
 \bibitem{Bai2011}
 Z.~Bai, C.~Lee, R.-C. Li and S.~Xu,
 \newblock \emph{Stable solutions of linear systems involving long chain of
   matrix multiplications},
 \newblock Linear Algebra and its Applications \textbf{435}(3), 659 (2011),
 \newblock \doi{10.1016/j.laa.2010.06.023}.
+
+\bibitem{Bauer2020}
+C.~Bauer,
+\newblock \emph{{Fast and stable determinant quantum Monte Carlo}},
+\newblock SciPost Phys. Core \textbf{2}, 11 (2020),
+\newblock \doi{10.21468/SciPostPhysCore.2.2.011}.
+
+\bibitem{Demmel1992}
+J.~Demmel and K.~Veselić,
+\newblock \emph{Jacobi’s method is more accurate than qr},
+\newblock SIAM Journal on Matrix Analysis and Applications \textbf{13}(4), 1204
+  (1992),
+\newblock \doi{10.1137/0613074},
+\newblock \eprint{https://doi.org/10.1137/0613074}.
+
+\bibitem{Dongarra2018}
+J.~Dongarra, M.~Gates, A.~Haidar, J.~Kurzak, P.~Luszczek, S.~Tomov and
+  I.~Yamazaki,
+\newblock \emph{The singular value decomposition: Anatomy of optimizing an
+  algorithm for extreme scale},
+\newblock SIAM Review \textbf{60}(4), 808 (2018),
+\newblock \doi{10.1137/17M1117732},
+\newblock \eprint{https://doi.org/10.1137/17M1117732}.
 
 \bibitem{vanderSluis1969}
 A.~van~der Sluis,

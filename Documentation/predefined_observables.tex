@@ -10,9 +10,10 @@
 %-----------------------------------------------------------------------------------
 
 The types \texttt{Obser\_Vec} and \texttt{Obser\_Latt} described in Section~\ref{sec:obs} handle arrays of scalar observables and correlation functions with lattice symmetry respectively.
-The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described below.
+The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described below.  
+It contains procedures and functions.   Procedures  provide a complete handling of the observable structure. That is, they take care,  for example, of incrementing the count by unity  as well as of the average sign. On the other hand functions only provide the result of Wick decomposition, and the handling of the observable structure is left to the user. 
 
-The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.
+The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.    
 %
 \begin{table}[h]
 	\begin{center}
@@ -99,7 +100,7 @@ Call Predefined_Obs_eq_SpinMz_measure(Latt, Latt_unit, List, GR, GRC, N_SUN, ZS,
 If \texttt{N\_FL=2} and \texttt{N\_SUN=1}, then the routine returns:
 \begin{align}
 &\texttt{ObsZ}\left(\ve{i}-\ve{j}, n_{\ve{i}},  n_{\ve{j}} \right)  =  \begin{multlined}[t]  4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }   \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C} \\
--   {\color{red} 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } \rangle \rangle_{C}  \langle \langle \  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C} },  \end{multlined} \nonumber \\  
+-    4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } \rangle \rangle_{C}  \langle \langle \  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C} ,  \end{multlined} \nonumber \\  
 &\texttt{ObsXY}\left(\ve{i}-\ve{j}, n_{\ve{i}},  n_{\ve{j}} \right)  =  2 \left( \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^x \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }   \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^x  
 \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  +
 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^y \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }   \;  \ve{c}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^y  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  \right), \nonumber \\
@@ -124,7 +125,6 @@ i & 0
 \right) \label{eq:vecPaulimat}
  \end{equation}
  the Pauli spin  matrices. 
- {\color{red}  Add this to the code since you are not assuming SU(2) spin symmetry.}
 
 \subsubsection{Equal-time Green function}
 
@@ -193,8 +193,8 @@ Call Predefined_Obs_tau_SpinMz_measure(Latt, Latt_unit, List, NT, GT0, G0T, G00,
 \end{lstlisting}
 Which calculates the following observables:
 \begin{align}
-\texttt{ObsZ}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) &= \begin{multlined}[t] 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }(\tau)   \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C} \\ {\color{red}
-- 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } \rangle \rangle_{C}  \langle \langle \  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  } \end{multlined} \nonumber \\  
+\texttt{ObsZ}(\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) &= \begin{multlined}[t] 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau)  S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }(\tau)   \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C} \\  
+- 4 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^z \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } \rangle \rangle_{C}  \langle \langle \  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^z  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}   \end{multlined} \nonumber \\  
 \texttt{ObsXY} (\ve{i} - \ve{j}, \tau, n_{\ve{i}},  n_{\ve{j}} ) &=\begin{multlined}[t] 
 2 \left( \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}}(\tau) S^x \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} } (\tau)  \;  \ve{\hat{c}}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^x  
 \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  \right.\\
