@@ -119,7 +119,7 @@ Enddo
 Here, the integer function \texttt{Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
 Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter \texttt{Ham\_T}, as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
-To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type} is not required. 
+To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type}  takes its default value of 0.  
 Finally, note that, although a checkerboard decomposition is not used here, it can be implemented by considering a larger number of sparse hopping matrices.  
 
 
@@ -227,15 +227,16 @@ Do I = 1,Size(Obs_eq,1)
    case default
       Write(6,*) "Error in Alloc_obs"
    end select
-Nt = 1
-Channel = "--"
-Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+   Nt = 1
+   Channel = "--"
+   Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+Enddo
 \end{lstlisting} 
 Be aware that \texttt{Obser\_Latt\_make} does not copy the Bravais lattice \texttt{Latt} 
 and unit cell \texttt{Latt\_unit}, but links them through pointers to be more memory 
 efficient. One can have different lattices attached to different observables by declaring 
 additional instances of \texttt{Type(Lattice)} and \texttt{Type(Unit\_cell)}.
- For equal-time correlation functions, we set \texttt{Nt = 1} and \texttt{Channel} does not have a meaning.
+ For equal-time correlation functions, we set \texttt{Nt = 1} and \texttt{Channel} specification is not necessary.
 
 If \texttt{Ltau = 1}, then the code allocates space for time displaced quantities. The 
 same structure as for equal-time correlation functions is used, albeit with 
@@ -263,7 +264,7 @@ Do i = 1,Ndim
   Obs_scal(2)%Obs_vec(1)= Obs_scal(2)%Obs_vec(1) +(1-GR(i,i,1))*(1-GR(i,i,2))*Ham_U*ZS*ZP
 Enddo
 \end{lstlisting} 
-Here  $ \texttt{ZS} = \sgn(C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard's $U$ term.
+Here  $ \texttt{ZS} = \sgn(C) $  [see Eq.~(\ref{Sign.eq})],  $ \texttt{ZP} =   \frac{e^{-S(C)}} {\Re \left[e^{-S(C)} \right]}   $ [see Eq.~(\ref{eqn:phase})] and  \texttt{Ham\_U}  corresponds to the Hubbard  $U$ term.
 
 Equal-time correlations  are also computed in this routine. As an explicit example, we  consider the equal-time density-density correlation:
 \begin{equation}
