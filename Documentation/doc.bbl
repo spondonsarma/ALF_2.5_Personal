@@ -985,6 +985,13 @@ M.~Veki\ifmmode~\acute{c}\else \'{c}\fi{}, J.~W. Cannon, D.~J. Scalapino, R.~T.
 \newblock Phys. Rev. Lett. \textbf{74}, 2367 (1995),
 \newblock \doi{10.1103/PhysRevLett.74.2367}.
 
+\bibitem{Li16}
+Z.-X. Li, Y.-F. Jiang and H.~Yao,
+\newblock \emph{Majorana-time-reversal symmetries: A fundamental principle for
+  sign-problem-free quantum monte carlo simulations},
+\newblock Phys. Rev. Lett. \textbf{117}, 267002 (2016),
+\newblock \doi{10.1103/PhysRevLett.117.267002}.
+
 \bibitem{Beach04}
 K.~S.~D. Beach, P.~A. Lee and P.~Monthoux,
 \newblock \emph{Field-induced antiferromagnetism in the kondo insulator},
