@@ -80,10 +80,10 @@ D.~Zheng, G.-M. Zhang and C.~Wu,
 
 \bibitem{Hofmann19}
 J.~S. Hofmann, F.~F. Assaad, R.~Queiroz and E.~Khalaf,
-\newblock \emph{A search for correlation-induced adiabatic paths between
-  distinct topological insulators},
-\newblock arXiv:1912.07614  (2019),
-\newblock \eprint{1912.07614}.
+\newblock \emph{Search for correlation-induced adiabatic paths between distinct
+  topological insulators},
+\newblock Phys. Rev. Research \textbf{2}, 023390 (2020),
+\newblock \doi{10.1103/PhysRevResearch.2.023390}.
 
 \bibitem{Assaad13}
 F.~F. Assaad and I.~F. Herbut,
@@ -127,12 +127,11 @@ Y.~Liu, Z.~Wang, T.~Sato, M.~Hohenadler, C.~Wang, W.~Guo and F.~F. Assaad,
 \newblock Nature Communications \textbf{10}(1), 2658 (2019),
 \newblock \doi{10.1038/s41467-019-10372-0}.
 
-\bibitem{Li15a}
-Z.-X. {Li}, Y.-F. {Jiang}, S.-K. {Jian} and H.~{Yao},
-\newblock \emph{{Fermion-induced quantum critical points: type-II
-  Landau-forbidden transitions}},
-\newblock ArXiv:1512.07908  (2015),
-\newblock \eprint{1512.07908}.
+\bibitem{Li17}
+Z.-X. Li, Y.-F. Jiang, S.-K. Jian and H.~Yao,
+\newblock \emph{Fermion-induced quantum critical points},
+\newblock Nature Communications \textbf{8}(1), 314 (2017),
+\newblock \doi{10.1038/s41467-017-00167-6}.
 
 \bibitem{Raczkowski2019}
 M.~Raczkowski, R.~Peters, T.~T. Ph\`ung, N.~Takemori, F.~F. Assaad, A.~Honecker
