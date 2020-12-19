@@ -11,9 +11,9 @@
 
 The types \texttt{Obser\_Vec} and \texttt{Obser\_Latt} described in Section~\ref{sec:obs} handle arrays of scalar observables and correlation functions with lattice symmetry respectively.
 The module \texttt{Predefined\_Obs} provides a set of standard equal-time and time-displaced observables, as described below.  
-It contains procedures and functions.   Procedures  provide a complete handling of the observable structure. That is, they take care,  for example, of incrementing the count by unity  as well as of the average sign. On the other hand functions only provide the result of Wick decomposition, and the handling of the observable structure is left to the user. 
+It contains procedures and functions.   Procedures  provide a complete handling of the observable structure. That is, they take care, for example, of incrementing the counter and of the average sign. On the other hand, functions only provide the Wick decomposition result, and the handling of the observable structure is left to the user. 
 
-The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.    
+The predefined measurements methods take as input Green functions \texttt{GR}, \texttt{GT0}, \texttt{G0T}, \texttt{G00}, and \texttt{GTT}, defined in Sec.~\ref{sec:EqualTimeobs} and~\ref{sec:TimeDispObs}, as well as \texttt{N\_SUN}, time slice \texttt{Ntau}, lattice information, and so on -- see Table~\ref{table:predefined_obs}.
 %
 \begin{table}[h]
 	\begin{center}
@@ -106,8 +106,7 @@ If \texttt{N\_FL=2} and \texttt{N\_SUN=1}, then the routine returns:
 \langle \langle \ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} S^y \ve{\hat{c}}^{\phantom\dagger}_{\ve{i}, n_{\ve{i}} }   \;  \ve{c}^{\dagger}_{\ve{j}, n_{\ve{j}}} S^y  \ve{\hat{c}}^{\phantom\dagger}_{\ve{j}, n_{\ve{j}}}\rangle \rangle_{C}  \right), \nonumber \\
 &\texttt{ObsXYZ} =  \frac{2\cdot\texttt{ObsXY} + \texttt{ObsZ}}{3}.
 \end{align}
-Here  $\ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} =  \left( \hat{c}^{\dagger}_{\ve{i}, n_{\ve{i}},\uparrow},  \hat{c}^{\dagger}_{\ve{i}, n_{\ve{i}},\downarrow} \right) $ is a two  component spinor  and    $ \ve{S}  = \frac{1}{2} \ve{\sigma}$  
-with
+Here  $\ve{\hat{c}}^{\dagger}_{\ve{i}, n_{\ve{i}}} =  \left( \hat{c}^{\dagger}_{\ve{i}, n_{\ve{i}},\uparrow},  \hat{c}^{\dagger}_{\ve{i}, n_{\ve{i}},\downarrow} \right) $ is a two component spinor and   $ \ve{S} = \frac{1}{2} \ve{\sigma}$, with
 \begin{equation}
 \ve{\sigma}   = \left(
 \begin{bmatrix} 
@@ -122,9 +121,9 @@ i & 0
 1 & 0 \\
 0 & -1 
 \end{bmatrix}
-\right) \label{eq:vecPaulimat}
- \end{equation}
- the Pauli spin  matrices. 
+\right), \label{eq:vecPaulimat}
+\end{equation}
+the Pauli spin  matrices. 
 
 \subsubsection{Equal-time Green function}
 

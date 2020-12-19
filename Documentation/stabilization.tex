@@ -66,9 +66,9 @@ The following comments are in order:
 \item  The biggest drawback  of the above decomposition is that  the imaginary-time propagation is not Hermitian.   This can lead to acausal  features in imaginary-time correlation functions \cite{Beyl_thesis}. To be more precise, the eigenvalues of  
 $  H_{\text{Approx}} = - \frac{1}{\beta} \log  U_{\text{Approx}}$ need not be real and thus imaginary-time displaced correlation functions may oscillate as a function of imaginary time.   
 This is shown in  Fig.~\ref{Trotter.fig}(a)  that plots the  absolute value of local time-displaced Green function for  the Honeycomb lattice at $U/t=2$.  Sign changes of this quantity   involve zeros  that, on the considered log-scale,  correspond to negative divergences.
-As detailed in \cite{goth2020} using the non-symmetric Trotter decomposition 
-leads to an additional second order error in the measurement of observables $O$
-that is $\propto [T,[T,O]]$.
+As detailed in \cite{goth2020}, using the non-symmetric Trotter decomposition 
+leads to an additional second-order error in the measurement of observables $O$
+that is proportional to $[T,[T,O]]$.
 As we see next, these issues can be solved by considering a symmetric  Trotter decomposition.
 \end{itemize}
 
@@ -173,11 +173,10 @@ where $\epsilon$ denotes the machine precision, which is $2^{-53}$ for IEEE doub
 
 In order to circumvent this, more sophisticated methods have to be employed.
 In the realm of the BSS algorithm there has been a long history \cite{Loh1989, Sorella89, Assaad02,Loh2005, Bai2011, Bauer2020} of using various matrix factorization techniques.
-The predominant techniques are either based on the singular value decomposition(SVD) or 
-on techniques using a QR decomposition.
-The default stabilization strategy in the auxiliary-field QMC implementation of the ALF package, is then to form a product of QR-decompositions, which was proven to be weakly backwards stable in \cite{Bai2011}. While algorithms using the SVD can provide higher stability 
-at a higher cost we note that great care has to be taken in the choice of the right
-algorithm for the SVD that achieve the necessary high relative accuracy \cite{Demmel1992, Dongarra2018}.
+The predominant techniques are either based on the singular value decomposition (SVD) or 
+on techniques using the QR decomposition.
+The default stabilization strategy in the auxiliary-field QMC implementation of the ALF package is to form a product of QR-decompositions, which is proven to be weakly backwards stable~\cite{Bai2011}. While algorithms using the SVD can provide higher stability, though at a higher cost, we note that great care has to be taken in the choice of the algorithm, which has to achieve a high relative accuracy \cite{Demmel1992, Dongarra2018}.
+
 As a first step we assume that, for a given integer \texttt{NWrap}, the multiplication of \texttt{NWrap} $\bm{B}$ matrices has an acceptable condition number and, for simplicity, that $L_{\text{Trotter}}$ is divisible by \texttt{NWrap}. We can then write:
 %\begin{equation}
 %\bm{G} = \left( \mathds{1} + \prod\limits_{ i = 0}^{\frac{L_{\text{Trotter}}} {\texttt{NWrap} -1}}       \underbrace{\prod_{\tau=1}^{\texttt{NWrap}} \bm{B}_{i  \cdot  \texttt{NWrap}+ \tau} }_{ \equiv \mathcal{\bm{B}}_i}\right)^{-1}.

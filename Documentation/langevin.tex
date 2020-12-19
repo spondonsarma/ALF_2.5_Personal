@@ -88,7 +88,7 @@ A possible way to reduce autocorrelation times is to employ Fourier acceleration
 \begin{equation}
    \ve{s}(\tl +  \delta \tl)    =    \ve{s}(\tl)    - \hat{F}^{-1} \left[ Q \hat{F}\left[\frac{\partial S( \ve{s}(\tl)) }{\partial    \ve{s}(\tl) } \right]   \delta \tl     +\sqrt{2 \delta \tl Q} \hat{F}\left[\ve{\eta}(\tl)\right] \right],
 \end{equation}
-with $\hat{F}$ being a transformation to independent modes of the field. This generically corresponds to a Fourier transform, thus the name. Currently an implementation of Fourier acceleration is not available in ALF, but can be included by the user.
+with $\hat{F}$ being a transformation to independent modes of the field. This generically corresponds to a Fourier transform, thus the notation. Currently, Fourier acceleration is not implemented in ALF, but can be included by the user.
 
 In order to use Langevin dynamics the user also has to provide the Langevin time step \texttt{Delta\_t\_Langevin\_HMC},  the maximal force \texttt{Max\_Force},  set  \texttt{Global\_update\_scheme = Langevin} in the \texttt{parameter} file.  Furthermore, the   forces   $ \frac{ \partial S_{0}(C)}{\partial s_{k,\tau}}  $  are to be specified in the routine \texttt{Ham\_Langevin\_HMC\_S0}  of the Hamiltonian files.  The Langevin update   for a general Hamiltonian  is carried out in the module  \texttt{Langevin\_HMC\_mod.F90}.   In particular the  fermion forces, 
 \begin{equation}
