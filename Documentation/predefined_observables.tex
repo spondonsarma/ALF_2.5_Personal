@@ -303,9 +303,9 @@ Using Eq.~\eqref{rhoA}, $S_2$ can be expressed as a stochastic average of an obs
 e^{-S_2} = \sum_{C_1,C_2} P(C_2) P(C_1) \det\left[G_A(\tau_0; C_1)G_A(\tau_0; C_2)-(\mathds{1} - G_A(\tau_0; C_1))(\mathds{1} - G_A(\tau_0; C_2))\right],
 \label{renyi_obs}
 \end{equation}
-where $G_A(\tau_0; C_i)$, $i=1, 2$ is the Green function matrix restricted to the subsystem $A$ under consideration, at a given time-slice $\tau_0$, and depending on the configuration $C_i$ of the replica $i$. The degrees of freedom defining the subsystem $A$ are lattice site, flavor index, and color index.
+where $G_A(\tau_0; C_i)$, $i=1, 2$ is the Green function matrix restricted to the desired subsystem $A$ at a given time-slice $\tau_0$, and for the configuration $C_i$ of the replica $i$. The degrees of freedom defining the subsystem $A$ are lattice site, flavor index, and color index.
 
-Notice that, due to its formulation, sampling $S_2$ requires a MPI simulation with at least $2$ processes. Also, only real-space partitions are currently supported.
+Notice that, due to its formulation, sampling $S_2$ requires an MPI simulation with at least $2$ processes. Also, only real-space partitions are currently supported.
 
 A measurement of the 2\textsuperscript{nd} R\'enyi entropy can be obtained by:
 \begin{lstlisting}[style=fortran]
@@ -314,11 +314,11 @@ Call Predefined_Obs_scal_Renyi_Ent(GRC, List, Nsites, N_SUN, ZS, ZP, Obs)
 which returns the observable \texttt{Obs}, for which $\langle\texttt{Obs}\rangle=e^{-S_2}$.
 The subsystem $A$ can be defined in a number of different ways, which are handled by what we call \emph{specializations} of the subroutine, described as follows.
 
-In the most general case, \texttt{List(:, N\_FL, N\_SUN)} is a three-dimensional array that contains, for every flavor and color index, the list of lattice sites in $A$; \texttt{Nsites(N\_FL, N\_SUN)} is a bidimensional array that provides the number of lattice sites in the subsystem for every flavor and color index; and the argument \texttt{N\_SUN} must be omitted in the call.
+In the most general case, \texttt{List(:, N\_FL, N\_SUN)} is a three-dimensional array that contains the list of lattice sites in $A$ for every flavor and color index; \texttt{Nsites(N\_FL, N\_SUN)} is then a bidimensional array that provides the number of lattice sites in the subsystem for every flavor and color index; and the argument \texttt{N\_SUN} must be omitted in the call.
 
 For a subsystem whose degrees of freedom, for a given flavor index, have a common value of color indexes, \texttt{Predefined\_Obs\_scal\_Renyi\_Ent} can be called by providing \texttt{List(:, N\_FL)} as a bidimensional array that contains the list of lattice sites for every flavor index. In this case, \texttt{Nsites(N\_FL)} provides the number of sites in the subsystem for any given flavor index, while \texttt{N\_SUN(N\_FL)} contains the number of color indexes for a given flavor index.
 
-Finally, an additional specialization exists for a subsystem whose lattice degrees of freedom are flavor- and color-independent. In this case, \texttt{List(:)} is a one-dimensional array containing the lattice sites of the subsystem. \texttt{Nsites} is the number of sites, and \texttt{N\_SUN} is the number of color indexes belonging to the subsystem.
+Finally, a specialization exists for the simple case of a subsystem whose lattice degrees of freedom are flavor- and color-independent. In this case, \texttt{List(:)} is a one-dimensional array containing the lattice sites of the subsystem. \texttt{Nsites} is the number of sites, and \texttt{N\_SUN} is the number of color indexes belonging to the subsystem.
 Accordingly, for every element \texttt{I} of \texttt{List}, the subsystem contains all degrees of freedom with site index \texttt{I}, any flavor index, and \texttt{1} \ldots \texttt{N\_SUN} color index.
 
 \paragraph*{Mutual Information}
@@ -333,7 +333,7 @@ The measurements necessary for computing $I_2$ are obtained by:
 Call Predefined_Obs_scal_Mutual_Inf(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, 
                                     ZS, ZP, Obs)
 \end{lstlisting}
-which returns the second R\'enyi entropies mentioned above, stored in the variable \texttt{Obs}. Here, \texttt{List\_A} and \texttt{Nsites\_A} are input parameters describing the subsystem $A$ -- with the same conventions and specializations described above -- and
+which returns the 2\textsuperscript{nd} R\'enyi entropies mentioned above, stored in the variable \texttt{Obs}. Here, \texttt{List\_A} and \texttt{Nsites\_A} are input parameters describing the subsystem $A$ -- with the same conventions and specializations described above -- and
 \texttt{List\_B} and \texttt{Nsites\_B} are the corresponding input parameters for the subsystem $B$, while \texttt{N\_SUN} is assumed to be identical for $A$ and $B$.
 
 
