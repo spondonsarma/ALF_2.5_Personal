@@ -30,7 +30,8 @@ G.~Sugiyama and S.~Koonin,
 S.~Sorella, S.~Baroni, R.~Car and M.~Parrinello,
 \newblock \emph{A novel technique for the simulation of interacting fermion
   systems},
-\newblock EPL (Europhysics Letters) \textbf{8}(7), 663 (1989).
+\newblock Europhysics Letters ({EPL}) \textbf{8}(7), 663 (1989),
+\newblock \doi{10.1209/0295-5075/8/7/014}.
 
 \bibitem{Duane87}
 S.~Duane, A.~D. Kennedy, B.~J. Pendleton and D.~Roweth,
@@ -222,7 +223,8 @@ F.~F. Assaad,
 S.~Capponi and F.~F. Assaad,
 \newblock \emph{Spin and charge dynamics of the ferromagnetic and
   antiferromagnetic two-dimensional half-filled kondo lattice model},
-\newblock Phys. Rev. B \textbf{63}, 155114 (2001).
+\newblock Phys. Rev. B \textbf{63}, 155114 (2001),
+\newblock \doi{10.1103/PhysRevB.63.155114}.
 
 \bibitem{SatoT17_1}
 T.~Sato, F.~F. Assaad and T.~Grover,
@@ -293,7 +295,8 @@ E.~Berg, M.~A. Metlitski and S.~Sachdev,
 H.-K. Tang, X.~Yang, J.~Sun and H.-Q. Lin,
 \newblock \emph{Berezinskii-kosterlitz-thoules phase transition of spin-orbit
   coupled fermi gas in optical lattice},
-\newblock Europhys. Lett. \textbf{107}(4), 40003 (2014).
+\newblock {EPL} (Europhysics Letters) \textbf{107}(4), 40003 (2014),
+\newblock \doi{10.1209/0295-5075/107/40003}.
 
 \bibitem{Hofmann20}
 J.~S. Hofmann, E.~Berg and D.~Chowdhury,
@@ -413,10 +416,11 @@ T.~Grover,
 
 \bibitem{Broecker14}
 P.~Broecker and S.~Trebst,
-\newblock \emph{R{\'e}nyi entropies of interacting fermions from determinantal
-  quantum monte carlo simulations},
+\newblock \emph{R{\'{e}}nyi entropies of interacting fermions from
+  determinantal quantum monte carlo simulations},
 \newblock Journal of Statistical Mechanics: Theory and Experiment
-  \textbf{2014}(8), P08015 (2014).
+  \textbf{2014}(8), P08015 (2014),
+\newblock \doi{10.1088/1742-5468/2014/08/p08015}.
 
 \bibitem{Assaad13a}
 F.~F. Assaad, T.~C. Lang and F.~Parisen~Toldin,
@@ -452,12 +456,11 @@ F.~Parisen~Toldin and F.~F. Assaad,
 \newblock \eprint{1810.06595}.
 
 \bibitem{Chen18}
-C.~{Chen}, X.~Y. {Xu}, J.~{Liu}, G.~{Batrouni}, R.~{Scalettar} and Z.~Y.
-  {Meng},
-\newblock \emph{{Symmetry Enforced Self-Learning Monte Carlo Method Applied to
-  the Holstein Model}},
-\newblock ArXiv:1802.06177  (2018),
-\newblock \eprint{1802.06177}.
+C.~Chen, X.~Y. Xu, J.~Liu, G.~Batrouni, R.~Scalettar and Z.~Y. Meng,
+\newblock \emph{Symmetry-enforced self-learning monte carlo method applied to
+  the holstein model},
+\newblock Phys. Rev. B \textbf{98}, 041102 (2018),
+\newblock \doi{10.1103/PhysRevB.98.041102}.
 
 \bibitem{Chen19}
 C.~Chen, X.~Y. Xu, Z.~Y. Meng and M.~Hohenadler,
@@ -687,7 +690,8 @@ S.~M.~A. Rombouts, K.~Heyde and N.~Jachowicz,
 E.~Gull, P.~Werner, O.~Parcollet and M.~Troyer,
 \newblock \emph{Continuous-time auxiliary-field monte carlo for quantum
   impurity models},
-\newblock EPL (Europhysics Letters) \textbf{82}(5), 57003 (2008).
+\newblock {EPL} (Europhysics Letters) \textbf{82}(5), 57003 (2008),
+\newblock \doi{10.1209/0295-5075/82/57003}.
 
 \bibitem{Rombouts98}
 S.~Rombouts, K.~Heyde and N.~Jachowicz,
@@ -746,7 +750,8 @@ I.~Peschel,
 \newblock \emph{Calculation of reduced density matrices from correlation
   functions},
 \newblock Journal of Physics A: Mathematical and General \textbf{36}(14), L205
-  (2003).
+  (2003),
+\newblock \doi{10.1088/0305-4470/36/14/101}.
 
 \bibitem{Wan20}
 Z.-Q. Wan, S.-X. Zhang and H.~Yao,
@@ -877,9 +882,10 @@ A.~van~der Sluis,
 
 \bibitem{Feldbach00}
 M.~Feldbacher and F.~F. Assaad,
-\newblock \emph{Efficient calculation of imaginary time displaced correlation
-  functions in the projector auxilary field quantum monte-carlo algorithm.},
-\newblock Phys. Rev. B \textbf{63}, 073105 (2001).
+\newblock \emph{Efficient calculation of imaginary-time-displaced correlation
+  functions in the projector auxiliary-field quantum monte carlo algorithm},
+\newblock Phys. Rev. B \textbf{63}, 073105 (2001),
+\newblock \doi{10.1103/PhysRevB.63.073105}.
 
 \bibitem{Ixert14}
 D.~Ixert, F.~F. Assaad and K.~P. Schmidt,
@@ -940,9 +946,10 @@ M.~B. {Thompson},
 \bibitem{Milat04}
 I.~Milat, F.~Assaad and M.~Sigrist,
 \newblock \emph{Field induced magnetic ordering transition in kondo
-  insulators.},
-\newblock Eur. Phys. J. B \textbf{38}, 571 (2004),
-\newblock Http://xxx.lanl.gov/cond-mat/0312450.
+  insulators},
+\newblock The European Physical Journal B - Condensed Matter and Complex
+  Systems \textbf{38}(4), 571 (2004),
+\newblock \doi{10.1140/epjb/e2004-00154-5}.
 
 \bibitem{Bercx09}
 M.~Bercx, T.~C. Lang and F.~F. Assaad,
