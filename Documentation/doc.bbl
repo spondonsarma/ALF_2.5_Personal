@@ -24,7 +24,7 @@ G.~Sugiyama and S.~Koonin,
 \newblock \emph{Auxiliary field monte-carlo for quantum many-body ground
   states},
 \newblock Annals of Physics \textbf{168}(1), 1  (1986),
-\newblock \doi{http://dx.doi.org/10.1016/0003-4916(86)90107-7}.
+\newblock \doi{10.1016/0003-4916(86)90107-7}.
 
 \bibitem{Sorella89}
 S.~Sorella, S.~Baroni, R.~Car and M.~Parrinello,
@@ -161,7 +161,7 @@ T.~{Sato}, M.~{Hohenadler}, T.~{Grover}, J.~{McGreevy} and F.~F. {Assaad},
 \newblock \emph{{Topological terms on topological defects: a quantum Monte
   Carlo study}},
 \newblock arXiv e-prints arXiv:2005.08996 (2020),
-\newblock \eprint{2005.08996}.
+\newblock \eprint{https://arxiv.org/abs/2005.08996}.
 
 \bibitem{Wang20}
 Z.~{Wang}, Y.~{Liu}, T.~{Sato}, M.~{Hohenadler}, C.~{Wang}, W.~{Guo} and F.~F.
@@ -169,13 +169,14 @@ Z.~{Wang}, Y.~{Liu}, T.~{Sato}, M.~{Hohenadler}, C.~{Wang}, W.~{Guo} and F.~F.
 \newblock \emph{{Doping-induced quantum spin Hall insulator to superconductor
   transition}},
 \newblock arXiv e-prints arXiv:2006.13239 (2020),
-\newblock \eprint{2006.13239}.
+\newblock \eprint{https://arxiv.org/abs/2006.13239}.
 
 \bibitem{Gazit16}
 S.~Gazit, M.~Randeria and A.~Vishwanath,
 \newblock \emph{Emergent dirac fermions and broken symmetries in confined and
   deconfined phases of z2 gauge theories},
-\newblock Nat Phys \textbf{13}(5), 484 (2017).
+\newblock Nat. Phys. \textbf{13}(5), 484 (2017),
+\newblock \doi{10.1038/nphys4028}.
 
 \bibitem{Gazit18}
 S.~Gazit, F.~F. Assaad, S.~Sachdev, A.~Vishwanath and C.~Wang,
@@ -210,7 +211,7 @@ M.~Hohenadler and F.~F. Assaad,
 S.~{Gazit}, F.~F. {Assaad} and S.~{Sachdev},
 \newblock \emph{{Fermi-surface reconstruction without symmetry breaking}},
 \newblock arXiv:1906.11250 arXiv:1906.11250 (2019),
-\newblock \eprint{1906.11250}.
+\newblock \eprint{https://arxiv.org/abs/1906.11250}.
 
 \bibitem{Assaad99a}
 F.~F. Assaad,
@@ -265,7 +266,7 @@ Y.~Schattner, S.~Lederer, S.~A. Kivelson and E.~Berg,
 O.~{Grossman}, J.~S. {Hofmann}, T.~{Holder} and E.~{Berg},
 \newblock \emph{{Specific Heat of a Quantum Critical Metal}},
 \newblock arXiv e-prints arXiv:2009.11280 (2020),
-\newblock \eprint{2009.11280}.
+\newblock \eprint{https://arxiv.org/abs/2009.11280}.
 
 \bibitem{Xu16c}
 X.~Y. Xu, K.~Sun, Y.~Schattner, E.~Berg and Z.~Y. Meng,
@@ -309,7 +310,8 @@ J.~S. Hofmann, E.~Berg and D.~Chowdhury,
 V.~Peri, Z.~Song, B.~A. Bernevig and S.~D. Huber,
 \newblock \emph{Fragile topology and flat-band superconductivity in the
   strong-coupling regime},
-\newblock arXiv:2008.02288  (2020).
+\newblock arXiv:2008.02288  (2020),
+\newblock \eprint{https://arxiv.org/abs/2008.02288}.
 
 \bibitem{Assaad04}
 F.~F. Assaad,
@@ -474,7 +476,7 @@ O.~Bradley, G.~G. Batrouni and R.~T. Scalettar,
 \newblock \emph{Superconductivity and charge density wave order in the 2d
   holstein model},
 \newblock arXiv:2011.11703  (2020),
-\newblock \eprint{2011.11703}.
+\newblock \eprint{https://arxiv.org/abs/2011.11703}.
 
 \bibitem{Ippoliti18}
 M.~Ippoliti, R.~S.~K. Mong, F.~F. Assaad and M.~P. Zaletel,
@@ -487,13 +489,13 @@ M.~Ippoliti, R.~S.~K. Mong, F.~F. Assaad and M.~P. Zaletel,
 Z.~Wang, R.~S.~K. Mong and F.~F. Zaletel, Michael P. and.~Assaad,
 \newblock \emph{Phases of the (2+1) dimensional so(5) non-linear sigma model
   with topological term},
-\newblock arXiv:2003.08368 .
+\newblock arXiv:2003.08368 \eprint{https://arxiv.org/abs/2003.08368}.
 
 \bibitem{Pan20}
 G.~Pan, W.~Wang, A.~Davis, Y.~Wang and Z.~Y. Meng,
 \newblock \emph{Yukawa-syk model and self-tuned quantum criticality},
 \newblock arXiv:2001.06586  (2020),
-\newblock \eprint{2001.06586}.
+\newblock \eprint{https://arxiv.org/abs/2001.06586}.
 
 \bibitem{Wu04}
 C.~Wu and S.-C. Zhang,
@@ -664,7 +666,7 @@ K.~S.~D. {Beach},
 \newblock \emph{{Identifying the maximum entropy method as a special limit of
   stochastic analytic continuation}},
 \newblock eprint arXiv:cond-mat/0403055  (2004),
-\newblock \eprint{cond-mat/0403055}.
+\newblock \eprint{https://arxiv.org/abs/cond-mat/0403055}.
 
 \bibitem{Fye86}
 R.~M. Fye,
@@ -719,7 +721,7 @@ N.~{Bl{\"u}mer},
 \newblock \emph{{Multigrid Hirsch-Fye quantum Monte Carlo method for dynamical
   mean-field theory}},
 \newblock arXiv:0801.1222  (2008),
-\newblock \eprint{0801.1222}.
+\newblock \eprint{https://arxiv.org/abs/0801.1222}.
 
 \bibitem{Wang16}
 L.~Wang, Y.-H. Liu and M.~Troyer,
@@ -737,13 +739,14 @@ E.~Huffman and S.~Chandrasekharan,
 \bibitem{huffman2019}
 E.~Huffman and S.~Chandrasekharan,
 \newblock \emph{Fermion-bag inspired hamiltonian lattice field theory for
-  fermionic quantum criticality} (2019), \eprint{1912.12823}.
+  fermionic quantum criticality} (2019),
+  \eprint{https://arxiv.org/abs/1912.12823}.
 
 \bibitem{goth2020}
 F.~Goth,
 \newblock \emph{Higher order auxiliary field quantum monte carlo methods},
 \newblock arXiv:2009.04491  (2020),
-\newblock \eprint{2009.04491}.
+\newblock \eprint{https://arxiv.org/abs/2009.04491}.
 
 \bibitem{Peschel03}
 I.~Peschel,
@@ -757,7 +760,7 @@ I.~Peschel,
 Z.-Q. Wan, S.-X. Zhang and H.~Yao,
 \newblock \emph{Mitigating sign problem by automatic differentiation},
 \newblock arXiv:2010.01141  (2020),
-\newblock \eprint{2010.01141}.
+\newblock \eprint{https://arxiv.org/abs/2010.01141}.
 
 \bibitem{Hangleiter20}
 D.~Hangleiter, I.~Roth, D.~Nagaj and J.~Eisert,
@@ -941,7 +944,7 @@ S.~Chakravarty, B.~I. Halperin and D.~R. Nelson,
 M.~B. {Thompson},
 \newblock \emph{{A Comparison of Methods for Computing Autocorrelation Time}},
 \newblock arXiv:1011.0175  (2010),
-\newblock \eprint{1011.0175}.
+\newblock \eprint{https://arxiv.org/abs/1011.0175}.
 
 \bibitem{Milat04}
 I.~Milat, F.~Assaad and M.~Sigrist,
@@ -1008,7 +1011,8 @@ Z.-X. Li, Y.-F. Jiang and H.~Yao,
 \bibitem{Beach04}
 K.~S.~D. Beach, P.~A. Lee and P.~Monthoux,
 \newblock \emph{Field-induced antiferromagnetism in the kondo insulator},
-\newblock Phys. Rev. Lett. \textbf{92}, 026401 (2004).
+\newblock Phys. Rev. Lett. \textbf{92}, 026401 (2004),
+\newblock \doi{10.1103/PhysRevLett.92.026401}.
 
 \bibitem{Ruegg10}
 A.~R\"uegg, S.~D. Huber and M.~Sigrist,
