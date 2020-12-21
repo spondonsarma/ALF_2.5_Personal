@@ -79,6 +79,13 @@ D.~Zheng, G.-M. Zhang and C.~Wu,
 \newblock Phys. Rev. B \textbf{84}, 205121 (2011),
 \newblock \doi{10.1103/PhysRevB.84.205121}.
 
+\bibitem{Assaad12}
+F.~F. Assaad, M.~Bercx and M.~Hohenadler,
+\newblock \emph{Topological invariant and quantum spin models from magnetic
+  $\pi$ fluxes in correlated topological insulators},
+\newblock Phys. Rev. X \textbf{3}, 011015 (2013),
+\newblock \doi{10.1103/PhysRevX.3.011015}.
+
 \bibitem{Hofmann19}
 J.~S. Hofmann, F.~F. Assaad, R.~Queiroz and E.~Khalaf,
 \newblock \emph{Search for correlation-induced adiabatic paths between distinct
@@ -409,6 +416,20 @@ D.~Lee,
 \newblock Progress in Particle and Nuclear Physics \textbf{63}(1), 117  (2009),
 \newblock \doi{http://dx.doi.org/10.1016/j.ppnp.2008.12.001}.
 
+\bibitem{WangZ17}
+Z.~Wang, F.~F. Assaad and F.~Parisen~Toldin,
+\newblock \emph{Finite-size effects in canonical and grand-canonical quantum
+  monte carlo simulations for fermions},
+\newblock Phys. Rev. E \textbf{96}, 042131 (2017),
+\newblock \doi{10.1103/PhysRevE.96.042131}.
+
+\bibitem{Shen20}
+T.~Shen, Y.~Liu, Y.~Yu and B.~Rubenstein,
+\newblock \emph{Finite temperature auxiliary field quantum monte carlo in the
+  canonical ensemble},
+\newblock arXiv:2010.09813  (2020),
+\newblock \eprint{https://arxiv.org/abs/2010.09813}.
+
 \bibitem{Grover13}
 T.~Grover,
 \newblock \emph{Entanglement of interacting fermions in quantum monte~carlo
@@ -496,6 +517,15 @@ G.~Pan, W.~Wang, A.~Davis, Y.~Wang and Z.~Y. Meng,
 \newblock \emph{Yukawa-syk model and self-tuned quantum criticality},
 \newblock arXiv:2001.06586  (2020),
 \newblock \eprint{https://arxiv.org/abs/2001.06586}.
+
+\bibitem{HZhang20}
+H.~Zhang, Z.~Zhao, D.~Gautreau, M.~Raczkowski, A.~Saha, V.~O. Garlea, H.~Cao,
+  T.~Hong, H.~O. Jeschke, S.~D. Mahanti, T.~Birol, F.~F. Assaad \emph{et~al.},
+\newblock \emph{Coexistence and interaction of spinons and magnons in an
+  antiferromagnet with alternating antiferromagnetic and ferromagnetic quantum
+  spin chains},
+\newblock Phys. Rev. Lett. \textbf{125}, 037204 (2020),
+\newblock \doi{10.1103/PhysRevLett.125.037204}.
 
 \bibitem{Wu04}
 C.~Wu and S.-C. Zhang,
