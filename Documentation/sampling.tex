@@ -146,7 +146,7 @@ Per default, the finite-temperature algorithm is used, \texttt{Ltau=0}, and the 
 		\EndIf
 		\If{Langevin}
 		\State{\textbf{call} Langevin\_update} \Comment{\textsc{Update and measure} equal-time observables}
-		\If{$L_{\tau} = 1$}
+		\If{$L_{\tau} == 1$}
 		\If{Projector}
 		\State{\textbf{call} Tau\_p} \Comment{\textsc{Measure} time-displaced observables (projective code)}
 		\Else
@@ -164,7 +164,7 @@ Per default, the finite-temperature algorithm is used, \texttt{Ltau=0}, and the 
 		\State{\textbf{call} Wrapgrup}\Comment{\parbox[t]{0.6\linewidth}{\textsc{Propagate} Green function from $n_{\tau}-1$ to $n_{\tau}$, and compute its new estimate at $n_{\tau}$, using sequential updates}}
 		\vspace{1.5ex}
 		
-		\If{$n_{\tau}$ = stabilization point in imaginary time} \Comment{\textsc{Stabilize}}
+		\If{$n_{\tau}$ == stabilization point in imaginary time} \Comment{\textsc{Stabilize}}
 		\State{\textbf{call} Wrapur}\Comment{Propagate from previous stabilization point to $n_{\tau}$} 
 		
 		\LineComment{Storage management:\\
@@ -185,7 +185,7 @@ Per default, the finite-temperature algorithm is used, \texttt{Ltau=0}, and the 
 		\LineComment{\textsc{Downward sweep}}
 		\For{$n_{\tau}=L_{\text{Trotter}}$ to $1$}
 		\FirstLineComment{Same steps as for the upward sweep (propagation and estimate update, stabilization, equal-time measurements) now downwards in imaginary time}
-		\If{Projector \textbf{and}  $L_{\tau} = 1$ \textbf{and} \\
+		\If{Projector \textbf{and}  $L_{\tau} == 1$ \textbf{and} \\
 			\hspace{15.8ex} $n_{\tau}$ = stabilization point in imaginary time \textbf{and} \\
 			\hspace{15.8ex} the projection time $\theta$ is within the measurement interval}
 		\State{\textbf{call} Tau\_p} \Comment{\textsc{Measure} time-displaced observables (projective code)}
@@ -194,7 +194,7 @@ Per default, the finite-temperature algorithm is used, \texttt{Ltau=0}, and the 
 		\vspace{1.5ex}
 		
 		\LineComment{\textsc{Measure} time-displaced observables (finite temperature)}
-		\If{$L_{\tau} = 1$ \textbf{and not} Projector}
+		\If{$L_{\tau} == 1$ \textbf{and not} Projector}
 		\State{\textbf{call} Tau\_m}
 		\EndIf
 		\vspace{1.5ex}
