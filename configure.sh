@@ -4,14 +4,15 @@ STABCONFIGURATION=""
 
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
-INTELOPTFLAGS="-cpp -O3 "
+INTELOPTFLAGS="-cpp -O3"
+INTELOPTFLAGS="$INTELOPTFLAGS -no-wrap-margin"
 #INTELOPTFLAGS="$INTELOPTFLAGS -traceback"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
 INTELUSEFULFLAGS="-std08"
 
 # default optimization flags for GNU compiler
-GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
+GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math -fmax-errors=10"
 # uncomment the next line if you want to use additional openmp parallelization
 GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
 GNUUSEFULFLAGS="-std=f2008"
@@ -139,7 +140,7 @@ case $MACHINE in
   #Development
   DEVEL|DEVELOPMENT)
     # F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
-    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror -fcheck=all -g -fbacktrace "
+    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion -Werror=conversion -fcheck=all -g -fbacktrace "
     # F90OPTFLAGS=$GNUOPTFLAGS" -Wconversion -Wcompare-reals -fcheck=all -g -fbacktrace "
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
 
@@ -161,12 +162,12 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    #module switch mpi.intel  mpi.intel/2018
-    #module switch intel intel/18.0
-    #module switch mkl mkl/2018
-    module load  mpi.intel
-    module load intel
-    module load mkl
+    module switch mpi.intel  mpi.intel/2019
+    module switch intel intel/19.0
+    module switch mkl mkl/2019
+    #module load  mpi.intel
+    #module load intel
+    #module load mkl
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
@@ -265,7 +266,8 @@ if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
 fi
 
 ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
-ALF_FLAGS_MODULES="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
+#Modules need to know the programm configuration since entanglement needs MPI
+ALF_FLAGS_MODULES="${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_ANA="${F90USEFULFLAGS} ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
 export ALF_FLAGS_QRREF
