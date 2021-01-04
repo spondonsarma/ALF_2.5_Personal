@@ -5,16 +5,16 @@ build()
 {
 	export CC="$2" FC="$3" CXX="$4"
 	if ! command -v "$CC" > /dev/null; then
-		printf "\e[31m==== C compiler <%s> not available =====\e[0m" "$CC"
-		return
+		printf "\e[31m==== C compiler <%s> not available =====\e[0m\n" "$CC"
+		exit 1
 	fi
 	if ! command -v "$FC" > /dev/null; then
-		printf "\e[31m==== FORTRAN compiler <%s> not available =====\e[0m" "$FC"
-		return
+		printf "\e[31m==== FORTRAN compiler <%s> not available =====\e[0m\n" "$FC"
+		exit 1
 	fi
 	if ! command -v "$CXX" > /dev/null; then
-		printf "\e[31m==== C++ compiler <%s> not available =====\e[0m" "$CXX"
-		return
+		printf "\e[31m==== C++ compiler <%s> not available =====\e[0m\n" "$CXX"
+		exit 1
 	fi
 
 	mkdir "$1" || exit 1
@@ -22,8 +22,8 @@ build()
 	cd "$1"
 	"../$source_dir/configure" --prefix="$dir/$1" --enable-fortran
 	if ! make; then
-		printf "\e[31m====== Compilation with %s compilers failed =======\e[0m" "$1"
-		return
+		printf "\e[31m====== Compilation with %s compilers failed =======\e[0m\n" "$1"
+		exit 1
 	fi
 	#make check
 	make install
