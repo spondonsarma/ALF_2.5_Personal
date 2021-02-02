@@ -221,11 +221,11 @@ Contains
 #if defined(MPI_shared_mem) && defined(MPI)
     If ( Op%U_alloc ) then
       deallocate(OP%O, OP%P, OP%E)
-      call deallocate_shared_memory(OP%win_U)
+      !call deallocate_shared_memory(OP%win_U)
     endif
     If ( Op%M_exp_alloc ) then
       deallocate(OP%E_exp)
-      call deallocate_shared_memory(OP%win_M_exp)
+      !call deallocate_shared_memory(OP%win_M_exp)
     endif
 #else
     If ( Op%M_exp_alloc )   deallocate(OP%M_exp, OP%E_exp)

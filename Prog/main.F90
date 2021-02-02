@@ -262,7 +262,9 @@ Program Main
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
+#ifdef MPI_shared_mem
         CALL mpi_shared_memory_init(Group_Comm)
+#endif
 #endif
         !Initialize entanglement pairs of MPI jobs
         !This routine can and should also be called if MPI is not activated
@@ -764,6 +766,10 @@ Program Main
             call Op_clear(Op_T(n,nf),Op_T(n,nf)%N)
           enddo
         enddo
+
+#if defined(MPI_shared_mem) && defined(MPI)
+        call deallocate_all_shared_memory
+#endif
 
         Call Control_Print(Group_Comm, Langevin_HMC%get_Update_scheme())
 

@@ -1,6 +1,6 @@
 .PHONY : Compile tidy clean Z2_Matter  Kondo Hubbard tV Hubbard_Plain_Vanilla LRC
 
-OBJS= Hamiltonians/LRC_mod.o  Set_random.o control_mod.o Fields_mod.o mpi_shared_mem_mod.o Operator_mod.o WaveFunction_mod.o \
+OBJS= Hamiltonians/LRC_mod.o  Set_random.o control_mod.o Fields_mod.o mpi_shared_mem_mod_v2.o Operator_mod.o WaveFunction_mod.o \
       observables_mod.o ContainerElementBase_mod.o DynamicMatrixArray_mod.o OpTTypes_mod.o\
       Predefined_Int_mod.o Predefined_Obs_mod.o Predefined_Latt_mod.o Predefined_Hop_mod.o  Predefined_Trial_mod.o \
       $(HAMILTONIAN) QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
