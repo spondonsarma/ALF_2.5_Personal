@@ -218,19 +218,19 @@ Contains
 !     If ( associated(OP%P) )   deallocate(OP%P)
 !     If ( associated(OP%E_exp) )   deallocate(OP%E_exp)
 !     If ( associated(OP%E) )   deallocate(OP%E)
-#if defined(MPI_shared_mem) && defined(MPI)
-    If ( Op%U_alloc ) then
-      deallocate(OP%O, OP%P, OP%E)
-      !call deallocate_shared_memory(OP%win_U)
+    if (use_mpi_shm) then
+      If ( Op%U_alloc ) then
+         deallocate(OP%O, OP%P, OP%E)
+         !call deallocate_shared_memory(OP%win_U)
+      endif
+      If ( Op%M_exp_alloc ) then
+         deallocate(OP%E_exp)
+         !call deallocate_shared_memory(OP%win_M_exp)
+      endif
+    else
+      If ( Op%M_exp_alloc )   deallocate(OP%M_exp, OP%E_exp)
+      If ( Op%U_alloc )   deallocate(OP%U, OP%O, OP%P, OP%E)
     endif
-    If ( Op%M_exp_alloc ) then
-      deallocate(OP%E_exp)
-      !call deallocate_shared_memory(OP%win_M_exp)
-    endif
-#else
-    If ( Op%M_exp_alloc )   deallocate(OP%M_exp, OP%E_exp)
-    If ( Op%U_alloc )   deallocate(OP%U, OP%O, OP%P, OP%E)
-#endif
 
   end subroutine Op_clear
 
@@ -260,14 +260,14 @@ Contains
 
     N = OP%N
     Allocate ( Op%E(N) )
-#if defined(MPI_shared_mem) && defined(MPI)
-    arrayshape2d=(/ Op%N,Op%N /)
-    call allocate_shared_memory(Op%U,Op%win_U,noderank,arrayshape2d)
-    if (noderank == 0) Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
-#else
-    Allocate ( Op%U(N,N) )
-    Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
-#endif
+    if (use_mpi_shm) then
+      arrayshape2d=(/ Op%N,Op%N /)
+      call allocate_shared_memory(Op%U,Op%win_U,noderank,arrayshape2d)
+      if (noderank == 0) Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
+    else
+      Allocate ( Op%U(N,N) )
+      Op%U = cmplx(0.d0, 0.d0, kind(0.D0))
+    endif
     Op%U_alloc = .true.
     Op%E = 0.d0
     
@@ -323,18 +323,18 @@ Contains
        Op%N_non_zero = 1
        Op%diag = .true.
     endif
-#if defined(MPI_shared_mem) && defined(MPI)
-    call MPI_WIN_FENCE(0, Op%win_U, ierr)
+#ifdef MPI
+    if (use_mpi_shm) call MPI_WIN_FENCE(0, Op%win_U, ierr)
 #endif
     select case(OP%type)
     case(1)
-#if defined(MPI_shared_mem) && defined(MPI)
-       Allocate(Op%E_exp(Op%N, -Op%type : Op%type))
-       arrayshape=(/ Op%N,Op%N,3 /)
-       call allocate_shared_memory(Op%M_exp,Op%win_M_exp,noderank,arrayshape)
-#else
-       Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, 3))
-#endif
+       if (use_mpi_shm) then
+         Allocate(Op%E_exp(Op%N, -Op%type : Op%type))
+         arrayshape=(/ Op%N,Op%N,3 /)
+         call allocate_shared_memory(Op%M_exp,Op%win_M_exp,noderank,arrayshape)
+       else
+         Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, 3))
+       endif
        Op%M_exp_alloc = .true.
        nsigma_single%t(1) = 1
        Do I=1,Op%type
@@ -354,18 +354,18 @@ Contains
             call Op_exp( Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,I+2))
             call Op_exp(-Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,-I+2))
           endif
-#if defined(MPI_shared_mem) && defined(MPI)
-          call MPI_WIN_FENCE(0, Op%win_M_exp, ierr)
+#ifdef MPI
+          if (use_mpi_shm) call MPI_WIN_FENCE(0, Op%win_M_exp, ierr)
 #endif
        enddo
     case(2)
-#if defined(MPI_shared_mem) && defined(MPI)
-       Allocate(Op%E_exp(Op%N, -Op%type : Op%type))
-       arrayshape=(/ Op%N,Op%N,5 /)
-       call allocate_shared_memory(Op%M_exp,Op%win_M_exp,noderank,arrayshape)
-#else
-       Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, 5))
-#endif
+       if (use_mpi_shm) then
+         Allocate(Op%E_exp(Op%N, -Op%type : Op%type))
+         arrayshape=(/ Op%N,Op%N,5 /)
+         call allocate_shared_memory(Op%M_exp,Op%win_M_exp,noderank,arrayshape)
+       else
+         Allocate(Op%E_exp(Op%N, -Op%type : Op%type), Op%M_exp(Op%N, Op%N, 5))
+       endif
        Op%M_exp_alloc = .true.
        nsigma_single%t(1) = 2
        Do I=1,Op%type
@@ -383,8 +383,8 @@ Contains
             call Op_exp( Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,I+3))
             call Op_exp(-Op%g*nsigma_single%Phi(1,1),Op,Op%M_exp(:,:,-I+3))
           endif
-#if defined(MPI_shared_mem) && defined(MPI)
-          call MPI_WIN_FENCE(0, Op%win_M_exp, ierr)
+#ifdef MPI
+          if (use_mpi_shm) call MPI_WIN_FENCE(0, Op%win_M_exp, ierr)
 #endif
           !call Op_exp(Op%g*Phi_st( I,2),Op,Op%M_exp(:,:,I))
           !call Op_exp(Op%g*Phi_st(-I,2),Op,Op%M_exp(:,:,-I))

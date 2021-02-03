@@ -220,6 +220,11 @@ Program Main
         ! For the truncation of the program:
         logical                   :: prog_truncation
         integer (kind=kind(0.d0)) :: count_bin_start, count_bin_end
+        
+        ! For MPI shared memory
+        character(64), parameter :: name="ALF_SHM_CHUNK_SIZE"
+        character(64) :: chunk_size_str
+        integer :: chunk_size_gb
 
 #ifdef MPI
         Integer        :: Isize, Irank, Irank_g, Isize_g, color, key, igroup
@@ -262,9 +267,16 @@ Program Main
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
-#ifdef MPI_shared_mem
-        CALL mpi_shared_memory_init(Group_Comm)
-#endif
+!#ifdef MPI_shared_mem
+        CALL GET_ENVIRONMENT_VARIABLE(Name, VALUE=chunk_size_str, STATUS=ierr)
+        if (ierr==0) then
+           read(chunk_size_str,*,IOSTAT=ierr) chunk_size_gb
+        endif
+        if (ierr/=0 .or. chunk_size_gb<0) then
+              chunk_size_gb=0
+        endif
+        CALL mpi_shared_memory_init(Group_Comm, chunk_size_gb)
+!#endif
 #endif
         !Initialize entanglement pairs of MPI jobs
         !This routine can and should also be called if MPI is not activated
@@ -767,7 +779,8 @@ Program Main
           enddo
         enddo
 
-#if defined(MPI_shared_mem) && defined(MPI)
+#if defined(MPI)  
+!&& defined(MPI_shared_mem)
         call deallocate_all_shared_memory
 #endif
 

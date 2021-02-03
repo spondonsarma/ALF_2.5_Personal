@@ -54,9 +54,10 @@ module mpi_shared_memory
     complex (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_cmplx(:)
     real    (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_real(:) 
     integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
-    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real
+    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
     integer, private, save :: num_chunks_real, num_chunks_cmplx, chunk_size_real(1), chunk_size_cmplx(1)
     logical, private, save :: initialized=.false.
+    logical, public, save :: use_mpi_shm=.false.
     
     INTERFACE allocate_shared_memory
       MODULE PROCEDURE allocate_shared_memory_1Dreal,  allocate_shared_memory_2Dreal, &
@@ -67,21 +68,27 @@ module mpi_shared_memory
     
     Contains
 
-      subroutine mpi_shared_memory_init(mpi_communiator)
+      subroutine mpi_shared_memory_init(mpi_communiator, chunk_size)
         Implicit none
-        integer, intent(in) :: mpi_communiator
+        integer, intent(in) :: mpi_communiator, chunk_size
         
 #ifdef MPI
-        integer :: ierr, tmp_int
+        integer :: ierr, tmp_int, status
         real(Kind=Kind(0.d0)) :: dummy_real_dp
 
-        CALL MPI_Comm_split_type(mpi_communiator, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, nodecomm,ierr)
-        CALL MPI_Comm_rank(nodecomm, noderank,ierr)
-        initialized=.true.
-        num_chunks_real=0
-        num_chunks_cmplx=0
-        allocate(mpi_wins_real(10),mpi_wins_cmplx(10))
-        call allocate_shm_chunk_real
+        chunk_size_gb=chunk_size
+        if (chunk_size_gb > 0) then
+                use_mpi_shm=.true.
+                CALL MPI_Comm_split_type(mpi_communiator, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, nodecomm,ierr)
+                CALL MPI_Comm_rank(nodecomm, noderank,ierr)
+                initialized=.true.
+                num_chunks_real=0
+                num_chunks_cmplx=0
+                allocate(mpi_wins_real(10),mpi_wins_cmplx(10))
+                !call allocate_shm_chunk_real
+                !call 
+                if (noderank==0) write(*,*) "Chunk size for mpi shared memory is ", chunk_size_gb,"GB"
+        endif
 !#else
 !        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
 !        error stop 1
@@ -99,7 +106,7 @@ module mpi_shared_memory
         real(Kind=Kind(0.d0)) :: dummy_real_dp
         TYPE(C_PTR) :: baseptr
 
-        chunk_size_real(1) = 1024*1024*1024/C_SIZEOF(dummy_real_dp)  ! allocate 1GB of memory as a 1D array of reals
+        chunk_size_real(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_real_dp)  ! allocate GB(s) of memory as a 1D array of reals
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -163,16 +170,16 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_real(num_chunks_real)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1)) => shm_mem_chunk_real(head_idx_real:head_idx_real+arrayshape(1))
+        fortran_array (1:arrayshape(1)) => shm_mem_chunk_real(head_idx_real:head_idx_real+arrayshape(1)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_real=head_idx_real+arrayshape(1)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate(fortran_array(arrayshape(1)))
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate(fortran_array(arrayshape(1)))
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_1Dreal
@@ -197,16 +204,16 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_real(num_chunks_real)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1),1:arrayshape(2)) => shm_mem_chunk_real(head_idx_real:head_idx_real+arrayshape(1)*arrayshape(2))
+        fortran_array (1:arrayshape(1),1:arrayshape(2)) => shm_mem_chunk_real(head_idx_real:head_idx_real+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_real=head_idx_real+arrayshape(1)*arrayshape(2)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate( fortran_array(arrayshape(1),1:arrayshape(2)) )
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate( fortran_array(arrayshape(1),1:arrayshape(2)) )
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_2Dreal
@@ -232,16 +239,16 @@ module mpi_shared_memory
         mpi_win_loc=mpi_wins_real(num_chunks_real)
         ! carve out a piece of the shm chunk and hand it out
         fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3)) => &
-            & shm_mem_chunk_real(head_idx_real:head_idx_real+PRODUCT(arrayshape))
+            & shm_mem_chunk_real(head_idx_real:head_idx_real+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_real=head_idx_real+PRODUCT(arrayshape)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3)) )
-        !        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        !        error stop 1
+!        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3)) )
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_3Dreal
@@ -267,16 +274,16 @@ module mpi_shared_memory
         mpi_win_loc=mpi_wins_real(num_chunks_real)
         ! carve out a piece of the shm chunk and hand it out
         fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) => &
-            & shm_mem_chunk_real(head_idx_real:head_idx_real+PRODUCT(arrayshape))
+            & shm_mem_chunk_real(head_idx_real:head_idx_real+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_real=head_idx_real+PRODUCT(arrayshape)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) )
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) )
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_4Dreal
@@ -293,7 +300,7 @@ module mpi_shared_memory
         complex(Kind=Kind(0.d0)) :: dummy_cmplx_dp
         TYPE(C_PTR) :: baseptr
 
-        chunk_size_cmplx(1) = 1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  ! allocate 1GB of memory as a 1D array of complex doubles
+        chunk_size_cmplx(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  ! allocate GB(s) of memory as a 1D array of complex doubles
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -358,16 +365,16 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_cmplx(num_chunks_cmplx)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1)) => shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+arrayshape(1))
+        fortran_array (1:arrayshape(1)) => shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+arrayshape(1)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_cmplx=head_idx_cmplx+arrayshape(1)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate(fortran_array(arrayshape(1)))
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate(fortran_array(arrayshape(1)))
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_1Dcmplx
@@ -392,16 +399,17 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_cmplx(num_chunks_cmplx)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1),1:arrayshape(2)) => shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape))
+        fortran_array (1:arrayshape(1),1:arrayshape(2)) => &
+                &shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_cmplx=head_idx_cmplx+PRODUCT(arrayshape)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate(fortran_array(arrayshape(1),arrayshape(2)))
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate(fortran_array(arrayshape(1),arrayshape(2)))
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_2Dcmplx
@@ -426,16 +434,17 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_cmplx(num_chunks_cmplx)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3)) => shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape))
+        fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3)) => &
+                &shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_cmplx=head_idx_cmplx+PRODUCT(arrayshape)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3)))
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3)))
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_3Dcmplx
@@ -461,16 +470,17 @@ module mpi_shared_memory
         ! pass on the mpi_win (needed for syncronization) [possibly hide in an explicit sync routine]
         mpi_win_loc=mpi_wins_cmplx(num_chunks_cmplx)
         ! carve out a piece of the shm chunk and hand it out
-        fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) => shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape))
+        fortran_array (1:arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) => &
+                &shm_mem_chunk_cmplx(head_idx_cmplx:head_idx_cmplx+PRODUCT(arrayshape)-1)
         ! mark it as distributed, i.e., shift the head accordingly
         head_idx_cmplx=head_idx_cmplx+PRODUCT(arrayshape)
 #else
         mpi_win_loc=-1
-        myrank=0
+        myrank=-1
         !allocate plain old fortran array if run without MPI
-        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3),arrayshape))
-!        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-!        error stop 1
+!        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3),arrayshape))
+        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
+        error stop 1
 #endif
   
       end subroutine allocate_shared_memory_4Dcmplx
