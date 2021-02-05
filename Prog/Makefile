@@ -1,8 +1,8 @@
 .PHONY : Compile tidy clean program git.h
 
-HAMILTONIANS = $(file <Hamiltonians.list)
-
-OHAM = $(foreach HAM, $(HAMILTONIANS), Hamiltonians/Hamiltonian_$(HAM)_smod.o)
+OHAM = `while read -r ham; do \
+	echo "Hamiltonians/Hamiltonian_$${ham}_smod.o"; \
+done < Hamiltonians.list`
 
 OBJS = Hamiltonians/LRC_mod.o Set_random.o control_mod.o Fields_mod.o Operator_mod.o WaveFunction_mod.o observables_mod.o \
 	ContainerElementBase_mod.o DynamicMatrixArray_mod.o OpTTypes_mod.o \
@@ -16,7 +16,8 @@ MODS = control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observa
 	udv_state_mod.mod udv_wrap_mod.mod wavefunction_mod.mod wrapgr_mod.mod hamiltonian.mod \
 	containerelementbase_mod.mod opttypes_mod.mod dynamicmatrixarray_mod.mod langevin_hmc_mod.mod 
 
-program: git.h Hamiltonians_interface.h Hamiltonians_case.h $(OBJS)
+program: git.h Hamiltonians_interface.h Hamiltonians_case.h
+	make $(OBJS)
 	$(ALF_FC) -o "ALF.out" $(OBJS) $(ALF_LIB)
 
 git.h:
@@ -29,7 +30,7 @@ Hamiltonians_interface.h: Hamiltonians.list
 		echo "  module subroutine Ham_Set_$$ham()" >> "Hamiltonians_interface.h"; \
 		echo "  end subroutine Ham_Set_$$ham" >> "Hamiltonians_interface.h"; \
 	done < Hamiltonians.list 
-	echo "end interface" >> "Hamiltonians_interface.h"
+	@echo "end interface" >> "Hamiltonians_interface.h"
 
 Hamiltonians_case.h: Hamiltonians.list
 	rm -f "Hamiltonians_case.h"
@@ -43,7 +44,7 @@ Hamiltonians_case.h: Hamiltonians.list
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
-	rm -f $(OBJS) $(MODS) git.h Hamiltonians_interface.h Hamiltonians_case.h
+	rm -f $(OBJS) $(MODS) *.smod git.h Hamiltonians_interface.h Hamiltonians_case.h
 
 clean: tidy
 	rm -f "ALF.out"
