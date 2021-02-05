@@ -184,9 +184,9 @@ GQMCT_Stretch_OpenBlas_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *test_definition
 
-GQMCT_CentOS_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  <<: *test_definition
+#GQMCT_CentOS_tests:
+  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
+  #<<: *test_definition
 
 #GQMCT_OpenSuse-13.2_tests:
   #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
@@ -196,9 +196,9 @@ GQMCT_CentOS_tests:
   #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   #<<: *test_definition
 
-GQMCT_Ubuntu-trusty_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  <<: *test_definition
+#GQMCT_Ubuntu-trusty_tests:
+  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
+  #<<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
