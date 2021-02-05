@@ -535,7 +535,7 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-        Real (Kind=Kind(0.d0)) function S0_LRC(n,nt,Hs_new)
+        function S0_LRC(n,nt,Hs_new) result(S0)
           Implicit none
           !> Operator index
           Integer, Intent(IN) :: n
@@ -543,11 +543,12 @@
           Integer, Intent(IN) :: nt
           !> New local field on time slice nt and operator index n
           Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+          Real (Kind=Kind(0.d0)) :: S0
 
           Integer :: nt1,I
           !Write(6,*) "Hi1"
 
-          S0_LRC = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
+          S0 = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
 
         end function S0_LRC
 !--------------------------------------------------------------------
@@ -748,7 +749,7 @@
           Implicit none
 
           Integer         , INTENT(IN) :: NT
-          Complex (kind=kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
 
           !Locals

@@ -480,17 +480,18 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-        Real (Kind=Kind(0.d0)) function S0_Z2_Matter(n,nt,Hs_new)
+        function S0_Z2_Matter(n,nt,Hs_new) result(S0)
           Implicit none
           Integer, Intent(IN) :: n,nt
           Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+          Real (Kind=Kind(0.d0)) :: S0
 
           !Local
           Integer :: nt1,I, F1,F2,I1,I2,I3,  n_orientation, n_m
 
           !> Ratio for local spin-flip  of gauge field only.
 
-          S0_Z2_Matter = 1.d0
+          S0 = 1.d0
           If ( Abs(Ham_TZ2) > Zero ) then
 
              !Field_list_inv(nc,1) = I1
@@ -503,24 +504,24 @@
                    I              = Field_list_inv(n,1)
                    n_orientation  = Field_list_inv(n,2)
                    n_m            = Field_list(I,n_orientation,2)
-                   S0_Z2_Matter = S0_Z2_Matter* DW_Ising_Matter(nsigma%i(n,nt)*nsigma%i(n_m,nt) )  ! Coupling to matter field.
+                   S0 = S0* DW_Ising_Matter(nsigma%i(n,nt)*nsigma%i(n_m,nt) )  ! Coupling to matter field.
                 endif
 
                 If (Projector) then
                    if   (nt == Ltrot)  then
-                      S0_Z2_Matter = S0_Z2_Matter*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt-1))
+                      S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt-1))
                    elseif ( nt == 1 ) then
-                      S0_Z2_Matter = S0_Z2_Matter*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt+1))
+                      S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt+1))
                    else
-                      S0_Z2_Matter = S0_Z2_Matter*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt+1))*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt-1))
+                      S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt+1))*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt-1))
                    endif
                 else
                    nt1 = nt +1
                    if (nt1 > Ltrot) nt1 = 1
-                   S0_Z2_Matter = S0_Z2_Matter*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
+                   S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
                    nt1 = nt - 1
                    if (nt1 < 1  ) nt1 = Ltrot
-                   S0_Z2_Matter = S0_Z2_Matter*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
+                   S0 = S0*DW_Ising_tau(nsigma%i(n,nt)*nsigma%i(n,nt1))
                 endif
                 ! Magnetic flux term
                 I1 = Field_list_inv(n,1)
@@ -547,9 +548,9 @@
                    I3 = Latt%nnlist(I1,1,0)
                    F2 = nsigma%i(n,nt)*nsigma%i(Field_list(I1,1,1),nt)* nsigma%i(Field_list(I2,1,1),nt)*nsigma%i(Field_list(I3,2,1),nt)
                 endif
-                S0_Z2_Matter = S0_Z2_Matter*DW_Ising_Flux(F1,F2)
+                S0 = S0*DW_Ising_Flux(F1,F2)
              else
-                S0_Z2_Matter = 1.d0
+                S0 = 1.d0
              endif
 
           endif
@@ -715,18 +716,19 @@
 !>  Old configuration. The new configuration is stored in nsigma.
 !> \endverbatim
 !-------------------------------------------------------------------
-        Real (Kind=kind(0.d0)) Function Delta_S0_global_Z2_Matter(Nsigma_old)
+        Function Delta_S0_global_Z2_Matter(Nsigma_old) result(Delta_S0_global)
 
           !>  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
           Implicit none
 
           !> Arguments
           type (Fields),  Intent(IN)  :: nsigma_old
+          Real (Kind=kind(0.d0))      :: Delta_S0_global
           !> Local
           Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m, n1_m, n4_m
 
 
-          Delta_S0_global_Z2_Matter = 1.d0
+          Delta_S0_global = 1.d0
           If ( Model == "Z2_Matter" ) then
              nc_F = 0
              nc_J = 0
@@ -774,7 +776,7 @@
 
                 enddo
              enddo
-             Delta_S0_global_Z2_Matter = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
+             Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
                   &            exp( -Dtau*(Ham_K*real(nc_F,kind(0.d0)) + Ham_J*real(nc_J,kind(0.d0))))
           endif
         end Function Delta_S0_global_Z2_Matter
@@ -1186,7 +1188,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_Z2_Matter(NT,  GT0,G0T,G00,GTT, PHASE)
+        Subroutine ObserT_Z2_Matter(NT, GT0, G0T, G00, GTT, PHASE)
           Implicit none
 
           Integer         , INTENT(IN) :: NT
