@@ -85,7 +85,7 @@
       module Subroutine Ham_Set_Z2_Matter
 
 #if defined (MPI) || defined(TEMPERING)
-           use mpi
+          use mpi
 #endif
           Implicit none
 
@@ -99,7 +99,8 @@
           NAMELIST /VAR_Z2_Matter/ ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h, &
                &                   Dtau, Beta, ham_TZ2, Ham_U,  N_SUN, Projector, Theta, N_part
 
-
+          
+          
 #ifdef MPI
           Integer        :: Isize, Irank, igroup, irank_g, isize_g
           Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -120,6 +121,7 @@
           Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_Z2_Matter
           Delta_S0_global => Delta_S0_global_Z2_Matter
           S0 => S0_Z2_Matter
+          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_Z2_Matter
 
 
 #ifdef MPI
@@ -1018,13 +1020,15 @@
 !>  Time slice
 !> \endverbatim
 !--------------------------------------------------------------------
-        Subroutine Obser_Z2_Matter(GR,Phase,Ntau)
+        Subroutine Obser_Z2_Matter(GR,Phase,Ntau, Mc_step_weight)
 
           Implicit none
 
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
@@ -1040,6 +1044,7 @@
 
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+          ZS = ZS*Mc_step_weight
 
           ZN =  cmplx(dble(N_SUN), 0.d0, kind(0.D0))
 
@@ -1188,12 +1193,13 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_Z2_Matter(NT, GT0, G0T, G00, GTT, PHASE)
+        Subroutine ObserT_Z2_Matter(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
           Implicit none
 
           Integer         , INTENT(IN) :: NT
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
 
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS
@@ -1203,6 +1209,8 @@
           If (NT == 0 ) NT1 = LTROT
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+
+          ZS = ZS*Mc_step_weight
 
 !!$          If (NT == 0 ) then
 !!$             DO I = 1,Size(Obs_tau,1)
@@ -1810,4 +1818,27 @@
         
       end function star_sigma_x_c
 
-    end submodule ham_Z2_Matter
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
+!> 
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_HMC_S0_Z2_Matter(Forces_0)
+
+          Implicit none
+
+          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+
+          !Local
+          Integer :: N, N_op,nt
+          
+          ! Compute \partial S_0 / \partial s
+          Forces_0  = 0.d0
+          
+        end Subroutine Ham_Langevin_HMC_S0_Z2_Matter
+
+
+      end submodule ham_Z2_Matter

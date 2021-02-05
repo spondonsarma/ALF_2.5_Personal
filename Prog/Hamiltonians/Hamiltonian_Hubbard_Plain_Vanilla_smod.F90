@@ -176,10 +176,11 @@
           Alloc_obs => Alloc_obs_hubbard_plain_vanilla
           Obser => Obser_hubbard_plain_vanilla
           ObserT => ObserT_hubbard_plain_vanilla
+          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_hubbard_plain_vanilla
           
           ! Global "Default" values.
 
-
+          
 #ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
@@ -577,7 +578,7 @@
 !>  Time slice
 !> \endverbatim
 !-------------------------------------------------------------------
-        subroutine Obser_hubbard_plain_vanilla(GR,Phase,Ntau)
+        subroutine Obser_hubbard_plain_vanilla(GR,Phase,Ntau, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -586,6 +587,7 @@
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer, INTENT(IN)          :: Ntau
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL), ZK
@@ -596,6 +598,9 @@
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
 
+          ZS = ZS*Mc_step_weight
+                    
+          
 
           Do nf = 1,N_FL
              Do I = 1,Ndim
@@ -701,7 +706,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_hubbard_plain_vanilla(NT,  GT0,G0T,G00,GTT, PHASE)
+        Subroutine ObserT_hubbard_plain_vanilla(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -710,6 +715,7 @@
           Integer         , INTENT(IN) :: NT
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL),G0T(Ndim,Ndim,N_FL),G00(Ndim,Ndim,N_FL),GTT(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
+          Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
 
           !Locals
           Complex (Kind=Kind(0.d0)) :: Z, ZP, ZS, ZZ, ZXY, ZDEN
@@ -718,6 +724,7 @@
 
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
+          ZS = ZS*Mc_step_weight
 
           If (NT == 0 ) then
              Do I = 1,Size(Obs_tau,1)
@@ -754,5 +761,34 @@
 
         end Subroutine OBSERT_hubbard_plain_vanilla
 
+!--------------------------------------------------------------------
+!> @author 
+!> ALF Collaboration
+!>
+!> @brief 
+!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
+!> 
+!-------------------------------------------------------------------
+        Subroutine Ham_Langevin_HMC_S0_hubbard_plain_vanilla(Forces_0)
+
+          Implicit none
+
+          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+
+          !Local
+          Integer :: N, N_op,nt
+          
+          ! Compute \partial S_0 / \partial s
+          N_op = size(nsigma%f,1)
+          Forces_0  = 0.d0
+          do n = 1,N_op
+             if (OP_V(n,1)%type == 3 ) then
+                do nt = 1,Ltrot
+                   Forces_0(n,nt) = nsigma%f(n,nt)
+                enddo
+             endif
+          enddo
+          
+        end Subroutine Ham_Langevin_HMC_S0_hubbard_plain_vanilla
 
     end submodule ham_Hubbard_Plain_Vanilla

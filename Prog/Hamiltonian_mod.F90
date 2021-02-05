@@ -141,6 +141,7 @@
       PROCEDURE(Global_move_base), POINTER, public :: Global_move
       PROCEDURE(Delta_S0_global_base), POINTER, public :: Delta_S0_global
       PROCEDURE(S0_base), POINTER, public :: S0
+      PROCEDURE(Ham_Langevin_HMC_S0_base), POINTER, public :: Ham_Langevin_HMC_S0
 
       Type (Operator),     dimension(:,:), allocatable, public :: Op_V
       Type (Operator),     dimension(:,:), allocatable, public :: Op_T
@@ -183,6 +184,7 @@
        Global_move => Global_move_base
        Delta_S0_global => Delta_S0_global_base
        S0 => S0_base
+       Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
        
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN
@@ -269,7 +271,6 @@
     !>  Size of cluster that will be flipped.
     !> \endverbatim
     !-------------------------------------------------------------------
-          ! Functions for Global moves.  These move are not implemented in this example.
           Subroutine Global_move_base(T0_Proposal_ratio, nsigma_old, size_clust)
 
              Implicit none
@@ -330,13 +331,14 @@
     !>  Time slice
     !> \endverbatim
     !-------------------------------------------------------------------
-          subroutine Obser_base(GR,Phase,Ntau)
+          subroutine Obser_base(GR,Phase,Ntau, Mc_step_weight)
 
              Implicit none
 
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
              Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
              Integer, INTENT(IN)          :: Ntau
+             Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
              
              write(error_unit, *) "Warning: Obser not implemented."
 
@@ -367,13 +369,14 @@
     !>  Phase
     !> \endverbatim
     !-------------------------------------------------------------------
-          Subroutine ObserT_base(NT, GT0, G0T, G00, GTT, PHASE)
+          Subroutine ObserT_base(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
              Implicit none
     
              Integer         , INTENT(IN) :: NT
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: G00(Ndim,Ndim,N_FL), GTT(Ndim,Ndim,N_FL)
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
+             Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
              
              write(error_unit, *) "Warning: ObserT not implemented."
     
@@ -542,6 +545,23 @@
              Implicit none
              Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
           end Subroutine Overide_global_tau_sampling_parameters_base
+
+
+  !--------------------------------------------------------------------
+  !> @author 
+  !> ALF Collaboration
+  !>
+  !> @brief 
+  !>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
+  !> 
+  !-------------------------------------------------------------------
+          Subroutine Ham_Langevin_HMC_S0_base(Forces_0)
+
+            Implicit none
+
+            Real (Kind=Kind(0.d0)), Intent(out), dimension(:,:) :: Forces_0
+            
+          end Subroutine Ham_Langevin_HMC_S0_base
 
 
     end Module Hamiltonian
