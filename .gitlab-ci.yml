@@ -45,7 +45,7 @@ stages:
     - gfortran -v
     - make lib
     - make ana
-    - make Hubbard_Plain_Vanilla
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -219,7 +219,7 @@ GQMCT_Buster-PGI_tests:
     - . configure.sh PGI serial
     - make lib
     - make ana
-    - make Hubbard_Plain_Vanilla
+    - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
@@ -240,7 +240,7 @@ GQMCT_Stretch_valgrind:
       - . configure.sh GNU serial
       - gfortran -v
       - make lib
-      - make Hubbard_Plain_Vanilla
+      - make program
       - cp Prog/Hubbard_Plain_Vanilla.out Scripts_and_Parameters_files/Start
       - cd Scripts_and_Parameters_files/Start
       - valgrind --leak-check=full --log-file=vglog.txt ./Hubbard_Plain_Vanilla.out
