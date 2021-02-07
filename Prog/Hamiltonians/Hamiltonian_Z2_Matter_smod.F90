@@ -121,7 +121,6 @@
           Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_Z2_Matter
           Delta_S0_global => Delta_S0_global_Z2_Matter
           S0 => S0_Z2_Matter
-          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_Z2_Matter
 
 
 #ifdef MPI
@@ -1272,7 +1271,7 @@
 
         Implicit none
 
-        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+        Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(INOUT) :: Initial_field
 
         ! Local
         Integer :: I,nc, I1, nt, n_orientation, N_ops
@@ -1817,28 +1816,6 @@
         endif
         
       end function star_sigma_x_c
-
-!--------------------------------------------------------------------
-!> @author 
-!> ALF Collaboration
-!>
-!> @brief 
-!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
-!> 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_Z2_Matter(Forces_0)
-
-          Implicit none
-
-          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
-
-          !Local
-          Integer :: N, N_op,nt
-          
-          ! Compute \partial S_0 / \partial s
-          Forces_0  = 0.d0
-          
-        end Subroutine Ham_Langevin_HMC_S0_Z2_Matter
 
 
       end submodule ham_Z2_Matter

@@ -187,7 +187,6 @@
           Alloc_obs => Alloc_obs_Kondo
           Obser => Obser_Kondo
           ObserT => ObserT_Kondo
-          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_Kondo
           S0 => S0_Kondo
 
           ! Global "Default" values.
@@ -847,28 +846,6 @@
              enddo
           enddo
         end Subroutine ObserT_Kondo
-
-!--------------------------------------------------------------------
-!> @author 
-!> ALF Collaboration
-!>
-!> @brief 
-!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
-!> 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_Kondo(Forces_0)
-
-          Implicit none
-
-          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
-
-          !Local
-          Integer :: N, N_op,nt
-          
-          ! Compute \partial S_0 / \partial s
-          Forces_0  = 0.d0
-          
-        end Subroutine Ham_Langevin_HMC_S0_Kondo
 
 !--------------------------------------------------------------------
 !> @author

@@ -185,7 +185,6 @@
           Alloc_obs => Alloc_obs_tV
           Obser => Obser_tV
           ObserT => ObserT_tV
-          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_tV
           S0 => S0_tV
 
           ! Global "Default" values.
@@ -818,29 +817,6 @@
           Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
         end Subroutine ObserT_tV
-
-
-!--------------------------------------------------------------------
-!> @author 
-!> ALF Collaboration
-!>
-!> @brief 
-!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
-!> 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_tV(Forces_0)
-
-          Implicit none
-
-          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
-
-          !Local
-          Integer :: N, N_op,nt
-          
-          ! Compute \partial S_0 / \partial s
-          Forces_0  = 0.d0
-          
-        end Subroutine Ham_Langevin_HMC_S0_tV
 
 !--------------------------------------------------------------------
 !> @author

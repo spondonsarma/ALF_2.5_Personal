@@ -524,7 +524,7 @@
           Subroutine  Hamiltonian_set_nsigma_base(Initial_field)
              Implicit none
 
-             Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(OUT) :: Initial_field
+             Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(INOUT) :: Initial_field
 
           end Subroutine Hamiltonian_set_nsigma_base
 
@@ -559,7 +559,9 @@
 
             Implicit none
 
-            Real (Kind=Kind(0.d0)), Intent(out), dimension(:,:) :: Forces_0
+            Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_0(:,:)
+
+            Forces_0  = 0.d0
             
           end Subroutine Ham_Langevin_HMC_S0_base
 

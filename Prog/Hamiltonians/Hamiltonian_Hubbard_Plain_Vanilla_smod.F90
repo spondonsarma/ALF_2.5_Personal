@@ -773,7 +773,7 @@
 
           Implicit none
 
-          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
+          Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_0(:,:)
 
           !Local
           Integer :: N, N_op,nt
