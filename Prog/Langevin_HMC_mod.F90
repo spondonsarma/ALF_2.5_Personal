@@ -50,9 +50,9 @@
            Character (Len=64)                      :: Update_scheme
            Logical                                 :: L_Forces
            Real    (Kind=Kind(0.d0))               :: Delta_t_running, Delta_t_Langevin_HMC, Max_Force
-           Complex (Kind=Kind(0.d0)),  pointer :: Forces  (:,:)
+           Complex (Kind=Kind(0.d0)), allocatable  :: Forces  (:,:)
            
-           Real    (Kind=Kind(0.d0)),  pointer :: Forces_0(:,:)
+           Real    (Kind=Kind(0.d0)), allocatable  :: Forces_0(:,:)
          CONTAINS
            procedure  ::    make        => Langevin_HMC_setup
            procedure  ::    clean       => Langevin_HMC_clear
