@@ -40,7 +40,7 @@
 !--------------------------------------------------------------------
 
 
-    submodule (Hamiltonian) ham_Z2_Matter
+    submodule (Hamiltonian) ham_Z2_Matter_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -55,6 +55,19 @@
       Use Predefined_Obs
 
       Implicit none
+      
+      type, extends(ham_base) :: ham_Z2_Matter
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Alloc_obs => Alloc_obs_Z2_Matter
+        procedure, nopass :: Obser => Obser_Z2_Matter
+        procedure, nopass :: ObserT => ObserT_Z2_Matter
+        procedure, nopass :: Global_move_tau => Global_move_tau_Z2_Matter
+        procedure, nopass :: Hamiltonian_set_nsigma => Hamiltonian_set_nsigma_Z2_Matter
+        procedure, nopass :: Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_Z2_Matter
+        procedure, nopass :: Delta_S0_global => Delta_S0_global_Z2_Matter
+        procedure, nopass :: S0 => S0_Z2_Matter
+      end type ham_Z2_Matter
 
 !>    Privat variables
       Type (Lattice),        target :: Latt
@@ -111,17 +124,7 @@
           igroup           = irank/isize_g
           !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
-
-          ! Set Hamiltonian-specific procedures
-          Alloc_obs => Alloc_obs_Z2_Matter
-          Obser => Obser_Z2_Matter
-          ObserT => ObserT_Z2_Matter
-          Global_move_tau => Global_move_tau_Z2_Matter
-          Hamiltonian_set_nsigma => Hamiltonian_set_nsigma_Z2_Matter
-          Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_Z2_Matter
-          Delta_S0_global => Delta_S0_global_Z2_Matter
-          S0 => S0_Z2_Matter
-
+          allocate(ham_Z2_Matter::ham)
 
 #ifdef MPI
           If (Irank == 0 ) then
@@ -1818,4 +1821,4 @@
       end function star_sigma_x_c
 
 
-      end submodule ham_Z2_Matter
+      end submodule ham_Z2_Matter_smod

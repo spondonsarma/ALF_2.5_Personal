@@ -113,7 +113,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_Kondo
+    submodule (Hamiltonian) ham_Kondo_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -128,7 +128,15 @@
       Use LRC_Mod
 
       Implicit none
-
+      
+      type, extends(ham_base) :: ham_Kondo
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Alloc_obs => Alloc_obs_Kondo
+        procedure, nopass :: Obser => Obser_Kondo
+        procedure, nopass :: ObserT => ObserT_Kondo
+        procedure, nopass :: S0 => S0_Kondo
+      end type ham_Kondo
 
       Type (Lattice),       Target  :: Latt
       Type (Unit_cell),     Target  :: Latt_unit
@@ -183,11 +191,7 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          ! Set Hamiltonian-specific procedures
-          Alloc_obs => Alloc_obs_Kondo
-          Obser => Obser_Kondo
-          ObserT => ObserT_Kondo
-          S0 => S0_Kondo
+          allocate(ham_Kondo::ham)
 
           ! Global "Default" values.
           N_SUN        = 2
@@ -875,4 +879,4 @@
       end function S0_Kondo
 
 
-    end submodule ham_Kondo
+    end submodule ham_Kondo_smod

@@ -120,9 +120,9 @@
               Call Hop_mod_Symm(GTT_T,GTT)
               Call Hop_mod_Symm(G0T_T,G0T)
               Call Hop_mod_Symm(GT0_T,GT0)
-              CALL OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE, Mc_step_Weight)
+              CALL ham%OBSERT(NT,  GT0_T,G0T_T,G00_T,GTT_T, PHASE, Mc_step_Weight)
            Else
-              CALL OBSERT(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_Weight)
+              CALL ham%OBSERT(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_Weight)
            Endif
            
            ALLOCATE(udvr(N_FL))
@@ -153,13 +153,13 @@
                  Call Hop_mod_Symm(GTT_T,GTT)
                  Call Hop_mod_Symm(G0T_T,G0T)
                  Call Hop_mod_Symm(GT0_T,GT0)
-                 CALL OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE, Mc_step_weight)
+                 CALL ham%OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE, Mc_step_weight)
                  If (trim(Langevin_HMC%get_Update_scheme())=="Langevin" &
-                      &  .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT_T, PHASE, NT1, Mc_step_weight )
+                      &  .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL ham%Obser( GTT_T, PHASE, NT1, Mc_step_weight )
               Else
-                 CALL OBSERT(NT1, GT0,G0T,G00,GTT,PHASE, Mc_step_weight)
+                 CALL ham%OBSERT(NT1, GT0,G0T,G00,GTT,PHASE, Mc_step_weight)
                  If (trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
-                      & .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL Obser( GTT, PHASE, NT1, Mc_step_weight )
+                      & .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL ham%Obser( GTT, PHASE, NT1, Mc_step_weight )
               Endif
               
               IF ( Stab_nt(NST) == NT1 .AND.  NT1 .NE. LTROT ) THEN

@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_LRC
+    submodule (Hamiltonian) ham_LRC_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -130,6 +130,18 @@
       Use LRC_Mod
 
       Implicit none
+      
+      type, extends(ham_base) :: ham_LRC
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Alloc_obs => Alloc_obs_LRC
+        procedure, nopass :: Obser => Obser_LRC
+        procedure, nopass :: ObserT => ObserT_LRC
+        procedure, nopass :: Global_move_tau => Global_move_tau_LRC
+        procedure, nopass :: Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_LRC
+        procedure, nopass :: S0 => S0_LRC
+        procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_LRC
+      end type ham_LRC
 
       Type (Lattice),   target :: Latt
       Type (Unit_cell), target :: Latt_unit
@@ -185,14 +197,7 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          ! Set Hamiltonian-specific procedures
-          Alloc_obs => Alloc_obs_LRC
-          Obser => Obser_LRC
-          ObserT => ObserT_LRC
-          Global_move_tau => Global_move_tau_LRC
-          Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_LRC
-          S0 => S0_LRC
-          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_LRC
+          allocate(ham_LRC::ham)
           
           ! Global "Default" values.
           N_SUN        = 1
@@ -897,4 +902,4 @@
 
 
       
-      end Submodule ham_LRC
+      end Submodule ham_LRC_smod

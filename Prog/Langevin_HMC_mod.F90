@@ -170,9 +170,9 @@
            IF (NTAU1 .GE. LOBS_ST .AND. NTAU1 .LE. LOBS_EN .and. Calc_Obser_eq ) THEN
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
-                 CALL Obser( GR_Tilde, PHASE, Ntau1,Langevin_HMC%Delta_t_running )
+                 CALL ham%Obser( GR_Tilde, PHASE, Ntau1,Langevin_HMC%Delta_t_running )
               else
-                 CALL Obser( GR, PHASE, Ntau1, Langevin_HMC%Delta_t_running )
+                 CALL ham%Obser( GR, PHASE, Ntau1, Langevin_HMC%Delta_t_running )
               endif
            endif
         enddo
@@ -373,7 +373,7 @@
            
            Call Control_Langevin   ( this%Forces,Group_Comm )
            
-           Call Ham_Langevin_HMC_S0( this%Forces_0)
+           Call ham%Ham_Langevin_HMC_S0( this%Forces_0)
            
            N_op = size(nsigma%f,1)
            !  Determine running time step

@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_Hubbard_Plain_Vanilla
+    submodule (Hamiltonian) ham_Hubbard_Plain_Vanilla_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -131,6 +131,15 @@
 
 
       Implicit none
+      
+      type, extends(ham_base) :: ham_Hubbard_Plain_Vanilla
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Alloc_obs => Alloc_obs_hubbard_plain_vanilla
+        procedure, nopass :: Obser => Obser_hubbard_plain_vanilla
+        procedure, nopass :: ObserT => ObserT_hubbard_plain_vanilla
+        procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_hubbard_plain_vanilla
+      end type ham_Hubbard_Plain_Vanilla
 
       Type (Lattice),       target :: Latt
       Type (Unit_cell),     target :: Latt_unit
@@ -172,11 +181,7 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          ! Set Hamiltonian-specific procedures
-          Alloc_obs => Alloc_obs_hubbard_plain_vanilla
-          Obser => Obser_hubbard_plain_vanilla
-          ObserT => ObserT_hubbard_plain_vanilla
-          Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_hubbard_plain_vanilla
+          allocate(ham_Hubbard_Plain_Vanilla::ham)
           
           ! Global "Default" values.
 
@@ -791,4 +796,4 @@
           
         end Subroutine Ham_Langevin_HMC_S0_hubbard_plain_vanilla
 
-    end submodule ham_Hubbard_Plain_Vanilla
+    end submodule ham_Hubbard_Plain_Vanilla_smod

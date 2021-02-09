@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_tV
+    submodule (Hamiltonian) ham_tV_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -130,6 +130,15 @@
       Use LRC_Mod
 
       Implicit none
+      
+      type, extends(ham_base) :: ham_tV
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Alloc_obs => Alloc_obs_tV
+        procedure, nopass :: Obser => Obser_tV
+        procedure, nopass :: ObserT => ObserT_tV
+        procedure, nopass :: S0 => S0_tV
+      end type ham_tV
 
       Type (Lattice),   target :: Latt
       Type (Unit_cell), target :: Latt_unit
@@ -181,11 +190,7 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          ! Set Hamiltonian-specific procedures
-          Alloc_obs => Alloc_obs_tV
-          Obser => Obser_tV
-          ObserT => ObserT_tV
-          S0 => S0_tV
+          allocate(ham_tV::ham)
 
           ! Global "Default" values.
           N_SUN        = 1
@@ -846,4 +851,4 @@
       end function S0_tV
 
 
-    end submodule ham_tV
+    end submodule ham_tV_smod

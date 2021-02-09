@@ -125,23 +125,27 @@
     Implicit none
     
     private
-    public :: Ham_Set
+    public :: Ham_Set, ham_base, ham
 #ifdef __PGI
     public :: Obs_scal, Obs_eq, Obs_tau
 #endif
+      type ham_base
+      contains
+        procedure, nopass :: Alloc_obs => Alloc_obs_base
+        procedure, nopass :: Obser => Obser_base
+        procedure, nopass :: ObserT => ObserT_base
+        procedure, nopass :: Pr_obs => Pr_obs_base
+        procedure, nopass :: Init_obs => Init_obs_base
+        procedure, nopass :: Global_move_tau => Global_move_tau_base
+        procedure, nopass :: Hamiltonian_set_nsigma => Hamiltonian_set_nsigma_base
+        procedure, nopass :: Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_base
+        procedure, nopass :: Global_move => Global_move_base
+        procedure, nopass :: Delta_S0_global => Delta_S0_global_base
+        procedure, nopass :: S0 => S0_base
+        procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+      end type ham_base
       
-      PROCEDURE(Alloc_obs_base), POINTER, public :: Alloc_obs
-      PROCEDURE(Obser_base), POINTER, public :: Obser
-      PROCEDURE(ObserT_base), POINTER, public :: ObserT
-      PROCEDURE(Pr_obs_base), POINTER, public :: Pr_obs
-      PROCEDURE(Init_obs_base), POINTER, public :: Init_obs
-      PROCEDURE(Global_move_tau_base), POINTER, public :: Global_move_tau
-      PROCEDURE(Hamiltonian_set_nsigma_base), POINTER, public :: Hamiltonian_set_nsigma
-      PROCEDURE(Overide_global_tau_sampling_parameters_base), POINTER, public :: Overide_global_tau_sampling_parameters
-      PROCEDURE(Global_move_base), POINTER, public :: Global_move
-      PROCEDURE(Delta_S0_global_base), POINTER, public :: Delta_S0_global
-      PROCEDURE(S0_base), POINTER, public :: S0
-      PROCEDURE(Ham_Langevin_HMC_S0_base), POINTER, public :: Ham_Langevin_HMC_S0
+      class(ham_base), allocatable :: ham
 
       Type (Operator),     dimension(:,:), allocatable, public :: Op_V
       Type (Operator),     dimension(:,:), allocatable, public :: Op_T
@@ -172,19 +176,6 @@
        Integer :: ierr
        Character (len=64) :: ham_name
        NAMELIST /VAR_HAM_NAME/ ham_name
-       
-       Alloc_obs => Alloc_obs_base
-       Obser => Obser_base
-       ObserT => ObserT_base
-       Pr_obs => Pr_obs_base
-       Init_obs => Init_obs_base
-       Global_move_tau => Global_move_tau_base
-       Hamiltonian_set_nsigma => Hamiltonian_set_nsigma_base
-       Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_base
-       Global_move => Global_move_base
-       Delta_S0_global => Delta_S0_global_base
-       S0 => S0_base
-       Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
        
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN

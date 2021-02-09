@@ -365,7 +365,7 @@ Program Main
            N_Global_tau        = 0
         else
            !  Gives the possibility to set parameters in the Hamiltonian file
-           Call Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+           Call ham%Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
         endif
         
         N_op = Size(OP_V,1)
@@ -377,7 +377,7 @@ Program Main
         Call Set_Random_number_Generator(File_seeds,Seed_in)
         !Write(6,*) Seed_in
                
-        Call Hamiltonian_set_nsigma(Initial_field)
+        Call ham%Hamiltonian_set_nsigma(Initial_field)
         if (allocated(Initial_field)) then
            Call nsigma%in(Group_Comm,Initial_field)
            deallocate(Initial_field)
@@ -392,7 +392,7 @@ Program Main
         endif
 
         Call control_init
-        Call Alloc_obs(Ltau)
+        Call ham%Alloc_obs(Ltau)
 
         If ( mod(Ltrot,nwrap) == 0  ) then
            Nstm = Ltrot/nwrap
@@ -544,7 +544,7 @@ Program Main
 
            call system_clock(count_bin_start)
 
-           Call Init_obs(Ltau)
+           Call ham%Init_obs(Ltau)
 #if defined(TEMPERING)
            Call Global_Tempering_init_obs
 #endif
@@ -624,9 +624,9 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          CALL Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
+                          CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          CALL Obser( GR, PHASE, Ntau1, Mc_step_weight  )
+                          CALL ham%Obser( GR, PHASE, Ntau1, Mc_step_weight  )
                        endif
                     ENDIF
                  ENDDO
@@ -649,9 +649,9 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          CALL Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
+                          CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          CALL Obser( GR, PHASE, Ntau1,Mc_step_weight )
+                          CALL ham%Obser( GR, PHASE, Ntau1,Mc_step_weight )
                        endif
                     ENDIF
                     IF ( Stab_nt(NST) == NTAU1 .AND. NTAU1.NE.0 ) THEN
@@ -720,7 +720,7 @@ Program Main
               endif
 
            ENDDO
-           Call Pr_obs(Ltau)
+           Call ham%Pr_obs(Ltau)
 #if defined(TEMPERING)
            Call Global_Tempering_Pr
 #endif
