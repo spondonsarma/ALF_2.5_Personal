@@ -132,10 +132,10 @@
       type, extends(ham_base) :: ham_Kondo
       contains
         ! Set Hamiltonian-specific procedures
-        procedure, nopass :: Alloc_obs => Alloc_obs_Kondo
-        procedure, nopass :: Obser => Obser_Kondo
-        procedure, nopass :: ObserT => ObserT_Kondo
-        procedure, nopass :: S0 => S0_Kondo
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: S0
       end type ham_Kondo
 
       Type (Lattice),       Target  :: Latt
@@ -544,7 +544,7 @@
 !> Specifiy the equal time and time displaced observables
 !> @details
 !--------------------------------------------------------------------
-        Subroutine  Alloc_obs_Kondo(Ltau)
+        Subroutine  Alloc_obs(Ltau)
 
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
@@ -628,7 +628,7 @@
              enddo
           endif
 
-        End Subroutine Alloc_obs_Kondo
+        End Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
 !> @author
@@ -650,7 +650,7 @@
 !>  Time slice
 !> \endverbatim
 !-------------------------------------------------------------------
-        subroutine Obser_Kondo(GR,Phase,Ntau, Mc_step_weight)
+        subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -771,7 +771,7 @@
           enddo
 
           
-        end Subroutine Obser_Kondo
+        end Subroutine Obser
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -796,7 +796,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_Kondo(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE,Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -849,7 +849,7 @@
                 Obs_tau(5)%Obs_Latt0(no_I) =  Obs_tau(5)%Obs_Latt0(no_I) +  Z*ZP*ZS
              enddo
           enddo
-        end Subroutine ObserT_Kondo
+        end Subroutine OBSERT
 
 !--------------------------------------------------------------------
 !> @author
@@ -862,7 +862,7 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-      function S0_Kondo(n,nt,Hs_new) result(S0)
+      Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
         Implicit none
         !> Operator index
         Integer, Intent(IN) :: n
@@ -870,13 +870,12 @@
         Integer, Intent(IN) :: nt
         !> New local field on time slice nt and operator index n
         Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-        Real (Kind=Kind(0.d0)) :: S0
 
         Integer :: nt1,I
 
         S0 = 1.d0
         
-      end function S0_Kondo
+      end function S0
 
 
     end submodule ham_Kondo_smod

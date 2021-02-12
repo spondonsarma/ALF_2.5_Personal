@@ -59,14 +59,14 @@
       type, extends(ham_base) :: ham_Z2_Matter
       contains
         ! Set Hamiltonian-specific procedures
-        procedure, nopass :: Alloc_obs => Alloc_obs_Z2_Matter
-        procedure, nopass :: Obser => Obser_Z2_Matter
-        procedure, nopass :: ObserT => ObserT_Z2_Matter
-        procedure, nopass :: Global_move_tau => Global_move_tau_Z2_Matter
-        procedure, nopass :: Hamiltonian_set_nsigma => Hamiltonian_set_nsigma_Z2_Matter
-        procedure, nopass :: Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_Z2_Matter
-        procedure, nopass :: Delta_S0_global => Delta_S0_global_Z2_Matter
-        procedure, nopass :: S0 => S0_Z2_Matter
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: Global_move_tau
+        procedure, nopass :: Hamiltonian_set_nsigma
+        procedure, nopass :: Overide_global_tau_sampling_parameters
+        procedure, nopass :: Delta_S0_global
+        procedure, nopass :: S0
       end type ham_Z2_Matter
 
 !>    Privat variables
@@ -484,11 +484,10 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-        function S0_Z2_Matter(n,nt,Hs_new) result(S0)
+        Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
           Implicit none
           Integer, Intent(IN) :: n,nt
           Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-          Real (Kind=Kind(0.d0)) :: S0
 
           !Local
           Integer :: nt1,I, F1,F2,I1,I2,I3,  n_orientation, n_m
@@ -559,7 +558,7 @@
 
           endif
 
-        end function S0_Z2_Matter
+        end function S0
 
 !--------------------------------------------------------------------
 !> @author
@@ -581,7 +580,7 @@
 !> The move will be carried out with prbablity  T0 ( sigma -> sigma_new ).   If T0 ( sigma -> sigma_new ) > Ranf
 !> then T0_Proposal_ratio  will be initialized. Otherwise the latter quantity is set to zero.
 !--------------------------------------------------------------------
-        Subroutine Global_move_tau_Z2_Matter(T0_Proposal_ratio, S0_ratio, &
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
 
 
@@ -704,7 +703,7 @@
 !!$             S0_ratio          = 1.d0
 !!$          endif
 
-        end Subroutine Global_move_tau_Z2_Matter
+        end Subroutine Global_move_tau
 
 !--------------------------------------------------------------------
 !> @author
@@ -720,14 +719,13 @@
 !>  Old configuration. The new configuration is stored in nsigma.
 !> \endverbatim
 !-------------------------------------------------------------------
-        Function Delta_S0_global_Z2_Matter(Nsigma_old) result(Delta_S0_global)
+        Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
 
           !>  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
           Implicit none
 
           !> Arguments
           type (Fields),  Intent(IN)  :: nsigma_old
-          Real (Kind=kind(0.d0))      :: Delta_S0_global
           !> Local
           Integer :: I,n,n1,n2,n3,n4,nt,nt1, nc_F, nc_J, nc_h_p, nc_h_m, n1_m, n4_m
 
@@ -783,7 +781,7 @@
              Delta_S0_global = ( sinh(Dtau*Ham_h)**nc_h_m ) * (cosh(Dtau*Ham_h)**nc_h_p) * &
                   &            exp( -Dtau*(Ham_K*real(nc_F,kind(0.d0)) + Ham_J*real(nc_J,kind(0.d0))))
           endif
-        end Function Delta_S0_global_Z2_Matter
+        end Function Delta_S0_global
 
 !--------------------------------------------------------------------
 !> @author
@@ -931,7 +929,7 @@
 !> @details
 !--------------------------------------------------------------------
 
-        Subroutine  Alloc_obs_Z2_Matter(Ltau)
+        Subroutine  Alloc_obs(Ltau)
 
           Implicit none
           Integer, Intent(In) :: Ltau
@@ -1000,7 +998,7 @@
              enddo
           endif
 
-        end Subroutine Alloc_obs_Z2_Matter
+        end Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
 !> @author
@@ -1022,7 +1020,7 @@
 !>  Time slice
 !> \endverbatim
 !--------------------------------------------------------------------
-        Subroutine Obser_Z2_Matter(GR,Phase,Ntau, Mc_step_weight)
+        Subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
           Implicit none
 
@@ -1169,7 +1167,7 @@
 
           If (Abs(Ham_T) > Zero )  Deallocate ( Isigma, Isigmap1)
  
-        end Subroutine Obser_Z2_Matter
+        end Subroutine Obser
 
 !--------------------------------------------------------------------
 !> @author
@@ -1195,7 +1193,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_Z2_Matter(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE,Mc_step_weight)
           Implicit none
 
           Integer         , INTENT(IN) :: NT
@@ -1225,7 +1223,7 @@
           Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
           Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
           
-        end Subroutine ObserT_Z2_Matter
+        end Subroutine OBSERT
 
 !--------------------------------------------------------------------
 !> @author
@@ -1268,7 +1266,7 @@
 !>  the initial field
 !> \endverbatim
 !--------------------------------------------------------------------
-      Subroutine  Hamiltonian_set_nsigma_Z2_Matter(Initial_field)
+      Subroutine  Hamiltonian_set_nsigma(Initial_field)
 
         ! The user can set the initial configuration
 
@@ -1342,7 +1340,7 @@
 
 
 
-      end Subroutine Hamiltonian_set_nsigma_Z2_Matter
+      end Subroutine Hamiltonian_set_nsigma
 
 !--------------------------------------------------------------------
 !> @author
@@ -1395,7 +1393,7 @@
 !> @details
 !> \endverbatim
 !--------------------------------------------------------------------
-      Subroutine Overide_global_tau_sampling_parameters_Z2_Matter(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
 
         Implicit none
         Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
@@ -1408,7 +1406,7 @@
         N_Global_tau = 0
         if (abs(Ham_T) > Zero )  N_Global_tau        = Latt%N/4
 
-      end Subroutine Overide_global_tau_sampling_parameters_Z2_Matter
+      end Subroutine Overide_global_tau_sampling_parameters
 
 
 !--------------------------------------------------------------------

@@ -134,10 +134,10 @@
       type, extends(ham_base) :: ham_tV
       contains
         ! Set Hamiltonian-specific procedures
-        procedure, nopass :: Alloc_obs => Alloc_obs_tV
-        procedure, nopass :: Obser => Obser_tV
-        procedure, nopass :: ObserT => ObserT_tV
-        procedure, nopass :: S0 => S0_tV
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: S0
       end type ham_tV
 
       Type (Lattice),   target :: Latt
@@ -580,7 +580,7 @@
 !> Specifiy the equal time and time displaced observables
 !> @details
 !--------------------------------------------------------------------
-        Subroutine  Alloc_obs_tV(Ltau)
+        Subroutine  Alloc_obs(Ltau)
 
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
@@ -646,7 +646,7 @@
              enddo
           endif
 
-        End Subroutine Alloc_obs_tV
+        End Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
 !> @author
@@ -668,7 +668,7 @@
 !>  Time slice
 !> \endverbatim
 !-------------------------------------------------------------------
-        subroutine Obser_tV(GR,Phase,Ntau, Mc_step_weight)
+        subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -768,7 +768,7 @@
           Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(3) )
 
 
-        end Subroutine Obser_tV
+        end Subroutine Obser
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -793,7 +793,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_tV(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE,Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -821,7 +821,7 @@
           Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
           Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
-        end Subroutine ObserT_tV
+        end Subroutine OBSERT
 
 !--------------------------------------------------------------------
 !> @author
@@ -834,7 +834,7 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-      function S0_tV(n,nt,Hs_new) result(S0)
+      Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
         Implicit none
         !> Operator index
         Integer, Intent(IN) :: n
@@ -842,13 +842,12 @@
         Integer, Intent(IN) :: nt
         !> New local field on time slice nt and operator index n
         Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-        Real (Kind=Kind(0.d0)) :: S0
 
         Integer :: nt1,I
 
         S0 = 1.d0
         
-      end function S0_tV
+      end function S0
 
 
     end submodule ham_tV_smod

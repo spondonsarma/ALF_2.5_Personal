@@ -134,13 +134,13 @@
       type, extends(ham_base) :: ham_LRC
       contains
         ! Set Hamiltonian-specific procedures
-        procedure, nopass :: Alloc_obs => Alloc_obs_LRC
-        procedure, nopass :: Obser => Obser_LRC
-        procedure, nopass :: ObserT => ObserT_LRC
-        procedure, nopass :: Global_move_tau => Global_move_tau_LRC
-        procedure, nopass :: Overide_global_tau_sampling_parameters => Overide_global_tau_sampling_parameters_LRC
-        procedure, nopass :: S0 => S0_LRC
-        procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_LRC
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: Global_move_tau
+        procedure, nopass :: Overide_global_tau_sampling_parameters
+        procedure, nopass :: S0
+        procedure, nopass :: Ham_Langevin_HMC_S0
       end type ham_LRC
 
       Type (Lattice),   target :: Latt
@@ -541,7 +541,7 @@
 !> a spin flip of Operator n on time slice nt
 !> @details
 !--------------------------------------------------------------------
-        function S0_LRC(n,nt,Hs_new) result(S0)
+        Real (Kind=Kind(0.d0)) function S0(n,nt,Hs_new)
           Implicit none
           !> Operator index
           Integer, Intent(IN) :: n
@@ -549,14 +549,13 @@
           Integer, Intent(IN) :: nt
           !> New local field on time slice nt and operator index n
           Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-          Real (Kind=Kind(0.d0)) :: S0
 
           Integer :: nt1,I
           !Write(6,*) "Hi1"
 
           S0 = LRC_S0(n,dtau,nsigma%f(:,nt),Hs_new,N_SUN)
 
-        end function S0_LRC
+        end function S0
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -565,7 +564,7 @@
 !> Specifiy the equal time and time displaced observables
 !> @details
 !--------------------------------------------------------------------
-        Subroutine  Alloc_obs_LRC(Ltau)
+        Subroutine  Alloc_obs(Ltau)
 
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
@@ -631,7 +630,7 @@
              enddo
           endif
 
-        End Subroutine Alloc_obs_LRC
+        End Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
 !> @author
@@ -653,7 +652,7 @@
 !>  Time slice
 !> \endverbatim
 !-------------------------------------------------------------------
-        subroutine Obser_LRC(GR,Phase,Ntau,Mc_step_weight)
+        subroutine Obser(GR,Phase,Ntau,Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -725,7 +724,7 @@
           Call Predefined_Obs_eq_Green_measure  ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(1) )
           Call Predefined_Obs_eq_SpinSUN_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(2) )
           Call Predefined_Obs_eq_Den_measure    ( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs_eq(3) )
-        end Subroutine Obser_LRC
+        end Subroutine Obser
 
 !--------------------------------------------------------------------
 !> @author
@@ -751,7 +750,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_LRC(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_weight)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -779,7 +778,7 @@
           Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
           Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
-        end Subroutine OBSERT_LRC
+        end Subroutine OBSERT
 
 !--------------------------------------------------------------------
 !> @author
@@ -817,7 +816,7 @@
 !>  Note that Ndim = size(Op_V,1)
 !> \endverbatim
 !--------------------------------------------------------------------
-        Subroutine Global_move_tau_LRC(T0_Proposal_ratio, S0_ratio, &
+        Subroutine Global_move_tau(T0_Proposal_ratio, S0_ratio, &
              &                     Flip_list, Flip_length,Flip_value,ntau)
 
 
@@ -844,7 +843,7 @@
           T0_Proposal_ratio = 1.d0
           S0_ratio          = 1.d0
 
-        end Subroutine Global_move_tau_LRC
+        end Subroutine Global_move_tau
 
 !--------------------------------------------------------------------
 !> @author
@@ -857,7 +856,7 @@
 !> @details
 !> \endverbatim
 !--------------------------------------------------------------------
-      Subroutine Overide_global_tau_sampling_parameters_LRC(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
+      Subroutine Overide_global_tau_sampling_parameters(Nt_sequential_start,Nt_sequential_end,N_Global_tau)
 
         Implicit none
         Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
@@ -868,7 +867,7 @@
            N_Global_tau   = Nint(1.d0/Percent_change)
         endif
 
-      end Subroutine Overide_global_tau_sampling_parameters_LRC
+      end Subroutine Overide_global_tau_sampling_parameters
 
 !--------------------------------------------------------------------
 !> @author 
@@ -878,7 +877,7 @@
 !>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
 !> 
 !-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_LRC(Forces_0)
+        Subroutine Ham_Langevin_HMC_S0(Forces_0)
 
           Implicit none
 
@@ -898,7 +897,7 @@
              endif
           enddo
           
-        end Subroutine Ham_Langevin_HMC_S0_LRC
+        end Subroutine Ham_Langevin_HMC_S0
 
 
       

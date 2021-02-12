@@ -135,10 +135,10 @@
       type, extends(ham_base) :: ham_Hubbard_Plain_Vanilla
       contains
         ! Set Hamiltonian-specific procedures
-        procedure, nopass :: Alloc_obs => Alloc_obs_hubbard_plain_vanilla
-        procedure, nopass :: Obser => Obser_hubbard_plain_vanilla
-        procedure, nopass :: ObserT => ObserT_hubbard_plain_vanilla
-        procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_hubbard_plain_vanilla
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: Ham_Langevin_HMC_S0
       end type ham_Hubbard_Plain_Vanilla
 
       Type (Lattice),       target :: Latt
@@ -487,7 +487,7 @@
 !> Specifiy the equal time and time displaced observables
 !> @details
 !--------------------------------------------------------------------
-        Subroutine  Alloc_obs_hubbard_plain_vanilla(Ltau)
+        Subroutine  Alloc_obs(Ltau)
 
           Implicit none
           !>  Ltau=1 if time displaced correlations are considered.
@@ -561,7 +561,7 @@
              enddo
           endif
 
-        End Subroutine Alloc_obs_hubbard_plain_vanilla
+        End Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
 !> @author
@@ -583,7 +583,7 @@
 !>  Time slice
 !> \endverbatim
 !-------------------------------------------------------------------
-        subroutine Obser_hubbard_plain_vanilla(GR,Phase,Ntau, Mc_step_weight)
+        subroutine Obser(GR,Phase,Ntau, Mc_step_weight)
 
           Use Predefined_Obs
 
@@ -686,7 +686,7 @@
 
 
 
-        end Subroutine Obser_hubbard_plain_vanilla
+        end Subroutine Obser
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -711,7 +711,7 @@
 !>  Phase
 !> \endverbatim
 !-------------------------------------------------------------------
-        Subroutine ObserT_hubbard_plain_vanilla(NT, GT0, G0T, G00, GTT, PHASE, Mc_step_weight)
+        Subroutine ObserT(NT,  GT0,G0T,G00,GTT, PHASE, Mc_step_weight )
 
           Use Predefined_Obs
 
@@ -764,7 +764,7 @@
 
 
 
-        end Subroutine OBSERT_hubbard_plain_vanilla
+        end Subroutine OBSERT
 
 !--------------------------------------------------------------------
 !> @author 
@@ -774,7 +774,7 @@
 !>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
 !> 
 !-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0_hubbard_plain_vanilla(Forces_0)
+        Subroutine Ham_Langevin_HMC_S0(Forces_0)
 
           Implicit none
 
@@ -794,6 +794,6 @@
              endif
           enddo
           
-        end Subroutine Ham_Langevin_HMC_S0_hubbard_plain_vanilla
+        end Subroutine Ham_Langevin_HMC_S0
 
     end submodule ham_Hubbard_Plain_Vanilla_smod
