@@ -87,7 +87,7 @@ GQMCT_Stretch_OpenBlas:
   #<<: *build_definition
 
 GQMCT_Buster-PGI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
+  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   <<: *build_definition_pgi
 
 #GQMCT_Ubuntu_Trusty:
@@ -150,7 +150,7 @@ GQMCT_Stretch_OpenBlas_conv:
   #<<: *warnconv_definition
 
 GQMCT_Buster-PGI_conv:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910
+  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   stage: warnconv
   except:
     changes:
@@ -205,7 +205,7 @@ GQMCT_Ubuntu-bionic_tests:
   <<: *test_definition
 
 GQMCT_Buster-PGI_tests:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-pgi1910-cmake
+  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   stage: test
   except:
     changes:
