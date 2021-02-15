@@ -48,7 +48,7 @@ stages:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${F90OPTFLAGS} -DCMAKE_BUILD_TYPE=RELEASE ..
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${ALF_FLAGS_PROG} -DCMAKE_BUILD_TYPE=RELEASE ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
@@ -158,7 +158,6 @@ GQMCT_PGI_conv:
       - README.md
       - license.*
   script:
-    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
     - pgfortran --version
     - . configure.sh PGI serial
     - make all
@@ -213,7 +212,6 @@ GQMCT_PGI_tests:
       - README.md
       - license.*
   script:
-    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
     - pgfortran --version
     - . configure.sh PGI serial
     - make lib
@@ -222,7 +220,8 @@ GQMCT_PGI_tests:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -llapack -lblas" -DCMAKE_Fortran_COMPILER="pgfortran" -DCMAKE_BUILD_TYPE=RELEASE" ..
+    - export PGIDIR="/opt/nvidia/hpc_sdk/Linux_x86_64/20.11/compilers"
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${ALF_FLAGS_PROG} -noswitcherror -L${PGIDIR}/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="${PGIDIR}/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="${PGIDIR}/lib/liblapack.a" -DBLAS_LIBRARIES="${PGIDIR}/lib/libblas.a" ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
