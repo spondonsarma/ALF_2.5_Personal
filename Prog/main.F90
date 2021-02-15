@@ -319,7 +319,8 @@ Program Main
         CALL MPI_BCAST(Delta_t_Langevin_HMC ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
 #endif
         Call Fields_init()
-        Call Ham_set
+        Call Alloc_Ham()
+        Call ham%Ham_set()
         if(Projector) then
            if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
               write(error_unit,*) "Projector is selected but there are no trial wave functions!"

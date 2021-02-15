@@ -59,6 +59,7 @@
       type, extends(ham_base) :: ham_Z2_Matter
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -86,6 +87,10 @@
       Integer, allocatable   :: Field_list(:,:,:), Field_list_inv(:,:)
 
     contains
+      
+      module Subroutine Ham_Alloc_Z2_Matter
+        allocate(ham_Z2_Matter::ham)
+      end Subroutine Ham_Alloc_Z2_Matter
 
 
 !--------------------------------------------------------------------
@@ -95,7 +100,7 @@
 !> @brief
 !> Sets the Hamiltonian.  Called by main.
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_Z2_Matter
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           use mpi
@@ -124,7 +129,6 @@
           igroup           = irank/isize_g
           !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
-          allocate(ham_Z2_Matter::ham)
 
 #ifdef MPI
           If (Irank == 0 ) then
@@ -256,7 +260,7 @@
            
            if (Projector)   Call Ham_Trial(File_info)
            
-         end Subroutine Ham_Set_Z2_Matter
+         end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author

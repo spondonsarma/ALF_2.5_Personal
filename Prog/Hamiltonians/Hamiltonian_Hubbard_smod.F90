@@ -134,6 +134,7 @@
       type, extends(ham_base) :: ham_Hubbard
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -155,6 +156,10 @@
       Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
     contains
+      
+      module Subroutine Ham_Alloc_hubbard
+        allocate(ham_Hubbard::ham)
+      end Subroutine Ham_Alloc_hubbard
 
 !--------------------------------------------------------------------
 !> @author
@@ -163,7 +168,7 @@
 !> @brief
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_hubbard
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -192,8 +197,6 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          allocate(ham_Hubbard::ham)
-          
           ! Global "Default" values.
           N_SUN        = 1
           Checkerboard = .false.
@@ -341,7 +344,7 @@
           if (Projector)   Call Ham_Trial(File_info)
 
 
-        end Subroutine Ham_Set_hubbard
+        end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author

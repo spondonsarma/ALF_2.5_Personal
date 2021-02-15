@@ -27,8 +27,8 @@ Hamiltonians_interface.h: Hamiltonians.list
 	@echo "interface" > "Hamiltonians_interface.h"
 	@while read -r ham; do \
 		echo "$$ham"; \
-		echo "  module subroutine Ham_Set_$$ham()" >> "Hamiltonians_interface.h"; \
-		echo "  end subroutine Ham_Set_$$ham" >> "Hamiltonians_interface.h"; \
+		echo "  module subroutine Ham_Alloc_$$ham()" >> "Hamiltonians_interface.h"; \
+		echo "  end subroutine Ham_Alloc_$$ham" >> "Hamiltonians_interface.h"; \
 	done < Hamiltonians.list 
 	@echo "end interface" >> "Hamiltonians_interface.h"
 
@@ -36,7 +36,7 @@ Hamiltonians_case.h: Hamiltonians.list
 	@rm -f "Hamiltonians_case.h"
 	@while read -r ham; do \
 		echo "Case ('$$ham')" >> "Hamiltonians_case.h"; \
-		echo "  call Ham_Set_$$ham()" >> "Hamiltonians_case.h"; \
+		echo "  call Ham_Alloc_$$ham()" >> "Hamiltonians_case.h"; \
 	done < Hamiltonians.list 
 
 .SUFFIXES: .F90 .f

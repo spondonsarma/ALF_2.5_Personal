@@ -134,6 +134,7 @@
       type, extends(ham_base) :: ham_LRC
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -162,6 +163,10 @@
       Integer,  allocatable  :: L_bond(:,:), L_bond_inv(:,:), Ising_nnlist(:,:)
 
     contains
+      
+      module Subroutine Ham_Alloc_LRC
+        allocate(ham_LRC::ham)
+      end Subroutine Ham_Alloc_LRC
 
 !--------------------------------------------------------------------
 !> @author
@@ -170,7 +175,7 @@
 !> @brief
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_LRC
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -197,8 +202,6 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          allocate(ham_LRC::ham)
-          
           ! Global "Default" values.
           N_SUN        = 1
           Checkerboard = .false.
@@ -393,7 +396,7 @@
           call Ham_V
 
 
-        end Subroutine Ham_Set_LRC
+        end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author

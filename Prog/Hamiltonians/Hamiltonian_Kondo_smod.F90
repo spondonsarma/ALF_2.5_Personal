@@ -132,6 +132,7 @@
       type, extends(ham_base) :: ham_Kondo
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -155,6 +156,10 @@
 
 
     contains
+      
+      module Subroutine Ham_Alloc_Kondo
+        allocate(ham_Kondo::ham)
+      end Subroutine Ham_Alloc_Kondo
 
 !--------------------------------------------------------------------
 !> @author
@@ -163,7 +168,7 @@
 !> @brief
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_Kondo
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -191,8 +196,6 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          allocate(ham_Kondo::ham)
-
           ! Global "Default" values.
           N_SUN        = 2
           N_FL         = 1
@@ -324,7 +327,7 @@
           if (Projector)   Call Ham_Trial(File_info)
 
 
-        end Subroutine Ham_Set_Kondo
+        end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author

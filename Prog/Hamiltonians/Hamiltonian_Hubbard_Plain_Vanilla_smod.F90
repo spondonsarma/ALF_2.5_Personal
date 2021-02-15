@@ -135,6 +135,7 @@
       type, extends(ham_base) :: ham_Hubbard_Plain_Vanilla
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -150,6 +151,10 @@
       Character (len=64)     :: Model, Lattice_type
 
     contains
+      
+      module Subroutine Ham_Alloc_Hubbard_Plain_Vanilla
+        allocate(ham_Hubbard_Plain_Vanilla::ham)
+      end Subroutine Ham_Alloc_Hubbard_Plain_Vanilla
 
 !--------------------------------------------------------------------
 !> @author
@@ -158,7 +163,7 @@
 !> @brief
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_hubbard_plain_vanilla
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -181,8 +186,6 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          allocate(ham_Hubbard_Plain_Vanilla::ham)
-          
           ! Global "Default" values.
 
           
@@ -286,7 +289,7 @@
           if (Projector)   Call Ham_Trial(File_info)
 
 
-        end Subroutine Ham_Set_hubbard_plain_vanilla
+        end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author

@@ -125,12 +125,13 @@
     Implicit none
     
     private
-    public :: Ham_Set, ham_base, ham
+    public :: Alloc_Ham, ham_base, ham
 #ifdef __PGI
     public :: Obs_scal, Obs_eq, Obs_tau
 #endif
       type ham_base
       contains
+        procedure, nopass :: ham_set => ham_set_base
         procedure, nopass :: Alloc_obs => Alloc_obs_base
         procedure, nopass :: Obser => Obser_base
         procedure, nopass :: ObserT => ObserT_base
@@ -171,7 +172,7 @@
 #include "Hamiltonians_interface.h"
     contains
 
-    subroutine Ham_Set()
+    subroutine Alloc_Ham()
        Implicit none
        Integer :: ierr
        Character (len=64) :: ham_name
@@ -179,7 +180,7 @@
        
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN
-          WRITE(error_unit,*) 'Hamiltonian_base: unable to open <parameters>',ierr
+          WRITE(error_unit,*) 'Alloc_Ham: unable to open <parameters>',ierr
           error stop 1
        END IF
        READ(5,NML=VAR_HAM_NAME)
@@ -191,7 +192,19 @@
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           error stop 1
        end Select
-    end subroutine Ham_Set
+    end subroutine Alloc_Ham
+    
+    !--------------------------------------------------------------------
+    !> @brief
+    !> Sets the Hamiltonian.
+    !> @details
+    !> This has to be overloaded in the Hamiltonian submodule.
+    !--------------------------------------------------------------------
+    subroutine Ham_Set_base()
+      implicit none
+      write(error_unit, *) 'Ham_set not defined!'
+      error stop 1
+    end subroutine Ham_Set_base
     
     !--------------------------------------------------------------------
     !> @author

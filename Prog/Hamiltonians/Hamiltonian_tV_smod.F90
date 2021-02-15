@@ -134,6 +134,7 @@
       type, extends(ham_base) :: ham_tV
       contains
         ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
@@ -154,6 +155,10 @@
       Integer, allocatable   :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
     contains
+      
+      module Subroutine Ham_Alloc_tV
+        allocate(ham_tV::ham)
+      end Subroutine Ham_Alloc_tV
 
 !--------------------------------------------------------------------
 !> @author
@@ -162,7 +167,7 @@
 !> @brief
 !> Sets the Hamiltonian
 !--------------------------------------------------------------------
-      module Subroutine Ham_Set_tV
+      Subroutine Ham_Set
 
 #if defined (MPI) || defined(TEMPERING)
           Use mpi
@@ -190,8 +195,6 @@
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
 #endif
-          allocate(ham_tV::ham)
-
           ! Global "Default" values.
           N_SUN        = 1
           Checkerboard = .false.
@@ -316,7 +319,7 @@
           ! Setup the trival wave function, in case of a projector approach
           if (Projector)   Call Ham_Trial(File_info)
 
-        end Subroutine Ham_Set_tV
+        end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author
