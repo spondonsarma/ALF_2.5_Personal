@@ -33,7 +33,7 @@ Hamiltonians_interface.h: Hamiltonians.list
 	@echo "end interface" >> "Hamiltonians_interface.h"
 
 Hamiltonians_case.h: Hamiltonians.list
-	rm -f "Hamiltonians_case.h"
+	@rm -f "Hamiltonians_case.h"
 	@while read -r ham; do \
 		echo "Case ('$$ham')" >> "Hamiltonians_case.h"; \
 		echo "  call Ham_Set_$$ham()" >> "Hamiltonians_case.h"; \
@@ -44,7 +44,7 @@ Hamiltonians_case.h: Hamiltonians.list
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
-	rm -f $(OBJS) $(MODS) *.smod git.h Hamiltonians_interface.h Hamiltonians_case.h
+	rm -f $(OBJS) $(MODS) hamiltonian*.mod hamiltonian*.smod git.h Hamiltonians_interface.h Hamiltonians_case.h
 
 clean: tidy
 	rm -f "ALF.out"
