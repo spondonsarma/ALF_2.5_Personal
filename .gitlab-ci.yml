@@ -24,7 +24,6 @@ stages:
   stage: build
   <<: *exemptfiles_definition
   script:
-    - export PATH="/opt/pgi/linux86-64/2019/bin:$PATH"
     - pgfortran --version
     - . configure.sh PGI serial
     - make all
@@ -86,7 +85,7 @@ GQMCT_Stretch_OpenBlas:
   #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   #<<: *build_definition
 
-GQMCT_Buster-PGI:
+GQMCT_PGI:
   image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   <<: *build_definition_pgi
 
@@ -149,7 +148,7 @@ GQMCT_Stretch_OpenBlas_conv:
   #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
   #<<: *warnconv_definition
 
-GQMCT_Buster-PGI_conv:
+GQMCT_PGI_conv:
   image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   stage: warnconv
   except:
@@ -204,7 +203,7 @@ GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *test_definition
 
-GQMCT_Buster-PGI_tests:
+GQMCT_PGI_tests:
   image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
   stage: test
   except:
@@ -223,7 +222,7 @@ GQMCT_Buster-PGI_tests:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -L/opt/pgi/linux86-64/2019/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="/opt/pgi/linux86-64/2019/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="/opt/pgi/linux86-64/2019/lib/liblapack.a" -DBLAS_LIBRARIES="/opt/pgi/linux86-64/2019/lib/libblas.a" ..
+    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${F90OPTFLAGS} -noswitcherror -llapack -lblas" -DCMAKE_Fortran_COMPILER="pgfortran" -DCMAKE_BUILD_TYPE=RELEASE" ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
