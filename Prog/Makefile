@@ -7,7 +7,7 @@ done < Hamiltonians.list`
 OBJS = Hamiltonians/LRC_mod.o Set_random.o control_mod.o Fields_mod.o Operator_mod.o WaveFunction_mod.o observables_mod.o \
 	ContainerElementBase_mod.o DynamicMatrixArray_mod.o OpTTypes_mod.o \
 	Predefined_Int_mod.o Predefined_Obs_mod.o Predefined_Latt_mod.o Predefined_Hop_mod.o  Predefined_Trial_mod.o \
-	Hamiltonian_mod.o $(OHAM) QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
+	Hamiltonian_mod.o QDRP_decompose_mod.o udv_state_mod.o Hop_mod.o UDV_WRAP_mod.o \
 	Global_mod.o Langevin_HMC_mod.o Wrapgr_mod.o tau_m_mod.o tau_p_mod.o main.o wrapul.o cgr1.o wrapur.o cgr2_2.o upgrade.o
 
 MODS = control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observables.mod \
@@ -16,9 +16,9 @@ MODS = control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observa
 	udv_state_mod.mod udv_wrap_mod.mod wavefunction_mod.mod wrapgr_mod.mod hamiltonian.mod \
 	containerelementbase_mod.mod opttypes_mod.mod dynamicmatrixarray_mod.mod langevin_hmc_mod.mod 
 
-program: git.h Hamiltonians_interface.h Hamiltonians_case.h
-	make $(OBJS)
-	$(ALF_FC) -o "ALF.out" $(OBJS) $(ALF_LIB)
+program: git.h Hamiltonians_interface.h Hamiltonians_case.h $(OBJS)
+	@make $(OHAM)
+	$(ALF_FC) -o "ALF.out" $(OBJS) $(OHAM) $(ALF_LIB)
 
 git.h:
 	./Git_config.sh
@@ -39,8 +39,7 @@ Hamiltonians_case.h: Hamiltonians.list
 		echo "  call Ham_Alloc_$$ham()" >> "Hamiltonians_case.h"; \
 	done < Hamiltonians.list 
 
-.SUFFIXES: .F90 .f
-.f.o .F90.o:
+%.o: %.F90
 	$(ALF_FC) -c -o $@ $(ALF_FLAGS_PROG) $<
 
 tidy:
