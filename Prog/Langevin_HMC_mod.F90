@@ -32,7 +32,7 @@
 
       Module Langevin_HMC_mod
         
-        Use Hamiltonian
+        Use Hamiltonian_main
         Use UDV_State_mod
         Use Control
         Use Hop_mod
@@ -88,7 +88,7 @@
         
         Interface
            SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_Wrap_mod
              Use UDV_State_mod
              Implicit None
@@ -96,7 +96,7 @@
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
            SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
@@ -251,7 +251,7 @@
         
         Interface
            SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_Wrap_mod
              Use UDV_State_mod
              Implicit None
@@ -259,7 +259,7 @@
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
            SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL

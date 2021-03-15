@@ -115,7 +115,7 @@ Program Main
         Use Operator_mod
         Use Lattices_v3
         Use MyMats
-        Use Hamiltonian
+        Use Hamiltonian_main
         Use Control
         Use Tau_m_mod
         Use Tau_p_mod
@@ -138,7 +138,7 @@ Program Main
 
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
@@ -154,7 +154,7 @@ Program Main
              INTEGER         :: NVAR
            END SUBROUTINE CGR
            SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_Wrap_mod
              Use UDV_State_mod
              Implicit None

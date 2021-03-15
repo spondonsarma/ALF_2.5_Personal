@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_Hubbard_Plain_Vanilla_smod
+    submodule (Hamiltonian_main) ham_Hubbard_Plain_Vanilla_smod
 
       Use Operator_mod
       Use WaveFunction_mod

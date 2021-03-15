@@ -43,7 +43,7 @@
 Module Wrapgr_mod
 
 
-  Use Hamiltonian
+  Use Hamiltonian_main
   Use MyMats 
   Use Operator_mod
   Use Control
@@ -87,14 +87,14 @@ Contains
 !
 !--------------------------------------------------------------------
  
-    Use Hamiltonian
+    Use Hamiltonian_main
     Use Hop_mod
     Implicit none
     
     Interface
        Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
        
-         Use Hamiltonian
+         Use Hamiltonian_main
          Use Random_wrap
          Use Control
          Use Fields_mod
@@ -185,7 +185,7 @@ Contains
 !> NTAU: [LTROT:1]
 !
 !--------------------------------------------------------------------    
-    Use Hamiltonian
+    Use Hamiltonian_main
     Use MyMats
     Use Hop_mod
     Implicit None
@@ -193,7 +193,7 @@ Contains
     Interface
        Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
        
-         Use Hamiltonian
+         Use Hamiltonian_main
          Use Random_wrap
          Use Control
          Use Fields_mod
@@ -380,7 +380,7 @@ Contains
     Interface
        Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
        
-         Use Hamiltonian
+         Use Hamiltonian_main
          Use Random_wrap
          Use Control
          Use Fields_mod

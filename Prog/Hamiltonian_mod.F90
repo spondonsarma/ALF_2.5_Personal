@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    Module Hamiltonian
+    Module Hamiltonian_main
       Use Operator_mod, only: Operator
       Use WaveFunction_mod, only: WaveFunction
       Use Observables
@@ -309,8 +309,7 @@
              ! Arguments
              Type (Fields),  INTENT(IN) :: nsigma_old
 
-             write(error_unit, *) 'Delta_S0_global not implemented'
-             error stop 1
+             Delta_S0_global_base = 1.d0
 
           end Function Delta_S0_global_base
 
@@ -570,4 +569,4 @@
           end Subroutine Ham_Langevin_HMC_S0_base
 
 
-    end Module Hamiltonian
+    end Module Hamiltonian_main
