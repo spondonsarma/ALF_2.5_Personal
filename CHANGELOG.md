@@ -1,7 +1,7 @@
 # Log of backward compatibility changes and critical bugs
 
 
-## TBD  Implementing Submodule Hamiltonians / All hamiltonians in one binary
+## 2021-03-22  Implementing Submodule Hamiltonians / All hamiltonians in one binary
 
 Author : J. Schwab <br>
 Merge request !107
