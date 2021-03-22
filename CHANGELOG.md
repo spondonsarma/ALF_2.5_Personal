@@ -8,6 +8,7 @@ Merge request !107
 
 ### Breaking changes
 1) **In Hamiltonians** You will have to adapt your Hamiltonians to the Submodule structure
+2) You will have to add your Hamiltonian name to the **Hamiltonians.list** in the Prog directory
 
 ## 2020-11-16   Implementing  Langevin 
 
