@@ -113,7 +113,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_Kondo_smod
+    submodule (Hamiltonian_main) ham_Kondo_smod
 
       Use Operator_mod
       Use WaveFunction_mod

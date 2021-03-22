@@ -46,7 +46,7 @@
 
     Module Hop_mod
 
-      Use Hamiltonian
+      Use Hamiltonian_main
       Use Operator_mod
       Use Random_wrap
       Use DynamicMatrixArray_mod

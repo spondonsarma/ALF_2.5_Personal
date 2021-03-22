@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    submodule (Hamiltonian) ham_tV_smod
+    submodule (Hamiltonian_main) ham_tV_smod
 
       Use Operator_mod
       Use WaveFunction_mod

@@ -40,7 +40,7 @@
 !--------------------------------------------------------------------
 
 
-    submodule (Hamiltonian) ham_Z2_Matter_smod
+    submodule (Hamiltonian_main) ham_Z2_Matter_smod
 
       Use Operator_mod
       Use WaveFunction_mod

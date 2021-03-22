@@ -41,7 +41,7 @@
 !
 !--------------------------------------------------------------------
      Module Tau_m_mod
-       Use Hamiltonian 
+       Use Hamiltonian_main 
        Use Operator_mod
        Use Control
        Use Hop_mod
@@ -57,7 +57,7 @@
 
            Interface
               SUBROUTINE WRAPUR(NTAU1, NTAU, udvr)
-                Use Hamiltonian
+                Use Hamiltonian_main
                 Use UDV_State_mod
                 Implicit none
                 CLASS(UDV_State), intent(inout), ALLOCATABLE, dimension(:) :: UDVr

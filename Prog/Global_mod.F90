@@ -43,7 +43,7 @@
 !--------------------------------------------------------------------
 Module Global_mod
 
-      Use Hamiltonian
+      Use Hamiltonian_main
       Use MyMats
       Use Operator_mod
       Use Control
@@ -110,7 +110,7 @@ Module Global_mod
 
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout) :: udvl(N_FL)
@@ -456,7 +456,7 @@ Module Global_mod
 
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
@@ -768,7 +768,7 @@ Module Global_mod
 
         Interface
            SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian
+             Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl

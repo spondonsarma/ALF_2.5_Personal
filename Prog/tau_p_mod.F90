@@ -40,7 +40,7 @@
 !--------------------------------------------------------------------
 
      Module Tau_p_mod
-       Use Hamiltonian
+       Use Hamiltonian_main
        Use Operator_mod
        Use Control
        Use Hop_mod
@@ -82,7 +82,7 @@
               COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
             End Subroutine CGRP
             SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
-              Use Hamiltonian
+              Use Hamiltonian_main
               Use UDV_Wrap_mod
               Use UDV_State_mod
               Implicit None
