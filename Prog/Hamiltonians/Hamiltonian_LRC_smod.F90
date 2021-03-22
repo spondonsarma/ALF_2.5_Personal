@@ -273,7 +273,7 @@
           If (Irank_g == 0) then
 #endif
              Write(50,*) '====================================='
-             Write(50,*) 'Model is      : ', Model
+             Write(50,*) 'Model is      : Long range Coulomb'
              Write(50,*) 'Lattice is    : ', Lattice_type
              Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Flux_1        : ', Phi_X

@@ -170,6 +170,22 @@
 
 
 #include "Hamiltonians_interface.h"
+!!$      This file will  be dynamically generated and appended
+!!$      interface
+!!$         module subroutine Ham_Alloc_Kondo()
+!!$         end subroutine Ham_Alloc_Kondo
+!!$         module subroutine Ham_Alloc_Hubbard()
+!!$         end subroutine Ham_Alloc_Hubbard
+!!$         module subroutine Ham_Alloc_Hubbard_Plain_Vanilla()
+!!$         end subroutine Ham_Alloc_Hubbard_Plain_Vanilla
+!!$         module subroutine Ham_Alloc_tV()
+!!$         end subroutine Ham_Alloc_tV
+!!$         module subroutine Ham_Alloc_LRC()
+!!$         end subroutine Ham_Alloc_LRC
+!!$         module subroutine Ham_Alloc_Z2_Matter()
+!!$         end subroutine Ham_Alloc_Z2_Matter
+!!$      end interface
+      
     contains
 
     subroutine Alloc_Ham()
@@ -188,6 +204,19 @@
 
        Select Case (ham_name)
 #include "Hamiltonians_case.h"
+!!$       This file will be dynamically generated and appended
+!!$       Case ('Kondo')
+!!$          call Ham_Alloc_Kondo()
+!!$       Case ('Hubbard')
+!!$          call Ham_Alloc_Hubbard()
+!!$       Case ('Hubbard_Plain_Vanilla')
+!!$          call Ham_Alloc_Hubbard_Plain_Vanilla()
+!!$       Case ('tV')
+!!$          call Ham_Alloc_tV()
+!!$       Case ('LRC')
+!!$          call Ham_Alloc_LRC()
+!!$       Case ('Z2_Matter')
+!!$          call Ham_Alloc_Z2_Matter()
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           error stop 1

@@ -291,7 +291,7 @@
 #endif
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
              Write(50,*) '====================================='
-             Write(50,*) 'Model is      : ', Model
+             Write(50,*) 'Model is      : Kondo'
              Write(50,*) 'Lattice is    : ', Lattice_type
              Write(50,*) '# of orbitals : ', Ndim
              Write(50,*) 'Flux_1        : ', Phi_X

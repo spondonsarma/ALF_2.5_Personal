@@ -139,7 +139,6 @@
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
-        procedure, nopass :: Ham_Langevin_HMC_S0
       end type ham_Hubbard_Plain_Vanilla
 
       Type (Lattice),       target :: Latt
@@ -262,7 +261,7 @@
 #endif
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
              Write(50,*) '====================================='
-             Write(50,*) 'Model is      : ', Model
+             Write(50,*) 'Model is      : Hubbard_Plain_Vanilla'
              Write(50,*) 'Lattice is    : ', Lattice_type
              Write(50,*) 'L1            : ', L1
              Write(50,*) 'L2            : ', L2
@@ -768,35 +767,5 @@
 
 
         end Subroutine OBSERT
-
-!--------------------------------------------------------------------
-!> @author 
-!> ALF Collaboration
-!>
-!> @brief 
-!>   Forces_0  = \partial S_0 / \partial s  are calculated and returned to  main program.
-!> 
-!-------------------------------------------------------------------
-        Subroutine Ham_Langevin_HMC_S0(Forces_0)
-
-          Implicit none
-
-          Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_0(:,:)
-
-          !Local
-          Integer :: N, N_op,nt
-          
-          ! Compute \partial S_0 / \partial s
-          N_op = size(nsigma%f,1)
-          Forces_0  = 0.d0
-          do n = 1,N_op
-             if (OP_V(n,1)%type == 3 ) then
-                do nt = 1,Ltrot
-                   Forces_0(n,nt) = nsigma%f(n,nt)
-                enddo
-             endif
-          enddo
-          
-        end Subroutine Ham_Langevin_HMC_S0
 
     end submodule ham_Hubbard_Plain_Vanilla_smod
