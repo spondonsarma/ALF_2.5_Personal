@@ -91,7 +91,7 @@ GQMCT_Bullseye_OpenBlas:
   #<<: *build_definition
 
 GQMCT_PGI:
-  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   <<: *build_definition_pgi
 
 #GQMCT_Ubuntu_Trusty:
