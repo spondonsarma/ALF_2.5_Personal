@@ -154,7 +154,7 @@ GQMCT_Bullseye_OpenBlas_conv:
   #<<: *warnconv_definition
 
 GQMCT_PGI_conv:
-  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: warnconv
   except:
     changes:
@@ -208,7 +208,7 @@ GQMCT_Ubuntu-bionic_tests:
   <<: *test_definition
 
 GQMCT_PGI_tests:
-  image: nvcr.io/nvidia/nvhpc:20.11-devel-cuda_multi-ubuntu20.04
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: test
   except:
     changes:
