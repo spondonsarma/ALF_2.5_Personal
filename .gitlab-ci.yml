@@ -131,6 +131,7 @@ GQMCT_Intel-21:
       - README.md
       - license.*
   script:
+    - . /opt/intel/oneapi/setvars.sh
     - . configure.sh INTEL serial
     - make all
 
