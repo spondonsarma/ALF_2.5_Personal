@@ -121,6 +121,19 @@ GQMCT_Stretch_MPI:
     - export ALF_FC="mpif90"
     - make all
 
+GQMCT_Intel-21:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-intel-oneapi-ifort
+  stage: build
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
+  script:
+    - . configure.sh INTEL serial
+    - make all
+
 #GQMCT_Jessie_conv:
   #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
   #<<: *warnconv_definition
