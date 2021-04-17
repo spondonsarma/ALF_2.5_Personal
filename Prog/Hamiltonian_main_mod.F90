@@ -152,9 +152,11 @@
       Type (Operator),     dimension(:,:), allocatable, public :: Op_T
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_L
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_R
+      Logical            , dimension(:),   allocatable, public :: Calc_Fl
+      Integer            , dimension(:),   allocatable, public :: Calc_Fl_map
       Type (Fields), public        :: nsigma
       Integer      , public        :: Ndim
-      Integer      , public        :: N_FL
+      Integer      , public        :: N_FL, N_FL_eff
       Integer      , public        :: N_SUN
       Integer      , public        :: Ltrot
       Integer      , public        :: Thtrot
@@ -190,7 +192,7 @@
 
     subroutine Alloc_Ham()
        Implicit none
-       Integer :: ierr
+       Integer :: ierr, I
        Character (len=64) :: ham_name
        NAMELIST /VAR_HAM_NAME/ ham_name
        
@@ -221,6 +223,26 @@
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           error stop 1
        end Select
+
+       ! Test if user has initialized Calc_FL array
+       If ( .not. allocated(Calc_Fl)) then
+         allocate(Calc_Fl(N_FL))
+         Calc_Fl=.True.
+       endif
+       ! Count number of flavors to be calculated
+       N_FL_eff=0
+       Do I=1,N_Fl
+         if (Calc_Fl(I)) N_FL_eff=N_FL_eff+1
+       Enddo
+       !initialize the flavor map
+       allocate(Calc_Fl_map(N_FL_eff))
+       N_FL_eff=0
+       Do I=1,N_Fl
+         if (Calc_Fl(I)) then
+            N_FL_eff=N_FL_eff+1
+            Calc_Fl_map(N_FL_eff)=I
+         endif
+       Enddo
     end subroutine Alloc_Ham
     
     !--------------------------------------------------------------------

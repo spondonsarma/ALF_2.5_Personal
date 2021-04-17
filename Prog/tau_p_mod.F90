@@ -111,7 +111,7 @@
 
         Real    (Kind=kind(0.d0))  :: XMEAN_DYN, XMAX_DYN
 
-        Integer :: NTAUIN,  NTDM,  LFAM, NFAM, N_Part,  LQ , I, NCON, NF, NFLAG, NL, NT1, NT_ST, NT, NTAU, NTAU1,n
+        Integer :: NTAUIN,  NTDM,  LFAM, NFAM, N_Part,  LQ , I, NCON, NF, nf_eff, NFLAG, NL, NT1, NT_ST, NT, NTAU, NTAU1,n
 
         Real (Kind=Kind(0.d0)) :: XMEAN, XMAX
         Real (Kind=Kind(0.d0)) :: Mc_step_weight
@@ -123,15 +123,15 @@
 
         
         ALLOCATE (  GRUPB(LQ,LQ,N_FL), GRUP(LQ,LQ,N_FL), G00UP(LQ,LQ,N_FL), G0TUP(LQ,LQ,N_FL), &
-             &      GT0UP(LQ,LQ,N_FL),  GTTUP(LQ,LQ,N_FL), TEMP(LQ,LQ), udvr_local(N_FL) )
+             &      GT0UP(LQ,LQ,N_FL),  GTTUP(LQ,LQ,N_FL), TEMP(LQ,LQ), udvr_local(N_FL_eff) )
 
         If (Symm) Then
            Allocate ( G00UP_T(LQ,LQ,N_FL), G0TUP_T(LQ,LQ,N_FL), GT0UP_T(LQ,LQ,N_FL),  GTTUP_T(LQ,LQ,N_FL) )
         endif
 
-        do nf=1,N_FL
-           call udvr_local(nf)%alloc(ndim,udvr(nf)%N_part)
-           udvr_local(nf)=udvr(nf)
+        do nf_eff=1,N_FL_eff
+           call udvr_local(nf_eff)%alloc(ndim,udvr(nf_eff)%N_part)
+           udvr_local(nf_eff)=udvr(nf_eff)
         enddo
 
         GTTUP = GR ! On time slice Stab_nt(NST_IN)
@@ -146,17 +146,21 @@
            If (trim(Langevin_HMC%get_Update_scheme())=="Langevin" .and. NT .ge. LOBS_ST .and. NT .le. LOBS_EN ) then
               If (Symm) then
                  Call Hop_mod_Symm(GTTUP_T,GTTUP)
+                 !TODO call reconstruction of non-calculated flavor blocks
                  CALL ham%Obser( GTTUP_T, PHASE, NT, Mc_step_weight )
               else
+               !TODO call reconstruction of non-calculated flavor blocks
                  CALL ham%Obser( GTTUP, PHASE, NT, Mc_step_weight )
               endif
            endif
            IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN
               Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
-              do nf=1,N_FL
-                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+              do nf_eff=1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
+                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf_eff), udvst(nt_st + 1,nf_eff))
               enddo
-              Do nf = 1,N_FL
+              Do nf_eff = 1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
                  Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
               enddo
               GTTUP = GRUP
@@ -165,7 +169,8 @@
         enddo
 
         GRUPB = GTTUP
-        do nf=1,N_FL
+        do nf_eff=1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            do I=1,Ndim
               GRUPB(I,I,nf)=GRUPB(I,I,nf)-1.d0
            enddo
@@ -181,8 +186,10 @@
            Call Hop_mod_Symm(GTTUP_T,GTTUP)
            Call Hop_mod_Symm(G0TUP_T,G0TUP)
            Call Hop_mod_Symm(GT0UP_T,GT0UP)
+           !TODO call reconstruction of non-calculated flavor blocks
            CALL ham%OBSERT (NTAU,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE, Mc_step_Weight)
         else
+         !TODO call reconstruction of non-calculated flavor blocks
            CALL ham%OBSERT (NTAU,GT0UP,G0TUP,G00UP,GTTUP,PHASE, Mc_step_Weight)
         endif
         DO NT = THTROT+1, Ltrot-THTROT
@@ -190,22 +197,26 @@
            NTAU = NT - THTROT -1
            IF ( NT .EQ. STAB_NT(NT_ST+1) .and. NTAU /= 0) THEN
               Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
-              do nf=1,N_FL
-                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+              do nf_eff=1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
+                 CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf_eff), udvst(nt_st + 1,nf_eff))
               enddo
               NT_ST = NT_ST+1
-              Do nf = 1,N_FL
+              Do nf_eff = 1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
                  Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
               enddo
               GTTUP = GRUP
 
               GRUPB = -GRUP
-              do nf=1,N_FL
+              do nf_eff=1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
                  do I=1,Ndim
                     GRUPB(I,I,nf)=GRUPB(I,I,nf)+1.d0
                  enddo
               enddo
-              do nf=1,N_FL
+              do nf_eff=1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
                  CALL MMULT(TEMP,GRUP(:,:,nf),GT0UP(:,:,nf))
                  GT0UP(:,:,nf) = TEMP
                  CALL MMULT(TEMP,G0TUP(:,:,nf),GRUPB(:,:,nf))
@@ -228,10 +239,12 @@
               Call Hop_mod_Symm(GTTUP_T,GTTUP)
               Call Hop_mod_Symm(G0TUP_T,G0TUP)
               Call Hop_mod_Symm(GT0UP_T,GT0UP)
+              !TODO call reconstruction of non-calculated flavor blocks
               Call ham%OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE,Mc_step_weight)
               If ( trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
                    &.and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL ham%Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
            else
+              !TODO call reconstruction of non-calculated flavor blocks
               Call ham%OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE,Mc_step_weight)
               If ( trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
                    & .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL ham%Obser( GTTUP, PHASE, NT1, Mc_step_weight )
@@ -244,11 +257,13 @@
               ! UR is on time slice NT
               IF ( NT .EQ. STAB_NT(NT_ST+1) ) THEN
                  Call Wrapur(STAB_NT(NT_ST), STAB_NT(NT_ST+1), UDVR_local)
-                 do nf=1,N_FL
-                    CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf), udvst(nt_st + 1,nf))
+                 do nf_eff=1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
+                    CALL CGRP(DetZ, GRUP(:,:,nf), udvr_local(nf_eff), udvst(nt_st + 1,nf_eff))
                  enddo
                  NT_ST = NT_ST+1
-                 Do nf = 1,N_FL
+                 Do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     Call Control_Precision_tau(GTTUP(:,:,nf), GRUP(:,:,nf), Ndim)
                  enddo
                  GTTUP = GRUP
@@ -258,16 +273,18 @@
               If (NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) Then
                  If (Symm) then
                     Call Hop_mod_Symm(GTTUP_T,GTTUP)
+                    !TODO call reconstruction of non-calculated flavor blocks
                     CALL ham%Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
                  else
+                    !TODO call reconstruction of non-calculated flavor blocks
                     CALL ham%Obser( GTTUP, PHASE, NT1, Mc_step_weight )
                  endif
               endif
            Enddo
         endif
         
-        Do nf=1,N_FL
-           call udvr_local(nf)%dealloc
+        Do nf_eff=1,N_FL_eff
+           call udvr_local(nf_eff)%dealloc
         enddo
         DEALLOCATE (GRUPB, GRUP, G00UP, G0TUP, GT0UP,  GTTUP, TEMP, udvr_local)
         If (Symm) Then

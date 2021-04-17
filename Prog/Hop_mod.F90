@@ -270,11 +270,12 @@
           COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(Out):: Out
           COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Intent(IN):: In
 
-          Integer :: nf, nc
+          Integer :: nf, nc, nf_eff
           class(ContainerElementBase), pointer :: dummy
 
           Out = In
-          Do nf = 1, size(In,3)
+          Do nf_eff = 1, N_FL_eff !size(In,3)
+             nf=Calc_Fl_map(nf_eff)
              do nc =  Ncheck,1,-1
                 dummy => ExpOpT_vec(nf)%at(nc)
                 call dummy%adjointaction(Out(:, :, nf))

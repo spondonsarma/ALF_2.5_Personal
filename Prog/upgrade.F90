@@ -121,7 +121,7 @@
         ! Local ::
         Type   (Fields)   ::  nsigma_new
         Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1
-        Integer ::  n,m,nf, i, Op_dim, op_dim_nf
+        Integer ::  n,m,nf, nf_eff, i, Op_dim, op_dim_nf
         Complex (Kind=Kind(0.d0)) :: Z, D_Mat, myexp, s1, s2
 
         Real    (Kind=Kind(0.d0)) :: Weight
@@ -138,13 +138,14 @@
 
         Call nsigma_new%make(1,1)
         
-        op_dim=Op_V(n_op,1)%N_non_zero
-        Do nf = 2,N_FL
+        op_dim=Op_V(n_op,Calc_FL_map(1))%N_non_zero
+        Do nf_eff = 2,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            if (op_dim<Op_V(n_op,nf)%N_non_zero) op_dim=Op_V(n_op,nf)%N_non_zero
         Enddo
         
         if (op_dim > 0) then
-           Allocate ( Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL), u(Ndim,Op_dim), v(Ndim,Op_dim) )
+           Allocate ( Mat(Op_dim,Op_Dim), Delta(Op_dim,N_FL_eff), u(Ndim,Op_dim), v(Ndim,Op_dim) )
            Allocate ( y_v(Ndim,Op_dim), xp_v(Ndim,Op_dim), x_v(Ndim,Op_dim) )
         endif
 
@@ -152,14 +153,15 @@
         nf = 1
         nsigma_new%f(1,1)  = Hs_new !real(ns_new,kind=kind(0.d0))
         nsigma_new%t(1)    = Op_V(n_op,nf)%Type
-        Do nf = 1,N_FL
+        Do nf_eff = 1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            !Z1 = Op_V(n_op,nf)%g * ( Phi_st(ns_new,Op_V(n_op,nf)%type) -  Phi_st(ns_old,Op_V(n_op,nf)%type))
            Z1 = Op_V(n_op,nf)%g * ( nsigma_new%Phi(1,1) -  nsigma%Phi(n_op,nt) )
            op_dim_nf = Op_V(n_op,nf)%N_non_zero
            Do m = 1,op_dim_nf
               myexp = exp( Z1* Op_V(n_op,nf)%E(m) )
               Z = myexp - 1.d0
-              Delta(m,nf) = Z
+              Delta(m,nf_eff) = Z
               do n = 1,op_dim_nf
                  Mat(n,m) = - Z * GR( Op_V(n_op,nf)%P(n), Op_V(n_op,nf)%P(m),nf )
               Enddo
@@ -183,6 +185,8 @@
            endif
            Ratio(nf) =  D_Mat * exp( Z1*Op_V(n_op,nf)%alpha )
         Enddo
+
+        !TODO call reconstruct weight subroutine to fill the non-calculated blocks
 
         Ratiotot = Product(Ratio)
         nf = 1
@@ -212,7 +216,8 @@
            If (mode == "Final"  )  Phase = Phase * Ratiotot/sqrt(Ratiotot*conjg(Ratiotot))
            !Write(6,*) 'Accepted : ', Ratiotot
 
-           Do nf = 1,N_FL
+           Do nf_eff = 1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               ! Setup u(i,n), v(n,i)
               op_dim_nf = Op_V(n_op,nf)%N_non_zero
               if (op_dim_nf > 0) then
@@ -220,7 +225,7 @@
                 call zlaset('N', Ndim, op_dim_nf, beta, beta, u, size(u, 1))
                 call zlaset('N', Ndim, op_dim_nf, beta, beta, v, size(v, 1))
                 do n = 1,op_dim_nf
-                    u( Op_V(n_op,nf)%P(n), n) = Delta(n,nf)
+                    u( Op_V(n_op,nf)%P(n), n) = Delta(n,nf_eff)
                     do i = 1,Ndim
                         v(i,n) = - GR( Op_V(n_op,nf)%P(n), i, nf )
                     enddo

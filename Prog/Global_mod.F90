@@ -113,7 +113,7 @@ Module Global_mod
              Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
-             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
+             CLASS(UDV_State), intent(inout) :: udvl(:)
              Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
@@ -138,7 +138,7 @@ Module Global_mod
 
 
         !>  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step,  N_count, N_part
+        Integer :: NST, NSTM, NF, nf_eff, NT, NT1, NVAR,N, N1,N2, I, NC, I_Partner, n_step,  N_count, N_part
         Type    (Fields)           :: nsigma_old
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight, Weight1
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
@@ -326,11 +326,12 @@ Module Global_mod
         if (Tempering_calc_det) then
            ! If move has been accepted, no use to recomute storage
            If (.not.TOGGLE) then
-              DO nf = 1,N_FL
+              DO nf_eff = 1,N_FL_eff
+                 nf=Calc_Fl_map(nf_eff)
                  if (Projector) then
-                    CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                    CALL udvl(nf_eff)%reset('l',WF_L(nf)%P)
                  else
-                    CALL udvl(nf)%reset('l')
+                    CALL udvl(nf_eff)%reset('l')
                  endif
               ENDDO
               DO NST = NSTM-1,1,-1
@@ -338,8 +339,8 @@ Module Global_mod
                  NT  = Stab_nt(NST  )
                  !Write(6,*) NT1,NT, NST
                  CALL WRAPUL(NT1,NT, udvl)
-                 Do nf = 1,N_FL
-                    udvst(NST, nf) = udvl(nf)
+                 Do nf_eff = 1,N_FL_eff
+                    udvst(NST, nf_eff) = udvl(nf_eff)
                  ENDDO
               ENDDO
               NT1 = stab_nt(1)
@@ -348,8 +349,11 @@ Module Global_mod
            ! Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf),  udvl(nf))
+           do nf_eff = 1,N_Fl_eff
+              nf=Calc_Fl_map(nf_eff)
+              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff),  udvl(nf_eff))
+              ! ATTENTION non-calculated block also do have a phase
+              ! I am ignoring those atm WRONG!! Can I use the reconstruct weight here as well???
               Phase = Phase*Z
            Enddo
            call Op_phase(Phase,OP_V,Nsigma,N_SUN)
@@ -384,15 +388,15 @@ Module Global_mod
               CALL MPI_Sendrecv_Replace(GR, n_GR, MPI_COMPLEX16, nsigma_old_irank, 0, &
                    &        nsigma_irank, 0, MPI_COMM_WORLD, STATUS, IERR)
 
-              do nf = 1,N_Fl
-                 CALL udvr(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              do nf_eff = 1,N_Fl_eff
+                 CALL udvr(nf_eff)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
               enddo
-              do nf = 1,N_Fl
-                 CALL udvl(nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+              do nf_eff = 1,N_Fl_eff
+                 CALL udvl(nf_eff)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
               enddo
               do NST = 1, NSTM
-                 do nf = 1,N_Fl
-                    CALL udvst(NST, nf)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
+                 do nf_eff = 1,N_Fl_eff
+                    CALL udvst(NST, nf_eff)%MPI_Sendrecv(nsigma_old_irank, 0, nsigma_irank, 0, STATUS, IERR)
                  enddo
               enddo
            endif
@@ -483,7 +487,7 @@ Module Global_mod
 
 
         !  Local variables.
-        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, N_part,j
+        Integer :: NST, NSTM, NF, NT, NT1, NVAR,N, N1,N2, I, NC, N_part,j, nf_eff
         Real    (Kind=Kind(0.d0)) :: T0_Proposal_ratio, Weight
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Phase_old, Phase_new
         Complex (Kind=Kind(0.d0)), allocatable :: Det_vec_test(:,:), Phase_Det_new(:), Phase_Det_old(:)
@@ -518,22 +522,26 @@ Module Global_mod
 
         If (L_test) then
            ! Testing
-           Do nf = 1,N_FL
+           Do nf_eff = 1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               if (Projector) then
-                 CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                 CALL udvr(nf_eff)%reset('r',WF_R(nf)%P)
               else
-                 CALL udvr(nf)%reset('r')
+                 CALL udvr(nf_eff)%reset('r')
               endif
            Enddo
            NVAR = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf), udvl(nf))
+           do nf_eff = 1,N_Fl_eff
+              nf=Calc_Fl_map(nf_eff)
+              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
               Phase = Phase*Z
            Enddo
            call Op_phase(Phase,OP_V,Nsigma,N_SUN)
-           Do Nf = 1,N_FL
+           Do nf_eff = 1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               Call DET_C_LU(GR(:,:,nf),Det_vec_test(:,nf),Ndim)
+              !!!ATTENTION HOW DOES BELOW DEPEND ON NF BLOCK symm
               Z = Phase_det_old(nf)
               ratio_2_test=0.d0
               DO I = 1,Ndim
@@ -597,11 +605,12 @@ Module Global_mod
 
         If (NC > 0 ) then
            If (.not.TOGGLE) then
-              DO nf = 1,N_FL
+              DO nf_eff = 1,N_FL_eff
+                nf=Calc_Fl_map(nf_eff)
                 if (Projector) then
-                  CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                  CALL udvl(nf_eff)%reset('l',WF_L(nf)%P)
                 else
-                  CALL udvl(nf)%reset('l')
+                  CALL udvl(nf_eff)%reset('l')
                 endif
               ENDDO
               DO NST = NSTM-1,1,-1
@@ -609,8 +618,8 @@ Module Global_mod
                  NT  = Stab_nt(NST  )
                  !Write(6,*) NT1,NT, NST
                  CALL WRAPUL(NT1,NT, udvl)
-                 Do nf = 1,N_FL
-                    udvst(NST, nf) = udvl(nf)
+                 Do nf_eff = 1,N_FL_eff
+                    udvst(NST, nf_eff) = udvl(nf_eff)
                  ENDDO
               ENDDO
               NT1 = stab_nt(1)
@@ -619,8 +628,9 @@ Module Global_mod
            !Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
            Phase = cmplx(1.d0,0.d0,kind(0.d0))
-           do nf = 1,N_Fl
-              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf), udvl(nf))
+           do nf_eff = 1,N_Fl_eff
+              nf=Calc_Fl_map(nf_eff)
+              CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
               Phase = Phase*Z
            Enddo
            call Op_phase(Phase,OP_V,Nsigma,N_SUN)
@@ -792,6 +802,7 @@ Module Global_mod
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TP!, U, V
         COMPLEX (Kind=Kind(0.d0)), Dimension(:), Allocatable :: D
 
+        !! TODO adapt to flavor symmetry
 
         if(udvl(1)%side .ne. "L" .and. udvl(1)%side .ne. "l" ) then
            write(error_unit,*) "Compute_Fermion_Det: calling wrong decompose"
