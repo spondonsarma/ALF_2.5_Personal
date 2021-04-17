@@ -115,7 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
-    Module Hamiltonian
+    submodule (Hamiltonian_main) ham_Hubbard_smod
 
       Use Operator_mod
       Use WaveFunction_mod
@@ -128,48 +128,38 @@
       Use Fields_mod
       Use Predefined_Hoppings
       Use LRC_Mod
-      use iso_fortran_env, only: output_unit, error_unit
-
 
       Implicit none
+      
+      type, extends(ham_base) :: ham_Hubbard
+      contains
+        ! Set Hamiltonian-specific procedures
+        procedure, nopass :: Ham_Set
+        procedure, nopass :: Alloc_obs
+        procedure, nopass :: Obser
+        procedure, nopass :: ObserT
+        procedure, nopass :: S0
+        procedure, nopass :: Ham_Langevin_HMC_S0
+      end type ham_Hubbard
 
-
-      Type (Operator),     dimension(:,:), allocatable :: Op_V
-      Type (Operator),     dimension(:,:), allocatable :: Op_T
-      Type (WaveFunction), dimension(:),   allocatable :: WF_L
-      Type (WaveFunction), dimension(:),   allocatable :: WF_R
-      Type (Fields)        :: nsigma
-      Integer              :: Ndim
-      Integer              :: N_FL
-      Integer              :: N_SUN
-      Integer              :: Ltrot
-      Integer              :: Thtrot
-      Logical              :: Projector
-      Integer              :: Group_Comm
-      Logical              :: Symm
-
-
-      Type (Lattice),       private, target :: Latt
-      Type (Unit_cell),     private, target :: Latt_unit
-      Integer,              private :: L1, L2
-      Type (Hopping_Matrix_type), Allocatable, private :: Hopping_Matrix(:)
-      real (Kind=Kind(0.d0)),        private :: ham_T , ham_U,  Ham_chem
-      real (Kind=Kind(0.d0)),        private :: ham_T2, ham_U2, ham_Tperp !  For Bilayers
-      real (Kind=Kind(0.d0)),        private :: Phi_Y, Phi_X
-      Integer               ,        private :: N_Phi
-      real (Kind=Kind(0.d0)),        private :: Dtau, Beta, Theta
-      Character (len=64),   private :: Model, Lattice_type
-      Logical,              private :: Checkerboard,  Bulk, Mz, Continuous
-      Integer, allocatable, private :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
-
-
-!>    Privat Observables
-      Type (Obser_Vec ),  private, dimension(:), allocatable ::   Obs_scal
-      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_eq
-      Type (Obser_Latt),  private, dimension(:), allocatable ::   Obs_tau
-
+      Type (Lattice),       target :: Latt
+      Type (Unit_cell),     target :: Latt_unit
+      Integer :: L1, L2
+      Type (Hopping_Matrix_type), Allocatable :: Hopping_Matrix(:)
+      real (Kind=Kind(0.d0)) :: ham_T , ham_U,  Ham_chem
+      real (Kind=Kind(0.d0)) :: ham_T2, ham_U2, ham_Tperp !  For Bilayers
+      real (Kind=Kind(0.d0)) :: Phi_Y, Phi_X
+      Integer                :: N_Phi
+      real (Kind=Kind(0.d0)) :: Dtau, Beta, Theta
+      Character (len=64) :: Model, Lattice_type
+      Logical :: Checkerboard,  Bulk, Mz, Continuous
+      Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
 
     contains
+      
+      module Subroutine Ham_Alloc_hubbard
+        allocate(ham_Hubbard::ham)
+      end Subroutine Ham_Alloc_hubbard
 
 !--------------------------------------------------------------------
 !> @author
@@ -506,8 +496,10 @@
 
           N_ops = 0
           if ( Lattice_type == "Bilayer_square" .or. Lattice_type =="Bilayer_honeycomb" ) then
-             Ham_U_vec(1) = Ham_U
-             Ham_U_vec(2) = Ham_U2
+             Do no = 1,  Latt_unit%Norb/2
+                Ham_U_vec(no                    ) = Ham_U
+                Ham_U_vec(no + Latt_unit%Norb/2 ) = Ham_U2
+             enddo
              If (abs(Ham_U ) > Zero ) N_ops = N_ops + Latt%N*Latt_unit%Norb/2
              If (abs(Ham_U2) > Zero ) N_ops = N_ops + Latt%N*Latt_unit%Norb/2
           else
@@ -848,8 +840,6 @@
 
         end Subroutine OBSERT
 
-#include "Hamiltonian_Hubbard_include.h"
-
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
@@ -892,8 +882,7 @@
 
           Implicit none
 
-          Real (Kind=Kind(0.d0)), Intent(out  ),  dimension(:,:) :: Forces_0
-
+          Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_0(:,:)
           !Local
           Integer :: N, N_op,nt
           
@@ -910,4 +899,4 @@
           
         end Subroutine Ham_Langevin_HMC_S0
         
-    end Module Hamiltonian
+    end submodule ham_Hubbard_smod
