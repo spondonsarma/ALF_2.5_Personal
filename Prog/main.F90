@@ -267,7 +267,10 @@ Program Main
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
-!#ifdef MPI_shared_mem
+        !read environment variable called ALF_SHM_CHUNK_SIZE
+        !it should be a positive integer setting the chunk size of shared memory blocks in GB
+        !if it is not set, or set to a non-positive (including 0) integer, the routine defaults back to the
+        !usual Fortran allocation routines
         CALL GET_ENVIRONMENT_VARIABLE(Name, VALUE=chunk_size_str, STATUS=ierr)
         if (ierr==0) then
            read(chunk_size_str,*,IOSTAT=ierr) chunk_size_gb
@@ -276,7 +279,6 @@ Program Main
               chunk_size_gb=0
         endif
         CALL mpi_shared_memory_init(Group_Comm, chunk_size_gb)
-!#endif
 #endif
         !Initialize entanglement pairs of MPI jobs
         !This routine can and should also be called if MPI is not activated
@@ -780,7 +782,8 @@ Program Main
         enddo
 
 #if defined(MPI)  
-!&& defined(MPI_shared_mem)
+        ! Gracefully deallocate all shared MPI memory (thw whole chunks)
+        ! irrespective of where they actually have been used
         call deallocate_all_shared_memory
 #endif
 

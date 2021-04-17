@@ -1,33 +1,31 @@
-!  Copyright (C) 2016 - 2018 The ALF project
-!
-!  This file is part of the ALF project.
-!
+!  Copyright (C) 2020 The ALF project
+! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
 !     the Free Software Foundation, either version 3 of the License, or
 !     (at your option) any later version.
-!
+! 
 !     The ALF project is distributed in the hope that it will be useful,
 !     but WITHOUT ANY WARRANTY; without even the implied warranty of
 !     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 !     GNU General Public License for more details.
-!
+! 
 !     You should have received a copy of the GNU General Public License
-!     along with ALF. If not, see http://www.gnu.org/licenses/.
-!
+!     along with ALF.  If not, see http://www.gnu.org/licenses/.
+!     
 !     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
-!
+!     
 !     - It is our hope that this program makes a contribution to the scientific community. Being
 !       part of that community we feel that it is reasonable to require you to give an attribution
 !       back to the original authors if you have benefitted from this program.
 !       Guidelines for a proper citation can be found on the project's homepage
-!       http://alf.physik.uni-wuerzburg.de .
-!
+!       https://alf.physik.uni-wuerzburg.de .
+!       
 !     - We require the preservation of the above copyright notice and this license in all original files.
-!
-!     - We prohibit the misrepresentation of the origin of the original source files. To obtain
-!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
-!
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage https://alf.physik.uni-wuerzburg.de .
+! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
@@ -51,14 +49,29 @@ module mpi_shared_memory
     use iso_fortran_env, only: output_unit, error_unit
     Implicit none
   
+    ! internal arrays that contain the shared memory chunk that can be distributed
     complex (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_cmplx(:)
     real    (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_real(:) 
+    ! storing the MPI window ids that are use to release the memory at the end of the run / synchronization barriers
     integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
+    ! internal members to manage mpi communication / memory distribution
     integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
     integer, private, save :: num_chunks_real, num_chunks_cmplx, chunk_size_real(1), chunk_size_cmplx(1)
     logical, private, save :: initialized=.false.
     logical, public, save :: use_mpi_shm=.false.
     
+!--------------------------------------------------------------------
+    !> @brief 
+    !> interface to memory allocation routines.
+    !> fortran array may be real or complex double; 1D to 4D;
+    !> mpi_win_loc can be used for memory synchronization barrier;
+    !> myrank to ensure that only one rank initializes the array
+    !
+    !> @param[out] fortran_array
+    !> @param[out] mpi_win_loc
+    !> @param[out] myrank
+    !> @param[in]  arrayshape
+    !--------------------------------------------------------------------
     INTERFACE allocate_shared_memory
       MODULE PROCEDURE allocate_shared_memory_1Dreal,  allocate_shared_memory_2Dreal, &
                     &  allocate_shared_memory_3Dreal,  allocate_shared_memory_4Dreal, &
@@ -68,9 +81,17 @@ module mpi_shared_memory
     
     Contains
 
-      subroutine mpi_shared_memory_init(mpi_communiator, chunk_size)
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> initializes memory manager; can be called without MPI present.
+      !> Does nothing if compiled without MPI
+      !
+      !> @param[in] mpi_communicator
+      !> @param[in] chunk_size (in GB)
+      !--------------------------------------------------------------------
+      subroutine mpi_shared_memory_init(mpi_communicator, chunk_size)
         Implicit none
-        integer, intent(in) :: mpi_communiator, chunk_size
+        integer, intent(in) :: mpi_communicator, chunk_size
         
 #ifdef MPI
         integer :: ierr, tmp_int, status
@@ -79,7 +100,7 @@ module mpi_shared_memory
         chunk_size_gb=chunk_size
         if (chunk_size_gb > 0) then
                 use_mpi_shm=.true.
-                CALL MPI_Comm_split_type(mpi_communiator, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, nodecomm,ierr)
+                CALL MPI_Comm_split_type(mpi_communicator, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, nodecomm,ierr)
                 CALL MPI_Comm_rank(nodecomm, noderank,ierr)
                 initialized=.true.
                 num_chunks_real=0
@@ -96,6 +117,11 @@ module mpi_shared_memory
   
       end subroutine mpi_shared_memory_init
 
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> internal helper routine that allocates chunks of shared MPI memory that can be carved out and distributed
+      !
+      !--------------------------------------------------------------------
       subroutine allocate_shm_chunk_real()
         Implicit none
         
@@ -106,14 +132,15 @@ module mpi_shared_memory
         real(Kind=Kind(0.d0)) :: dummy_real_dp
         TYPE(C_PTR) :: baseptr
 
-        chunk_size_real(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_real_dp)  ! allocate GB(s) of memory as a 1D array of reals
+        ! allocate GB(s) of memory as a 1D array of reals
+        chunk_size_real(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_real_dp)  
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
             error stop 1
         endif
         if (noderank == 0) then
-            windowsize = int(chunk_size_real(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_real_dp),MPI_ADDRESS_KIND) !*8 for double ! Put the actual data size here
+            windowsize = int(chunk_size_real(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_real_dp),MPI_ADDRESS_KIND) 
         else
             windowsize = 0_MPI_ADDRESS_KIND
         end if
@@ -150,6 +177,15 @@ module mpi_shared_memory
 #endif
       end subroutine allocate_shm_chunk_real
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 1D real arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_1Dreal(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         real (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:)
@@ -184,6 +220,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_1Dreal
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 2D real arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_2Dreal(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         real (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:)
@@ -218,6 +263,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_2Dreal
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 3D real arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_3Dreal(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         real (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:,:)
@@ -253,6 +307,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_3Dreal
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 4D real arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_4Dreal(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         real (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:,:,:)
@@ -290,6 +353,11 @@ module mpi_shared_memory
 
 
 
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> internal helper routine that allocates chunks of shared MPI complex memory that can be carved out and distributed
+      !
+      !--------------------------------------------------------------------
       subroutine allocate_shm_chunk_cmplx()
         Implicit none
         
@@ -300,14 +368,15 @@ module mpi_shared_memory
         complex(Kind=Kind(0.d0)) :: dummy_cmplx_dp
         TYPE(C_PTR) :: baseptr
 
-        chunk_size_cmplx(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  ! allocate GB(s) of memory as a 1D array of complex doubles
+        ! allocate GB(s) of memory as a 1D array of complex doubles
+        chunk_size_cmplx(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
             error stop 1
         endif
         if (noderank == 0) then
-            windowsize = int(chunk_size_cmplx(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_cmplx_dp),MPI_ADDRESS_KIND) !*8 for double ! Put the actual data size here
+            windowsize = int(chunk_size_cmplx(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_cmplx_dp),MPI_ADDRESS_KIND)
         else
             windowsize = 0_MPI_ADDRESS_KIND
         end if
@@ -345,6 +414,15 @@ module mpi_shared_memory
       end subroutine allocate_shm_chunk_cmplx
       
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 1D complex arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_1Dcmplx(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         complex (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:)
@@ -379,6 +457,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_1Dcmplx
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 2D complex arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_2Dcmplx(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         complex (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:)
@@ -414,6 +501,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_2Dcmplx
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 3D complex arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_3Dcmplx(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         complex (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:,:)
@@ -449,6 +545,15 @@ module mpi_shared_memory
   
       end subroutine allocate_shared_memory_3Dcmplx
       
+      !--------------------------------------------------------------------
+      !> @brief 
+      !> specific implementation of above interface for 4D complex arrays
+      !
+      !> @param[out] fortran_array
+      !> @param[out] mpi_win_loc
+      !> @param[out] myrank
+      !> @param[in]  arrayshape
+      !--------------------------------------------------------------------
       subroutine allocate_shared_memory_4Dcmplx(fortran_array, mpi_win_loc, myrank, arrayshape)
         Implicit none
         complex (Kind=Kind(0.d0)), POINTER, intent(inout) :: fortran_array(:,:,:,:)
