@@ -248,7 +248,8 @@ If the numerical stabilization fails, one possible measure is to reduce the valu
 			\texttt{nskip}       & Should be set \emph{large} enough to allow for equilibration ($\sim$ autocorrelation time) \\
 			\texttt{Nrebin}      & Can be set to 1 when \texttt{Nsweep} is large enough; otherwise, and for testing, larger values can be used\\
 			Stabilization scheme & Use the default \texttt{STAB3} -- newest and fastest, if it works for your model; alternatives are: \texttt{STAB1} -- simplest, for reference only; \texttt{STAB2} -- with additional normalizations; and \texttt{LOG} -- for dealing with more extreme scales (see also Tab.~\ref{table:configureHPC}) \\
-			Parallelism          & For some models and systems, restricting parallelism in your BLAS library can improve performance: for OpenBLAS try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell \\\bottomrule
+			Parallelism          & For some models and systems, restricting parallelism in your BLAS library can improve performance: for OpenBLAS try setting \texttt{OPENBLAS\_NUM\_THREADS=1} in the shell \\
+			\texttt{ALF\_SHM\_CHUNK\_SIZE\_GB} & An environment variable that sets the chunk size in GBs for the memory shared between different MPI processes on the same computing node. By default it is zero (i.e., no sharing), but can be set to, e.g., 1 or 2 GB or larger if, for instance, the total number of MPI communicators is so large as to trigger MPI error messages. \\\bottomrule
 		\end{tabular}
 		\caption{Rules of thumb for obtaining best results and performance from ALF. It is important to fine tune the parameters to the specific model under consideration and perform sanity checks throughout. Most suggestions can severely impact performance and numerical stability if overdone. \label{table:tips}}
 	\end{center}
