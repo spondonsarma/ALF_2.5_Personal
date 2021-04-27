@@ -48,18 +48,20 @@ module mpi_shared_memory
 #endif
     use iso_fortran_env, only: output_unit, error_unit
     Implicit none
+    private
+    public :: mpi_shared_memory_init, allocate_shared_memory, deallocate_all_shared_memory, use_mpi_shm
   
     ! internal arrays that contain the shared memory chunk that can be distributed
-    complex (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_cmplx(:)
-    real    (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_real(:) 
+    complex (Kind=Kind(0.d0)), POINTER, save :: shm_mem_chunk_cmplx(:)
+    real    (Kind=Kind(0.d0)), POINTER, save :: shm_mem_chunk_real(:) 
     ! storing the MPI window ids that are use to release the memory at the end of the run / synchronization barriers
-    integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
+    integer, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
     ! internal members to manage mpi communication / memory distribution
-    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
-    integer, private, save :: num_chunks_real, num_chunks_cmplx
-    integer(kind=8), private, save :: chunk_size_real(1), chunk_size_cmplx(1)
-    logical, private, save :: initialized=.false.
-    logical, public, save :: use_mpi_shm=.false.
+    integer, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
+    integer, save :: num_chunks_real, num_chunks_cmplx
+    integer(kind=8), save :: chunk_size_real(1), chunk_size_cmplx(1)
+    logical, save :: initialized=.false.
+    logical, save :: use_mpi_shm=.false. !> public variable to query if shared memory module is active
     
 !--------------------------------------------------------------------
     !> @brief 
