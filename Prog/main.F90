@@ -223,7 +223,7 @@ Program Main
         integer (kind=kind(0.d0)) :: count_bin_start, count_bin_end
         
         ! For MPI shared memory
-        character(64), parameter :: name="ALF_SHM_CHUNK_SIZE"
+        character(64), parameter :: name="ALF_SHM_CHUNK_SIZE_GB"
         character(64) :: chunk_size_str
         integer :: chunk_size_gb
 
@@ -233,6 +233,14 @@ Program Main
         CALL MPI_INIT(ierr)
         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+        
+        If (  Irank == 0 ) then
+#endif
+           write (*,*) "ALF Copyright (C) 2016 - 2021 The ALF project contributors"
+           write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
+           write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
+#ifdef MPI
+        endif
 #endif
 
 #if defined(TEMPERING) && defined(MPI)
@@ -268,7 +276,7 @@ Program Main
         call MPI_Comm_size(Group_Comm, Isize_g, ierr)
         igroup           = irank/isize_g
         !Write(6,*) 'irank, Irank_g, Isize_g', irank, irank_g, isize_g
-        !read environment variable called ALF_SHM_CHUNK_SIZE
+        !read environment variable called ALF_SHM_CHUNK_SIZE_GB
         !it should be a positive integer setting the chunk size of shared memory blocks in GB
         !if it is not set, or set to a non-positive (including 0) integer, the routine defaults back to the
         !usual Fortran allocation routines
@@ -286,15 +294,6 @@ Program Main
         !It will then deactivate the entanglement measurements, i.e., the user does not have to care about this
         call Init_Entanglement_replicas(Group_Comm)
 
-#ifdef MPI
-        If (  Irank == 0 ) then
-#endif
-           write (*,*) "ALF Copyright (C) 2016 - 2020 The ALF project contributors"
-           write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
-           write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
-#ifdef MPI
-        endif
-#endif
 
 #ifdef MPI
         If ( Irank == 0 ) then
@@ -468,6 +467,7 @@ Program Main
            
 #if defined(MPI)
            Write(50,*) 'Number of mpi-processes : ', isize_g
+           if(use_mpi_shm) Write(50,*) 'Using mpi-shared memory in chunks of ', chunk_size_gb, 'GB.'
 #endif
 #if defined(GIT)
            Write(50,*) 'This executable represents commit '&

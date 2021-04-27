@@ -90,6 +90,10 @@ In order to run with MPI parallelization, the appropriate MPI execution command 
   \begin{lstlisting}[style=bash]
 orterun -np <number of processes> $ALF_DIR/Prog/ALF.out
 \end{lstlisting}
+The environment variable \texttt{ALF\_SHM\_CHUNK\_SIZE\_GB} can be used to reduce the memory footprint by sharing memory between MPI processes on the same node.
+The environment variable defines the chunk size of the shared memory objects in units of GB, only positive integer values are supported.
+Typical values are 1 or 2 GB, but they can be increased if the total number of MPI communicators is too large such that they trigger MPI error messages.
+If \texttt{ALF\_SHM\_CHUNK\_SIZE\_GB} is not defined or set to values smaller that one, then the memory is not shared between MPI processes.
 
 
 To restart the code using the configuration from a previous simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files, before calling the ALF executable.   This file is located in the  directory \path{$ALF_DIR/Scripts_and_Parameters_files/Start/}
