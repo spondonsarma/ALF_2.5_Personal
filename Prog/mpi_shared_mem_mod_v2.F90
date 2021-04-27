@@ -56,7 +56,8 @@ module mpi_shared_memory
     integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
     ! internal members to manage mpi communication / memory distribution
     integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
-    integer, private, save :: num_chunks_real, num_chunks_cmplx, chunk_size_real(1), chunk_size_cmplx(1)
+    integer, private, save :: num_chunks_real, num_chunks_cmplx
+    integer(kind=8), private, save :: chunk_size_real(1), chunk_size_cmplx(1)
     logical, private, save :: initialized=.false.
     logical, public, save :: use_mpi_shm=.false.
     
@@ -106,9 +107,11 @@ module mpi_shared_memory
                 num_chunks_real=0
                 num_chunks_cmplx=0
                 allocate(mpi_wins_real(10),mpi_wins_cmplx(10))
-                !call allocate_shm_chunk_real
-                !call 
                 if (noderank==0) write(*,*) "Chunk size for mpi shared memory is ", chunk_size_gb,"GB"
+                if (MPI_ADDRESS_KIND < 8 .and. chunk_size_gb > 2) then
+                        write(*,*) "Reducing chunk size to 2GB inorder to avoid integer overflow in MPI library."
+                        chunk_size_gb = 2
+                endif
         endif
 !#else
 !        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
@@ -133,7 +136,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of reals
-        chunk_size_real(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_real_dp)  
+        chunk_size_real(1) = int(chunk_size_gb,8)*1024_8*1024_8*1024_8/int(C_SIZEOF(dummy_real_dp),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -368,8 +371,8 @@ module mpi_shared_memory
         complex(Kind=Kind(0.d0)) :: dummy_cmplx_dp
         TYPE(C_PTR) :: baseptr
 
-        ! allocate GB(s) of memory as a 1D array of complex doubles
-        chunk_size_cmplx(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  
+        ! allocate GB(s) of memory as a 1D array of complex doubles 
+        chunk_size_cmplx(1) = int(chunk_size_gb,8)*1024_8*1024_8*1024_8/int(C_SIZEOF(dummy_cmplx_dp),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
