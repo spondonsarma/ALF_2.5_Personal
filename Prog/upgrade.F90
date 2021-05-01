@@ -186,7 +186,8 @@
            Ratio(nf) =  D_Mat * exp( Z1*Op_V(n_op,nf)%alpha )
         Enddo
 
-        !TODO call reconstruct weight subroutine to fill the non-calculated blocks
+        !call reconstruct weight subroutine to fill the non-calculated blocks
+        if (reconstruction_needed) call ham%weight_reconstruction(Ratio)
 
         Ratiotot = Product(Ratio)
         nf = 1

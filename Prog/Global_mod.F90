@@ -144,7 +144,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)), allocatable :: Phase_Det_new(:), Phase_Det_old(:)
-        Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2)
+        Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2),Phase_array(N_FL)
         Logical :: TOGGLE, L_Test
         Integer, allocatable :: List_partner(:), List_masters(:)
 
@@ -187,12 +187,15 @@ Module Global_mod
            ! Set old weight.
            storage = "Full"
            Call Compute_Fermion_Det(Phase_det_old,Det_Vec_old, udvl, udvst, Stab_nt, storage)
-           Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
-           Do nf = 1,N_Fl
-              Phase_old = Phase_old*Phase_det_old(nf)
-              Call Op_phase(Phase_old,OP_V,Nsigma,nf)
+           Phase_array=1.0d0
+           Do nf_eff = 1,N_Fl_eff
+              nf=Calc_Fl_map(nf_eff)
+              Phase_array(nf) = Phase_det_old(nf)
+              Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
            Enddo
-           Phase=Phase**N_SUN
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+           Phase_old=product(Phase_array)
+           Phase_old=Phase_old**N_SUN
         endif
         !> Store old configuration
         nsigma_old%f = nsigma%f
@@ -258,12 +261,15 @@ Module Global_mod
               storage = "Empty"
               Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
 
-              Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
-              Do nf = 1,N_Fl
-                 Phase_new = Phase_new*Phase_det_new(nf)
-                 Call Op_phase(Phase_new,OP_V,Nsigma,nf)
+              Phase_array = cmplx(1.d0,0.d0,kind=kind(0.d0))
+              Do nf_eff = 1,N_Fl_eff
+                 nf=Calc_FL_map(nf_eff)
+                 Phase_array(nf) = Phase_det_new(nf)
+                 Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
               Enddo
-              Phase=Phase**N_SUN
+              if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+              Phase_new=product(Phase_array)
+              Phase_new=Phase_new**N_SUN
 
               T0_Proposal_ratio = 1.d0
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
@@ -350,15 +356,15 @@ Module Global_mod
            Endif
            ! Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
-           Phase = cmplx(1.d0,0.d0,kind(0.d0))
+           Phase_array = cmplx(1.d0,0.d0,kind(0.d0))
            do nf_eff = 1,N_Fl_eff
               nf=Calc_Fl_map(nf_eff)
               CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff),  udvl(nf_eff))
-              ! ATTENTION non-calculated block also do have a phase
-              ! I am ignoring those atm WRONG!! Can I use the reconstruct weight here as well???
-              Phase = Phase*Z
-              call Op_phase(Phase,OP_V,Nsigma,nf)
+              call Op_phase(Z,OP_V,Nsigma,nf)
+              Phase_array(nf)=Z
            Enddo
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+           Phase=product(Phase_array)
            Phase=Phase**N_SUN
         else
            !  Send >> Phase, GR, udvr, udvl, udvst << to new node
@@ -497,7 +503,7 @@ Module Global_mod
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Type   (Fields)   :: nsigma_old
 
-        Complex (Kind=Kind(0.d0)) :: Ratio(2)
+        Complex (Kind=Kind(0.d0)) :: Ratio(2), Phase_array(N_Fl)
         Logical :: TOGGLE, L_Test
         Real    (Kind=Kind(0.d0)) :: size_clust
         Real    (Kind=Kind(0.d0)) :: ratio_2_test
@@ -517,12 +523,15 @@ Module Global_mod
         ! Set old weight.
         storage = "Full"
         Call Compute_Fermion_Det(Phase_det_old,Det_Vec_old, udvl, udvst, Stab_nt, storage)
-        Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
-        Do nf = 1,N_Fl
-           Phase_old = Phase_old*Phase_det_old(nf)
-           Call Op_phase(Phase_old,OP_V,Nsigma,nf)
+        Phase_array = cmplx(1.d0,0.d0,kind=kind(0.d0))
+        Do nf_eff = 1,N_Fl_eff
+           nf=Calc_FL_map(nf_eff)
+           Phase_array(nf) = Phase_det_old(nf)
+           Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
         Enddo
-        Phase=Phase**N_SUN
+        if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+        Phase_old=product(Phase_array)
+        Phase_old=Phase_old**N_SUN
 
         If (L_test) then
            ! Testing
@@ -535,13 +544,15 @@ Module Global_mod
               endif
            Enddo
            NVAR = 1
-           Phase = cmplx(1.d0,0.d0,kind(0.d0))
+           Phase_array = cmplx(1.d0,0.d0,kind(0.d0))
            do nf_eff = 1,N_Fl_eff
               nf=Calc_Fl_map(nf_eff)
               CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
-              Phase = Phase*Z
-              call Op_phase(Phase,OP_V,Nsigma,nf)
+              call Op_phase(Z,OP_V,Nsigma,nf)
+              Phase_array(nf)=Z
            Enddo
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+           Phase=product(Phase_array)
            Phase=Phase**N_SUN
            Do nf_eff = 1,N_FL_eff
               nf=Calc_Fl_map(nf_eff)
@@ -574,12 +585,15 @@ Module Global_mod
               storage = "Empty"
               Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
 
-              Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
-              Do nf = 1,N_Fl
-                 Phase_new = Phase_new*Phase_det_new(nf)
-                 Call Op_phase(Phase_new,OP_V,Nsigma,nf)
+              Phase_array = cmplx(1.d0,0.d0,kind=kind(0.d0))
+              Do nf_eff = 1,N_Fl_eff
+                 nf=Calc_FL_map(nf_eff)
+                 Phase_array(nf) = Phase_det_new(nf)
+                 Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
               Enddo
-              Phase=Phase**N_SUN
+              if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+              Phase_new=product(Phase_array)
+              Phase_new=Phase_new**N_SUN
 
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
                    &                          Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio, Ratio)
@@ -633,13 +647,15 @@ Module Global_mod
            Endif
            !Compute the Green functions so as to provide correct starting point for the sequential updates.
            NVAR  = 1
-           Phase = cmplx(1.d0,0.d0,kind(0.d0))
+           Phase_array = cmplx(1.d0,0.d0,kind(0.d0))
            do nf_eff = 1,N_Fl_eff
               nf=Calc_Fl_map(nf_eff)
               CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
-              Phase = Phase*Z
-              call Op_phase(Phase,OP_V,Nsigma,nf)
+              call Op_phase(Z,OP_V,Nsigma,nf)
+              Phase_array(nf)=Z
            Enddo
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+           Phase=product(Phase_array)
            Phase=Phase**N_SUN
         endif
 
@@ -803,7 +819,7 @@ Module Global_mod
 
 
         !> Local variables
-        Integer ::  N_size, NCON, I,  J, N_part, info, NSTM, N, nf, nst, nt, nt1
+        Integer ::  N_size, NCON, I,  J, N_part, info, NSTM, N, nf, nst, nt, nt1, nf_eff
         Integer, allocatable :: ipiv(:)
         COMPLEX (Kind=Kind(0.d0)) :: alpha,beta, Z, Z1
         TYPE(UDV_State) :: udvlocal
@@ -819,11 +835,12 @@ Module Global_mod
 
         NSTM = Size(udvst, 1)
         If (storage == "Empty" ) then
-           DO nf = 1,N_FL
+           DO nf_eff = 1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               if (Projector) then
-                 CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                 CALL udvl(nf_eff)%reset('l',WF_L(nf)%P)
               else
-                 CALL udvl(nf)%reset('l')
+                 CALL udvl(nf_eff)%reset('l')
               endif
            ENDDO
            DO NST = NSTM-1,1,-1
@@ -831,8 +848,8 @@ Module Global_mod
               NT  = Stab_nt(NST  )
               !Write(6,*) 'Call wrapul', NT1,NT, udvl(1)%d(1), udvl(1)%N_part, udvl(1)%Ndim
               CALL WRAPUL(NT1,NT, udvl)
-              Do nf = 1,N_FL
-                 udvst(NST, nf) = udvl(nf)
+              Do nf_eff = 1,N_FL_eff
+                 udvst(NST, nf_eff) = udvl(nf_eff)
               ENDDO
            ENDDO
            NT1 = stab_nt(1)
@@ -844,7 +861,8 @@ Module Global_mod
            N_size=udvl(1)%ndim
            Det_vec = 0.d0
            Allocate (TP(N_part,N_part), ipiv(N_part))
-           do nf=1,N_FL
+           do nf_eff=1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               N_part=udvst(1,nf)%N_part
               do i=1,NSTM-1
                  do n=1,N_part
@@ -857,14 +875,14 @@ Module Global_mod
               enddo
               do n=1,N_part
 #if !defined(LOG)
-                 Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvl(nf)%D(n)))
+                 Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvl(nf_eff)%D(n)))
 #else
-                 Det_Vec(n,nf)=Det_Vec(n,nf)+udvl(nf)%L(n)
+                 Det_Vec(n,nf)=Det_Vec(n,nf)+udvl(nf_eff)%L(n)
 #endif
               enddo
               alpha=1.d0
               beta=0.d0
-              CALL ZGEMM('C','N',N_part,N_part,N_size,alpha,udvl(nf)%U(1,1),N_size,WF_R(nf)%P(1,1),N_size,beta,TP(1,1),N_part)
+              CALL ZGEMM('C','N',N_part,N_part,N_size,alpha,udvl(nf_eff)%U(1,1),N_size,WF_R(nf)%P(1,1),N_size,beta,TP(1,1),N_part)
               ! ZGETRF computes an LU factorization of a general M-by-N matrix A
               ! using partial pivoting with row interchanges.
               call ZGETRF(N_part, N_part, TP(1,1), N_part, ipiv, info)
@@ -889,28 +907,29 @@ Module Global_mod
         beta  = cmplx(0.d0,0.d0,kind(0.d0))
         Allocate (TP(N_Size,N_Size),D(N_size))
         CALL udvlocal%alloc(N_size)
-        Do nf = 1,N_FL
-           TP = udvl(nf)%U !udvl stores U^dag instead of U !CT(udvl%U)
+        Do nf_eff = 1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
+           TP = udvl(nf_eff)%U !udvl stores U^dag instead of U !CT(udvl%U)
 #if !defined(LOG)
 #if !defined(STAB3)
            DO J = 1,N_size
-              TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*udvl(nf)%D(J)
+              TP(:,J) = TP(:,J) +  udvl(nf_eff)%V(:,J)*udvl(nf_eff)%D(J)
            ENDDO
 #else
            DO J = 1,N_size
-              if ( dble(udvl(nf)%D(J)) <= 1.d0 ) then
-                 TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*udvl(nf)%D(J)
+              if ( dble(udvl(nf_eff)%D(J)) <= 1.d0 ) then
+                 TP(:,J) = TP(:,J) +  udvl(nf_eff)%V(:,J)*udvl(nf_eff)%D(J)
               else
-                 TP(:,J) = TP(:,J)/udvl(nf)%D(J) +  udvl(nf)%V(:,J)
+                 TP(:,J) = TP(:,J)/udvl(nf_eff)%D(J) +  udvl(nf_eff)%V(:,J)
               endif
            ENDDO
 #endif
 #else
            DO J = 1,N_size
-              if ( udvl(nf)%L(J) <= 0.d0 ) then
-                 TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*cmplx(exp(udvl(nf)%L(J)),0.d0,kind(0.d0))
+              if ( udvl(nf_eff)%L(J) <= 0.d0 ) then
+                 TP(:,J) = TP(:,J) +  udvl(nf_eff)%V(:,J)*cmplx(exp(udvl(nf_eff)%L(J)),0.d0,kind(0.d0))
               else
-                 TP(:,J) = TP(:,J)*cmplx(exp(-udvl(nf)%L(J)),0.d0,kind(0.d0)) +  udvl(nf)%V(:,J)
+                 TP(:,J) = TP(:,J)*cmplx(exp(-udvl(nf_eff)%L(J)),0.d0,kind(0.d0)) +  udvl(nf_eff)%V(:,J)
               endif
            ENDDO
 #endif
@@ -919,7 +938,7 @@ Module Global_mod
            Call  UDV_WRAP(TP,udvlocal%U, D, udvlocal%V, NCON )
            Z  = DET_C(udvlocal%V, N_size) ! Det destroys its argument
            !         Call MMULT(TP, udvl%U, udvlocal%U)
-           CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
+           CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf_eff)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
            Z1 = Det_C(TP, N_size)
            Phase_det(nf)   = Z*Z1/ABS(Z*Z1)
 #if !defined(LOG)
@@ -928,24 +947,24 @@ Module Global_mod
            Det_vec(1,nf) = log(real(D(1))) + log(ABS(Z*Z1))
 #else
            Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
-           if (dble(udvl(nf)%D(1)) > 1.d0) Det_vec(1,nf)=Det_Vec(1,nf)+log(dble(udvl(nf)%D(1)))
+           if (dble(udvl(nf_eff)%D(1)) > 1.d0) Det_vec(1,nf)=Det_Vec(1,nf)+log(dble(udvl(nf_eff)%D(1)))
            Do J=2,Ndim
-              if (dble(udvl(nf)%D(J))<=1.d0) then
+              if (dble(udvl(nf_eff)%D(J))<=1.d0) then
                  Det_vec(J,nf) = log(real(D(J)))
               else
-                 Det_vec(J,nf) = log(real(D(J)))+log(dble(udvl(nf)%D(J)))
+                 Det_vec(J,nf) = log(real(D(J)))+log(dble(udvl(nf_eff)%D(J)))
               endif
            enddo
 #endif
 #else
            Det_vec(:,nf) = log(real(D(:)))
            Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
-           if (udvl(nf)%L(1) > 0.d0) Det_vec(1,nf)=Det_Vec(1,nf)+udvl(nf)%L(1)
+           if (udvl(nf_eff)%L(1) > 0.d0) Det_vec(1,nf)=Det_Vec(1,nf)+udvl(nf_eff)%L(1)
            Do J=2,Ndim
-              if (udvl(nf)%L(J)<=0.d0) then
+              if (udvl(nf_eff)%L(J)<=0.d0) then
                  Det_vec(J,nf) = log(real(D(J)))
               else
-                 Det_vec(J,nf) = log(real(D(J)))+udvl(nf)%L(J)
+                 Det_vec(J,nf) = log(real(D(J)))+udvl(nf_eff)%L(J)
               endif
            enddo
 #endif
