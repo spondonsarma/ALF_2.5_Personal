@@ -144,6 +144,9 @@
         procedure, nopass :: Delta_S0_global => Delta_S0_global_base
         procedure, nopass :: S0 => S0_base
         procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+        procedure, nopass :: weight_reconstruction => weight_reconstruction_base
+        procedure, nopass :: GR_reconstruction => GR_reconstruction_base
+        procedure, nopass :: GRT_reconstruction => GRT_reconstruction_base
       end type ham_base
       
       class(ham_base), allocatable :: ham
@@ -163,6 +166,7 @@
       Logical      , public        :: Projector
       Integer      , public        :: Group_Comm
       Logical      , public        :: Symm
+      Logical      , public        :: reconstruction_needed
 
 
       !>    Privat Observables
@@ -234,6 +238,8 @@
        Do I=1,N_Fl
          if (Calc_Fl(I)) N_FL_eff=N_FL_eff+1
        Enddo
+       reconstruction_needed=.false.
+       If (N_FL_eff /= N_FL) reconstruction_needed=.true.
        !initialize the flavor map
        allocate(Calc_Fl_map(N_FL_eff))
        N_FL_eff=0
@@ -618,6 +624,68 @@
             Forces_0  = 0.d0
             
           end Subroutine Ham_Langevin_HMC_S0_base
+    
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+          subroutine weight_reconstruction_base(weight)
+            implicit none
+            complex (Kind=Kind(0.d0)), Intent(inout), allocatable :: weight(:)
+            write(error_unit, *) 'weight_reconstruction not defined!'
+            error stop 1
+          end subroutine weight_reconstruction_base
+
+
+    !--------------------------------------------------------------------
+    !> @author
+    !> ALF Collaboration
+    !>
+    !> @brief
+    !> Reconstructs dependent flavors of equal time Greens function
+    !> @details
+    !> This has to be overloaded in the Hamiltonian submodule.
+    !> @param [INOUT] Gr   Complex(:,:,:)
+    !> \verbatim
+    !>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+    !> \endverbatim
+    !-------------------------------------------------------------------
+          subroutine GR_reconstruction_base(GR)
+
+            Implicit none
+
+            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+            
+            write(error_unit, *) "Warning: GR_reconstruction not implemented."
+            error stop 1
+         end Subroutine GR_reconstruction_base
+
+
+   !--------------------------------------------------------------------
+   !> @author
+   !> ALF Collaboration
+   !>
+   !> @brief
+   !> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+   !> @details
+   !> This has to be overloaded in the Hamiltonian submodule.
+   !> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+   !> \verbatim
+   !>  Green functions:
+   !>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+   !>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+   !> \endverbatim
+   !-------------------------------------------------------------------
+         Subroutine GRT_reconstruction_base(GT0, G0T)
+            Implicit none
+   
+            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+            
+            write(error_unit, *) "Warning: GRT_reconstruction not implemented."
+            error stop 1
+         end Subroutine GRT_reconstruction_base
 
 
     end Module Hamiltonian_main

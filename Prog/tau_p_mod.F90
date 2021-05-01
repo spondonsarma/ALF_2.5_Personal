@@ -137,7 +137,8 @@
         GTTUP = GR ! On time slice Stab_nt(NST_IN)
         NT_ST = NST_IN
         do NT = Stab_nt(NT_ST)+1, Thtrot + 1
-           If  (trim(Langevin_HMC%get_Update_scheme())=="Langevin") then            
+           If  (trim(Langevin_HMC%get_Update_scheme())=="Langevin") then
+              !TODO reconstruction required?            
               Call Langevin_HMC%Wrap_Forces(GTTUP,NT)
            else
               CALL PROPRM1 (GTTUP,NT)
@@ -146,10 +147,12 @@
            If (trim(Langevin_HMC%get_Update_scheme())=="Langevin" .and. NT .ge. LOBS_ST .and. NT .le. LOBS_EN ) then
               If (Symm) then
                  Call Hop_mod_Symm(GTTUP_T,GTTUP)
-                 !TODO call reconstruction of non-calculated flavor blocks
+                 !call reconstruction of non-calculated flavor blocks
+                 If (reconstruction_needed) Call ham%GR_reconstruction( GTTUP_T )
                  CALL ham%Obser( GTTUP_T, PHASE, NT, Mc_step_weight )
               else
-               !TODO call reconstruction of non-calculated flavor blocks
+               !call reconstruction of non-calculated flavor blocks
+                 If (reconstruction_needed) Call ham%GR_reconstruction( GTTUP )
                  CALL ham%Obser( GTTUP, PHASE, NT, Mc_step_weight )
               endif
            endif
@@ -186,10 +189,20 @@
            Call Hop_mod_Symm(GTTUP_T,GTTUP)
            Call Hop_mod_Symm(G0TUP_T,G0TUP)
            Call Hop_mod_Symm(GT0UP_T,GT0UP)
-           !TODO call reconstruction of non-calculated flavor blocks
+           !call reconstruction of non-calculated flavor blocks
+           If (reconstruction_needed) then
+               Call ham%GR_reconstruction( G00UP_T )
+               Call ham%GR_reconstruction( GTTUP_T )
+               Call ham%GRT_reconstruction( GT0UP_T, G0TUP_T )
+           endif
            CALL ham%OBSERT (NTAU,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE, Mc_step_Weight)
         else
-         !TODO call reconstruction of non-calculated flavor blocks
+           !call reconstruction of non-calculated flavor blocks
+           If (reconstruction_needed) then
+              Call ham%GR_reconstruction( G00UP )
+              Call ham%GR_reconstruction( GTTUP )
+              Call ham%GRT_reconstruction( GT0UP, G0TUP )
+           endif
            CALL ham%OBSERT (NTAU,GT0UP,G0TUP,G00UP,GTTUP,PHASE, Mc_step_Weight)
         endif
         DO NT = THTROT+1, Ltrot-THTROT
@@ -227,6 +240,7 @@
            CALL PROPR  (GT0UP,NT1)
            CALL PROPRM1(G0TUP,NT1)
            If  (trim(Langevin_HMC%get_Update_scheme())=="Langevin") then
+              !TODO reconstruction required?
               Call Langevin_HMC%Wrap_Forces(GTTUP,NT1)
            else
               CALL PROPRM1 (GTTUP,NT1)
@@ -239,12 +253,22 @@
               Call Hop_mod_Symm(GTTUP_T,GTTUP)
               Call Hop_mod_Symm(G0TUP_T,G0TUP)
               Call Hop_mod_Symm(GT0UP_T,GT0UP)
-              !TODO call reconstruction of non-calculated flavor blocks
+              !call reconstruction of non-calculated flavor blocks
+              If (reconstruction_needed) then
+                  Call ham%GR_reconstruction( G00UP_T )
+                  Call ham%GR_reconstruction( GTTUP_T )
+                  Call ham%GRT_reconstruction( GT0UP_T, G0TUP_T )
+              endif
               Call ham%OBSERT (NTAU1,GT0UP_T,G0TUP_T,G00UP_T,GTTUP_T,PHASE,Mc_step_weight)
               If ( trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
                    &.and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL ham%Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
            else
-              !TODO call reconstruction of non-calculated flavor blocks
+              !call reconstruction of non-calculated flavor blocks
+              If (reconstruction_needed) then
+                  Call ham%GR_reconstruction( G00UP )
+                  Call ham%GR_reconstruction( GTTUP )
+                  Call ham%GRT_reconstruction( GT0UP, G0TUP )
+              endif
               Call ham%OBSERT (NTAU1,GT0UP,G0TUP,G00UP,GTTUP,PHASE,Mc_step_weight)
               If ( trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
                    & .and. NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) CALL ham%Obser( GTTUP, PHASE, NT1, Mc_step_weight )
@@ -269,14 +293,17 @@
                  GTTUP = GRUP
               ENDIF
               NT1 = NT + 1
+              !TODO reconstruction required?
               Call Langevin_HMC%Wrap_Forces(GTTUP,NT1)
               If (NT1 .ge. LOBS_ST .and. NT1 .le. LOBS_EN ) Then
                  If (Symm) then
                     Call Hop_mod_Symm(GTTUP_T,GTTUP)
-                    !TODO call reconstruction of non-calculated flavor blocks
+                    !call reconstruction of non-calculated flavor blocks
+                    If (reconstruction_needed) Call ham%GR_reconstruction( GTTUP_T )
                     CALL ham%Obser( GTTUP_T, PHASE, NT1, Mc_step_weight )
                  else
-                    !TODO call reconstruction of non-calculated flavor blocks
+                    !call reconstruction of non-calculated flavor blocks
+                    If (reconstruction_needed) Call ham%GR_reconstruction( GTTUP )
                     CALL ham%Obser( GTTUP, PHASE, NT1, Mc_step_weight )
                  endif
               endif

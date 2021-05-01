@@ -630,10 +630,12 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          !TODO reconstruction of NOT calculated block!!!
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR_Tilde )
                           CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          !TODO reconstruction of NOT calculated block!!!
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR )
                           CALL ham%Obser( GR, PHASE, Ntau1, Mc_step_weight  )
                        endif
                     ENDIF
@@ -658,10 +660,12 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
-                          !TODO reconstruction of NOT calculated block!!!
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR_Tilde )
                           CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
-                          !TODO reconstruction of NOT calculated block!!!
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR )
                           CALL ham%Obser( GR, PHASE, Ntau1,Mc_step_weight )
                        endif
                     ENDIF

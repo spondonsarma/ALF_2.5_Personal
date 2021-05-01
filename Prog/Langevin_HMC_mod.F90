@@ -30,6 +30,8 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 
+! TODO ATTENTION: this module still has to be updated for flavor symmetries!!!
+
       Module Langevin_HMC_mod
         
         Use Hamiltonian_main
