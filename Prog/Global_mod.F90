@@ -190,8 +190,9 @@ Module Global_mod
            Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
            Do nf = 1,N_Fl
               Phase_old = Phase_old*Phase_det_old(nf)
+              Call Op_phase(Phase_old,OP_V,Nsigma,nf)
            Enddo
-           Call Op_phase(Phase_old,OP_V,Nsigma,N_SUN)
+           Phase=Phase**N_SUN
         endif
         !> Store old configuration
         nsigma_old%f = nsigma%f
@@ -260,8 +261,9 @@ Module Global_mod
               Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
               Do nf = 1,N_Fl
                  Phase_new = Phase_new*Phase_det_new(nf)
+                 Call Op_phase(Phase_new,OP_V,Nsigma,nf)
               Enddo
-              Call Op_phase(Phase_new,OP_V,Nsigma,N_SUN)
+              Phase=Phase**N_SUN
 
               T0_Proposal_ratio = 1.d0
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
@@ -355,8 +357,9 @@ Module Global_mod
               ! ATTENTION non-calculated block also do have a phase
               ! I am ignoring those atm WRONG!! Can I use the reconstruct weight here as well???
               Phase = Phase*Z
+              call Op_phase(Phase,OP_V,Nsigma,nf)
            Enddo
-           call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+           Phase=Phase**N_SUN
         else
            !  Send >> Phase, GR, udvr, udvl, udvst << to new node
            !  First step: Each node sends to IRANK=0 its value nsigma_irank,
@@ -517,8 +520,9 @@ Module Global_mod
         Phase_old = cmplx(1.d0,0.d0,kind=kind(0.d0))
         Do nf = 1,N_Fl
            Phase_old = Phase_old*Phase_det_old(nf)
+           Call Op_phase(Phase_old,OP_V,Nsigma,nf)
         Enddo
-        Call Op_phase(Phase_old,OP_V,Nsigma,N_SUN)
+        Phase=Phase**N_SUN
 
         If (L_test) then
            ! Testing
@@ -536,8 +540,9 @@ Module Global_mod
               nf=Calc_Fl_map(nf_eff)
               CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
               Phase = Phase*Z
+              call Op_phase(Phase,OP_V,Nsigma,nf)
            Enddo
-           call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+           Phase=Phase**N_SUN
            Do nf_eff = 1,N_FL_eff
               nf=Calc_Fl_map(nf_eff)
               Call DET_C_LU(GR(:,:,nf),Det_vec_test(:,nf),Ndim)
@@ -572,8 +577,9 @@ Module Global_mod
               Phase_new = cmplx(1.d0,0.d0,kind=kind(0.d0))
               Do nf = 1,N_Fl
                  Phase_new = Phase_new*Phase_det_new(nf)
+                 Call Op_phase(Phase_new,OP_V,Nsigma,nf)
               Enddo
-              Call Op_phase(Phase_new,OP_V,Nsigma,N_SUN)
+              Phase=Phase**N_SUN
 
               Ratiotot = Compute_Ratio_Global(Phase_Det_old, Phase_Det_new, &
                    &                          Det_vec_old, Det_vec_new, nsigma_old, T0_Proposal_ratio, Ratio)
@@ -632,8 +638,9 @@ Module Global_mod
               nf=Calc_Fl_map(nf_eff)
               CALL CGR(Z, NVAR, GR(:,:,nf), udvr(nf_eff), udvl(nf_eff))
               Phase = Phase*Z
+              call Op_phase(Phase,OP_V,Nsigma,nf)
            Enddo
-           call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+           Phase=Phase**N_SUN
         endif
 
 

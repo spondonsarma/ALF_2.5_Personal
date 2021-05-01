@@ -227,28 +227,6 @@
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           error stop 1
        end Select
-
-       ! Test if user has initialized Calc_FL array
-       If ( .not. allocated(Calc_Fl)) then
-         allocate(Calc_Fl(N_FL))
-         Calc_Fl=.True.
-       endif
-       ! Count number of flavors to be calculated
-       N_FL_eff=0
-       Do I=1,N_Fl
-         if (Calc_Fl(I)) N_FL_eff=N_FL_eff+1
-       Enddo
-       reconstruction_needed=.false.
-       If (N_FL_eff /= N_FL) reconstruction_needed=.true.
-       !initialize the flavor map
-       allocate(Calc_Fl_map(N_FL_eff))
-       N_FL_eff=0
-       Do I=1,N_Fl
-         if (Calc_Fl(I)) then
-            N_FL_eff=N_FL_eff+1
-            Calc_Fl_map(N_FL_eff)=I
-         endif
-       Enddo
     end subroutine Alloc_Ham
     
     !--------------------------------------------------------------------

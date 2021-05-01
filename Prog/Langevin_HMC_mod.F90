@@ -162,8 +162,9 @@
                  CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
                  Z = Z*Z1
                  Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                 call Op_phase(Z,OP_V,Nsigma,nf) 
               ENDDO
-              call Op_phase(Z,OP_V,Nsigma,N_SUN) 
+              Phase=Phase**N_SUN 
               Call Control_PrecisionP(Z,Phase)
               Phase = Z
               NST = NST + 1
@@ -326,8 +327,9 @@
         do nf = 1,N_Fl
            CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
            Phase = Phase*Z
+           call Op_phase(Phase,OP_V,Nsigma,nf)
         Enddo
-        call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+        Phase=Phase**N_SUN
 
       end Subroutine Langevin_HMC_Reset_storage
       

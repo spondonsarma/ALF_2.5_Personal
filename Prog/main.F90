@@ -321,6 +321,29 @@ Program Main
         Call Fields_init()
         Call Alloc_Ham()
         Call ham%Ham_set()
+
+        ! Test if user has initialized Calc_FL array
+        If ( .not. allocated(Calc_Fl)) then
+          allocate(Calc_Fl(N_FL))
+          Calc_Fl=.True.
+        endif
+        ! Count number of flavors to be calculated
+        N_FL_eff=0
+        Do I=1,N_Fl
+          if (Calc_Fl(I)) N_FL_eff=N_FL_eff+1
+        Enddo
+        reconstruction_needed=.false.
+        If (N_FL_eff /= N_FL) reconstruction_needed=.true.
+        !initialize the flavor map
+        allocate(Calc_Fl_map(N_FL_eff))
+        N_FL_eff=0
+        Do I=1,N_Fl
+          if (Calc_Fl(I)) then
+             N_FL_eff=N_FL_eff+1
+             Calc_Fl_map(N_FL_eff)=I
+          endif
+        Enddo
+
         if(Projector) then
            if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
               write(error_unit,*) "Projector is selected but there are no trial wave functions!"
@@ -530,8 +553,9 @@ Program Main
            nf=Calc_Fl_map(nf_eff)
            CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
            Phase = Phase*Z
+           call Op_phase(Phase,OP_V,Nsigma,nf)
         Enddo
-        call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+        Phase=Phase**N_SUN
 #ifdef MPI
         !WRITE(6,*) 'Phase is: ', Irank, PHASE, GR(1,1,1)
 #else
@@ -615,8 +639,9 @@ Program Main
                           CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                           Z = Z*Z1
                           Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                          call Op_phase(Z,OP_V,Nsigma,nf)
                        ENDDO
-                       call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                       Phase=Phase**N_SUN
                        Call Control_PrecisionP(Z,Phase)
                        Phase = Z
                        NST = NST + 1
@@ -687,8 +712,9 @@ Program Main
                           CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                           Z = Z*Z1
                           Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                          call Op_phase(Z,OP_V,Nsigma,nf)
                        ENDDO
-                       call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                       Phase=Phase**N_SUN
                        Call Control_PrecisionP(Z,Phase)
                        Phase = Z
                        IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
@@ -719,8 +745,9 @@ Program Main
                     CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                     Z = Z*Z1
                     Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                    call Op_phase(Z,OP_V,Nsigma,nf)
                  ENDDO
-                 call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                 Phase=Phase**N_SUN
                  Call Control_PrecisionP(Z,Phase)
                  Phase = Z
                  NST =  NSTM
