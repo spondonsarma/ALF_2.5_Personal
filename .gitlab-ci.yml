@@ -177,12 +177,12 @@ GQMCT_PGI_conv:
   stage: warnconv
   except:
     changes:
-      - apt-get update && apt-get install -y python3
       - .gitignore
       - CITATION
       - README.md
       - license.*
   script:
+    - apt-get update && apt-get install -y python3
     - pgfortran --version
     - . configure.sh PGI serial
     - make all
