@@ -70,13 +70,32 @@
         procedure, nopass :: S0
       end type ham_Z2_Matter
 
-!>    Privat variables
+      !#PARAMETERS START# VAR_lattice
+      Character (len=64) :: Model = 'Z2_Matter'  ! Possible Values: 'Z2_Matter'
+      Character (len=64) :: Lattice_type = 'Square'  ! Possible Values: 'Square'
+      Integer            :: L1 = 4   ! Length in direction a_1
+      Integer            :: L2 = 4   ! Length in direction a_2
+      !#PARAMETERS END#
+
+      !#PARAMETERS START# VAR_Z2_Matter
+      !Integer              :: N_SUN = 2
+      real(Kind=Kind(0.d0)) :: ham_T    = 1.d0   ! Hopping for fermions
+      real(Kind=Kind(0.d0)) :: ham_TZ2  = 1.d0   ! Hopping for orthogonal fermions
+      real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0   ! Chemical potential for fermions
+      real(Kind=Kind(0.d0)) :: Ham_U    = 0.1d0  ! Hubbard for fermions
+      real(Kind=Kind(0.d0)) :: Ham_J    = 1.d0   ! Hopping Z2 matter fields
+      real(Kind=Kind(0.d0)) :: Ham_K    = 1.d0   ! Plaquette term for gauge fields
+      real(Kind=Kind(0.d0)) :: Ham_h    = 1.d0   ! sigma^x-term for matter
+      real(Kind=Kind(0.d0)) :: Ham_g    = 1.d0   ! tau^x-term for gauge
+      real(Kind=Kind(0.d0)) :: Dtau     = 0.1d0  ! Thereby Ltrot=Beta/dtau
+      real(Kind=Kind(0.d0)) :: Beta     = 10.d0  ! Inverse temperature
+      !logical              :: Projector = .false.  ! Whether the projective algorithm is used
+      real(Kind=Kind(0.d0)) :: Theta    = 0.d0      ! Projection parameter
+      Integer               :: N_part   = -1        ! Number of particles in trial wave function. If N_part < 0 -> N_part = L1*L2/2
+      !#PARAMETERS END#
+      
       Type (Lattice),        target :: Latt
       Type (Unit_cell),      target :: Latt_unit
-      Integer                :: L1, L2, N_part
-      real (Kind=Kind(0.d0)) :: ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h,  Ham_TZ2, Ham_U
-      real (Kind=Kind(0.d0)) :: Dtau, Beta, Theta
-      Character (len=64)     :: Model, Lattice_type
       Logical                :: One_dimensional
       Integer, allocatable   :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       real (Kind=Kind(0.d0)) :: Zero = 1.D-10
@@ -92,6 +111,7 @@
         allocate(ham_Z2_Matter::ham)
       end Subroutine Ham_Alloc_Z2_Matter
 
+#include "Hamiltonian_Z2_Matter_read_parameters.F90"
 
 !--------------------------------------------------------------------
 !> @author
@@ -109,13 +129,7 @@
 
 
           integer :: ierr
-          Character (len=64) :: file_info, file_para
-
-          NAMELIST /VAR_lattice/  L1, L2, Lattice_type, Model
-
-
-          NAMELIST /VAR_Z2_Matter/ ham_T, Ham_chem, Ham_g, Ham_J,  Ham_K, Ham_h, &
-               &                   Dtau, Beta, ham_TZ2, Ham_U,  N_SUN, Projector, Theta, N_part
+          Character (len=64) :: file_info
 
           
           
@@ -130,23 +144,8 @@
           !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
 
-#ifdef MPI
-          If (Irank == 0 ) then
-#endif
-             OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
-             IF (ierr /= 0) THEN
-                WRITE(error_unit,*) 'Ham_set: unable to open <parameters>',ierr
-                error stop 1
-             END IF
-             READ(5,NML=VAR_lattice)
-             CLOSE(5)
-#ifdef MPI
-          Endif
-          CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,MPI_COMM_WORLD,ierr)
-          CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
-          CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,MPI_COMM_WORLD,IERR)
-#endif
+          call read_parameters()
+          
           Call Ham_latt
 
           if ( Model == "Z2_Matter" ) then
@@ -159,50 +158,16 @@
              Write(error_unit,*) "Ham_set: Model not yet implemented!"
              error stop 1
           endif
-
-
-
-          File_Para = "parameters"
-          File_info = "info"
-#if defined(TEMPERING)
-          write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
-          write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
-#endif
-          
-#if defined(MPI)
-          If (Irank_g == 0 ) then
-#endif
-             ham_T = 0.d0; Ham_chem = 0.d0; Ham_g = 0.d0; Ham_J = 0.d0
-             Ham_K = 0.d0; Ham_h = 0.d0; Projector = .False. ;  N_part = L1*L2/2
-             OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
-             READ(5,NML=VAR_Z2_Matter)
-             CLOSE(5)
-             If (Abs(Ham_T) < Zero ) then
-                Ham_J = 0.d0 ! Matter-Ising interction
-                Ham_h = 0.d0
-             endif
-             If (Abs(Ham_TZ2) < Zero ) then
-                Ham_J = 0.d0 ! Matter-Ising interction
-                Ham_K = 0.d0 ! Flux
-                Ham_g = 0.d0
-             endif
-#ifdef MPI
+          if (N_part < 0) N_part = L1*L2/2
+          If (Abs(Ham_T) < Zero ) then
+              Ham_J = 0.d0 ! Matter-Ising interction
+              Ham_h = 0.d0
           endif
-          CALL MPI_BCAST(ham_T    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_TZ2  ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_chem ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_g    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Ham_J    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Ham_K    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Ham_h    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Dtau     ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Beta     ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(Ham_U    ,1,MPI_REAL8,0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_SUN    ,1,MPI_INTEGER,0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_part      ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(theta       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
-#endif
+          If (Abs(Ham_TZ2) < Zero ) then
+              Ham_J = 0.d0 ! Matter-Ising interction
+              Ham_K = 0.d0 ! Flux
+              Ham_g = 0.d0
+          endif
 
           Call Ham_hop
           Ltrot = nint(beta/dtau)
@@ -213,11 +178,13 @@
           If  ( Model == "Z2_Matter" )  Call Setup_Ising_action_and_field_list
 
 
-
-#if defined(MPI) && !defined(TEMPERING)
-           If (Irank == 0 ) then
+#if defined(MPI)
+           If (irank_g == 0 ) then
 #endif
-
+              File_info = "info"
+#if defined(TEMPERING)
+              write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
+#endif
               Open (Unit = 50,file=file_info,status="unknown",position="append")
               Write(50,*) '====================================='
               Write(50,*) 'Model is      : Z2_Matter'
@@ -253,7 +220,7 @@
               Write(50,*) 'Ham_chem      : ', Ham_chem
               Write(50,*) 'Ham_U         : ', Ham_U
               close(50)
-#if defined(MPI) && !defined(TEMPERING)
+#if defined(MPI)
            endif
 #endif
            call Ham_V

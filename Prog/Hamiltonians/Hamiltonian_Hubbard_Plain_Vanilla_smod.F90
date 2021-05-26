@@ -140,20 +140,37 @@
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
       end type ham_Hubbard_Plain_Vanilla
+      
+      !#PARAMETERS START# VAR_lattice
+      Character (len=64) :: Model = ''  ! Value irrelevant
+      Character (len=64) :: Lattice_type = 'Square'  ! Possible Values: 'Square'
+      Integer            :: L1 = 4   ! Length in direction a_1
+      Integer            :: L2 = 4   ! Length in direction a_2
+      !#PARAMETERS END#
+
+      !#PARAMETERS START# VAR_Hubbard_Plain_Vanilla
+      !Integer              :: N_SUN = 2
+      real(Kind=Kind(0.d0)) :: ham_T    = 1.d0      ! Hopping parameter
+      real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0      ! Chemical potential
+      real(Kind=Kind(0.d0)) :: Ham_U    = 4.d0      ! Hubbard interaction
+      real(Kind=Kind(0.d0)) :: Dtau     = 0.1d0     ! Thereby Ltrot=Beta/dtau
+      real(Kind=Kind(0.d0)) :: Beta     = 5.d0      ! Inverse temperature
+      !logical              :: Projector = .false.  ! Whether the projective algorithm is used
+      real(Kind=Kind(0.d0)) :: Theta    = 5.d0      ! Projection parameter
+      !logical              :: Symm = .false.       ! Whether symmetrization takes place
+      Integer               :: N_part   = -1        ! Number of particles in trial wave function. If N_part < 0 -> N_part = L1*L2/2
+      !#PARAMETERS END#
 
       Type (Lattice),       target :: Latt
       Type (Unit_cell),     target :: Latt_unit
-      Integer                :: L1, L2
-      real (Kind=Kind(0.d0)) :: Ham_T , ham_U,  Ham_chem
-      real (Kind=Kind(0.d0)) :: Dtau, Beta, Theta
-      Integer                :: N_part
-      Character (len=64)     :: Model, Lattice_type
 
     contains
       
       module Subroutine Ham_Alloc_Hubbard_Plain_Vanilla
         allocate(ham_Hubbard_Plain_Vanilla::ham)
       end Subroutine Ham_Alloc_Hubbard_Plain_Vanilla
+
+#include "Hamiltonian_Hubbard_Plain_Vanilla_read_parameters.F90"
 
 !--------------------------------------------------------------------
 !> @author
@@ -170,81 +187,34 @@
           Implicit none
 
           integer                :: ierr, nf
-          Character (len=64)     :: file_info, file_para
-
-
-
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
-
-
-          NAMELIST /VAR_Hubbard_Plain_Vanilla/  Ham_T, ham_chem, ham_U, Dtau, Beta, Projector, Theta, Symm, N_part
+          Character (len=64)     :: file_info
           
           
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
-#endif
-          ! Global "Default" values.
-
-          
-#ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
 #endif
-             File_Para = "parameters"
-             File_info = "info"
-#if defined(TEMPERING)
-             write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
-             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
-#endif
+          call read_parameters()
+          
 
-#ifdef MPI
-          If (Irank_g == 0 ) then
-#endif
-             OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
-             IF (ierr /= 0) THEN
-                WRITE(*,*) 'unable to open <parameters>',ierr
-                STOP
-             END IF
-             READ(5,NML=VAR_lattice)
-             N_part =  L1*L2/2
-             If (L1 == 1) then
-                Write(6,*) 'For  one-dimensional lattices set L2=1'
-                stop
-             endif
-             READ(5,NML=VAR_Hubbard_Plain_Vanilla)
-             CLOSE(5)
+          If (L1 == 1) then
+             Write(6,*) 'For  one-dimensional lattices set L2=1'
+             stop
+          endif
 
-             Ltrot  = nint(beta/dtau)
-             Thtrot = 0
-             if (Projector) Thtrot = nint(theta/dtau)
-             Ltrot = Ltrot+2*Thtrot
-             N_SUN        = 1
-             N_FL         = 2
-
-#ifdef MPI
-          Endif
-          CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_FL        ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Ltrot       ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_part      ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Thtrot      ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_chem    ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_U       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-#endif
+          if (N_part < 0) N_part = L1*L2/2
+          Ltrot  = nint(beta/dtau)
+          Thtrot = 0
+          if (Projector) Thtrot = nint(theta/dtau)
+          Ltrot = Ltrot+2*Thtrot
+          N_SUN        = 1
+          N_FL         = 2
 
           ! Setup the Bravais lattice
           Call  Ham_Latt
@@ -258,6 +228,10 @@
 
 #ifdef MPI
           If (Irank_g == 0) then
+#endif
+             File_info = "info"
+#if defined(TEMPERING)
+             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
 #endif
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
              Write(50,*) '====================================='

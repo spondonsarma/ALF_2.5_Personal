@@ -1,0 +1,51 @@
+      Subroutine read_parameters()
+#ifdef MPI
+         Use mpi
+#endif
+         Implicit none
+         
+         !Local variables
+         integer            :: ierr
+         Character (len=64) :: file_info, file_para
+         Integer, parameter :: dp = kind(0.d0)
+         
+         ##NAMELIST##
+         
+#ifdef MPI
+         Integer        :: Isize, Irank, igroup, irank_g, isize_g
+         Integer        :: STATUS(MPI_STATUS_SIZE)
+         CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
+         CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
+         call MPI_Comm_rank(Group_Comm, irank_g, ierr)
+         call MPI_Comm_size(Group_Comm, isize_g, ierr)
+         igroup           = irank/isize_g
+#endif
+         
+         ##PARAMETER_DEF##
+#ifdef MPI
+         If (Irank_g == 0 ) then
+#endif
+#ifdef TEMPERING
+            write(file_para,'(A,I0,A)') "Temp_", igroup, "/parameters"
+            write(file_info,'(A,I0,A)') "Temp_", igroup, "/info"
+#else
+            file_para = "parameters"
+            file_info = "info"
+#endif
+
+            !Read in parameters
+            OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
+            IF (ierr /= 0) THEN
+               WRITE(*,*) 'unable to open <parameters>',ierr
+               STOP
+            END IF
+            ##READ_VAR##
+            close(5)
+ 
+#ifdef MPI
+         Endif
+         !Broadcast parameters to all MPI tasks
+         ##MPI_BCAST##
+#endif
+
+      end subroutine read_parameters
