@@ -176,7 +176,10 @@
           Ltrot = Ltrot+2*Thtrot
           
           If  ( Model == "Z2_Matter" )  Call Setup_Ising_action_and_field_list
-
+          
+          call Ham_V
+           
+          if (Projector)   Call Ham_Trial(File_info)
 
 #if defined(MPI)
            If (irank_g == 0 ) then
@@ -223,10 +226,6 @@
 #if defined(MPI)
            endif
 #endif
-           call Ham_V
-           
-           if (Projector)   Call Ham_Trial(File_info)
-           
          end Subroutine Ham_Set
 
 !--------------------------------------------------------------------

@@ -139,17 +139,39 @@
         procedure, nopass :: S0
       end type ham_Kondo
 
+      !#PARAMETERS START# VAR_lattice
+      Character (len=64) :: Model = ''  ! Value not relevant
+      Character (len=64) :: Lattice_type = 'Bilayer_square'  ! Possible values: 'Bilayer_square', 'Bilayer_honeycomb'
+      Integer            :: L1 = 4   ! Length in direction a_1
+      Integer            :: L2 = 4   ! Length in direction a_2
+      !#PARAMETERS END#
+
+      !#PARAMETERS START# VAR_Model_Generic
+      !Integer              :: N_SUN        = 2        ! Number of colors
+      !Integer              :: N_FL         = 1        ! Number of flavors
+      real(Kind=Kind(0.d0)) :: Phi_X        = 0.d0     ! Twist along the L_1 direction, in units of the flux quanta
+      real(Kind=Kind(0.d0)) :: Phi_Y        = 0.d0     ! Twist along the L_2 direction, in units of the flux quanta
+      logical               :: Bulk         = .true.   ! Twist as a vector potential (.T.), or at the boundary (.F.)
+      Integer               :: N_Phi        = 0        ! Total number of flux quanta traversing the lattice
+      real(Kind=Kind(0.d0)) :: Dtau         = 0.1d0    ! Thereby Ltrot=Beta/dtau
+      real(Kind=Kind(0.d0)) :: Beta         = 5.d0     ! Inverse temperature
+      logical               :: Checkerboard = .true.   ! Whether checkerboard decomposition is used
+      !logical              :: Symm         = .true.   ! Whether symmetrization takes place
+      !logical              :: Projector    = .false.  ! Whether the projective algorithm is used
+      real(Kind=Kind(0.d0)) :: Theta        = 10.d0    ! Projection parameter
+      !#PARAMETERS END#
+
+      !#PARAMETERS START# VAR_Kondo
+      real(Kind=Kind(0.d0)) :: ham_T    = 1.d0  ! Hopping parameter
+      real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0  ! Chemical potential
+      real(Kind=Kind(0.d0)) :: Ham_Uc   = 0.d0  ! Hubbard interaction  on  c-orbitals Uc
+      real(Kind=Kind(0.d0)) :: ham_Uf   = 2.d0  ! Hubbard interaction  on  f-orbials  Uf
+      real(Kind=Kind(0.d0)) :: Ham_JK   = 2.d0  ! Kondo Coupling  J
+      !#PARAMETERS END#
+
       Type (Lattice),       Target  :: Latt
       Type (Unit_cell),     Target  :: Latt_unit
-      Integer                       :: L1, L2
       Type (Hopping_Matrix_type), Allocatable :: Hopping_Matrix(:)
-      real (Kind=Kind(0.d0)) :: ham_T , ham_Uc,  Ham_chem
-      real (Kind=Kind(0.d0)) :: ham_Uf, ham_JK
-      real (Kind=Kind(0.d0)) :: Phi_Y, Phi_X
-      Integer                :: N_Phi
-      real (Kind=Kind(0.d0)) :: Dtau, Beta, Theta
-      Character (len=64)     :: Model, Lattice_type
-      Logical                :: Checkerboard,  Bulk, Mz
       Integer, allocatable   :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       
       Type (Unit_cell), Target  :: Latt_unit_f    ! Unit cell for f  correlation functions
@@ -160,6 +182,8 @@
       module Subroutine Ham_Alloc_Kondo
         allocate(ham_Kondo::ham)
       end Subroutine Ham_Alloc_Kondo
+
+#include "Hamiltonian_Kondo_read_parameters.F90"
 
 !--------------------------------------------------------------------
 !> @author
@@ -176,7 +200,7 @@
           Implicit none
 
           integer                :: ierr, N_part, nf
-          Character (len=64)     :: file_info, file_para
+          Character (len=64)     :: file_info
 
 
           ! L1, L2, Lattice_type, List(:,:), Invlist(:,:) -->  Lattice information
@@ -184,93 +208,27 @@
           ! Interaction                              -->  Model
           ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter.
 
-          NAMELIST /VAR_Lattice/  L1, L2, Lattice_type, Model
-
-          NAMELIST /VAR_Model_Generic/  Checkerboard, N_SUN, N_FL, Phi_X, Phi_Y, Symm, Bulk, N_Phi, Dtau, Beta, Theta,&
-               &   Projector
-
-          NAMELIST /VAR_Kondo/  ham_T, ham_chem, ham_Uc, ham_Uf, ham_JK
-
 
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
-#endif
-          ! Global "Default" values.
-          N_SUN        = 2
-          N_FL         = 1
-          Checkerboard = .false.
-          Symm         = .false.
-          Projector    = .false.
-          Bulk         = .true.
-          Phi_X        = 0.d0
-          Phi_Y        = 0.d0
-          N_Phi        = 0
-          Ham_Uf       = 0.d0
-          Ham_Uc       = 0.d0
-          Ham_JK       = 0.d0
-
-          
-#ifdef MPI
           CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
           CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
           call MPI_Comm_rank(Group_Comm, irank_g, ierr)
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
 #endif
-             File_Para = "parameters"
-             File_info = "info"
-#if defined(TEMPERING)
-             write(File_para,'(A,I0,A)') "Temp_",igroup,"/parameters"
-             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
-#endif
 
-#ifdef MPI
-          If (Irank_g == 0 ) then
-#endif
-             OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
-             IF (ierr /= 0) THEN
-                WRITE(error_unit,*) 'unable to open <parameters>',ierr
-                error stop 1
-             END IF
-             READ(5,NML=VAR_lattice)
-             If ( .not. ( Lattice_type == "Bilayer_square" .or.  Lattice_type == "Bilayer_honeycomb") ) then
-                Write(error_unit,*) "The Kondo Hamiltonian is only defined for bilayer lattices"
-                error stop 1
-             endif
-             READ(5,NML=VAR_Model_Generic)
-             READ(5,NML=VAR_Kondo)
-             CLOSE(5)
+          call read_parameters()
+          
+          If ( .not. ( Lattice_type == "Bilayer_square" .or.  Lattice_type == "Bilayer_honeycomb") ) then
+             Write(error_unit,*) "The Kondo Hamiltonian is only defined for bilayer lattices"
+             error stop 1
+          endif
 
-             Ltrot = nint(beta/dtau)
-             if (Projector) Thtrot = nint(theta/dtau)
-             Ltrot = Ltrot+2*Thtrot
-
-#ifdef MPI
-          Endif
-          CALL MPI_BCAST(L1          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(L2          ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_SUN       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_FL        ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(N_Phi       ,1  ,MPI_INTEGER,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(Phi_X       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(Phi_Y       ,1  ,MPI_REAL8  ,   0,Group_Comm,ierr)
-          CALL MPI_BCAST(Bulk        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Model       ,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Checkerboard,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Symm        ,1  ,MPI_LOGICAL  , 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Lattice_type,64 ,MPI_CHARACTER, 0,Group_Comm,IERR)
-          CALL MPI_BCAST(Ltrot       ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Thtrot      ,1,  MPI_INTEGER  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Projector   ,1,  MPI_LOGICAL  , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Dtau        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(Beta        ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_T       ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_chem    ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_Uc      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_Uf      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-          CALL MPI_BCAST(ham_JK      ,1,  MPI_REAL8    , 0,Group_Comm,ierr)
-#endif
+          Ltrot = nint(beta/dtau)
+          if (Projector) Thtrot = nint(theta/dtau)
+          Ltrot = Ltrot+2*Thtrot
 
           IF ( N_FL > 1 ) then
              Write(error_unit,*) 'For the Kondo systems, N_FL has  to be equal to unity'
@@ -282,12 +240,18 @@
           ! Setup the hopping / single-particle part
           Call  Ham_Hop
 
-
           ! Setup the interaction.
           call Ham_V
 
+          ! Setup the trival wave function, in case of a projector approach
+          if (Projector)   Call Ham_Trial(File_info)
+
 #ifdef MPI
           If (Irank_g == 0) then
+#endif
+             File_info = "info"
+#if defined(TEMPERING)
+             write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
 #endif
              OPEN(Unit = 50,file=file_info,status="unknown",position="append")
              Write(50,*) '====================================='
@@ -323,10 +287,6 @@
 #ifdef MPI
           Endif
 #endif
-          ! Setup the trival wave function, in case of a projector approach
-          if (Projector)   Call Ham_Trial(File_info)
-
-
         end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
