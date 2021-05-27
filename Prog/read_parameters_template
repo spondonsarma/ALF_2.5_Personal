@@ -1,11 +1,12 @@
       Subroutine read_parameters()
+         use iso_fortran_env, only: error_unit
 #ifdef MPI
          Use mpi
 #endif
          Implicit none
          
          !Local variables
-         integer            :: ierr
+         integer            :: ierr, unit_para
          Character (len=64) :: file_info, file_para
          Integer, parameter :: dp = kind(0.d0)
          
@@ -18,6 +19,10 @@
          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
          call MPI_Comm_size(Group_Comm, isize_g, ierr)
+         IF (ierr /= 0) THEN
+            WRITE(error_unit,*) 'read_parameters: Error in MPI', ierr
+            error stop 1
+         END IF
          igroup           = irank/isize_g
 #endif
          
@@ -34,13 +39,13 @@
 #endif
 
             !Read in parameters
-            OPEN(UNIT=5,FILE=file_para,STATUS='old',ACTION='read',IOSTAT=ierr)
+            OPEN(NEWUNIT=unit_para, FILE=file_para, STATUS='old', ACTION='read', IOSTAT=ierr)
             IF (ierr /= 0) THEN
-               WRITE(*,*) 'unable to open <parameters>',ierr
-               STOP
+               WRITE(error_unit,*) 'unable to open <parameters>', ierr
+               error stop 1
             END IF
             ##READ_VAR##
-            close(5)
+            close(unit_para)
  
 #ifdef MPI
          Endif

@@ -160,7 +160,7 @@ def create_read_par(filename, parameters):
                     f.write('\n')
         elif '##READ_VAR##' in line:
             for nlist_name, nlist in parameters.items():
-                s = '{}   READ(5, NML={})\n'.format(INDENT*' ', nlist_name)
+                s = '{}   READ(unit_para, NML={})\n'.format(INDENT*' ', nlist_name)
                 f.write(s)
 
         # Relevant if parameters in hamiltonian type

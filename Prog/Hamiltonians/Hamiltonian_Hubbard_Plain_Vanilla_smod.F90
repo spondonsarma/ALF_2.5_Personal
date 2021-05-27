@@ -186,7 +186,7 @@
 #endif
           Implicit none
 
-          integer                :: ierr, nf
+          integer                :: ierr, nf, unit_info
           Character (len=64)     :: file_info
           
           
@@ -222,9 +222,11 @@
           ! Setup the hopping / single-particle part
           Call  Ham_Hop
 
-
           ! Setup the interaction.
           call Ham_V
+
+          ! Setup the trival wave function, in case of a projector approach
+          if (Projector) Call Ham_Trial()
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -233,34 +235,38 @@
 #if defined(TEMPERING)
              write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
 #endif
-             OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-             Write(50,*) '====================================='
-             Write(50,*) 'Model is      : Hubbard_Plain_Vanilla'
-             Write(50,*) 'Lattice is    : ', Lattice_type
-             Write(50,*) 'L1            : ', L1
-             Write(50,*) 'L2            : ', L2
-             Write(50,*) '# of orbitals : ', Ndim
-             Write(50,*) 'Symm. decomp  : ', Symm
+
+             Open(newunit=unit_info, file=file_info, status="unknown", position="append")
+             Write(unit_info,*) '====================================='
+             Write(unit_info,*) 'Model is      : Hubbard_Plain_Vanilla'
+             Write(unit_info,*) 'Lattice is    : ', Lattice_type
+             Write(unit_info,*) 'L1            : ', L1
+             Write(unit_info,*) 'L2            : ', L2
+             Write(unit_info,*) '# of orbitals : ', Ndim
+             Write(unit_info,*) 'Symm. decomp  : ', Symm
              if (Projector) then
-                Write(50,*) 'Projective version'
-                Write(50,*) 'Theta         : ', Theta
-                Write(50,*) 'Tau_max       : ', beta
-                Write(50,*) '# of particles: ', N_part
+                Write(unit_info,*) 'Projective version'
+                Write(unit_info,*) 'Theta         : ', Theta
+                Write(unit_info,*) 'Tau_max       : ', beta
+                Write(unit_info,*) '# of particles: ', N_part
              else
-                Write(50,*) 'Finite temperture version'
-                Write(50,*) 'Beta          : ', Beta
+                Write(unit_info,*) 'Finite temperture version'
+                Write(unit_info,*) 'Beta          : ', Beta
              endif
-             Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-             Write(50,*) 't             : ', Ham_T
-             Write(50,*) 'Ham_U         : ', Ham_U
-             Write(50,*) 'Ham_chem      : ', Ham_chem
-             Close(50)
+             Write(unit_info,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
+             Write(unit_info,*) 't             : ', Ham_T
+             Write(unit_info,*) 'Ham_U         : ', Ham_U
+             Write(unit_info,*) 'Ham_chem      : ', Ham_chem
+             if (Projector) then
+                Do nf = 1,N_FL
+                   Write(unit_info,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
+                   Write(unit_info,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
+                enddo
+             endif
+             Close(unit_info)
 #ifdef MPI
           Endif
 #endif
-          ! Setup the trival wave function, in case of a projector approach
-          if (Projector)   Call Ham_Trial(File_info)
-
 
         end Subroutine Ham_Set
 
@@ -337,30 +343,15 @@
 !> @brief
 !> Sets the trial wave function
 !--------------------------------------------------------------------
-        Subroutine Ham_Trial(file_info)
+        Subroutine Ham_Trial()
 
-
-#if defined (MPI) || defined(TEMPERING)
-          Use mpi
-#endif
           Use Predefined_Trial
 
           Implicit none
-          Character (len=64), intent(in)  :: file_info
 
           Integer                              :: nf, Ix, Iy, I, n
           Real (Kind=Kind(0.d0)), allocatable  :: H0(:,:),  U0(:,:), E0(:)
           Real (Kind=Kind(0.d0))               :: Pi = acos(-1.d0), Delta = 0.01d0
-#ifdef MPI
-          Integer        :: Isize, Irank, irank_g, isize_g, igroup, ierr
-          Integer        :: STATUS(MPI_STATUS_SIZE)
-
-          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
-          call MPI_Comm_size(Group_Comm, isize_g, ierr)
-          igroup           = irank/isize_g
-#endif
 
           Allocate(WF_L(N_FL),WF_R(N_FL))
           do nf=1,N_FL
@@ -395,20 +386,6 @@
              WF_L(nf)%Degen = E0(N_part+1) - E0(N_part)
              WF_R(nf)%Degen = E0(N_part+1) - E0(N_part)
           enddo
-
-
-#ifdef MPI
-          If (Irank_g == 0) then
-#endif
-             OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-             Do nf = 1,N_FL
-                Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
-                Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
-             enddo
-             close(50)
-#ifdef MPI
-          endif
-#endif
 
           Deallocate(H0,  U0,  E0 )
 

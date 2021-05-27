@@ -202,7 +202,7 @@
 #endif
           Implicit none
 
-          integer                :: ierr, N_part, nf
+          integer                :: ierr, nf, unit_info
           Character (len=64)     :: file_info
 
 
@@ -247,7 +247,7 @@
           call Ham_V
 
           ! Setup the trival wave function, in case of a projector approach
-          if (Projector)   Call Ham_Trial(File_info)
+          if (Projector) Call Ham_Trial()
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -256,48 +256,54 @@
 #if defined(TEMPERING)
              write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
 #endif
-             OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-             Write(50,*) '====================================='
-             Write(50,*) 'Model is      : ', Model
-             Write(50,*) 'Lattice is    : ', Lattice_type
-             Write(50,*) '# unit cells  : ', Latt%N 
-             Write(50,*) '# of orbitals : ', Latt_unit%Norb
-             Write(50,*) 'Flux_1        : ', Phi_X
-             Write(50,*) 'Flux_2        : ', Phi_Y
+             Open(newunit=unit_info, file=file_info, status="unknown", position="append")
+             Write(unit_info,*) '====================================='
+             Write(unit_info,*) 'Model is      : ', Model
+             Write(unit_info,*) 'Lattice is    : ', Lattice_type
+             Write(unit_info,*) '# unit cells  : ', Latt%N 
+             Write(unit_info,*) '# of orbitals : ', Latt_unit%Norb
+             Write(unit_info,*) 'Flux_1        : ', Phi_X
+             Write(unit_info,*) 'Flux_2        : ', Phi_Y
              If (Bulk) then
-                Write(50,*) 'Twist as phase factor in bulk'
+                Write(unit_info,*) 'Twist as phase factor in bulk'
              Else
-                Write(50,*) 'Twist as boundary condition'
+                Write(unit_info,*) 'Twist as boundary condition'
              endif
              If ( Mz )  then
-                Write(50,*) 'HS  couples to z-component of spin'
+                Write(unit_info,*) 'HS  couples to z-component of spin'
              else
-                Write(50,*) 'HS  couples to density'
+                Write(unit_info,*) 'HS  couples to density'
              endif
-             Write(50,*) 'Checkerboard  : ', Checkerboard
-             Write(50,*) 'Symm. decomp  : ', Symm
+             Write(unit_info,*) 'Checkerboard  : ', Checkerboard
+             Write(unit_info,*) 'Symm. decomp  : ', Symm
              if (Projector) then
-                Write(50,*) 'Projective version'
-                Write(50,*) 'Theta         : ', Theta
-                Write(50,*) 'Tau_max       : ', beta
+                Write(unit_info,*) 'Projective version'
+                Write(unit_info,*) 'Theta         : ', Theta
+                Write(unit_info,*) 'Tau_max       : ', beta
              else
-                Write(50,*) 'Finite temperture version'
-                Write(50,*) 'Beta          : ', Beta
+                Write(unit_info,*) 'Finite temperture version'
+                Write(unit_info,*) 'Beta          : ', Beta
              endif
-             Write(50,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
+             Write(unit_info,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
              if ( Mz )  then
-                Write(50,*) 'N_SUN         : ', 2*N_SUN
+                Write(unit_info,*) 'N_SUN         : ', 2*N_SUN
              else
-                Write(50,*) 'N_SUN         : ',   N_SUN
+                Write(unit_info,*) 'N_SUN         : ',   N_SUN
              endif
-             Write(50,*) 'N_FL          : ', N_FL
-             Write(50,*) 't             : ', Ham_T
-             Write(50,*) 'Ham_U         : ', Ham_U
-             Write(50,*) 't2            : ', Ham_T2
-             Write(50,*) 'Ham_U2        : ', Ham_U2
-             Write(50,*) 'Ham_tperp     : ', Ham_tperp
-             Write(50,*) 'Ham_chem      : ', Ham_chem
-             Close(50)
+             Write(unit_info,*) 'N_FL          : ', N_FL
+             Write(unit_info,*) 't             : ', Ham_T
+             Write(unit_info,*) 'Ham_U         : ', Ham_U
+             Write(unit_info,*) 't2            : ', Ham_T2
+             Write(unit_info,*) 'Ham_U2        : ', Ham_U2
+             Write(unit_info,*) 'Ham_tperp     : ', Ham_tperp
+             Write(unit_info,*) 'Ham_chem      : ', Ham_chem
+             if (Projector) then
+                Do nf = 1,N_FL
+                   Write(unit_info,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
+                   Write(unit_info,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
+                enddo
+             endif
+             Close(unit_info)
 #ifdef MPI
           Endif
 #endif
@@ -388,47 +394,17 @@
 !> @brief
 !> Sets the trial wave function
 !--------------------------------------------------------------------
-        Subroutine Ham_Trial(file_info)
+        Subroutine Ham_Trial()
 
-
-#if defined (MPI) || defined(TEMPERING)
-          Use mpi
-#endif
           Use Predefined_Trial
 
           Implicit none
-          Character (len=64), intent(in)  :: file_info
-
 
           Integer :: N_part, nf
-#ifdef MPI
-          Integer        :: Isize, Irank, irank_g, isize_g, igroup, ierr
-          Integer        :: STATUS(MPI_STATUS_SIZE)
-
-          CALL MPI_COMM_SIZE(MPI_COMM_WORLD,ISIZE,IERR)
-          CALL MPI_COMM_RANK(MPI_COMM_WORLD,IRANK,IERR)
-          call MPI_Comm_rank(Group_Comm, irank_g, ierr)
-          call MPI_Comm_size(Group_Comm, isize_g, ierr)
-          igroup           = irank/isize_g
-#endif
           ! Use predefined stuctures or set your own Trial  wave function
           N_part = Ndim/2
           Call Predefined_TrialWaveFunction(Lattice_type ,Ndim,  List,Invlist,Latt, Latt_unit, &
                &                            N_part, N_FL,  WF_L, WF_R)
-
-
-#ifdef MPI
-          If (Irank_g == 0) then
-#endif
-             OPEN(Unit = 50,file=file_info,status="unknown",position="append")
-             Do nf = 1,N_FL
-                Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
-                Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
-             enddo
-             close(50)
-#ifdef MPI
-          endif
-#endif
 
         end Subroutine Ham_Trial
 
