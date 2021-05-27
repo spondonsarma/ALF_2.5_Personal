@@ -293,10 +293,12 @@
              Write(50,*) 'Ham_alpha     : ', Ham_alpha
              Write(50,*) 'Percent_change: ', Percent_change
              Write(50,*) 'Ham_chem      : ', Ham_chem
-             Do nf = 1,N_FL
-                Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
-                Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
-             enddo
+             if (Projector) then
+                Do nf = 1,N_FL
+                   Write(50,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
+                   Write(50,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
+                enddo
+             endif
              close(50)
              Call LRC_Print(Latt, Latt_unit, list, invlist)
 #ifdef MPI
