@@ -234,9 +234,6 @@
 
           ! Setup the interaction.
           call Ham_Vint
-          
-          ! Setup the trival wave function, in case of a projector approach
-          if (Projector)   Call Ham_Trial(File_info)
 
 #ifdef MPI
           If (Irank_g == 0) then
@@ -277,6 +274,8 @@
 #ifdef MPI
           Endif
 #endif
+          ! Setup the trival wave function, in case of a projector approach
+          if (Projector)   Call Ham_Trial(File_info)
         end Subroutine Ham_Set
 
 !--------------------------------------------------------------------
