@@ -218,6 +218,8 @@
           igroup           = irank/isize_g
 #endif
 
+          call read_parameters()
+
           Ltrot = nint(beta/dtau)
           Thtrot = 0
           if (Projector) Thtrot = nint(theta/dtau)
