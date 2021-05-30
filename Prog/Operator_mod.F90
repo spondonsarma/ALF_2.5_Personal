@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2020 The ALF project
+!  Copyright (C) 2016 - 2021 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -50,14 +50,17 @@ Module Operator_mod
   
 
   Type Operator
-     Integer          :: N, N_non_zero, win_M_exp, win_U
-     logical          :: diag, U_alloc, M_exp_alloc
-     complex (Kind=Kind(0.d0)), pointer :: O(:,:), U (:,:), M_exp(:,:,:), E_exp(:,:)
-     Real    (Kind=Kind(0.d0)), pointer :: E(:)
-     Integer, pointer :: P(:)
-     complex (Kind=Kind(0.d0)) :: g
-     complex (Kind=Kind(0.d0)) :: alpha
-     Integer          :: Type 
+     Integer          :: N, N_non_zero !> dimension of Operator (P and O), number of non-zero eigenvalues
+     Integer, private :: win_M_exp, win_U !> MPI_windows which can be used for fences (memory synch.) and dealloc.
+     logical          :: diag !> encodes if Operator is diagonal
+     logical, private :: U_alloc, M_exp_alloc !> logical to track if memory is allocated
+     complex (Kind=Kind(0.d0)), pointer :: O(:,:), U (:,:)  !>Storage for operator matrix O and it's eigenvectors U
+     complex (Kind=Kind(0.d0)), pointer, private :: M_exp(:,:,:), E_exp(:,:)  !>internal storage for exp(O) and exp(E)
+     Real    (Kind=Kind(0.d0)), pointer :: E(:) !>Eigenvalues of O
+     Integer, pointer :: P(:) !> Projector P encoding DoFs that contribute in Operator
+     complex (Kind=Kind(0.d0)) :: g !> coupling constant
+     complex (Kind=Kind(0.d0)) :: alpha !> operator shift
+     Integer          :: Type !> Type of the operator: 1=Ising; 2=discrete HS; 3=continues HS
      ! P is an N X Ndim matrix such that  P.T*O*P*  =  A  
      ! P has only one non-zero entry per column which is specified by P
      ! All in all.   g * Phi(s,type) * ( c^{dagger} A c  + alpha )

@@ -1,4 +1,4 @@
-!  Copyright (C) 2020 The ALF project
+!  Copyright (C) 2021 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -48,18 +48,21 @@ module mpi_shared_memory
 #endif
     use iso_fortran_env, only: output_unit, error_unit
     Implicit none
+    private
+    public :: mpi_shared_memory_init, allocate_shared_memory, deallocate_all_shared_memory, use_mpi_shm
   
     ! internal arrays that contain the shared memory chunk that can be distributed
-    complex (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_cmplx(:)
-    real    (Kind=Kind(0.d0)), POINTER, private, save :: shm_mem_chunk_real(:) 
+    complex (Kind=Kind(0.d0)), POINTER, save :: shm_mem_chunk_cmplx(:)
+    real    (Kind=Kind(0.d0)), POINTER, save :: shm_mem_chunk_real(:) 
     ! storing the MPI window ids that are use to release the memory at the end of the run / synchronization barriers
-    integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
+    integer, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
     ! internal members to manage mpi communication / memory distribution
-    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real
-    Real    (Kind=Kind(0.d0)), private, save :: chunk_size_gb
-    integer, private, save :: num_chunks_real, num_chunks_cmplx, chunk_size_real(1), chunk_size_cmplx(1)
-    logical, private, save :: initialized=.false.
-    logical, public, save :: use_mpi_shm=.false.
+    integer, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real
+    Real    (Kind=Kind(0.d0)), save :: chunk_size_gb
+    integer, save :: num_chunks_real, num_chunks_cmplx
+    integer(kind=8), save :: chunk_size_real(1), chunk_size_cmplx(1)
+    logical, save :: initialized=.false.
+    logical, save :: use_mpi_shm=.false. !> public variable to query if shared memory module is active
     
 !--------------------------------------------------------------------
     !> @brief 
@@ -108,9 +111,11 @@ module mpi_shared_memory
                 num_chunks_real=0
                 num_chunks_cmplx=0
                 allocate(mpi_wins_real(10),mpi_wins_cmplx(10))
-                !call allocate_shm_chunk_real
-                !call 
                 if (noderank==0) write(*,*) "Chunk size for mpi shared memory is ", chunk_size_gb,"GB"
+                if (MPI_ADDRESS_KIND < 8 .and. chunk_size_gb > 2) then
+                        write(*,*) "Reducing chunk size to 2GB inorder to avoid integer overflow in MPI library."
+                        chunk_size_gb = 2
+                endif
         endif
 !#else
 !        WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
@@ -135,7 +140,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of reals
-        chunk_size_real(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_real_dp)))  
+        chunk_size_real(1) = int(nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_real_dp))),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -371,7 +376,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of complex doubles
-        chunk_size_cmplx(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_cmplx_dp)))  
+        chunk_size_cmplx(1) = int(nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_cmplx_dp))),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
