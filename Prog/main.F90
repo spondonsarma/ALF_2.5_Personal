@@ -225,7 +225,7 @@ Program Main
         ! For MPI shared memory
         character(64), parameter :: name="ALF_SHM_CHUNK_SIZE"
         character(64) :: chunk_size_str
-        integer :: chunk_size_gb
+        Real    (Kind=Kind(0.d0)) :: chunk_size_gb
 
 #ifdef MPI
         Integer        :: Isize, Irank, Irank_g, Isize_g, color, key, igroup

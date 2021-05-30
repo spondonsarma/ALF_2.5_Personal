@@ -55,7 +55,8 @@ module mpi_shared_memory
     ! storing the MPI window ids that are use to release the memory at the end of the run / synchronization barriers
     integer, private, save, allocatable, dimension(:) :: mpi_wins_real, mpi_wins_cmplx
     ! internal members to manage mpi communication / memory distribution
-    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real, chunk_size_gb
+    integer, private, save :: nodecomm, noderank, head_idx_cmplx, head_idx_real
+    Real    (Kind=Kind(0.d0)), private, save :: chunk_size_gb
     integer, private, save :: num_chunks_real, num_chunks_cmplx, chunk_size_real(1), chunk_size_cmplx(1)
     logical, private, save :: initialized=.false.
     logical, public, save :: use_mpi_shm=.false.
@@ -91,7 +92,8 @@ module mpi_shared_memory
       !--------------------------------------------------------------------
       subroutine mpi_shared_memory_init(mpi_communicator, chunk_size)
         Implicit none
-        integer, intent(in) :: mpi_communicator, chunk_size
+        integer, intent(in) :: mpi_communicator
+        real(Kind=Kind(0.d0)), intent(in) :: chunk_size
         
 #ifdef MPI
         integer :: ierr, tmp_int, status
@@ -133,7 +135,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of reals
-        chunk_size_real(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_real_dp)  
+        chunk_size_real(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_real_dp)))  
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -369,7 +371,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of complex doubles
-        chunk_size_cmplx(1) = chunk_size_gb*1024*1024*1024/C_SIZEOF(dummy_cmplx_dp)  
+        chunk_size_cmplx(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_cmplx_dp)))  
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
