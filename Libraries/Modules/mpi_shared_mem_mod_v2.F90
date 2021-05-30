@@ -140,7 +140,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of reals
-        chunk_size_real(1) = int(nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_real_dp))),8)
+        chunk_size_real(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_real_dp)),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
@@ -376,7 +376,7 @@ module mpi_shared_memory
         TYPE(C_PTR) :: baseptr
 
         ! allocate GB(s) of memory as a 1D array of complex doubles
-        chunk_size_cmplx(1) = int(nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_cmplx_dp))),8)
+        chunk_size_cmplx(1) = nint(chunk_size_gb*1024.d0*1024.d0*1024.d0/dble(C_SIZEOF(dummy_cmplx_dp)),8)
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
