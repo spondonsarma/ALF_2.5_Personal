@@ -152,7 +152,10 @@
       Logical                :: Checkerboard,  Bulk, Mz
       Integer, allocatable   :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       
-      Type (Unit_cell), Target  :: Latt_unit_f    ! Unit cell for f  correlation functions
+      Type (Unit_cell), Target  :: Latt_unit_f  ! Unit cell for f  correlation functions
+      Type (Unit_cell), Target  :: Latt_unit_c  ! Unit cell for c  correlation functions
+      Integer, allocatable      :: List_c(:,:), Invlist_c(:,:)  
+      Integer, allocatable      :: List_f(:,:), Invlist_f(:,:)  
 
 
     contains
@@ -341,22 +344,67 @@
           Use Predefined_Lattices
 
           Implicit none
-          Integer :: n
+          Integer :: n, nc,I, no
+          
           ! Use predefined stuctures or set your own lattice.
+          
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
+
+          !  Setup lattices for f-and c-sites.
           Select case (Lattice_type)
           Case ("Bilayer_square")
              Latt_Unit_f%Norb       = 1
              Latt_Unit_f%N_coord    = 2
-             Allocate (Latt_Unit_f%Orb_pos_p(1,2))
-             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
+             Allocate (Latt_Unit_f%Orb_pos_p(1,3))
+             Latt_Unit_f%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_f%Orb_pos_p(1,3) = -1.d0
+
+             Latt_Unit_c%Norb       = 1
+             Latt_Unit_c%N_coord    = 2
+             Allocate (Latt_Unit_c%Orb_pos_p(1,3))
+             Latt_Unit_c%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_c%Orb_pos_p(1,3) =  0.d0
+
           Case ("Bilayer_honeycomb")
              Latt_Unit_f%Norb    = 2
              Latt_Unit_f%N_coord = 3
-             Allocate (Latt_Unit_f%Orb_pos_p(2,2))
-             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
+             Allocate (Latt_Unit_f%Orb_pos_p(2,3))
+             Latt_Unit_f%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_f%Orb_pos_p(1,3) = -1.d0
              Latt_Unit_f%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
+             Latt_Unit_f%Orb_pos_p(2,3) = -1.d0
+
+             Latt_Unit_c%Norb    = 2
+             Latt_Unit_c%N_coord = 3
+             Allocate (Latt_Unit_c%Orb_pos_p(2,3))
+             Latt_Unit_c%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_c%Orb_pos_p(1,3) =  0.d0
+             Latt_Unit_c%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
+             Latt_Unit_c%Orb_pos_p(2,3) =  0.d0
+
           end Select
+          
+          Allocate (List_f(Latt%N*Latt_Unit_f%Norb,2), Invlist_f(Latt%N,Latt_Unit_f%Norb))
+          nc = 0
+          Do I = 1,Latt%N
+             Do no = 1,Latt_Unit_f%Norb
+                nc = nc + 1
+                List_f(nc,1) = list(I,no + Latt_Unit%Norb/2)
+                List_f(nc,2) = no
+                Invlist_f(I,no) = nc
+             Enddo
+          Enddo
+          
+          Allocate (List_c(Latt%N*Latt_Unit_c%Norb,2), Invlist_c(Latt%N,Latt_Unit_c%Norb))
+          nc = 0
+          Do I = 1,Latt%N
+             Do no = 1,Latt_Unit_c%Norb
+                nc = nc + 1
+                List_c(nc,1) = list(I,no )
+                List_c(nc,2) = no
+                Invlist_c(I,no) = nc
+             Enddo
+          Enddo
           
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
