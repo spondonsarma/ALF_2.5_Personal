@@ -186,6 +186,7 @@
         allocate(ham_Hubbard::ham)
       end Subroutine Ham_Alloc_hubbard
 
+! Dynamically generated on compile time from parameters list.
 #include "Hamiltonian_Hubbard_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -221,6 +222,7 @@
           igroup           = irank/isize_g
 #endif
 
+          ! From dynamically generated file "Hamiltonian_Hubbard_read_parameters.F90"
           call read_parameters()
 
           Ltrot = nint(beta/dtau)
