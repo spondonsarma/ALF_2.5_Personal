@@ -1,4 +1,4 @@
-.PHONY : all lib ana program test_pgi_bug test_compiler_set
+.PHONY : all lib ana program test_compiler_set
 
 all: lib ana program
 
