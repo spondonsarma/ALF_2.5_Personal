@@ -1,5 +1,6 @@
 .PHONY : all lib ana program test_compiler_set
 
+
 all: lib ana program
 
 lib: test_compiler_set
@@ -28,11 +29,13 @@ help:
 	@echo "The following are some of the valid targets of this Makefile"
 	@echo "all, lib, ana, program, clean, cleanall, cleanprog, cleanlib, cleanana"
 
+
 # Test whether enviroment variable ALF_FC is set and is a valid command.
 test_compiler_set:
 	@if [ -z ${ALF_FC} ]; then \
           printf "\n\033[0;31m Environment variable ALF_FC not set.\n"; \
-          printf " Please source configure.sh before compilation.\033[0m\n"; \
+
+          printf " Please source configure.sh before compilation.\033[0m\n\n"; \
           exit 1; \
         fi
 	@if [ ! `command -v ${ALF_FC}` ]; then \
@@ -40,4 +43,3 @@ test_compiler_set:
 	  printf " Please install or choose other in configure.sh.\033[0m\n"; \
 	  exit 1; \
 	fi
-
