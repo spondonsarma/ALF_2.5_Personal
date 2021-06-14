@@ -266,9 +266,9 @@ GQMCT_Stretch_valgrind:
       - gfortran -v
       - make lib
       - make program
-      - cp Prog/Hubbard_Plain_Vanilla.out Scripts_and_Parameters_files/Start
+      - cp Prog/ALF.out Scripts_and_Parameters_files/Start
       - cd Scripts_and_Parameters_files/Start
-      - valgrind --leak-check=full --log-file=vglog.txt ./Hubbard_Plain_Vanilla.out
+      - valgrind --leak-check=full --log-file=vglog.txt ./ALF.out
       - cat vglog.txt
       - grep lost vglog.txt | cut -d":" -f 2 | cut -d " " -f 2 | f=$(cat); echo $(( ${f//$'\n'/+} ))
 

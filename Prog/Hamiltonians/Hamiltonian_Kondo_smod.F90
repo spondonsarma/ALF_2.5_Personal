@@ -174,7 +174,10 @@
       Type (Hopping_Matrix_type), Allocatable :: Hopping_Matrix(:)
       Integer, allocatable   :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
       
-      Type (Unit_cell), Target  :: Latt_unit_f    ! Unit cell for f  correlation functions
+      Type (Unit_cell), Target  :: Latt_unit_f  ! Unit cell for f  correlation functions
+      Type (Unit_cell), Target  :: Latt_unit_c  ! Unit cell for c  correlation functions
+      Integer, allocatable      :: List_c(:,:), Invlist_c(:,:)  
+      Integer, allocatable      :: List_f(:,:), Invlist_f(:,:)  
 
 
     contains
@@ -307,22 +310,69 @@
           Use Predefined_Lattices
 
           Implicit none
-          Integer :: n
+          Integer :: n, nc,I, no
+          
           ! Use predefined stuctures or set your own lattice.
+          
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
+
+          !  Setup lattices for f-and c-sites.
           Select case (Lattice_type)
           Case ("Bilayer_square")
              Latt_Unit_f%Norb       = 1
              Latt_Unit_f%N_coord    = 2
-             Allocate (Latt_Unit_f%Orb_pos_p(1,2))
-             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
+             Allocate (Latt_Unit_f%Orb_pos_p(1,3))
+             Latt_Unit_f%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_f%Orb_pos_p(1,3) = -1.d0
+
+             Latt_Unit_c%Norb       = 1
+             Latt_Unit_c%N_coord    = 2
+             Allocate (Latt_Unit_c%Orb_pos_p(1,3))
+             Latt_Unit_c%Orb_pos_p(1,:) =  0.d0
+             Latt_Unit_c%Orb_pos_p(1,3) =  0.d0
+
           Case ("Bilayer_honeycomb")
              Latt_Unit_f%Norb    = 2
              Latt_Unit_f%N_coord = 3
-             Allocate (Latt_Unit_f%Orb_pos_p(2,2))
-             Latt_Unit_f%Orb_pos_p(1,:) = 0.d0
-             Latt_Unit_f%Orb_pos_p(2,:) = (Latt%a2_p(:) - 0.5D0*Latt%a1_p(:) ) * 2.D0/3.D0
+             Allocate (Latt_Unit_f%Orb_pos_p(2,3))
+             Latt_unit_f%Orb_pos_p = -1.d0
+             do n = 1,2
+                Latt_Unit_f%Orb_pos_p(1,n) = 0.d0
+                Latt_Unit_f%Orb_pos_p(2,n) = (Latt%a2_p(n) - 0.5D0*Latt%a1_p(n) ) * 2.D0/3.D0
+             Enddo
+
+             Latt_Unit_c%Norb    = 2
+             Latt_Unit_c%N_coord = 3
+             Allocate (Latt_Unit_c%Orb_pos_p(2,3))
+             Latt_unit_c%Orb_pos_p = 0.d0
+             do n = 1,2
+                Latt_Unit_c%Orb_pos_p(1,n) = 0.d0
+                Latt_Unit_c%Orb_pos_p(2,n) = (Latt%a2_p(n) - 0.5D0*Latt%a1_p(n) ) * 2.D0/3.D0
+             Enddo
+
           end Select
+          
+          Allocate (List_f(Latt%N*Latt_Unit_f%Norb,2), Invlist_f(Latt%N,Latt_Unit_f%Norb))
+          nc = 0
+          Do I = 1,Latt%N
+             Do no = 1,Latt_Unit_f%Norb
+                nc = nc + 1
+                List_f(nc,1) = I
+                List_f(nc,2) = no 
+                Invlist_f(I,no) =  Invlist(I,no + Latt_Unit%Norb/2)
+             Enddo
+          Enddo
+          
+          Allocate (List_c(Latt%N*Latt_Unit_c%Norb,2), Invlist_c(Latt%N,Latt_Unit_c%Norb))
+          nc = 0
+          Do I = 1,Latt%N
+             Do no = 1,Latt_Unit_c%Norb
+                nc = nc + 1
+                List_c(nc,1) = I
+                List_c(nc,2) = no
+                Invlist_c(I,no) = Invlist(I,no )
+             Enddo
+          Enddo
           
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
@@ -561,6 +611,8 @@
                 If(Projector) Channel = 'T0'
                 if (I == 4 .or.  I == 5 ) then
                    Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_f, Channel, dtau)
+                elseif ( I == 1 )  then
+                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit_c, Channel, dtau)
                 else
                    Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
                 endif
@@ -620,7 +672,7 @@
                 GRC(I, I, nf) = 1.D0 + GRC(I, I, nf)
              Enddo
           Enddo
-          ! GRC(i,j,nf) = < c^{dagger}_{j,nf } c_{j,nf } >
+          ! GRC(i,j,nf) = < c^{dagger}_{i,nf } c_{j,nf } >
 
           ! Compute scalar observables.
           Do I = 1,Size(Obs_scal,1)
@@ -648,8 +700,8 @@
           ZJ  = cmplx(0.d0, 0.d0, kind(0.D0))
           Do I = 1,Latt%N
              Do no = 1, Latt_unit%Norb/2
-                I_c  = invlist(I,no                   )
-                I_f  = invlist(I,no + Latt_unit%Norb/2)
+                I_c  = invlist_c(I,no )
+                I_f  = invlist_f(I,no )
                 ZJ = ZJ +  Z*2.d0*GRC(I_c,I_f,1)* GRC(I_f,I_c,1) +  GRC(I_c,I_c,1)* GR(I_f,I_f,1) + &
                      &     GR(I_c,I_c,1)* GRC(I_f,I_f,1)
              Enddo
@@ -674,8 +726,8 @@
 
           ZCon = cmplx(0.d0, 0.d0, kind(0.D0))
           Do I = 1,Latt%N
-             Do no = Latt_unit%Norb/2 +1 , Latt_unit%Norb
-                I_f = invlist(I,no)
+             Do no = 1, Latt_unit_f%Norb  ! Latt_unit%Norb/2 +1 , Latt_unit%Norb
+                I_f = invlist_f(I,no)
                 ZCon =  ZCon +  Z*( GRC(I_f,I_f,1) - 0.5d0)**2 +  GRC(I_f,I_f,1)* GR(I_f,I_f,1)
              Enddo
           Enddo
@@ -758,9 +810,9 @@
 
           ! Standard two-point correlations
 
-          Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
-          Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
-          Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
+          Call Predefined_Obs_tau_Green_measure  ( Latt, Latt_unit_c, List_c, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(1) )
+          Call Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit  , List  , NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(2) )
+          Call Predefined_Obs_tau_Den_measure    ( Latt, Latt_unit  , List  , NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs_tau(3) )
 
           ! Greenf correlations
           If (NT == 0 ) then
