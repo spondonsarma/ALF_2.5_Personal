@@ -111,6 +111,8 @@
         allocate(ham_Z2_Matter::ham)
       end Subroutine Ham_Alloc_Z2_Matter
 
+! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_Z2_Matter_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -141,6 +143,7 @@
           !if ( irank_g == 0 )   write(6,*) "Mpi Test", igroup, isize_g
 #endif
 
+          ! From dynamically generated file "Hamiltonian_Z2_Matter_read_parameters.F90"
           call read_parameters()
           
           Call Ham_latt

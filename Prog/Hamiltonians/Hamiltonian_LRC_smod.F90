@@ -191,6 +191,8 @@
         allocate(ham_LRC::ham)
       end Subroutine Ham_Alloc_LRC
 
+! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_LRC_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -226,6 +228,7 @@
           igroup           = irank/isize_g
 #endif
 
+          ! From dynamically generated file "Hamiltonian_LRC_read_parameters.F90"
           call read_parameters()
           
           if (Model .ne. 'LRC') then

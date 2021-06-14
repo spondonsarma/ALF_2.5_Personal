@@ -187,6 +187,7 @@
       end Subroutine Ham_Alloc_hubbard
 
 ! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_Hubbard_read_parameters.F90"
 
 !--------------------------------------------------------------------

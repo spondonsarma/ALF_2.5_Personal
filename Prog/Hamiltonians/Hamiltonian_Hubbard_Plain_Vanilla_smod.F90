@@ -170,6 +170,8 @@
         allocate(ham_Hubbard_Plain_Vanilla::ham)
       end Subroutine Ham_Alloc_Hubbard_Plain_Vanilla
 
+! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_Hubbard_Plain_Vanilla_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -200,6 +202,8 @@
           call MPI_Comm_size(Group_Comm, isize_g, ierr)
           igroup           = irank/isize_g
 #endif
+
+          ! From dynamically generated file "Hamiltonian_Hubbard_Plain_Vanilla_read_parameters.F90"
           call read_parameters()
           
 

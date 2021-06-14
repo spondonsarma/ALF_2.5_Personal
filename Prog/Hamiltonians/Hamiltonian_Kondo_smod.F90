@@ -186,6 +186,8 @@
         allocate(ham_Kondo::ham)
       end Subroutine Ham_Alloc_Kondo
 
+! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_Kondo_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -222,6 +224,7 @@
           igroup           = irank/isize_g
 #endif
 
+          ! From dynamically generated file "Hamiltonian_Kondo_read_parameters.F90"
           call read_parameters()
           
           If ( .not. ( Lattice_type == "Bilayer_square" .or.  Lattice_type == "Bilayer_honeycomb") ) then

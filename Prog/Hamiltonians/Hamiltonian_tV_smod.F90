@@ -184,6 +184,8 @@
         allocate(ham_tV::ham)
       end Subroutine Ham_Alloc_tV
 
+! Dynamically generated on compile time from parameters list.
+! Supplies the subroutine read_parameters.
 #include "Hamiltonian_tV_read_parameters.F90"
 
 !--------------------------------------------------------------------
@@ -218,6 +220,7 @@
           igroup           = irank/isize_g
 #endif
 
+          ! From dynamically generated file "Hamiltonian_tV_read_parameters.F90"
           call read_parameters()
 
           Ltrot = nint(beta/dtau)
