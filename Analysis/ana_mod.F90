@@ -130,12 +130,13 @@
 !==============================================================================
 
 #ifdef HDF5
-   Subroutine read_vec_hdf5(filename, groupname, sgn, bins)
+   Subroutine read_vec_hdf5(filename, groupname, sgn, bins, analysis_mode)
       Implicit none
       Character (len=*), intent(in) :: filename
       Character (len=*), intent(in) :: groupname
       Real    (Kind=Kind(0.d0)), allocatable, intent(out) :: sgn(:)
       Complex (Kind=Kind(0.d0)), pointer, intent(out) :: bins(:,:)
+      Character (len=64), intent(out) :: analysis_mode
 
       Integer :: Nobs, Nbins
 
@@ -153,6 +154,7 @@
       CALL h5open_f(hdferr)
 
       CALL h5fopen_f (File, H5F_ACC_RDONLY_F, file_id, hdferr)
+      call read_attribute(file_id, groupname, "analysis_mode", analysis_mode, hdferr)
       !Open the  dataset.
       CALL h5dopen_f(file_id, obs_dsetname, dset_id, hdferr)
 
@@ -461,8 +463,8 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       deallocate( dims )
 
       CALL h5gopen_f(file_id, name, grp_id, ierr)
-      call read_attribute(grp_id, "dtau", dtau, ierr)
-      call read_attribute(grp_id, "Channel", Channel, ierr)
+      call read_attribute(grp_id, '.', "dtau", dtau, ierr)
+      call read_attribute(grp_id, '.', "Channel", Channel, ierr)
       call h5gclose_f(grp_id, ierr)
 
       par_dsetname = "lattice"
@@ -475,11 +477,11 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Call Make_Lattice( L1_p, L2_p, a1_p, a2_p, Latt )
       
       attr_name = "N_coord"
-      call read_attribute(grp_id, attr_name, Latt_unit%Norb, ierr)
+      call read_attribute(grp_id, '.', attr_name, Latt_unit%Norb, ierr)
       attr_name = "Norb"
-      call read_attribute(grp_id, attr_name, Latt_unit%N_coord, ierr)
+      call read_attribute(grp_id, '.', attr_name, Latt_unit%N_coord, ierr)
       attr_name = "Ndim"
-      call read_attribute(grp_id, attr_name, Ndim, ierr)
+      call read_attribute(grp_id, '.', attr_name, Ndim, ierr)
       allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb, Ndim))
       
       do no = 1, Latt_unit%Norb
@@ -1110,7 +1112,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       if( present(filename_h5) ) then
 #ifdef HDF5
-        call read_vec_hdf5(filename_h5, name_obs, sgn_raw, bins_raw)
+        call read_vec_hdf5(filename_h5, name_obs, sgn_raw, bins_raw, analysis_mode)
 #endif
       else
         call read_vec(name_obs, sgn_raw, bins_raw, analysis_mode)
