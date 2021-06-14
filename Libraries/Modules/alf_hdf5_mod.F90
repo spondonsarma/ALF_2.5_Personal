@@ -1,5 +1,17 @@
 #if defined(HDF5)
      Module alf_hdf5
+       use iso_fortran_env, only: output_unit, error_unit
+       USE ISO_C_BINDING
+
+       Use hdf5
+       use h5lt
+       
+       Use Lattices_v3
+       
+       implicit none
+       private
+       public :: write_attribute, read_attribute, test_attribute, &
+         init_dset, append_dat, write_latt, write_comment
      
        interface write_attribute
          MODULE PROCEDURE write_attribute_double, write_attribute_int, write_attribute_string, write_attribute_logical
@@ -20,14 +32,13 @@
 !
 !> @brief
 !> This subroutine creates a new dataset in an opened HDF5 file for the
-!> purpsose of filling if with Monte-Carlo bins.
+!> purpsose of filling it with Monte-Carlo bins.
 !
 !> @param [in] file_id  Idendifier of the opened HDF5 file
 !> @param [in] dsetname Name of the new dataset
 !> @param [in] dims     Shape of one bin. Whith size(dims) = size(bin)+1
 !>                      and dims(size(dims)) = 0
 !-------------------------------------------------------------------
-           Use hdf5
            Implicit none
            
            INTEGER(HID_T),     intent(in) :: file_id
@@ -53,8 +64,8 @@
            
            !Check for dims(rank) = 0
            if (dims(rank) /= 0) then
-             write(*,*) 'Error in init_dset: dims(rank) /= 0'
-             stop
+             write(error_unit,*) 'Error in init_dset: dims(rank) /= 0'
+             error stop
            endif
            
            !Create Dataspace
@@ -72,7 +83,7 @@
            CALL h5dcreate_f(file_id, dsetname, H5T_NATIVE_DOUBLE, dataspace, &
                            dset_id, hdferr, crp_list )
            
-           CALL write_attribute_logical(dset_id, 'is_complex', is_complex, hdferr)
+           CALL write_attribute_logical(dset_id, '.', 'is_complex', is_complex, hdferr)
            
            !Close objects
            CALL h5sclose_f(dataspace, hdferr)
@@ -98,8 +109,6 @@
 !>                      The data should be all double precision.
 !>                      The length of the data is assumed from the existing dataset.
 !-------------------------------------------------------------------
-           Use hdf5
-           USE ISO_C_BINDING
            Implicit none
            
            INTEGER(HID_T),     intent(in) :: file_id
@@ -176,9 +185,6 @@
 !> @param [in] obj_id  Idendifier of the opened HDF5 object
 !> @param [in] Latt    The lattice
 !-------------------------------------------------------------------
-            Use hdf5
-            use h5lt
-            Use Lattices_v3
             Implicit none
             INTEGER(HID_T),   intent(in) :: obj_id
             Type (Lattice),   intent(in) :: Latt
@@ -209,11 +215,11 @@
             call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt%L2_p, size_dat, ierr )
             
             attr_name = "N_coord"
-            call write_attribute(group_id, attr_name, Latt_unit%Norb, ierr)
+            call write_attribute(group_id, '.', attr_name, Latt_unit%Norb, ierr)
             attr_name = "Norb"
-            call write_attribute(group_id, attr_name, Latt_unit%N_coord, ierr)
+            call write_attribute(group_id, '.', attr_name, Latt_unit%N_coord, ierr)
             attr_name = "Ndim"
-            call write_attribute(group_id, attr_name, size(Latt_unit%Orb_pos_p, 2), ierr)
+            call write_attribute(group_id, '.', attr_name, size(Latt_unit%Orb_pos_p, 2), ierr)
             
             size_dat = size(Latt_unit%Orb_pos_p, 2)
             do no = 1, Latt_unit%Norb
@@ -229,10 +235,10 @@
 
 !--------------------------------------------------------------------
 
-         Subroutine write_attribute_double(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine write_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            real(Kind=Kind(0.d0)), INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -241,7 +247,8 @@
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
-           call h5acreate_f (obj_id, attr_name, H5T_NATIVE_DOUBLE, space_id, attr_id, ierr)
+           call h5acreate_by_name_f(loc_id, obj_name, attr_name, H5T_NATIVE_DOUBLE, &
+                                    space_id, attr_id, ierr)
            call h5awrite_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
@@ -249,10 +256,10 @@
         
 !--------------------------------------------------------------------
 
-         Subroutine write_attribute_int(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine write_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            INTEGER,          INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -261,7 +268,8 @@
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
-           call h5acreate_f (obj_id, attr_name, H5T_NATIVE_INTEGER, space_id, attr_id, ierr)
+           call h5acreate_by_name_f(loc_id, obj_name, attr_name, H5T_NATIVE_INTEGER, &
+                                    space_id, attr_id, ierr)
            call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
@@ -269,32 +277,24 @@
         
 !--------------------------------------------------------------------
 
-         Subroutine write_attribute_string(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine write_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
-           
-           INTEGER(HID_T)     :: space_id, attr_id
-           INTEGER, parameter :: rank = 1
-           INTEGER(HSIZE_T)   :: dims(1)
-           dims(1) = len(trim(attr_value))
-           
-           CALL h5screate_simple_f(rank, dims, space_id, ierr)
-           call h5acreate_f (obj_id, attr_name, H5T_NATIVE_CHARACTER, space_id, attr_id, ierr)
-           call h5awrite_f  (attr_id, H5T_NATIVE_CHARACTER, attr_value, dims, ierr)
-           call h5aclose_f  (attr_id, ierr)
-           call h5sclose_f  (space_id, ierr)
+
+           call h5ltset_attribute_string_f(loc_id, obj_name, attr_name, &
+                                           attr_value, ierr)
          end Subroutine write_attribute_string
         
 !--------------------------------------------------------------------
 
-         Subroutine write_attribute_logical(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine write_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            LOGICAL,          INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -307,7 +307,8 @@
            if ( attr_value ) attr_value2 = 1
            
            CALL h5screate_f (H5S_SCALAR_F, space_id, ierr)
-           call h5acreate_f (obj_id, attr_name, H5T_NATIVE_INTEGER, space_id, attr_id, ierr)
+           call h5acreate_by_name_f(loc_id, obj_name, attr_name, H5T_NATIVE_INTEGER, &
+                                    space_id, attr_id, ierr)
            call h5awrite_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)
            call h5aclose_f  (attr_id, ierr)
            call h5sclose_f  (space_id, ierr)
@@ -315,10 +316,10 @@
         
 !--------------------------------------------------------------------
 
-         Subroutine read_attribute_double(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine read_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),        INTENT(IN)  :: obj_id
+           INTEGER(HID_T),        INTENT(IN)  :: loc_id
+           CHARACTER(LEN=*),      INTENT(IN)  :: obj_name
            CHARACTER(LEN=*),      INTENT(IN)  :: attr_name
            real(Kind=Kind(0.d0)), INTENT(OUT) :: attr_value
            INTEGER,               INTENT(OUT) :: ierr
@@ -326,17 +327,17 @@
            INTEGER(HID_T)              :: attr_id
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
-           call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
+           call h5aopen_by_name_f(loc_id, obj_name, attr_name, attr_id, ierr)
            call h5aread_f  (attr_id, H5T_NATIVE_DOUBLE, attr_value, dims, ierr)
            call h5aclose_f (attr_id, ierr)
          end Subroutine read_attribute_double
         
 !--------------------------------------------------------------------
 
-         Subroutine read_attribute_int(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine read_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN)  :: obj_id
+           INTEGER(HID_T),   INTENT(IN)  :: loc_id
+           CHARACTER(LEN=*), INTENT(IN)  :: obj_name
            CHARACTER(LEN=*), INTENT(IN)  :: attr_name
            INTEGER,          INTENT(OUT) :: attr_value
            INTEGER,          INTENT(OUT) :: ierr
@@ -344,37 +345,31 @@
            INTEGER(HID_T)              :: attr_id
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
-           call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
+           call h5aopen_by_name_f(loc_id, obj_name, attr_name, attr_id, ierr)
            call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value, dims, ierr)
            call h5aclose_f (attr_id, ierr)
          end Subroutine read_attribute_int
         
 !--------------------------------------------------------------------
 
-         Subroutine read_attribute_string(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine read_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN)  :: obj_id
+           INTEGER(HID_T),   INTENT(IN)  :: loc_id
+           CHARACTER(LEN=*), INTENT(IN)  :: obj_name
            CHARACTER(LEN=*), INTENT(IN)  :: attr_name
            CHARACTER(LEN=*), INTENT(OUT) :: attr_value
            INTEGER,          INTENT(OUT) :: ierr
-           
-           INTEGER(HID_T)     :: attr_id
-           INTEGER(HSIZE_T)   :: dims(1)
-           
-           call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
-           call h5aget_storage_size_f(attr_id, dims(1), ierr)
-           attr_value = ''
-           call h5aread_f  (attr_id, H5T_NATIVE_CHARACTER, attr_value, dims, ierr)
-           call h5aclose_f  (attr_id, ierr)
+
+           call h5ltget_attribute_string_f(loc_id, obj_name, attr_name, &
+                                           attr_value, ierr)
          end Subroutine read_attribute_string
         
 !--------------------------------------------------------------------
 
-         Subroutine read_attribute_logical(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine read_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN)  :: obj_id
+           INTEGER(HID_T),   INTENT(IN)  :: loc_id
+           CHARACTER(LEN=*), INTENT(IN)  :: obj_name
            CHARACTER(LEN=*), INTENT(IN)  :: attr_name
            LOGICAL,          INTENT(OUT) :: attr_value
            INTEGER,          INTENT(OUT) :: ierr
@@ -383,7 +378,7 @@
            INTEGER(HID_T)              :: attr_id
            INTEGER(HSIZE_T), parameter :: dims(1) = 1
            
-           call h5aopen_f  (obj_id, attr_name, attr_id, ierr)
+           call h5aopen_by_name_f(loc_id, obj_name, attr_name, attr_id, ierr)
            call h5aread_f  (attr_id, H5T_NATIVE_INTEGER, attr_value2, dims, ierr)
            call h5aclose_f (attr_id, ierr)
            
@@ -392,17 +387,17 @@
            elseif ( attr_value2 == 1 ) then
              attr_value = .true.
            else
-             write(*,*) "Error in read_attribute_logical: attr_value2 is neither 0 or 1, but", attr_value2
-             stop
+             write(error_unit,*) "Error in read_attribute_logical: attr_value2 is neither 0 or 1, but", attr_value2
+             error stop
            endif
          end Subroutine read_attribute_logical
         
 !--------------------------------------------------------------------
 
-         Subroutine test_attribute_double(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine test_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            real(Kind=Kind(0.d0)), INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -411,26 +406,26 @@
            real(Kind=Kind(0.d0)), parameter :: ZERO = 10D-8
            real(Kind=Kind(0.d0)) :: test_double, diff
            
-           call h5aexists_f(obj_id, attr_name, attr_exists, ierr)
+           call h5aexists_by_name_f(loc_id, obj_name, attr_name, attr_exists, ierr)
            
            if ( .not. attr_exists ) then
-             call write_attribute_double(obj_id, attr_name, attr_value, ierr)
+             call write_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
            else
-             call read_attribute_double(obj_id, attr_name, test_double, ierr)
+             call read_attribute_double(loc_id, obj_name, attr_name, test_double, ierr)
              diff = abs(attr_value - test_double)
              if (diff > ZERO) then
-               write(*,*) 'Error in test_attribute_double:', attr_name, ' = ', attr_value, '/=', test_double
-               stop
+               write(error_unit,*) 'Error in test_attribute_double:', attr_name, ' = ', attr_value, '/=', test_double
+               error stop
              endif
            endif
          end Subroutine test_attribute_double
         
 !--------------------------------------------------------------------
 
-         Subroutine test_attribute_int(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine test_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            INTEGER,          INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -438,25 +433,25 @@
            LOGICAL :: attr_exists
            INTEGER :: test_int
            
-           call h5aexists_f(obj_id, attr_name, attr_exists, ierr)
+           call h5aexists_by_name_f(loc_id, obj_name, attr_name, attr_exists, ierr)
            
            if ( .not. attr_exists ) then
-             call write_attribute_int(obj_id, attr_name, attr_value, ierr)
+             call write_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
            else
-             call read_attribute_int(obj_id, attr_name, test_int, ierr)
+             call read_attribute_int(loc_id, obj_name, attr_name, test_int, ierr)
              if (attr_value /= test_int) then
-               write(*,*) 'Error in test_attribute_int:', attr_name, ' = ', attr_value, '/=', test_int
-               stop
+               write(error_unit,*) 'Error in test_attribute_int:', attr_name, ' = ', attr_value, '/=', test_int
+               error stop
              endif
            endif
          end Subroutine test_attribute_int
         
 !--------------------------------------------------------------------
 
-         Subroutine test_attribute_string(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine test_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -464,25 +459,25 @@
            LOGICAL :: attr_exists
            CHARACTER(LEN=64) :: test_string
            
-           call h5aexists_f(obj_id, attr_name, attr_exists, ierr)
+           call h5aexists_by_name_f(loc_id, obj_name, attr_name, attr_exists, ierr)
            
            if ( .not. attr_exists ) then
-             call write_attribute_string(obj_id, attr_name, attr_value, ierr)
+             call write_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
            else
-             call read_attribute_string(obj_id, attr_name, test_string, ierr)
+             call read_attribute_string(loc_id, obj_name, attr_name, test_string, ierr)
              if (trim(attr_value) /= trim(test_string)) then
-               write(*,*) 'Error in test_attribute_string:', attr_name, ' = ', attr_value, '/=', test_string
-               stop
+               write(error_unit,*) 'Error in test_attribute_string:', attr_name, ' = ', attr_value, '/=', test_string
+               error stop
              endif
            endif
          end Subroutine test_attribute_string
         
 !--------------------------------------------------------------------
 
-         Subroutine test_attribute_logical(obj_id, attr_name, attr_value, ierr)
-           Use hdf5
+         Subroutine test_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
            Implicit none
-           INTEGER(HID_T),   INTENT(IN) :: obj_id
+           INTEGER(HID_T),   INTENT(IN) :: loc_id
+           CHARACTER(LEN=*), INTENT(IN) :: obj_name
            CHARACTER(LEN=*), INTENT(IN) :: attr_name
            LOGICAL,          INTENT(IN) :: attr_value
            INTEGER,   INTENT(OUT) :: ierr
@@ -490,18 +485,58 @@
            LOGICAL :: attr_exists
            LOGICAL :: test_bool
            
-           call h5aexists_f(obj_id, attr_name, attr_exists, ierr)
+           call h5aexists_by_name_f(loc_id, obj_name, attr_name, attr_exists, ierr)
            
            if ( .not. attr_exists ) then
-             call write_attribute_logical(obj_id, attr_name, attr_value, ierr)
+             call write_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
            else
-             call read_attribute_logical(obj_id, attr_name, test_bool, ierr)
+             call read_attribute_logical(loc_id, obj_name, attr_name, test_bool, ierr)
              if (attr_value .neqv. test_bool) then
-               write(*,*) 'Error in test_attribute_logical:', attr_name, ' = ', attr_value, '/=', test_bool
-               stop
+               write(error_unit,*) 'Error in test_attribute_logical:', attr_name, ' = ', attr_value, '/=', test_bool
+               error stop
              endif
            endif
          end Subroutine test_attribute_logical
+
+
+
+         Subroutine write_comment(loc_id, obj_name, attr_name, comment, ierr)
+           
+           IMPLICIT NONE
+           INTEGER(HID_T),    INTENT(IN) :: loc_id
+           CHARACTER(LEN=*),  INTENT(IN) :: obj_name
+           CHARACTER(LEN=*),  INTENT(IN) :: attr_name
+           CHARACTER(len=64), INTENT(IN) :: comment(:)
+           INTEGER, INTENT(OUT) ::   ierr
+           
+           INTEGER(HID_T)   :: attr_id       ! Attribute identifier
+           INTEGER(HID_T)   :: space_id      ! Attribute Dataspace identifier
+           INTEGER(HID_T)   :: type_id       ! Attribute datatype identifier
+           INTEGER          :: rank = 1      ! Attribure rank
+           INTEGER(HSIZE_T) :: dims(1)       ! Attribute dimensions
+           INTEGER(SIZE_T)  :: attrlen = 64  ! Length of the attribute string
+           
+           ! Create scalar data space for the attribute.
+           dims(1) = size(comment)
+           CALL h5screate_simple_f(rank, dims, space_id, ierr)
+           
+           ! Create datatype for the attribute.
+           CALL h5tcopy_f(H5T_NATIVE_CHARACTER, type_id, ierr)
+           CALL h5tset_size_f(type_id, attrlen, ierr)
+           
+           ! Create dataset attribute.
+           call h5acreate_by_name_f(loc_id, obj_name, attr_name, type_id, &
+                                    space_id, attr_id, ierr)
+          
+           ! Write the attribute data.
+           CALL h5awrite_f(attr_id, type_id, comment, dims, ierr)
+           
+           ! Close the attribute, datatype and data space.
+           CALL h5aclose_f(attr_id, ierr)
+           CALL h5tclose_f(type_id, ierr)
+           CALL h5sclose_f(space_id, ierr)
+           
+        end Subroutine write_comment
          
      end Module alf_hdf5
 #endif

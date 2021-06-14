@@ -464,8 +464,8 @@
               if ( .not. link_exists ) then
                 !Create Group for observable
                 CALL h5gcreate_f (file_id, groupname, group_id, hdferr)
-                call write_attribute(group_id, "dtau", Obs%dtau, hdferr)
-                call write_attribute(group_id, "Channel", Obs%Channel, hdferr)
+                call write_attribute(group_id, '.', "dtau", Obs%dtau, hdferr)
+                call write_attribute(group_id, '.', "Channel", Obs%Channel, hdferr)
                 call write_latt(group_id, Obs%Latt, Obs%Latt_Unit)
                 CALL h5gclose_f (group_id, hdferr)
 
@@ -620,8 +620,12 @@
               CALL h5lexists_f(file_id, groupname, link_exists, hdferr)
 
               if ( .not. link_exists ) then
-                !Create Group for observable
+                !Create Group for observable and write auxiliary info
                 CALL h5gcreate_f (file_id, groupname, group_id, hdferr)
+                call write_attribute(group_id, '.', "analysis_mode", Obs%analysis_mode, hdferr)
+                if(allocated(Obs%description)) then
+                  call write_comment(group_id, '.', "description", Obs%description, hdferr)
+                endif
                 CALL h5gclose_f (group_id, hdferr)
 
                 !Create Dataset for data
