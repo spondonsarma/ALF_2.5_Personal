@@ -13,10 +13,7 @@ printf "\e[31mTemporary directory %s created\e[0m\n" "$tmpdir"
 cd "$tmpdir" || exit 1
 
 printf "\e[31m========== Downloading source ==========\e[0m\n"
-wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz
-
-printf "\e[31m========== Unzipping source ==========\e[0m\n"
-tar xzf hdf5-1.10.6.tar.gz || exit 1
+curl https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz | tar xz
 source_dir="hdf5-1.10.6"
 
 export CC FC
