@@ -3,7 +3,7 @@
 # Needs the follwing environment variables:
 #   CC: C compiler
 #   FC: Fortran compiler
-#   ALF_DIR
+#   CXX: C++ compiler
 
 dir="$PWD"
 
@@ -16,8 +16,8 @@ printf "\e[31m========== Downloading source ==========\e[0m\n"
 curl https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz | tar xz
 source_dir="hdf5-1.10.6"
 
-export CC FC
-printf "\e[31m=== Build with the following compilers C: %s, Fortran: %s \e[0m\n" "$CC" "$FC"
+export CC FC CXX
+printf "\e[31m=== Build with the following compilers C: %s, Fortran: %s, C++: %s \e[0m\n" "$CC" "$FC" "$CXX"
 
 if ! command -v "$CC" > /dev/null; then
   printf "\e[31m==== C compiler <%s> not available =====\e[0m\n" "$CC"
@@ -27,10 +27,10 @@ if ! command -v "$FC" > /dev/null; then
   printf "\e[31m==== FORTRAN compiler <%s> not available =====\e[0m\n" "$FC"
   exit 1
 fi
-#if ! command -v "$CXX" > /dev/null; then
-#  printf "\e[31m==== C++ compiler <%s> not available =====\e[0m\n" "$CXX"
-#  exit 1
-#fi
+if ! command -v "$CXX" > /dev/null; then
+  printf "\e[31m==== C++ compiler <%s> not available =====\e[0m\n" "$CXX"
+  exit 1
+fi
 
 "$source_dir/configure" --prefix="$dir" --enable-fortran
 if ! make; then

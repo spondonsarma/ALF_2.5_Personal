@@ -6,7 +6,7 @@ export ALF_DIR="$PWD"
 
 set_hdf5_flags()
 {
-  CC="$1" FC="$2"
+  CC="$1" FC="$2" CXX="$3"
   
   $FC -o get_compiler_version.out get_compiler_version.F90
   compiler_vers=$(./get_compiler_version.out | sed 's/ /_/g')
@@ -17,7 +17,7 @@ set_hdf5_flags()
     (
     mkdir -p "$HDF5_DIR"
     cd "$HDF5_DIR"
-    CC="$CC" FC="$FC" "$ALF_DIR/HDF5/install_hdf5.sh"
+    CC="$CC" FC="$FC" CXX="$CXX" "$ALF_DIR/HDF5/install_hdf5.sh"
     )
   fi
   HDF5_DIR="$1"
@@ -180,7 +180,7 @@ case $MACHINE in
     fi
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags gcc gfortran
+      set_hdf5_flags gcc gfortran g++
     fi
   ;;
 
@@ -239,7 +239,7 @@ case $MACHINE in
     ALF_FC="$INTELCOMPILER"
     LIB_BLAS_LAPACK="-mkl"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icc ifort
+      set_hdf5_flags icc ifort icpc
     fi
   ;;
 
@@ -250,7 +250,7 @@ case $MACHINE in
     ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags gcc gfortran
+      set_hdf5_flags gcc gfortran g++
     fi
   ;;
 
@@ -268,7 +268,7 @@ case $MACHINE in
     fi
     LIB_BLAS_LAPACK="-llapack -lblas"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags pgcc pgfortran
+      set_hdf5_flags pgcc pgfortran pgc++
     fi
   ;;
 
@@ -305,7 +305,7 @@ case $MACHINE in
     ALF_FC="gfortran"
     LIB_BLAS_LAPACK="-llapack -lblas"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags gcc gfortran
+      set_hdf5_flags gcc gfortran g++
     fi
   ;;
 esac
