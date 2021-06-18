@@ -2,14 +2,25 @@
 STABCONFIGURATION=""
 # STABCONFIGURATION="${STABCONFIGURATION} -DQRREF"
 
-ALF_DIR="$PWD"
+export ALF_DIR="$PWD"
 
 set_hdf5_flags()
 {
-  HDF5_DIR="$1"
+  CC="$1" FC="$2"
+  
+  $FC -o get_compiler_version.out get_compiler_version.F90
+  compiler_vers=$(./get_compiler_version.out | sed 's/ /_/g')
+  
+  HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
-    echo
+    printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
+    (
+    mkdir -p "$HDF5_DIR"
+    cd "$HDF5_DIR"
+    CC="$CC" FC="$FC" "$ALF_DIR/HDF5/install_hdf5.sh"
+    )
   fi
+  HDF5_DIR="$1"
   INC_HDF5="-I$HDF5_DIR/include"
   LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
   LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
@@ -168,7 +179,9 @@ case $MACHINE in
     ALF_FC="$mpif90"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags gcc gfortran
+    fi
   ;;
 
   #LRZ enviroment
@@ -225,7 +238,9 @@ case $MACHINE in
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
     LIB_BLAS_LAPACK="-mkl"
-    set_hdf5_flags "$ALF_DIR/HDF5/intel/"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags icc ifort
+    fi
   ;;
 
   #GNU (as Hybrid code)
@@ -234,7 +249,9 @@ case $MACHINE in
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
     ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags gcc gfortran
+    fi
   ;;
 
   #PGI
@@ -250,7 +267,9 @@ case $MACHINE in
       printf "    'export ALF_FC=<mpicompiler>'${NC}\n"
     fi
     LIB_BLAS_LAPACK="-llapack -lblas"
-    set_hdf5_flags "$ALF_DIR/HDF5/pgi/"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags pgcc pgfortran
+    fi
   ;;
 
   #Default (unknown machine)
@@ -285,7 +304,9 @@ case $MACHINE in
 
     ALF_FC="gfortran"
     LIB_BLAS_LAPACK="-llapack -lblas"
-    set_hdf5_flags "$ALF_DIR/HDF5/gnu/"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags gcc gfortran
+    fi
   ;;
 esac
 

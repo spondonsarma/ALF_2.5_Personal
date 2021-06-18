@@ -1,35 +1,9 @@
 #!/usr/bin/env bash
-#Script for automatically downloading and compiling HDF5
-
-build()
-{
-	export CC="$2" FC="$3" CXX="$4"
-	if ! command -v "$CC" > /dev/null; then
-		printf "\e[31m==== C compiler <%s> not available =====\e[0m\n" "$CC"
-		exit 1
-	fi
-	if ! command -v "$FC" > /dev/null; then
-		printf "\e[31m==== FORTRAN compiler <%s> not available =====\e[0m\n" "$FC"
-		exit 1
-	fi
-	if ! command -v "$CXX" > /dev/null; then
-		printf "\e[31m==== C++ compiler <%s> not available =====\e[0m\n" "$CXX"
-		exit 1
-	fi
-
-	mkdir "$1" || exit 1
-	# shellcheck disable=SC2164
-	cd "$1"
-	"../$source_dir/configure" --prefix="$dir/$1" --enable-fortran
-	if ! make; then
-		printf "\e[31m====== Compilation with %s compilers failed =======\e[0m\n" "$1"
-		exit 1
-	fi
-	#make check
-	make install
-	#make check-install
-	cd ..
-}
+# Script for automatically downloading and installin HDF5 in current directory
+# Needs the follwing environment variables:
+#   CC: C compiler
+#   FC: Fortran compiler
+#   ALF_DIR
 
 dir="$PWD"
 
@@ -45,13 +19,30 @@ printf "\e[31m========== Unzipping source ==========\e[0m\n"
 tar xzf hdf5-1.10.6.tar.gz || exit 1
 source_dir="hdf5-1.10.6"
 
-printf "\e[31m========== Build with Intel compilers ==========\e[0m\n"
-build intel icc ifort icpc
+export CC FC
+printf "\e[31m=== Build with the following compilers C: %s, Fortran: %s \e[0m\n" "$CC" "$FC"
 
-printf "\e[31m========== Build with GNU compilers ==========\e[0m\n"
-build gnu gcc gfortran g++
+if ! command -v "$CC" > /dev/null; then
+  printf "\e[31m==== C compiler <%s> not available =====\e[0m\n" "$CC"
+  exit 1
+fi
+if ! command -v "$FC" > /dev/null; then
+  printf "\e[31m==== FORTRAN compiler <%s> not available =====\e[0m\n" "$FC"
+  exit 1
+fi
+#if ! command -v "$CXX" > /dev/null; then
+#  printf "\e[31m==== C++ compiler <%s> not available =====\e[0m\n" "$CXX"
+#  exit 1
+#fi
 
-printf "\e[31m========== Build with PGI compilers ==========\e[0m\n"
-build pgi pgcc pgfortran pgc++
+"$source_dir/configure" --prefix="$dir" --enable-fortran
+if ! make; then
+  printf "\e[31m=== Compilation with compilers %s %s in directory %s failed ===\e[0m\n" "$CC" "$FC" "$PWD"
+  rm -r "$dir"
+  exit 1
+fi
+#make check
+make install
+#make check-install
 
 printf "\e[31mYou can delete the temporary directory %s\e[0m\n" "$tmpdir"
