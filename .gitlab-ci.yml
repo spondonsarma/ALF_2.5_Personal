@@ -16,7 +16,7 @@ stages:
   stage: build
   <<: *exemptfiles_definition
   script:
-    - apt-get update && apt install -y curl g++
+    - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh GNU serial HDF5
     - gfortran -v
     - make all
@@ -25,7 +25,7 @@ stages:
   stage: build
   <<: *exemptfiles_definition
   script:
-    - apt-get update && apt install -y curl
+    - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
     - . configure.sh PGI serial HDF5
     - make all
@@ -34,7 +34,7 @@ stages:
   stage: warnconv
   <<: *exemptfiles_definition
   script:
-    - apt-get update && apt install -y curl g++
+    - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh Devel serial HDF5
     - gfortran -v
     - make all
@@ -43,7 +43,7 @@ stages:
   stage: test
   <<: *exemptfiles_definition
   script:
-    - apt-get update && apt install -y curl g++
+    - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh Devel serial HDF5
     - gfortran -v
     - make lib
@@ -120,7 +120,7 @@ GQMCT_Stretch_MPI:
       - README.md
       - license.*
   script:
-    - apt-get update && apt install -y curl g++
+    - apt-get update && apt install -y curl libghc-zlib-dev g++
     - gfortran -v
     - . configure.sh Devel Tempering HDF5
     - export ALF_FC="mpif90"
@@ -136,7 +136,7 @@ GQMCT_Intel-21:
       - README.md
       - license.*
   script:
-    - apt-get update && apt install -y curl
+    - apt-get update && apt install -y curl libghc-zlib-dev
     - . /opt/intel/oneapi/setvars.sh
     - . configure.sh INTEL serial HDF5
     - make all
@@ -183,7 +183,7 @@ GQMCT_PGI_conv:
       - README.md
       - license.*
   script:
-    - apt-get update && apt install -y curl
+    - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
     - . configure.sh PGI serial HDF5
     - make all
@@ -238,7 +238,7 @@ GQMCT_PGI_tests:
       - README.md
       - license.*
   script:
-    - apt-get update && apt install -y curl
+    - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
     - . configure.sh PGI serial HDF5
     - make lib
@@ -261,7 +261,7 @@ GQMCT_Stretch_valgrind:
       - Prog/*.(f|F)90
       - Libraries/Modules/*.(f|F)90
   script:
-      - apt-get update && apt install -y curl g++
+      - apt-get update && apt install -y curl libghc-zlib-dev g++
       - export ALF_FLAGS_EXT="-g"
       - . configure.sh GNU serial HDF5
       - gfortran -v
