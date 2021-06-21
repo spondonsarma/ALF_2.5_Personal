@@ -16,7 +16,6 @@ set_hdf5_flags()
     printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
     CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh"
   fi
-  HDF5_DIR="$1"
   INC_HDF5="-I$HDF5_DIR/include"
   LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
   LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
