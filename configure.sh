@@ -220,11 +220,14 @@ case $MACHINE in
     module load Intel
     module load IntelMPI
     module load imkl
+    module load HDF5/1.10.6
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="-mkl"
+    LIB_HDF5="–lh5df_fortran"
+    INC_HDF5=""
   ;;
 
   #Intel (as Hybrid code)
