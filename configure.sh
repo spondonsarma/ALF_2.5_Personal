@@ -14,11 +14,7 @@ set_hdf5_flags()
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
     printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
-    (
-    mkdir -p "$HDF5_DIR"
-    cd "$HDF5_DIR"
-    CC="$CC" FC="$FC" CXX="$CXX" "$ALF_DIR/HDF5/install_hdf5.sh"
-    )
+    CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh"
   fi
   HDF5_DIR="$1"
   INC_HDF5="-I$HDF5_DIR/include"

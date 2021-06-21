@@ -4,8 +4,7 @@
 #   CC: C compiler
 #   FC: Fortran compiler
 #   CXX: C++ compiler
-
-dir="$PWD"
+#   HDF5_DIR: Diretory, in which HDF5 gets installed
 
 # Create temporary directory
 tmpdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'tmpdir')
@@ -32,14 +31,18 @@ if ! command -v "$CXX" > /dev/null; then
   exit 1
 fi
 
-"$source_dir/configure" --prefix="$dir" --enable-fortran
+"$source_dir/configure" --prefix="$HDF5_DIR" --enable-fortran
 if ! make; then
   printf "\e[31m=== Compilation with compilers %s %s in directory %s failed ===\e[0m\n" "$CC" "$FC" "$PWD"
-  rm -r "$dir"
+  rm -r "$HDF5_DIR"
   exit 1
 fi
 #make check
-make install
+if ! make install; then
+  printf "\e[31m=== Installation of HDF5 in directory %s failed ===\e[0m\n" "$HDF5_DIR"
+  rm -r "$HDF5_DIR"
+  exit 1
+fi
 #make check-install
 
 printf "\e[31mYou can delete the temporary directory %s\e[0m\n" "$tmpdir"
