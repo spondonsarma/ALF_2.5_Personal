@@ -17,8 +17,8 @@ printf "\e[31mTemporary directory %s created\e[0m\n" "$tmpdir"
 cd "$tmpdir" || exit 1
 
 printf "\e[31m========== Downloading source ==========\e[0m\n"
-curl https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/src/hdf5-1.10.6.tar.gz | tar xz
-source_dir="hdf5-1.10.6"
+curl https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/src/hdf5-1.10.7.tar.gz | tar xz
+source_dir="hdf5-1.10.7"
 
 export CC FC CXX
 printf "\e[31m=== Build with the following compilers C: %s, Fortran: %s, C++: %s \e[0m\n" "$CC" "$FC" "$CXX"
