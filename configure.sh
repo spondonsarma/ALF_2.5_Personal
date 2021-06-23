@@ -1,4 +1,32 @@
 #!/bin/sh
+# This script sets necessary environment variables for compiling ALF.
+# You need to source it prior to executing make.
+USAGE="usage 'source configureHPC.sh MACHINE MODE STAB' \n\
+    \n\
+Please choose one of the following machines:\n\
+ * SuperMUC\n\
+ * SuperMUC-NG\n\
+ * JUWELS\n\
+ * Intel\n\
+ * GNU\n\
+ * FakhersMAC\n\
+Possible modes are:\n\
+ * MPI (default)\n\
+ * noMPI\n\
+ * Tempering\n\
+Possible stab are:
+ * <no-argument> (default)\n\
+ * STAB1 (old)\n\
+ * STAB2 (old)\n\
+ * STAB3 (newest)\n\
+ * LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)\n\
+Further optional arguments: \n\
+  Devel: Compile with additional flags for development and debugging\n\
+  HDF5: Compile with HDF5\n\
+  NO-INTERACTIVE: Do not ask for user confirmation during excution of this script\n\
+  
+To hand an additional flag to the compiler, export it in the varible ALF_FLAGS_EXT prior to sourcing this script.\n"
+
 STABCONFIGURATION=""
 # STABCONFIGURATION="${STABCONFIGURATION} -DQRREF"
 
@@ -13,8 +41,22 @@ set_hdf5_flags()
   
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
-    printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
-    CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh" || return 1
+    printf "\nHDF5 is not yet installed for this compiler.\n"
+    if [ "$NO_INTERACTIVE" == "" ]; then
+      read -p "Do you want download and install it now locally in the ALF folder? (Y/n)" yn
+    else
+      yn="Y"
+    fi
+    case "$yn" in
+      y|Y|"")
+        printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
+        CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh" || return 1
+      ;;
+      *) 
+        printf "Skipping installation of HDF5.\n"
+        return 1
+      ;;
+    esac
   fi
   INC_HDF5="-I$HDF5_DIR/include"
   LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
@@ -53,6 +95,7 @@ modev=0
 STAB=""
 stabv=0
 HDF5_ENABLED=""
+NO_INTERACTIVE=""
 
 RED='\033[0;31m'
 NC='\033[0m' # No Color
@@ -83,6 +126,9 @@ while [ "$#" -gt "0" ]; do
       GNUOPTFLAGS="$GNUOPTFLAGS $GNUDEVFLAGS"
       INTELOPTFLAGS="$INTELOPTFLAGS $INTELDEVFLAGS"
       PGIOPTFLAGS="$PGIOPTFLAGS $PGIDEVFLAGS"
+    ;;
+    NO-INTERACTIVE)
+      NO_INTERACTIVE="1"
     ;;
     *)
       if [ "$Machinev" = "1" ]; then
@@ -280,22 +326,7 @@ case $MACHINE in
     printf "\n"
     printf "Activating fallback option with gfortran for SERIAL JOB.\n"
     printf "\n"
-    printf "usage 'source configureHPC.sh MACHINE MODE STAB'\n"
-    printf "\n"
-    printf "Please choose one of the following machines:\n"
-    printf " * SuperMUC\n"
-    printf " * SuperMUC-NG\n"
-    printf " * JUWELS\n"
-    printf " * Devel\n"
-    printf " * Intel\n"
-    printf " * GNU\n"
-    printf " * FakhersMAC\n"
-    printf "Possible modes are MPI (default), noMPI and Tempering\n"
-    printf "Possible stab are no-argument (default), STAB1 (old), STAB2 (old), STAB3 (newest)\n"
-    printf "and LOG (increases accessible scales, e.g. in beta or interaction strength by solving NaN issues)\n"
-    printf "Further options: Devel and HDF5"
-    printf "To hand an additional flag to the compiler, export it in the varible ALF_FLAGS_EXT prior to soucing this script."
-
+    printf "$USAGE"
     PROGRAMMCONFIGURATION=""
     F90OPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
     F90USEFULFLAGS=""
