@@ -24,8 +24,9 @@ Further optional arguments: \n\
   Devel: Compile with additional flags for development and debugging\n\
   HDF5: Compile with HDF5\n\
   NO-INTERACTIVE: Do not ask for user confirmation during excution of this script\n\
-  
-To hand an additional flag to the compiler, export it in the varible ALF_FLAGS_EXT prior to sourcing this script.\n"
+To hand an additional flag to the compiler, export it in the varible ALF_FLAGS_EXT prior to sourcing this script.\n
+
+For more details check the documentation.\n"
 
 STABCONFIGURATION=""
 # STABCONFIGURATION="${STABCONFIGURATION} -DQRREF"
@@ -209,35 +210,45 @@ case $STAB in
 esac
 
 case $MACHINE in
-  #Fakhers MacBook
-  FAKHERSMAC)
-    # F90OPTFLAGS=$GNUOPTFLAGS
-    F90OPTFLAGS="$GNUOPTFLAGS -Wconversion  -Wuninitialized  -fcheck=all -g -fbacktrace"
+  #GNU (as Hybrid code)
+  GNU)
+    F90OPTFLAGS="$GNUOPTFLAGS"
     F90USEFULFLAGS="$GNUUSEFULFLAGS"
-    if [ "$MPICOMP" -eq "0" ]; then
-    ALF_FC="gfortran"
-    else
-    ALF_FC="$mpif90"
-    fi
+    ALF_FC="$GNUCOMPILER"
     LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
     if [ "${HDF5_ENABLED}" = "1" ]; then
       set_hdf5_flags gcc gfortran g++ || return 1
     fi
   ;;
 
-  #LRZ enviroment
-  SUPERMUC)
-    module switch mpi.ibm  mpi.intel/2018
-    module switch intel intel/18.0
-    module switch mkl mkl/2018
-    module load hdf5
-
+  #Intel (as Hybrid code)
+  INTEL)
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    ALF_FC="mpiifort"
-    LIB_BLAS_LAPACK="$MKL_LIB"
-    LIB_HDF5="$HDF5_F90_LIB $HDF5_LIB $SZIP_LIB -lz"
-    INC_HDF5="$HDF5_INC"
+    ALF_FC="$INTELCOMPILER"
+    LIB_BLAS_LAPACK="-mkl"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags icc ifort icpc || return 1
+    fi
+  ;;
+
+  #PGI
+  PGI)
+    F90OPTFLAGS="$PGIOPTFLAGS"
+    F90USEFULFLAGS="$PGIUSEFULFLAGS"
+    if [ "$MPICOMP" -eq "0" ]; then
+      ALF_FC="pgfortran"
+    else
+      ALF_FC="mpifort"
+      printf "\n${RED}   !! Compiler set to 'mpifort' !!\n"
+      printf "If this is not your PGI MPI compiler you have to set it manually through:\n"
+      printf "    'export ALF_FC=<mpicompiler>'${NC}\n"
+    fi
+    LIB_BLAS_LAPACK="-llapack -lblas"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags pgcc pgfortran pgc++ || return 1
+    fi
+
   ;;
 
   #LRZ enviroment
@@ -275,47 +286,6 @@ case $MACHINE in
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
   ;;
-
-  #Intel (as Hybrid code)
-  INTEL)
-    F90OPTFLAGS="$INTELOPTFLAGS"
-    F90USEFULFLAGS="$INTELUSEFULFLAGS"
-    ALF_FC="$INTELCOMPILER"
-    LIB_BLAS_LAPACK="-mkl"
-    if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icc ifort icpc || return 1
-    fi
-  ;;
-
-  #GNU (as Hybrid code)
-  GNU)
-    F90OPTFLAGS="$GNUOPTFLAGS"
-    F90USEFULFLAGS="$GNUUSEFULFLAGS"
-    ALF_FC="$GNUCOMPILER"
-    LIB_BLAS_LAPACK="-llapack -lblas -fopenmp"
-    if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags gcc gfortran g++ || return 1
-    fi
-  ;;
-
-  #PGI
-  PGI)
-    F90OPTFLAGS="$PGIOPTFLAGS"
-    F90USEFULFLAGS="$PGIUSEFULFLAGS"
-    if [ "$MPICOMP" -eq "0" ]; then
-      ALF_FC="pgfortran"
-    else
-      ALF_FC="mpifort"
-      printf "\n${RED}   !! Compiler set to 'mpifort' !!\n"
-      printf "If this is not your PGI MPI compiler you have to set it manually through:\n"
-      printf "    'export ALF_FC=<mpicompiler>'${NC}\n"
-    fi
-    LIB_BLAS_LAPACK="-llapack -lblas"
-    if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags pgcc pgfortran pgc++ || return 1
-    fi
-  ;;
-
   #Default (unknown machine)
   *)
     printf "\n"
@@ -324,7 +294,7 @@ case $MACHINE in
     printf "${RED}   !!         IGNORING PARALLEL SETTINGS         !!${NC}\n"
     printf "${RED}   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!${NC}\n"
     printf "\n"
-    printf "Activating fallback option with gfortran for SERIAL JOB.\n"
+    printf "Activating fallback option with gfortran for SERIAL JOB - Deactivating MPI.\n"
     printf "\n"
     printf "$USAGE"
     PROGRAMMCONFIGURATION=""
@@ -361,11 +331,11 @@ if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
 fi
 
 ALF_FLAGS_QRREF="${F90OPTFLAGS} ${ALF_FLAGS_EXT}"
-#Modules need to know the programm configuration since entanglement needs MPI
+# Modules need to know the programm configuration since entanglement needs MPI
 ALF_FLAGS_MODULES="${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_ANA="${F90USEFULFLAGS} ${F90OPTFLAGS} ${ALF_INC} ${ALF_FLAGS_EXT}"
 ALF_FLAGS_PROG="${F90USEFULFLAGS} ${F90OPTFLAGS} ${PROGRAMMCONFIGURATION} ${ALF_INC} ${ALF_FLAGS_EXT}"
-# Control with flags -DHDF5 -DHDF5_ZLIB -DOBS_ASCII -DOBS_LEGACY, which observable format to use
+# Control with flags -DHDF5 -DHDF5_ZLIB -DOBS_LEGACY, which observable format to use
 if [ "${HDF5_ENABLED}" = "1" ]; then
   ALF_FLAGS_MODULES="${ALF_FLAGS_MODULES} ${INC_HDF5} -DHDF5 -DHDF5_ZLIB"
   ALF_FLAGS_ANA="${ALF_FLAGS_ANA} ${INC_HDF5} -DHDF5 -DHDF5_ZLIB"
@@ -376,4 +346,4 @@ export ALF_FLAGS_MODULES
 export ALF_FLAGS_ANA
 export ALF_FLAGS_PROG
 
-printf "\nTo compile your program use:    'make TARGET'\n\n"
+printf "\nTo compile your program use:    'make'\n\n"
