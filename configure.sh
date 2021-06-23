@@ -9,7 +9,7 @@ set_hdf5_flags()
   CC="$1" FC="$2" CXX="$3"
   
   $FC -o get_compiler_version.out get_compiler_version.F90
-  compiler_vers=$(./get_compiler_version.out | sed 's/ /_/g')
+  compiler_vers=$(./get_compiler_version.out | sed 's/[ ,()]/_/g')
   
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
