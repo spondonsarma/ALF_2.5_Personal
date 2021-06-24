@@ -3,18 +3,18 @@
 # You need to source it prior to executing make.
 USAGE="usage 'source configureHPC.sh MACHINE MODE STAB' \n\
     \n\
-Please choose one of the following machines:\n\
+Please choose one of the following MACHINEs:\n\
  * SuperMUC\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
  * Intel\n\
  * GNU\n\
  * FakhersMAC\n\
-Possible modes are:\n\
+Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
  * Tempering\n\
-Possible stab are:
+Possible STABs are:
  * <no-argument> (default)\n\
  * STAB1 (old)\n\
  * STAB2 (old)\n\
