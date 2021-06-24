@@ -2,7 +2,9 @@
 [![pipeline status](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/pipeline.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 [![coverage report](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/coverage.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 ## General information ##
-This version of the **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature  and projective auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model, the SU(N) Kondo lattice model, tV models,  models with long ranged interactions as well as Z2 lattice gauge theories coupled to fermions adn Z2 matter are discussed in the [documentation](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/jobs/artifacts/master/raw/Documentation/doc.pdf?job=create_doc). Slides on the auxiliary field QMC can be found [here.](https://git.physik.uni-wuerzburg.de/ALF/ALF_Tutorial/-/blob/master/Presentations/ALF_2020_Assaad.pdf)
+This is the **development** version of ALF, the latest stable version is [ALF 2.0](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/tree/ALF-2.0).
+
+The **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature  and projective auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model, the SU(N) Kondo lattice model, tV models,  models with long ranged interactions as well as Z2 lattice gauge theories coupled to fermions adn Z2 matter are discussed in the [documentation](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/jobs/artifacts/master/raw/Documentation/doc.pdf?job=create_doc). Slides on the auxiliary field QMC can be found [here.](https://git.physik.uni-wuerzburg.de/ALF/ALF_Tutorial/-/blob/master/Presentations/ALF_2020_Assaad.pdf)
 
 The Hamiltonians we can consider reads:
 ![The Hamiltonian0](Images/Hamiltonian0.png "The Hamiltonian")
@@ -19,7 +21,37 @@ You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen
 
 Libraries: Lapack and Blas
 
-Compiler: gfortran  or ifort 
+Compiler: gfortran or ifort 
+
+* **Linux**   
+  To install the relevant packages.
+  - **Debian/Ubuntu/Linux Mint**:  `sudo apt-get install gfortran liblapack-dev make git`
+  - **Red Hat/Fedora/CentOS**:  `sudo dnf install gcc-gfortran make liblapack-devel git`
+  - **OpenSuSE/SLES**:  `sudo zypper install gcc-gfortran make lapack-devel git`
+  - **Arch Linux**:  `pacman -S make gcc-fortran lapack git`
+
+* **Other Unixes**   
+  gfortran and the lapack implementation from netlib.org should be available for your system. Consult the documentation of your system on how to install the relevant packages. The package names from linux should give good starting points for your search.
+
+* **MacOS**   
+  gfortran for MacOS can be found at https://gcc.gnu.org/wiki/GFortranBinaries#MacOS. Detailed information on how to install the package  can be found at: https://gcc.gnu.org/wiki/GFortranBinariesMacOS. You will need to have Xcode as well as the  Apple developer tools installed. 
+
+* **Windows**   
+  The easiest way to compile Fortran code in Windows is trough Cygwin, which provides a Unix-like environment for Windows. The installer also works as a package manager, providing an extensive collection of software from the Unix ecosystem. For convenience, we provide a zip archive containing the Cywin installer and a local repository with all the additional software needed for 
+ALF. 
+
+  Steps for installing Cygwin:
+  - Download zip from https://www.dropbox.com/s/ap8vl85gn9nfbo7/cygwin_ALF.zip?dl=0 and unzip
+  - Execute "setup-x86_64.exe". If administrator rights are missing, execute it from the command line as "setup-x86.exe --no-admin".
+  - In the setup choose "Install from local directory" instead of "Install from Internet".
+  - Choose root directory, where cygwin will be installed. You should memorize this diretory.
+  - Choose the diretory "cygwin\_ALF" (The one which also contains "setup-x86_64.exe") as local package Directory.
+  - At the "Select Packages" screen, in "Categories" view, at the line marked "All", click on the word "default" so that it changes to "install".
+  - Finish installation
+  - Optional: To add, remove or update installed packages, rerun the installer setup and chose "Install from Internet".
+  - You can now use the installed Cygwin packages by starting the Cygwin terminal. It is a UNIX terminal which, by default, starts in the home diretory "/home/<username>" of the UNIX-system emulated by Cygwin, where "/" is the root directory of Cygwin. For example, if you have installed Cygwin in "C:\cygwin64\", then the home Directory of Cygwin ca be found at "C:\cygwin64\home\<username>", in the Windows system.
+
+
 
 
 ## CONFIGURATION FOR COMPILATION ##
