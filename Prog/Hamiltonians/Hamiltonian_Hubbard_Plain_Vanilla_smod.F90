@@ -139,6 +139,7 @@
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
+        procedure, nopass :: write_parameters_hdf5
       end type ham_Hubbard_Plain_Vanilla
       
       !#PARAMETERS START# VAR_lattice

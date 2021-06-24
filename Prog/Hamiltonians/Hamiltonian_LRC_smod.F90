@@ -142,6 +142,7 @@
         procedure, nopass :: Overide_global_tau_sampling_parameters
         procedure, nopass :: S0
         procedure, nopass :: Ham_Langevin_HMC_S0
+        procedure, nopass :: write_parameters_hdf5
       end type ham_LRC
 
       !#PARAMETERS START# VAR_lattice

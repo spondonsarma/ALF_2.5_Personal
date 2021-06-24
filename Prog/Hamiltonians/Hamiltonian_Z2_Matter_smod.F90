@@ -68,6 +68,7 @@
         procedure, nopass :: Overide_global_tau_sampling_parameters
         procedure, nopass :: Delta_S0_global
         procedure, nopass :: S0
+        procedure, nopass :: write_parameters_hdf5
       end type ham_Z2_Matter
 
       !#PARAMETERS START# VAR_lattice

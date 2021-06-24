@@ -103,6 +103,14 @@ def _convert_par_to_str(parameter):
     raise Exception('Error in "_convert_par_to_str": unrecognized type')
 
 
+
+def create_write_par(filename, parameters, ham_name):
+    f = open(filename, 'wa')
+    TEMPLATE = """!
+          """
+    
+
+
 def create_read_par(filename, parameters, ham_name):
     INDENT = 9     # Number of indentation spaces
     LINE_MAX = 70  # Maximal line length
@@ -166,6 +174,37 @@ def create_read_par(filename, parameters, ham_name):
 #endif
 
       end subroutine read_parameters
+      
+      
+      Subroutine write_parameters_hdf5(filename)
+         Use hdf5
+         use alf_hdf5
+         Implicit none
+         
+         Character (len=64), intent(in) :: filename
+         
+         Logical            :: link_exists
+         INTEGER(HID_T)     :: file_id, group_id, group_id2
+         INTEGER            :: ierr
+         
+         ! Open HDF5 file
+         CALL h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, ierr)
+ 
+         CALL h5lexists_f(file_id, "parameters", link_exists, ierr)
+         if ( .not. link_exists ) then
+           ! Create parameters-group
+           call h5gcreate_f(file_id, "parameters", group_id, ierr)
+         else
+           ! Open parameters-group
+           call h5gopen_f (file_id, "parameters", group_id, ierr)
+         endif
+         
+         ##TEST_ATTRS##
+ 
+         call h5gclose_f(group_id, ierr)
+         call h5fclose_f(file_id, ierr)
+    
+      end Subroutine write_parameters_hdf5
 """
 
     f = open(filename, 'w')
@@ -241,6 +280,19 @@ def create_read_par(filename, parameters, ham_name):
                         par_name.split('(')[0].ljust(names_len),
                         _get_mpi_len(par['value']),
                         _get_mpi_dtype(par['value']),
+                        )
+                    f.write(s)
+        elif '##TEST_ATTRS##' in line:
+            for nlist_name, nlist in parameters.items():
+                s = """CALL h5lexists_f(group_id, "{}", link_exists, ierr)
+                       if ( .not. link_exists ) then
+                         call h5gcreate_f(group_id, "{}", group_id2, ierr)
+                         call h5gclose_f(group_id2, ierr)
+                       endif\n""".format(nlist_name.lower(), nlist_name.lower())
+                f.write(s)
+                for par_name, par in nlist.items():
+                    s = '{}call test_attribute(group_id, "{}", "{}", {}, ierr)\n'.format(
+                        INDENT*' ', nlist_name.lower(), par_name.lower(), par_name
                         )
                     f.write(s)
         else:

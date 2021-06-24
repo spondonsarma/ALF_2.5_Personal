@@ -140,6 +140,7 @@
         procedure, nopass :: ObserT
         procedure, nopass :: S0
         procedure, nopass :: Ham_Langevin_HMC_S0
+        procedure, nopass :: write_parameters_hdf5
       end type ham_Hubbard
 
       !#PARAMETERS START# VAR_lattice
