@@ -43,8 +43,9 @@ set_hdf5_flags()
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
     printf "\nHDF5 is not yet installed for this compiler.\n"
-    if [ "$NO_INTERACTIVE" == "" ]; then
-      read -p "Do you want download and install it now locally in the ALF folder? (Y/n)" yn
+    if [ "$NO_INTERACTIVE" = "" ]; then
+      printf "Do you want download and install it now locally in the ALF folder? (Y/n):"
+      read -r yn
     else
       yn="Y"
     fi
@@ -319,7 +320,7 @@ export ALF_LIB
 export ALF_DIR
 export ALF_FC
 
-if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
+if [ -n "${ALF_FLAGS_EXT+x}" ]; then
   printf "\nAppending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
 fi
 
