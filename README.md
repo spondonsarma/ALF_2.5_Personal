@@ -6,7 +6,7 @@ This is the **development** version of ALF, the latest stable version is [ALF 2.
 
 The **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature  and projective auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model, the SU(N) Kondo lattice model, tV models,  models with long ranged interactions as well as Z2 lattice gauge theories coupled to fermions adn Z2 matter are discussed in the [documentation](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/jobs/artifacts/master/raw/Documentation/doc.pdf?job=create_doc). Slides on the auxiliary field QMC can be found [here.](https://git.physik.uni-wuerzburg.de/ALF/ALF_Tutorial/-/blob/master/Presentations/ALF_2020_Assaad.pdf)
 
-The Hamiltonians we can consider reads:
+The Hamiltonians we can consider read:
 ![The Hamiltonian0](Images/Hamiltonian0.png "The Hamiltonian")
 where
 ![The Hamiltonian1](Images/Hamiltonian1.png "Parts explanation")
@@ -103,7 +103,7 @@ The Documentation of the ALF project by the ALF contributors is licensed under a
 We have detected a bug in both 2017 versions of Intel's MPI implementation (mpi.intel/2017(default) 
 and mpi.intel/2017.2) if used in combination with the parallel (threaded) MKL library. The advise is to 
 use either the 2016 suite (intel/16.0 (compiler), mpi.intel/5.1 and mkl/11.3 ) or the new 2018 suite 
-(intel/18.0 (compiler), mpi.intel/2018 and mkl/2018). We did not detect this issue in both enviroments. 
+(intel/18.0 (compiler), mpi.intel/2018 and mkl/2018). We did not detect this issue in both environments. 
 You should also be aware the by default, dynamic linking is used. Hence if you use the 2016 or 2018 modules 
 at compilations, the bug can reenter if you still load the 2017 versions at runtime. So please adapt your
 configureHPC.sh as well as your Jobfiles for the loadleveler accordingly.
@@ -114,8 +114,8 @@ compile time is sufficient and there is no need to adapt the Jobfiles.
 WARNING: Even if you do not use parallel tempering actively, we still strongly suggest to take care of 
 the above bug as it is extremely hard to estimate hidden influences and correlations of this memory 
 allocation bug in the rest of the program. It is possible the other parts of the algorithm might be 
-effected apart from the tempering exchange step even so we have absolutely no hint of additionally 
-effected sections in ALF.
+affected apart from the tempering exchange step even so we have absolutely no hint of additionally 
+affected sections in ALF.
 
 Intel suite 2017: Apparently, there seems to be a bug in the Intel MPI threaded memory allocator if both Intel MPI 
 implementation and the PARALLEL version of MKL is used. This bug corrupts the data transmission during tempering moves such 
