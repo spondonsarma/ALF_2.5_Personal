@@ -52,7 +52,14 @@
 !--------------------------------------------------------------------
 
      Module Fields_mod
-
+       
+#ifdef MPI
+       Use mpi
+#endif
+#if defined HDF5
+       Use hdf5
+       use h5lt
+#endif
        Use Random_Wrap
        use iso_fortran_env, only: output_unit, error_unit
 
@@ -289,13 +296,6 @@
 !--------------------------------------------------------------------
       Subroutine Fields_in(this,Group_Comm,Initial_field)
 
-#ifdef MPI
-        Use mpi
-#endif
-#if defined HDF5
-         Use hdf5
-#endif
-
         Implicit none
 
         Class (Fields)        , INTENT(INOUT) :: this
@@ -420,9 +420,6 @@
 
        SUBROUTINE Fields_out(this,Group_Comm)
 
-#ifdef MPI
-         Use mpi
-#endif
          IMPLICIT NONE
 
          Class (Fields), INTENT(INOUT) :: this
@@ -543,8 +540,6 @@
 
 #if defined HDF5
         SUBROUTINE Fields_read_conf_h5(this, filename)
-            Use hdf5
-            use h5lt
             IMPLICIT NONE
 
             Class (Fields)    , INTENT(INOUT) :: this
@@ -627,8 +622,6 @@
             CLOSE(10)
             DEALLOCATE(SEED_VEC)
 #else
-            Use hdf5
-            use h5lt
             IMPLICIT NONE
 
             Class (Fields)    , INTENT(INOUT) :: this
