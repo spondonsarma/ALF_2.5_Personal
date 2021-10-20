@@ -52,7 +52,7 @@ stages:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${ALF_FLAGS_PROG}" -DCMAKE_BUILD_TYPE=RELEASE ..
+    - cmake ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
@@ -247,8 +247,7 @@ GQMCT_PGI_tests:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - export PGIDIR="/opt/nvidia/hpc_sdk/Linux_x86_64/21.3/compilers"
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${ALF_FLAGS_PROG} -noswitcherror -L${PGIDIR}/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="${PGIDIR}/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="${PGIDIR}/lib/liblapack.a" -DBLAS_LIBRARIES="${PGIDIR}/lib/libblas.a" ..
+    - cmake ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1

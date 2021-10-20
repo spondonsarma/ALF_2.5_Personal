@@ -68,18 +68,21 @@ target_link_libraries(${iter} ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/QDRP_decomp
 endforeach(iter)
 
 
-string(REPLACE " " ";" FLAG_LIST $ENV{ALF_FLAGS_PROG})
-string(REPLACE " " ";" LIB_LIST $ENV{ALF_LIB})
 foreach(iter ${progtests})
-	foreach(test ${FLAG_LIST})
-		target_compile_options(${iter} PRIVATE ${test})
-	endforeach(test)
-	target_compile_options(${iter} PRIVATE -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/)
-	target_link_libraries(${iter} ${LIB_LIST})
+  foreach(iflag ${FLAG_LIST})
+    target_compile_options(${iter} PRIVATE ${iflag})
+  endforeach(iflag)
+  target_include_directories(${iter} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/)
+  target_include_directories(${iter} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/)
+  target_link_libraries(${iter} ${LIB_LIST})
 endforeach(iter)
 
 
+target_include_directories(26-Test-Polymorphic-Fortran PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/)
 target_link_libraries(26-Test-Polymorphic-Fortran ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/OpTTypes_mod.o ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/DynamicMatrixArray_mod.o ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/ContainerElementBase_mod.o)
+foreach(iflag ${FLAG_LIST})
+  target_compile_options(26-Test-Polymorphic-Fortran PRIVATE ${iflag})
+endforeach(iflag)
 
 enable_testing()
 # add_test(1-copy-sel-rows 1-copy-sel-rows)

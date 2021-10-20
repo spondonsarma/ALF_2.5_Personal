@@ -15,11 +15,12 @@ add_executable(11-UDV-C 11-UDV-C.F90)
 add_executable(12-UDV-R 12-UDV-R.F90)
 set (matmodtests 1-diag-real-matrix 2-inv-r0 3-inv-R-variable 4-inv-R-variable-1 5-inv-R1 6-inv_C 7-inv_C_variable 8-inv-C1 9-inv-C1_test2 10-initd_C 11-UDV-C 12-UDV-R)
 
-set_target_properties(${matmodtests} PROPERTIES COMPILE_FLAGS $ENV{ALF_FLAGS_PROG})
-
-string(REPLACE " " ";" LIB_LIST $ENV{ALF_LIB})
 foreach(iter ${matmodtests})
-target_link_libraries(${iter} ${LIB_LIST})
+  foreach(iflag ${FLAG_LIST})
+    target_compile_options(${iter} PRIVATE ${iflag})
+ endforeach(iflag)
+ target_link_libraries(${iter} ${LIB_LIST})
+ target_include_directories(${iter} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Modules/)
 endforeach(iter)
 
 enable_testing()
