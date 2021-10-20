@@ -74,7 +74,7 @@ foreach(iter ${progtests})
 	foreach(test ${FLAG_LIST})
 		target_compile_options(${iter} PRIVATE ${test})
 	endforeach(test)
-	target_compile_options(${iter} PRIVATE "-I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/")
+	target_compile_options(${iter} PRIVATE -I ${CMAKE_CURRENT_SOURCE_DIR}/../../Prog/)
 	target_link_libraries(${iter} ${LIB_LIST})
 endforeach(iter)
 
