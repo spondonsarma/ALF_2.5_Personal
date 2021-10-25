@@ -1,6 +1,8 @@
-for  filein in confout* 
+#!/bin/bash
+
+for  filein in confout_* 
 do
-	export  fileout=`echo $filein |  sed s/out/in/`
+	fileout=`echo $filein |  sed s/out/in/`
 	echo "mv  $filein to  $fileout"
 	mv $filein  $fileout
 done
