@@ -1,5 +1,44 @@
+!  Copyright (C) 2020-2021 The ALF project
+! 
+!     The ALF project is free software: you can redistribute it and/or modify
+!     it under the terms of the GNU General Public License as published by
+!     the Free Software Foundation, either version 3 of the License, or
+!     (at your option) any later version.
+! 
+!     The ALF project is distributed in the hope that it will be useful,
+!     but WITHOUT ANY WARRANTY; without even the implied warranty of
+!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!     GNU General Public License for more details.
+! 
+!     You should have received a copy of the GNU General Public License
+!     along with Foobar.  If not, see http://www.gnu.org/licenses/.
+!     
+!     Under Section 7 of GPL version 3 we require you to fulfill the following additional terms:
+!     
+!     - It is our hope that this program makes a contribution to the scientific community. Being
+!       part of that community we feel that it is reasonable to require you to give an attribution
+!       back to the original authors if you have benefitted from this program.
+!       Guidelines for a proper citation can be found on the project's homepage
+!       http://alf.physik.uni-wuerzburg.de .
+!       
+!     - We require the preservation of the above copyright notice and this license in all original files.
+!     
+!     - We prohibit the misrepresentation of the origin of the original source files. To obtain 
+!       the original source files please visit the homepage http://alf.physik.uni-wuerzburg.de .
+! 
+!     - If you make substantial changes to the program we require you to either consider contributing
+!       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
 #if defined(HDF5)
      Module alf_hdf5
+!--------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief 
+!> Helper subroutines for using ALF with HDF5.
+!
+!--------------------------------------------------------------------
        use iso_fortran_env, only: output_unit, error_unit
        USE ISO_C_BINDING
 
@@ -34,10 +73,26 @@
 !> This subroutine creates a new dataset in an opened HDF5 file for the
 !> purpsose of filling it with Monte-Carlo bins.
 !
-!> @param [in] file_id  Idendifier of the opened HDF5 file
-!> @param [in] dsetname Name of the new dataset
-!> @param [in] dims     Shape of one bin. Whith size(dims) = size(bin)+1
-!>                      and dims(size(dims)) = 0
+!> @param [IN] file_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of the opened HDF5 file
+!> \endverbatim
+!> @param [IN] dsetname Character(len=64)
+!> \verbatim
+!>  Name of the new dataset
+!> \endverbatim
+!> @param [IN] dims(:) INTEGER(HSIZE_T)
+!> \verbatim
+!>  Shape of one bin. Whith size(dims) = size(bin)+1 and dims(size(dims)) = 0
+!> \endverbatim
+!> @param [IN] is_complex logical
+!> \verbatim
+!>  True if values to be stored can be complex.
+!> \endverbatim
+!> @param [IN] chunklen INTEGER(HSIZE_T), optional
+!> \verbatim
+!>  Size of data chunks in number of bins, default = 1
+!> \endverbatim
 !-------------------------------------------------------------------
            Implicit none
            
@@ -103,11 +158,24 @@
 !> @brief
 !> This subroutine appends one bin to an existing dataset of an opened HDF5 file.
 !
-!> @param [in] file_id  Idendifier of the opened HDF5 file
-!> @param [in] dsetname Name of the dataset
-!> @param [in] data_ptr C-pointer to the first element of the data to write.
-!>                      The data should be all double precision.
-!>                      The length of the data is assumed from the existing dataset.
+!> @param [IN] file_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of the opened HDF5 file
+!> \endverbatim
+!> @param [IN] dsetname Character(len=64)
+!> \verbatim
+!>  Name of the dataset
+!> \endverbatim
+!> @param [IN] data_ptr TYPE(C_PTR)
+!> \verbatim
+!>  C-pointer to the first element of the data to write.
+!>  data should be all double precision.
+!>  The length of the data is assumed from the existing dataset.
+!> \endverbatim
+!> @param [IN] Nbins_in Integer, optional
+!> \verbatim
+!>  Number of bins to be written, default = 1
+!> \endverbatim
 !-------------------------------------------------------------------
            Implicit none
            
@@ -182,8 +250,18 @@
 !> @brief
 !> This subroutine writes the lattice in an opened HDF5 object.
 !
-!> @param [in] obj_id  Idendifier of the opened HDF5 object
-!> @param [in] Latt    The lattice
+!> @param [IN] obj_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of the opened HDF5 object
+!> \endverbatim
+!> @param [IN] Latt Type(Lattice)
+!> \verbatim
+!>  The Bravais lattice
+!> \endverbatim
+!> @param [IN] Latt_unit Type(Unit_cell)
+!> \verbatim
+!>  The unit cell
+!> \endverbatim
 !-------------------------------------------------------------------
             Implicit none
             INTEGER(HID_T),   intent(in) :: obj_id
@@ -236,6 +314,34 @@
 !--------------------------------------------------------------------
 
          Subroutine write_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Write a double as attribute to an HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be written to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value double
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -257,6 +363,34 @@
 !--------------------------------------------------------------------
 
          Subroutine write_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Write an integer as attribute to an HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be written to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value integer
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -278,6 +412,34 @@
 !--------------------------------------------------------------------
 
          Subroutine write_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Write a string as attribute to an HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be written to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value CHARACTER(LEN=*)
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -292,6 +454,34 @@
 !--------------------------------------------------------------------
 
          Subroutine write_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Write a boolean as attribute to an HDF5 object (stored as integer).
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be written to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value logical
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -317,6 +507,34 @@
 !--------------------------------------------------------------------
 
          Subroutine read_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Read a double from attribute of HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be read from in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [OUT] attr_value double
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),        INTENT(IN)  :: loc_id
            CHARACTER(LEN=*),      INTENT(IN)  :: obj_name
@@ -335,6 +553,34 @@
 !--------------------------------------------------------------------
 
          Subroutine read_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Read an integer from attribute of HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be read from in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [OUT] attr_value integer
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN)  :: loc_id
            CHARACTER(LEN=*), INTENT(IN)  :: obj_name
@@ -353,6 +599,34 @@
 !--------------------------------------------------------------------
 
          Subroutine read_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Read a string from attribute of HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be read from in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [OUT] attr_value CHARACTER(LEN=*)
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN)  :: loc_id
            CHARACTER(LEN=*), INTENT(IN)  :: obj_name
@@ -367,6 +641,34 @@
 !--------------------------------------------------------------------
 
          Subroutine read_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Read a boolean from attribute of HDF5 object (stored as integer).
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be read from in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [OUT] attr_value logical
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN)  :: loc_id
            CHARACTER(LEN=*), INTENT(IN)  :: obj_name
@@ -395,6 +697,35 @@
 !--------------------------------------------------------------------
 
          Subroutine test_attribute_double(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Test whether supplied double is identical to attribute stored in HDF5 file.
+!> If not, triggers error stop.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object attribute is attached to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value double
+!> \verbatim
+!>  Value of supplied attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -423,6 +754,35 @@
 !--------------------------------------------------------------------
 
          Subroutine test_attribute_int(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Test whether supplied integer is identical to attribute stored in HDF5 file.
+!> If not, triggers error stop.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object attribute is attached to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value integer
+!> \verbatim
+!>  Value of supplied attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -449,6 +809,35 @@
 !--------------------------------------------------------------------
 
          Subroutine test_attribute_string(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Test whether supplied string is identical to attribute stored in HDF5 file.
+!> If not, triggers error stop.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object attribute is attached to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value CHARACTER(LEN=*)
+!> \verbatim
+!>  Value of supplied attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -475,6 +864,35 @@
 !--------------------------------------------------------------------
 
          Subroutine test_attribute_logical(loc_id, obj_name, attr_name, attr_value, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Test whether supplied boolean is identical to attribute stored in HDF5 file.
+!> If not, triggers error stop.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object attribute is attached to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] attr_value logical
+!> \verbatim
+!>  Value of supplied attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            Implicit none
            INTEGER(HID_T),   INTENT(IN) :: loc_id
            CHARACTER(LEN=*), INTENT(IN) :: obj_name
@@ -501,6 +919,35 @@
 
 
          Subroutine write_comment(loc_id, obj_name, attr_name, comment, ierr)
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Write a comment (array of strings, each 64 characters in length) 
+!> as attribute to an HDF5 object.
+!
+!> @param [IN] loc_id INTEGER(HID_T)
+!> \verbatim
+!>  Idendifier of opened HDF5 object
+!> \endverbatim
+!> @param [IN] obj_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of object to be written to in relation to loc_id
+!> \endverbatim
+!> @param [IN] attr_name CHARACTER(LEN=*)
+!> \verbatim
+!>  Name of attribute
+!> \endverbatim
+!> @param [IN] comment(:) CHARACTER(LEN=64)
+!> \verbatim
+!>  Value of attribute
+!> \endverbatim
+!> @param [OUT] ierr integer
+!> \verbatim
+!>  Error code
+!> \endverbatim
+!-------------------------------------------------------------------
            
            IMPLICIT NONE
            INTEGER(HID_T),    INTENT(IN) :: loc_id
