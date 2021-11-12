@@ -208,6 +208,22 @@ The output of the measured data is organized in bins. One bin corresponds to the
 \end{center}
 \end{table}
 
+\begin{figure}
+\dirtree{%
+.1 data.h5.
+.2 lattice\DTcomment{Attached attributes describe Bravais lattice and unit cell}.
+.2 X\_scal\DTcomment{Attached attribute: analysis\_mode}.
+.3 obser\DTcomment{Dataset of shape (NBins, Nobs, 2)}.
+.3 sign\DTcomment{Dataset of shape (NBins)}.
+.2 Y\_eq Y\_tau\DTcomment{Attached attributes: Channel, dtau}.
+.3 lattice\DTcomment{Attached attributes describe Bravais lattice and unit cell}.
+.3 obser\DTcomment{Dataset of shape (NBins, Norbs, Norbs, Ntau, Nlatt, 2)}.
+.3 back\DTcomment{Dataset of shape (NBins, Norbs, 2)}.
+.3 sign\DTcomment{Dataset of shape (NBins)}.
+}
+\caption{Structure of HDF5 file \texttt{data.h5}.}
+\end{figure}
+
 The formatting of a single bin's output depends on the observable type, \path{Obs_vec} or \path{Obs_Latt}:
 \begin{itemize}
 \item Observables of type \path{Obs_vec}:
