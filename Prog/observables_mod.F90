@@ -92,52 +92,7 @@
           procedure :: print_bin   => print_bin_latt
        end type Obser_Latt
 
-
-
        Contains
-
-         ! Subroutine Obser_Latt_make_eq(Obs, Filename, Latt, Latt_unit)
-         !   Implicit none
-         !   class(Obser_Latt), Intent(INOUT)      :: Obs
-         !   Character(len=64), Intent(IN)         :: Filename
-         !   Type(Lattice),     Intent(IN), target :: Latt
-         !   Type(Unit_cell),   Intent(IN), target :: Latt_unit
-         ! 
-         !   Integer               :: Nt
-         !   Character(len=2)      :: Channel
-         !   Real(Kind=Kind(0.d0)) :: dtau
-         ! 
-         !   Nt = 1
-         !   Channel = '--'
-         !   dtau = -1.d0
-         ! 
-         !   call Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
-         ! 
-         ! end subroutine Obser_Latt_make_eq
-
-         ! Subroutine Obser_Latt_make_norb(Obs, Nt, Norb, Filename, Latt, Channel, dtau)
-         !    Implicit none
-         !    class(Obser_Latt), Intent(INOUT)      :: Obs
-         !    Integer,           Intent(IN)         :: Nt
-         !    Integer,           Intent(IN)         :: Norb
-         !    Character(len=64), Intent(IN)         :: Filename
-         !    Type(Lattice),     Intent(IN), target :: Latt
-         !    Character(len=2),  Intent(IN)         :: Channel
-         !    Real(Kind=Kind(0.d0)),  Intent(IN)    :: dtau
-         ! 
-         !    allocate(Obs%Latt_unit)
-         !    Obs%Latt_unit%N_coord = 0
-         !    Obs%Latt_unit%Norb = Norb
-         !    allocate(Obs%Latt_unit%Orb_pos_p(Norb, 2))
-         !    Obs%Latt_unit%Orb_pos_p = 0.d0
-         ! 
-         !    Allocate (Obs%Obs_Latt(Latt%N, Nt, Obs%Latt_unit%Norb, Obs%Latt_unit%Norb))
-         !    Allocate (Obs%Obs_Latt0(Obs%Latt_unit%Norb))
-         !    Obs%File_Latt = Filename
-         !    Obs%Latt => Latt
-         !    Obs%Channel = Channel
-         !    Obs%dtau = dtau
-         ! end subroutine Obser_Latt_make_norb
 
          Subroutine Obser_Latt_make(Obs, Nt, Filename, Latt, Latt_unit, Channel, dtau)
 !--------------------------------------------------------------------
