@@ -74,7 +74,7 @@
          Integer                  , pointer :: L_Fam(:),  List_Fam(:,:,:)
          Real    (Kind=Kind(0.d0)), pointer :: Prop_Fam(:)
 
-         Integer, private         , pointer :: Multiplicity(:)
+         Integer, private         , pointer :: Multiplicity(:) !> Numer of times a given orbital occurs in the list of bonds, automatically computed
       End type Hopping_Matrix_Type
 
 
