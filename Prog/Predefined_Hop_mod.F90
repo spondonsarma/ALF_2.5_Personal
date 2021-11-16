@@ -145,6 +145,97 @@
         endif
 
       end function inquire_hop
+
+!--------------------------------------------------------------------
+!> @author
+!> Francesco Parisen Toldin
+!>
+!> @brief
+!> Check the consistency of the checkerboard decomposition.
+!> Following tests are done:
+!>   -it checks that the allocated size of second index of List_Fam is
+!>    at least maximum size of families. If the allocated size exceeds
+!>    the required size, it issues a warning.
+!>   -it checks that all bonds enter once and only once in the decomposition
+!>   -it checks that every pair of bonds in each family commute
+!
+!--------------------------------------------------------------------
+      Logical Function test_checkerboard_decomposition(this, Latt, inv_list)
+        Implicit none
+
+        Type(Hopping_Matrix_type), intent(IN) :: this
+        Type(Lattice), intent(IN)             :: Latt
+        Integer, intent(IN)                   :: inv_list(:, :)
+
+        ! Local variables
+        Logical, allocatable :: all_bonds(:, :)
+        Integer              :: maxl, i, j, n1, n2, unit1, bond1, site1a, site1b, unit2, bond2, site2a, site2b
+
+        test_checkerboard_decomposition = .true.
+        allocate(all_bonds(Latt%N, this%N_bonds))
+        all_bonds = .false.
+
+        ! Check size of families
+        maxl = this%L_Fam(1)
+        do i = 2, this%N_Fam
+           if (maxl < this%L_Fam(i)) maxl = this%L_Fam(i)
+        end do
+        if (maxl > size(this%List_Fam, 2)) then
+           write(error_unit, *) 'Error in the length of families. Maximum length found is ', maxl, ' allocated size is ', size(this%List_Fam, 2)
+           test_checkerboard_decomposition = .false.
+        else if (maxl < size(this%List_Fam, 2)) then
+           write(error_unit, *) 'Warning: the maximum family length is ', maxl, ' allocated size is ', size(this%List_Fam, 2)
+        end if
+        
+        ! Check duplicates
+        do i = 1, this%N_Fam
+           do j = 1, this%L_Fam(i)
+              if (all_bonds(this%List_Fam(i, j, 1), this%List_Fam(i, j, 2))) then
+                 write(error_unit, *) 'Error in decomposition: bond at List_Fam(', i, ' ', j, ') is present twice'
+                 test_checkerboard_decomposition = .false.
+              else
+                 all_bonds(this%List_Fam(i, j, 1), this%List_Fam(i, j, 2)) = .true.
+              end if
+           end do
+        end do
+
+        ! Check that all bonds are present in the decomposition
+        do i = 1, Latt%N
+           do j = 1, this%N_bonds
+              if (.not.(all_bonds(i, j))) then
+                 write(error_unit, *) 'Error: bonds at Nunit_cell = ', i, ' bond no. ', j, ' is missing'
+                 test_checkerboard_decomposition = .false.
+              end if
+           end do
+        end do
+
+        ! Check commutativity
+        do i = 1, this%N_Fam
+           do n1 = 1, this%L_Fam(i) - 1
+              ! Sites of the first bond
+              unit1 = this%List_Fam(i, n1, 1)
+              bond1 = this%List_Fam(i, n1, 2)
+              site1a = inv_list(unit1, this%List(bond1, 1))
+              site1b = inv_list(Latt%nnlist(unit1, this%List(bond1, 3), this%List(bond1, 4)), this%List(bond1, 2))
+              do n2 = n1 + 1, this%L_Fam(i)
+                 unit2 = this%List_Fam(i, n2, 1)
+                 bond2 = this%List_Fam(i, n2, 2)
+                 site2a = inv_list(unit2, this%List(bond2, 1))
+                 site2b = inv_list(Latt%nnlist(unit2, this%List(bond2, 3), this%List(bond2, 4)), this%List(bond2, 2))
+
+                 if ((site1a == site2a) .or. (site1a == site2b) .or. (site1b == site2a) .or. (site1b == site2b)) then
+                    write(error_unit, *) 'Error: non-communting hoppings at family ', i, ' n1 = ', n1, ' List_Fam(i, n1) = ', &
+                         & this%List_Fam(i, n1, 1), ' ', this%List_Fam(i, n1, 2), ' site1a = ', site1a, ' site1b = ', site1b, &
+                         & ' n2 = ', n2, ' List_Fam(i, n2) = ', &
+                         & this%List_Fam(i, n2, 1), ' ', this%List_Fam(i, n2, 2), ' site2a = ', site2a, ' site2b = ', site2b
+                    test_checkerboard_decomposition = .false.
+                 end if
+              end do
+           end do
+        end do
+        
+        deallocate(all_bonds)
+      end Function test_checkerboard_decomposition
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -1070,6 +1161,10 @@
         !Write(6,*)  'N_FL ', N_FL
         Ndim =  Latt%N * Latt_Unit%Norb
 
+        ! Test of correctness of checkerboard decomposition
+        If (checkerboard) then
+           if (.not.(test_checkerboard_decomposition(this(1), Latt, invlist))) error stop 1
+        end If
 
         select case (inquire_hop(this))
         case(0)  !  Zero
