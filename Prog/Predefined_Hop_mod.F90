@@ -71,9 +71,10 @@
 
          ! For Checkerboard decomposition
          Integer                            :: N_Fam
-         Integer                  , pointer :: L_Fam(:),  List_Fam(:,:,:), Multiplicity(:)
+         Integer                  , pointer :: L_Fam(:),  List_Fam(:,:,:)
          Real    (Kind=Kind(0.d0)), pointer :: Prop_Fam(:)
 
+         Integer, private         , pointer :: Multiplicity(:) !> Numer of times a given orbital occurs in the list of bonds, automatically computed
       End type Hopping_Matrix_Type
 
 
@@ -224,11 +225,10 @@
            !Set Checkerboard
            if ( Ham_T_max   > Zero ) then
               this(1)%N_FAM  = 4
-              Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
+              Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM))
               this(1)%L_FAM  = Latt%N/2
               this(1)%Prop_Fam= 1.d0
               Allocate (this(1)%List_Fam(this(1)%N_FAM,this(1)%L_Fam(1),2))
-              this(1)%Multiplicity = 4
               this(1)%L_FAM  = 0
               do I = 1,Latt%N
                  if ( mod(Latt%List(I,1) + Latt%List(I,2),2) == 0 ) then
@@ -316,14 +316,9 @@
            enddo
            
            ! Set Checkerboard
-           Allocate ( this(1)%Multiplicity(Latt_unit%Norb) )
            If  ( Latt_Unit%Norb  <=  2 ) then
-              this(1)%Multiplicity = 1
               this(1)%N_FAM        = 1
            else
-              this(1)%Multiplicity                 = 2
-              this(1)%Multiplicity(1)              = 1
-              this(1)%Multiplicity(Latt_unit%Norb) = 1
               this(1)%N_FAM        = 2
            endif
            Allocate ( this(1)%L_Fam( this(1)%N_FAM ),  this(1)%Prop_Fam( this(1)%N_FAM ) )
@@ -392,17 +387,11 @@
            
            ! Write(6,*) Latt_unit%Norb
            ! Set Checkerboard
-           Allocate ( this(1)%Multiplicity(Latt_unit%Norb) )
            If     ( Latt_Unit%Norb  == 1 ) then
-              this(1)%Multiplicity = 2
               this(1)%N_FAM        = 2
            elseif ( Latt_Unit%Norb  == 2 ) then
-              this(1)%Multiplicity = 3
               this(1)%N_FAM        = 3
            else
-              this(1)%Multiplicity                 = 4
-              this(1)%Multiplicity(1)              = 3
-              this(1)%Multiplicity(Latt_unit%Norb) = 3
               this(1)%N_FAM        = 4
            endif
            Allocate ( this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM) )
@@ -529,11 +518,10 @@
 
         ! Set Checkerboard
         this(1)%N_FAM  = 3
-        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
+        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM))
         this(1)%L_FAM  = Latt%N
         this(1)%Prop_Fam= 1.d0
         Allocate (this(1)%List_Fam(this(1)%N_FAM,this(1)%L_Fam(1),2))
-        this(1)%Multiplicity = 3
         do I = 1,Latt%N
            Do  nf = 1,this(1)%N_FAM
               this(1)%List_Fam(nf,I,1) = I  ! Unit cell
@@ -656,7 +644,7 @@
         this(1)%N_FAM  = 4
         if (abs(Ham_Tperp_max) > Zero )  this(1)%N_FAM=5
 
-        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
+        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM))
         this(1)%Prop_Fam= 1.d0
 
         No_Shift = 0
@@ -665,21 +653,16 @@
         If     ( abs(Ham_T2_max)   <  Zero  .and. abs(Ham_Tperp_max) < Zero)    then
            this(1)%L_FAM  = Latt%N/2
            Allocate (this(1)%List_Fam(this(1)%N_FAM,Latt%N/2,2))
-           this(1)%Multiplicity = 4
         elseif ( abs(Ham_T2_max)   <  Zero  .and. abs(Ham_Tperp_max) > Zero)    then
            this(1)%L_FAM    = Latt%N/2
            this(1)%L_Fam(5) = Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,Latt%N,2))
-           this(1)%Multiplicity(1) = 5
-           this(1)%Multiplicity(2) = 1
         elseif ( abs(Ham_T2_max)   >  Zero  .and. abs(Ham_Tperp_max) < Zero)    then
            this(1)%L_FAM    = Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,Latt%N,2))
-           this(1)%Multiplicity = 4
         elseif ( abs(Ham_T2_max)   >  Zero  .and. abs(Ham_Tperp_max) > Zero)    then
            this(1)%L_FAM    = Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,Latt%N,2))
-           this(1)%Multiplicity = 5
            No_Shift     = 1
         endif
         this(1)%L_FAM  = 0
@@ -882,7 +865,7 @@
         ! Set Checkerboard
         this(1)%N_FAM  = 3
         If ( abs(Ham_Tperp_Max) > Zero ) this(1)%N_FAM = 4
-        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM), this(1)%Multiplicity(Latt_unit%Norb) )
+        Allocate (this(1)%L_Fam(this(1)%N_FAM),  this(1)%Prop_Fam(this(1)%N_FAM))
         this(1)%Prop_Fam= 1.d0
 
         No_Shift = 0
@@ -891,23 +874,16 @@
         If     ( abs(Ham_T2_Max)   <  Zero  .and. abs(Ham_Tperp_Max) < Zero)    then
            this(1)%L_FAM  = Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,Latt%N,2))
-           this(1)%Multiplicity = 3
         elseif ( abs(Ham_T2_Max)   <  Zero  .and. abs(Ham_Tperp_Max) > Zero)    then
            this(1)%L_FAM    =   Latt%N
            this(1)%L_Fam(4) = 2*Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,2*Latt%N,2))
-           this(1)%Multiplicity(1) = 4
-           this(1)%Multiplicity(2) = 4
-           this(1)%Multiplicity(3) = 1
-           this(1)%Multiplicity(4) = 1
         elseif ( abs(Ham_T2_Max)   >  Zero  .and. abs(Ham_Tperp_Max) < Zero)    then
            this(1)%L_FAM    = 2*Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,2*Latt%N,2))
-           this(1)%Multiplicity = 3
         elseif ( abs(Ham_T2_Max)   >  Zero  .and. abs(Ham_Tperp_Max) > Zero)    then
            this(1)%L_FAM    = 2*Latt%N
            Allocate (this(1)%List_Fam(this(1)%N_FAM,2*Latt%N,2))
-           this(1)%Multiplicity = 4
            No_Shift     = 2
         endif
 
@@ -1061,7 +1037,7 @@
 
         ! Local
         Integer                           :: Ndim, N_FL, N_Phi, I, J, I1, J1, no_I, no_J, nf
-        Integer                           :: n_1, n_2, Nb, n_f,l_f, n_l, N, nc
+        Integer                           :: n_1, n_2, Nb, n_f,l_f, n_l, N, nc, orb
         Real   (Kind=Kind(0.d0))          :: Ham_T, Ham_Chem,  Phi_X, Phi_Y
         Logical                           :: Bulk
         Complex(Kind=Kind(0.d0))          :: Z
@@ -1148,6 +1124,16 @@
               enddo
               allocate(Op_T(N,N_FL))
               do nf = 1,N_FL
+                 ! Compute Multiplicity
+                 allocate(this(nf)%Multiplicity(Latt_Unit%Norb))
+                 this(nf)%Multiplicity = 0
+                 do i = 1, size(this(nf)%List, 1)
+                    orb = this(nf)%List(i, 1)
+                    this(nf)%Multiplicity(orb) = this(nf)%Multiplicity(orb) + 1
+                    orb = this(nf)%List(i, 2)
+                    this(nf)%Multiplicity(orb) = this(nf)%Multiplicity(orb) + 1
+                 end do
+
                  N_Phi     = this(nf)%N_Phi
                  Phi_X     = this(nf)%Phi_X
                  Phi_Y     = this(nf)%Phi_Y
