@@ -4,12 +4,11 @@
 USAGE="usage 'source configureHPC.sh MACHINE MODE STAB' \n\
     \n\
 Please choose one of the following MACHINEs:\n\
- * SuperMUC\n\
+ * GNU\n\
+ * Intel\n\
+ * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
- * Intel\n\
- * GNU\n\
- * FakhersMAC\n\
 Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
