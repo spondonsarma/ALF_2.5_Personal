@@ -20,6 +20,12 @@ Merge request !116
 1) Hopping_Matrix_Type%Multiplicity is now a private member, automatically initialized
 
 
+## 2021-11-21  Test the checkerboard decomposition
+
+Author : F. Parisen Toldin <br>
+Merge request !124
+
+
 ## 2021-03-22  Implementing Submodule Hamiltonians / All hamiltonians in one binary
 
 Author : J. Schwab <br>
