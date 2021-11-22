@@ -38,7 +38,7 @@
 !> @brief
 !> Program for postprocessing Monte Carlo bins saved in HDF5 file "data.h5".
 !> Analyzes all observables in "data.h5" if no command line arguments are supplied,
-!> otherwise the observables named as command line arguments.
+!> otherwise analyzes the observables given as command line arguments.
 !
 !--------------------------------------------------------------------
       use hdf5
