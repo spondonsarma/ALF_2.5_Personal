@@ -1,5 +1,13 @@
 # Log of backward compatibility changes and critical bugs
 
+## 2021-11-21  Automatic computation of Hopping_Matrix_Type%Multiplicity
+
+Author : F. Parisen Toldin <br>
+Merge request !116
+
+### Breaking changes
+1) Hopping_Matrix_Type%Multiplicity is now a private member, automatically initialized
+
 
 ## 2021-03-22  Implementing Submodule Hamiltonians / All hamiltonians in one binary
 
