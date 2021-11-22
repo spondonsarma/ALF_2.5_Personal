@@ -1,6 +1,12 @@
 # Log of backward compatibility changes and critical bugs
 
 
+## 2021-11-21  Test the checkerboard decomposition
+
+Author : F. Parisen Toldin <br>
+Merge request !124
+
+
 ## 2021-03-22  Implementing Submodule Hamiltonians / All hamiltonians in one binary
 
 Author : J. Schwab <br>
