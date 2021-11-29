@@ -53,10 +53,6 @@ stages:
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-# GQMCT_Jessie:
-#   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-#   <<: *build_definition
-
 GQMCT_Stretch:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *build_definition
@@ -70,37 +66,13 @@ GQMCT_Bullseye:
   <<: *build_definition
 
 
-#GQMCT_Jessie_OpenBlas:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
-  #<<: *build_definition
-
 GQMCT_Bullseye_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
   <<: *build_definition
 
-#GQMCT_CentOS:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *build_definition
-
-#GQMCT_OpenSuse-13.2:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *build_definition
-
-#GQMCT_OpenSuse-42.1:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *build_definition
-
 GQMCT_PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   <<: *build_definition_pgi
-
-#GQMCT_Ubuntu_Trusty:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  #<<: *build_definition
-
-#GQMCT_Ubuntu_Xenial:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
-  #<<: *build_definition
 
 GQMCT_Ubuntu_Bionic:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
@@ -139,10 +111,6 @@ GQMCT_Intel-21:
     - . configure.sh INTEL serial $CONFIG_ARGS
     - make all
 
-#GQMCT_Jessie_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
 GQMCT_Stretch_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *warnconv_definition
@@ -159,18 +127,6 @@ GQMCT_Bullseye_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
   <<: *warnconv_definition
 
-#GQMCT_CentOS_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
-#GQMCT_OpenSuse-13.2_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
-#GQMCT_OpenSuse-42.1_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
 GQMCT_PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: warnconv
@@ -180,10 +136,6 @@ GQMCT_PGI_conv:
     - pgfortran --version
     - . configure.sh PGI devel serial $CONFIG_ARGS
     - make all
-
-#GQMCT_Jessie_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-  #<<: *test_definition
 
 GQMCT_Stretch_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
@@ -200,22 +152,6 @@ GQMCT_Bullseye_tests:
 GQMCT_Stretch_OpenBlas_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *test_definition
-
-#GQMCT_CentOS_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_OpenSuse-13.2_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_OpenSuse-42.1_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_Ubuntu-trusty_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  #<<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
