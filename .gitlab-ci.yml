@@ -1,3 +1,6 @@
+variables:
+  CONFIG_ARGS: ""  # Variable for additional arguments for configure.sh
+
 stages:
   - build
   - warnconv
@@ -16,8 +19,8 @@ stages:
   stage: build
   <<: *exemptfiles_definition
   script:
-    - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
-    - . configure.sh GNU serial HDF5
+    - apt-get update && apt install -y python curl libghc-zlib-dev g++
+    - . configure.sh GNU serial $CONFIG_ARGS
     - gfortran -v
     - make all
 
@@ -27,7 +30,7 @@ stages:
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev
     - pgfortran --version
-    - . configure.sh PGI serial HDF5
+    - . configure.sh PGI serial $CONFIG_ARGS
     - make all
 
 .warnconv_template: &warnconv_definition
@@ -35,7 +38,7 @@ stages:
   <<: *exemptfiles_definition
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
-    - . configure.sh Devel serial HDF5
+    - . configure.sh GNU Devel serial $CONFIG_ARGS
     - gfortran -v
     - make all
 
@@ -44,7 +47,7 @@ stages:
   <<: *exemptfiles_definition
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
-    - . configure.sh Devel serial HDF5
+    - . configure.sh GNU Devel serial $CONFIG_ARGS
     - gfortran -v
     - make lib
     - make ana
@@ -52,7 +55,7 @@ stages:
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE=${ALF_FLAGS_PROG} -DCMAKE_BUILD_TYPE=RELEASE ..
+    - cmake ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
@@ -122,7 +125,7 @@ GQMCT_Stretch_MPI:
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
     - gfortran -v
-    - . configure.sh Devel Tempering HDF5
+    - . configure.sh GNU Devel Tempering $CONFIG_ARGS
     - export ALF_FC="mpif90"
     - make all
 
@@ -138,7 +141,7 @@ GQMCT_Intel-21:
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev
     - . /opt/intel/oneapi/setvars.sh
-    - . configure.sh INTEL serial HDF5
+    - . configure.sh INTEL serial $CONFIG_ARGS
     - make all
 
 #GQMCT_Jessie_conv:
@@ -185,7 +188,7 @@ GQMCT_PGI_conv:
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev
     - pgfortran --version
-    - . configure.sh PGI serial HDF5
+    - . configure.sh PGI serial $CONFIG_ARGS
     - make all
 
 #GQMCT_Jessie_tests:
@@ -240,15 +243,14 @@ GQMCT_PGI_tests:
   script:
     - apt-get update && apt install -y python3 curl libghc-zlib-dev
     - pgfortran --version
-    - . configure.sh PGI serial HDF5
+    - . configure.sh PGI serial $CONFIG_ARGS
     - make lib
     - make ana
     - make program
     - cd testsuite
     - cmake -E make_directory tests
     - cd tests
-    - export PGIDIR="/opt/nvidia/hpc_sdk/Linux_x86_64/21.3/compilers"
-    - cmake -G "Unix Makefiles" -DCMAKE_Fortran_FLAGS_RELEASE="${ALF_FLAGS_PROG} -noswitcherror -L${PGIDIR}/lib/ -llapack -lblas" -DCMAKE_Fortran_COMPILER="${PGIDIR}/bin/pgfortran" -DCMAKE_BUILD_TYPE=RELEASE -DLAPACK_LIBRARIES="${PGIDIR}/lib/liblapack.a" -DBLAS_LIBRARIES="${PGIDIR}/lib/libblas.a" ..
+    - cmake ..
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
@@ -263,7 +265,7 @@ GQMCT_Stretch_valgrind:
   script:
       - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
       - export ALF_FLAGS_EXT="-g"
-      - . configure.sh GNU serial HDF5
+      - . configure.sh GNU serial $CONFIG_ARGS
       - gfortran -v
       - make lib
       - make program

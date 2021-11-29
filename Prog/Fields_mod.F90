@@ -52,7 +52,14 @@
 !--------------------------------------------------------------------
 
      Module Fields_mod
-
+       
+#ifdef MPI
+       Use mpi
+#endif
+#if defined HDF5
+       Use hdf5
+       use h5lt
+#endif
        Use Random_Wrap
        use iso_fortran_env, only: output_unit, error_unit
 
@@ -289,13 +296,6 @@
 !--------------------------------------------------------------------
       Subroutine Fields_in(this,Group_Comm,Initial_field)
 
-#ifdef MPI
-        Use mpi
-#endif
-#if defined HDF5
-         Use hdf5
-#endif
-
         Implicit none
 
         Class (Fields)        , INTENT(INOUT) :: this
@@ -335,21 +335,27 @@
             FILE_info="info"
 #endif
             FILE_seeds="seeds"
-#if defined HDF5
             write(FILE1_H5,  '(A,A)') trim(FILE1)  , ".h5"
             write(FILE_TG_H5,'(A,A)') trim(FILE_TG), ".h5"
-            CALL h5open_f(ierr)
-#endif
 
             INQUIRE (FILE=File1, EXIST=LCONF)
-#if defined HDF5
             INQUIRE (FILE=File1_h5, EXIST=LCONF_H5)
+#if defined HDF5
+            CALL h5open_f(ierr)
+            IF (LCONF) THEN
+               write(error_unit,*) "ERROR: Plain text configuration file confin_0 exists, even though program is compiled"
+               write(error_unit,*) "   with HDF5! You cannot mix up HDF5 runs with non-HDF5 runs, program aborted!"
+               error stop 1
+            ENDIF
             IF (LCONF_H5) THEN
                CALL this%read_conf_h5(FILE_TG_H5)
-            ELSEIF (LCONF) THEN
-               CALL this%read_conf(FILE_TG)
             ELSE
 #else
+            IF (LCONF_H5) THEN
+               write(error_unit,*) "ERROR: HDF5 configuration file confin_0.h5 exists, even though program is compiled"
+               write(error_unit,*) "   without HDF5! You cannot mix up HDF5 runs with non-HDF5 runs, program aborted!"
+               error stop 1
+            ENDIF
             IF (LCONF) THEN
                CALL this%read_conf(FILE_TG)
             ELSE
@@ -420,9 +426,6 @@
 
        SUBROUTINE Fields_out(this,Group_Comm)
 
-#ifdef MPI
-         Use mpi
-#endif
          IMPLICIT NONE
 
          Class (Fields), INTENT(INOUT) :: this
@@ -543,8 +546,6 @@
 
 #if defined HDF5
         SUBROUTINE Fields_read_conf_h5(this, filename)
-            Use hdf5
-            use h5lt
             IMPLICIT NONE
 
             Class (Fields)    , INTENT(INOUT) :: this
@@ -627,8 +628,6 @@
             CLOSE(10)
             DEALLOCATE(SEED_VEC)
 #else
-            Use hdf5
-            use h5lt
             IMPLICIT NONE
 
             Class (Fields)    , INTENT(INOUT) :: this

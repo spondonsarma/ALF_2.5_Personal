@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 The ALF project
+!  Copyright (C) 2020-2021 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -31,6 +31,16 @@
 
 
    Program ana_hdf5
+!--------------------------------------------------------------------
+!> @author
+!> ALF-project
+!
+!> @brief
+!> Program for postprocessing Monte Carlo bins saved in HDF5 file "data.h5".
+!> Analyzes all observables in "data.h5" if no command line arguments are supplied,
+!> otherwise analyzes the observables given as command line arguments.
+!
+!--------------------------------------------------------------------
       use hdf5
       use ana_mod
       implicit none

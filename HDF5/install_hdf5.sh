@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Script for automatically downloading and installin HDF5 in current directory
-# Needs the follwing environment variables:
+# Script for automatically downloading and installing HDF5 in current directory
+# Needs the following environment variables:
 #   CC: C compiler
 #   FC: Fortran compiler
 #   CXX: C++ compiler

@@ -4,12 +4,11 @@
 USAGE="usage 'source configureHPC.sh MACHINE MODE STAB' \n\
     \n\
 Please choose one of the following MACHINEs:\n\
- * SuperMUC\n\
+ * GNU\n\
+ * Intel\n\
+ * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
- * Intel\n\
- * GNU\n\
- * FakhersMAC\n\
 Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
@@ -43,8 +42,9 @@ set_hdf5_flags()
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
     printf "\nHDF5 is not yet installed for this compiler.\n"
-    if [ "$NO_INTERACTIVE" == "" ]; then
-      read -p "Do you want download and install it now locally in the ALF folder? (Y/n)" yn
+    if [ "$NO_INTERACTIVE" = "" ]; then
+      printf "Do you want download and install it now locally in the ALF folder? (Y/n):"
+      read -r yn
     else
       yn="Y"
     fi
@@ -66,7 +66,7 @@ set_hdf5_flags()
 
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
-INTELOPTFLAGS="-cpp -O3 "
+# INTELOPTFLAGS="-cpp -O3 "
 #INTELOPTFLAGS="$INTELOPTFLAGS -traceback"
 # uncomment the next line if you want to use additional openmp parallelization
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
@@ -253,16 +253,9 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    module switch mpi.intel  mpi.intel/2019
-    module switch intel intel/19.0
-    module switch mkl mkl/2019
     module load hdf5/serial/1.8
     printf "\n${RED}   !!   unsetting  FORT_BLOCKSIZE  !!${NC}\n"
     unset FORT_BLOCKSIZE
-
-    #module load  mpi.intel
-    #module load intel
-    #module load mkl
 
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
@@ -326,7 +319,7 @@ export ALF_LIB
 export ALF_DIR
 export ALF_FC
 
-if [ ! -z "${ALF_FLAGS_EXT+x}" ]; then
+if [ -n "${ALF_FLAGS_EXT+x}" ]; then
   printf "\nAppending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
 fi
 

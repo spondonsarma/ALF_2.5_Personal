@@ -60,7 +60,7 @@
 !> @brief
 !> Reads in bins of scalar observables from file
 !>
-!> @param [IN] file Character(len=64)
+!> @param [IN] file Character(len=*)
 !> \verbatim
 !>  Name of file that gets read in
 !> \endverbatim
@@ -131,6 +131,34 @@
 
 #ifdef HDF5
    Subroutine read_vec_hdf5(filename, groupname, sgn, bins, analysis_mode)
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reads in bins of scalar observables from HDF5 file
+!>
+!> @param [IN] filename Character(len=*)
+!> \verbatim
+!>  Name of file that gets read in
+!> \endverbatim
+!> @param [IN] groupname Character(len=*)
+!> \verbatim
+!>  Name of observable that gets read in
+!> \endverbatim
+!> @param [OUT] sgn Real(:)
+!> \verbatimam
+!>  Sign of bins
+!> \endverbatim
+!> @param [OUT] bins Complex(:,:)
+!> \verbatim
+!>  Monte Carlo bins
+!> \endverbatim
+!> @param [OUT] analysis_mode Character(len=64)
+!> \verbatim
+!>  How to analyze the observable
+!> \endverbatim
+!-------------------------------------------------------------------
       Implicit none
       Character (len=*), intent(in) :: filename
       Character (len=*), intent(in) :: groupname
