@@ -1,5 +1,6 @@
 variables:
   CONFIG_ARGS: ""  # Variable for additional arguments for configure.sh
+  ALF_FLAGS_EXT: "-DPIPELINE"
 
 stages:
   - build
@@ -7,17 +8,9 @@ stages:
   - test
   - memleaks
 
-.exemptfiles_template: &exemptfiles_definition  # Hidden key that defines an anchor named 'exemptfiles_definition'
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
-
 .build_template: &build_definition
   stage: build
-  <<: *exemptfiles_definition
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh GNU serial $CONFIG_ARGS
@@ -26,7 +19,7 @@ stages:
 
 .build_template_pgi: &build_definition_pgi
   stage: build
-  <<: *exemptfiles_definition
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
@@ -35,7 +28,7 @@ stages:
 
 .warnconv_template: &warnconv_definition
   stage: warnconv
-  <<: *exemptfiles_definition
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh GNU Devel serial $CONFIG_ARGS
@@ -44,7 +37,7 @@ stages:
 
 .test_template: &test_definition
   stage: test
-  <<: *exemptfiles_definition
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev g++
     - . configure.sh GNU Devel serial $CONFIG_ARGS
@@ -60,10 +53,6 @@ stages:
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
 
-# GQMCT_Jessie:
-#   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-#   <<: *build_definition
-
 GQMCT_Stretch:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
   <<: *build_definition
@@ -77,37 +66,13 @@ GQMCT_Bullseye:
   <<: *build_definition
 
 
-#GQMCT_Jessie_OpenBlas:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-openblas-lapack
-  #<<: *build_definition
-
 GQMCT_Bullseye_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
   <<: *build_definition
 
-#GQMCT_CentOS:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *build_definition
-
-#GQMCT_OpenSuse-13.2:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *build_definition
-
-#GQMCT_OpenSuse-42.1:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *build_definition
-
 GQMCT_PGI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   <<: *build_definition_pgi
-
-#GQMCT_Ubuntu_Trusty:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  #<<: *build_definition
-
-#GQMCT_Ubuntu_Xenial:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:xenial-gfortran-lapack
-  #<<: *build_definition
 
 GQMCT_Ubuntu_Bionic:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
@@ -116,6 +81,7 @@ GQMCT_Ubuntu_Bionic:
 GQMCT_Stretch_MPI:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy
   stage: build
+  needs: []
   except:
     changes:
       - .gitignore
@@ -132,6 +98,7 @@ GQMCT_Stretch_MPI:
 GQMCT_Intel-21:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-intel-oneapi-ifort
   stage: build
+  needs: []
   except:
     changes:
       - .gitignore
@@ -143,10 +110,6 @@ GQMCT_Intel-21:
     - . /opt/intel/oneapi/setvars.sh
     - . configure.sh INTEL serial $CONFIG_ARGS
     - make all
-
-#GQMCT_Jessie_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-  #<<: *warnconv_definition
 
 GQMCT_Stretch_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
@@ -164,36 +127,15 @@ GQMCT_Bullseye_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
   <<: *warnconv_definition
 
-#GQMCT_CentOS_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
-#GQMCT_OpenSuse-13.2_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
-#GQMCT_OpenSuse-42.1_conv:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *warnconv_definition
-
 GQMCT_PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: warnconv
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
-    - . configure.sh PGI serial $CONFIG_ARGS
+    - . configure.sh PGI devel serial $CONFIG_ARGS
     - make all
-
-#GQMCT_Jessie_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:jessie-gfortran-blas-lapack
-  #<<: *test_definition
 
 GQMCT_Stretch_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
@@ -211,22 +153,6 @@ GQMCT_Stretch_OpenBlas_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-openblas-lapack
   <<: *test_definition
 
-#GQMCT_CentOS_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:centos-7-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_OpenSuse-13.2_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-13.2-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_OpenSuse-42.1_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi:opensuse-42.1-gfortran-blas-lapack
-  #<<: *test_definition
-
-#GQMCT_Ubuntu-trusty_tests:
-  #image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:trusty-tahr-gfortran-lapack
-  #<<: *test_definition
-
 GQMCT_Ubuntu-bionic_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/ubuntu:bionic-beaver-gfortran-lapack
   <<: *test_definition
@@ -234,16 +160,11 @@ GQMCT_Ubuntu-bionic_tests:
 GQMCT_PGI_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: test
-  except:
-    changes:
-      - .gitignore
-      - CITATION
-      - README.md
-      - license.*
+  needs: []
   script:
     - apt-get update && apt install -y curl libghc-zlib-dev
     - pgfortran --version
-    - . configure.sh PGI serial $CONFIG_ARGS
+    - . configure.sh PGI devel serial $CONFIG_ARGS
     - make lib
     - make ana
     - make program
@@ -258,14 +179,14 @@ GQMCT_PGI_tests:
 GQMCT_Stretch_valgrind:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-valgrind
   stage: memleaks
+  needs: []
   only:
     changes:
       - Prog/*.(f|F)90
       - Libraries/Modules/*.(f|F)90
   script:
       - apt-get update && apt install -y curl libghc-zlib-dev g++
-      - export ALF_FLAGS_EXT="-g"
-      - . configure.sh GNU serial $CONFIG_ARGS
+      - . configure.sh GNU devel serial $CONFIG_ARGS
       - gfortran -v
       - make lib
       - make program
@@ -278,6 +199,7 @@ GQMCT_Stretch_valgrind:
 create_doc:
   image: aergus/latex
   stage: build
+  needs: []
   artifacts:
     paths:
       - Documentation/doc.pdf
@@ -288,6 +210,7 @@ create_doc:
 create_doxygen:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-clang
   stage: build
+  needs: []
   artifacts:
     expire_in: 120 days
     paths:

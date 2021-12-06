@@ -86,7 +86,7 @@ GNUUSEFULFLAGS="-std=f2008"
 PGIOPTFLAGS="-Mpreprocess -O1"
 # uncomment the next line if you want to use additional openmp parallelization
 PGIOPTFLAGS="${PGIOPTFLAGS} -mp"
-PGIDEVFLAGS="-Minform=inform -g -traceback"
+PGIDEVFLAGS="-Minform=inform -C -g -traceback"
 PGIUSEFULFLAGS=""
 
 MACHINE=""
