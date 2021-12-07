@@ -12,7 +12,7 @@ stages:
   stage: build
   needs: []
   script:
-    - apt-get update && apt install -y python curl libghc-zlib-dev g++
+    - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
     - . configure.sh GNU serial $CONFIG_ARGS
     - gfortran -v
     - make all
