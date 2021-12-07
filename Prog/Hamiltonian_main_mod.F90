@@ -144,7 +144,9 @@
         procedure, nopass :: Delta_S0_global => Delta_S0_global_base
         procedure, nopass :: S0 => S0_base
         procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+#ifdef HDF5
         procedure, nopass :: write_parameters_hdf5 => write_parameters_hdf5_base
+#endif
       end type ham_base
       
       class(ham_base), allocatable :: ham
@@ -599,12 +601,14 @@
           end Subroutine Ham_Langevin_HMC_S0_base
           
           
+#ifdef HDF5
           subroutine write_parameters_hdf5_base(filename)
             implicit none
             
             Character (len=64), intent(in) :: filename
             
           end subroutine write_parameters_hdf5_base
+#endif
 
 
     end Module Hamiltonian_main

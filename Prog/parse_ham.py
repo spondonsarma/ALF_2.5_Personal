@@ -176,6 +176,7 @@ def create_read_par(filename, parameters, ham_name):
       end subroutine read_parameters
       
       
+#ifdef HDF5
       Subroutine write_parameters_hdf5(filename)
          Use hdf5
          use alf_hdf5
@@ -205,6 +206,7 @@ def create_read_par(filename, parameters, ham_name):
          call h5fclose_f(file_id, ierr)
     
       end Subroutine write_parameters_hdf5
+#endif
 """
 
     f = open(filename, 'w')

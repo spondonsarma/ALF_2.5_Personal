@@ -137,7 +137,9 @@
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
         procedure, nopass :: S0
+#ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
+#endif
       end type ham_Kondo
 
       !#PARAMETERS START# VAR_lattice
