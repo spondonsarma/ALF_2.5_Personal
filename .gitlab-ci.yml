@@ -79,7 +79,7 @@ GQMCT_Ubuntu_Bionic:
   <<: *build_definition
 
 GQMCT_Stretch_MPI:
-  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:stretch-gfortran-blas-lapack-fftw-hdf5-scipy3
   stage: build
   needs: []
   except:
