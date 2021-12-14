@@ -184,6 +184,9 @@ GQMCT_Stretch_valgrind:
     changes:
       - Prog/*.(f|F)90
       - Libraries/Modules/*.(f|F)90
+  artifacts:
+    paths:
+      - Prog/Hamiltonians/Hamiltonian_Hubbard_read_parameters.F90
   script:
       - apt-get update && apt install -y python3 curl libghc-zlib-dev g++
       - . configure.sh GNU devel serial $CONFIG_ARGS
