@@ -260,6 +260,7 @@ def create_read_par(filename, parameters, ham_name):
                     f.write('\n')
         elif '##READ_VAR##' in line:
             for nlist_name, nlist in parameters.items():
+                f.write('{}   REWIND(unit_para)\n'.format(INDENT*' '))
                 s = '{}   READ(unit_para, NML={})\n'.format(INDENT*' ', nlist_name)
                 f.write(s)
 
