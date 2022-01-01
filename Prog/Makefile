@@ -47,7 +47,7 @@ Hamiltonians_case.h: Hamiltonians.list
 
 tidy:
 	rm -f $(OBJS) $(OHAM) $(MODS) hamiltonian*.mod hamiltonian*.smod
-	rm -f git.h Hamiltonians_interface.h Hamiltonians_case.h Hamiltonians/Hamiltonian_*_read_parameters.F90
+	rm -f git.h Hamiltonians_interface.h Hamiltonians_case.h Hamiltonians/Hamiltonian_*_read_write_parameters.F90
 
 clean: tidy
 	rm -f "ALF.out"

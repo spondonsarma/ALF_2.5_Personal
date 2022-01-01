@@ -195,8 +195,8 @@
       end Subroutine Ham_Alloc_LRC
 
 ! Dynamically generated on compile time from parameters list.
-! Supplies the subroutine read_parameters.
-#include "Hamiltonian_LRC_read_parameters.F90"
+! Supplies the subroutines read_parameters and write_parameters_hdf5.
+#include "Hamiltonian_LRC_read_write_parameters.F90"
 
 !--------------------------------------------------------------------
 !> @author
@@ -231,7 +231,7 @@
           igroup           = irank/isize_g
 #endif
 
-          ! From dynamically generated file "Hamiltonian_LRC_read_parameters.F90"
+          ! From dynamically generated file "Hamiltonian_LRC_read_write_parameters.F90"
           call read_parameters()
           
           if (Model .ne. 'LRC') then
