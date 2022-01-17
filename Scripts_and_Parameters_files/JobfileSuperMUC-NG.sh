@@ -33,6 +33,8 @@
 #Important
 module load slurm_setup
 
+module load hdf5/1.10.7-intel19
+
 # the follwing environment variables generate an optimal pinning (to the best of our knowledge)
 # This DOES NOT have to be adapted to the choice of Ntasks
 # FIRST EXCEPTION: If you chose to use hyper-threading (not recommended) you should set I_MPI_PIN_CELL=cpu

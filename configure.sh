@@ -253,7 +253,7 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    module load hdf5/serial/1.8
+    module load hdf5/1.10.7-intel19
     printf "\n${RED}   !!   unsetting  FORT_BLOCKSIZE  !!${NC}\n"
     unset FORT_BLOCKSIZE
 
@@ -261,7 +261,7 @@ case $MACHINE in
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
     LIB_BLAS_LAPACK="$MKL_LIB"
-    LIB_HDF5="$HDF5_F90_LIB $HDF5_LIB $SZIP_LIB -lz"
+    LIB_HDF5="$HDF5_F90_SHLIB $HDF5_SHLIB"
     INC_HDF5="$HDF5_INC"
   ;;
 
