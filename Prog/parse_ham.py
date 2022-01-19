@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Script for automatically parsing parameters of Hamiltonian."""
 # pylint: disable=invalid-name
+# pylint: disable=consider-using-f-string
 
-# import os
 import sys
-import pprint
+# from pprint import pprint
 
 
 def parse(filename):
@@ -337,7 +337,6 @@ def _get_mpi_len(parameter):
 
 def parse_list(ham_names_file):
     """."""
-    parameters = {}
     with open(ham_names_file, 'r') as f:
         ham_names = f.read().splitlines()
 
@@ -346,7 +345,7 @@ def parse_list(ham_names_file):
         print('filename:', filename)
 
         parameters = parse(filename)
-        pprint.pprint(parameters)
+        # pprint(parameters)
         filename = 'Hamiltonians/' + \
             'Hamiltonian_{}_read_write_parameters.F90'.format(ham_name)
         create_read_write_par(filename, parameters, ham_name)
