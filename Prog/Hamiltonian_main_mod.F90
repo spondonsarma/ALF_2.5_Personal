@@ -609,9 +609,9 @@
 !> @details
 !> This has to be overloaded in the Hamiltonian submodule.
 !--------------------------------------------------------------------
-          subroutine weight_reconstruction_base(weight)
+          subroutine weight_reconstruction_base(weight,factor)
             implicit none
-            complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+            complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:), factor(:)
             write(error_unit, *) 'weight_reconstruction not defined!'
             error stop 1
           end subroutine weight_reconstruction_base

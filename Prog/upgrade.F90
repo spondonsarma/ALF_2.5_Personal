@@ -120,11 +120,11 @@
 
         ! Local ::
         Type   (Fields)   ::  nsigma_new
-        Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1
+        Complex (Kind=Kind(0.d0)) :: Ratio(N_FL), Ratiotot, Z1, PHfactor(N_FL)
         Integer ::  n,m,nf, nf_eff, i, Op_dim, op_dim_nf
         Complex (Kind=Kind(0.d0)) :: Z, D_Mat, myexp, s1, s2
 
-        Real    (Kind=Kind(0.d0)) :: Weight
+        Real    (Kind=Kind(0.d0)) :: Weight, tmp_r
         Complex (Kind=Kind(0.d0)) :: alpha, beta
         Complex (Kind=Kind(0.d0)), Dimension(:, :), Allocatable :: Mat, Delta
         Complex (Kind=Kind(0.d0)), Dimension(:, :), Allocatable :: u, v
@@ -187,7 +187,18 @@
         Enddo
 
         !call reconstruct weight subroutine to fill the non-calculated blocks
-        if (reconstruction_needed) call ham%weight_reconstruction(Ratio)
+        if (reconstruction_needed) then
+          PHfactor = 1.d0
+          do nf=1,N_FL
+            Z1 = Op_V(n_op,nf)%g * ( nsigma_new%Phi(1,1) -  nsigma%Phi(n_op,nt) )
+            tmp_r=0
+            do m=1,Op_V(n_op,nf)%N_non_zero
+               tmp_r=tmp_r+Op_V(n_op,nf)%E(m)
+            enddo
+            PHfactor(nf)=exp(Z1*tmp_r)
+          enddo
+          call ham%weight_reconstruction(Ratio,PHfactor)
+        endif
 
         Ratiotot = Product(Ratio)
         nf = 1
