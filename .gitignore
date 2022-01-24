@@ -18,3 +18,4 @@ Documentation/doc.synctex.gz
 Documentation/doc.toc
 HDF5/
 environment
+__pycache__/
