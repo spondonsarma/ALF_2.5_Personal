@@ -537,8 +537,8 @@ Module Global_mod
         NSTM = Size(udvst, 1)
         call nsigma_old%make(n1, n2)
 
-        Allocate ( Det_vec_old(NDIM,N_FL), Det_vec_new(NDIM,N_FL), Det_vec_test(NDIM,N_FL) )
-        Allocate ( Phase_Det_new(N_FL), Phase_Det_old(N_FL) )
+        Allocate ( Det_vec_old(NDIM,N_FL_eff), Det_vec_new(NDIM,N_FL_eff), Det_vec_test(NDIM,N_FL_eff) )
+        Allocate ( Phase_Det_new(N_FL_eff), Phase_Det_old(N_FL_eff) )
 
         L_test = .false.
         ! Set old weight.
@@ -547,7 +547,7 @@ Module Global_mod
         Phase_array = cmplx(1.d0,0.d0,kind=kind(0.d0))
         Do nf_eff = 1,N_Fl_eff
            nf=Calc_FL_map(nf_eff)
-           Phase_array(nf) = Phase_det_old(nf)
+           Phase_array(nf) = Phase_det_old(nf_eff)
            Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
         Enddo
         if (reconstruction_needed) then
@@ -591,13 +591,13 @@ Module Global_mod
            Phase=Phase**N_SUN
            Do nf_eff = 1,N_FL_eff
               nf=Calc_Fl_map(nf_eff)
-              Call DET_C_LU(GR(:,:,nf),Det_vec_test(:,nf),Ndim)
+              Call DET_C_LU(GR(:,:,nf),Det_vec_test(:,nf_eff),Ndim)
               !!!ATTENTION HOW DOES BELOW DEPEND ON NF BLOCK symm
-              Z = Phase_det_old(nf)
+              Z = Phase_det_old(nf_eff)
               ratio_2_test=0.d0
               DO I = 1,Ndim
-                 Z = Z*Det_vec_test(I,nf)/ABS(Det_vec_test(I,nf))
-                 ratio_2_test=ratio_2_test+log(ABS(Det_vec_test(I,nf)))+Det_vec_old(I,nf)
+                 Z = Z*Det_vec_test(I,nf_eff)/ABS(Det_vec_test(I,nf_eff))
+                 ratio_2_test=ratio_2_test+log(ABS(Det_vec_test(I,nf_eff)))+Det_vec_old(I,nf_eff)
               Enddo
               Z=Z*cmplx(exp(ratio_2_test),0.d0,kind(0.d0))
               Write(6,*) 'Testing weight: ', Z
@@ -758,29 +758,34 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)),    INTENT(out) :: Ratio(2)
 
         ! Local
-        Integer  :: Nf, i, nt
-        Complex (Kind=Kind(0.d0)) :: Z, Z1
+        Integer  :: Nf, i, nt, nf_eff
+        Complex (Kind=Kind(0.d0)) :: Z, Z1, Ratio_1_array(N_FL), Z_tmp(N_FL), Ratio_2_array(N_FL)
         Real    (Kind=Kind(0.d0)) :: X, Ratio_2
 
+        Z_tmp=1.d0
         Ratio = cmplx(0.d0,0.d0,kind(0.d0))
-        Ratio_2 = 0.d0
+        Ratio_2_array = 0.d0
         !X = 1.d0
-        Do nf = 1,N_Fl
+        Do nf_eff = 1,N_Fl_eff
+           nf=Calc_Fl_map(nf_eff)
            DO I = 1,Ndim
               !X= X*real(Det_vec_new(I,nf),kind(0.d0)) / Real(Det_vec_old(I,nf),kind(0.d0) )
-              Ratio_2 = Ratio_2 +  Det_vec_new(I,nf) - Det_vec_old(I,nf)
+              Ratio_2_array(nf) = Ratio_2_array(nf) +  Det_vec_new(I,nf_eff) - Det_vec_old(I,nf_eff)
            enddo
+           !Z = Z**N_SUN
+           Ratio_2_array(nf) = real(N_SUN,kind(0.d0))*Ratio_2_array(nf)
         enddo
         !Z = cmplx(X,0.d0,kind(0.d0))
-        Ratio(1) = cmplx(1.d0,0.d0,kind(0.d0))
-        Do nf = 1,N_FL
+        Ratio_1_array = cmplx(1.d0,0.d0,kind(0.d0))
+        Do nf_eff = 1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            !Z = Z*Phase_Det_new(nf)/Phase_Det_old(nf)
-           Ratio(1) = Ratio(1) *  Phase_Det_new(nf)/Phase_Det_old(nf)
+           Ratio_1_array(nf_eff) = Ratio_1_array(nf) *  Phase_Det_new(nf_eff)/Phase_Det_old(nf_eff)
+           !Z = Z**N_SUN
+           Ratio_1_array(nf) = Ratio_1_array(nf)**N_SUN
         enddo
-        !Z = Z**N_SUN
-        Ratio(1) = Ratio(1)**N_SUN
-        Ratio_2 = real(N_SUN,kind(0.d0))*Ratio_2
 
+        Ratio(1)=1.d0
         Do I = 1,Size(Op_V,1)
            X = 0.d0
            Do nt = 1,Ltrot
@@ -788,16 +793,22 @@ Module Global_mod
               Ratio(1) = Ratio(1) * cmplx( nsigma%Gama(i,nt)/nsigma_old%Gama(i,nt),0.d0,kind(0.d0) ) !You could put this in Ratio_2
               X = X + nsigma%Phi(i,nt) - nsigma_old%Phi(i,nt)
            Enddo
-           Do nf = 1,N_FL
+           Do nf_eff = 1,N_FL_eff
+              nf=Calc_Fl_map(nf_eff)
               !Z = Z * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
-              Ratio(1) = Ratio(1) * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
+              Ratio_1_array(nf) = Ratio_1_array(nf) * exp(cmplx( X*Real(N_SUN,Kind(0.d0)), 0.d0,kind(0.d0)) * Op_V(i,nf)%g * Op_V(i,nf)%alpha )
            Enddo
         Enddo
+        if (reconstruction_needed) then
+            call ham%weight_reconstruction(Ratio_1_array,Z_tmp)
+            call ham%weight_reconstruction(Ratio_2_array,Z_tmp)
+        endif
+        Ratio(1)=Ratio(1)*product(Ratio_1_array)
         !Z =  Z * cmplx( ham%Delta_S0_global(Nsigma_old),0.d0,kind(0.d0) )
         !Z =  Z * cmplx( T0_Proposal_ratio, 0.d0,kind(0.d0))
-        Ratio_2 = Ratio_2 + log(ham%Delta_S0_global(Nsigma_old)) + log(T0_Proposal_ratio)
+        Ratio(2) = sum(Ratio_2_array)
+        Ratio(2) = Ratio(2) + log(ham%Delta_S0_global(Nsigma_old)) + log(T0_Proposal_ratio)
 
-        Ratio(2) = Ratio_2
         Compute_Ratio_Global = Ratio(1)*exp(Ratio(2))
 
 
@@ -916,17 +927,17 @@ Module Global_mod
               do i=1,NSTM-1
                  do n=1,N_part
 #if !defined(LOG)
-                    Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvst(i,nf)%D(n)))
+                    Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+log(dble(udvst(i,nf)%D(n)))
 #else
-                    Det_Vec(n,nf)=Det_Vec(n,nf)+udvst(i,nf)%L(n)
+                    Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+udvst(i,nf)%L(n)
 #endif
                  enddo
               enddo
               do n=1,N_part
 #if !defined(LOG)
-                 Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvl(nf_eff)%D(n)))
+                 Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+log(dble(udvl(nf_eff)%D(n)))
 #else
-                 Det_Vec(n,nf)=Det_Vec(n,nf)+udvl(nf_eff)%L(n)
+                 Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+udvl(nf_eff)%L(n)
 #endif
               enddo
               alpha=1.d0
@@ -942,7 +953,7 @@ Module Global_mod
                  endif
                  Z =  Z * TP(J,J)
               enddo
-              Phase_det(nf) = Z/abs(Z)
+              Phase_det(nf_eff) = Z/abs(Z)
               Det_vec(1,nf) = Det_vec(1,nf)+log(abs(Z))
            enddo
            Deallocate(TP,ipiv)
@@ -989,31 +1000,31 @@ Module Global_mod
            !         Call MMULT(TP, udvl%U, udvlocal%U)
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf_eff)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
            Z1 = Det_C(TP, N_size)
-           Phase_det(nf)   = Z*Z1/ABS(Z*Z1)
+           Phase_det(nf_eff)   = Z*Z1/ABS(Z*Z1)
 #if !defined(LOG)
 #if !defined(STAB3)
-           Det_vec(:,nf) = log(real(D(:)))
-           Det_vec(1,nf) = log(real(D(1))) + log(ABS(Z*Z1))
+           Det_vec(:,nf_eff) = log(real(D(:)))
+           Det_vec(1,nf_eff) = log(real(D(1))) + log(ABS(Z*Z1))
 #else
-           Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
-           if (dble(udvl(nf_eff)%D(1)) > 1.d0) Det_vec(1,nf)=Det_Vec(1,nf)+log(dble(udvl(nf_eff)%D(1)))
+           Det_vec(1,nf_eff) = log(real(D(1))*ABS(Z*Z1))
+           if (dble(udvl(nf_eff)%D(1)) > 1.d0) Det_vec(1,nf_eff)=Det_Vec(1,nf_eff)+log(dble(udvl(nf_eff)%D(1)))
            Do J=2,Ndim
               if (dble(udvl(nf_eff)%D(J))<=1.d0) then
-                 Det_vec(J,nf) = log(real(D(J)))
+                 Det_vec(J,nf_eff) = log(real(D(J)))
               else
-                 Det_vec(J,nf) = log(real(D(J)))+log(dble(udvl(nf_eff)%D(J)))
+                 Det_vec(J,nf_eff) = log(real(D(J)))+log(dble(udvl(nf_eff)%D(J)))
               endif
            enddo
 #endif
 #else
-           Det_vec(:,nf) = log(real(D(:)))
-           Det_vec(1,nf) = log(real(D(1))*ABS(Z*Z1))
-           if (udvl(nf_eff)%L(1) > 0.d0) Det_vec(1,nf)=Det_Vec(1,nf)+udvl(nf_eff)%L(1)
+           Det_vec(:,nf_eff) = log(real(D(:)))
+           Det_vec(1,nf_eff) = log(real(D(1))*ABS(Z*Z1))
+           if (udvl(nf_eff)%L(1) > 0.d0) Det_vec(1,nf_eff)=Det_Vec(1,nf_eff)+udvl(nf_eff)%L(1)
            Do J=2,Ndim
               if (udvl(nf_eff)%L(J)<=0.d0) then
-                 Det_vec(J,nf) = log(real(D(J)))
+                 Det_vec(J,nf_eff) = log(real(D(J)))
               else
-                 Det_vec(J,nf) = log(real(D(J)))+udvl(nf_eff)%L(J)
+                 Det_vec(J,nf_eff) = log(real(D(J)))+udvl(nf_eff)%L(J)
               endif
            enddo
 #endif
