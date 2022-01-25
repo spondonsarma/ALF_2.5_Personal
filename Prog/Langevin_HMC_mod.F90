@@ -127,7 +127,7 @@
 
         !Local
         Integer :: NSTM, n, nf, nf_eff, NST, NTAU, nt, nt1, Ntau1, NVAR, N_Type, I, J
-        Complex (Kind=Kind(0.d0)) :: Z, Z1, Phase_array(N_FL), PHfactor(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Z, Z1, Phase_array(N_FL)
         Real    (Kind=Kind(0.d0)) :: spin
         
         NSTM = Size(Stab_nt,1) - 1 
@@ -165,14 +165,7 @@
                  call Op_phase(Z1,OP_V,Nsigma,nf) 
                  Phase_array(nf)=Z1
               ENDDO
-              if (reconstruction_needed) then
-                do nf = 1,N_Fl
-                  Z=1.0d0
-                  call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                  PHfactor(nf)=Z
-                Enddo
-                call ham%weight_reconstruction(Phase_array,PHfactor)
-              endif
+              if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
               Z=product(Phase_array)
               Z=Z**N_SUN 
               Call Control_PrecisionP(Z,Phase)
@@ -215,11 +208,10 @@
 
         
         !Local
-        Complex (Kind=Kind(0.d0)) :: Z(N_FL), Z1, Z_tmp(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Z(N_FL), Z1
         Integer ::  nf, I, J, n, N_type, nf_eff
         Real(Kind=Kind(0.d0)) :: spin
 
-        Z_tmp=1.0d0   !This variable is to be removed once weight_reconstruction does not contain PHfactor any more
 
         Do nf_eff = 1,N_FL_eff
            nf=Calc_FL_map(nf_eff)
@@ -249,7 +241,7 @@
                     Enddo
                  Enddo
               Enddo
-              if (reconstruction_needed) call ham%weight_reconstruction(Z,Z_tmp)
+              if (reconstruction_needed) call ham%weight_reconstruction(Z)
               Do nf = 1, N_Fl
                  this%Forces(n,nt1) =  this%Forces(n,nt1)  - &
                       &    Op_V(n,nf)%g * Z(nf) *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
@@ -307,7 +299,7 @@
                   
         ! Local
         Integer :: NSTM, nf,  nt, nt1,  NST, NVAR, nf_eff
-        Complex (Kind=Kind(0.d0)) :: Z, Phase_array(N_FL), PHfactor(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Z, Phase_array(N_FL)
 
         
         NSTM = Size(Stab_nt,1) - 1 
@@ -352,14 +344,7 @@
            call Op_phase(Z,OP_V,Nsigma,nf)
            Phase_array(nf)=Z
         Enddo
-        if (reconstruction_needed) then
-          do nf = 1,N_Fl
-            Z=1.0d0
-            call Op_PHfactor(Z,OP_V,Nsigma,nf)
-            PHfactor(nf)=Z
-          Enddo
-          call ham%weight_reconstruction(Phase_array,PHfactor)
-        endif
+        if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
         Phase=product(Phase_array)
         Phase=Phase**N_SUN
 

@@ -173,7 +173,7 @@ Program Main
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR, GR_Tilde
         CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
-        COMPLEX (Kind=Kind(0.d0)), Dimension(:)  , Allocatable   :: Phase_array, PHfactor
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:)  , Allocatable   :: Phase_array
 
 
         Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
@@ -359,7 +359,7 @@ Program Main
         reconstruction_needed=.false.
         If (N_FL_eff /= N_FL) reconstruction_needed=.true.
         !initialize the flavor map
-        allocate(Calc_Fl_map(N_FL_eff),Phase_array(N_FL),PHfactor(N_FL))
+        allocate(Calc_Fl_map(N_FL_eff),Phase_array(N_FL))
         N_FL_eff=0
         Do I=1,N_Fl
           if (Calc_Fl(I)) then
@@ -603,14 +603,7 @@ Program Main
            call Op_phase(Z,OP_V,Nsigma,nf)
            Phase_array(nf)=Z
         Enddo
-        if (reconstruction_needed) then
-          do nf = 1,N_Fl
-            Z=1.0d0
-            call Op_PHfactor(Z,OP_V,Nsigma,nf)
-            PHfactor(nf)=Z
-          Enddo
-          call ham%weight_reconstruction(Phase_array,PHfactor)
-        endif
+        if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
         Phase=product(Phase_array)
         Phase=Phase**N_SUN
 #ifdef MPI
@@ -698,14 +691,7 @@ Program Main
                           call Op_phase(Z1,OP_V,Nsigma,nf)
                           Phase_array(nf)=Z1
                        ENDDO
-                       if (reconstruction_needed) then
-                         do nf = 1,N_Fl
-                           Z=1.0d0
-                           call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                           PHfactor(nf)=Z
-                         Enddo
-                         call ham%weight_reconstruction(Phase_array,PHfactor)
-                       endif
+                       if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
                        Z=product(Phase_array)
                        Z=Z**N_SUN
                        Call Control_PrecisionP(Z,Phase)
@@ -780,14 +766,7 @@ Program Main
                           call Op_phase(Z1,OP_V,Nsigma,nf)
                           Phase_array(nf)=Z1
                        ENDDO
-                       if (reconstruction_needed) then
-                         do nf = 1,N_Fl
-                           Z=1.0d0
-                           call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                           PHfactor(nf)=Z
-                         Enddo
-                         call ham%weight_reconstruction(Phase_array,PHfactor)
-                       endif
+                       if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
                        Z=product(Phase_array)
                        Z=Z**N_SUN
                        Call Control_PrecisionP(Z,Phase)
@@ -822,14 +801,7 @@ Program Main
                     call Op_phase(Z1,OP_V,Nsigma,nf)
                     Phase_array(nf)=Z1
                  ENDDO
-                 if (reconstruction_needed) then
-                   do nf = 1,N_Fl
-                     Z=1.0d0
-                     call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                     PHfactor(nf)=Z
-                   Enddo
-                   call ham%weight_reconstruction(Phase_array,PHfactor)
-                 endif
+                 if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
                  Z=product(Phase_array)
                  Z=Z**N_SUN
                  Call Control_PrecisionP(Z,Phase)

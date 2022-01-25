@@ -144,7 +144,7 @@ Module Global_mod
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Z, Ratiotot, Ratiotot_p, Phase_old, Phase_new
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)), allocatable :: Phase_Det_new(:), Phase_Det_old(:)
-        Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2),Phase_array(N_FL), PHfactor(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Ratio(2), Ratio_p(2),Phase_array(N_FL)
         Logical :: TOGGLE, L_Test
         Integer, allocatable :: List_partner(:), List_masters(:)
 
@@ -193,14 +193,7 @@ Module Global_mod
               Phase_array(nf) = Phase_det_old(nf)
               Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
            Enddo
-           if (reconstruction_needed) then
-             do nf = 1,N_Fl
-               Z=1.0d0
-               call Op_PHfactor(Z,OP_V,Nsigma,nf)
-               PHfactor(nf)=Z
-             Enddo
-             call ham%weight_reconstruction(Phase_array,PHfactor)
-           endif
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
            Phase_old=product(Phase_array)
            Phase_old=Phase_old**N_SUN
         endif
@@ -274,14 +267,7 @@ Module Global_mod
                  Phase_array(nf) = Phase_det_new(nf)
                  Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
               Enddo
-              if (reconstruction_needed) then
-                do nf = 1,N_Fl
-                  Z=1.0d0
-                  call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                  PHfactor(nf)=Z
-                Enddo
-                call ham%weight_reconstruction(Phase_array,PHfactor)
-              endif
+              if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
               Phase_new=product(Phase_array)
               Phase_new=Phase_new**N_SUN
 
@@ -377,14 +363,7 @@ Module Global_mod
               call Op_phase(Z,OP_V,Nsigma,nf)
               Phase_array(nf)=Z
            Enddo
-           if (reconstruction_needed) then
-             do nf = 1,N_Fl
-               Z=1.0d0
-               call Op_PHfactor(Z,OP_V,Nsigma,nf)
-               PHfactor(nf)=Z
-             Enddo
-             call ham%weight_reconstruction(Phase_array,PHfactor)
-           endif
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
            Phase=product(Phase_array)
            Phase=Phase**N_SUN
         else
@@ -524,7 +503,7 @@ Module Global_mod
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Type   (Fields)   :: nsigma_old
 
-        Complex (Kind=Kind(0.d0)) :: Ratio(2), Phase_array(N_Fl), PHfactor(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Ratio(2), Phase_array(N_Fl)
         Logical :: TOGGLE, L_Test
         Real    (Kind=Kind(0.d0)) :: size_clust
         Real    (Kind=Kind(0.d0)) :: ratio_2_test
@@ -550,14 +529,7 @@ Module Global_mod
            Phase_array(nf) = Phase_det_old(nf_eff)
            Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
         Enddo
-        if (reconstruction_needed) then
-          do nf = 1,N_Fl
-            Z=1.0d0
-            call Op_PHfactor(Z,OP_V,Nsigma,nf)
-            PHfactor(nf)=Z
-          Enddo
-          call ham%weight_reconstruction(Phase_array,PHfactor)
-        endif
+        if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
         Phase_old=product(Phase_array)
         Phase_old=Phase_old**N_SUN
 
@@ -579,14 +551,7 @@ Module Global_mod
               call Op_phase(Z,OP_V,Nsigma,nf)
               Phase_array(nf)=Z
            Enddo
-           if (reconstruction_needed) then
-             do nf = 1,N_Fl
-               Z=1.0d0
-               call Op_PHfactor(Z,OP_V,Nsigma,nf)
-               PHfactor(nf)=Z
-             Enddo
-             call ham%weight_reconstruction(Phase_array,PHfactor)
-           endif
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
            Phase=product(Phase_array)
            Phase=Phase**N_SUN
            Do nf_eff = 1,N_FL_eff
@@ -626,14 +591,7 @@ Module Global_mod
                  Phase_array(nf) = Phase_det_new(nf)
                  Call Op_phase(Phase_array(nf),OP_V,Nsigma,nf)
               Enddo
-              if (reconstruction_needed) then
-                do nf = 1,N_Fl
-                  Z=1.0d0
-                  call Op_PHfactor(Z,OP_V,Nsigma,nf)
-                  PHfactor(nf)=Z
-                Enddo
-                call ham%weight_reconstruction(Phase_array,PHfactor)
-              endif
+              if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
               Phase_new=product(Phase_array)
               Phase_new=Phase_new**N_SUN
 
@@ -696,14 +654,7 @@ Module Global_mod
               call Op_phase(Z,OP_V,Nsigma,nf)
               Phase_array(nf)=Z
            Enddo
-           if (reconstruction_needed) then
-             do nf = 1,N_Fl
-               Z=1.0d0
-               call Op_PHfactor(Z,OP_V,Nsigma,nf)
-               PHfactor(nf)=Z
-             Enddo
-             call ham%weight_reconstruction(Phase_array,PHfactor)
-           endif
+           if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
            Phase=product(Phase_array)
            Phase=Phase**N_SUN
         endif
@@ -759,10 +710,9 @@ Module Global_mod
 
         ! Local
         Integer  :: Nf, i, nt, nf_eff
-        Complex (Kind=Kind(0.d0)) :: Z, Z1, Ratio_1_array(N_FL), Z_tmp(N_FL), Ratio_2_array(N_FL)
+        Complex (Kind=Kind(0.d0)) :: Z, Z1, Ratio_1_array(N_FL), Ratio_2_array(N_FL)
         Real    (Kind=Kind(0.d0)) :: X, Ratio_2
 
-        Z_tmp=1.d0
         Ratio = cmplx(0.d0,0.d0,kind(0.d0))
         Ratio_2_array = 0.d0
         !X = 1.d0
@@ -800,8 +750,8 @@ Module Global_mod
            Enddo
         Enddo
         if (reconstruction_needed) then
-            call ham%weight_reconstruction(Ratio_1_array,Z_tmp)
-            call ham%weight_reconstruction(Ratio_2_array,Z_tmp)
+            call ham%weight_reconstruction(Ratio_1_array)
+            call ham%weight_reconstruction(Ratio_2_array)
         endif
         Ratio(1)=Ratio(1)*product(Ratio_1_array)
         !Z =  Z * cmplx( ham%Delta_S0_global(Nsigma_old),0.d0,kind(0.d0) )
