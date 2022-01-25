@@ -8,12 +8,12 @@
 
 All the data structures necessary to implement a given model have been introduced in the previous sections. Here we show how to implement a new model on the example of the Hubbard model.
 
-Generally, for defining a new model one needs to 
+As stated in Sec. \ref{sec:hamiltonian}, for defining a new model one needs to 
 \begin{enumerate}
-\item create the file \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} and
-\item add the line \path{##NAME##} to \path{Prog/Hamiltonians.list}.
+\item Add a new line \emph{New\_model} to the file \path{Prog/Hamiltonians.list}
+\item Write the new submodule in \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90}
 \end{enumerate}
-Where \path{##NAME##} has to be replaced by the designation of the new model, in this example \path{Hubbard_Plain_Vanilla}. This can then later be selected through the parameter \path{ham_name}. There is a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} meant to be copied for creating a new model.
+Where \emph{New\_model} is the designation of the new model, in this example \path{Hubbard_Plain_Vanilla}. There is a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} that can be copied for creating a new model.
 
 To get a valid Hamiltonian, one has to specify the parameters, the lattice, the hopping, the interaction, the trial wave function  (if  required), and the observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
 \begin{equation}
@@ -48,6 +48,7 @@ The code that we describe below  can be found in the submodule \path{Prog/Hamilt
 %------------------------------------------------------------
 \subsection{Defining the parameters}
 %------------------------------------------------------------
+Defining the parameters as specified in Sec. \ref{sec:hamiltonian}, we arrive at:
 
 \begin{lstlisting}[style=fortran]
 !#PARAMETERS START# VAR_lattice
@@ -75,25 +76,8 @@ Integer               :: N_part   = -1        ! Number of particles in trial wav
 \subsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
 %------------------------------------------------------------
 
-The main program will call the subroutine \texttt{Ham\_set} in the submodule \path{Hamiltonian_Hubbard_Plain_Vanilla_smod.F90}.
-The latter  subroutine  defines the  public variables
-\begin{lstlisting}[style=fortran]
-Type(Operator),     dimension(:,:), allocatable :: Op_V  ! Interaction
-Type(Operator),     dimension(:,:), allocatable :: Op_T  ! Hopping
-Type(WaveFunction), dimension(:),   allocatable :: WF_L  ! Left trial wave function
-Type(WaveFunction), dimension(:),   allocatable :: WF_R  ! Right trial wave function
-Type(Fields)        :: nsigma                            ! Fields
-Integer             :: Ndim                              ! Number of sites
-Integer             :: N_FL                              ! number of flavors
-Integer             :: N_SUN	                         ! Number of colors 
-Integer             :: Ltrot                             ! Total number of trotter silces
-Integer             :: Thtrot                            ! Number of trotter slices 
-                                                         ! reserved for projection
-Logical             :: Projector                         ! Projector code
-Integer             :: Group_Comm                        ! Group communicator for MPI
-Logical             :: Symm                              ! Symmetric trotter 
-\end{lstlisting}
-which specify the model.  The  routine \texttt{Ham\_set}  will first  read the parameter file \texttt{parameters} (see Sec.~\ref{sec:input}); then set the lattice: \texttt{Call Ham\_latt};  set the hopping: \texttt{Call Ham\_hop};  
+The main program will call the subroutine \texttt{Ham\_set} in the submodule \path{Hamiltonian_Hubbard_Plain_Vanilla_smod.F90}
+which specify the model.  The  routine \texttt{Ham\_set}  will first  read the parameter file \texttt{parameters} (see Sec.~\ref{sec:input}) \texttt{Call read\_parameters}; then set the lattice: \texttt{Call Ham\_latt};  set the hopping: \texttt{Call Ham\_hop};  
  set the interaction: \texttt{call Ham\_V}; and if required, set the trial wave function: \texttt{call Ham\_trial}.
 
 %------------------------------------------------------------
