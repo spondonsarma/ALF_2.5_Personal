@@ -305,6 +305,7 @@
                write(attr_name, '("Orbital", I0)') no
                call h5LTset_attribute_double_f(group_id, dset_name, attr_name, temp, size_dat, ierr )
             enddo
+            deallocate(temp)
             
             call h5gclose_f(group_id, ierr)
            
