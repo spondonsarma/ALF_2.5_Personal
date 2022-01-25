@@ -4,10 +4,13 @@
 all: lib ana program
 
 lib: test_compiler_set
+	@echo "Compiling Libraries"
 	cd Libraries && $(MAKE)
 ana: lib
+	@echo "Compiling Analysis"
 	cd Analysis && $(MAKE)
 program: lib
+	@echo "Compiling Program"
 	cd Prog && $(MAKE) program
 
 .PHONY : clean cleanall cleanprog cleanlib cleanana tidy tidyprog tidyana help
@@ -15,10 +18,13 @@ clean: cleanall
 cleanall: cleanprog cleanlib cleanana
 tidy: cleanlib tidyana tidyprog
 cleanprog:
+	@echo "Cleaning up Prog/"
 	cd Prog && $(MAKE) clean 
 cleanlib:
+	@echo "Cleaning up Libraries/"
 	cd Libraries && $(MAKE) clean
 cleanana:
+	@echo "Cleaning up Analysis/"
 	cd Analysis && $(MAKE) clean
 tidyana:
 	cd Analysis && $(MAKE) tidy

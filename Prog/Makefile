@@ -1,4 +1,4 @@
-.PHONY : Compile tidy clean program git.h parse_parameters
+.PHONY : Compile tidy clean program parse_parameters echo_compile_mods
 
 OHAM = `while read -r ham; do \
 	echo "Hamiltonians/Hamiltonian_$${ham}_smod.o"; \
@@ -16,14 +16,16 @@ MODS = control.mod fields_mod.mod global_mod.mod hop_mod.mod lrc_mod.mod observa
 	udv_state_mod.mod udv_wrap_mod.mod wavefunction_mod.mod wrapgr_mod.mod hamiltonian.mod \
 	containerelementbase_mod.mod opttypes_mod.mod dynamicmatrixarray_mod.mod langevin_hmc_mod.mod 
 
-program: git.h parse_parameters Hamiltonians_interface.h Hamiltonians_case.h $(OBJS)
-	@make $(OHAM)
+program: git.h parse_parameters Hamiltonians_interface.h Hamiltonians_case.h echo_compile_mods $(OBJS)
+	make $(OHAM)
+	@echo "Link program"
 	$(ALF_FC) -o "ALF.out" $(OBJS) $(OHAM) $(ALF_LIB)
 
 git.h:
 	./Git_config.sh
 
 parse_parameters:
+	@echo "Parsing Hamiltonian parameters"
 	./parse_ham.py Hamiltonians.list
 
 Hamiltonians_interface.h: Hamiltonians.list
@@ -51,3 +53,6 @@ tidy:
 
 clean: tidy
 	rm -f "ALF.out"
+
+echo_compile_mods:
+	@echo "Compiling program modules"
