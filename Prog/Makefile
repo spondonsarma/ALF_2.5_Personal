@@ -31,7 +31,6 @@ parse_parameters:
 Hamiltonians_interface.h: Hamiltonians.list
 	@echo "interface" > "Hamiltonians_interface.h"
 	@while read -r ham; do \
-		echo "$$ham"; \
 		echo "  module subroutine Ham_Alloc_$$ham()" >> "Hamiltonians_interface.h"; \
 		echo "  end subroutine Ham_Alloc_$$ham" >> "Hamiltonians_interface.h"; \
 	done < Hamiltonians.list 
