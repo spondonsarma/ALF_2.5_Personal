@@ -183,8 +183,10 @@
            IF (NTAU1 .GE. LOBS_ST .AND. NTAU1 .LE. LOBS_EN .and. Calc_Obser_eq ) THEN
               If (Symm) then
                  Call Hop_mod_Symm(GR_Tilde,GR)
+                 If (reconstruction_needed) Call ham%GR_reconstruction( GR_Tilde )
                  CALL ham%Obser( GR_Tilde, PHASE, Ntau1,Langevin_HMC%Delta_t_running )
               else
+               If (reconstruction_needed) Call ham%GR_reconstruction( GR )
                  CALL ham%Obser( GR, PHASE, Ntau1, Langevin_HMC%Delta_t_running )
               endif
            endif
@@ -213,10 +215,11 @@
 
         
         !Local
-        Complex (Kind=Kind(0.d0)) :: Z, Z1
+        Complex (Kind=Kind(0.d0)) :: Z(N_FL), Z1, Z_tmp(N_FL)
         Integer ::  nf, I, J, n, N_type, nf_eff
         Real(Kind=Kind(0.d0)) :: spin
 
+        Z_tmp=1.0d0   !This variable is to be removed once weight_reconstruction does not contain PHfactor any more
 
         Do nf_eff = 1,N_FL_eff
            nf=Calc_FL_map(nf_eff)
@@ -235,18 +238,21 @@
            enddo
            !TODO how does flavor symmetry effect section below? I feel like skipping some flavors is incorrect!
            if (OP_V(n,1)%type == 3 ) then
+              Z = cmplx(0.d0,0.d0,Kind(0.d0))
               Do nf_eff = 1, N_Fl_eff
                  nf=Calc_FL_map(nf_eff)
-                 Z = cmplx(0.d0,0.d0,Kind(0.d0))
                  do I = 1,size(OP_V(n,nf)%P,1)
                     do J = 1,size(OP_V(n,nf)%P,1)
                        Z1 =  cmplx(0.d0,0.d0,Kind(0.d0))
                        if ( I == J ) Z1 = cmplx(1.d0,0.d0,Kind(0.d0))
-                       Z  = Z +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
+                       Z(nf)  = Z(nf) +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
                     Enddo
                  Enddo
+              Enddo
+              if (reconstruction_needed) call ham%weight_reconstruction(Z,Z_tmp)
+              Do nf = 1, N_Fl
                  this%Forces(n,nt1) =  this%Forces(n,nt1)  - &
-                      &    Op_V(n,nf)%g * Z *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
+                      &    Op_V(n,nf)%g * Z(nf) *  cmplx(real(N_SUN,Kind(0.d0)), 0.d0, Kind(0.d0)) 
               Enddo
            endif
         enddo
