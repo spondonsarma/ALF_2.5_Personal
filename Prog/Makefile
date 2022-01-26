@@ -26,7 +26,7 @@ git.h:
 
 parse_parameters:
 	@echo "Parsing Hamiltonian parameters"
-	./parse_ham.py Hamiltonians.list
+	./parse_ham.py --create_read_write_par
 
 Hamiltonians_interface.h: Hamiltonians.list
 	@echo "interface" > "Hamiltonians_interface.h"
