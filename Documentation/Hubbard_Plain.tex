@@ -71,6 +71,10 @@ real(Kind=Kind(0.d0)) :: Theta    = 5.d0      ! Projection parameter
 Integer               :: N_part   = -1        ! Number of particles in trial wave function. If N_part < 0 -> N_part = L1*L2/2
 !#PARAMETERS END#
 \end{lstlisting}
+We can test the correct formatting of the parameters by calling:
+\begin{lstlisting}[style=bash]
+../parse_ham.py --test_file Hamiltonian_Hubbard_Plain_Vanilla_smod.F90
+\end{lstlisting}
 
 %------------------------------------------------------------
 \subsection{Setting the Hamiltonian:  \texttt{Ham\_set} }
