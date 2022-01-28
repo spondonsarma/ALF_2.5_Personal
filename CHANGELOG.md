@@ -1,5 +1,16 @@
 # Log of backward compatibility changes and critical bugs
 
+## 2022-MM-DD Write parameters to HDF5 file
+
+Author : J.Schwab <br>
+Merge request !117
+
+### Breaking changes
+1) Parameters to be formulated in format for parsing as described in Sec. 5.6 of documentation.
+   Strictly speaking, it's not necessary to do that, but it simplifies the Hamiltonian,
+   since the subroutine for reading parameters and writing parameters to HDF5 will be written automatically.
+2) With HDF5: Add typebound procedure `write_parameters_hdf5` to Hamiltonian.
+
 ## 2021-11-21 Implementing HDF5
 
 Author : J.Schwab <br>
