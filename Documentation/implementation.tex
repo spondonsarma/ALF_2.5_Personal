@@ -423,20 +423,20 @@ For each namelist, there has to be block of this form:
 ...
 !#PARAMETERS END#
 \end{lstlisting}
-Each of those ``namelist specifications'' starts with a line containing \path{#PARAMETERS START#} and end with a line containing \path{#PARAMETERS END#}. The namelist name has to be written after \path{#PARAMETERS START#} on the same line. The variable type specification \path{<varX_type>} has to contain \path{real}, \path{complex}, \path{integer}, \path{character} or \path{logical}, which will be parsed as \path{real(Kind=Kind(0.d0))}, \path{integer}, \path{character(len=64)} or \path{logical} respectively. Each variable needs to have a default value, where the default vaule for complex numbers needs to be in the form \path{(real_part, imag_part)}. The description of the parameters is optional. A variable can be commented out, but will still be parsed to be read from parameters. This is to facilitate reading of variables that are already defined in \path{Hamiltonian_main}, e.g. \path{N_SUN}.
+Each of those ``namelist specifications'' starts with a line containing \path{#PARAMETERS START#} and end with a line containing \path{#PARAMETERS END#}. The namelist name has to be written after \path{#PARAMETERS START#} on the same line. The variable type specification \path{<varX_type>} should be either \path{real}, \path{complex}, \path{integer}, \path{character} or \path{logical}, which will be declared as \path{real(Kind=Kind(0.d0))}, \path{Complex (Kind=Kind(0.d0))}, \path{integer}, \path{character(len=64)} or \path{logical} respectively. Each variable needs to have a default value, where the default vaule for complex numbers needs to be in the form \path{(real_part, imag_part)}. The description of the parameters is optional. A variable can be commented out, but will still be parsed to be read from parameters. This is to facilitate reading of variables that are already defined in \path{Hamiltonian_main}, e.g. \path{N_SUN}.
 
-For example, a namelist called \path{my_parameter_list} containing \path{N_SUN} and \path{beta} could look like:
+For example, a namelist called \path{my_parameter_list} containing \path{N_SUN} and \path{Beta} could look like:
 \begin{lstlisting}[style=fortran]
 !#PARAMETERS START# my_parameter_list
 !Integer              :: N_SUN = 2
 real(Kind=Kind(0.d0)) :: Beta  = 5.d0  ! Inverse temperature
 !#PARAMETERS END#
 \end{lstlisting}
-The parsing script \path{parse_ham.py} in \path{Prog} has the option \path{--test_file} for testing the namelist specifications, e.g. by calling:
+The parsing script \path{parse_ham.py} in \path{Prog/} has the option \path{--test_file} for testing the namelist specifications, e.g. calling:
 \begin{lstlisting}[style=bash]
 ./parse_ham.py --test_file Hamiltonians/Hamiltonian_New_model_smod.F90
 \end{lstlisting}
-It will print out the results from parsing for manual checking. We recommend doing this after every change in parameters.
+prints out the results from parsing for manual checking. We recommend doing this after every change in the namelist.
 
 During compilation, the file \texttt{Hamiltonian\_\emph{New\_model}\_read\_write\_parameters.F90} containing the subroutines \path{read_parameters} and \path{write_parameters_hdf5} is generated automatically. The former subroutine can be called in \path{ham_set}, while the latter has to be bound to \path{ham_New_model} through:
 \begin{lstlisting}[style=fortran]
@@ -445,8 +445,7 @@ During compilation, the file \texttt{Hamiltonian\_\emph{New\_model}\_read\_write
 #endif
 \end{lstlisting}
 
-For creating a new Hamiltonian, there is a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} to be copied to \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90}.
-
+To help creating a new Hamiltonian, we provide a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90}, which can be copied to \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90} before being modified.
 To simplify  the implementation of a new Hamiltonian, ALF comes with a set of predefined structures (Sec.~\ref{sec:predefined}) which the user can combine together or use as templates.
 
 

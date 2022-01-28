@@ -6,16 +6,16 @@
 
 % !TEX root = doc.tex
 
-All the data structures necessary to implement a given model have been introduced in the previous sections. Here we show how to implement a new model on the example of the Hubbard model.
+All the data structures necessary to implement a given model have been introduced in the previous sections. Here we show how to implement a new model based on the example of the Hubbard model.
 
-As stated in Sec. \ref{sec:hamiltonian}, for defining a new model one needs to 
+As stated in Sec. \ref{sec:hamiltonian}, for defining a new Hamiltonian calle \emph{New\_model} one needs to 
 \begin{enumerate}
-\item Add a new line \emph{New\_model} to the file \path{Prog/Hamiltonians.list}
-\item Write the new submodule in \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90}
+\item Add a new line containing \emph{New\_model} to the file \path{Prog/Hamiltonians.list}
+\item Write the corresponding new submodule in \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90}
 \end{enumerate}
-Where \emph{New\_model} is the designation of the new model, in this example \path{Hubbard_Plain_Vanilla}. There is a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} that can be copied for creating a new model.
+Here our \emph{New\_model} will be \path{Hubbard_Plain_Vanilla}. There is a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90} that can be used for creating a new model.
 
-To get a valid Hamiltonian, one has to specify the parameters, the lattice, the hopping, the interaction, the trial wave function  (if  required), and the observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
+To get a valid Hamiltonian, one has to specify its parameters, the lattice, the hopping, the interaction, the trial wave function  (if  required), and the observables.  Consider  the  \textit{plain vanilla}  Hubbard model  written as: 
 \begin{equation}
 \label{eqn_hubbard_Mz}
 \mathcal{H}=
@@ -60,15 +60,16 @@ Integer            :: L2 = 4   ! Length in direction a_2
 
 !#PARAMETERS START# VAR_Hubbard_Plain_Vanilla
 !Integer              :: N_SUN = 2
-real(Kind=Kind(0.d0)) :: ham_T    = 1.d0      ! Hopping parameter
-real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0      ! Chemical potential
-real(Kind=Kind(0.d0)) :: Ham_U    = 4.d0      ! Hubbard interaction
-real(Kind=Kind(0.d0)) :: Dtau     = 0.1d0     ! Thereby Ltrot=Beta/dtau
-real(Kind=Kind(0.d0)) :: Beta     = 5.d0      ! Inverse temperature
-!logical              :: Projector = .false.  ! Whether the projective algorithm is used
-real(Kind=Kind(0.d0)) :: Theta    = 5.d0      ! Projection parameter
-!logical              :: Symm = .false.       ! Whether symmetrization takes place
-Integer               :: N_part   = -1        ! Number of particles in trial wave function. If N_part < 0 -> N_part = L1*L2/2
+real(Kind=Kind(0.d0)) :: ham_T    = 1.d0     ! Hopping parameter
+real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0     ! Chemical potential
+real(Kind=Kind(0.d0)) :: Ham_U    = 4.d0     ! Hubbard interaction
+real(Kind=Kind(0.d0)) :: Dtau     = 0.1d0    ! Thereby Ltrot=Beta/dtau
+real(Kind=Kind(0.d0)) :: Beta     = 5.d0     ! Inverse temperature
+!logical              :: Projector = .false. ! Whether the projective algorithm is used
+real(Kind=Kind(0.d0)) :: Theta    = 5.d0     ! Projection parameter
+!logical              :: Symm = .false.      ! Whether symmetrization takes place
+Integer               :: N_part   = -1       ! Number of particles in trial wave function.
+                                             ! If N_part < 0 -> N_part = L1*L2/2
 !#PARAMETERS END#
 \end{lstlisting}
 We can test the correct formatting of the parameters by calling:
