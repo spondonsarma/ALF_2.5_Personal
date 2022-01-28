@@ -61,6 +61,7 @@ def parse_line(line):
     name, value = assignment.split('=')
     # parameter['name'] = name.split('(')[0].strip()
     parameter['name'] = name.strip()
+    value = value.strip()
     parameter['defined_in_base'] = dtype.startswith('!')
     if '[' in value:
         parameter['value'] = []
