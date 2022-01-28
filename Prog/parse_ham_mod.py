@@ -61,7 +61,7 @@ def parse_line(line):
     name, value = assignment.split('=')
     # parameter['name'] = name.split('(')[0].strip()
     parameter['name'] = name.strip()
-    value = value.strip().replace('d', 'e')
+    value = value.strip()
     parameter['defined_in_base'] = dtype.startswith('!')
     if '[' in value:
         parameter['value'] = []
@@ -84,8 +84,8 @@ def _dtype_name(parameter):
         return 'logical'
     if isinstance(parameter, float):
         return 'real(dp)'
-    if isinstance(parameter, complex):
-        return 'complex(dp)'
+    # if isinstance(parameter, complex):
+    #     return 'complex(dp)'
     if isinstance(parameter, int):
         return 'integer'
     if isinstance(parameter, str):
@@ -108,9 +108,9 @@ def _convert_par_to_str(parameter):
         if 'e' in '{}'.format(parameter):
             return '{}'.format(parameter).replace('e', 'd')
         return '{}d0'.format(parameter)
-    if isinstance(parameter, complex):
-        return '({}, {})'.format(_convert_par_to_str(parameter.real),
-                                 _convert_par_to_str(parameter.imag))
+    # if isinstance(parameter, complex):
+    #     return '({}, {})'.format(_convert_par_to_str(parameter.real),
+    #                              _convert_par_to_str(parameter.imag))
     if isinstance(parameter, int):
         return '{}'.format(parameter)
     if isinstance(parameter, str):
@@ -307,12 +307,12 @@ def create_read_write_par(filename, parameters, ham_name):
 def _to_value(dtype, value):
     if 'real' in dtype:
         return float(value.replace('d', 'e'))
-    if 'complex' in dtype:
-        tmp = value.strip('()').split(',')
-        if not len(tmp) == 2:
-            raise Exception(
-                '"{}", "{}" cannot be mapped to complex'.format(dtype, value))
-        return complex(float(tmp[0]), float(tmp[1]))
+    # if 'complex' in dtype:
+    #     tmp = value.strip('()').split(',')
+    #     if not len(tmp) == 2:
+    #         raise Exception(
+    #             '"{}", "{}" cannot be mapped to complex'.format(dtype, value))
+    #     return complex(float(tmp[0]), float(tmp[1]))
     if 'integer' in dtype:
         return int(value)
     if 'character' in dtype:
@@ -336,8 +336,8 @@ def _get_mpi_dtype(parameter):
         return 'MPI_LOGICAL  '
     if isinstance(parameter, float):
         return 'MPI_REAL8    '
-    if isinstance(parameter, complex):
-        return 'MPI_COMPLEX16'
+    # if isinstance(parameter, complex):
+    #     return 'MPI_COMPLEX16'
     if isinstance(parameter, int):
         return 'MPI_INTEGER  '
     if isinstance(parameter, str):
