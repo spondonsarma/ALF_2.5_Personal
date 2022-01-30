@@ -152,7 +152,6 @@
       !#PARAMETERS END#
 
       !#PARAMETERS START# VAR_Hubbard_Plain_Vanilla
-      !Integer              :: N_SUN = 2
       real(Kind=Kind(0.d0)) :: ham_T    = 1.d0      ! Hopping parameter
       real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0      ! Chemical potential
       real(Kind=Kind(0.d0)) :: Ham_U    = 4.d0      ! Hubbard interaction
