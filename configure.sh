@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script sets necessary environment variables for compiling ALF.
 # You need to source it prior to executing make.
-USAGE="usage 'source configureHPC.sh MACHINE MODE STAB' \n\
+USAGE="usage 'source configure.sh MACHINE MODE STAB' \n\
     \n\
 Please choose one of the following MACHINEs:\n\
  * GNU\n\

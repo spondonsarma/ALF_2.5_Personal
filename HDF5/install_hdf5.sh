@@ -36,7 +36,7 @@ if ! command -v "$CXX" > /dev/null; then
   exit 1
 fi
 
-"$source_dir/configure" --prefix="$HDF5_DIR" --enable-fortran
+"$source_dir/configure" --prefix="$HDF5_DIR" --enable-fortran --enable-shared=no --enable-tests=no
 if ! make; then
   printf "\e[31m=== Compilation with compilers %s %s in directory %s failed ===\e[0m\n" "$CC" "$FC" "$PWD"
   rm -rf "$HDF5_DIR"

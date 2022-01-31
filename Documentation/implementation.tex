@@ -1,4 +1,4 @@
-% Copyright (c) 2016-2020 The ALF project.
+% Copyright (c) 2016-2022 The ALF project.
 % This is a part of the ALF project documentation.
 % The ALF project documentation by the ALF contributors is licensed
 % under a Creative Commons Attribution-ShareAlike 4.0 International License.
@@ -414,6 +414,39 @@ end Subroutine Ham_Alloc_New_model
 \end{lstlisting}
 where \path{ham_New_model} is the name of the new type derived from \path{ham_base}. The rest of the linking is done automatically through the entry in \path{Prog/Hamiltonians.list}.
 
+Hamiltonian variables to be read in through the parameters file should be written in a specific format, since they will be parsed at compile time and subroutines for reading from parameters file and writing the HDF5 file will be automatically generated.
+For each namelist, there has to be block of this form:
+\begin{lstlisting}[style=fortran]
+!#PARAMETERS START# <namelist_name>
+<var1_type> :: <var1_name> = <var1_default>  ! <var1_description>
+<var2_type> :: <var2_name> = <var2_default>  ! <var2_description>
+...
+!#PARAMETERS END#
+\end{lstlisting}
+
+Each of those ``namelist specifications'' starts with a line containing \path{#PARAMETERS START#} and end with a line containing \path{#PARAMETERS END#}. The namelist name has to be written after \path{#PARAMETERS START#} on the same line. The variable type specification \path{<varX_type>} should be either \path{real}, \path{integer}, \path{character} or \path{logical}, declared as \path{real(Kind=Kind(0.d0))}, \path{integer}, \path{character(len=64)} or \path{logical} respectively. Each variable needs to have a default value. The description of the parameters is optional. A variable can be commented out, but will still be parsed to be read from parameters. This is to facilitate reading of variables that are already defined in \path{Hamiltonian_main}, e.g. \path{N_SUN}.
+
+For example, a namelist called \path{my_parameter_list} containing \path{N_SUN} and \path{Beta} could look like:
+\begin{lstlisting}[style=fortran]
+!#PARAMETERS START# my_parameter_list
+!Integer              :: N_SUN = 2
+real(Kind=Kind(0.d0)) :: Beta  = 5.d0  ! Inverse temperature
+!#PARAMETERS END#
+\end{lstlisting}
+The parsing script \path{parse_ham.py} in \path{Prog/} has the option \path{--test_file} for testing the namelist specifications, e.g. calling:
+\begin{lstlisting}[style=bash]
+./parse_ham.py --test_file Hamiltonians/Hamiltonian_New_model_smod.F90
+\end{lstlisting}
+prints out the results from parsing for manual checking. We recommend doing this after every change in the namelist.
+
+During compilation, the file \texttt{Hamiltonian\_\emph{New\_model}\_read\_write\_parameters.F90} containing the subroutines \path{read_parameters} and \path{write_parameters_hdf5} is generated automatically. The former subroutine can be called in \path{ham_set}, while the latter has to be bound to \path{ham_New_model} through:
+\begin{lstlisting}[style=fortran]
+#ifdef HDF5
+        procedure, nopass :: write_parameters_hdf5
+#endif
+\end{lstlisting}
+
+To help creating a new Hamiltonian, we provide a template \path{Prog/Hamiltonians/Hamiltonian_##NAME##_smod.F90}, which can be copied to \texttt{Prog/Hamiltonians/Hamiltonian\_\emph{New\_model}\_smod.F90} before being modified.
 To simplify  the implementation of a new Hamiltonian, ALF comes with a set of predefined structures (Sec.~\ref{sec:predefined}) which the user can combine together or use as templates.
 
 

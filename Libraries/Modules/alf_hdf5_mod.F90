@@ -273,8 +273,7 @@
             LOGICAL :: link_exists
             INTEGER            :: ierr, no
             INTEGER(HSIZE_T)   :: size_dat
-            INTEGER(HSIZE_T), allocatable :: dims(:)
-            Real (Kind=Kind(0.d0)), allocatable :: X(:,:)
+            Real (Kind=Kind(0.d0)), allocatable :: temp(:)
             
             group_name = "lattice"
             CALL h5lexists_f(obj_id, group_name, link_exists, ierr)
@@ -300,10 +299,13 @@
             call write_attribute(group_id, '.', attr_name, size(Latt_unit%Orb_pos_p, 2), ierr)
             
             size_dat = size(Latt_unit%Orb_pos_p, 2)
+            allocate(temp(size_dat))
             do no = 1, Latt_unit%Norb
+               temp(:) = Latt_unit%Orb_pos_p(no,:)
                write(attr_name, '("Orbital", I0)') no
-               call h5LTset_attribute_double_f(group_id, dset_name, attr_name, Latt_unit%Orb_pos_p(no,:), size_dat, ierr )
+               call h5LTset_attribute_double_f(group_id, dset_name, attr_name, temp, size_dat, ierr )
             enddo
+            deallocate(temp)
             
             call h5gclose_f(group_id, ierr)
            
