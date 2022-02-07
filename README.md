@@ -19,7 +19,7 @@ You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen
 
 ## PREREQUISITES ##
 
-Libraries: Lapack and Blas
+Packages: Lapack, Blas, Python 3
 
 Compiler: gfortran or ifort 
 
