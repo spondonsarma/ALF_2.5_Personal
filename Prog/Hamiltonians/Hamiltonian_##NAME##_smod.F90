@@ -181,11 +181,6 @@
           Character (len=64)     :: file_info
 
 
-          ! L1, L2, Lattice_type, List(:,:), Invlist(:,:) -->  Lattice information
-          ! Ham_T, Chem, Phi_X, XB_B, Checkerboard, Symm   -->  Hopping
-          ! Interaction                              -->  Model
-          ! Simulation type                          -->  Finite  T or Projection  Symmetrize Trotter.
-                  
 #ifdef MPI
           Integer        :: Isize, Irank, irank_g, isize_g, igroup
           Integer        :: STATUS(MPI_STATUS_SIZE)
@@ -272,109 +267,61 @@
           Character (len=2)  ::  Channel
 
 
-          ! Scalar observables
-          Allocate ( Obs_scal(4) )
-          Do I = 1,Size(Obs_scal,1)
-             select case (I)
-             case (1)
-                N = 1;   Filename = "Kin"
-             case (2)
-                N = 1;   Filename = "Pot"
-             case (3)
-                N = 1;   Filename = "Part"
-             case (4)
-                N = 1;   Filename = "Ener"
-             case default
-                Write(6,*) ' Error in Alloc_obs '
-             end select
-             Call Obser_Vec_make(Obs_scal(I),N,Filename)
-          enddo
-
-          ! Equal time correlators
-          If ( Mz ) Then
-             Allocate ( Obs_eq(5) )
-             Do I = 1,Size(Obs_eq,1)
-                select case (I)
-                case (1)
-                   Filename = "Green"
-                case (2)
-                   Filename = "SpinZ"
-                case (3)
-                   Filename = "SpinXY"
-                case (4)
-                   Filename = "SpinT"
-                case (5)
-                   Filename = "Den"
-                case default
-                   Write(6,*) ' Error in Alloc_obs '
-                end select
-                Nt = 1
-                Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-             enddo
-
-             If (Ltau == 1) then
-                ! Equal time correlators
-                Allocate ( Obs_tau(5) )
-                Do I = 1,Size(Obs_tau,1)
-                   select case (I)
-                   case (1)
-                      Channel = 'P' ; Filename = "Green"
-                   case (2)
-                      Channel = 'PH'; Filename = "SpinZ"
-                   case (3)
-                      Channel = 'PH'; Filename = "SpinXY"
-                   case (4)
-                      Channel = 'PH'; Filename = "SpinT"
-                   case (5)
-                      Channel = 'PH'; Filename = "Den"
-                   case default
-                      Write(6,*) ' Error in Alloc_obs '
-                   end select
-                   Nt = Ltrot+1-2*Thtrot
-                   If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-                enddo
-             endif
-          else
-             ! Equal time correlators
-             Allocate ( Obs_eq(3) )
-             Do I = 1,Size(Obs_eq,1)
-                select case (I)
-                case (1)
-                   Filename = "Green"
-                case (2)
-                   Filename = "SpinZ"
-                case (3)
-                   Filename = "Den"
-                case default
-                   Write(6,*) ' Error in Alloc_obs '
-                end select
-                Nt = 1
-                Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-             enddo
-
-             If (Ltau == 1) then
-                ! Equal time correlators
-                Allocate ( Obs_tau(3) )
-                Do I = 1,Size(Obs_tau,1)
-                   select case (I)
-                   case (1)
-                      Channel = 'P' ; Filename = "Green"
-                   case (2)
-                      Channel = 'PH'; Filename = "SpinZ"
-                   case (3)
-                      Channel = 'PH'; Filename = "Den"
-                   case default
-                      Write(6,*) ' Error in Alloc_obs '
-                   end select
-                   Nt = Ltrot+1-2*Thtrot
-                   If(Projector) Channel = 'T0'
-                   Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-                enddo
-             endif
-          endif
+!           ! Scalar observables
+!           Allocate ( Obs_scal(4) )
+!           Do I = 1,Size(Obs_scal,1)
+!             select case (I)
+!             case (1)
+!               N = 1;   Filename = "Kin"
+!             case (2)
+!               N = 1;   Filename = "Pot"
+!             case (3)
+!               N = 1;   Filename = "Part"
+!             case (4)
+!               N = 1;   Filename = "Ener"
+!             case default
+!               Write(6,*) ' Error in Alloc_obs '
+!             end select
+!             Call Obser_Vec_make(Obs_scal(I),N,Filename)
+!           enddo
+! 
+!           ! Equal time correlators
+!           Allocate ( Obs_eq(3) )
+!           Do I = 1,Size(Obs_eq,1)
+!             select case (I)
+!             case (1)
+!               Filename = "Green"
+!             case (2)
+!               Filename = "SpinZ"
+!             case (3)
+!               Filename = "Den"
+!             case default
+!               Write(6,*) ' Error in Alloc_obs '
+!             end select
+!             Nt = 1
+!             Channel = '--'
+!             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+!           enddo
+! 
+!           If (Ltau == 1) then
+!             ! Time-displaced correlators
+!             Allocate ( Obs_tau(3) )
+!             Do I = 1,Size(Obs_tau,1)
+!               select case (I)
+!               case (1)
+!                 Channel = 'P' ; Filename = "Green"
+!               case (2)
+!                 Channel = 'PH'; Filename = "SpinZ"
+!               case (3)
+!                 Channel = 'PH'; Filename = "Den"
+!               case default
+!                 Write(6,*) ' Error in Alloc_obs '
+!               end select
+!               Nt = Ltrot+1-2*Thtrot
+!               If(Projector) Channel = 'T0'
+!               Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+!             enddo
+!           endif
 
         End Subroutine Alloc_obs
 
