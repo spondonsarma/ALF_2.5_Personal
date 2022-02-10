@@ -146,7 +146,7 @@
 
       !#PARAMETERS START# VAR_lattice
       Character (len=64) :: Model = ''  ! Value not relevant
-      Character (len=64) :: Lattice_type = 'Bilayer_square'  ! Possible values: 'Bilayer_square', 'Bilayer_honeycomb'
+      Character (len=64) :: Lattice_type = 'Square'
       Integer            :: L1 = 6   ! Length in direction a_1
       Integer            :: L2 = 6   ! Length in direction a_2
       !#PARAMETERS END#
