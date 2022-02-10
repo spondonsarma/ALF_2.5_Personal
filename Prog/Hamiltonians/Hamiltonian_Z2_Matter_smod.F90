@@ -76,8 +76,8 @@
       !#PARAMETERS START# VAR_lattice
       Character (len=64) :: Model = 'Z2_Matter'  ! Possible Values: 'Z2_Matter'
       Character (len=64) :: Lattice_type = 'Square'  ! Possible Values: 'Square'
-      Integer            :: L1 = 4   ! Length in direction a_1
-      Integer            :: L2 = 4   ! Length in direction a_2
+      Integer            :: L1 = 6   ! Length in direction a_1
+      Integer            :: L2 = 6   ! Length in direction a_2
       !#PARAMETERS END#
 
       !#PARAMETERS START# VAR_Z2_Matter
@@ -85,7 +85,7 @@
       real(Kind=Kind(0.d0)) :: ham_T    = 1.d0   ! Hopping for fermions
       real(Kind=Kind(0.d0)) :: ham_TZ2  = 1.d0   ! Hopping for orthogonal fermions
       real(Kind=Kind(0.d0)) :: Ham_chem = 0.d0   ! Chemical potential for fermions
-      real(Kind=Kind(0.d0)) :: Ham_U    = 0.1d0  ! Hubbard for fermions
+      real(Kind=Kind(0.d0)) :: Ham_U    = 0.d0  ! Hubbard for fermions
       real(Kind=Kind(0.d0)) :: Ham_J    = 1.d0   ! Hopping Z2 matter fields
       real(Kind=Kind(0.d0)) :: Ham_K    = 1.d0   ! Plaquette term for gauge fields
       real(Kind=Kind(0.d0)) :: Ham_h    = 1.d0   ! sigma^x-term for matter

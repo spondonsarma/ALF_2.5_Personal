@@ -16,7 +16,7 @@ _PARAMS_GENERIC = OrderedDict([
                      'value': 0.0},
          'Delta_t_Langevin_HMC': {'comment': 'Time step for Langevin or '
                                              'HMC',
-                                  'value': 0.01},
+                                  'value': 0.1},
          'Global_moves': {'comment': 'Allows for global moves in space '
                                      'and time.',
                           'value': False},
@@ -35,7 +35,7 @@ _PARAMS_GENERIC = OrderedDict([
          'Ltau': {'comment': '1 to calculate time-displaced Green '
                              'functions; 0 otherwise.',
                   'value': 1},
-         'Max_Force': {'comment': 'Max Force for Langevin', 'value': 1.5},
+         'Max_Force': {'comment': 'Max Force for Langevin', 'value': 5.0},
          'N_global': {'comment': 'Number of global moves per sweep.',
                       'value': 1},
          'N_global_tau': {'comment': 'Number of global moves that will '
@@ -43,7 +43,7 @@ _PARAMS_GENERIC = OrderedDict([
                                      'slice.',
                           'value': 1},
          'Nbin': {'comment': 'Number of bins.', 'value': 5},
-         'Nsweep': {'comment': 'Number of sweeps per bin.', 'value': 100},
+         'Nsweep': {'comment': 'Number of sweeps per bin.', 'value': 20},
          'Nt_sequential_end': {'comment': '', 'value': -1},
          'Nt_sequential_start': {'comment': '', 'value': 0},
          'Nwrap': {'comment': 'Stabilization. Green functions will be '
@@ -55,12 +55,15 @@ _PARAMS_GENERIC = OrderedDict([
                         'value': False}}),
     ('VAR_errors',
         {'N_Back': {'comment': 'If set to 1, substract background in '
-                               'correlation functions.',
+                               'correlation functions. Is ignored in '
+                               'Python analysis.',
                     'value': 1},
          'N_Cov': {'comment': 'If set to 1, covariance computed for '
-                              'time-displaced correlation functions.',
+                              'time-displaced correlation functions. '
+                              'Is ignored in Python analysis.',
                    'value': 0},
-         'N_auto': {'comment': 'If > 0, calculate autocorrelation.',
+         'N_auto': {'comment': 'If > 0, calculate autocorrelation. '
+                                'Is ignored in Python analysis.',
                     'value': 0},
          'N_rebin': {'comment': 'Rebinning: Number of bins to combine '
                                 'into one.',

@@ -148,8 +148,8 @@
       !#PARAMETERS START# VAR_lattice
       Character (len=64) :: Model = 'Hubbard'  ! Value not relevant
       Character (len=64) :: Lattice_type = 'Square'
-      Integer            :: L1 = 4   ! Length in direction a_1
-      Integer            :: L2 = 4   ! Length in direction a_2
+      Integer            :: L1 = 6   ! Length in direction a_1
+      Integer            :: L2 = 6   ! Length in direction a_2
       !#PARAMETERS END#
 
       !#PARAMETERS START# VAR_Model_Generic
@@ -170,9 +170,9 @@
       !#PARAMETERS START# VAR_Hubbard
       real(Kind=Kind(0.d0)) :: ham_T      = 1.d0     ! Hopping parameter
       real(Kind=Kind(0.d0)) :: Ham_chem   = 0.d0     ! Chemical potential
-      real(Kind=Kind(0.d0)) :: Ham_U      = 0.1d0    ! Hubbard interaction
+      real(Kind=Kind(0.d0)) :: Ham_U      = 4.d0    ! Hubbard interaction
       real(Kind=Kind(0.d0)) :: ham_T2     = 1.d0     ! For bilayer systems
-      real(Kind=Kind(0.d0)) :: Ham_U2     = 0.1d0    ! For bilayer systems
+      real(Kind=Kind(0.d0)) :: Ham_U2     = 4.d0    ! For bilayer systems
       real(Kind=Kind(0.d0)) :: ham_Tperp  = 1.d0     ! For bilayer systems
       logical               :: Mz         = .true.   ! When true, sets the M_z-Hubbard model: Nf=2, demands that N_sun is even, HS field couples to the z-component of magnetization; otherwise, HS field couples to the density
       logical               :: Continuous = .false.  ! Uses (T: continuous; F: discrete) HS transformation

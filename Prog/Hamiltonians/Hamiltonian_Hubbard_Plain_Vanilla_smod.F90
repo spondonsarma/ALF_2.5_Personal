@@ -147,8 +147,8 @@
       !#PARAMETERS START# VAR_lattice
       Character (len=64) :: Model = ''  ! Value irrelevant
       Character (len=64) :: Lattice_type = 'Square'  ! Possible Values: 'Square'
-      Integer            :: L1 = 4   ! Length in direction a_1
-      Integer            :: L2 = 4   ! Length in direction a_2
+      Integer            :: L1 = 6   ! Length in direction a_1
+      Integer            :: L2 = 6   ! Length in direction a_2
       !#PARAMETERS END#
 
       !#PARAMETERS START# VAR_Hubbard_Plain_Vanilla
@@ -157,9 +157,9 @@
       real(Kind=Kind(0.d0)) :: Ham_U    = 4.d0      ! Hubbard interaction
       real(Kind=Kind(0.d0)) :: Dtau     = 0.1d0     ! Thereby Ltrot=Beta/dtau
       real(Kind=Kind(0.d0)) :: Beta     = 5.d0      ! Inverse temperature
-      !logical              :: Projector = .false.  ! Whether the projective algorithm is used
-      real(Kind=Kind(0.d0)) :: Theta    = 5.d0      ! Projection parameter
-      !logical              :: Symm = .false.       ! Whether symmetrization takes place
+      !logical              :: Projector= .false.   ! Whether the projective algorithm is used
+      real(Kind=Kind(0.d0)) :: Theta    = 10.d0     ! Projection parameter
+      !logical              :: Symm     = .true.    ! Whether symmetrization takes place
       Integer               :: N_part   = -1        ! Number of particles in trial wave function. If N_part < 0 -> N_part = L1*L2/2
       !#PARAMETERS END#
 
