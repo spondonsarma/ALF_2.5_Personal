@@ -220,3 +220,18 @@ create_doxygen:
   script:
       - apt-get update && apt install -y doxygen graphviz
       - doxygen doxygen/Doxyfile
+
+pages:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-clang
+  stage: build
+  script:
+    - apt-get update && apt install -y doxygen graphviz
+    - doxygen doxygen/Doxyfile
+    - mkdir public
+    - mv doxygen/html/* public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
