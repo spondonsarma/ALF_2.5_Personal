@@ -217,6 +217,9 @@ create_doxygen:
     paths:
       - doxygen/*
       - Images/*
+      - public
   script:
       - apt-get update && apt install -y doxygen graphviz
       - doxygen doxygen/Doxyfile
+      - mkdir public
+      - cp -r doxygen/html/* public
