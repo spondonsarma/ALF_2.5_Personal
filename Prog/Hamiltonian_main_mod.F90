@@ -35,13 +35,21 @@
 !> ALF-project
 !>
 !> @brief
-!> This module defines the  Hamiltonian and observables.  Here, we have included a
-!> set of predefined Hamiltonians. They include the Hubbard and SU(N) tV models
-!> on honeycomb, pi-flux and square lattices.
+!> This module defines the interface between the Hamiltonians (= model and observables definition) and
+!> the Monte Carlo core. Hamiltonians are defined as submodules of this module. The Monte Carlo core
+!> has only access to public members of this module. For defining a new Hamiltonian named <new_ham_name>, 
+!> the user has to create the file Hamiltonians/Hamiltonian_<new_ham_name>_smod.F90 and add the line
+!> <new_ham_name> to Hamiltonians.list.
 
 !> @details
 !> The public variables of this module are the following
 !>
+!>
+!> @param [public] ham
+!> \verbatim
+!> class(ham_base), allocatable
+!> Object that contains all the Hamiltonian-specific procedures needed by the Monte Carlo core.
+!> The procedures can be overloaded in the Hamiltonians. \endverbatim
 !>
 !> @param [public] OP_V
 !> \verbatim
