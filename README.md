@@ -13,9 +13,9 @@ where
 
 Here Z denotes a scalar field (Ising or real continuous field) with predefined dynamics. If your model can be written in this form then it will be amenable to the ALF. 
 
-<!--## Doxygen ##
+## Doxygen ##
 
-You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen_Docu/ALF/html/index.html)  formated documentation. (Work in progress)  -->
+You can find here [Doxygen](https://gitpages.physik.uni-wuerzburg.de/ALF/ALF/) formatted documentation. (Work in progress)
 
 ## PREREQUISITES ##
 
