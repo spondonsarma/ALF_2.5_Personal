@@ -64,6 +64,25 @@ set_hdf5_flags()
   LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
 }
 
+check_libs()
+{
+    FC="$1" LIBS="$2"
+    COMPILE="$FC check_libs.f90 $LIBS -o check_libs.out"
+    ERROR_MSG1="\033[0;31mError: Compiler $FC not found.\033[0m\n"
+    ERROR_MSG2="\033[0;31mError: Linear algebra libraries not found.\033[0m\n"
+    if $FC --version 2>&1 >/dev/null; then
+	if $COMPILE; then
+	    ./check_libs.out
+	else
+	    printf "${ERROR_MSG2}"
+	    return 1
+	fi
+    else
+	printf "${ERROR_MSG1}"
+	return 1
+    fi
+}
+
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # INTELOPTFLAGS="-cpp -O3 "
@@ -301,6 +320,8 @@ case $MACHINE in
     fi
   ;;
 esac
+
+check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
