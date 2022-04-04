@@ -50,7 +50,7 @@ set_hdf5_flags()
     fi
     case "$yn" in
       y|Y|"")
-        printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
+        printf "${RED}Downloading and installing HDF5 in %s.${NC}\n" "$HDF5_DIR"
         CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh" || return 1
       ;;
       *) 
@@ -68,17 +68,15 @@ check_libs()
 {
     FC="$1" LIBS="$2"
     COMPILE="$FC check_libs.f90 $LIBS -o check_libs.out"
-    ERROR_MSG1="\033[0;31mError: Compiler $FC not found.\033[0m\n"
-    ERROR_MSG2="\033[0;31mError: Linear algebra libraries not found.\033[0m\n"
-    if $FC --version 2>&1 >/dev/null; then
-	if $COMPILE; then
+    if $FC --version 2>&1 >/dev/null; then    # Calling the compiler is successful
+	if $COMPILE; then                     # Compiling with $LIBS is successful
 	    ./check_libs.out
 	else
-	    printf "${ERROR_MSG2}"
+	    printf "${RED}Error: Linear algebra libraries not found.${NC}\n"
 	    return 1
 	fi
     else
-	printf "${ERROR_MSG1}"
+	printf "${RED}Error: Compiler %s not found.${NC}\n" "$FC"
 	return 1
     fi
 }
