@@ -68,15 +68,23 @@ check_libs()
 {
     FC="$1" LIBS="$2"
     COMPILE="$FC check_libs.f90 $LIBS -o check_libs.out"
-    if $FC --version 2>&1 >/dev/null; then    # Calling the compiler is successful
-	if $COMPILE; then                     # Compiling with $LIBS is successful
+    if command -v "$FC" > /dev/null; then   # Calling the compiler is successful
+	if $COMPILE; then                   # Compiling with $LIBS is successful
 	    ./check_libs.out
 	else
-	    printf "${RED}Error: Linear algebra libraries not found.${NC}\n"
+	    printf "${RED}\n==== Error: Linear algebra libraries <%s> not found. ====${NC}\n\n" "$LIBS"
 	    return 1
 	fi
     else
-	printf "${RED}Error: Compiler %s not found.${NC}\n" "$FC"
+	printf "${RED}\n==== Error: Compiler <%s> not found. ====${NC}\n\n" "$FC"
+	return 1
+    fi
+}
+
+check_python()
+{
+    if ! command -v python3 > /dev/null; then
+	printf "${RED}\n==== Error: Python 3 not found. =====${NC}\n\n"
 	return 1
     fi
 }
@@ -320,6 +328,8 @@ case $MACHINE in
 esac
 
 check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
+
+check_python || return 1
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
