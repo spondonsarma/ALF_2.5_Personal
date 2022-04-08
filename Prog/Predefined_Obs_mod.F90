@@ -1,5 +1,5 @@
 !  Copyright (C) 2016 - 2020 The ALF project
-! 
+!
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
 !     the Free Software Foundation, either version 3 of the License, or
@@ -30,12 +30,12 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 !--------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !>
-!> @brief 
+!> @brief
 !> This module provides a set of predefined observables
-!>       
+!>
 !
 !--------------------------------------------------------------------
 
@@ -43,30 +43,40 @@
 
       Use Observables
       Use Lattices_v3
-      
-      Implicit none
+      Use entanglement_mod
+      use iso_fortran_env, only: output_unit, error_unit
 
+      Implicit none
       
+      INTERFACE Predefined_Obs_scal_Renyi_Ent
+        MODULE PROCEDURE Predefined_Obs_scal_Renyi_Ent_gen_all, Predefined_Obs_scal_Renyi_Ent_indep, &
+        & Predefined_Obs_scal_Renyi_Ent_gen_fl
+      END INTERFACE
+      INTERFACE Predefined_Obs_scal_Mutual_Inf
+        MODULE PROCEDURE Predefined_Obs_scal_Mutual_Inf_indep, Predefined_Obs_scal_Mutual_Inf_gen_fl, &
+        & Predefined_Obs_scal_Mutual_Inf_gen_all
+      END INTERFACE
+
     contains
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure SU(N) spin-spin coorelations
-!>       If N_FL = 1 then  this routine returns 
+!>       If N_FL = 1 then  this routine returns
 !>       \frac{2N}{N^2-1}\sum_{a=1}{N^2 - 1 }  <c^{dag}_i T^a c_i  c^{dag}_j T^a  c_j>  where  T^a are th generators of SU(N)
-!>       satisfying the normalization condition:  Tr [ T^a  T^b ]= \delta_{a,b}/2 
+!>       satisfying the normalization condition:  Tr [ T^a  T^b ]= \delta_{a,b}/2
 !>       Note that for SU(N) symmetry:
 !>       \sum_{a=1}{N^2 - 1 }  <c^{dag}_i T^a c_i  c^{dag}_j T^a  c_j>   = \sum_{a} Tr{T^a T^a} < c^{dag}_i c_j> < c_i c^{dag}_j> =
-!>       (N^2 -1)/2 < c^{dag}_i c_j> < c_i c^{dag}_j> 
+!>       (N^2 -1)/2 < c^{dag}_i c_j> < c_i c^{dag}_j>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_eq_SpinSUN_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:)
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
@@ -74,8 +84,8 @@
         Complex (Kind=Kind(0.d0)) :: ZZ
 
         If ( Obs%File_Latt .ne. "SpinZ" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_eq_SpinSUN_measure: Wrong filename'
+           error stop 1
         endif
         ! Count and average sign
         Obs%N        = Obs%N + 1
@@ -92,24 +102,24 @@
                  J    = List(J1,1)
                  no_J = List(J1,2)
                  imj  = latt%imj(I,J)
-                 ZZ   = GRC(I1,J1,1) * GR(I1,J1,1) * cmplx(dble(N_SUN), 0.d0, kind(0.D0)) 
+                 ZZ   = GRC(I1,J1,1) * GR(I1,J1,1) * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
                  Obs%Obs_Latt(imj,1,no_I,no_J) =  Obs%Obs_Latt(imj,1,no_I,no_J) + ZZ*ZP*ZS
               enddo
            enddo
         endif
-        
-        
+
+
       end Subroutine Predefined_Obs_eq_SpinSUN_measure
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !> @brief
 !>  Measure spin-spin coorelations.  SpinXY correlations.
 !>   a)  If N_FL = 2 and N_SUN = 1  the routine returns:
-!>   
-!>     SpinZ =  4 * <c^{dag}_i S^z c_i  c^{dag}_j S^z  c_j>   
+!>
+!>     SpinZ =  4 * <c^{dag}_i S^z c_i  c^{dag}_j S^z  c_j>
 !>     SpinXY=  2 ( <c^{dag}_i S^x c_i  c^{dag}_j S^x  c_j> +   <c^{dag}_i S^y c_i  c^{dag}_j S^y  c_j>)
 !>     SpinT =  (2 * SpinXY  +  SpinZ)/3
 !--------------------------------------------------------------------
@@ -118,7 +128,7 @@
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:)
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: ObsZ, ObsXY, ObsXYZ
 
         ! Local
@@ -127,8 +137,8 @@
 
         If ( ObsZ%File_Latt .ne. "SpinZ" .and. ObsXY%File_Latt .ne. "SpinXY" .and.  &
            & ObsXYZ%File_Latt .ne. "SpinT"  )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_eq_SpinMz_measure: Wrong filename'
+           error stop 1
         endif
         ! Count and average sign
         ObsZ%N          = ObsZ%N + 1
@@ -148,35 +158,36 @@
                  J    = List(J1,1)
                  no_J = List(J1,2)
                  imj  = latt%imj(I,J)
-                 ZXY  = GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1) 
+                 ZXY  = GRC(I1,J1,1) * GR(I1,J1,2) +  GRC(I1,J1,2) * GR(I1,J1,1)
                  ZZ   = GRC(I1,J1,1) * GR(I1,J1,1) +  GRC(I1,J1,2) * GR(I1,J1,2)    + &
-                       (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))  
+                       (GRC(I1,I1,2) - GRC(I1,I1,1))*(GRC(J1,J1,2) - GRC(J1,J1,1))
 
                  ObsZ  %Obs_Latt(imj,1,no_I,no_J) =  ObsZ  %Obs_Latt(imj,1,no_I,no_J) +  ZZ  *ZP*ZS
                  ObsXY %Obs_Latt(imj,1,no_I,no_J) =  ObsXY %Obs_Latt(imj,1,no_I,no_J) +  ZXY *ZP*ZS
                  ObsXYZ%Obs_Latt(imj,1,no_I,no_J) =  ObsXYZ%Obs_Latt(imj,1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
-                 
               enddo
+              ObsZ  %Obs_Latt0(no_I) =  ObsZ  %Obs_Latt0(no_I) +   (GRC(I1,I1,2) - GRC(I1,I1,1)) * ZP*ZS
+              ObsXYZ%Obs_Latt0(no_I) =  ObsXYZ%Obs_Latt0(no_I) +   (GRC(I1,I1,2) - GRC(I1,I1,1)) * ZP*ZS/sqrt(3.d0)
            enddo
         endif
       End Subroutine Predefined_Obs_eq_SpinMz_measure
 
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure equal-time Green function
 !>  \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL} < c^{dag}_{i,s,nf} c_{j,s,nf} >
-!>       
+!>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_eq_Green_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:)
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
@@ -184,8 +195,8 @@
         Complex (Kind=Kind(0.d0)) :: Z
 
         If ( Obs%File_Latt .ne. "Green" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_eq_Green_measure: Wrong filename'
+           error stop 1
         endif
         ! Count and average sign
         Obs%N        = Obs%N + 1
@@ -205,29 +216,29 @@
               Do nf = 1, N_FL
                  Z = Z +  GRC(I1,J1,nf)
               enddo
-              Z   = Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0)) 
+              Z   = Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
               Obs%Obs_Latt(imj,1,no_I,no_J) =  Obs%Obs_Latt(imj,1,no_I,no_J) + Z*ZP*ZS
            enddo
         enddo
-        
+
       end Subroutine Predefined_Obs_eq_Green_measure
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure density-density.
-!>  Let N_i = \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL}  c^{dag}_{i,s,nf} c_{i,s,nf} 
-!>  Routine returns:    
-!>  <N_i  N_j >  -  <N_i> < N_j>     
+!>  Let N_i = \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL}  c^{dag}_{i,s,nf} c_{i,s,nf}
+!>  Routine returns:
+!>  <N_i  N_j >  -  <N_i> < N_j>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_eq_Den_measure( Latt, Latt_unit, List,  GR, GRC, N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:)
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GR(:,:,:), GRC(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
@@ -235,8 +246,8 @@
         Complex (Kind=Kind(0.d0)) :: ZI, ZJ, Z
 
         If ( Obs%File_Latt .ne. "Den" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(6,*) 'Predefined_Obs_eq_Den_measure: Wrong filename'
+           error stop 1
         endif
         ! Count and average sign
         Obs%N        = Obs%N + 1
@@ -266,7 +277,7 @@
               Do nf = 1,N_FL
                  Z = Z + GRC(I1,J1,nf) * GR(I1,J1,nf)
               Enddo
-              Z   =  Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0)) 
+              Z   =  Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
               Obs%Obs_Latt(imj,1,no_I,no_J) =  Obs%Obs_Latt(imj,1,no_I,no_J) + (ZI*ZJ + Z)*ZP*ZS
            enddo
            Obs%Obs_Latt0(no_I) =  Obs%Obs_Latt0(no_I) +  ZI * ZP*ZS
@@ -275,20 +286,20 @@
 
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure time displaced Green function
 !>  \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL} < c^{dag}_{i,s,nf}(tau) c_{j,s,nf} >
-!>       
+!>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_tau_Green_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:), NT
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
@@ -296,16 +307,16 @@
         Complex (Kind=Kind(0.d0)) :: Z
 
         If ( Obs%File_Latt .ne. "Green" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_tau_Green_measure: Wrong filename'
+           error stop 1
         endif
-        
+
         ! Count and average sign
         If (NT == 0 ) then
            Obs%N        = Obs%N + 1
            Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
         endif
-        
+
         ! Measure
         N_FL = Size(GT0,3)
         Do I1 = 1,Latt%N*Latt_Unit%Norb
@@ -319,29 +330,29 @@
               Do nf = 1, N_FL
                  Z = Z +  GT0(I1,J1,nf)
               enddo
-              Z   = Z * cmplx(1.d0/dble(N_FL), 0.d0, kind(0.D0)) 
+              Z   = Z * cmplx(1.d0/dble(N_FL), 0.d0, kind(0.D0))
               Obs%Obs_Latt(imj,NT+1,no_I,no_J) =  Obs%Obs_Latt(imj,NT+1,no_I,no_J) + Z*ZP*ZS
            enddo
         enddo
-        
+
       end Subroutine Predefined_Obs_tau_Green_measure
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure time displaced Spin-Spin correlations  for SU(N) models (N_FL = 1)
-!>  
+!>
 !>  Returns:  \frac{2N}{N^2-1}\sum_{a=1}{N^2 - 1 }  <c^{dag}_i(tau) T^a c_i (tau)  c^{dag}_j T^a  c_j>  where  T^a are th generators of SU(N)
-!>       
+!>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_tau_SpinSUN_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:), NT
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
@@ -349,16 +360,16 @@
         Complex (Kind=Kind(0.d0)) :: Z
 
         If ( Obs%File_Latt .ne. "SpinZ" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(6,*) 'Predefined_Obs_tau_SpinSUN_measure: Wrong filename'
+           error stop 1
         endif
-        
+
         ! Count and average sign
         If (NT == 0 ) then
            Obs%N        = Obs%N + 1
            Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
         endif
-        
+
         ! Measure
         N_FL = Size(GT0,3)
         Z =  cmplx(dble(N_SUN),0.d0, kind(0.D0))
@@ -373,40 +384,40 @@
                    &  -  Z*G0T(J1,I1,1) * GT0(I1,J1,1) *ZP*ZS
            enddo
         enddo
-        
+
       end Subroutine Predefined_Obs_tau_SpinSUN_measure
 
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure time displaced Spin-Spin correlations  for Mz models (N_FL = 2, N_SUN = 1)
-!>  Returns:  
-!>     SpinZ =  4 * <c^{dag}_i(tau) S^z c_i(tau)  c^{dag}_j S^z  c_j >   
+!>  Returns:
+!>     SpinZ =  4 * <c^{dag}_i(tau) S^z c_i(tau)  c^{dag}_j S^z  c_j >
 !>     SpinXY=  2 ( <c^{dag}_i(tau) S^x c_i(tau)  c^{dag}_j S^x  c_j > +   <c^{dag}_i(tau) S^y c_i(tau)  c^{dag}_j S^y  c_j>)
 !>     SpinT =  (2 * SpinXY  +  SpinZ)/3
-!>  
+!>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_tau_SpinMz_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, ObsZ, ObsXY, ObsXYZ )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:), NT
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: ObsZ, ObsXY, ObsXYZ
 
         ! Local
         Integer :: N_FL, I, I1, J, J1, no_I, no_J, imj,nf
         Complex (Kind=Kind(0.d0)) :: ZZ, ZXY
 
-        
+
         ! Count and average sign
         If ( ObsZ%File_Latt .ne. "SpinZ" .and. ObsXY%File_Latt .ne. "SpinXY" .and.  &
            & ObsXYZ%File_Latt .ne. "SpinT"  )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_tau_SpinMz_measure: Wrong filename'
+           error stop 1
         endif
         If (NT == 0 ) then
            ! Count and average sign
@@ -417,7 +428,7 @@
            ObsXYZ%N        = ObsXYZ%N + 1
            ObsXYZ%Ave_sign = ObsXYZ%Ave_sign + real(ZS,kind(0.d0))
         endif
-        
+
         ! Measure
         N_FL = Size(GT0,3)
         Do I1 = 1,Latt%N*Latt_Unit%Norb
@@ -428,45 +439,47 @@
               no_J = List(J1,2)
               imj  = latt%imj(I,J)
               ZZ   =      (GTT(I1,I1,1) -  GTT(I1,I1,2) ) * ( G00(J1,J1,1)  -  G00(J1,J1,2) )   &
-                   &    - (G0T(J1,I1,1) * GT0(I1,J1,1)  +  G0T(J1,I1,2) * GT0(I1,J1,2) )
-              ZXY  =    - (G0T(J1,I1,1) * GT0(I1,J1,2)  +  G0T(J1,I1,2) * GT0(I1,J1,1) )
+                   &    -  G0T(J1,I1,1) * GT0(I1,J1,1)  -  G0T(J1,I1,2) * GT0(I1,J1,2) 
+              ZXY  =    -  G0T(J1,I1,1) * GT0(I1,J1,2)  -  G0T(J1,I1,2) * GT0(I1,J1,1) 
               ObsZ  %Obs_Latt(imj,NT+1,no_I,no_J) =  ObsZ %Obs_Latt(imj,NT+1,no_I,no_J)  +  ZZ*ZP*ZS
               ObsXY %Obs_Latt(imj,NT+1,no_I,no_J) =  ObsXY%Obs_Latt(imj,NT+1,no_I,no_J)  +  ZXY*ZP*ZS
               ObsXYZ%Obs_Latt(imj,NT+1,no_I,no_J) =  ObsXYZ%Obs_Latt(imj,NT+1,no_I,no_J) + (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
            enddo
+           ObsZ  %Obs_Latt0(no_I) =  ObsZ  %Obs_Latt0(no_I) +   (GTT(I1,I1,2) - GTT(I1,I1,1)) * ZP*ZS
+           ObsXYZ%Obs_Latt0(no_I) =  ObsXYZ%Obs_Latt0(no_I) +   (GTT(I1,I1,2) - GTT(I1,I1,1)) * ZP*ZS/sqrt(3.d0)
         enddo
-        
+
       end Subroutine Predefined_Obs_tau_SpinMz_measure
 
 
 !-------------------------------------------------------------------
-!> @author 
+!> @author
 !> ALF-project
 !
 !>  @brief
 !>  Measure time displaced Den-Den correlations  for general  SU(N) models
-!>  Let N_i = \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL}  c^{dag}_{i,s,nf} c_{i,s,nf} 
-!>  Routine returns:    
-!>        <N_i (tau)  N_j >  -  <N_i> < N_j>    
-!>       
+!>  Let N_i = \sum_{s=1}^{N_SUN} \sum_{nf=1}^{N_FL}  c^{dag}_{i,s,nf} c_{i,s,nf}
+!>  Routine returns:
+!>        <N_i (tau)  N_j >  -  <N_i> < N_j>
+!>
 !--------------------------------------------------------------------
       Subroutine Predefined_Obs_tau_Den_measure( Latt, Latt_unit, List, NT, GT0,G0T,G00,GTT,  N_SUN, ZS, ZP, Obs )
 
         Type (Lattice),       Intent(in)      :: Latt
         Type (Unit_cell),     Intent(in)      :: Latt_unit
         Integer,              Intent(In)      :: N_SUN, LIST(:,:), NT
-        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP 
+        Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:), ZS, ZP
         Type (Obser_Latt),    Intent(inout)   :: Obs
 
         ! Local
         Integer :: N_FL, I, I1, J, J1, no_I, no_J, imj,nf
-        Complex (Kind=Kind(0.d0)) :: Z, ZI, ZJ 
+        Complex (Kind=Kind(0.d0)) :: Z, ZI, ZJ
 
         If ( Obs%File_Latt .ne. "Den" )   then
-           Write(6,*) 'Wrong filename'
-           Stop
+           Write(error_unit,*) 'Predefined_Obs_tau_Den_measure: Wrong filename'
+           error stop 1
         endif
-        
+
         ! Count and average sign
         If (NT == 0 ) then
            Obs%N        = Obs%N + 1
@@ -488,20 +501,137 @@
               imj  = latt%imj(I,J)
               ZJ = cmplx(0.d0,0.d0,Kind(0.d0))
               Do nf = 1,N_FL
-                 ZJ  = ZJ + cmplx(1.d0,0.d0,kind(0.d0)) -  G00(J1,J1,nf) 
+                 ZJ  = ZJ + cmplx(1.d0,0.d0,kind(0.d0)) -  G00(J1,J1,nf)
               enddo
               ZJ  = ZJ * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
               Z   = cmplx(0.d0,0.d0,Kind(0.d0))
               Do nf = 1,N_FL
-                 Z = Z - G0T(J1,I1,nf) * GT0(I1,J1,nf) 
+                 Z = Z - G0T(J1,I1,nf) * GT0(I1,J1,nf)
               Enddo
-              Z   =  Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0)) 
+              Z   =  Z * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
               Obs%Obs_Latt(imj,NT+1,no_I,no_J) =  Obs%Obs_Latt(imj,NT+1,no_I,no_J) + (ZI*ZJ + Z)*ZP*ZS
            enddo
            Obs%Obs_Latt0(no_I) =  Obs%Obs_Latt0(no_I) +  ZI * ZP*ZS
         enddo
-        
+
       end Subroutine Predefined_Obs_tau_Den_measure
+      
+#include  "Cotunneling_dimer_obs.F90"
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_indep(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:), INTENT(IN)     :: List
+        Integer, INTENT(IN)                   :: Nsites, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_indep(GRC, List, Nsites, N_SUN)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_indep
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_gen_fl(GRC, List, Nsites, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:), INTENT(IN)   :: List
+        Integer, Dimension(:), INTENT(IN)     :: Nsites, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_gen_fl(GRC, List, Nsites, N_SUN)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_fl
+      
+      Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all(GRC, List, Nsites, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:,:), INTENT(IN)   :: List
+        Integer, Dimension(:,:), INTENT(IN)     :: Nsites
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi
+
+        Renyi = Calc_Renyi_Ent_gen_all(GRC, List, Nsites)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Renyi_Ent_gen_all
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:), INTENT(IN)     :: List_A, List_B
+        Integer, INTENT(IN)                   :: Nsites_A ,Nsites_B, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_indep(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_indep
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:), INTENT(IN)     :: Nsites_A ,Nsites_B, N_SUN
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_gen_fl(GRC, List_A, Nsites_A, List_B, Nsites_B, N_SUN, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_fl
+      
+      Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, ZS, ZP, Obs )
+
+        Implicit none
+        Integer, Dimension(:,:,:), INTENT(IN)   :: List_A, List_B
+        Integer, Dimension(:,:), INTENT(IN)     :: Nsites_A ,Nsites_B
+        Complex (kind=kind(0.d0)), INTENT(IN) :: GRC(:,:,:), ZS, ZP
+        Type (Obser_Vec),    Intent(inout)   :: Obs
+        
+        Complex (kind=kind(0.d0))  :: Renyi_A, Renyi_B, Renyi_AB
+
+        call Calc_Mutual_Inf_gen_all(GRC, List_A, Nsites_A, List_B, Nsites_B, Renyi_A, Renyi_B, Renyi_AB)
+        
+        Obs%N        = Obs%N + 1
+        Obs%Ave_sign = Obs%Ave_sign + real(ZS,kind(0.d0))
+        Obs%Obs_vec(1)   = Obs%Obs_vec(1) + Renyi_A* ZP*ZS
+        Obs%Obs_vec(2)   = Obs%Obs_vec(2) + Renyi_B* ZP*ZS
+        Obs%Obs_vec(3)   = Obs%Obs_vec(3) + Renyi_AB* ZP*ZS
+        
+      end Subroutine Predefined_Obs_scal_Mutual_Inf_gen_all
+
 
       
-    end Module Predefined_Obs
+    End Module Predefined_Obs
