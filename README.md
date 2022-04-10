@@ -2,7 +2,7 @@
 [![pipeline status](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/pipeline.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 [![coverage report](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/badges/master/coverage.svg)](https://git.physik.uni-wuerzburg.de/fassaad/General_QMCT_code/commits/master)
 ## General information ##
-This is the **development** version of ALF, the latest stable version is [ALF 2.1](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/tree/ALF-2.1).
+This is the **development** version of ALF, the latest stable version is [ALF 2.2](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/tree/ALF-2.2/).
 
 The **A**lgorithms for **L**attice **F**ermions package provides a general code for the finite temperature  and projective auxiliary field Quantum Monte Carlo algorithm.       The code  is engineered to  be able simulate any model that can be written in terms of  sums of single body operators, of squares of single body operators and single body operators coupled to an Ising field with  given dynamics. We  provide predefined types that allow  the user to specify the model, the  Bravais lattice  as well as equal time and time displaced observables.     The code supports an MPI implementation.   Examples such as the Hubbard model, the SU(N) Kondo lattice model, tV models,  models with long ranged interactions as well as Z2 lattice gauge theories coupled to fermions adn Z2 matter are discussed in the [documentation](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/jobs/artifacts/master/raw/Documentation/doc.pdf?job=create_doc). Slides on the auxiliary field QMC can be found [here.](https://git.physik.uni-wuerzburg.de/ALF/ALF_Tutorial/-/blob/master/Presentations/ALF_2020_Assaad.pdf)
 
@@ -13,22 +13,48 @@ where
 
 Here Z denotes a scalar field (Ising or real continuous field) with predefined dynamics. If your model can be written in this form then it will be amenable to the ALF. 
 
-<!--## Doxygen ##
+## Doxygen ##
 
-You can find here [Doxygen](https://pawn.physik.uni-wuerzburg.de/~assaad/Doxygen_Docu/ALF/html/index.html)  formated documentation. (Work in progress)  -->
+You can find here [Doxygen](https://gitpages.physik.uni-wuerzburg.de/ALF/ALF/) formatted documentation. (Work in progress)
 
 ## PREREQUISITES ##
 
-Libraries: Lapack and Blas
+* Make
+* A Fortran compiler, such as `gfortran` or `ifort`
+* Blas+Lapack libraries
+* Python3
+* MPI libraries (optional)
+* For HDF5 (optional)
+	* C++ preprocessor (default: g++)
+	* Curl
+	* gzip development libraries
 
-Compiler: gfortran or ifort 
 
 * **Linux**   
   To install the relevant packages.
-  - **Debian/Ubuntu/Linux Mint**:  `sudo apt-get install gfortran liblapack-dev make git`
-  - **Red Hat/Fedora/CentOS**:  `sudo dnf install gcc-gfortran make liblapack-devel git`
-  - **OpenSuSE/SLES**:  `sudo zypper install gcc-gfortran make lapack-devel git`
-  - **Arch Linux**:  `pacman -S make gcc-fortran lapack git`
+
+  **Debian/Ubuntu/Linux Mint**: 
+  ```
+  sudo apt install make gfortran libblas-dev liblapack-dev \
+            python3 libopenmpi-dev g++ curl libghc-zlib-dev git
+  ```
+
+  **Red Hat/Fedora/CentOS**:
+  ```
+  sudo yum install make gfortran libblas-devel liblapack-devel \
+            python3 libopenmpi-dev g++ curl zlib git
+  ```
+
+  **OpenSuSE/SLES**:
+  ```
+  sudo zypper install make gcc-fortran lapack-devel \
+               python3 libopenmpi-devel gcc-c++ curl zlib-devel git
+  ```
+
+  **Arch Linux**:
+  ```
+  sudo pacman -S make gcc-fortran lapack python3 openmpi curl zlib git
+  ```
 
 * **Other Unixes**   
   gfortran and the lapack implementation from netlib.org should be available for your system. Consult the documentation of your system on how to install the relevant packages. The package names from linux should give good starting points for your search.
@@ -37,27 +63,13 @@ Compiler: gfortran or ifort
   gfortran for MacOS can be found at https://gcc.gnu.org/wiki/GFortranBinaries#MacOS. Detailed information on how to install the package  can be found at: https://gcc.gnu.org/wiki/GFortranBinariesMacOS. You will need to have Xcode as well as the  Apple developer tools installed. 
 
 * **Windows**   
-  The easiest way to compile Fortran code in Windows is trough Cygwin, which provides a Unix-like environment for Windows. The installer also works as a package manager, providing an extensive collection of software from the Unix ecosystem. For convenience, we provide a zip archive containing the Cywin installer and a local repository with all the additional software needed for 
-ALF. 
-
-  Steps for installing Cygwin:
-  - Download zip from https://www.dropbox.com/s/ap8vl85gn9nfbo7/cygwin_ALF.zip?dl=0 and unzip
-  - Execute "setup-x86_64.exe". If administrator rights are missing, execute it from the command line as "setup-x86.exe --no-admin".
-  - In the setup choose "Install from local directory" instead of "Install from Internet".
-  - Choose root directory, where cygwin will be installed. You should memorize this diretory.
-  - Choose the diretory "cygwin\_ALF" (The one which also contains "setup-x86_64.exe") as local package Directory.
-  - At the "Select Packages" screen, in "Categories" view, at the line marked "All", click on the word "default" so that it changes to "install".
-  - Finish installation
-  - Optional: To add, remove or update installed packages, rerun the installer setup and chose "Install from Internet".
-  - You can now use the installed Cygwin packages by starting the Cygwin terminal. It is a UNIX terminal which, by default, starts in the home diretory "/home/<username>" of the UNIX-system emulated by Cygwin, where "/" is the root directory of Cygwin. For example, if you have installed Cygwin in "C:\cygwin64\", then the home Directory of Cygwin ca be found at "C:\cygwin64\home\<username>", in the Windows system.
-
-
+  The easiest way to compile ALF in Windows is trough the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/about) (WSL). It allows to run Linux within Windows. You can install the WSL and follow the instructions for Linux.
 
 
 ## CONFIGURATION FOR COMPILATION ##
 <!--**setenv.sh**   sets the default set of envorinment variables.  Do not change  this since this default set of  environment variables is required for the tests to run adequaltely.-->
 
-**configure.sh**  It is recommended to use this script to set the environment variables. Type ./configure.sh to  browse through a list of options.
+**configure.sh**  It is recommended to use this script to set the environment variables. Type ./configure.sh to  browse through a list of options. Notice that directory names containing **spaces are not supported**.
 
 Once you have run the configuration script, change directory to Libraries, and to Analysis  and run the Makefiles there. In the Prog directory then type make examples.   The other programs are being updated to comply with the new version of the code.  
 

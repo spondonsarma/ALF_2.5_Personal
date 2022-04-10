@@ -456,6 +456,7 @@ Program Main
             CALL h5fcreate_f(File1, H5F_ACC_TRUNC_F, file_id, ierr)
             call h5fclose_f(file_id, ierr)
           endif
+          call ham%write_parameters_hdf5(File1)
 
 #if defined(MPI)
         endif
