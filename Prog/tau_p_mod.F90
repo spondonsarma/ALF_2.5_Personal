@@ -78,8 +78,8 @@
               Use UDV_State_mod
               use MyMats
               CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-              COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
-              COMPLEX (Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
+              COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
+              COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
             End Subroutine CGRP
             SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
               Use Hamiltonian_main
@@ -87,7 +87,7 @@
               Use UDV_State_mod
               Implicit None
               CLASS(UDV_State), allocatable, dimension(:), intent(inout) :: UDVR
-              Integer :: NTAU1, NTAU
+              Integer, intent(in) :: NTAU1, NTAU
             END SUBROUTINE WRAPUR
          End Interface
 
