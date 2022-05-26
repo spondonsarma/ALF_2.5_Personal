@@ -29,6 +29,9 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+module set_random
+   implicit none
+   contains
 
 !--------------------------------------------------------------------
 !> @author 
@@ -98,3 +101,5 @@
 #endif
        
      end Subroutine Set_Random_number_Generator
+
+end module

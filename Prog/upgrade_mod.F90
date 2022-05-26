@@ -29,6 +29,9 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+module upgrade_mod
+   implicit none
+   contains
 
 !--------------------------------------------------------------------
 !> @author
@@ -287,3 +290,5 @@
         Call nsigma_new%clear()
 
       End Subroutine Upgrade2
+
+end module upgrade_mod

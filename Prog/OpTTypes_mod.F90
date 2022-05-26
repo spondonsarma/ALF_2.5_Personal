@@ -33,6 +33,7 @@
 module OpTTypes_mod
     use ContainerElementBase_mod
     use Operator_mod
+    use mat_subroutines
     implicit none
 
     private
