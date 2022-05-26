@@ -32,7 +32,7 @@
 module cgr2_2_mod
    implicit none
    private
-   public :: CGR2_2
+   public :: CGR2_2, solve_extended_system, get_blocks
    contains
 
 !--------------------------------------------------------------------
