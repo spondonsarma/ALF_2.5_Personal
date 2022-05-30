@@ -13,13 +13,13 @@ program check_libs
   dot = ddot(n,C,ix,D,iy)
   if (.not. abs(dot-126d0) < 1d-10) then
     write(error_unit, *) "Problem with BLAS"
-    error stop
+    stop 5
   endif
 
   call ZHEEV( 'V', 'U', N, A, LDA, W, WORK, LWORK, RWORK, INFO )
   if ( .not. (abs(W(1)+1d0) < 1d-10 .and. abs(W(1)+1d0) < 1d-10) ) then
     write(error_unit, *) "Problem with LAPACK"
-    error stop
+    stop 5
   endif
   
 end program check_libs
