@@ -137,6 +137,8 @@ If \texttt{ALF\_SHM\_CHUNK\_SIZE\_GB} is not defined or set to values smaller th
 
 To restart the code using the configuration from a previous simulation as a starting point, first run the script \texttt{out\_to\_in.sh}, which copies outputted field configurations into input files, before calling the ALF executable.   This file is located in the  directory \path{$ALF_DIR/Scripts_and_Parameters_files/Start/}
 
+Notice that, when compiled with DHF5 the code checks whether the parameters stored in existing data files have the same values as those in the parameter file and exit with an error when they do not.
+
 %
 %-------------------------------------------------------------------------------------
 \subsection{Error analysis}\label{sec:analysis}
