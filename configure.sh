@@ -278,7 +278,7 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    module load hdf5/1.10.7-intel19
+    module load hdf5/1.10.7-intel21
     printf "\n${RED}   !!   unsetting  FORT_BLOCKSIZE  !!${NC}\n"
     unset FORT_BLOCKSIZE
 
