@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2019 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -28,6 +28,10 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
+module cgr1_mod
+  implicit none
+  contains
 
       SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
 
@@ -61,15 +65,6 @@
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)) :: PHASE
         INTEGER         :: NVAR
-        
-        interface
-          subroutine cgrp(PHASE, GRUP, udvr, udvl)
-            Use UDV_State_mod
-            CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
-            COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
-          end subroutine cgrp
-        end interface
  
         !Local
         TYPE(UDV_State) :: udvlocal
@@ -182,15 +177,6 @@
         COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(INOUT) :: GRUP
         COMPLEX(Kind=Kind(0.d0)), Intent(INOUT) :: PHASE
         INTEGER         :: NVAR
-        
-        interface
-          subroutine cgrp(PHASE, GRUP, udvr, udvl)
-            Use UDV_State_mod
-            CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-            COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT) :: GRUP
-            COMPLEX (Kind=Kind(0.d0)), Intent(OUT) :: PHASE
-          end subroutine cgrp
-        end interface
  
         !Local
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:), Allocatable ::  TPUP, RHS
@@ -507,3 +493,4 @@
         Deallocate(sMat, rMat, ipiv)
       
       END SUBROUTINE CGRP
+end module cgr1_mod
