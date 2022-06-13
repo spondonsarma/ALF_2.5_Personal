@@ -224,7 +224,7 @@ case $STAB in
   ;;
 
   LOG)
-    STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
+    STABCONFIGURATION="${STABCONFIGURATION} -DSTABLOG"
     printf "Using log storage for internal scales\n"
   ;;
 

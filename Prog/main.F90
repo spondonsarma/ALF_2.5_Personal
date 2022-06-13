@@ -513,7 +513,7 @@ Program Main
 #if defined(STAB3)
            Write(50,*) 'STAB3 is defined '
 #endif
-#if defined(LOG)
+#if defined(STABLOG)
            Write(50,*) 'LOG is defined '
 #endif
 #if defined(QRREF)
