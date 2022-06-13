@@ -521,7 +521,7 @@ Module Global_mod
            ! Draw a new spin configuration. This is provided by the user in the Hamiltonian module
            ! Note that nsigma is a variable in the module Hamiltonian
            Call ham%Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
-           If (T0_Proposal_ratio > 1.D-24) then
+           If (T0_Proposal_ratio > 0.d0) then
               NC = NC + 1
               ! Compute the new Green function
               storage = "Empty"
@@ -558,6 +558,9 @@ Module Global_mod
                  nsigma%f = nsigma_old%f
               endif
               Call Control_upgrade_Glob(TOGGLE,size_clust)
+           else
+              nsigma%t = nsigma_old%t
+              nsigma%f = nsigma_old%f
            endif
         Enddo
 
@@ -787,7 +790,7 @@ Module Global_mod
               N_part=udvst(1,nf)%N_part
               do i=1,NSTM-1
                  do n=1,N_part
-#if !defined(LOG)
+#if !defined(STABLOG)
                     Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvst(i,nf)%D(n)))
 #else
                     Det_Vec(n,nf)=Det_Vec(n,nf)+udvst(i,nf)%L(n)
@@ -795,7 +798,7 @@ Module Global_mod
                  enddo
               enddo
               do n=1,N_part
-#if !defined(LOG)
+#if !defined(STABLOG)
                  Det_Vec(n,nf)=Det_Vec(n,nf)+log(dble(udvl(nf)%D(n)))
 #else
                  Det_Vec(n,nf)=Det_Vec(n,nf)+udvl(nf)%L(n)
@@ -830,7 +833,7 @@ Module Global_mod
         CALL udvlocal%alloc(N_size)
         Do nf = 1,N_FL
            TP = udvl(nf)%U !udvl stores U^dag instead of U !CT(udvl%U)
-#if !defined(LOG)
+#if !defined(STABLOG)
 #if !defined(STAB3)
            DO J = 1,N_size
               TP(:,J) = TP(:,J) +  udvl(nf)%V(:,J)*udvl(nf)%D(J)
@@ -861,7 +864,7 @@ Module Global_mod
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
            Z1 = Det_C(TP, N_size)
            Phase_det(nf)   = Z*Z1/ABS(Z*Z1)
-#if !defined(LOG)
+#if !defined(STABLOG)
 #if !defined(STAB3)
            Det_vec(:,nf) = log(real(D(:)))
            Det_vec(1,nf) = log(real(D(1))) + log(ABS(Z*Z1))

@@ -268,6 +268,8 @@
         Real (Kind = Kind(0.d0) ) :: Zero = 1.0E-8,  Ham_T_max
         Real (Kind = Kind(0.d0) ), allocatable :: Ham_T_perp_vec(:)
 
+        
+        
         If ( Xnorm(Latt%L2_p - Latt%a2_p)  < Zero )  then
            Allocate( Ham_T_perp_vec(N_FL) )
            Ham_T_perp_vec = 0.d0
@@ -276,6 +278,11 @@
                 &                                           List, Invlist, Latt, Latt_unit )
            Deallocate ( Ham_T_perp_vec )
         else
+           If (  mod(nint(latt%L1_p(1)),2)  /=  0   .or.   mod(nint(latt%L2_p(2)),2)  /= 0 )  then
+              Write(error_unit,*) '*** For  the  square  lattice,  our  implementation of the checkerborad '
+              Write(error_unit,*) 'decomposition  requires even  values of L_1  and L_2  ***'
+              error stop 1
+           endif
            Allocate( this(N_FL) )
 
            Ham_T_max = 0.d0
@@ -377,7 +384,8 @@
         Integer :: nf,N_Bonds, nc, I, I1, n, no
         Real (Kind=Kind(0.d0)) :: Zero = 1.0E-8
 
-
+        
+        
         select case (Latt%N)
         case(1)   !  Here the length of the  N_leg_ladder is unity such  that it
                   !  effectivley maps onto a one-dimensional chain with open boundary conditions.
@@ -442,6 +450,12 @@
 
            
         case default
+           If (  mod(nint(latt%L1_p(1)),2)  /=  0  )  then
+              Write(error_unit,*) '*** For  the N_leg_ladder  lattice,  our  implementation of the checkerborad '
+              Write(error_unit,*) 'decomposition  requires L_1 = 1 or  L_1   even ***'
+              error stop 1
+           endif
+
            !Write(6,*) Ham_T_vec,  Ham_T_perp_vec, Ham_chem_vec
            Allocate( this(N_FL) )
            do nf = 1,N_FL
@@ -655,7 +669,12 @@
         Logical :: Test=.false.
         Real (Kind=Kind(0.d0))                :: Ham_T1_max, Ham_T2_max, Ham_Tperp_max
 
-
+        If (  mod(nint(latt%L1_p(1)),2)  /=  0 .or.  mod(nint(latt%L2_p(2)),2)  /=  0  )  then
+           Write(error_unit,*) '*** For  the Bilayer square lattice,  our  implementation of the checkerborad '
+           Write(error_unit,*) 'decomposition  requires L_1 and  L_2 to be  even ***'
+           error stop 1
+        endif
+        
         Ham_T1_max    = 0.d0
         Ham_T2_max    = 0.d0
         Ham_Tperp_max = 0.d0

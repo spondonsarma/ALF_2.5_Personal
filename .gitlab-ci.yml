@@ -1,6 +1,5 @@
 variables:
   CONFIG_ARGS: ""  # Variable for additional arguments for configure.sh
-  ALF_FLAGS_EXT: "-DPIPELINE"
 
 stages:
   - build

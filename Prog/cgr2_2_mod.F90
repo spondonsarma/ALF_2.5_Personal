@@ -72,7 +72,7 @@ module cgr2_2_mod
 
       end Subroutine
 
-#if (defined(STAB2) || defined(STAB1)) && !defined(LOG)
+#if (defined(STAB2) || defined(STAB1)) && !defined(STABLOG)
 !--------------------------------------------------------------------
 !> @author
 !> Florian Goth
@@ -223,7 +223,7 @@ module cgr2_2_mod
 
         Use MyMats
         Use UDV_State_mod
-#if (defined(STAB2) || defined(STAB1)) && !defined(LOG)   
+#if (defined(STAB2) || defined(STAB1)) && !defined(STABLOG)   
 
         Use UDV_WRAP_mod
         Implicit none
@@ -342,8 +342,8 @@ module cgr2_2_mod
         IPVT = 0
         MYU2 = CONJG(TRANSPOSE(udv2%U))
         CALL INV(udv1%V, V1INV,Z)
-#if defined(STAB3) || defined(LOG)
-#if defined(LOG)
+#if defined(STAB3) || defined(STABLOG)
+#if defined(STABLOG)
         DO J=1,LQ
           !keep scales smaller than 1.0 in D1*U1 and D2*V2
           !bring scales larger that 1.0 with V1^-1 and U2^-1
@@ -382,7 +382,7 @@ module cgr2_2_mod
         D1m=udv1%D
         D2m=udv2%D
 #endif
-#if defined(LOG)
+#if defined(STABLOG)
         If (udv1%L(1) >  udv2%L(1) ) Then
 #else 
         If (dble(udv1%D(1)) >  dble(udv2%D(1)) ) Then
