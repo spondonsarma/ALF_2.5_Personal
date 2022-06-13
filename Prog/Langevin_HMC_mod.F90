@@ -256,14 +256,14 @@
              Use UDV_State_mod
              Implicit None
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVR
-             Integer :: NTAU1, NTAU
+             Integer, intent(in) :: NTAU1, NTAU
            END SUBROUTINE WRAPUR
            SUBROUTINE WRAPUL(NTAU1, NTAU, UDVL)
              Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: UDVL
-             Integer :: NTAU1, NTAU
+             Integer, intent(in) :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
              Use UDV_Wrap_mod

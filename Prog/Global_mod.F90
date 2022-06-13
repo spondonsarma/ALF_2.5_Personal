@@ -460,7 +460,7 @@ Module Global_mod
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer :: NTAU1, NTAU
+             Integer, intent(in) :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
              Use UDV_Wrap_mod
@@ -773,7 +773,7 @@ Module Global_mod
              Use UDV_State_mod
              Implicit none
              CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer :: NTAU1, NTAU
+             Integer, intent(in) :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
         end Interface
 
