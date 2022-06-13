@@ -113,8 +113,8 @@ Module Global_mod
              Use Hamiltonian_main
              Use UDV_State_mod
              Implicit none
-             CLASS(UDV_State), allocatable, intent(inout) :: udvl(:)
-             Integer, intent(in) :: NTAU1, NTAU
+             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
+             Integer :: NTAU1, NTAU
            END SUBROUTINE WRAPUL
            SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
              Use UDV_Wrap_mod
