@@ -1,5 +1,5 @@
 
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 ! 
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,10 @@
 ! 
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
+
+module wrapur_mod
+   implicit none
+   contains
  
      SUBROUTINE WRAPUR(NTAU, NTAU1, UDVR)
 
@@ -116,3 +120,5 @@
 #endif
         
       END SUBROUTINE WRAPUR
+
+end module wrapur_mod
