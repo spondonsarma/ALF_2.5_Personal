@@ -327,7 +327,7 @@ case $MACHINE in
   ;;
 esac
 
-check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
+# check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
 
 check_python || return 1
 
