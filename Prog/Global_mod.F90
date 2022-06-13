@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 !
 !  This file is part of the ALF project.
 !
@@ -106,26 +106,9 @@ Module Global_mod
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
         Use UDV_State_mod
         Use mpi
+        use wrapul_mod
+        use cgr1_mod
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout) :: udvl(N_FL)
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                                :: Phase
@@ -452,26 +435,9 @@ Module Global_mod
       Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
 
         Use UDV_State_mod
+        use wrapul_mod
+        use cgr1_mod
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer, intent(in) :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)),                                INTENT(INOUT) :: Phase
@@ -762,20 +728,11 @@ Module Global_mod
       Subroutine Compute_Fermion_Det(Phase_det,Det_Vec, udvl, udvst, Stab_nt, storage)
 !--------------------------------------------------------------------
 
-        Use  UDV_Wrap_mod
+        Use UDV_Wrap_mod
         Use UDV_State_mod
+        use wrapul_mod
 
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer, intent(in) :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-        end Interface
 
         REAL    (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT)  ::  Det_Vec
         Complex (Kind=Kind(0.d0)), Dimension(:)  , Intent(OUT)  ::  Phase_det
