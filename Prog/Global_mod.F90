@@ -555,7 +555,7 @@ Module Global_mod
            ! Draw a new spin configuration. This is provided by the user in the Hamiltonian module
            ! Note that nsigma is a variable in the module Hamiltonian
            Call ham%Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
-           If (T0_Proposal_ratio > 1.D-24) then
+           If (T0_Proposal_ratio > 0.d0) then
               NC = NC + 1
               ! Compute the new Green function
               storage = "Empty"
@@ -592,6 +592,9 @@ Module Global_mod
                  nsigma%f = nsigma_old%f
               endif
               Call Control_upgrade_Glob(TOGGLE,size_clust)
+           else
+              nsigma%t = nsigma_old%t
+              nsigma%f = nsigma_old%f
            endif
         Enddo
 
