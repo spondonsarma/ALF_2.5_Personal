@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2020 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 !
 !  This file is part of the ALF project.
 !
@@ -31,7 +31,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-
+module mat_subroutines
 !--------------------------------------------------------------------
 !> @author
 !> ALF-project
@@ -41,6 +41,9 @@
 !> type.
 !
 !--------------------------------------------------------------------
+implicit none
+
+contains
 
 subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
 ! Small Large general matrix multiplication
@@ -1418,3 +1421,5 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         ENDIF
 
 end subroutine ZDSLSYMM
+
+end module

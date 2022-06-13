@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -49,6 +49,9 @@ Module Wrapgr_mod
   Use Control
   Use Random_Wrap
   Use Fields_mod
+  Use Hamiltonian_main
+  Use Hop_mod
+  use upgrade_mod
 
   Implicit none
 
@@ -86,30 +89,7 @@ Contains
 !> NTAU: [0:LTROT-1]
 !
 !--------------------------------------------------------------------
- 
-    Use Hamiltonian_main
-    Use Hop_mod
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian_main
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    end Interface
     
     ! Arguments
     COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT), allocatable ::  GR(:,:,:)
@@ -185,30 +165,7 @@ Contains
 !> NTAU: [LTROT:1]
 !
 !--------------------------------------------------------------------    
-    Use Hamiltonian_main
-    Use MyMats
-    Use Hop_mod
     Implicit None
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian_main
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-    End Interface
     
     ! Given GREEN at time NTAU => GREEN at time NTAU - 1,
     ! Upgrade NTAU  [LTROT:1]
@@ -376,27 +333,6 @@ Contains
 !--------------------------------------------------------------------
         
     Implicit none
-    
-    Interface
-       Subroutine Upgrade2(GR,N_op,NT,PHASE,Hs_new, Prev_Ratiotot, S0_ratio, T0_proposal_ratio, toggle,  mode) 
-       
-         Use Hamiltonian_main
-         Use Random_wrap
-         Use Control
-         Use Fields_mod
-         Implicit none 
-         
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim, N_FL)
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Prev_Ratiotot
-         Integer                  , INTENT(IN)    :: N_op, Nt
-         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: Phase
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: Hs_new
-         Real    (Kind=Kind(0.d0)), INTENT(IN)    :: S0_ratio, T0_proposal_ratio
-         Character (Len=64)       , INTENT(IN)    :: Mode
-         Logical                  , INTENT(INOUT) :: toggle
-       End Subroutine Upgrade2
-
-    end Interface
 
     ! Arguments 
     COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), INTENT(INOUT), allocatable :: GR

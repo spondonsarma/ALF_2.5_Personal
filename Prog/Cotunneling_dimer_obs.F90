@@ -1,3 +1,5 @@
+! This file is included by Predefined_Obs_mod.F90
+
 !-------------------------------------------------------------------
 !> @author
 !> ALF-project
