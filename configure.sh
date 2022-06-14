@@ -67,17 +67,17 @@ set_hdf5_flags()
 check_libs()
 {
     FC="$1" LIBS="$2"
-    COMPILE="$FC check_libs.f90 $LIBS -o check_libs.out"
     if command -v "$FC" > /dev/null; then   # Calling the compiler is successful
-	if $COMPILE; then                   # Compiling with $LIBS is successful
-	    ./check_libs.out
-	else
-	    printf "${RED}\n==== Error: Linear algebra libraries <%s> not found. ====${NC}\n\n" "$LIBS"
-	    return 1
-	fi
+        bash -c "$FC check_libs.f90 $LIBS -o check_libs.out"
+        if [ $? -eq 0 ]; then                   # Compiling with $LIBS is successful
+            ./check_libs.out
+        else
+            printf "${RED}\n==== Error: Linear algebra libraries <%s> not found. ====${NC}\n\n" "$LIBS"
+            return 1
+        fi
     else
-	printf "${RED}\n==== Error: Compiler <%s> not found. ====${NC}\n\n" "$FC"
-	return 1
+        printf "${RED}\n==== Error: Compiler <%s> not found. ====${NC}\n\n" "$FC"
+        return 1
     fi
 }
 
@@ -327,7 +327,7 @@ case $MACHINE in
   ;;
 esac
 
-# check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
+check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
 
 check_python || return 1
 
