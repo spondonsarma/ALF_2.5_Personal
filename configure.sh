@@ -68,7 +68,7 @@ check_libs()
 {
     FC="$1" LIBS="$2"
     if command -v "$FC" > /dev/null; then   # Calling the compiler is successful
-        bash -c "$FC check_libs.f90 $LIBS -o check_libs.out"
+        sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"
         if [ $? -eq 0 ]; then                   # Compiling with $LIBS is successful
             ./check_libs.out
         else
