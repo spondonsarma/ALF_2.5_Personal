@@ -67,10 +67,14 @@ set_hdf5_flags()
 check_libs()
 {
     FC="$1" LIBS="$2"
-    if command -v "$FC" > /dev/null; then   # Calling the compiler is successful
+    if command -v "$FC" > /dev/null; then       # Compiler binary found
         sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"
         if [ $? -eq 0 ]; then                   # Compiling with $LIBS is successful
-            ./check_libs.out
+            ./check_libs.out || (
+              printf "${RED}\n==== Error: Execution of test program using compiler <%s> ====${NC}\n" "$FC"
+              printf "${RED}==== and linear algebra libraries <%s> not successful. ====${NC}\n\n" "$LIBS"
+              return 1
+              )
         else
             printf "${RED}\n==== Error: Linear algebra libraries <%s> not found. ====${NC}\n\n" "$LIBS"
             return 1
