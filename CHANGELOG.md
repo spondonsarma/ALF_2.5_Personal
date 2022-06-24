@@ -1,5 +1,10 @@
 # Log of backward compatibility changes and critical bugs
 
+## 2022-06-24 Test in configure.sh for Lapack and BLAS
+
+Author : J. S.E. Portela <br>
+Merge request !145
+
 ## 2022-MM-DD Write parameters to HDF5 file
 
 Author : J.Schwab <br>
