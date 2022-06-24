@@ -1,6 +1,16 @@
 # Log of backward compatibility changes and critical bugs
 
-## 2022-MM-DD Write parameters to HDF5 file
+## 2022-06-13 Work-around for (likely) preprocessor bug
+
+Author : J.Schwab <br>
+Merge request !139
+
+## 2022-03-21 Reset fields when no update is proposed in Global_Updates
+
+Author : A. Goetz <br>
+Merge request !136
+
+## 2022-01-31 Write parameters to HDF5 file
 
 Author : J.Schwab <br>
 Merge request !117
@@ -10,6 +20,11 @@ Merge request !117
    Strictly speaking, it's not necessary to do that, but it simplifies the Hamiltonian,
    since the subroutine for reading parameters and writing parameters to HDF5 will be written automatically.
 2) With HDF5: Add typebound procedure `write_parameters_hdf5` to Hamiltonian.
+
+## 2021-12-08 Solves projector code runtime error
+
+Author :  F. Parisen Toldin <br>
+Merge request !129
 
 ## 2021-11-21 Implementing HDF5
 
