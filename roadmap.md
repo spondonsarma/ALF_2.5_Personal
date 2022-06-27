@@ -3,7 +3,21 @@ Main points from March meetings:
 
 * Adopt half-yearly **releases**: **1st April and 1st October**;
 * Have a new documentation paper about every three years. The next one should be online by June 2020.
-* Next ALF release (April 2020) will be called ALF 2.0 (instead of 1.2).
+* ALF's April 2020 release = ALF 2.0 (instead of placeholder "ALF 1.2").
+
+Also:
+
+* A development branch is to be merged to master only if its **documentation** and CHANGELOG.md is up-to-date.
+
+
+ To-do list for new releases:
+ ---
+  - check the main documentation (paper) is up-to-date
+  - check changelog is up-to-date
+  - create ALF release branch from master
+  - create corresponding pyALF branch
+  - create corresponding Tutorial branch
+  - update ALF website (links, and also 'news')
 
 
 ALF 2.0
