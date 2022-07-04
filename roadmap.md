@@ -1,13 +1,8 @@
+# Roadmap
 
-Main points from March meetings:
-
-* Adopt half-yearly **releases**: **1st April and 1st October**;
-* Have a new documentation paper about every three years. The next one should be online by June 2020.
-* ALF's April 2020 release = ALF 2.0 (instead of placeholder "ALF 1.2").
-
-Also:
-
-* A development branch is to be merged to master only if its **documentation** and CHANGELOG.md is up-to-date.
+* Half-yearly **releases**: **April and October**;
+* Have a new documentation paper about every three to four years. The next one should be online in 2022.
+* Development branches to be merged to master only if its **documentation** and CHANGELOG.md is up-to-date.
 
 
  To-do list for new releases:
@@ -20,8 +15,20 @@ Also:
   - update ALF website (links, and also 'news')
 
 
+Next Goals
+---
+
+- Improved overall usability:
+  - Further develop pyALF
+  - **Allow models to be input instead of coded**
+- Time-dependent Hamiltonians
+- Hybrid Monte Carlo with exact forces
+- Interaction expansion (CT-INT)
+
+
 ALF 2.0
 ---
+(_former "ALF 1.2"_)
 
 - Parallel tempering
 - Global updates / global tau
@@ -34,16 +41,4 @@ ALF 2.0
 - Predefined structures.
 The last two still need some work from Fakher, and Langevin has to be merged in, but then the code will be essentially ready for release and we only have to worry about the documentation (paper).
 
-ALF 3.0
----
 
-We intend to have:
-- Improved overall usability
-- Improved I.O., HDF5
-- Improved post-processing
-- Implementation with classes
-- Trotter options
-- Time-dependent Hamiltonians
-- Hybrid Monte Carlo with exact forces
-- Rényi entropies
-- Interaction expansion (CT-INT).
