@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2018 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 !
 !  This file is part of the ALF project.
 !
@@ -106,26 +106,9 @@ Module Global_mod
       Subroutine Exchange_Step(Phase,GR, udvr, udvl, Stab_nt, udvst, N_exchange_steps, Tempering_calc_det)
         Use UDV_State_mod
         Use mpi
+        use wrapul_mod
+        use cgr1_mod
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout) :: udvl(:)
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)), INTENT(INOUT)                                :: Phase
@@ -465,26 +448,9 @@ Module Global_mod
       Subroutine Global_Updates(Phase,GR, udvr, udvl, Stab_nt, udvst,N_Global)
 
         Use UDV_State_mod
+        use wrapul_mod
+        use cgr1_mod
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-           SUBROUTINE CGR(PHASE,NVAR, GRUP, udvr, udvl)
-             Use UDV_Wrap_mod
-             Use UDV_State_mod
-             Implicit None
-             CLASS(UDV_State), INTENT(IN) :: udvl, udvr
-             COMPLEX(Kind=Kind(0.d0)), Dimension(:,:), Intent(Inout) :: GRUP
-             COMPLEX(Kind=Kind(0.d0)) :: PHASE
-             INTEGER         :: NVAR
-           END SUBROUTINE CGR
-        end Interface
 
         !  Arguments
         COMPLEX (Kind=Kind(0.d0)),                                INTENT(INOUT) :: Phase
@@ -579,7 +545,7 @@ Module Global_mod
            ! Draw a new spin configuration. This is provided by the user in the Hamiltonian module
            ! Note that nsigma is a variable in the module Hamiltonian
            Call ham%Global_move(T0_Proposal_ratio,nsigma_old,size_clust)
-           If (T0_Proposal_ratio > 1.D-24) then
+           If (T0_Proposal_ratio > 0.d0) then
               NC = NC + 1
               ! Compute the new Green function
               storage = "Empty"
@@ -620,6 +586,9 @@ Module Global_mod
                  nsigma%f = nsigma_old%f
               endif
               Call Control_upgrade_Glob(TOGGLE,size_clust)
+           else
+              nsigma%t = nsigma_old%t
+              nsigma%f = nsigma_old%f
            endif
         Enddo
 
@@ -805,20 +774,11 @@ Module Global_mod
       Subroutine Compute_Fermion_Det(Phase_det,Det_Vec, udvl, udvst, Stab_nt, storage)
 !--------------------------------------------------------------------
 
-        Use  UDV_Wrap_mod
+        Use UDV_Wrap_mod
         Use UDV_State_mod
+        use wrapul_mod
 
         Implicit none
-
-        Interface
-           SUBROUTINE WRAPUL(NTAU1, NTAU, udvl)
-             Use Hamiltonian_main
-             Use UDV_State_mod
-             Implicit none
-             CLASS(UDV_State), intent(inout), allocatable, dimension(:) :: udvl
-             Integer :: NTAU1, NTAU
-           END SUBROUTINE WRAPUL
-        end Interface
 
         REAL    (Kind=Kind(0.d0)), Dimension(:,:), Intent(OUT)  ::  Det_Vec
         Complex (Kind=Kind(0.d0)), Dimension(:)  , Intent(OUT)  ::  Phase_det
@@ -876,7 +836,7 @@ Module Global_mod
               N_part=udvst(1,nf)%N_part
               do i=1,NSTM-1
                  do n=1,N_part
-#if !defined(LOG)
+#if !defined(STABLOG)
                     Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+log(dble(udvst(i,nf)%D(n)))
 #else
                     Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+udvst(i,nf)%L(n)
@@ -884,7 +844,7 @@ Module Global_mod
                  enddo
               enddo
               do n=1,N_part
-#if !defined(LOG)
+#if !defined(STABLOG)
                  Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+log(dble(udvl(nf_eff)%D(n)))
 #else
                  Det_Vec(n,nf_eff)=Det_Vec(n,nf_eff)+udvl(nf_eff)%L(n)
@@ -920,7 +880,7 @@ Module Global_mod
         Do nf_eff = 1,N_FL_eff
            nf=Calc_Fl_map(nf_eff)
            TP = udvl(nf_eff)%U !udvl stores U^dag instead of U !CT(udvl%U)
-#if !defined(LOG)
+#if !defined(STABLOG)
 #if !defined(STAB3)
            DO J = 1,N_size
               TP(:,J) = TP(:,J) +  udvl(nf_eff)%V(:,J)*udvl(nf_eff)%D(J)
@@ -951,7 +911,7 @@ Module Global_mod
            CALL ZGEMM('C', 'N', N_size, N_size, N_size, alpha, udvl(nf_eff)%U(1,1), N_size, udvlocal%U(1,1), N_size, beta, TP, N_size)
            Z1 = Det_C(TP, N_size)
            Phase_det(nf_eff)   = Z*Z1/ABS(Z*Z1)
-#if !defined(LOG)
+#if !defined(STABLOG)
 #if !defined(STAB3)
            Det_vec(:,nf_eff) = log(real(D(:)))
            Det_vec(1,nf_eff) = log(real(D(1))) + log(ABS(Z*Z1))

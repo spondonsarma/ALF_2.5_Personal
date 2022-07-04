@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2021 The ALF project
+!  Copyright (C) 2016 - 2022 The ALF project
 ! 
 !  This file is part of the ALF project.
 ! 
@@ -42,6 +42,7 @@
 Module Operator_mod
 
   Use mpi_shared_memory
+  Use mat_subroutines
   Use MyMats
   Use Fields_mod
 

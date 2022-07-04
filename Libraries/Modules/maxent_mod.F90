@@ -406,7 +406,7 @@ Module MaxEnt_mod
             DO NW = 1,NOM
                X  = A(NW)
                IF (A(NW).LT.ZERO) X  = ZERO
-               XENT = XENT + X-DEF(NW) - X*LOG(X/DEF(NW))
+               XENT = XENT + X-DEF(NW) - X*log(X/DEF(NW))
             ENDDO
 
             DO NT = 1,NTAU
@@ -485,9 +485,9 @@ Module MaxEnt_mod
                ENDDO
 
                !write(6,*) XQ, ALPHA, NOM, DET1(1), DET1(2)
-               XLDET = LOG(DET1(1)) + DET1(2)*LOG(10.D0)
+               XLDET = log(DET1(1)) + DET1(2)*log(10.D0)
 
-               PR_ALP = XQ  + 0.5*LOG(ALPHA)*DBLE(NOM) - 0.5*XLDET
+               PR_ALP = XQ  + 0.5*log(ALPHA)*DBLE(NOM) - 0.5*XLDET
 
                XTRACE = 0.D0
                DO NW = 1,NOM
