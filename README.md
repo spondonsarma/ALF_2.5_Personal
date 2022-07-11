@@ -5,7 +5,7 @@
 
 **Project website: https://alf.physik.uni-wuerzburg.de/.**
 
--> Interested contributors please check our COMMUNITY.md guidelines.
+-> Interested contributors please check our [CONTRIBUTING.md](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/blob/master/CONTRIBUTING.md) guidelines.
 
 -> This is the **development** version of ALF, the latest stable version is [ALF 2.3](https://git.physik.uni-wuerzburg.de/ALF/ALF/-/tree/ALF-2.3/).
 
