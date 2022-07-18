@@ -551,18 +551,12 @@ To simplify  the implementation of a new Hamiltonian, ALF comes with a set of pr
       Writes the observables to disk by calling
       \texttt{Print\_bin} of the \texttt{Observables} module.
       Usually, this doesn't have to be modified. &   \\    
-   \texttt{weight\_reconstruction}   &
-      Calculates the weight of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
-      Typically, one flavor is the complex conjugate of another.
-      This routine is optional and only required if \texttt{Calc\_Fl} has been set. &    \\    
-   \texttt{GR\_reconstruction}   &
-      Calculates the Greens function GR of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
-      Typically, one flavor is the time-reversal of particle-hole conjugate of another.
-      This routine is optional and only required if \texttt{Calc\_Fl} has been set. &    \\    
-   \texttt{GRT\_reconstruction}   &
-      Calculates the time-displaced Greens functions G0T and GT0 of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
-      Typically, one flavor is the time-reversal of particle-hole conjugate of another.
-      This routine is optional and only required if \texttt{Calc\_Fl} has been set. & 
+      \texttt{weight\_reconstruction}   &
+      Reconstruction of the weight for `inactive' flavors. &    \\    
+      \texttt{GR\_reconstruction}   &
+      Reconstruction of the Greens function GR for the `inactive' flavors. &    \\    
+      \texttt{GRT\_reconstruction}   &
+      Reconstruction of the time-displaced Greens functions G0T and GT0. & 
  \\\bottomrule   
  \end{tabular}
 \caption{Typebound procedures bound to type \texttt{ham\_base}. To define a new model, at least \texttt{Ham\_Set} has to be overloaded in the Hamiltonian submodule. For measurements \texttt{Alloc\_obs}, \texttt{Obser} (and \texttt{ObserT} for time displaced observables) are necessary.
