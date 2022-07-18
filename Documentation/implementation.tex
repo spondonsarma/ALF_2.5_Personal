@@ -472,6 +472,7 @@ To simplify  the implementation of a new Hamiltonian, ALF comes with a set of pr
     \hl{\texttt{Projector}}   & \path{logical}          & Enable projector code \\
     \texttt{Group\_Comm}      & \path{int}              & Group communicator for MPI \\
     \hl{\texttt{Symm}}        & \path{logical}          & Symmetric trotter \\
+    \texttt{Calc_Fl}          & \path{logical}          & Explicitly calculate flavors (optional) \\
      \bottomrule
    \toprule
     Private Variable           &  Type                & Description \\
@@ -549,7 +550,19 @@ To simplify  the implementation of a new Hamiltonian, ALF comes with a set of pr
    \texttt{Pr\_obs}   &
       Writes the observables to disk by calling
       \texttt{Print\_bin} of the \texttt{Observables} module.
-      Usually, this doesn't have to be modified. &   
+      Usually, this doesn't have to be modified. &   \\    
+   \texttt{weight\_reconstruction}   &
+      Calculates the weight of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
+      Typically, one flavor is the complex conjugate of another.
+      This routine is optional and only required if \texttt{Calc\_Fl} has been set. &    \\    
+   \texttt{GR\_reconstruction}   &
+      Calculates the Greens function GR of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
+      Typically, one flavor is the time-reversal of particle-hole conjugate of another.
+      This routine is optional and only required if \texttt{Calc\_Fl} has been set. &    \\    
+   \texttt{GRT\_reconstruction}   &
+      Calculates the time-displaced Greens functions G0T and GT0 of the `inactive' flavors out of those that are exlicitly calculated according to \texttt{Calc\_Fl}.
+      Typically, one flavor is the time-reversal of particle-hole conjugate of another.
+      This routine is optional and only required if \texttt{Calc\_Fl} has been set. & 
  \\\bottomrule   
  \end{tabular}
 \caption{Typebound procedures bound to type \texttt{ham\_base}. To define a new model, at least \texttt{Ham\_Set} has to be overloaded in the Hamiltonian submodule. For measurements \texttt{Alloc\_obs}, \texttt{Obser} (and \texttt{ObserT} for time displaced observables) are necessary.
@@ -614,4 +627,8 @@ we  define  the corresponding doubled array \texttt{Op\_V(M$_V$+M$_I$,N$_\mathrm
 
 \end{itemize}
 
-
+This code allows the use of time-reversal or particle-hole symmetry to accelerate the algorithm by only explicitly calculating a subset of flavors and reconstructing the complement by symmetry.
+Note that \texttt{Op\_V(i,n$_\mathrm{fl}$)} has to exactly equal the symmetry transformed \texttt{Op\_V(i,$\bar{n}_\mathrm{fl}$)}, where $\bar{n}_\mathrm{fl}$ is the symmetry conjugat of $n_\mathrm{fl}$.
+For example, the particle-hole symmetry requires a non-zero shift $\alpha=1/2$ in the $M_z$ decoupling of the Hubbard interaction to map the upspin to the downspin.
+This acceleration is activated by allocating \texttt{Calc\_Fl} and setting the `active' flavors to \texttt{.True.} and the symmetry-related flavors to \texttt{.False.}.
+Whenever this feature is used, the three functions \texttt{weight\_reconstruction}, \texttt{GR\_reconstruction} and \texttt{GRT\_reconstruction} have to be override to provide the symmetry reconstruction of the `inactive' flavors of the weight, equal-time and time-displaced Greens-function, respectively.
