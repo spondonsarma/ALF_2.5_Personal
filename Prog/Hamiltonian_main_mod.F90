@@ -628,63 +628,63 @@
           end subroutine weight_reconstruction_base
 
 
-    !--------------------------------------------------------------------
-    !> @author
-    !> ALF Collaboration
-    !>
-    !> @brief
-    !> Reconstructs dependent flavors of equal time Greens function
-    !> @details
-    !> This has to be overloaded in the Hamiltonian submodule.
-    !> @param [INOUT] Gr   Complex(:,:,:)
-    !> \verbatim
-    !>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
-    !> \endverbatim
-    !-------------------------------------------------------------------
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
           subroutine GR_reconstruction_base(GR)
-
+            
             Implicit none
-
+            
             Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
             
             write(error_unit, *) "Warning: GR_reconstruction not implemented."
             error stop 1
-         end Subroutine GR_reconstruction_base
+          end Subroutine GR_reconstruction_base
 
 
-   !--------------------------------------------------------------------
-   !> @author
-   !> ALF Collaboration
-   !>
-   !> @brief
-   !> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
-   !> @details
-   !> This has to be overloaded in the Hamiltonian submodule.
-   !> @param [INOUT] GT0, G0T,  Complex(:,:,:)
-   !> \verbatim
-   !>  Green functions:
-   !>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
-   !>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
-   !> \endverbatim
-   !-------------------------------------------------------------------
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
          Subroutine GRT_reconstruction_base(GT0, G0T)
-            Implicit none
-   
-            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
-            
-            write(error_unit, *) "Warning: GRT_reconstruction not implemented."
-            error stop 1
+           Implicit none
+           
+           Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+           
+           write(error_unit, *) "Warning: GRT_reconstruction not implemented."
+           error stop 1
          end Subroutine GRT_reconstruction_base
-          
-          
+         
+         
 #ifdef HDF5
-          subroutine write_parameters_hdf5_base(filename)
-            implicit none
-            
-            Character (len=64), intent(in) :: filename
-            
-          end subroutine write_parameters_hdf5_base
+         subroutine write_parameters_hdf5_base(filename)
+           implicit none
+           
+           Character (len=64), intent(in) :: filename
+           
+         end subroutine write_parameters_hdf5_base
 #endif
-
+         
 
     end Module Hamiltonian_main
