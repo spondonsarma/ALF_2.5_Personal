@@ -50,7 +50,7 @@ set_hdf5_flags()
     fi
     case "$yn" in
       y|Y|"")
-        printf "\e[31mDownloading and installing HDF5 in %s.\e[0m\n" "$HDF5_DIR"
+        printf "${RED}Downloading and installing HDF5 in %s.${NC}\n" "$HDF5_DIR"
         CC="$CC" FC="$FC" CXX="$CXX" HDF5_DIR="$HDF5_DIR" "$ALF_DIR/HDF5/install_hdf5.sh" || return 1
       ;;
       *) 
@@ -62,6 +62,35 @@ set_hdf5_flags()
   INC_HDF5="-I$HDF5_DIR/include"
   LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
   LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
+}
+
+check_libs()
+{
+    FC="$1" LIBS="$2"
+    if command -v "$FC" > /dev/null; then       # Compiler binary found
+        sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"
+        if [ $? -eq 0 ]; then                   # Compiling with $LIBS is successful
+            ./check_libs.out || (
+              printf "${RED}\n==== Error: Execution of test program using compiler <%s> ====${NC}\n" "$FC"
+              printf "${RED}==== and linear algebra libraries <%s> not successful. ====${NC}\n\n" "$LIBS"
+              return 1
+              )
+        else
+            printf "${RED}\n==== Error: Linear algebra libraries <%s> not found. ====${NC}\n\n" "$LIBS"
+            return 1
+        fi
+    else
+        printf "${RED}\n==== Error: Compiler <%s> not found. ====${NC}\n\n" "$FC"
+        return 1
+    fi
+}
+
+check_python()
+{
+    if ! command -v python3 > /dev/null; then
+	printf "${RED}\n==== Error: Python 3 not found. =====${NC}\n\n"
+	return 1
+    fi
 }
 
 # default optimization flags for Intel compiler
@@ -79,7 +108,7 @@ GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
 # uncomment the next line if you want to use additional openmp parallelization
 GNUOPTFLAGS="${GNUOPTFLAGS} -fopenmp"
 # GNUDEVFLAGS="-Wconversion -Werror -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal"
-GNUDEVFLAGS="-Wconversion -Werror -fcheck=all -g -fbacktrace -fmax-errors=10"
+GNUDEVFLAGS="-Wconversion -Werror -Wno-error=cpp -fcheck=all -g -fbacktrace -fmax-errors=10"
 GNUUSEFULFLAGS="-std=f2008"
 
 # default optimization flags for PGI compiler
@@ -199,7 +228,7 @@ case $STAB in
   ;;
 
   LOG)
-    STABCONFIGURATION="${STABCONFIGURATION} -DLOG"
+    STABCONFIGURATION="${STABCONFIGURATION} -DSTABLOG"
     printf "Using log storage for internal scales\n"
   ;;
 
@@ -253,7 +282,7 @@ case $MACHINE in
 
   #LRZ enviroment
   SUPERMUC-NG|NG)
-    module load hdf5/1.10.7-intel19
+    module load hdf5/1.10.7-intel21
     printf "\n${RED}   !!   unsetting  FORT_BLOCKSIZE  !!${NC}\n"
     unset FORT_BLOCKSIZE
 
@@ -301,6 +330,10 @@ case $MACHINE in
     fi
   ;;
 esac
+
+check_libs "$ALF_FC" "${LIB_BLAS_LAPACK}" || return 1
+
+check_python || return 1
 
 PROGRAMMCONFIGURATION="$STABCONFIGURATION $PROGRAMMCONFIGURATION"
 
