@@ -167,16 +167,18 @@ Do nf = 1,N_FL
    if (nf == 2)  X = -1.d0
    Do i = 1,Ndim
       nc = nc + 1
-      Op_V(i,nf)%P(1)   = I
+      Op_V(i,nf)%P(1)   = i
       Op_V(i,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
       Op_V(i,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0))) 
-      Op_V(i,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
+      Op_V(i,nf)%alpha  = cmplx(-0.5d0, 0.d0, kind(0.D0))
       Op_V(i,nf)%type   = 2
       Call Op_set( Op_V(i,nf) )
    Enddo
 Enddo
 \end{lstlisting}
-The code above makes it explicit that there is a sign difference between the coupling of the HS field in the two flavor sectors. 
+The code above makes it explicit that there is a sign difference between the coupling of the HS field in the two flavor sectors.        Hence,  
+\texttt{Op\_V(i,nf)}     encodes    $ e^{  X \sqrt{\Delta   \tau U/2} \left( \hat{c}^{\dagger}_{\ve{i},{\texttt{nf}}}  \hat{c}^{\phantom\dagger}_{\ve{i},{\texttt{nf}}}  + \alpha  \right) }  $    with  $X=1 $  for  $\texttt{nf}=1$  and $X=-1 $  for  $\texttt{nf}=2$.    Strictly  speaking  $X$  can  be  omitted.  However,  it  is  required  when  using the  flavor  symmetry  option in the presence  of  particle-hole  symmetry (see  Sec.~\ref{sec:flavor_sym}). 
+
 
 %------------------------------------------------------------
 \subsection{The trial wave function: \texttt{Ham\_Trial}} \label{U_PV_Ham_Trial}
@@ -348,6 +350,52 @@ are then given by:
 \end{multline}
 
 The handling of time-displaced correlation functions is identical to that of equal-time correlations. 
+
+
+%-------------------------------------------------------------------------------------
+\subsection[Flavor symmetries]{ Flavor symmetries.  \texttt{ weight\_reconstruction(weight),  GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}}  \label{sec:flavor_symm_vanilla_hubbard}
+%-------------------------------------------------------------------------------------
+At  zero  chemical  potential,  and  for  repulsive  interactions,    the plain-vanilla   Hubbard  model  enjoys a  particle-hole  symmetry  that  maps,  for each  
+HS  field  configuration,     one  flavor  (i.e.  spin  sector)  onto  the other.      
+\begin{equation} 
+	\hat{P}  z   \hat{c}^{\dagger}_{\ve{i},\downarrow} \hat{P}^{-1}    =  z^{*}  e^{i \,  \ve{i} \cdot \ve{Q} }\hat{c}^{\phantom\dagger}_{\ve{i},\uparrow}.
+\end{equation}
+Here  $ \ve{Q}$  is  the  antiferromagnetic wave  vector. 
+Note  that   in the presence  of  an  orbital magnetic field, or  of   twisted boundary conditions  that  couples  symmetrically  to  the  spin  degree of  freedom,  
+the anti-unitarity of the   transformation is   required.    A   consequence  of  this    symmetry,  and for  a  given  HS  field configuration we  have the   relations  for the   equal  time   Green  functions: 
+
+\begin{align}
+\begin{aligned}
+ \texttt{G00(x,y,}\uparrow\texttt{)}  &=     \langle \langle \hat{c}^{\phantom\dagger}_{\ve{x},\uparrow} (0)   \hat{c}^{\dagger}_{\ve{y},\uparrow} (0)   \rangle \rangle
+ \;=\;   e^{i (\ve{y} - \ve{x}) \cdot \ve{Q}} \, \,  \overline{ \langle \langle \hat{c}^{\dagger}_{\ve{x},\downarrow} (0)  
+     \hat{c}^{\phantom\dagger}_{\ve{y},\uparrow} (0)   \rangle }   
+ \\      & =   \delta_{\ve{x},\ve{y}} -  e^{i (\ve{y} - \ve{x}) \cdot \ve{Q}}\, \, \overline{ \texttt{G00(y,x,}\downarrow\texttt{)}  } 
+\end{aligned}
+\end{align}
+
+
+For   the  attractive  Hubbard  model  $U<0$,  the  up  and  down  sectors  are  related  by  time  reversal  symmetry.   
+\begin{equation}
+\hat{T}  z  
+\begin{pmatrix}
+  \hat{c}^{\phantom\dagger}_{\ve{i},\uparrow}  \\
+    \hat{c}^{\phantom\dagger}_{\ve{i},\downarrow} 
+\end{pmatrix}
+ \hat{T }^{-1}    =  z^{*}    i  \sigma_y  
+\begin{pmatrix}
+  \hat{c}^{\phantom\dagger}_{\ve{i},\uparrow}  \\
+    \hat{c}^{\phantom\dagger}_{\ve{i},\downarrow} 
+\end{pmatrix}
+\end{equation}
+Of  course,   we  have  assumed  that  the  hopping    remains  invariant    under  time  reversal.    As  a  consequence of  this  symmetry: 
+\begin{align}
+\begin{aligned}
+ \texttt{G00(x,y,}\uparrow\texttt{)}     =  \overline{ \texttt{G00(x,y}\downarrow\texttt{)}  } 
+\end{aligned}
+\end{align}
+
+The  usage  of  the  flavor   symmetry  is  described  in   Sec.~\ref{sec:flavor_sym}.   Only  one  flavor  has  to be   computed  and  the   routines
+\texttt{GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}    will  reconstruct    the  equal  time  and    time  displaced  Green  functions   respectively for one flavor    given the  other.   Hence we  gain a  factor  two  in  computing time.   We  note  that  since  both  symmetries  are  anti-unitary, the  weights   between  the  two  sectors  are  related  by a  complex  conjugation.  This is  specified in the routine    \texttt{ weight\_reconstruction(weight)}.
 
 %-------------------------------------------------------------------------------------
 \subsection{Numerical precision}\label{sec:prec_spin}
