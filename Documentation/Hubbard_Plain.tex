@@ -83,8 +83,9 @@ We can test the correct formatting of the parameters by calling:
 
 The main program will call the subroutine \texttt{Ham\_set} in the submodule \path{Hamiltonian_Hubbard_Plain_Vanilla_smod.F90}
 which specify the model.  The  routine \texttt{Ham\_set}  will first  read the parameter file \texttt{parameters} (see Sec.~\ref{sec:input}) \texttt{Call read\_parameters}; then set the lattice: \texttt{Call Ham\_latt};  set the hopping: \texttt{Call Ham\_hop};  
- set the interaction: \texttt{call Ham\_V}; and if required, set the trial wave function: \texttt{call Ham\_trial}.
-
+ set the interaction: \texttt{call Ham\_V}; and if required, set the trial wave function: \texttt{call Ham\_trial}.     In the  subroutine   \texttt{Ham\_set} one  
+ will equally  have  to  specify  if  a  symmetry  relates   different  flavors.   This functionality  is   described in  Sec.~\ref{sec:flavor_sym}   and   one  enables it  by allocating  tine  array  \texttt{Calc\_Fl}. 
+ 
 %------------------------------------------------------------
 \subsection{The lattice: \texttt{Ham\_latt}} \label{U_PV_Ham_latt}
 %------------------------------------------------------------
@@ -355,14 +356,15 @@ The handling of time-displaced correlation functions is identical to that of equ
 %-------------------------------------------------------------------------------------
 \subsection[Flavor symmetries]{ Flavor symmetries.  \texttt{ weight\_reconstruction(weight),  GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}}  \label{sec:flavor_symm_vanilla_hubbard}
 %-------------------------------------------------------------------------------------
-At  zero  chemical  potential,  and  for  repulsive  interactions,    the plain-vanilla   Hubbard  model  enjoys a  particle-hole  symmetry  that  maps,  for each  
-HS  field  configuration,     one  flavor  (i.e.  spin  sector)  onto  the other.      
+At  zero  chemical  potential,  and  for  repulsive  interactions,    the plain-vanilla   Hubbard  model  enjoys a  partial  particle-hole  symmetry  that  
+for  each HS  field  configuration,  maps one  flavor    one  flavor  (i.e.  spin  sector)  onto  the other:      
 \begin{equation} 
 	\hat{P}  z   \hat{c}^{\dagger}_{\ve{i},\downarrow} \hat{P}^{-1}    =  z^{*}  e^{i \,  \ve{i} \cdot \ve{Q} }\hat{c}^{\phantom\dagger}_{\ve{i},\uparrow}.
 \end{equation}
 Here  $ \ve{Q}$  is  the  antiferromagnetic wave  vector. 
-Note  that   in the presence  of  an  orbital magnetic field, or  of   twisted boundary conditions  that  couples  symmetrically  to  the  spin  degree of  freedom,  
-the anti-unitarity of the   transformation is   required.    A   consequence  of  this    symmetry,  and for  a  given  HS  field configuration we  have the   relations  for the   equal  time   Green  functions: 
+Note  that   in the presence  of  an  orbital magnetic field, or  of   twisted boundary conditions  that  couples  symmetrically  to  the  flavor (spin)  
+degree of  freedom,  
+the anti-unitarity of the   transformation is   required.    A   consequence  of  this    symmetry,  and for  a  given  HS  field configuration, the  following holds for  the  equal  time Green function. 
 
 \begin{align}
 \begin{aligned}

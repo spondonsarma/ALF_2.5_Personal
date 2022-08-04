@@ -635,4 +635,12 @@ For example, the particle-hole symmetry requires a non-zero shift $\alpha=1/2$ i
 This acceleration is activated by allocating \texttt{Calc\_Fl} in \texttt{Ham\_set} and setting the `active' flavors $n_\mathrm{fl}$ to \texttt{.True.} and the symmetry-related flavors $\bar{n}_\mathrm{fl}$ to \texttt{.False.}.
 
 This symmetry allows to reconstruct one flavor, say $\bar{n}_\mathrm{fl}$, from the other, $n_\mathrm{fl}$. For unitary symmetries, the weight is given by $Z(\bar{n}_\mathrm{fl})=Z(n_\mathrm{fl})$, while anti-unitary symmetries lead to $Z(\bar{n}_\mathrm{fl})=Z(n_\mathrm{fl})^*$. This relation has to be provided by the user in  \texttt{weight\_reconstruction}. Upto entry, all weights $Z(n_\mathrm{fl})$ have be explicilty calculated by ALF and the user has to fill all `inactive' flavors $\bar{n}_\mathrm{fl}$ of the array $Z$.
-Similarly, the subroutines \texttt{GR\_reconstruction} and \texttt{GRT\_reconstruction} have to be override to provide the symmetry reconstruction of the `inactive' flavors $\bar{n}_\mathrm{fl}$ of the equal-time and time-displaced Greens-function out of $n_\mathrm{fl}$, respectively.
+Similarly, the subroutines \texttt{GR\_reconstruction} and \texttt{GRT\_reconstruction} have to be override to provide the symmetry reconstruction of the `inactive' flavors $\bar{n}_\mathrm{fl}$ of the equal-time and time-displaced Greens-function out of $n_\mathrm{fl}$, respectively.   
+
+Finally  we  note  that   if  the projective  algorithm is  used  then   the  trial  wave  function  also has  to satisfy  the   aforementioned  symmetry.  
+In particular,  
+assume  that  the   trial wave function    corresponds  to the  ground state of a  single  particle  Hamiltonian,   $\hat{H}_T(n_\mathrm{fl}) $,  then  we  
+will require  that  
+\begin{equation}
+\mathcal{U}^{-1}   \hat{H}_T(n_\mathrm{fl})  \mathcal{U} = \hat{H}_T(\bar{n}_\mathrm{fl})  
+\end{equation}
