@@ -168,6 +168,7 @@
 
       Type (Lattice),       target :: Latt
       Type (Unit_cell),     target :: Latt_unit
+      INTEGER :: nf_calc, nf_reconst
 
     contains
       
@@ -287,8 +288,10 @@
           ! Time  reversal  symmetry  for  attractive U
           If ( (Ham_U >= 0.d0 .and.   Ham_chem  == 0.d0)  .or.  Ham_U < 0.d0  )    then
              allocate(Calc_Fl(N_FL))
-             Calc_Fl(2)=.True.
-             Calc_Fl(1)=.False.
+             nf_calc=2
+             nf_reconst=1
+             Calc_Fl(nf_calc)=.True.
+             Calc_Fl(nf_reconst)=.False.
           endif
           
           
@@ -752,10 +755,7 @@
       subroutine weight_reconstruction(weight)
          implicit none
          complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
-         INTEGER :: nf_calc, nf_reconst
 
-         nf_calc=2
-         nf_reconst=1
          weight(nf_reconst) = conjg(Weight(nf_calc))  
 
       end subroutine weight_reconstruction
@@ -781,10 +781,7 @@
          Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
          Integer :: I,J,imj
          real (kind=kind(0.d0)) :: X, ZZ
-         INTEGER :: nf_calc, nf_reconst
 
-         nf_calc=2
-         nf_reconst=1
          If  (Ham_U  >= 0.d0)  then 
             Do J = 1,Ndim
                Do I = 1,Ndim
@@ -828,10 +825,7 @@
          Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
          Integer :: I,J,imj
          real (kind=kind(0.d0)) :: X, ZZ
-         INTEGER :: nf_calc, nf_reconst
 
-         nf_calc=2
-         nf_reconst=1
          If (Ham_U >= 0.d0)  then
             Do J = 1,Latt%N
                Do I = 1,Latt%N
