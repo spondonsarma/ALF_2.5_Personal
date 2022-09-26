@@ -354,18 +354,16 @@ The handling of time-displaced correlation functions is identical to that of equ
 
 
 %-------------------------------------------------------------------------------------
-\subsection[Flavor symmetries]{ Flavor symmetries.  \texttt{ weight\_reconstruction(weight),  GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}}  \label{sec:flavor_symm_vanilla_hubbard}
+\subsection[Flavor symmetries]{Flavor symmetries: \texttt{weight\_reconstruction(weight),  GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}}  \label{sec:flavor_symm_vanilla_hubbard}
 %-------------------------------------------------------------------------------------
-At  zero  chemical  potential,  and  for  repulsive  interactions,    the plain-vanilla   Hubbard  model  enjoys a  partial  particle-hole  symmetry  that  
-for  each HS  field  configuration,  maps one  flavor    one  flavor  (i.e.  spin  sector)  onto  the other:      
+At  zero  chemical  potential,  and  for  repulsive  interactions,    the plain-vanilla   Hubbard  model  enjoys a  partial  particle-hole  symmetry which, for  each HS  field  configuration,  maps one  flavor  (i.e.  spin  sector)  onto  the other:      
 \begin{equation} 
 	\hat{P}  z   \hat{c}^{\dagger}_{\ve{i},\downarrow} \hat{P}^{-1}    =  z^{*}  e^{i \,  \ve{i} \cdot \ve{Q} }\hat{c}^{\phantom\dagger}_{\ve{i},\uparrow}.
 \end{equation}
 Here  $ \ve{Q}$  is  the  antiferromagnetic wave  vector. 
 Note  that   in the presence  of  an  orbital magnetic field, or  of   twisted boundary conditions  that  couples  symmetrically  to  the  flavor (spin)  
 degree of  freedom,  
-the anti-unitarity of the   transformation is   required.    A   consequence  of  this    symmetry,  and for  a  given  HS  field configuration, the  following holds for  the  equal  time Green function. 
-
+the anti-unitarity of the   transformation is   required.    Aa a   consequence  of  this    symmetry,  for  a  given  HS  field configuration the  following holds for  the  equal-time Green function. 
 \begin{align}
 \begin{aligned}
  \texttt{G00(x,y,}\uparrow\texttt{)}  &=     \langle \langle \hat{c}^{\phantom\dagger}_{\ve{x},\uparrow} (0)   \hat{c}^{\dagger}_{\ve{y},\uparrow} (0)   \rangle \rangle
@@ -375,8 +373,7 @@ the anti-unitarity of the   transformation is   required.    A   consequence  of
 \end{aligned}
 \end{align}
 
-
-For   the  attractive  Hubbard  model  $U<0$,  the  up  and  down  sectors  are  related  by  time  reversal  symmetry.   
+For   the  attractive  Hubbard  model  $U<0$,  the  up  and  down  sectors  are  related  by  time  reversal  symmetry:   
 \begin{equation}
 \hat{T}  z  
 \begin{pmatrix}
@@ -397,7 +394,7 @@ Of  course,   we  have  assumed  that  the  hopping    remains  invariant    und
 \end{align}
 
 The  usage  of  the  flavor   symmetry  is  described  in   Sec.~\ref{sec:flavor_sym}.   Only  one  flavor  has  to be   computed  and  the   routines
-\texttt{GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}    will  reconstruct    the  equal  time  and    time  displaced  Green  functions   respectively for one flavor    given the  other.   Hence we  gain a  factor  two  in  computing time.   We  note  that  since  both  symmetries  are  anti-unitary, the  weights   between  the  two  sectors  are  related  by a  complex  conjugation.  This is  specified in the routine    \texttt{ weight\_reconstruction(weight)}.
+\texttt{GR\_reconstruction(GR)}, and \texttt{GRT\_reconstruction(GT0, G0T)}  reconstruct, respectively,    the  equal-time  and    time-displaced  Green  functions for one flavor  given the  other.   Hence we  gain a  factor  two  in  computing time.   We  note  that  since  both  symmetries  are  anti-unitary, the  weights   between  the  two  sectors  are  related  by a  complex  conjugation.  This is  specified in the routine    \texttt{ weight\_reconstruction(weight)}.
 
 %-------------------------------------------------------------------------------------
 \subsection{Numerical precision}\label{sec:prec_spin}
