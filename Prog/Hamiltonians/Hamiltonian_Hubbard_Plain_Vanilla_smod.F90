@@ -139,6 +139,9 @@
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
+        procedure, nopass :: weight_reconstruction
+        procedure, nopass :: GR_reconstruction
+        procedure, nopass :: GRT_reconstruction
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
 #endif
@@ -165,6 +168,7 @@
 
       Type (Lattice),       target :: Latt
       Type (Unit_cell),     target :: Latt_unit
+      INTEGER :: nf_calc, nf_reconst
 
     contains
       
@@ -263,6 +267,12 @@
              Write(unit_info,*) 't             : ', Ham_T
              Write(unit_info,*) 'Ham_U         : ', Ham_U
              Write(unit_info,*) 'Ham_chem      : ', Ham_chem
+             If  (  Ham_U >=0.d0  .and.   Ham_chem   == 0.d0 )    then
+                Write(unit_info,*) 'Assuming particle hole symmetry' 
+             endif
+             If  (  Ham_U <  0.d0  )    then
+                Write(unit_info,*) 'Assuming time  reversal  symmetry' 
+             endif
              if (Projector) then
                 Do nf = 1,N_FL
                    Write(unit_info,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
@@ -274,7 +284,18 @@
           Endif
 #endif
 
-        end Subroutine Ham_Set
+          ! Particle-hole  symmetry   for repulsive  U  only if  chemical potential vanishes
+          ! Time  reversal  symmetry  for  attractive U
+          If ( (Ham_U >= 0.d0 .and.   Ham_chem  == 0.d0)  .or.  Ham_U < 0.d0  )    then
+             allocate(Calc_Fl(N_FL))
+             nf_calc=2
+             nf_reconst=1
+             Calc_Fl(nf_calc)=.True.
+             Calc_Fl(nf_reconst)=.False.
+          endif
+          
+          
+        End Subroutine Ham_Set
 
 !--------------------------------------------------------------------
 !> @author
@@ -428,7 +449,7 @@
                 Op_V(i,nf)%P(1)   = I
                 Op_V(i,nf)%O(1,1) = cmplx(1.d0, 0.d0, kind(0.D0))
                 Op_V(i,nf)%g      = X*SQRT(CMPLX(DTAU*ham_U/2.d0, 0.D0, kind(0.D0)))
-                Op_V(i,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
+                Op_V(i,nf)%alpha  = cmplx(-0.5d0, 0.d0, kind(0.D0))
                 Op_V(i,nf)%type   = 2
                 Call Op_set( Op_V(i,nf) )
              Enddo
@@ -724,5 +745,105 @@
 
 
         end Subroutine OBSERT
+
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+      subroutine weight_reconstruction(weight)
+         implicit none
+         complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+
+         weight(nf_reconst) = conjg(Weight(nf_calc))  
+
+      end subroutine weight_reconstruction
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
+      subroutine GR_reconstruction(GR)
+
+         Implicit none
+
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+         Integer :: I,J,imj
+         real (kind=kind(0.d0)) :: X, ZZ
+
+         If  (Ham_U  >= 0.d0)  then 
+            Do J = 1,Ndim
+               Do I = 1,Ndim
+                  X=-1.0
+                  imj = latt%imj(I,J)
+                  if (mod(Latt%list(imj,1)+Latt%list(imj,2),2)==0) X=1.d0
+                  !  write(*,*) Latt%list(I,:),Latt%list(J,:),mod(Latt%list(imj,1)+Latt%list(imj,2),2), X
+                  ZZ=0.d0
+                  if (I==J) ZZ=1.d0
+                  GR(I,J,nf_reconst) = ZZ - X*GR(J,I,nf_calc)
+               Enddo
+            Enddo
+         else
+            Do J = 1,Ndim
+               Do I = 1,Ndim
+                  GR(I,J,nf_reconst) = Conjg(GR(I,J,nf_calc))
+               Enddo
+            Enddo
+         Endif
+      end Subroutine GR_reconstruction
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
+      Subroutine GRT_reconstruction(GT0, G0T)
+         Implicit none
+
+         Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+         Integer :: I,J,imj
+         real (kind=kind(0.d0)) :: X, ZZ
+
+         If (Ham_U >= 0.d0)  then
+            Do J = 1,Latt%N
+               Do I = 1,Latt%N
+                  X=-1.0
+                  imj = latt%imj(I,J)
+                  if (mod(Latt%list(imj,1)+Latt%list(imj,2),2)==0) X=1.d0
+                  G0T(I,J,nf_reconst) = -X*conjg(GT0(J,I,nf_calc))
+                  GT0(I,J,nf_reconst) = -X*conjg(G0T(J,I,nf_calc))
+               enddo
+            enddo
+         else
+            Do J = 1,Latt%N
+               Do I = 1,Latt%N
+                  G0T(I,J,nf_reconst) = conjg(G0T(I,J,nf_calc))
+                  GT0(I,J,nf_reconst) = conjg(GT0(I,J,nf_calc))
+               enddo
+            enddo
+         endif
+      end Subroutine GRT_reconstruction
 
     end submodule ham_Hubbard_Plain_Vanilla_smod

@@ -152,6 +152,9 @@
         procedure, nopass :: Delta_S0_global => Delta_S0_global_base
         procedure, nopass :: S0 => S0_base
         procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+        procedure, nopass :: weight_reconstruction => weight_reconstruction_base
+        procedure, nopass :: GR_reconstruction => GR_reconstruction_base
+        procedure, nopass :: GRT_reconstruction => GRT_reconstruction_base
         procedure, nopass :: Apply_B_HMC => Apply_B_HMC_base
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5 => write_parameters_hdf5_base
@@ -164,15 +167,18 @@
       Type (Operator),     dimension(:,:), allocatable, public :: Op_T
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_L
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_R
+      Logical            , dimension(:),   allocatable, public :: Calc_Fl
+      Integer            , dimension(:),   allocatable, public :: Calc_Fl_map
       Type (Fields), public        :: nsigma
       Integer      , public        :: Ndim
-      Integer      , public        :: N_FL
+      Integer      , public        :: N_FL, N_FL_eff
       Integer      , public        :: N_SUN
       Integer      , public        :: Ltrot
       Integer      , public        :: Thtrot
       Logical      , public        :: Projector
       Integer      , public        :: Group_Comm
       Logical      , public        :: Symm
+      Logical      , public        :: reconstruction_needed
 
 
       !>    Privat Observables
@@ -202,7 +208,7 @@
 
     subroutine Alloc_Ham()
        Implicit none
-       Integer :: ierr
+       Integer :: ierr, I
        Character (len=64) :: ham_name
        NAMELIST /VAR_HAM_NAME/ ham_name
        
@@ -645,16 +651,78 @@
             Logical               , Intent(in)                 :: ltrans
 
           end Subroutine Apply_B_HMC_base
-          
-          
-#ifdef HDF5
-          subroutine write_parameters_hdf5_base(filename)
+    
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+          subroutine weight_reconstruction_base(weight)
             implicit none
-            
-            Character (len=64), intent(in) :: filename
-            
-          end subroutine write_parameters_hdf5_base
-#endif
+            complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+            write(error_unit, *) 'weight_reconstruction not defined!'
+            error stop 1
+          end subroutine weight_reconstruction_base
 
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
+          subroutine GR_reconstruction_base(GR)
+            
+            Implicit none
+            
+            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+            
+            write(error_unit, *) "Warning: GR_reconstruction not implemented."
+            error stop 1
+          end Subroutine GR_reconstruction_base
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
+         Subroutine GRT_reconstruction_base(GT0, G0T)
+           Implicit none
+           
+           Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+           
+           write(error_unit, *) "Warning: GRT_reconstruction not implemented."
+           error stop 1
+         end Subroutine GRT_reconstruction_base
+         
+         
+#ifdef HDF5
+         subroutine write_parameters_hdf5_base(filename)
+           implicit none
+           
+           Character (len=64), intent(in) :: filename
+           
+         end subroutine write_parameters_hdf5_base
+#endif
+         
 
     end Module Hamiltonian_main
