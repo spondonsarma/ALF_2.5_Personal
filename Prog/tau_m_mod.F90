@@ -80,6 +80,7 @@
 
            
            Mc_step_Weight  = 1.d0
+           !needed for integration weight in Langevin, dt is taken care of by acceptance ratio for HMC
            if (trim(Langevin_HMC%get_Update_scheme())=="Langevin") Mc_step_weight = Langevin_HMC%get_Delta_t_running()
            
            !Tau = 0
@@ -123,7 +124,8 @@
               NT1 = NT + 1
               CALL PROPR   (GT0,NT1)
               CALL PROPRM1 (G0T,NT1)
-              If  (trim(Langevin_HMC%get_Update_scheme())=="Langevin") then
+              If  (trim(Langevin_HMC%get_Update_scheme())=="Langevin" &
+              & .or. trim(Langevin_HMC%get_Update_scheme())=="HMC") then
                  Call Langevin_HMC%Wrap_Forces(GTT,NT1)
               else
                  CALL PROPRM1 (GTT,NT1)
@@ -136,11 +138,13 @@
                  Call Hop_mod_Symm(G0T_T,G0T)
                  Call Hop_mod_Symm(GT0_T,GT0)
                  CALL ham%OBSERT(NT1, GT0_T,G0T_T,G00_T,GTT_T,PHASE, Mc_step_weight)
-                 If (trim(Langevin_HMC%get_Update_scheme())=="Langevin" &
+                 If ((trim(Langevin_HMC%get_Update_scheme())=="Langevin"  &
+                      & .or. trim(Langevin_HMC%get_Update_scheme())=="HMC") &
                       &  .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL ham%Obser( GTT_T, PHASE, NT1, Mc_step_weight )
               Else
                  CALL ham%OBSERT(NT1, GT0,G0T,G00,GTT,PHASE, Mc_step_weight)
-                 If (trim(Langevin_HMC%get_Update_scheme())=="Langevin"&
+                 If ( (trim(Langevin_HMC%get_Update_scheme())=="Langevin" &
+                      & .or. trim(Langevin_HMC%get_Update_scheme())=="HMC") &
                       & .and. NT1.ge.LOBS_ST .and. NT1.le.LOBS_EN ) CALL ham%Obser( GTT, PHASE, NT1, Mc_step_weight )
               Endif
               

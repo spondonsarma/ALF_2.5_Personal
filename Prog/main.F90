@@ -600,6 +600,30 @@ Program Main
                  endif
               endif
 
+              If (  trim(Langevin_HMC%get_Update_scheme()) == "HMC" )  then
+                 if (Sequential) call Langevin_HMC%set_L_Forces(.False.)
+                 !  Carry out a Langevin update and calculate equal time observables.
+                 Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
+                      &                   LOBS_ST, LOBS_EN, LTAU)
+                 
+                 !Do time-displaced measurements if needed, else set Calc_Obser_eq=.True. for the very first leapfrog ONLY
+                 If ( .not. sequential) then
+                    IF ( LTAU == 1 ) then
+                       If (Projector) then 
+                          NST = 0 
+                          Call Tau_p ( udvl, udvr, udvst, GR, PHASE, NSTM, STAB_NT, NST, LOBS_ST, LOBS_EN)
+                       else
+                          Call Tau_m( udvst, GR, PHASE, NSTM, NWRAP, STAB_NT, LOBS_ST, LOBS_EN )
+                       endif
+                    else
+                       Call Langevin_HMC%calc_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
+                       &  LOBS_ST, LOBS_EN, .True. )
+                       Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+                    endif
+                    call Langevin_HMC%set_L_Forces(.true.)
+                 endif
+              endif
+
               If (Sequential)  then 
                  ! Propagation from 1 to Ltrot
                  ! Set the right storage to 1

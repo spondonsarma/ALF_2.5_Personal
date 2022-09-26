@@ -152,6 +152,7 @@
         procedure, nopass :: Delta_S0_global => Delta_S0_global_base
         procedure, nopass :: S0 => S0_base
         procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+        procedure, nopass :: Apply_B_HMC => Apply_B_HMC_base
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5 => write_parameters_hdf5_base
 #endif
@@ -607,6 +608,43 @@
             Forces_0  = 0.d0
             
           end Subroutine Ham_Langevin_HMC_S0_base
+
+
+  !--------------------------------------------------------------------
+  !> @author 
+  !> ALF Collaboration
+  !>
+  !> @brief 
+  !>   p_HMC are the conjugate momenta to the fields phi in the HMC updating scheme.
+  !>   The relevant part of the action reads - p_HMC^T M p_HMC, where M = B^T * B is the
+  !>   "mass" of the conjugate momenta (tuning parameter in HMC) 
+  !>   If we define p_tilde_HMC= B*p_HMC then the Forces to update p_tilde_HMC are: 
+  !>        p_tilde_HMC --> p_tilde_HMC - delta t B del H /del phi .
+  !>   and the Forces to update phi are: 
+  !>        phi --> phi + delta t B^T p_tilde_HMC
+  !>   By detault, M=1 => B=1, hence this routine does nothing!
+  !>         
+  !> @details
+  !> @param[inout] Forces_HMC Real(:,:)
+  !> \verbatim
+  !>  del H /del phi or p_tilde_HMC on input
+  !>  Forces_HMS --> B^op Forces_HMC  
+  !> \endverbatim .
+  !> @param[in] ltrans Logical
+  !> \verbatim
+  !>  ltrans = .true.  : op='T'
+  !>  ltrans = .false. : op='N'
+  !> \endverbatim 
+  !> 
+  !-------------------------------------------------------------------
+          Subroutine Apply_B_HMC_base(Forces_HMC, ltrans )
+
+            Implicit none
+
+            Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_HMC(:,:)
+            Logical               , Intent(in)                 :: ltrans
+
+          end Subroutine Apply_B_HMC_base
           
           
 #ifdef HDF5
