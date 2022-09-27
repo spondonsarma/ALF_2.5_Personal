@@ -345,15 +345,15 @@
         Integer, intent(in) :: LOBS_ST, LOBS_EN, LTAU
 
         !Local
-        Integer                   :: N_op, n, nt, n1, n2, nst, nstm, nwrap, i, j, t_leap
-        Real    (Kind=Kind(0.d0)) :: X, Xmax,E_kin_old, E_kin_new,T0_Proposal_ratio, weight
-        Logical                   :: Calc_Obser_eq
+        Integer                   :: N_op, n, nt, n1, n2, i, j, t_leap, nf
+        Real    (Kind=Kind(0.d0)) :: X, Xmax,E_kin_old, E_kin_new,T0_Proposal_ratio, weight, cluster_size
+        Logical                   :: Calc_Obser_eq, toggle
         Real    (Kind=Kind(0.d0)), allocatable :: Det_vec_old(:,:), Det_vec_new(:,:)
         Complex (Kind=Kind(0.d0)), allocatable :: Phase_Det_new(:), Phase_Det_old(:)
         Real    (Kind=Kind(0.d0)), allocatable :: p_tilde(:,:)
         Type    (Fields)           :: nsigma_old
         Character (Len=64)         :: storage
-        Complex (Kind=Kind(0.d0))  :: Ratio(2), Phase_old, Ratiotot,Phase_new
+        Complex (Kind=Kind(0.d0))  :: Ratio(2), Phase_old, Ratiotot,Phase_new, Z
         
 
         select case (this%scheme) !(trim(this%Update_scheme))
@@ -432,19 +432,19 @@
            enddo
            
            !Apply B to Forces from phi
-           call ham%Apply_B_HMC(this%Forces ,.false.)
            Call ham%Ham_Langevin_HMC_S0( this%Forces_0)
+           this%Forces_0 = this%Forces_0 + real( Phase*this%Forces,kind(0.d0)) / Real(Phase,kind(0.d0))
            call ham%Apply_B_HMC(this%Forces_0 ,.false.)
            
            !Do half step update of p
-           p_tilde=p_tilde - 0.5*this%Delta_t_Langevin_HMC*( this%Forces + this%Forces_0 )
+           p_tilde=p_tilde - 0.5*this%Delta_t_Langevin_HMC*this%Forces_0
 
            !Start Leapfrog loop (Leapfrog_steps)
            Do t_leap=1,this%Leapfrog_Steps
                ! update phi by delta t
-               this%Forces = p_tilde
-               call ham%Apply_B_HMC(this%Forces ,.True.)
-               nsigma%f=nsigma%f + this%Delta_t_Langevin_HMC*this%Forces
+               this%Forces_0 = p_tilde
+               call ham%Apply_B_HMC(this%Forces_0 ,.True.)
+               nsigma%f=nsigma%f + this%Delta_t_Langevin_HMC*this%Forces_0
 
                ! reset storage
                Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
@@ -461,12 +461,12 @@
                Call this%calc_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
                                   &  LOBS_ST, LOBS_EN, Calc_Obser_eq )
                !Apply B to Forces from phi
-               call ham%Apply_B_HMC(this%Forces ,.false.)
                Call ham%Ham_Langevin_HMC_S0( this%Forces_0)
+               this%Forces_0 = this%Forces_0 + real( Phase*this%Forces,kind(0.d0)) / Real(Phase,kind(0.d0))
                call ham%Apply_B_HMC(this%Forces_0 ,.false.)
 
                ! update p by delta t UNLESS last step, then delta t / 2
-               p_tilde=p_tilde - X*this%Delta_t_Langevin_HMC*( this%Forces + this%Forces_0 )
+               p_tilde=p_tilde - X*this%Delta_t_Langevin_HMC*this%Forces_0
            enddo
            !(LATER restore Phase, GR, udvr, udvl if calc det moved here)
            !calc ratio
@@ -508,7 +508,8 @@
            Z = Phase_old * Ratiotot/ABS(Ratiotot)
 
            Call Control_PrecisionP_Glob(Z,Phase_new)
-           Call Control_upgrade_Glob(TOGGLE,size(nsigma%f))
+           cluster_size=dble(size(nsigma%f))
+           Call Control_upgrade_Glob(TOGGLE,cluster_size)
 
 
            ! reset storage
@@ -580,6 +581,7 @@
            this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
            this%Max_Force            =  Max_Force
            this%L_Forces             = .False.
+           this%Leapfrog_Steps       = Leapfrog_steps
 
            inquire (file="Langevin_time_steps",exist=lexist)
            if (lexist) then
