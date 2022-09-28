@@ -492,6 +492,10 @@ Program Main
               Write(50,*) 'Langevin del_t: ', Delta_t_Langevin_HMC
               Write(50,*) 'Max Force     : ', Max_Force
            endif
+           if ( HMC ) then
+              Write(50,*) 'HMC del_t     : ', Delta_t_Langevin_HMC
+              Write(50,*) 'Leapfrog_Steps: ', Leapfrog_Steps
+           endif
            
            
 #if defined(MPI)

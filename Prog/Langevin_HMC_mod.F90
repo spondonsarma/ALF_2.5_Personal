@@ -519,8 +519,8 @@
            ! ATTENTION: disable sequential for now. Once enabled, turn of any measurments here to avoid measuring one config twice 
            !    due to delayed measurments
            !    Enforce recalculation of det since config might have changed
-           WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+         !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
+         !   error stop 1
         case default
            WRITE(error_unit,*) 'Unknown Global_update_scheme ', trim(this%Update_scheme) 
            WRITE(error_unit,*) 'Global_update_scheme is Langevin or HMC'
@@ -575,13 +575,11 @@
               endif
            enddo
            Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
-           Allocate ( this%Det_vec_old(NDIM,N_FL), this%Phase_Det_old(N_FL) )
            this%Update_scheme        =  "Langevin"
            this%scheme               =  Scheme_Langevin
            this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
            this%Max_Force            =  Max_Force
            this%L_Forces             = .False.
-           this%Leapfrog_Steps       = Leapfrog_steps
 
            inquire (file="Langevin_time_steps",exist=lexist)
            if (lexist) then
@@ -607,8 +605,26 @@
               this%Delta_t_running      =  Delta_t_Langevin_HMC
            endif
         elseif (HMC) then
-           WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+           !  Check that all  fields are of type 3
+           Nr = size(nsigma%f,1)
+           Nt = size(nsigma%f,2)
+           Do i = 1, Nr
+              if ( nsigma%t(i) /= 3 ) then
+                 WRITE(error_unit,*) 'For the current HMC runs, all fields have to be of type 3'
+                 error stop 1
+              endif
+           enddo
+           Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
+           Allocate ( this%Det_vec_old(NDIM,N_FL), this%Phase_Det_old(N_FL) )
+           this%Update_scheme        =  "HMC"
+           this%scheme               =  Scheme_HMC
+           this%Delta_t_Langevin_HMC =  Delta_t_Langevin_HMC
+           this%Max_Force            =  Max_Force
+           this%L_Forces             = .False.
+           this%Leapfrog_Steps       =  Leapfrog_steps
+           this%Delta_t_running      =  Delta_t_Langevin_HMC
+         !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
+         !   error stop 1
         else
            this%Update_scheme        =  "None"
         endif
@@ -662,8 +678,10 @@
 #endif
            Deallocate ( this%Forces, this%Forces_0 )
         case(Scheme_HMC) !("HMC")
-           WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+           Deallocate ( this%Forces, this%Forces_0 )
+           Deallocate ( this%Det_vec_old, this%Phase_Det_old )
+         !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
+         !   error stop 1
         case default
         end select
       end SUBROUTINE Langevin_HMC_clear
