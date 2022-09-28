@@ -66,13 +66,14 @@ module wrapur_mod
         ! Working space.
         Complex (Kind=Kind(0.d0)) :: Z_ONE
         COMPLEX (Kind=Kind(0.d0)) :: V1(Ndim,Ndim), TMP(Ndim,Ndim), TMP1(Ndim,Ndim)
-        Integer ::NCON, NT, I, J, n, nf
+        Integer ::NCON, NT, I, J, n, nf, nf_eff
         Real (Kind=Kind(0.d0)) :: X
 
         NCON = 0  ! Test for UDV ::::  0: Off,  1: On.
         Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0))
         
-        Do nf = 1,N_FL
+        Do nf_eff = 1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            CALL INITD(TMP,Z_ONE)
            DO NT = NTAU + 1, NTAU1
               !CALL MMULT(TMP1,Exp_T(:,:,nf) ,TMP)
@@ -83,17 +84,17 @@ module wrapur_mod
                  Call Op_mmultR(Tmp,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
-           CALL MMULT(TMP1,TMP, udvr(nf)%U)
-           if(allocated(udvr(nf)%V)) then
+           CALL MMULT(TMP1,TMP, udvr(nf_eff)%U)
+           if(allocated(udvr(nf_eff)%V)) then
               DO J = 1,NDim
                   DO I = 1,NDim
-                    TMP1(I,J) = TMP1(I,J)*udvr(nf)%D(J)
+                    TMP1(I,J) = TMP1(I,J)*udvr(nf_eff)%D(J)
                   ENDDO
               ENDDO
-              TMP = udvr(nf)%V
+              TMP = udvr(nf_eff)%V
            endif
-           CALL UDV_WRAP_Pivot(TMP1(:,1:UDVR(nf)%N_part), udvr(nf)%U, udvr(nf)%D, V1,NCON,Ndim,UDVR(nf)%N_part)
-           if(allocated(udvr(nf)%V)) CALL MMULT(udvr(nf)%V, V1, TMP)
+           CALL UDV_WRAP_Pivot(TMP1(:,1:UDVR(nf_eff)%N_part), udvr(nf_eff)%U, udvr(nf_eff)%D, V1,NCON,Ndim,UDVR(nf_eff)%N_part)
+           if(allocated(udvr(nf_eff)%V)) CALL MMULT(udvr(nf_eff)%V, V1, TMP)
         ENDDO
 #else
         Implicit None
@@ -104,17 +105,18 @@ module wrapur_mod
 
 
         ! Working space.
-        Integer :: NT, n, nf
+        Integer :: NT, n, nf, nf_eff
 
-        Do nf = 1,N_FL
+        Do nf_eff = 1,N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            DO NT = NTAU + 1, NTAU1
-              Call Hop_mod_mmthR(UDVR(nf)%U,nf)
+              Call Hop_mod_mmthR(UDVR(nf_eff)%U,nf)
               Do n = 1,Size(Op_V,1)
-                 Call Op_mmultR(UDVR(nf)%U,Op_V(n,nf),nsigma%f(n,nt),'n')
+                 Call Op_mmultR(UDVR(nf_eff)%U,Op_V(n,nf),nsigma%f(n,nt),'n')
               ENDDO
            ENDDO
 
-           CALL UDVR(nf)%decompose
+           CALL UDVR(nf_eff)%decompose
         ENDDO
 
 #endif

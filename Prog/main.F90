@@ -146,6 +146,7 @@ Program Main
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:)  , Allocatable   ::  TEST
         COMPLEX (Kind=Kind(0.d0)), Dimension(:,:,:), Allocatable    :: GR, GR_Tilde
         CLASS(UDV_State), DIMENSION(:), ALLOCATABLE :: udvl, udvr
+        COMPLEX (Kind=Kind(0.d0)), Dimension(:)  , Allocatable   :: Phase_array
 
 
         Integer :: Nwrap, NSweep, NBin, NBin_eff,Ltau, NSTM, NT, NT1, NVAR, LOBS_EN, LOBS_ST, NBC, NSW
@@ -184,7 +185,7 @@ Program Main
 
 
         !  General
-        Integer :: Ierr, I,nf, nst, n, N_op
+        Integer :: Ierr, I,nf, nf_eff, nst, n, N_op
         Complex (Kind=Kind(0.d0)) :: Z_ONE = cmplx(1.d0, 0.d0, kind(0.D0)), Phase, Z, Z1
         Real    (Kind=Kind(0.d0)) :: ZERO = 10D-8, X, X1
         Real    (Kind=Kind(0.d0)) :: Mc_step_weight
@@ -317,12 +318,36 @@ Program Main
         Call Fields_init()
         Call Alloc_Ham()
         Call ham%Ham_set()
+
+        ! Test if user has initialized Calc_FL array
+        If ( .not. allocated(Calc_Fl)) then
+          allocate(Calc_Fl(N_FL))
+          Calc_Fl=.True.
+        endif
+        ! Count number of flavors to be calculated
+        N_FL_eff=0
+        Do I=1,N_Fl
+          if (Calc_Fl(I)) N_FL_eff=N_FL_eff+1
+        Enddo
+        reconstruction_needed=.false.
+        If (N_FL_eff /= N_FL) reconstruction_needed=.true.
+        !initialize the flavor map
+        allocate(Calc_Fl_map(N_FL_eff),Phase_array(N_FL))
+        N_FL_eff=0
+        Do I=1,N_Fl
+          if (Calc_Fl(I)) then
+             N_FL_eff=N_FL_eff+1
+             Calc_Fl_map(N_FL_eff)=I
+          endif
+        Enddo
+
         if(Projector) then
            if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
               write(error_unit,*) "Projector is selected but there are no trial wave functions!"
               error stop 1
            endif
-           do nf=1,N_fl
+           do nf_eff=1,N_fl_eff
+              nf=Calc_Fl_map(nf_eff)
               if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) then
                  write(error_unit,*) "Projector is selected but there are no trial wave functions!"
                  error stop 1
@@ -513,19 +538,20 @@ Program Main
         
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
-        ALLOCATE(udvl(N_FL), udvr(N_FL), udvst(NSTM, N_FL))
-        do nf = 1, N_FL
+        ALLOCATE(udvl(N_FL_eff), udvr(N_FL_eff), udvst(NSTM, N_FL_eff))
+        do nf_eff = 1, N_FL_eff
+           nf=Calc_Fl_map(nf_eff)
            do n = 1, NSTM
-              CALL udvst(n,nf)%alloc(ndim)
+              CALL udvst(n,nf_eff)%alloc(ndim)
            ENDDO
            if (Projector) then
-              CALL udvl(nf)%init(ndim,'l',WF_L(nf)%P)
-              CALL udvr(nf)%init(ndim,'r',WF_R(nf)%P)
-              CALL udvst(NSTM, nf)%reset('l',WF_L(nf)%P)
+              CALL udvl(nf_eff)%init(ndim,'l',WF_L(nf)%P)
+              CALL udvr(nf_eff)%init(ndim,'r',WF_R(nf)%P)
+              CALL udvst(NSTM, nf_eff)%reset('l',WF_L(nf)%P)
            else
-              CALL udvl(nf)%init(ndim,'l')
-              CALL udvr(nf)%init(ndim,'r')
-              CALL udvst(NSTM, nf)%reset('l')
+              CALL udvl(nf_eff)%init(ndim,'l')
+              CALL udvr(nf_eff)%init(ndim,'r')
+              CALL udvst(NSTM, nf_eff)%reset('l')
            endif
         enddo
 
@@ -534,8 +560,8 @@ Program Main
            NT  = Stab_nt(NST  )
            !Write(6,*)'Hi', NT1,NT, NST
            CALL WRAPUL(NT1, NT, UDVL)
-           Do nf = 1,N_FL
-              UDVST(NST, nf) = UDVL(nf)
+           Do nf_eff = 1,N_FL_eff
+              UDVST(NST, nf_eff) = UDVL(nf_eff)
            ENDDO
         ENDDO
         NT1 = stab_nt(1)
@@ -544,12 +570,16 @@ Program Main
 
 
         NVAR = 1
-        Phase = cmplx(1.d0, 0.d0, kind(0.D0))
-        do nf = 1,N_Fl
-           CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
-           Phase = Phase*Z
+        Phase_array = cmplx(1.d0, 0.d0, kind(0.D0))
+        do nf_eff = 1,N_Fl_eff
+           nf=Calc_Fl_map(nf_eff)
+           CALL CGR(Z, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
+           call Op_phase(Z,OP_V,Nsigma,nf)
+           Phase_array(nf)=Z
         Enddo
-        call Op_phase(Phase,OP_V,Nsigma,N_SUN)
+        if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+        Phase=product(Phase_array)
+        Phase=Phase**N_SUN
 #ifdef MPI
         !WRITE(6,*) 'Phase is: ', Irank, PHASE, GR(1,1,1)
 #else
@@ -603,11 +633,12 @@ Program Main
               If (Sequential)  then 
                  ! Propagation from 1 to Ltrot
                  ! Set the right storage to 1
-                 do nf = 1,N_FL
+                 do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     if (Projector) then
-                       CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                       CALL udvr(nf_eff)%reset('r',WF_R(nf)%P)
                     else
-                       CALL udvr(nf)%reset('r')
+                       CALL udvr(nf_eff)%reset('r')
                     endif
                  Enddo
                  
@@ -619,20 +650,24 @@ Program Main
                     If (NTAU1 == Stab_nt(NST) ) then
                        NT1 = Stab_nt(NST-1)
                        CALL WRAPUR(NT1, NTAU1, udvr)
-                       Z = cmplx(1.d0, 0.d0, kind(0.D0))
-                       Do nf = 1, N_FL
+                       Phase_array = cmplx(1.d0, 0.d0, kind(0.D0))
+                       Do nf_eff = 1, N_FL_eff
+                          nf=Calc_Fl_map(nf_eff)
                           ! Read from storage left propagation from LTROT to  NTAU1
-                          udvl(nf) = udvst(NST, nf)
+                          udvl(nf_eff) = udvst(NST, nf_eff)
                           ! Write in storage right prop from 1 to NTAU1
-                          udvst(NST, nf) = udvr(nf)
+                          udvst(NST, nf_eff) = udvr(nf_eff)
                           NVAR = 1
                           IF (NTAU1 .GT. LTROT/2) NVAR = 2
                           TEST(:,:) = GR(:,:,nf)
-                          CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
-                          Z = Z*Z1
+                          CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                           Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                          call Op_phase(Z1,OP_V,Nsigma,nf)
+                          Phase_array(nf)=Z1
                        ENDDO
-                       call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                       if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+                       Z=product(Phase_array)
+                       Z=Z**N_SUN
                        Call Control_PrecisionP(Z,Phase)
                        Phase = Z
                        NST = NST + 1
@@ -646,18 +681,23 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR_Tilde )
                           CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR )
                           CALL ham%Obser( GR, PHASE, Ntau1, Mc_step_weight  )
                        endif
                     ENDIF
                  ENDDO
                  
-                 Do nf = 1,N_FL
+                 Do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     if (Projector) then
-                       CALL udvl(nf)%reset('l',WF_L(nf)%P)
+                       CALL udvl(nf_eff)%reset('l',WF_L(nf)%P)
                     else
-                       CALL udvl(nf)%reset('l')
+                       CALL udvl(nf_eff)%reset('l')
                     endif
                  ENDDO
                  
@@ -671,8 +711,12 @@ Program Main
                        Mc_step_weight = 1.d0
                        If (Symm) then
                           Call Hop_mod_Symm(GR_Tilde,GR)
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR_Tilde )
                           CALL ham%Obser( GR_Tilde, PHASE, Ntau1, Mc_step_weight )
                        else
+                          !reconstruction of NOT calculated block!!!
+                          If (reconstruction_needed) Call ham%GR_reconstruction( GR )
                           CALL ham%Obser( GR, PHASE, Ntau1,Mc_step_weight )
                        endif
                     ENDIF
@@ -681,20 +725,24 @@ Program Main
                        !Write(6,*) 'Wrapul : ', NT1, NTAU1
                        CALL WRAPUL(NT1, NTAU1, udvl)
                        !Write(6,*)  'Write UL, read UR ', NTAU1, NST
-                       Z = cmplx(1.d0, 0.d0, kind(0.D0))
-                       do nf = 1,N_FL
+                       Phase_array = cmplx(1.d0, 0.d0, kind(0.D0))
+                       do nf_eff = 1,N_FL_eff
+                          nf=Calc_Fl_map(nf_eff)
                           ! Read from store the right prop. from 1 to LTROT/NWRAP-1
-                          udvr(nf) = udvst(NST, nf)
+                          udvr(nf_eff) = udvst(NST, nf_eff)
                           ! WRITE in store the left prop. from LTROT/NWRAP-1 to 1
-                          udvst(NST, nf) = udvl(nf)
+                          udvst(NST, nf_eff) = udvl(nf_eff)
                           NVAR = 1
                           IF (NTAU1 .GT. LTROT/2) NVAR = 2
                           TEST(:,:) = GR(:,:,nf)
-                          CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
-                          Z = Z*Z1
+                          CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                           Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                          call Op_phase(Z1,OP_V,Nsigma,nf)
+                          Phase_array(nf)=Z1
                        ENDDO
-                       call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                       if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+                       Z=product(Phase_array)
+                       Z=Z**N_SUN
                        Call Control_PrecisionP(Z,Phase)
                        Phase = Z
                        IF( LTAU == 1 .and. Projector .and. Stab_nt(NST)<=THTROT+1 .and. THTROT+1<Stab_nt(NST+1) ) then
@@ -709,30 +757,36 @@ Program Main
                  NT  = Stab_nt(1)
                  CALL WRAPUL(NT, NT1, udvl)
                  
-                 do nf = 1,N_FL
+                 do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     if (Projector) then
-                       CALL udvr(nf)%reset('r',WF_R(nf)%P)
+                       CALL udvr(nf_eff)%reset('r',WF_R(nf)%P)
                     else
-                       CALL udvr(nf)%reset('r')
+                       CALL udvr(nf_eff)%reset('r')
                     endif
                  ENDDO
-                 Z = cmplx(1.d0, 0.d0, kind(0.D0))
-                 do nf = 1,N_FL
+                 Phase_array = cmplx(1.d0, 0.d0, kind(0.D0))
+                 do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     TEST(:,:) = GR(:,:,nf)
                     NVAR = 1
-                    CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf), UDVL(nf))
-                    Z = Z*Z1
+                    CALL CGR(Z1, NVAR, GR(:,:,nf), UDVR(nf_eff), UDVL(nf_eff))
                     Call Control_PrecisionG(GR(:,:,nf),Test,Ndim)
+                    call Op_phase(Z1,OP_V,Nsigma,nf)
+                    Phase_array(nf)=Z1
                  ENDDO
-                 call Op_phase(Z,OP_V,Nsigma,N_SUN)
+                 if (reconstruction_needed) call ham%weight_reconstruction(Phase_array)
+                 Z=product(Phase_array)
+                 Z=Z**N_SUN
                  Call Control_PrecisionP(Z,Phase)
                  Phase = Z
                  NST =  NSTM
-                 Do nf = 1,N_FL
+                 Do nf_eff = 1,N_FL_eff
+                    nf=Calc_Fl_map(nf_eff)
                     if (Projector) then
-                       CALL udvst(NST, nf)%reset('l',WF_L(nf)%P)
+                       CALL udvst(NST, nf_eff)%reset('l',WF_L(nf)%P)
                     else
-                       CALL udvst(NST, nf)%reset('l')
+                       CALL udvst(NST, nf_eff)%reset('l')
                     endif
                  enddo
                  
@@ -761,17 +815,19 @@ Program Main
         Enddo
 
         ! Deallocate things
-        DO nf = 1, N_FL
-           CALL udvl(nf)%dealloc
-           CALL udvr(nf)%dealloc
+        DO nf_eff = 1, N_FL_eff
+           CALL udvl(nf_eff)%dealloc
+           CALL udvr(nf_eff)%dealloc
            do n = 1, NSTM
-              CALL udvst(n,nf)%dealloc
+              CALL udvst(n,nf_eff)%dealloc
            ENDDO
-           if (Projector) then
+        ENDDO
+        if (Projector) then
+           DO nf = 1, N_FL
               CALL WF_clear(WF_R(nf))
               CALL WF_clear(WF_L(nf))
-           endif
-        ENDDO
+           ENDDO
+        endif
         DEALLOCATE(udvl, udvr, udvst)
         DEALLOCATE(GR, TEST, Stab_nt,GR_Tilde)
         if (Projector) DEALLOCATE(WF_R, WF_L)
