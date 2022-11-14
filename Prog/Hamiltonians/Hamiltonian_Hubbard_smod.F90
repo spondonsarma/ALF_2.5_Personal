@@ -140,6 +140,7 @@
         procedure, nopass :: ObserT
         procedure, nopass :: S0
         procedure, nopass :: Ham_Langevin_HMC_S0
+        procedure, nopass :: Delta_S0_global
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
 #endif
@@ -837,5 +838,49 @@
           enddo
           
         end Subroutine Ham_Langevin_HMC_S0
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Computes the ratio exp(S0(new))/exp(S0(old))
+!>
+!> @details
+!> This function computes the ratio \verbatim  e^{-S0(nsigma)}/e^{-S0(nsigma_old)} \endverbatim
+!> @param [IN] nsigma_old,  Type(Fields)
+!> \verbatim
+!>  Old configuration. The new configuration is stored in nsigma.
+!> \endverbatim
+!-------------------------------------------------------------------
+        Real (Kind=kind(0.d0)) Function Delta_S0_global(Nsigma_old)
+
+        !  This function computes the ratio:  e^{-S0(nsigma)}/e^{-S0(nsigma_old)}
+        Implicit none
+
+        ! Arguments
+        Type (Fields),  INTENT(IN) :: nsigma_old
+        real(kind=kind(0.0d0))     :: Eold, Enew
+        integer                    :: f, t, nfield, ntau
+
+        Delta_S0_global = 1.d0
+        nfield=size(nsigma%f,1)
+        ntau=size(nsigma%f,2)
+        Eold=0.0d0
+        Enew=0.0d0
+        Do t=1,ntau
+           do f=1,nfield
+              Eold = Eold+nsigma_old%f(f,t)**2
+              Enew = Enew+nsigma%f(f,t)**2
+           enddo
+        enddo
+        Eold = 0.5*Eold
+        Enew = 0.5*Enew
+        Delta_S0_global = exp(-Enew+Eold)
+      !   write(*,*) "S0 old:", Eold, "S0 new:", Enew
+            ! S0 = exp( (-Hs_new**2  + nsigma%f(n,nt)**2 ) /2.d0 ) 
+
+     end Function Delta_S0_global
         
     end submodule ham_Hubbard_smod
