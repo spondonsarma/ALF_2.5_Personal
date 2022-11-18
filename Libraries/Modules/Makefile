@@ -9,6 +9,13 @@ MODS=errors.mod   files_mod.mod fourier.mod   histograms.mod   histograms_v2.mod
 $(LIB): $(OBJS)
 	ar -r $(LIB) $(OBJS)
 
+lattices_x86-64.so: lattices_interface_mod.F90 matrix_mod.F90 lattices_v3_mod.F90
+	(make clean)
+	gfortran -O3 -march=x86-64 -c matrix_mod.F90
+	gfortran -O3 -march=x86-64 -c lattices_v3_mod.F90
+	gfortran -O3 -march=x86-64 -shared -fPIC lattices_interface_mod.F90 -o lattices_x86-64.so \
+			matrix_mod.o lattices_v3_mod.o
+
 %.o: %.F90
 	$(ALF_FC) -c $(ALF_FLAGS_MODULES) $<
 
