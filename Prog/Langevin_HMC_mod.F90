@@ -438,6 +438,10 @@
            
            !Do half step update of p
            p_tilde=p_tilde - 0.5*this%Delta_t_Langevin_HMC*this%Forces_0
+! #define HMC_invertibility
+#ifdef HMC_invertibility
+           write(1000,*) nsigma%f
+#endif
 
            !Start Leapfrog loop (Leapfrog_steps)
            Do t_leap=1,this%Leapfrog_Steps
@@ -445,6 +449,9 @@
                this%Forces_0 = p_tilde
                call ham%Apply_B_HMC(this%Forces_0 ,.True.)
                nsigma%f=nsigma%f + this%Delta_t_Langevin_HMC*this%Forces_0
+#ifdef HMC_invertibility
+               write(1000+t_leap,*) nsigma%f
+#endif
 
                ! reset storage
                Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
@@ -468,6 +475,44 @@
                ! update p by delta t UNLESS last step, then delta t / 2
                p_tilde=p_tilde - X*this%Delta_t_Langevin_HMC*this%Forces_0
            enddo
+
+#ifdef HMC_invertibility
+           p_tilde=-p_tilde
+           !Do half step update of p
+           p_tilde=p_tilde - 0.5*this%Delta_t_Langevin_HMC*this%Forces_0
+           write(2000+this%Leapfrog_Steps,*) nsigma%f
+
+           !Start Leapfrog loop (Leapfrog_steps)
+           Do t_leap=1,this%Leapfrog_Steps
+               ! update phi by delta t
+               this%Forces_0 = p_tilde
+               call ham%Apply_B_HMC(this%Forces_0 ,.True.)
+               nsigma%f=nsigma%f + this%Delta_t_Langevin_HMC*this%Forces_0
+               write(2000+this%Leapfrog_Steps-t_leap,*) nsigma%f
+
+               ! reset storage
+               Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+               ! if last step
+               X=1.0d0
+               if (t_leap == this%Leapfrog_Steps) then
+                  ! calc det[phi']
+                  Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
+                  ! LATER: save Phase, GR, udvr, udvl (move calc det out of the loop)
+                  ! redude delta t by 1/2
+                  X=0.5d0
+               endif
+               ! calc forces (Calc_Obser_eq false)
+               Call this%calc_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
+                                  &  LOBS_ST, LOBS_EN, Calc_Obser_eq )
+               !Apply B to Forces from phi
+               Call ham%Ham_Langevin_HMC_S0( this%Forces_0)
+               this%Forces_0 = this%Forces_0 + real( Phase*this%Forces,kind(0.d0)) / Real(Phase,kind(0.d0))
+               call ham%Apply_B_HMC(this%Forces_0 ,.false.)
+
+               ! update p by delta t UNLESS last step, then delta t / 2
+               p_tilde=p_tilde - X*this%Delta_t_Langevin_HMC*this%Forces_0
+           enddo
+#endif
            !(LATER restore Phase, GR, udvr, udvl if calc det moved here)
            !calc ratio
            E_kin_new=0.0d0
