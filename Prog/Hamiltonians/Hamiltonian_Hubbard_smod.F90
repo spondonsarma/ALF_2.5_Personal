@@ -861,24 +861,24 @@
 
         ! Arguments
         Type (Fields),  INTENT(IN) :: nsigma_old
-        real(kind=kind(0.0d0))     :: Eold, Enew
+        real(kind=kind(0.0d0))     :: S0_old, S0_new
         integer                    :: f, t, nfield, ntau
 
         Delta_S0_global = 1.d0
         nfield=size(nsigma%f,1)
         ntau=size(nsigma%f,2)
-        Eold=0.0d0
-        Enew=0.0d0
+        S0_old=0.0d0
+        S0_new=0.0d0
         Do t=1,ntau
            do f=1,nfield
-              Eold = Eold+nsigma_old%f(f,t)**2
-              Enew = Enew+nsigma%f(f,t)**2
+              S0_old = S0_old+nsigma_old%f(f,t)**2
+              S0_new = S0_new+nsigma%f(f,t)**2
            enddo
         enddo
-        Eold = 0.5*Eold
-        Enew = 0.5*Enew
-        Delta_S0_global = exp(-Enew+Eold)
-      !   write(*,*) "S0 old:", Eold, "S0 new:", Enew
+        S0_old = 0.5d0*S0_old
+        S0_new = 0.5d0*S0_new
+        Delta_S0_global = exp(-S0_new+S0_old)
+      !   write(*,*) "S0 old:", S0_old, "S0 new:", S0_new
             ! S0 = exp( (-Hs_new**2  + nsigma%f(n,nt)**2 ) /2.d0 ) 
 
      end Function Delta_S0_global
