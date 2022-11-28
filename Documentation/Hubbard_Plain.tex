@@ -146,7 +146,7 @@ Enddo
 Here, the integer function \texttt{Latt\%nnlist(I,n,m)} is defined in the lattice module and returns the index of the lattice site $ \vec{I} +  n \vec{a}_1 +  m \vec{a}_2$.
 Note that periodic boundary conditions are 
 already taken into account.  The hopping parameter \texttt{Ham\_T}, as well as the chemical potential \texttt{Ham\_chem} are read from the parameter file.  
-To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0, kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type}  takes its default value of 0.  
+To completely define the hopping  we further set: \texttt{Op\_T(1,nf)\%g = -Dtau }, \texttt{Op\_T(1,nf)\%alpha = cmplx(0.d0,0.d0,kind(0.D0))} and call the routine  \texttt{Op\_set(Op\_T(1,nf))}  so as to generate  the unitary transformation and eigenvalues as specified in Table \ref{table:operator}.  Recall that for the hopping, the variable  \texttt{Op\_set(Op\_T(1,nf))\%type}  takes its default value of 0.  
 Finally, note that, although a checkerboard decomposition is not used here, it can be implemented by considering a larger number of sparse hopping matrices.  
 
 
@@ -209,7 +209,7 @@ with \texttt{N\_part = Ndim/2}.     The  variable \texttt{Degen}   belonging to 
 \subsection{Observables}
 %------------------------------------------------------------
 
-At this point, all the information for starting the simulation has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.  Between  time slices  \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN} the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}, which handles equal-time correlation functions, and, if \texttt{Ltau=1}, the routine \texttt{ObserT(NT,  GT0,G0T,G00,GTT, PHASE)} which handles imaginary-time displaced correlation functions. 
+At this point, all the information for starting the simulation has been provided.  The code will sequentially go through  the operator list  \texttt{Op\_V}  and update the  fields.  Between  time slices  \texttt{LOBS\_ST}  and  \texttt{LOBS\_EN} the main program will call the routine  \texttt{Obser(GR,Phase,Ntau)}, which handles equal-time correlation functions, and, if \texttt{Ltau=1}, the routine \texttt{ObserT(NT,  GT0, G0T, G00, GTT, PHASE)} which handles imaginary-time displaced correlation functions. 
 
 Both \texttt{Obser} and \texttt{ObserT} should be provided by the user, who can either implement themselves the observables they want to compute or use the predefined structures of Chap.~\ref{Predefined_chap}. Here we describe how to proceed in order to define an observable. 
 
