@@ -669,7 +669,7 @@
            this%Max_Force            =  Max_Force
            this%L_Forces             = .False.
            this%Leapfrog_Steps       =  Leapfrog_steps
-           this%Delta_t_running      =  Delta_t_Langevin_HMC
+           this%Delta_t_running      =  1.0d0
          !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
          !   error stop 1
         else
