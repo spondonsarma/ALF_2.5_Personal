@@ -21,10 +21,10 @@ Last main release: ALF 2.0, published on 2022 (2020 on ArXiV).
  To-do list for new releases:
  ---
   - check the pipeline tests pass
-  - check the main documentation (paper) is content-wise up-to-date (all changes are reflected in the text)
+  - check the main documentation (paper) content is up-to-date (i.e., all code changes are reflected in the text)
   - check CHANGELOG is up-to-date
   - create `ALF-#.#` release branch from master, then
-    - update main documentation (paper — LaTeX variables such `\ALFver` correctly set)
+    - update main documentation (paper — set LaTeX variables such as `\ALFver` appropriately)
     - update README file:
       - add version number to header of  (ALF -> ALF #.#)
       - remove warning: "-> This is the development version, the latest..."
