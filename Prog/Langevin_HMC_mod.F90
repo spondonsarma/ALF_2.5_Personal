@@ -231,6 +231,8 @@
                        Z(nf)  = Z(nf) +    Op_V(n,nf)%O(I,J) * ( Z1 - Gr(Op_V(n,nf)%P(J),Op_V(n,nf)%P(I), nf) )
                     Enddo
                  Enddo
+                 ! We now include alpha here, so far, alpha was not included explicitly and supposed to be part of Forces0
+                 Z(nf)  = Z(nf) + Op_V(n,nf)%alpha
               Enddo
               if (reconstruction_needed) call ham%weight_reconstruction(Z)
               Do nf = 1, N_Fl
