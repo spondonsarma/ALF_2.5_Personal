@@ -1,18 +1,33 @@
 # Roadmap
 
-* Half-yearly **releases**: **April and October**;
-* Have a new documentation paper about every three to four years. The last one (ALF 2.0) was published on 2022.
-* Development branches to be merged to master only if its **documentation** and CHANGELOG.md is up-to-date.
+
+Merges
+---
+
+* Development branches to be merged to master only when their 
+  - **documentation** reflects all changes
+  - **CHANGELOG.md** mentions all breaking changes and critical bug fixes
+
+
+Release cycle
+---
+
+* Half-yearly releases: **April and October**
+* Main release (new documentation paper): ~**every three to four years**
+
+Last main release: ALF 2.0, published on 2022 (2020 on ArXiV).
 
 
  To-do list for new releases:
  ---
   - check the pipeline tests pass
-  - check the main documentation (paper) is up-to-date
+  - check the main documentation (paper) is content-wise up-to-date (all changes are reflected in the text)
   - check CHANGELOG is up-to-date
-  - create ALF release branch from master
-  - create corresponding pyALF branch
-  - create corresponding Tutorial branch
+  - create ALF release branch from master, then
+    - add version number to header of README (ALF -> ALF #.#)
+    - update main documentation (paper — LaTeX variables such `\ALFver` correctly set)
+  - create corresponding pyALF branch (or add remark to its README it's compatible with the new version)
+  - create corresponding Tutorial branch (or add remark to its README it's compatible with the new version)
   - update ALF website (links, and also 'news')
 
 
