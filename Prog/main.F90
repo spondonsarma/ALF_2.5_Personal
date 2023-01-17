@@ -317,6 +317,7 @@ Program Main
 #endif
         Call Fields_init()
         Call Alloc_Ham()
+        ham%leap_frog_bulk = .false.
         Call ham%Ham_set()
 
         ! Test if user has initialized Calc_FL array
