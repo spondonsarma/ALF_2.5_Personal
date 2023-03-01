@@ -181,7 +181,8 @@ Program Main
         NAMELIST /VAR_QMC/   Nwrap, NSweep, NBin, Ltau, LOBS_EN, LOBS_ST, CPU_MAX, &
              &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau, &
-             &               Langevin, HMC, Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps
+             &               sequential, Langevin, HMC, Delta_t_Langevin_HMC, &
+             &               Max_Force, Leapfrog_steps
 
 
         !  General
@@ -282,7 +283,7 @@ Program Main
            ! This is a set of variables that  identical for each simulation.
            Nwrap=0;  NSweep=0; NBin=0; Ltau=0; LOBS_EN = 0;  LOBS_ST = 0;  CPU_MAX = 0.d0
            Propose_S0 = .false. ;  Global_moves = .false. ; N_Global = 0
-           Global_tau_moves = .false.; Langevin = .false. ; HMC =.false.
+           Global_tau_moves = .false.; sequential = .true.; Langevin = .false. ; HMC =.false.
            Delta_t_Langevin_HMC = 0.d0;  Max_Force = 0.d0 ; Leapfrog_steps = 0
            Nt_sequential_start = 1 ;  Nt_sequential_end  = 0;  N_Global_tau  = 0
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
@@ -309,6 +310,7 @@ Program Main
         CALL MPI_BCAST(Nt_sequential_start  ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Nt_sequential_end    ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(N_Global_tau         ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(sequential           ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Langevin             ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(HMC                  ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Leapfrog_steps       ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
@@ -454,6 +456,32 @@ Program Main
 
         Stab_nt(Nstm) = Ltrot
 
+      !   Sequential = .true.
+        
+        if ( Langevin .or.  HMC  ) then
+           if (Langevin) then
+#if defined(MPI)
+               if ( Irank_g == 0 ) then
+#endif
+                  if (sequential) then 
+                     write(output_unit,*) "Langevin mode does not allow sequential updates."
+                     write(output_unit,*) "Overriding Sequential=.True. from parameter files."
+                  endif
+                  if (HMC) then 
+                     write(output_unit,*) "Langevin mode does not allow HMC updates."
+                     write(output_unit,*) "Overriding HMC=.True. from parameter files."
+                  endif
+#if defined(MPI)
+               endif
+#endif
+               Sequential = .False.
+               HMC = .False.
+           endif
+           Call Langevin_HMC%make(Langevin, HMC , Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps)
+        else
+           Call Langevin_HMC%set_Update_scheme(Langevin, HMC )
+        endif
+
 #if defined(TEMPERING)
         write(File1,'(A,I0,A)') "Temp_",igroup,"/info"
 #else
@@ -482,13 +510,15 @@ Program Main
               Write(50,*) 'Global moves are enabled   '
               Write(50,*) '# of global moves / sweep :', N_Global
            Endif
-           If ( Global_tau_moves ) Then
-              Write(50,*) 'Nt_sequential_start: ', Nt_sequential_start
-              Write(50,*) 'Nt_sequential_end  : ', Nt_sequential_end
-              Write(50,*) 'N_Global_tau       : ', N_Global_tau
-           else
-              Write(50,*) 'Default sequential updating '
-           endif
+           if ( sequential ) then
+               If ( Global_tau_moves ) Then
+                  Write(50,*) 'Nt_sequential_start: ', Nt_sequential_start
+                  Write(50,*) 'Nt_sequential_end  : ', Nt_sequential_end
+                  Write(50,*) 'N_Global_tau       : ', N_Global_tau
+               else
+                  Write(50,*) 'Default sequential updating '
+               endif
+            endif
            if ( Langevin ) then
               Write(50,*) 'Langevin del_t: ', Delta_t_Langevin_HMC
               Write(50,*) 'Max Force     : ', Max_Force
@@ -531,15 +561,6 @@ Program Main
 #if defined(MPI)
         endif
 #endif
-
-        Sequential = .true.
-        
-        if ( Langevin .or.  HMC  ) then
-           Call Langevin_HMC%make(Langevin, HMC , Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps)
-           Sequential = .False.
-        else
-           Call Langevin_HMC%set_Update_scheme(Langevin, HMC )
-        endif
         
         !Call Test_Hamiltonian
         Allocate ( Test(Ndim,Ndim), GR(NDIM,NDIM,N_FL), GR_Tilde(NDIM,NDIM,N_FL)  )
