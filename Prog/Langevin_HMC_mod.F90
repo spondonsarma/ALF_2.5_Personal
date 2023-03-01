@@ -445,7 +445,7 @@
            write(1000,*) nsigma%f
 #endif
 
-           ham%leap_frog_bulk=.true.
+           leap_frog_bulk=.true.
            !Start Leapfrog loop (Leapfrog_steps)
            Do t_leap=1,this%Leapfrog_Steps
                ! update phi by delta t
@@ -457,7 +457,7 @@
 #endif
 
                ! reset storage
-               if (t_leap == this%Leapfrog_Steps) ham%leap_frog_bulk=.false.
+               if (t_leap == this%Leapfrog_Steps) leap_frog_bulk=.false.
                Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
                ! if last step
                X=1.0d0
