@@ -34,7 +34,7 @@
 !> ALF-project
 !
 !> @brief
-!> C Interface for creating lattice.
+!> C Interface for creating lattice. For use in pyALF
 !>
 !
 !--------------------------------------------------------------------
