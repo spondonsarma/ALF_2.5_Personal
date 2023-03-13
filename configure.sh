@@ -9,6 +9,7 @@ Please choose one of the following MACHINEs:\n\
  * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
+ * FRITZ\n\
 Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
@@ -307,6 +308,21 @@ case $MACHINE in
     LIB_BLAS_LAPACK="-mkl"
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
+  ;;
+
+  #NHR@FAU Fritz cluster
+  FRITZ)
+    module load intel
+    module load intelmpi
+    module load mkl
+
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    ALF_FC="$INTELCOMPILER"
+    LIB_BLAS_LAPACK="-mkl"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags icc ifort icpc || return 1
+    fi
   ;;
   #Default (unknown machine)
   *)
