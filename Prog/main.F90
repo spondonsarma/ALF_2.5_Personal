@@ -502,15 +502,19 @@ Program Main
         endif
 
         if ( .not. Sequential .and. Global_tau_moves) then
-           write() warning message
-           ! should we overwrite sequential to true ? Maybe not?
+           write(output_unit,*) "Warning: Sequential = .False. and Global_tau_moves = .True."
+           write(output_unit,*) "in the parameter file. Global tau updates will not occur if"
+           write(output_unit,*) "Sequential is set to .False. ."
         endif
 
-        if ( .not. Sequential .and. .not. HMC .and. .not. Langevin .and. not. Global_moves)
-           write warning message
+        if ( .not. Sequential .and. .not. HMC .and. .not. Langevin .and. .not. Global_moves) then
+         write(output_unit,*) "Warning: no updates will occur as Sequential, HMC, Langevin, and"
+         write(output_unit,*) "Global_moves are all .False. in the parameter file."
+        endif
 
-        if ( Sequential .and. Nt_sequential_end < Nt_sequential_start )
-           write warning
+        if ( Sequential .and. Nt_sequential_end < Nt_sequential_start ) then
+         write(output_unit,*) "Warning: Nt_sequential_end is smaller than Nt_sequential_start"
+        endif
 
 #if defined(TEMPERING)
         write(File1,'(A,I0,A)') "Temp_",igroup,"/info"
