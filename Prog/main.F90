@@ -471,16 +471,46 @@ Program Main
                      write(output_unit,*) "Langevin mode does not allow HMC updates."
                      write(output_unit,*) "Overriding HMC=.True. from parameter files."
                   endif
+                  if (Global_moves) then 
+                     write(output_unit,*) "Langevin mode does not allow global updates."
+                     write(output_unit,*) "Overriding Global_moves=.True. from parameter files."
+                  endif
+                  if (Global_tau_moves) then 
+                     write(output_unit,*) "Langevin mode does not allow global tau updates."
+                     write(output_unit,*) "Overriding Global_tau_moves=.True. from parameter files."
+                  endif
+#if defined(TEMPERING)
+                  if ( N_exchange_steps > 0 ) then
+                     write(output_unit,*) "Langevin mode does not allow tempering updates."
+                     write(output_unit,*) "Overwriting N_exchange_steps to 0."
+                  end if
+#endif
 #if defined(MPI)
                endif
 #endif
                Sequential = .False.
                HMC = .False.
+               Global_moves = .False.
+               Global_tau_moves = .False.
+#if defined(TEMPERING)
+               N_exchange_steps = 0
+#endif
            endif
            Call Langevin_HMC%make(Langevin, HMC , Delta_t_Langevin_HMC, Max_Force, Leapfrog_steps)
         else
            Call Langevin_HMC%set_Update_scheme(Langevin, HMC )
         endif
+
+        if ( .not. Sequential .and. Global_tau_moves) then
+           write() warning message
+           ! should we overwrite sequential to true ? Maybe not?
+        endif
+
+        if ( .not. Sequential .and. .not. HMC .and. .not. Langevin .and. not. Global_moves)
+           write warning message
+
+        if ( Sequential .and. Nt_sequential_end < Nt_sequential_start )
+           write warning
 
 #if defined(TEMPERING)
         write(File1,'(A,I0,A)') "Temp_",igroup,"/info"
