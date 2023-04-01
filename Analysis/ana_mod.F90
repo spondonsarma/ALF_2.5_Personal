@@ -966,13 +966,14 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Integer :: i, n, nb, no, no1, ierr
       Type  (Mat_C), allocatable :: Bins (:,:), Bins_R(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Phase(:)
-      Complex (Kind=Kind(0.d0)), allocatable :: V_help(:), V_help_R(:)
+      Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:), V_help_R(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins0(:,:)
       Real (Kind=Kind(0.d0)), allocatable :: Xk_p_s(:,:)
       Real (Kind=Kind(0.d0)), allocatable :: AutoCorr(:),En(:)
       Real    (Kind=Kind(0.d0)) :: Xk_p(2), Xr_p(2)
       Complex (Kind=Kind(0.d0)) :: Z, Xmean, Xerr, Xmean_r, Xerr_r
       Real (Kind=Kind(0.d0)) :: Xm,Xe
+      procedure (func_c), pointer :: f_ptr => Background_eq
 
       NAMELIST /VAR_errors/ N_skip, N_rebin, N_Cov, N_Back, N_auto
 
@@ -1002,7 +1003,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       ! Allocate  space
       Allocate( bins(Latt%N,Nbins), bins_r(Latt%N,Nbins), Phase(Nbins) )
-      Allocate( V_help(Nbins), V_help_R(Nbins), Bins0(Nbins, Latt_unit%Norb) )
+      Allocate( V_help(3,Nbins), V_help_R(3,Nbins), Bins0(Nbins, Latt_unit%Norb) )
       Do n = 1,Latt%N
          do nb = 1,nbins
             Call Make_Mat(bins  (n,nb), Latt_unit%Norb)
@@ -1034,9 +1035,9 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
                if ( sqrt(Xk_p(1)**2 + Xk_p(2)**2) < 1.D-6 ) then
                   do no = 1,Latt_unit%Norb
                      do no1 = 1,Latt_unit%Norb
-                        bins(n,nb-n_skip)%el(no,no1)  =  bins(n,nb-n_skip)%el(no,no1) -  &
-                              &        cmplx(dble(Latt%N),0.d0,kind(0.d0))*Bins0(nb-n_skip,no)*Bins0(nb-n_skip,no1) &
-                              &        /Phase(nb-n_skip)
+                        bins(n,nb-n_skip)%el(no,no1)  =  bins(n,nb-n_skip)%el(no,no1) !-  &
+                              ! &        cmplx(dble(Latt%N),0.d0,kind(0.d0))*Bins0(nb-n_skip,no)*Bins0(nb-n_skip,no1) &
+                              ! &        /Phase(nb-n_skip)
                      enddo
                   enddo
                endif
@@ -1072,15 +1073,28 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
          Do no = 1,Latt_unit%Norb
             do no1 = 1,Latt_unit%Norb
                do nb = 1,Nbins
-                  V_help(nb) = bins  (n,nb)%el(no,no1)
+                  V_help(1,nb) = bins  (n,nb)%el(no,no1)
                enddo
-               call ERRCALCJ( V_help, Phase,XMean, XERR, N_rebin )
+               if ( sqrt(Xk_p(1)**2 + Xk_p(2)**2) < 1.D-6 ) then
+                  do nb = 1,Nbins
+                     V_help(2,nb) = Bins0(nb,no)*Latt%N
+                     V_help(3,nb) = Bins0(nb,no1)
+                  enddo
+               else
+                  do nb = 1,Nbins
+                     V_help(2,nb) = 0.0d0
+                     V_help(3,nb) = 0.0d0
+                  enddo
+               endif
+               call ERRCALCJ( V_help, Phase,XMean, XERR, N_rebin, f_ptr )
                Write(33, "(2(I11), 4(E26.17E3))") &
                      &  no, no1, dble(XMean), dble(XERR), aimag(XMean), aimag(XERR)
                do nb = 1,Nbins
-                  V_help(nb) = bins_r(n,nb)%el(no,no1)
+                  V_help_r(1,nb) = bins_r(n,nb)%el(no,no1)
+                  V_help_r(2,nb) = Bins0(nb,no)
+                  V_help_r(3,nb) = Bins0(nb,no1)
                enddo
-               call ERRCALCJ( V_help,Phase, XMean_r, XERR_r, N_rebin )
+               call ERRCALCJ( V_help_R,Phase, XMean_r, XERR_r, N_rebin, f_ptr )
                Write(34, "(2(I11), 4(E26.17E3))") &
                      &  no, no1, dble(XMean_r), dble(XERR_r), aimag(XMean_r), aimag(XERR_r)
             enddo
@@ -1281,6 +1295,15 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       DEALLOCATE (EN, EN_f_arg,vec,vec_err,sgn_raw,sgn,Bins_raw,Bins)
 
    END subroutine ana_vec
+
+   complex (Kind=Kind(0.d0)) function Background_eq(X)
+       
+      Implicit None
+      complex (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+
+      Background_eq = X(1) - X(2)*X(3)
+
+   end function Background_eq
    
    Real (Kind=Kind(0.d0)) function mutinf(X)
        
