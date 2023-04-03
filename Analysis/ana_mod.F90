@@ -740,13 +740,14 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
       Integer :: Nbins, LT, Lt_eff
-      Integer :: nb, no, no1, n, nt, nt1, ierr
+      Integer :: nb, no, no1, n, nt, nt1, ierr, Norb
       Complex (Kind=Kind(0.d0)) :: Z, Zmean, Zerr
       Real    (Kind=Kind(0.d0)), allocatable :: Phase(:)
       Complex (Kind=Kind(0.d0)), allocatable :: PhaseI(:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins(:,:,:)
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
+      Complex (Kind=Kind(0.d0)), allocatable :: Background(:,:), background0(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
 
@@ -788,8 +789,9 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       endif
 
       ! Allocate  space
+      Norb = Latt_unit%Norb
       Allocate ( bins(Latt%N,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Latt%N), &
-            &     V_help(Lt_eff,Nbins))
+            &     V_help(Lt_eff,Nbins), background(Norb,Nbins), background0(Norb,Nbins) )
       Allocate ( Bins_chi(Latt%N,Nbins) )
       Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
@@ -802,6 +804,12 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       do nb = 1, nbins
          Phase (nb) = sgn(nb+n_skip)
          PhaseI(nb) = cmplx(sgn(nb+n_skip),0.d0,Kind(0.d0))
+         do no = 1,Norb
+            ! Note: sign is passed to analysis routine and therefore included in jackknife routine
+            !       Normalization with system size is done here as the information is not passed on
+            background0(no,nb) = bins0_raw(no,nb+n_skip)*sqrt(dble(Latt%N))
+            background(no,nb) = bins0_raw(no,nb+n_skip)
+         enddo
          do n = 1,Latt%N
             do nt = 1,Lt_eff
                do no = 1,Latt_unit%Norb
@@ -811,10 +819,10 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
                   else
                      bins(n,nt,nb) = bins(n,nt,nb) + bins_raw(n,nt,no,no,nb+n_skip)
                   endif
-                  if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
-                     bins(n,nt,nb) = bins(n,nt,nb) - Bins0_raw(no,nb+n_skip)*Bins0_raw(no,nb+n_skip) &
-                                                     & *cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
-                  endif
+                  ! if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+                  !    bins(n,nt,nb) = bins(n,nt,nb) - Bins0_raw(no,nb+n_skip)*Bins0_raw(no,nb+n_skip) &
+                  !                                    & *cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                  ! endif
                enddo
             enddo
          enddo
@@ -822,7 +830,11 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       do n = 1,Latt%N
          if (  Xk_p(1,n) >= -zero .and. XK_p(2,n) >= -zero ) then
-            call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
+            if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+               call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin, background0 )
+            else
+               call COV(bins(n,:,:), phase, Xcov, Xmean, N_rebin )
+            endif
             write(File_out,'(A,"_",F4.2,"_",F4.2,"/g_dat")') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             write(command, '("mkdir -p ",A,"_",F4.2,"_",F4.2)') trim(name_obs), Xk_p(1,n), Xk_p(2,n)
             CALL EXECUTE_COMMAND_LINE(command)
@@ -855,7 +867,11 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
          enddo
       enddo
       V_help = V_help/dble(Latt%N)
-      call COV(V_help, phase, Xcov, Xmean, N_Rebin )
+      if (N_Back == 1) then
+         call COV(V_help, phase, Xcov, Xmean, N_Rebin, background )
+      else
+         call COV(V_help, phase, Xcov, Xmean, N_Rebin )
+      endif
       !write(File_out,'(A,"_R0")') trim(name_obs)
       !write(File_out,'(A,"_R0/g_R0")') trim(name_obs)
       write(File_out,'(A,"_R0/g_dat")') trim(name_obs)
@@ -910,7 +926,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       ! Deallocate space ===============================
       Deallocate ( bins, Phase,PhaseI, Xk_p, V_help)
-      Deallocate ( Bins_chi, Xmean, Xcov )
+      Deallocate ( Bins_chi, Xmean, Xcov, background0, background)
 
    end Subroutine ana_tau
 
