@@ -9,6 +9,7 @@ Please choose one of the following MACHINEs:\n\
  * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
+ * FRITZ\n\
 Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
@@ -41,7 +42,8 @@ set_hdf5_flags()
   
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
-    printf "\nHDF5 is not yet installed for this compiler.\n"
+    printf "\nHDF5 is not yet installed for compiler '%s'.\n" "$compiler_vers"
+    printf "ALF does never use global HDF5 libraries, but installs it locally in subfolders of '%s/HDF5'.\n" "$ALF_DIR"
     if [ "$NO_INTERACTIVE" = "" ]; then
       printf "Do you want download and install it now locally in the ALF folder? (Y/n):"
       read -r yn
@@ -307,6 +309,21 @@ case $MACHINE in
     LIB_BLAS_LAPACK="-mkl"
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
+  ;;
+
+  #NHR@FAU Fritz cluster
+  FRITZ)
+    module load intel
+    module load intelmpi
+    module load mkl
+
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    ALF_FC="$INTELCOMPILER"
+    LIB_BLAS_LAPACK="-mkl"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags icc ifort icpc || return 1
+    fi
   ;;
   #Default (unknown machine)
   *)
