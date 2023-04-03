@@ -748,8 +748,9 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Real    (Kind=Kind(0.d0)), allocatable :: Xk_p(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: V_help(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Background(:,:), background0(:,:)
-      Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:)
+      Complex (Kind=Kind(0.d0)), allocatable :: Bins_chi(:,:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:)
+      procedure (func_c), pointer :: f_ptr => Background_sus
 
       NAMELIST /VAR_errors/ n_skip, N_rebin, N_Cov, N_Back, N_auto
 
@@ -792,7 +793,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Norb = Latt_unit%Norb
       Allocate ( bins(Latt%N,Lt_eff,Nbins), Phase(Nbins),PhaseI(Nbins), Xk_p(2,Latt%N), &
             &     V_help(Lt_eff,Nbins), background(Norb,Nbins), background0(Norb,Nbins) )
-      Allocate ( Bins_chi(Latt%N,Nbins) )
+      Allocate ( Bins_chi(Norb+1,Nbins,Latt%N) )
       Allocate (Xmean(Lt_eff), Xcov(Lt_eff,Lt_eff))
       bins  = cmplx(0.d0,0.d0,Kind(0.d0))
 
@@ -902,20 +903,33 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
                do no = 1,Latt_unit%Norb
                   do no1 = 1,Latt_unit%Norb
                      Z = Z + cmplx(0.5d0,0.d0,Kind(0.d0)) * ( bins_raw(n,nt,no,no1,nb+n_skip) + bins_raw(n,nt+1,no,no1,nb+n_skip) )
-                     if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
-                        z = z - Bins0_raw(no,nb+n_skip)*Bins0_raw(no1,nb+n_skip) * cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
-                     endif
+                     ! if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+                     !    z = z - Bins0_raw(no,nb+n_skip)*Bins0_raw(no1,nb+n_skip) * cmplx(dble(Latt%N)/sgn(nb+n_skip),0.d0,kind(0.d0))
+                     ! endif
                   enddo
                enddo
             enddo
             if (PartHole) Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
-            Bins_chi(N,nb) = Z
+            Bins_chi(1,nb,N) = Z
+            ! Prep background
+            Z = Latt%N*(Lt_eff -1)
+            if (PartHole) Z = Z*cmplx(2.d0,0.d0,Kind(0.d0))
+            Z=sqrt(Z)
+            if ( sqrt(Xk_p(1,n)**2 + Xk_p(2,n)**2) < 1.D-6 .and. N_Back == 1 ) then
+               do no=1, Norb
+                  Bins_chi(1+no,nb,N) = Bins0_raw(no,nb+n_skip) * Z
+               enddo
+            else
+               do no=1, Norb
+                  Bins_chi(1+no,nb,N) = 0.0d0
+               enddo
+            endif
          enddo
       enddo
       write(File_out,'(A,"_tauJK")') trim(name_obs)
       Open (Unit=33,File=File_out ,status="unknown")
       Do n = 1,Latt%N
-         call ERRCALCJ(Bins_chi(n,:), PhaseI, ZMean, ZERR, N_rebin )
+         call ERRCALCJ(Bins_chi(:,:,n), PhaseI, ZMean, ZERR, N_rebin, f_ptr )
          Zmean = Zmean*dtau
          Zerr = Zerr*dtau
          Write(33, '(6(E26.17E3))') &
@@ -1320,6 +1334,24 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Background_eq = X(1) - X(2)*X(3)
 
    end function Background_eq
+
+   complex (Kind=Kind(0.d0)) function Background_sus(X)
+       
+      Implicit None
+      complex (Kind=Kind(0.d0)), allocatable, intent (in) :: X(:)
+
+      integer :: Norb, no, no1
+
+      Norb = size(X,1)-1
+
+      Background_sus = X(1)
+      do no = 1,Norb
+         do no1 = 1,Norb
+            Background_sus = Background_sus - X(1+no)*X(1+no1)
+         enddo
+      enddo
+
+   end function Background_sus
    
    Real (Kind=Kind(0.d0)) function mutinf(X)
        
