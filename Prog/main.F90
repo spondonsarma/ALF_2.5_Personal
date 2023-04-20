@@ -171,7 +171,7 @@ Program Main
 #endif
         !  Space for reading in Langevin & HMC  parameters
         Logical                      :: Langevin,  HMC
-        Integer                      :: Leapfrog_Steps
+        Integer                      :: Leapfrog_Steps, N_HMC_sweeps
         Real  (Kind=Kind(0.d0))      :: Delta_t_Langevin_HMC, Max_Force
           
 #if defined(TEMPERING)
@@ -183,7 +183,7 @@ Program Main
              &               Propose_S0,Global_moves,  N_Global, Global_tau_moves, &
              &               Nt_sequential_start, Nt_sequential_end, N_Global_tau, &
              &               sequential, Langevin, HMC, Delta_t_Langevin_HMC, &
-             &               Max_Force, Leapfrog_steps
+             &               Max_Force, Leapfrog_steps, N_HMC_sweeps
 
 
         !  General
@@ -285,7 +285,7 @@ Program Main
            Nwrap=0;  NSweep=0; NBin=0; Ltau=0; LOBS_EN = 0;  LOBS_ST = 0;  CPU_MAX = 0.d0
            Propose_S0 = .false. ;  Global_moves = .false. ; N_Global = 0
            Global_tau_moves = .false.; sequential = .true.; Langevin = .false. ; HMC =.false.
-           Delta_t_Langevin_HMC = 0.d0;  Max_Force = 0.d0 ; Leapfrog_steps = 0
+           Delta_t_Langevin_HMC = 0.d0;  Max_Force = 0.d0 ; Leapfrog_steps = 0; N_HMC_sweeps = 1
            Nt_sequential_start = 1 ;  Nt_sequential_end  = 0;  N_Global_tau  = 0
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
            IF (ierr /= 0) THEN
@@ -315,6 +315,7 @@ Program Main
         CALL MPI_BCAST(Langevin             ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(HMC                  ,1 ,MPI_LOGICAL  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Leapfrog_steps       ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
+        CALL MPI_BCAST(N_HMC_sweeps         ,1 ,MPI_Integer  ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Max_Force            ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
         CALL MPI_BCAST(Delta_t_Langevin_HMC ,1 ,MPI_REAL8    ,0,MPI_COMM_WORLD,ierr)
 #endif
@@ -562,6 +563,7 @@ Program Main
            if ( HMC ) then
               Write(50,*) 'HMC del_t     : ', Delta_t_Langevin_HMC
               Write(50,*) 'Leapfrog_Steps: ', Leapfrog_Steps
+              Write(50,*) 'HMC_Sweeps:     ', N_HMC_sweeps
            endif
            
            
@@ -694,9 +696,17 @@ Program Main
 
               If (  trim(Langevin_HMC%get_Update_scheme()) == "HMC" )  then
                  if (Sequential) call Langevin_HMC%set_L_Forces(.False.)
-                 !  Carry out a Langevin update and calculate equal time observables.
-                 Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
-                      &                   LOBS_ST, LOBS_EN, LTAU)
+                 Do n=1, N_HMC_sweeps
+                     !  Carry out a Langevin update and calculate equal time observables.
+                     Call Langevin_HMC%update(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst, &
+                          &                   LOBS_ST, LOBS_EN, LTAU)
+                     if (n /= N_HMC_sweeps) then
+                        Call Langevin_HMC%calc_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
+                             &  LOBS_ST, LOBS_EN, .True. )
+                        Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
+                        call Langevin_HMC%set_L_Forces(.true.)
+                     endif
+                 enddo
                  
                  !Do time-displaced measurements if needed, else set Calc_Obser_eq=.True. for the very first leapfrog ONLY
                  If ( .not. sequential) then
