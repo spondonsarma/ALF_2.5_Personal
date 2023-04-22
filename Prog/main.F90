@@ -201,7 +201,7 @@ Program Main
         Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
 
         ! For the truncation of the program:
-        logical                   :: prog_truncation
+        logical                   :: prog_truncation, run_file_exists
         integer (kind=kind(0.d0)) :: count_bin_start, count_bin_end
         
         ! For MPI shared memory
@@ -221,6 +221,23 @@ Program Main
            write (*,*) "ALF Copyright (C) 2016 - 2021 The ALF project contributors"
            write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
            write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
+
+           ! Ensure that only one ALF is running at the same time, i.e. the file RUNNING is not present
+           inquire (file='RUNNING', exist=run_file_exists)
+           if (run_file_exists) then
+             write (*,*)
+             write (*,*) "ALF is already running or the previous run failed."
+             write (*,*) "Please clean up the directory, remove the file RUNNING and restart."
+#ifdef MPI
+             call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
+#else
+             error stop 1
+#endif
+           else
+             open (unit=5, file='RUNNING', status='replace', action='write')
+             write (5,*) "ALF is running"
+             close (5)
+           end if
 #ifdef MPI
         endif
 #endif
@@ -871,6 +888,16 @@ Program Main
 #endif
         
         Call Langevin_HMC%clean()
+
+         ! Delete the file RUNNING since the simulation finished successfully
+#if defined(MPI)
+        If (  Irank == 0 ) then
+#endif
+           open(unit=5, file='RUNNING', status='old')
+           close(5, status='delete')
+#if defined(MPI)
+        endif
+#endif
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)
