@@ -225,9 +225,9 @@ Program Main
            ! Ensure that only one ALF is running at the same time, i.e. the file RUNNING is not present
            inquire (file='RUNNING', exist=run_file_exists)
            if (run_file_exists) then
-             write (*,*)
-             write (*,*) "ALF is already running or the previous run failed."
-             write (*,*) "Please clean up the directory, remove the file RUNNING and restart."
+             write (error_unit,*)
+             write (error_unit,*) "ALF is already running or the previous run failed."
+             write (error_unit,*) "Please clean up the directory, remove the file RUNNING and restart."
 #ifdef MPI
              call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
 #else
