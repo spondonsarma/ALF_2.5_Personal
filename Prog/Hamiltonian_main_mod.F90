@@ -124,6 +124,7 @@
 !--------------------------------------------------------------------
 
     Module Hamiltonian_main
+      Use runtime_error_mod
       Use Operator_mod, only: Operator
       Use WaveFunction_mod, only: WaveFunction
       Use Observables
@@ -214,7 +215,7 @@
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN
           WRITE(error_unit,*) 'Alloc_Ham: unable to open <parameters>',ierr
-          error stop 1
+          CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
        END IF
        READ(5,NML=VAR_HAM_NAME)
        CLOSE(5)
@@ -236,7 +237,7 @@
 !!$          call Ham_Alloc_Z2_Matter()
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
-          error stop 1
+          CALL Terminate_on_error(ERROR_HAMILTONIAN)
        end Select
     end subroutine Alloc_Ham
     
@@ -249,7 +250,7 @@
     subroutine Ham_Set_base()
       implicit none
       write(error_unit, *) 'Ham_set not defined!'
-      error stop 1
+      CALL Terminate_on_error(ERROR_HAMILTONIAN)
     end subroutine Ham_Set_base
     
     !--------------------------------------------------------------------
@@ -275,7 +276,7 @@
              S0_base = 1.d0
              If ( Op_V(n,1)%type == 1 ) then
                write(error_unit, *) 'function S0 not implemented'
-               error stop 1
+               CALL Terminate_on_error(ERROR_HAMILTONIAN)
              endif
 
           end function S0_base
@@ -328,7 +329,7 @@
              Type (Fields),  Intent(IN)  :: nsigma_old
 
              write(error_unit, *) 'Global_move not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN)
 
           End Subroutine Global_move_base
 
@@ -552,7 +553,7 @@
              Integer, INTENT(IN)  :: ntau
              
              write(error_unit, *) 'Global_move_tau not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN)
           end Subroutine Global_move_tau_base
 
 
@@ -624,7 +625,7 @@
             implicit none
             complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
             write(error_unit, *) 'weight_reconstruction not defined!'
-            error stop 1
+            CALL Terminate_on_error(ERROR_HAMILTONIAN)
           end subroutine weight_reconstruction_base
 
 
@@ -648,7 +649,7 @@
             Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
             
             write(error_unit, *) "Warning: GR_reconstruction not implemented."
-            error stop 1
+            CALL Terminate_on_error(ERROR_HAMILTONIAN)
           end Subroutine GR_reconstruction_base
 
 
@@ -673,7 +674,7 @@
            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
            
            write(error_unit, *) "Warning: GRT_reconstruction not implemented."
-           error stop 1
+           CALL Terminate_on_error(ERROR_HAMILTONIAN)
          end Subroutine GRT_reconstruction_base
          
          

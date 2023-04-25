@@ -236,7 +236,7 @@
           
           if (Model .ne. 'LRC') then
             WRITE(error_unit,*) 'Wrong Hamiltonian',ierr
-            error stop 1
+            CALL Terminate_on_error(ERROR_HAMILTONIAN)
           endif
 
           Ltrot = nint(beta/dtau)

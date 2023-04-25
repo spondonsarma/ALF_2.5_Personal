@@ -236,7 +236,7 @@
              N_FL  = 2
              if (mod(N_SUN,2) .ne. 0 ) then
                 Write(error_unit,*) 'Ham_Set: N_SUN has to be even if Mz = True'
-                error stop 1
+                CALL Terminate_on_error(ERROR_HAMILTONIAN)
              endif
              N_SUN = N_SUN / 2
           else

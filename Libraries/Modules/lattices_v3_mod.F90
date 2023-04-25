@@ -40,6 +40,7 @@
 !
 !--------------------------------------------------------------------
          Use Matrix
+         Use runtime_error_mod
          use iso_fortran_env, only: output_unit, error_unit
 
          Type Unit_cell
@@ -264,7 +265,7 @@
            enddo
            If (nc.ne.Latt%N) Then
               write(error_unit,*) 'Make_lattice: Error ', nc, Latt%N
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC)
            endif
 
            !Setup nnlist
@@ -453,7 +454,7 @@
               Inv_K = nk
            else
               write(error_unit,*) 'Lattice: Error in Inv_K'
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC)
            endif
 
  !!$          nk = 1
@@ -466,7 +467,7 @@
  !!$                nk = nk + 1
  !!$             else
  !!$                write(6,*) 'Error in Inv_K Lattice_new'
- !!$                stop
+ !!$                Call Terminate_on_error(ERROR_GENERIC)
  !!$             endif
  !!$          enddo
 

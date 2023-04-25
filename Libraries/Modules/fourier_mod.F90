@@ -1,4 +1,5 @@
 Module  Fourier
+  use runtime_error_mod
   Use MaxEnt_mod
   Use MaxEnt_stoch_mod
   Use Matrix
@@ -652,7 +653,7 @@ Module  Fourier
       Do Nw = 1,Nom
          if ( xom(Nw) .lt. -Zero ) then
             Write(error_unit,*) 'Tau_Matz_T_Bose: Frequencies should be larger than zero'
-            error stop 1
+            Call Terminate_on_error(ERROR_GENERIC)
          endif
       enddo
       Niom  = Size(Xiom,1)

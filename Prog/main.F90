@@ -112,6 +112,7 @@
 
 Program Main
 
+        Use runtime_error_mod
         Use Operator_mod
         Use Lattices_v3
         Use MyMats
@@ -231,7 +232,7 @@ Program Main
         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
         IF (ierr /= 0) THEN
            WRITE(error_unit,*) 'main: unable to open <parameters>',ierr
-           error stop 1
+           CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
         END IF
         READ(5,NML=VAR_TEMP)
         CLOSE(5)
@@ -241,7 +242,7 @@ Program Main
         CALL MPI_BCAST(Tempering_calc_det      ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
         if ( mod(ISIZE,mpi_per_parameter_set) .ne. 0 ) then
            Write (error_unit,*) "mpi_per_parameter_set is not a multiple of total mpi processes"
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC)
         endif
         Call Global_Tempering_setup
 #elif !defined(TEMPERING)  && defined(MPI)
@@ -289,7 +290,7 @@ Program Main
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
            IF (ierr /= 0) THEN
               WRITE(error_unit,*) 'main: unable to open <parameters>',ierr
-              error stop 1
+              CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
            END IF
            READ(5,NML=VAR_QMC)
            CLOSE(5)
@@ -345,13 +346,13 @@ Program Main
         if(Projector) then
            if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
               write(error_unit,*) "Projector is selected but there are no trial wave functions!"
-              error stop 1
+              CALL Terminate_on_error(ERROR_HAMILTONIAN)
            endif
            do nf_eff=1,N_fl_eff
               nf=Calc_Fl_map(nf_eff)
               if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) then
                  write(error_unit,*) "Projector is selected but there are no trial wave functions!"
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_HAMILTONIAN)
               endif
            enddo
         endif
@@ -362,7 +363,7 @@ Program Main
            else
               If (LOBS_ST < Thtrot+1 ) then
                  Write(error_unit,*) 'Measuring out of dedicating interval, LOBS_ST too small.'
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_GENERIC)
               endif
            endif
            if ( LOBS_EN == 0) then
@@ -370,7 +371,7 @@ Program Main
            else
               If (LOBS_EN > Ltrot-Thtrot ) then
                  Write(error_unit,*) 'Measuring out of dedicating interval, LOBS_EN too big.'
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_GENERIC)
               endif
            endif
         else

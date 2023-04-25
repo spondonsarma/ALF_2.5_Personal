@@ -41,6 +41,7 @@ module mat_subroutines
 !> type.
 !
 !--------------------------------------------------------------------
+use runtime_error_mod
 implicit none
 
 contains
@@ -86,7 +87,7 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           LEFT=.false.
         ELSE
           write(error_unit,*) 'ZSLGEMM: Illegal argument for side=',side,': It is not one of [R,r,L,l] !'
-          error stop 2
+          Call Terminate_on_error(ERROR_GENERIC)
         ENDIF
 
         IF ( op == 'N' .or. op == 'n' ) THEN
@@ -97,7 +98,7 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           op_id=2
         ELSE
           write(error_unit,*) 'ZSLGEMM: Illegal argument for op=',op,': It is not one of [N,n,T,t,C,c] !'
-          error stop 2
+          Call Terminate_on_error(ERROR_GENERIC)
         ENDIF
 
         alpha = 1.D0
@@ -956,7 +957,7 @@ subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
 
         ELSE
           write(error_unit,*) 'ZSLHEMM: Illegal argument for side: It is not one of [R,r,L,l] !'
-          error stop 1
+          Call Terminate_on_error(ERROR_GENERIC)
         ENDIF
 
 end subroutine ZSLHEMM
@@ -1007,7 +1008,7 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         !only used in default case for n>4
         IF(N > 8) THEN
           IF(uplo=='L' .or. uplo=='l') THEN ! uplo == l unimplemented and never used in this case
-            ERROR STOP
+            Call Terminate_on_error(ERROR_GENERIC)
           ENDIF
           COMPACT = .TRUE.
           L = 1
@@ -1417,7 +1418,7 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
 
         ELSE
           write(error_unit,*) 'ZDSLSYMM: Illegal argument for side: It is not one of [R,r,L,l] !'
-          error stop 1
+          Call Terminate_on_error(ERROR_GENERIC)
         ENDIF
 
 end subroutine ZDSLSYMM

@@ -30,6 +30,7 @@
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
 module upgrade_mod
+   use runtime_error_mod
    implicit none
    contains
 
@@ -211,7 +212,7 @@ module upgrade_mod
            Prev_Ratiotot = Prev_Ratiotot*Ratiotot
         else
            Write(error_unit,*) 'Error in upgrade2'
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC)
         endif
 
         toggle = .false.

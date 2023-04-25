@@ -1,5 +1,6 @@
       Module Log_Mesh
         use iso_fortran_env, only: output_unit, error_unit
+        use runtime_error_mod
 
         Type logmesh
            Real (Kind=Kind(0.d0))  :: Lambda, Center, Log_Lambda
@@ -79,11 +80,11 @@
                 enddo
              else
                 Write(error_unit,*) 'Make_log_mesh: You need to include Nw for the Lin Mesh'
-                error stop 1
+                Call Terminate_on_error(ERROR_GENERIC)
              endif
           else
              Write(error_unit,*) 'Make_log_mesh: Mesh has no type!!'
-             error stop 1
+             Call Terminate_on_error(ERROR_GENERIC)
           endif
           do n = 1,Mesh%Nom-1
              Mesh%DXom(n) = Mesh%xom (n+1) - Mesh%xom (n )

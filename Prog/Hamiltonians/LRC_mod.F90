@@ -44,6 +44,7 @@
 
     Module LRC_mod
 
+      use runtime_error_mod
       Use Lattices_v3
       Use MyMats
       Use Random_wrap
@@ -358,7 +359,7 @@
            !Write(25,*) E_int(I)
            if ( E_int(i) < 1.D-10 ) then
               Write(error_unit,*) 'LRC_Set_VIJ: V_int(i,j) is not positive definite '
-              error stop 1
+              CALL Terminate_on_error(ERROR_HAMILTONIAN)
            endif
         enddo
 
@@ -543,7 +544,7 @@
 !!$           enddo
 !!$           If (X >= 1.D-12 ) then
 !!$              Write(6,*) X
-!!$              error stop 1
+!!$              CALL Terminate_on_error(ERROR_HAMILTONIAN)
 !!$           Endif
 !!$           Deallocate( A_test_new)
 !!$        Endif

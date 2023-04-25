@@ -43,6 +43,7 @@
 !--------------------------------------------------------------------
 Module Global_mod
 
+      Use runtime_error_mod
       Use Hamiltonian_main
       Use MyMats
       Use Operator_mod
@@ -800,7 +801,7 @@ Module Global_mod
 
         if(udvl(1)%side .ne. "L" .and. udvl(1)%side .ne. "l" ) then
            write(error_unit,*) "Compute_Fermion_Det: calling wrong decompose"
-           error stop 1
+           CALL Terminate_on_error(ERROR_GLOBAL_UPDATES)
         endif
 
         NSTM = Size(udvst, 1)

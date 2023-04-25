@@ -108,6 +108,7 @@
 !
 !--------------------------------------------------------------------
         subroutine Hop_mod_init
+          use runtime_error_mod
           Implicit none
 
           Integer :: nc, nf
@@ -115,7 +116,7 @@
           Ncheck = size(Op_T,1)
           If ( size(Op_T,2) /= N_FL ) then
              Write(error_unit,*) 'Hop_mod_init: Error in the number of flavors.'
-             error stop 1
+             CALL Terminate_on_error(ERROR_GENERIC)
           Endif
 
           allocate(ExpOpT_vec(N_FL))
