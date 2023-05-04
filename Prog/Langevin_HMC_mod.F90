@@ -219,7 +219,8 @@
               N_type =  2
               Call Op_Wrapup(Gr(:,:,nf),Op_V(n,nf),spin,Ndim,N_Type)
            enddo
-           !TODO how does flavor symmetry effect section below? I feel like skipping some flavors is incorrect!
+           !CHECK: Are we sure that only Forces representing continuous fields are finite?
+           !CHECK: Is it good enough if the forces on discrete fields are zero such as they do not get updated during HMC?
            if (OP_V(n,1)%type == 3 ) then
               Z = cmplx(0.d0,0.d0,Kind(0.d0))
               Do nf_eff = 1, N_Fl_eff

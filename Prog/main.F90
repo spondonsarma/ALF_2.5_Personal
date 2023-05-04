@@ -460,7 +460,7 @@ Program Main
         Stab_nt(Nstm) = Ltrot
 
       !   Sequential = .true.
-        
+        !TODO: check if sequential is done if some fields are discrete (Warning or error termination?)
         if ( Langevin .or.  HMC  ) then
            if (Langevin) then
 #if defined(MPI)
