@@ -227,7 +227,20 @@ Program Main
            if (run_file_exists) then
              write (error_unit,*)
              write (error_unit,*) "ALF is already running or the previous run failed."
-             write (error_unit,*) "Please clean up the directory, remove the file RUNNING and restart."
+             write (error_unit,*) "Please ensure the following:"
+             write (error_unit,*) " * Make sure no other simulation is currently running in this directory"
+             write (error_unit,*) "   (Wait until the previous run is finished; it will automatically remove RUNNING)
+             write (error_unit,*) " * If the previous run crashed, make sure that"
+             write (error_unit,*) "    1) the data files are not corrupted"
+             write (error_unit,*) "       (run the analysis)"
+             write (error_unit,*) "    2) the configuration files are not corrupted"
+             write (error_unit,*) "       (e.g., h5dump confout_*.h5 or check number of lines in confout_*)"
+             write (error_unit,*) "    3) If either data or configuration file are currupted (rare event), either"
+             write (error_unit,*) "       * [PREFERED] remove them and start fresh (safe)"
+             write (error_unit,*) "       * repair them (if you know what you are doing)"
+             write (error_unit,*) "         (difficult or impossible; ensure data and configuration files synced)"
+             write (error_unit,*) "    4) remove the file RUNNING manually before resubmition"
+             write (error_unit,*) "Afterwards, you may rerun the simulation."
 #ifdef MPI
              call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
 #else
