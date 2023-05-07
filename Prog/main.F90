@@ -229,7 +229,7 @@ Program Main
              write (error_unit,*) "ALF is already running or the previous run failed."
              write (error_unit,*) "Please ensure the following:"
              write (error_unit,*) " * Make sure no other simulation is currently running in this directory"
-             write (error_unit,*) "   (Wait until the previous run is finished; it will automatically remove RUNNING)
+             write (error_unit,*) "   (Wait until the previous run is finished; it will automatically remove RUNNING)"
              write (error_unit,*) " * If the previous run crashed, make sure that"
              write (error_unit,*) "    1) the data files are not corrupted"
              write (error_unit,*) "       (run the analysis)"
