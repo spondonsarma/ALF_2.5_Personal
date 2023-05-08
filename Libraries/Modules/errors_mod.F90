@@ -325,8 +325,12 @@
 
 !**********
          SUBROUTINE ERRCALC_JS_F(EN,SI,XM,XERR,f)
-!	   Calculates error on the input vector EN.  Just the variance.
-!          The input are the bins
+           !	   Calculates error on the input vector EN.  Just the variance.
+           !       The input are the bins
+           !       The  output  is  the  mean and   error  on    f( EN(:,nb)) / SI(nb)
+           !       computed  with  jackknife
+           
+          
 
            IMPLICIT NONE
 
@@ -372,6 +376,7 @@
          SUBROUTINE ERRCALC_JS_C(EN,SI,XM,XERR)
 !          Calculates error on the input vector EN.  Just the variance.
 !          The input are the bins
+           
            IMPLICIT NONE
 
            COMPLEX (Kind=Kind(0.d0)), DIMENSION(:) ::  EN, SI
@@ -457,8 +462,8 @@
 
 !********
          SUBROUTINE ERRCALC_JS_REBIN(EN,SI,XM,XERR,NREBIN)
-!          Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
-!          The input are the bins.
+           ! Calculates jacknife error on the input vector EN with rebinning.  Mean and  variance.
+           ! The input are the bins.
 
            IMPLICIT NONE
 
@@ -1003,11 +1008,14 @@
          END SUBROUTINE COVJS_C_REBIN
 
 
-         SUBROUTINE COVJS_C_BG(GR, SIGN1, XCOV, XMEAN, background)
+!========================
+         SUBROUTINE COVJS_C_BG(Gr, SIGN1, XCOV, XMEAN, background)
 
+           
            IMPLICIT NONE
            ! Given GR(Times, Bins)  and Sign1(Bins) calculates the mean and the covariance.
            ! The sign is the same for all Times.
+
            Complex (Kind=Kind(0.d0)), DIMENSION(:,:) ::  GR, XCOV, background
            Complex (Kind=Kind(0.d0)), DIMENSION(:)   ::  XMEAN
            Real    (Kind=Kind(0.d0)), DIMENSION(:)   ::  SIGN1
