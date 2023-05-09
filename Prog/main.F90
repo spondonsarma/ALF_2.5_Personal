@@ -138,6 +138,7 @@ Program Main
 #endif
 #ifdef HDF5
         use hdf5
+        use h5lt
 #endif
         Implicit none
 
@@ -427,6 +428,7 @@ Program Main
           IF (.not. file_exists) THEN
             ! Create HDF5 file
             CALL h5fcreate_f(File1, H5F_ACC_TRUNC_F, file_id, ierr)
+            call h5ltset_attribute_string_f(file_id, '/', 'program_name', 'ALF', ierr)
             call h5fclose_f(file_id, ierr)
           endif
           call ham%write_parameters_hdf5(File1)
