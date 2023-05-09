@@ -135,6 +135,7 @@
            endif
         Enddo
         NST = 1
+        ! Check: how does wrap_forces work for forces that are zero?
         DO NTAU = 0, LTROT-1
            NTAU1 = NTAU + 1
            
@@ -202,7 +203,6 @@
         Complex (Kind=Kind(0.d0)) :: Z(N_FL), Z1
         Integer ::  nf, I, J, n, N_type, nf_eff
         Real(Kind=Kind(0.d0)) :: spin
-
 
         Do nf_eff = 1,N_FL_eff
            nf=Calc_FL_map(nf_eff)
@@ -370,7 +370,7 @@
            Call Control_Langevin   ( this%Forces,Group_Comm )
            
            Call ham%Ham_Langevin_HMC_S0( this%Forces_0)
-           
+           ! check: should this be going over all the operators?
            N_op = size(nsigma%f,1)
            !  Determine running time step
            Xmax = 0.d0
@@ -386,7 +386,7 @@
            If ( Xmax >  this%Max_Force ) this%Delta_t_running = this%Max_Force &
                 &                              * this%Delta_t_Langevin_HMC / Xmax
            
-           
+           ! check: I think this already ensures only continuous fields are updated
            do n = 1,N_op
               if (OP_V(n,1)%type == 3 ) then
                  do nt = 1,Ltrot
@@ -656,6 +656,7 @@
            endif
         elseif (HMC) then
            !  Check that all  fields are of type 3
+           !  Check: Shouldn't have to be all type 3 --should be able to update discrete sequentially
            Nr = size(nsigma%f,1)
            Nt = size(nsigma%f,2)
            Do i = 1, Nr
