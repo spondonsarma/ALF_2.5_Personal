@@ -39,6 +39,7 @@
 !
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     Module Predefined_Trial
 
       Use runtime_error_mod

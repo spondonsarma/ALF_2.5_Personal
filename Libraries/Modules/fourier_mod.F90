@@ -1,3 +1,4 @@
+#include "runtime_error.h"
 Module  Fourier
   use runtime_error_mod
   Use MaxEnt_mod

@@ -40,6 +40,7 @@
 !
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
 module mpi_shared_memory
 
     USE, INTRINSIC :: ISO_C_BINDING, ONLY : C_PTR, C_F_POINTER, C_SIZEOF

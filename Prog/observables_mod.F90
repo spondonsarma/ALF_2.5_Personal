@@ -38,6 +38,8 @@
 !> routine to initialize them and to print out the bins
 !
 !--------------------------------------------------------------------
+
+#include "runtime_error.h"
      Module Observables
 
 #if !defined HDF5 && !defined OBS_LEGACY

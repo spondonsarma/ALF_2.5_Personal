@@ -39,6 +39,7 @@
 !> fermionic and Z2 matter.
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
 
     submodule (Hamiltonian_main) ham_Z2_Matter_smod
 

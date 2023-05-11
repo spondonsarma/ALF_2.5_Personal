@@ -40,6 +40,8 @@
 !>
 !
 !--------------------------------------------------------------------
+
+#include "runtime_error.h"
     MODULE MyMats
       use iso_fortran_env, only: output_unit, error_unit
       use runtime_error_mod

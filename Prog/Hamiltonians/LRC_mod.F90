@@ -42,6 +42,7 @@
 !
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     Module LRC_mod
 
       use runtime_error_mod

@@ -115,6 +115,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     submodule (Hamiltonian_main) ham_LRC_smod
 
       Use Operator_mod

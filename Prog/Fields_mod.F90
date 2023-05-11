@@ -51,6 +51,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
      Module Fields_mod
        
 #ifdef MPI

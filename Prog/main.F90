@@ -110,6 +110,7 @@
 
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
 Program Main
 
         Use runtime_error_mod

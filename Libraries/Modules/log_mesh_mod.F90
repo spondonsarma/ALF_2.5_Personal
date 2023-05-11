@@ -1,3 +1,4 @@
+#include "runtime_error.h"
       Module Log_Mesh
         use iso_fortran_env, only: output_unit, error_unit
         use runtime_error_mod

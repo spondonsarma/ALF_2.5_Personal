@@ -42,6 +42,7 @@
 !
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
 module Control
 
     Use MyMats

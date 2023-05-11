@@ -113,6 +113,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     submodule (Hamiltonian_main) ham_Kondo_smod
 
       Use Operator_mod

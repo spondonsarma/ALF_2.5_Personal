@@ -32,6 +32,7 @@
 
 ! TODO ATTENTION: this module still has to be updated for flavor symmetries!!!
 
+#include "runtime_error.h"
       Module Langevin_HMC_mod
         
         Use runtime_error_mod 

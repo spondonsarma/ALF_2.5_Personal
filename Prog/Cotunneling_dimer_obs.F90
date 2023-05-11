@@ -11,6 +11,7 @@
 !>  If N_FL = 1 then N_SUN can take any value.
 !>  If N_FL = 2 then N_SUN = 1 
 !--------------------------------------------------------------------
+#include "runtime_error.h"
       Complex (Kind=Kind(0.d0)) function Predefined_Obs_dimer0_eq(I,M, GR, N_SUN, N_FL)
   
         USE runtime_error_mod 

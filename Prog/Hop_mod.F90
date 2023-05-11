@@ -44,6 +44,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     Module Hop_mod
 
       Use Hamiltonian_main

@@ -47,7 +47,12 @@ Module runtime_error_mod
 
     !========================================================================
 
-          ! List of error codes
+          !--------------------------------------------------------------------
+          !> @brief
+          !> This type defines the error codes.
+          !> The error codes are defined as an enum type.
+          !> The error codes can be extended by adding new enumerators.
+          !--------------------------------------------------------------------
           ENUM, BIND(C)
             ENUMERATOR :: ERROR_NONE = 0
             ENUMERATOR :: ERROR_GENERIC
@@ -62,6 +67,15 @@ Module runtime_error_mod
     
           contains
 
+            !--------------------------------------------------------------------
+            !> @brief
+            !> This subroutine terminates the program with an error message.
+            !> This termination is MPI-save. 
+            !> This is useful for debugging.
+            !>
+            !> @param error_code
+            !> The error code
+            !--------------------------------------------------------------------
             Subroutine Terminate_on_error(error_code)
               Implicit none
               Integer, INTENT(IN) :: error_code
@@ -85,13 +99,15 @@ Module runtime_error_mod
                   error_message = "Error in field setup"
                 Case(ERROR_GLOBAL_UPDATES)
                   error_message = "Error in global updates"
+                Case(ERROR_HAMILTONIAN)
+                  error_message = "Error in Hamiltonian setup"
                 Case DEFAULT
                   error_message = "Unknown error"
               End Select
               
 
               if (error_code /= ERROR_NONE) then
-                Write(error_unit,*) "Error: ", error_message
+                Write(error_unit,*) error_message
                 Write(error_unit,*) "Terminating program"
 #if !defined(MPI)
                 error stop error_code
@@ -101,6 +117,31 @@ Module runtime_error_mod
               end if
               
             end Subroutine Terminate_on_error
+
+            !--------------------------------------------------------------------
+            !> @brief
+            !> This subroutine terminates the program with an error message
+            !> and the name of the file and the line number where the error occured.
+            !> This is useful for debugging.
+            !>
+            !> @param err
+            !> The error code
+            !>
+            !> @param filename
+            !> The name of the file where the error occured
+            !>
+            !> @param linenum
+            !> The line number where the error occured
+            !--------------------------------------------------------------------
+            subroutine terminate_on_error_with_lineinfo(err,filename,linenum)
+              implicit none
+              integer,          intent(in)           :: err
+              character(len=*), intent(in), optional :: filename
+              integer,          intent(in), optional :: linenum
+              
+              write(error_unit,'(" ",A," (",I0,"):")') trim(filename), linenum
+              call terminate_on_error(err)
+            end Subroutine
             
 end Module runtime_error_mod
           

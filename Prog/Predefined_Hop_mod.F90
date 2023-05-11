@@ -40,6 +40,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     Module Predefined_Hoppings
 
       Use runtime_error_mod

@@ -123,6 +123,7 @@
 !>
 !--------------------------------------------------------------------
 
+#include "runtime_error.h"
     Module Hamiltonian_main
       Use runtime_error_mod
       Use Operator_mod, only: Operator

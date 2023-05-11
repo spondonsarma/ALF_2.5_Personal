@@ -41,6 +41,7 @@
 !> Handles global updates and parallel tempering
 !
 !--------------------------------------------------------------------
+#include "runtime_error.h"
 Module Global_mod
 
       Use runtime_error_mod
