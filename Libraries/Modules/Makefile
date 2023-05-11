@@ -16,7 +16,7 @@ alf_hdf5_mod.o: runtime_error_mod.o
 errors_mod.o: runtime_error_mod.o mymats_mod.o random_wrap_mod.o
 fourier_mod.o: runtime_error_mod.o maxent_mod.o maxent_stoch_mod.o matrix_mod.o
 lattices_v3_mod.o: runtime_error_mod.o mymats_mod.o 
-maxent_mod.o: mymats_mod.o errors_mod.o
+maxent_mod.o: mymats_mod.o errors_mod.o runtime_error_mod.o
 histograms_v2_mod.o: log_mesh_mod.o
 log_mesh_mod.o: runtime_error_mod.o
 mat_subroutines.o: runtime_error_mod.o

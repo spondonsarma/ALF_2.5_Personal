@@ -62,6 +62,7 @@ Module runtime_error_mod
             ENUMERATOR :: ERROR_FIELDS
             ENUMERATOR :: ERROR_HAMILTONIAN
             ENUMERATOR :: ERROR_GLOBAL_UPDATES
+            ENUMERATOR :: ERROR_MAXENT
             ! TO BE EXTENDED: I'm using the generic error code for now
           END ENUM
     
@@ -101,6 +102,8 @@ Module runtime_error_mod
                   error_message = "Error in global updates"
                 Case(ERROR_HAMILTONIAN)
                   error_message = "Error in Hamiltonian setup"
+                Case(ERROR_MAXENT)
+                  error_message = "Error in maximum entropy method"
                 Case DEFAULT
                   error_message = "Unknown error"
               End Select
