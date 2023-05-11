@@ -749,7 +749,6 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Complex (Kind=Kind(0.d0)), allocatable :: Background(:,:)
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:),  Xmean_st(:),  Xerr_st(:)
 
-      procedure (func_c), pointer :: f_ptr => Background_sus
 
       NAMELIST /VAR_errors/ n_skip, N_rebin, N_Cov, N_Back, N_auto
 
@@ -1092,18 +1091,18 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
 
       Call Fourier_K_to_R(bins,bins_r,Latt)
       
-      ! Setup symmetries for square lattice.
-#ifdef test
-      do n = 1,Latt%N
-         n1 = n
-         Write(6, "(2(E26.17E3))") Xk_p(1,n1), Xk_p(2,n1)
-         do m = 1,4
-            n1 = Rot90(n1, Xk_p, Latt%N)
-            Write(6, "(I11, 2(E26.17E3))") n1, Xk_p(1,n1), Xk_p(2,n1)
-         enddo
-         Write(6,*)
-      enddo
-#endif
+!!$#ifdef test
+!!$      ! Setup symmetries for square lattice.
+!!$      do n = 1,Latt%N
+!!$         n1 = n
+!!$         Write(6, "(2(E26.17E3))") Xk_p(1,n1), Xk_p(2,n1)
+!!$         do m = 1,4
+!!$            n1 = Rot90(n1, Xk_p, Latt%N)
+!!$            Write(6, "(I11, 2(E26.17E3))") n1, Xk_p(1,n1), Xk_p(2,n1)
+!!$         enddo
+!!$         Write(6,*)
+!!$      enddo
+!!$#endif
       write(File_out,'(A,A)') trim(name), "JK"
       Open (Unit=33,File=File_out ,status="unknown")
       write(File_out,'(A,A)') trim(name), "JR"
