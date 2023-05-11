@@ -2,6 +2,7 @@ variables:
   CONFIG_ARGS: ""  # Variable for additional arguments for configure.sh
 
 stages:
+  - lint
   - build
   - warnconv
   - test
@@ -51,6 +52,19 @@ stages:
     - cmake --build . --target all --config Release
     - ctest -VV -O log.txt
     - cat log.txt | grep "tests passed" | cut -d " " -f 1
+
+Check_Stopcommands:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bookworm-buildd
+  stage: lint
+  needs: []
+  except:
+    changes:
+      - .gitignore
+      - CITATION
+      - README.md
+      - license.*
+  script:
+    - grep -irn -e "^\s*error\s*stop" -e "^\s*stop" --include="*.F90" --exclude-dir=Analysis --exclude-dir=HDF5 --exclude-dir=testsuite --exclude-dir=Not\_supported --exclude="runtime\_error\_mod.F90" && exit 1
 
 GQMCT_Buster:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:buster-gfortran-blas-lapack
