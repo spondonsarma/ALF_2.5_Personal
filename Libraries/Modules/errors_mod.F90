@@ -325,53 +325,65 @@
            RETURN
          END SUBROUTINE ERRCALC_JS
 
-!**********
-         SUBROUTINE ERRCALC_JS_F(EN,SI,XM,XERR,f)
-           !	   Calculates error on the input vector EN.  Just the variance.
-           !       The input are the bins
-           !       The  output  is  the  mean and   error  on    f( EN(:,nb) / SI(nb) )
-           !       computed  with  jackknife
-           
-          
+         !> Calculates error on the input vector EN. Just the variance.
+         !!> The input are the bins.
+         !!> The output is the mean and error on f(EN(:,nb) / SI(nb)) computed with jackknife.
+         !!> @param EN Input vector of bins.
+         !!> @param SI Input vector of SI values.
+         !!> @param XM Mean of EN1.
+         !!> @param XERR Error of EN1.
+         !!> @param f Pointer to function that takes a real array and returns a real value.
+         !!> @return None.
+         SUBROUTINE ERRCALC_JS_F(EN, SI, XM, XERR, f)
+            IMPLICIT NONE
 
-           IMPLICIT NONE
+            ! Declare input variables
+            REAL (Kind=Kind(0.d0)), DIMENSION(:,:) :: EN
+            REAL (Kind=Kind(0.d0)), DIMENSION(:) :: SI
+            REAL (Kind=Kind(0.d0)) :: XM, XERR, XS, XShelp
+            procedure (func_r), pointer :: f
 
-           REAL (Kind=Kind(0.d0)), DIMENSION(:,:) ::  EN
-           REAL (Kind=Kind(0.d0)), DIMENSION(:) ::  SI
-           REAL (Kind=Kind(0.d0))               ::  XM, XERR, XS, XShelp
-!            REAL (Kind=Kind(0.d0)), EXTERNAL     ::  f
-           procedure (func_r), pointer:: f
-           REAL (Kind=Kind(0.d0)), ALLOCATABLE  :: EN1(:), Xhelp(:),X(:)
-           INTEGER                     ::  N, N1, NP, NP1, Nobs
+            ! Declare local variables
+            REAL (Kind=Kind(0.d0)), ALLOCATABLE :: EN1(:), Xhelp(:), X(:)
+            INTEGER :: N, N1, NP, NP1, Nobs
 
-           NP = SIZE(EN,2)
-           Nobs = SIZE(EN,1)
-           NP1= SIZE(SI)
-           IF (NP1.NE.NP) THEN
-              WRITE(6,*) 'Error in Errcalc_JS'
-              STOP
-           ENDIF
-           ALLOCATE (EN1(NP),Xhelp(nobs), X(nobs))
-           
-           ! Build the jackknife averages and send to errcalc
+            ! Get the number of bins and observations
+            NP = SIZE(EN,2)
+            Nobs = SIZE(EN,1)
 
-           Xhelp  = 0.D0
-           XShelp = 0.D0
-           DO N1 = 1,NP
-              Xhelp  = Xhelp  + EN(:,N1)
-              XShelp = XShelp + SI(N1)
-           ENDDO
+            ! Check that the number of SI values matches the number of bins
+            NP1 = SIZE(SI)
+            IF (NP1.NE.NP) THEN
+               WRITE(6,*) 'Error in Errcalc_JS'
+               STOP
+            ENDIF
 
-           DO N = 1,NP
-              XS = XShelp - SI(N)
-              X  = (Xhelp  - EN(:,N))/Xs
-              EN1(N) = f(X)
-           ENDDO
-           CALL ERRCALC(EN1,XM,XERR)
-           XERR = XERR*DBLE(NP)
-           DEALLOCATE  ( EN1, X, Xhelp )
+            ! Allocate memory for temporary arrays
+            ALLOCATE (EN1(NP), Xhelp(nobs), X(nobs))
 
-           RETURN
+            ! Build the jackknife averages and send to errcalc
+            Xhelp = 0.D0
+            XShelp = 0.D0
+            DO N1 = 1,NP
+               Xhelp = Xhelp + EN(:,N1)
+               XShelp = XShelp + SI(N1)
+            ENDDO
+
+            ! Compute the jackknife averages
+            DO N = 1,NP
+               XS = XShelp - SI(N)
+               X = (Xhelp - EN(:,N)) / XS
+               EN1(N) = f(X)
+            ENDDO
+
+            ! Compute the mean and error on EN1
+            CALL ERRCALC(EN1, XM, XERR)
+            XERR = XERR * DBLE(NP)
+
+            ! Deallocate memory for temporary arrays
+            DEALLOCATE (EN1, X, Xhelp)
+
+            RETURN
          END SUBROUTINE ERRCALC_JS_F
 
 !**********
