@@ -60,6 +60,10 @@ GQMCT_Bullseye:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-blas-lapack
   <<: *build_definition
 
+GQMCT_Bookworm:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bookworm-gfortran-blas-lapack
+  <<: *build_definition
+
 
 GQMCT_Bullseye_OpenBlas:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
@@ -118,6 +122,10 @@ GQMCT_Bullseye_OpenBlas_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
   <<: *warnconv_definition
 
+GQMCT_Bookworm_conv:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bookworm-gfortran-blas-lapack
+  <<: *warnconv_definition
+
 GQMCT_PGI_conv:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-pgi-21-03
   stage: warnconv
@@ -154,6 +162,10 @@ GQMCT_Bullseye_tests:
 
 GQMCT_Bullseye_OpenBlas_tests:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-openblas-lapack
+  <<: *test_definition
+
+GQMCT_Bookworm_tests:
+  image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bookworm-gfortran-blas-lapack
   <<: *test_definition
 
 GQMCT_Ubuntu-bionic_tests:
