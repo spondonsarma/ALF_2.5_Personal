@@ -41,7 +41,7 @@
 !> Handles global updates and parallel tempering
 !
 !--------------------------------------------------------------------
-#include "runtime_error.h"
+
 Module Global_mod
 
       Use runtime_error_mod
@@ -802,7 +802,7 @@ Module Global_mod
 
         if(udvl(1)%side .ne. "L" .and. udvl(1)%side .ne. "l" ) then
            write(error_unit,*) "Compute_Fermion_Det: calling wrong decompose"
-           CALL Terminate_on_error(ERROR_GLOBAL_UPDATES)
+           CALL Terminate_on_error(ERROR_GLOBAL_UPDATES,__FILE__,__LINE__)
         endif
 
         NSTM = Size(udvst, 1)

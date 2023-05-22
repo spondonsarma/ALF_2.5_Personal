@@ -39,7 +39,7 @@
 !
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
     Module Predefined_Trial
 
       Use runtime_error_mod
@@ -282,7 +282,7 @@
                           J1 = invlist(Latt%nnlist(I,0,-1),2)
                        case default
                           Write(error_unit,*) 'Error in  Predefined_TrialWaveFunction'
-                          CALL Terminate_on_error(ERROR_GENERIC)
+                          CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
                        end select
                        Op_Tmp(1,n)%O(I1,J1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
                        Op_Tmp(1,n)%O(J1,I1) = cmplx(-Ham_T,    0.d0, kind(0.D0))
@@ -335,7 +335,7 @@
 
         case default
            Write(error_unit,*) 'No predefined trial wave function for this lattice.'
-           CALL Terminate_on_error(ERROR_GENERIC)
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         end Select
 
 

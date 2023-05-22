@@ -40,7 +40,7 @@
 !
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
 module mpi_shared_memory
 
     USE, INTRINSIC :: ISO_C_BINDING, ONLY : C_PTR, C_F_POINTER, C_SIZEOF
@@ -143,7 +143,7 @@ module mpi_shared_memory
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
         if (noderank == 0) then
             windowsize = int(chunk_size_real(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_real_dp),MPI_ADDRESS_KIND) 
@@ -218,7 +218,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate(fortran_array(arrayshape(1)))
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_1Dreal
@@ -261,7 +261,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate( fortran_array(arrayshape(1),1:arrayshape(2)) )
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_2Dreal
@@ -305,7 +305,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3)) )
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_3Dreal
@@ -349,7 +349,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate( fortran_array(arrayshape(1),1:arrayshape(2),1:arrayshape(3),1:arrayshape(4)) )
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_4Dreal
@@ -376,7 +376,7 @@ module mpi_shared_memory
         
         if (.not. initialized) then
             WRITE(error_unit,*) 'Please initialize the mpi_shared_memory module before allocating the first array'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
         if (noderank == 0) then
             windowsize = int(chunk_size_cmplx(1),MPI_ADDRESS_KIND)*int(C_SIZEOF(dummy_cmplx_dp),MPI_ADDRESS_KIND)
@@ -452,7 +452,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate(fortran_array(arrayshape(1)))
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_1Dcmplx
@@ -496,7 +496,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate(fortran_array(arrayshape(1),arrayshape(2)))
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_2Dcmplx
@@ -540,7 +540,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3)))
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_3Dcmplx
@@ -585,7 +585,7 @@ module mpi_shared_memory
         !allocate plain old fortran array if run without MPI
 !        allocate(fortran_array(arrayshape(1),arrayshape(2),arrayshape(3),arrayshape))
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine allocate_shared_memory_4Dcmplx
@@ -611,7 +611,7 @@ module mpi_shared_memory
         enddo
 #else
         WRITE(error_unit,*) 'This module requires MPI and should not be called without it'
-        Call Terminate_on_error(ERROR_GENERIC)
+        Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
 #endif
   
       end subroutine deallocate_all_shared_memory

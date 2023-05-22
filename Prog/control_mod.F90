@@ -42,7 +42,7 @@
 !
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
 module Control
 
     Use MyMats
@@ -222,7 +222,7 @@ module Control
           write(error_unit,*) 'Try with smaller Nwrap or dtau.'
           write(error_unit,*)
           
-          CALL Terminate_on_error(ERROR_UNSTABLE_MATRIX)
+          CALL Terminate_on_error(ERROR_UNSTABLE_MATRIX,__FILE__,__LINE__)
           
         endif
         IF (XMAX  >  XMAXG) XMAXG = XMAX

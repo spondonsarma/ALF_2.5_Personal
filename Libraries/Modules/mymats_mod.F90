@@ -41,7 +41,7 @@
 !
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
     MODULE MyMats
       use iso_fortran_env, only: output_unit, error_unit
       use runtime_error_mod
@@ -127,7 +127,7 @@
             LDVR = N
          ELSE
             WRITE(error_unit,*) 'Error in DIAG_GEN'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          ENDIF
          ALLOCATE(VL(LDVL,N),  VR(LDVR,N) )
          LWORK = 2*N
@@ -767,15 +767,15 @@
 ! You should now check corresponding sizes for U,V,D.
          IF (SIZE(U,1).NE.ND1 .OR. SIZE(U,2).NE.ND2) THEN
             WRITE(error_unit,*) 'UDV1_R: UDV dim mistake: U'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          ENDIF
          IF (SIZE(D,1).NE.ND2 ) THEN
             WRITE(error_unit,*) 'UDV1_R: UDV dim mistake: D'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          ENDIF
          IF (SIZE(V,1).NE.ND2 .OR. SIZE(V,2).NE.ND2) THEN
             WRITE(error_unit,*) 'UDV1_R: UDV dim mistake: V'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          ENDIF
 
          ALLOCATE(XNORM (ND2))
@@ -1237,7 +1237,7 @@
 
          IF (ND1.NE.ND2) THEN
             WRITE(error_unit,*) 'DIAG_R: Error in matrix dimension'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          ENDIF
 
          IERR = 0

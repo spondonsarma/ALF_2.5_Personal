@@ -63,6 +63,7 @@ Module runtime_error_mod
             ENUMERATOR :: ERROR_HAMILTONIAN
             ENUMERATOR :: ERROR_GLOBAL_UPDATES
             ENUMERATOR :: ERROR_MAXENT
+            ENUMERATOR :: ERROR_RUNNING_FILE_FOUND
             ! TO BE EXTENDED: I'm using the generic error code for now
           END ENUM
     
@@ -77,9 +78,12 @@ Module runtime_error_mod
             !> @param error_code
             !> The error code
             !--------------------------------------------------------------------
-            Subroutine Terminate_on_error(error_code)
+            Subroutine Terminate_on_error(error_code, filename, linenum)
               Implicit none
               Integer, INTENT(IN) :: error_code
+              character(len=*), intent(in) :: filename
+              integer,          intent(in) :: linenum
+              
 #if defined(MPI)
               Integer             :: ierr
 #endif
@@ -104,12 +108,15 @@ Module runtime_error_mod
                   error_message = "Error in Hamiltonian setup"
                 Case(ERROR_MAXENT)
                   error_message = "Error in maximum entropy method"
+                Case(ERROR_RUNNING_FILE_FOUND)
+                  error_message = "" ! The error message is printed in the calling routine
                 Case DEFAULT
                   error_message = "Unknown error"
               End Select
               
 
               if (error_code /= ERROR_NONE) then
+                write(error_unit,'(" ",A," (",I0,"):")') trim(filename), linenum
                 Write(error_unit,*) error_message
                 Write(error_unit,*) "Terminating program"
 #if !defined(MPI)
@@ -120,31 +127,6 @@ Module runtime_error_mod
               end if
               
             end Subroutine Terminate_on_error
-
-            !--------------------------------------------------------------------
-            !> @brief
-            !> This subroutine terminates the program with an error message
-            !> and the name of the file and the line number where the error occured.
-            !> This is useful for debugging.
-            !>
-            !> @param err
-            !> The error code
-            !>
-            !> @param filename
-            !> The name of the file where the error occured
-            !>
-            !> @param linenum
-            !> The line number where the error occured
-            !--------------------------------------------------------------------
-            subroutine terminate_on_error_with_lineinfo(err,filename,linenum)
-              implicit none
-              integer,          intent(in)           :: err
-              character(len=*), intent(in), optional :: filename
-              integer,          intent(in), optional :: linenum
-              
-              write(error_unit,'(" ",A," (",I0,"):")') trim(filename), linenum
-              call terminate_on_error(err)
-            end Subroutine
             
 end Module runtime_error_mod
           

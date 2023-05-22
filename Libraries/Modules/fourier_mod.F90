@@ -1,4 +1,4 @@
-#include "runtime_error.h"
+
 Module  Fourier
   use runtime_error_mod
   Use MaxEnt_mod
@@ -654,7 +654,7 @@ Module  Fourier
       Do Nw = 1,Nom
          if ( xom(Nw) .lt. -Zero ) then
             Write(error_unit,*) 'Tau_Matz_T_Bose: Frequencies should be larger than zero'
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
          endif
       enddo
       Niom  = Size(Xiom,1)

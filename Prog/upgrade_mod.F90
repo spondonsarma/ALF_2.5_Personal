@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-#include "runtime_error.h"
+
 module upgrade_mod
    use runtime_error_mod
    implicit none
@@ -213,7 +213,7 @@ module upgrade_mod
            Prev_Ratiotot = Prev_Ratiotot*Ratiotot
         else
            Write(error_unit,*) 'Error in upgrade2'
-           CALL Terminate_on_error(ERROR_GENERIC)
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
 
         toggle = .false.

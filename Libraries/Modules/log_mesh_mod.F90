@@ -1,4 +1,4 @@
-#include "runtime_error.h"
+
       Module Log_Mesh
         use iso_fortran_env, only: output_unit, error_unit
         use runtime_error_mod
@@ -81,11 +81,11 @@
                 enddo
              else
                 Write(error_unit,*) 'Make_log_mesh: You need to include Nw for the Lin Mesh'
-                Call Terminate_on_error(ERROR_GENERIC)
+                Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
              endif
           else
              Write(error_unit,*) 'Make_log_mesh: Mesh has no type!!'
-             Call Terminate_on_error(ERROR_GENERIC)
+             Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
           endif
           do n = 1,Mesh%Nom-1
              Mesh%DXom(n) = Mesh%xom (n+1) - Mesh%xom (n )

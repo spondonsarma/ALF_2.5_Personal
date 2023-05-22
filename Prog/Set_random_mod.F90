@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-#include "runtime_error.h"
+
 module set_random
    use runtime_error_mod
    implicit none
@@ -73,7 +73,7 @@ module set_random
           OPEN(UNIT=5,FILE=File_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
           IF (IERR /= 0) THEN
              WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
-             CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
+             CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
           END IF
           DO I = ISIZE-1,1,-1
              READ (5,*) SEED_IN
@@ -92,7 +92,7 @@ module set_random
        OPEN(UNIT=5,FILE=FILE_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
        IF (IERR /= 0) THEN
           WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
-          CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
+          CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
        END IF
        READ (5,*) SEED_IN
        CLOSE(5)

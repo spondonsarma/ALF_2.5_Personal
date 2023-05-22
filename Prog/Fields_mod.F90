@@ -51,7 +51,7 @@
 !>
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
      Module Fields_mod
        
 #ifdef MPI
@@ -120,7 +120,7 @@
            Fields_Phi = this%f(n_op,n_tau)
         case default
            Write(error_unit,*) 'Error in Fields_Phi'
-           CALL Terminate_on_error(ERROR_FIELDS)
+           CALL Terminate_on_error(ERROR_FIELDS,__FILE__,__LINE__)
         end select
       end function Fields_Phi
 
@@ -147,7 +147,7 @@
            Fields_GAMA = 1.d0
         case default
            Write(error_unit,*) 'Error in Fields_GAMA'
-           CALL Terminate_on_error(ERROR_FIELDS)
+           CALL Terminate_on_error(ERROR_FIELDS,__FILE__,__LINE__)
         end select
 
       end function Fields_Gama
@@ -176,7 +176,7 @@
            Fields_flip =   this%f(n_op,n_tau) + Amplitude*( ranf_wrap() - 0.5D0)
         case default
            Write(error_unit,*) 'Error in Fields. '
-           CALL Terminate_on_error(ERROR_FIELDS)
+           CALL Terminate_on_error(ERROR_FIELDS,__FILE__,__LINE__)
         end select
 
       end function Fields_Flip
@@ -192,7 +192,7 @@
            Fields_get_i = NINT(this%f(n_op,n_tau))
         else
            Write(error_unit,*) "Error in fields"
-           CALL Terminate_on_error(ERROR_FIELDS)
+           CALL Terminate_on_error(ERROR_FIELDS,__FILE__,__LINE__)
         endif
 
       end function Fields_get_i
@@ -347,7 +347,7 @@
             IF (LCONF) THEN
                write(error_unit,*) "ERROR: Plain text configuration file confin_0 exists, even though program is compiled"
                write(error_unit,*) "   with HDF5! You cannot mix up HDF5 runs with non-HDF5 runs, program aborted!"
-               CALL Terminate_on_error(ERROR_GENERIC)
+               CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
             ENDIF
             IF (LCONF_H5) THEN
                CALL this%read_conf_h5(FILE_TG_H5)
@@ -356,7 +356,7 @@
             IF (LCONF_H5) THEN
                write(error_unit,*) "ERROR: HDF5 configuration file confin_0.h5 exists, even though program is compiled"
                write(error_unit,*) "   without HDF5! You cannot mix up HDF5 runs with non-HDF5 runs, program aborted!"
-               CALL Terminate_on_error(ERROR_GENERIC)
+               CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
             ENDIF
             IF (LCONF) THEN
                CALL this%read_conf(FILE_TG)
@@ -369,7 +369,7 @@
                   OPEN(UNIT=5,FILE=FILE_seeds,STATUS='OLD',ACTION='READ',IOSTAT=IERR)
                   IF (IERR /= 0) THEN
                      WRITE(error_unit,*) 'Fields_in: unable to open <seeds>',IERR
-                     CALL Terminate_on_error(ERROR_FILE_NOT_FOUND)
+                     CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
                   END IF
 #if defined MPI
                   DO I = ISIZE-1,1,-1

@@ -11,7 +11,7 @@
 !>  If N_FL = 1 then N_SUN can take any value.
 !>  If N_FL = 2 then N_SUN = 1 
 !--------------------------------------------------------------------
-#include "runtime_error.h"
+
       Complex (Kind=Kind(0.d0)) function Predefined_Obs_dimer0_eq(I,M, GR, N_SUN, N_FL)
   
         USE runtime_error_mod 
@@ -166,7 +166,7 @@
                    &    (1 - 32*G(3,4)*G(4,3) - 2*G(4,4) + G(3,3)*(-2 + 4*G(4,4)))))
            case  default
               Write(error_unit,*) 'Dimer, N_SUN=', N_SUN, 'is not yet implemented'
-              CALL Terminate_on_error(ERROR_MISSING_OBS)
+              CALL Terminate_on_error(ERROR_MISSING_OBS,__FILE__,__LINE__)
            end select
         elseif(N_FL == 2 ) then  !  This only works for N_SUN = 1
            do ns = 1,2
@@ -406,7 +406,7 @@
                    &    (1 - 32*G(3,4)*G(4,3) - 2*G(4,4) + G(3,3)*(-2 + 4*G(4,4)))))
            case  default
               Write(error_unit,*) 'Dimer, N_SUN=', N_SUN, 'is not yet implemented'
-              CALL Terminate_on_error(ERROR_MISSING_OBS)
+              CALL Terminate_on_error(ERROR_MISSING_OBS,__FILE__,__LINE__)
            end select
         elseif(N_FL == 2 ) then  !  This only works for N_SUN = 1
            do ns = 1,2
@@ -603,7 +603,7 @@
                    &       (189.*G(1,2)*G(2,1) + 76.5*G(1,1)*G(2,2))*G(3,3)))/64. 
            case default
               Write(error_unit,*) 'Cotunneling, N_SUN=', N_SUN, 'is not yet implemented'
-              CALL Terminate_on_error(ERROR_MISSING_OBS)
+              CALL Terminate_on_error(ERROR_MISSING_OBS,__FILE__,__LINE__)
            end select
            Predefined_Obs_Cotunneling  = Z
            

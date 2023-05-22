@@ -31,7 +31,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-#include "runtime_error.h"
+
 module mat_subroutines
 !--------------------------------------------------------------------
 !> @author
@@ -88,7 +88,7 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           LEFT=.false.
         ELSE
           write(error_unit,*) 'ZSLGEMM: Illegal argument for side=',side,': It is not one of [R,r,L,l] !'
-          Call Terminate_on_error(ERROR_GENERIC)
+          Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         ENDIF
 
         IF ( op == 'N' .or. op == 'n' ) THEN
@@ -99,7 +99,7 @@ subroutine ZSLGEMM(side, op, N, M1, M2, A, P, Mat)
           op_id=2
         ELSE
           write(error_unit,*) 'ZSLGEMM: Illegal argument for op=',op,': It is not one of [N,n,T,t,C,c] !'
-          Call Terminate_on_error(ERROR_GENERIC)
+          Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         ENDIF
 
         alpha = 1.D0
@@ -958,7 +958,7 @@ subroutine ZSLHEMM(side, uplo, N, M1, M2, A, P, Mat)
 
         ELSE
           write(error_unit,*) 'ZSLHEMM: Illegal argument for side: It is not one of [R,r,L,l] !'
-          Call Terminate_on_error(ERROR_GENERIC)
+          Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         ENDIF
 
 end subroutine ZSLHEMM
@@ -1009,7 +1009,7 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
         !only used in default case for n>4
         IF(N > 8) THEN
           IF(uplo=='L' .or. uplo=='l') THEN ! uplo == l unimplemented and never used in this case
-            Call Terminate_on_error(ERROR_GENERIC)
+            Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
           ENDIF
           COMPACT = .TRUE.
           L = 1
@@ -1419,7 +1419,7 @@ subroutine ZDSLSYMM(side, uplo, N, M1, M2, A, P, Mat)
 
         ELSE
           write(error_unit,*) 'ZDSLSYMM: Illegal argument for side: It is not one of [R,r,L,l] !'
-          Call Terminate_on_error(ERROR_GENERIC)
+          Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         ENDIF
 
 end subroutine ZDSLSYMM

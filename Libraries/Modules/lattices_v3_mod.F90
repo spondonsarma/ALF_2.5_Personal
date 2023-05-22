@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-#include "runtime_error.h"
+
      Module Lattices_v3
 
 !--------------------------------------------------------------------
@@ -266,7 +266,7 @@
            enddo
            If (nc.ne.Latt%N) Then
               write(error_unit,*) 'Make_lattice: Error ', nc, Latt%N
-              Call Terminate_on_error(ERROR_GENERIC)
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
 
            !Setup nnlist
@@ -455,7 +455,7 @@
               Inv_K = nk
            else
               write(error_unit,*) 'Lattice: Error in Inv_K'
-              Call Terminate_on_error(ERROR_GENERIC)
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
 
  !!$          nk = 1
@@ -468,7 +468,7 @@
  !!$                nk = nk + 1
  !!$             else
  !!$                write(6,*) 'Error in Inv_K Lattice_new'
- !!$                Call Terminate_on_error(ERROR_GENERIC)
+ !!$                Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
  !!$             endif
  !!$          enddo
 

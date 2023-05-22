@@ -39,7 +39,7 @@
 !> fermionic and Z2 matter.
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
 
     submodule (Hamiltonian_main) ham_Z2_Matter_smod
 
@@ -156,11 +156,11 @@
              N_FL = 1
              If ( Lattice_type  /= "Square" ) then
                 Write(error_unit,*) "Ham_set: Z2_Matter is only implemented for a square lattice"
-                CALL Terminate_on_error(ERROR_HAMILTONIAN)
+                CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
              Endif
           else
              Write(error_unit,*) "Ham_set: Model not yet implemented!"
-             CALL Terminate_on_error(ERROR_HAMILTONIAN)
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           endif
           if (N_part < 0) N_part = L1*L2/2
           If (Abs(Ham_T) < Zero ) then
@@ -253,7 +253,7 @@
           ! Use predefined stuctures or set your own lattice.
           If ( L1 == 1 .or. L2 == 1 ) then
              Write(error_unit,*) 'Ham_Latt: One dimensional systems are not included '
-             CALL Terminate_on_error(ERROR_HAMILTONIAN)
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           endif
           Call Predefined_Latt(Lattice_type, L1,L2,Ndim, List,Invlist,Latt,Latt_Unit)
 
@@ -586,7 +586,7 @@
                 endif
              case default
                 Write(error_unit,*) 'Global_move_tau: Error'
-                CALL Terminate_on_error(ERROR_HAMILTONIAN)
+                CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
              end select
              Flip_list(n)  = n_op
              Flip_value(n) = nsigma%flip(n_op,ntau)
@@ -1281,7 +1281,7 @@
               Do nc = 1,Latt%N
                  if ( Isigma(nc) .ne.  Isigma1(nc)  ) then
                     Write(error_unit,*) 'Error in Hamiltonian_set_Z2_matter'
-                    CALL Terminate_on_error(ERROR_HAMILTONIAN)
+                    CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
                  endif
               enddo
            enddo

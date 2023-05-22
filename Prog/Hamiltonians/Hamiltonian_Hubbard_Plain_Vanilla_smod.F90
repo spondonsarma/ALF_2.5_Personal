@@ -114,7 +114,7 @@
 !> You still have to add some docu for the other private variables in this module.
 !>
 !--------------------------------------------------------------------
-#include "runtime_error.h"
+
 
     submodule (Hamiltonian_main) ham_Hubbard_Plain_Vanilla_smod
 
@@ -217,7 +217,7 @@
 
           If (L1 == 1) then
              Write(6,*) 'For  one-dimensional lattices set L2=1'
-             Call Terminate_on_error(ERROR_HAMILTONIAN)
+             Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           endif
 
           if (N_part < 0) N_part = L1*L2/2
@@ -314,7 +314,7 @@
           
           If (Lattice_Type /=  "Square")  then
              Write(6,*) 'The plain vanilla Hubbard model is only defined for the square lattice'
-             Call Terminate_on_error(ERROR_HAMILTONIAN)
+             Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           Endif
           
           Latt_unit%Norb    = 1

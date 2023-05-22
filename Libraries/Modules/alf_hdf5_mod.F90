@@ -29,7 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
-#include "runtime_error.h"
+
 #if defined(HDF5)
      Module alf_hdf5
 !--------------------------------------------------------------------
@@ -122,7 +122,7 @@
            !Check for dims(rank) = 0
            if (dims(rank) /= 0) then
              write(error_unit,*) 'Error in init_dset: dims(rank) /= 0'
-             Call Terminate_on_error(ERROR_GENERIC)
+             Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
            
            !Create Dataspace
@@ -694,7 +694,7 @@
              attr_value = .true.
            else
              write(error_unit,*) "Error in read_attribute_logical: attr_value2 is neither 0 or 1, but", attr_value2
-             Call Terminate_on_error(ERROR_GENERIC)
+             Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
          end Subroutine read_attribute_logical
         
@@ -750,7 +750,7 @@
              diff = abs(attr_value - test_double)
              if (diff > ZERO) then
                write(error_unit,*) 'Error in test_attribute_double:', attr_name, ' = ', attr_value, '/=', test_double
-               Call Terminate_on_error(ERROR_GENERIC)
+               Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
              endif
            endif
          end Subroutine test_attribute_double
@@ -805,7 +805,7 @@
              call read_attribute_int(loc_id, obj_name, attr_name, test_int, ierr)
              if (attr_value /= test_int) then
                write(error_unit,*) 'Error in test_attribute_int:', attr_name, ' = ', attr_value, '/=', test_int
-               Call Terminate_on_error(ERROR_GENERIC)
+               Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
              endif
            endif
          end Subroutine test_attribute_int
@@ -860,7 +860,7 @@
              call read_attribute_string(loc_id, obj_name, attr_name, test_string, ierr)
              if (trim(attr_value) /= trim(test_string)) then
                write(error_unit,*) 'Error in test_attribute_string:', attr_name, ' = ', attr_value, '/=', test_string
-               Call Terminate_on_error(ERROR_GENERIC)
+               Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
              endif
            endif
          end Subroutine test_attribute_string
@@ -915,7 +915,7 @@
              call read_attribute_logical(loc_id, obj_name, attr_name, test_bool, ierr)
              if (attr_value .neqv. test_bool) then
                write(error_unit,*) 'Error in test_attribute_logical:', attr_name, ' = ', attr_value, '/=', test_bool
-               Call Terminate_on_error(ERROR_GENERIC)
+               Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
              endif
            endif
          end Subroutine test_attribute_logical

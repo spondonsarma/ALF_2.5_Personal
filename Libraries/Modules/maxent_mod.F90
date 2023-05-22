@@ -1,4 +1,4 @@
-#include "runtime_error.h"
+
 Module MaxEnt_mod
 
         Use MyMats
@@ -341,7 +341,7 @@ Module MaxEnt_mod
 
             IF ( SIZE(AH,1).NE.NTAU .OR. SIZE(AH,2).NE.NTAU) THEN
                WRITE(error_unit,*) 'Error in Setah'
-               Call Terminate_on_error(ERROR_MAXENT)
+               Call Terminate_on_error(ERROR_MAXENT,__FILE__,__LINE__)
             ENDIF
 
             DO NT  = 1,NTAU
@@ -371,7 +371,7 @@ Module MaxEnt_mod
 
             IF (SIZE(F,1).NE.NTAU) THEN
                WRITE(error_unit,*) 'Error in Setf'
-               Call Terminate_on_error(ERROR_MAXENT)
+               Call Terminate_on_error(ERROR_MAXENT,__FILE__,__LINE__)
             ENDIF
             DO NT = 1,NTAU
                X  = 0.D0

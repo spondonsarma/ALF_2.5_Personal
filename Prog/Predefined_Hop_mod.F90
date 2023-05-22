@@ -40,7 +40,7 @@
 !>
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
     Module Predefined_Hoppings
 
       Use runtime_error_mod
@@ -283,7 +283,7 @@
            If (  mod(nint(latt%L1_p(1)),2)  /=  0   .or.   mod(nint(latt%L2_p(2)),2)  /= 0 )  then
               Write(error_unit,*) '*** For  the  square  lattice,  our  implementation of the checkerborad '
               Write(error_unit,*) 'decomposition  requires even  values of L_1  and L_2  ***'
-              CALL Terminate_on_error(ERROR_GENERIC)
+              CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
            Allocate( this(N_FL) )
 
@@ -455,7 +455,7 @@
            If (  mod(nint(latt%L1_p(1)),2)  /=  0  )  then
               Write(error_unit,*) '*** For  the N_leg_ladder  lattice,  our  implementation of the checkerborad '
               Write(error_unit,*) 'decomposition  requires L_1 = 1 or  L_1   even ***'
-              CALL Terminate_on_error(ERROR_GENERIC)
+              CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
 
            !Write(6,*) Ham_T_vec,  Ham_T_perp_vec, Ham_chem_vec
@@ -585,7 +585,7 @@
         enddo
         If (abs(Ham_Lambda_max) > 0 ) then
            Write(error_unit,*) 'Kane Mele term is not yet implemented'
-           CALL Terminate_on_error(ERROR_GENERIC)
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
         Allocate( this(N_FL) )
         do nf = 1,N_FL
@@ -674,7 +674,7 @@
         If (  mod(nint(latt%L1_p(1)),2)  /=  0 .or.  mod(nint(latt%L2_p(2)),2)  /=  0  )  then
            Write(error_unit,*) '*** For  the Bilayer square lattice,  our  implementation of the checkerborad '
            Write(error_unit,*) 'decomposition  requires L_1 and  L_2 to be  even ***'
-           CALL Terminate_on_error(ERROR_GENERIC)
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
         
         Ham_T1_max    = 0.d0
@@ -1161,7 +1161,7 @@
 
         ! Test of correctness of checkerboard decomposition
         If (checkerboard) then
-           if (.not.(test_checkerboard_decomposition(this(1), Latt, invlist)))  CALL Terminate_on_error(ERROR_GENERIC)
+           if (.not.(test_checkerboard_decomposition(this(1), Latt, invlist)))  CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         end If
 
         select case (inquire_hop(this))

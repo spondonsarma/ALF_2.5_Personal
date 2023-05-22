@@ -44,7 +44,7 @@
 !>
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
     Module Hop_mod
 
       Use Hamiltonian_main
@@ -117,7 +117,7 @@
           Ncheck = size(Op_T,1)
           If ( size(Op_T,2) /= N_FL ) then
              Write(error_unit,*) 'Hop_mod_init: Error in the number of flavors.'
-             CALL Terminate_on_error(ERROR_GENERIC)
+             CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
           Endif
 
           allocate(ExpOpT_vec(N_FL))

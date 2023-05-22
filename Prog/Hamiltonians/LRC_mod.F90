@@ -42,7 +42,7 @@
 !
 !--------------------------------------------------------------------
 
-#include "runtime_error.h"
+
     Module LRC_mod
 
       use runtime_error_mod
@@ -360,7 +360,7 @@
            !Write(25,*) E_int(I)
            if ( E_int(i) < 1.D-10 ) then
               Write(error_unit,*) 'LRC_Set_VIJ: V_int(i,j) is not positive definite '
-              CALL Terminate_on_error(ERROR_HAMILTONIAN)
+              CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
            endif
         enddo
 
@@ -545,7 +545,7 @@
 !!$           enddo
 !!$           If (X >= 1.D-12 ) then
 !!$              Write(6,*) X
-!!$              CALL Terminate_on_error(ERROR_HAMILTONIAN)
+!!$              CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
 !!$           Endif
 !!$           Deallocate( A_test_new)
 !!$        Endif
