@@ -520,7 +520,7 @@
           enddo
 
           If (Ltau == 1) then
-             ! Equal time correlators
+             ! time-displaced correlators
              Allocate ( Obs_tau(5) )
              Do I = 1,Size(Obs_tau,1)
                 select case (I)
