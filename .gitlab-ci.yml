@@ -60,7 +60,7 @@ GQMCT_Bullseye:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bullseye-gfortran-blas-lapack
   <<: *build_definition
 
-GQMCT_Bookwork:
+GQMCT_Bookworm:
   image: git.physik.uni-wuerzburg.de:25812/z03/pdi/debian:bookworm-gfortran-blas-lapack
   <<: *build_definition
 
