@@ -816,9 +816,9 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
          n_mk   =   Inv_K(XK_P1,Latt)
          bins_help  = cmplx(0.d0,0.d0,Kind(0.d0))
          do nb  =  1, nbins 
-            do nt = 1,Lt_eff
+            do no2 = 1,Latt_unit%Norb
                do no1 = 1,Latt_unit%Norb
-                  do no2 = 1,Latt_unit%Norb
+                  do nt = 1,Lt_eff
                      if (PartHole) then
                         bins_help(nt,no1,no2,nb) = &
                              &  ( bins_raw(n,nt,no1,no2,nb+n_skip) + conjg(bins_raw(n_mk,Lt-nt+1,no1,no2,nb+n_skip)) ) &
