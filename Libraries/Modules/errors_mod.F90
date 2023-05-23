@@ -1055,7 +1055,7 @@
            !Write(6,*) 'Errors.F90 ', NTDM, NDATA
            IF ( (SIZE(XCOV,1).NE.SIZE(XCOV,2) ) .OR. (SIZE(XCOV,1).NE.NTDM) ) THEN
               WRITE(error_unit,*) 'Error in COVJS_C'
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            ENDIF
 
 
@@ -1168,7 +1168,7 @@
            !Write(6,*) 'Errors.F90 ', NTDM, NDATA
            IF ( (SIZE(XCOV,1).NE.SIZE(XCOV,2) ) .OR. (SIZE(XCOV,1).NE.NTDM) ) THEN
               WRITE(error_unit,*) 'Error in COVJS_C'
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            ENDIF
 
            ALLOCATE( HLP(NDATA), HLP1(NTDM,NDATA), XMEAN_R(NTDM) )
