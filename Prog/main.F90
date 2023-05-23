@@ -110,8 +110,10 @@
 
 !--------------------------------------------------------------------
 
+
 Program Main
 
+        Use runtime_error_mod
         Use Operator_mod
         Use Lattices_v3
         Use MyMats
@@ -202,7 +204,7 @@ Program Main
         Real (Kind=Kind(0.d0)) :: Weight, Weight_tot
 
         ! For the truncation of the program:
-        logical                   :: prog_truncation
+        logical                   :: prog_truncation, run_file_exists
         integer (kind=kind(0.d0)) :: count_bin_start, count_bin_end
         
         ! For MPI shared memory
@@ -222,6 +224,36 @@ Program Main
            write (*,*) "ALF Copyright (C) 2016 - 2021 The ALF project contributors"
            write (*,*) "This Program comes with ABSOLUTELY NO WARRANTY; for details see license.GPL"
            write (*,*) "This is free software, and you are welcome to redistribute it under certain conditions."
+
+           ! Ensure that only one ALF is running at the same time, i.e. the file RUNNING is not present
+           inquire (file='RUNNING', exist=run_file_exists)
+           if (run_file_exists) then
+             write (error_unit,*)
+             write (error_unit,*) "ALF is already running or the previous run failed."
+             write (error_unit,*) "Please ensure the following:"
+             write (error_unit,*) " * Make sure no other simulation is currently running in this directory"
+             write (error_unit,*) "   (Wait until the previous run is finished; it will automatically remove RUNNING)"
+             write (error_unit,*) " * If the previous run crashed, make sure that"
+             write (error_unit,*) "    1) the data files are not corrupted"
+             write (error_unit,*) "       (run the analysis)"
+             write (error_unit,*) "    2) the configuration files are not corrupted"
+             write (error_unit,*) "       (e.g., h5dump confout_*.h5 or check number of lines in confout_*)"
+             write (error_unit,*) "    3) If either data or configuration file are currupted (rare event), either"
+             write (error_unit,*) "       * [PREFERED] remove them and start fresh (safe)"
+             write (error_unit,*) "       * repair them (if you know what you are doing)"
+             write (error_unit,*) "         (difficult or impossible; ensure data and configuration files synced)"
+             write (error_unit,*) "    4) remove the file RUNNING manually before resubmition"
+             write (error_unit,*) "Afterwards, you may rerun the simulation."
+#ifdef MPI
+             call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
+#else
+   CALL Terminate_on_error(ERROR_RUNNING_FILE_FOUND,__FILE__,__LINE__)
+#endif
+           else
+             open (unit=5, file='RUNNING', status='replace', action='write')
+             write (5,*) "ALF is running"
+             close (5)
+           end if
 #ifdef MPI
         endif
 #endif
@@ -232,7 +264,7 @@ Program Main
         OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
         IF (ierr /= 0) THEN
            WRITE(error_unit,*) 'main: unable to open <parameters>',ierr
-           error stop 1
+           CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
         END IF
         READ(5,NML=VAR_TEMP)
         CLOSE(5)
@@ -242,7 +274,7 @@ Program Main
         CALL MPI_BCAST(Tempering_calc_det      ,1,MPI_LOGICAL,0,MPI_COMM_WORLD,ierr)
         if ( mod(ISIZE,mpi_per_parameter_set) .ne. 0 ) then
            Write (error_unit,*) "mpi_per_parameter_set is not a multiple of total mpi processes"
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         endif
         Call Global_Tempering_setup
 #elif !defined(TEMPERING)  && defined(MPI)
@@ -290,7 +322,7 @@ Program Main
            OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
            IF (ierr /= 0) THEN
               WRITE(error_unit,*) 'main: unable to open <parameters>',ierr
-              error stop 1
+              CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
            END IF
            READ(5,NML=VAR_QMC)
            CLOSE(5)
@@ -349,13 +381,13 @@ Program Main
         if(Projector) then
            if (.not. allocated(WF_R) .or. .not. allocated(WF_L)) then
               write(error_unit,*) "Projector is selected but there are no trial wave functions!"
-              error stop 1
+              CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
            endif
            do nf_eff=1,N_fl_eff
               nf=Calc_Fl_map(nf_eff)
               if (.not. allocated(WF_R(nf)%P) .or. .not. allocated(WF_L(nf)%P)) then
                  write(error_unit,*) "Projector is selected but there are no trial wave functions!"
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
               endif
            enddo
         endif
@@ -366,7 +398,7 @@ Program Main
            else
               If (LOBS_ST < Thtrot+1 ) then
                  Write(error_unit,*) 'Measuring out of dedicating interval, LOBS_ST too small.'
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
               endif
            endif
            if ( LOBS_EN == 0) then
@@ -374,7 +406,7 @@ Program Main
            else
               If (LOBS_EN > Ltrot-Thtrot ) then
                  Write(error_unit,*) 'Measuring out of dedicating interval, LOBS_EN too big.'
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
               endif
            endif
         else
@@ -965,6 +997,16 @@ Program Main
 #endif
         
         Call Langevin_HMC%clean()
+
+         ! Delete the file RUNNING since the simulation finished successfully
+#if defined(MPI)
+        If (  Irank == 0 ) then
+#endif
+           open(unit=5, file='RUNNING', status='old')
+           close(5, status='delete')
+#if defined(MPI)
+        endif
+#endif
 
 #ifdef MPI
         CALL MPI_FINALIZE(ierr)
