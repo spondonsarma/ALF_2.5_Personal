@@ -123,7 +123,9 @@
 !>
 !--------------------------------------------------------------------
 
+
     Module Hamiltonian_main
+      Use runtime_error_mod
       Use Operator_mod, only: Operator
       Use WaveFunction_mod, only: WaveFunction
       Use Observables
@@ -152,6 +154,9 @@
         procedure, nopass :: Delta_S0_global => Delta_S0_global_base
         procedure, nopass :: S0 => S0_base
         procedure, nopass :: Ham_Langevin_HMC_S0 => Ham_Langevin_HMC_S0_base
+        procedure, nopass :: weight_reconstruction => weight_reconstruction_base
+        procedure, nopass :: GR_reconstruction => GR_reconstruction_base
+        procedure, nopass :: GRT_reconstruction => GRT_reconstruction_base
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5 => write_parameters_hdf5_base
 #endif
@@ -163,15 +168,18 @@
       Type (Operator),     dimension(:,:), allocatable, public :: Op_T
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_L
       Type (WaveFunction), dimension(:),   allocatable, public :: WF_R
+      Logical            , dimension(:),   allocatable, public :: Calc_Fl
+      Integer            , dimension(:),   allocatable, public :: Calc_Fl_map
       Type (Fields), public        :: nsigma
       Integer      , public        :: Ndim
-      Integer      , public        :: N_FL
+      Integer      , public        :: N_FL, N_FL_eff
       Integer      , public        :: N_SUN
       Integer      , public        :: Ltrot
       Integer      , public        :: Thtrot
       Logical      , public        :: Projector
       Integer      , public        :: Group_Comm
       Logical      , public        :: Symm
+      Logical      , public        :: reconstruction_needed
 
 
       !>    Privat Observables
@@ -201,14 +209,14 @@
 
     subroutine Alloc_Ham()
        Implicit none
-       Integer :: ierr
+       Integer :: ierr, I
        Character (len=64) :: ham_name
        NAMELIST /VAR_HAM_NAME/ ham_name
        
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN
           WRITE(error_unit,*) 'Alloc_Ham: unable to open <parameters>',ierr
-          error stop 1
+          CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
        END IF
        READ(5,NML=VAR_HAM_NAME)
        CLOSE(5)
@@ -230,7 +238,7 @@
 !!$          call Ham_Alloc_Z2_Matter()
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
-          error stop 1
+          CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
        end Select
     end subroutine Alloc_Ham
     
@@ -243,7 +251,7 @@
     subroutine Ham_Set_base()
       implicit none
       write(error_unit, *) 'Ham_set not defined!'
-      error stop 1
+      CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
     end subroutine Ham_Set_base
     
     !--------------------------------------------------------------------
@@ -269,7 +277,7 @@
              S0_base = 1.d0
              If ( Op_V(n,1)%type == 1 ) then
                write(error_unit, *) 'function S0 not implemented'
-               error stop 1
+               CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
              endif
 
           end function S0_base
@@ -322,7 +330,7 @@
              Type (Fields),  Intent(IN)  :: nsigma_old
 
              write(error_unit, *) 'Global_move not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
 
           End Subroutine Global_move_base
 
@@ -546,7 +554,7 @@
              Integer, INTENT(IN)  :: ntau
              
              write(error_unit, *) 'Global_move_tau not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           end Subroutine Global_move_tau_base
 
 
@@ -607,16 +615,78 @@
             Forces_0  = 0.d0
             
           end Subroutine Ham_Langevin_HMC_S0_base
-          
-          
-#ifdef HDF5
-          subroutine write_parameters_hdf5_base(filename)
+    
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+          subroutine weight_reconstruction_base(weight)
             implicit none
-            
-            Character (len=64), intent(in) :: filename
-            
-          end subroutine write_parameters_hdf5_base
-#endif
+            complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+            write(error_unit, *) 'weight_reconstruction not defined!'
+            CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+          end subroutine weight_reconstruction_base
 
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
+          subroutine GR_reconstruction_base(GR)
+            
+            Implicit none
+            
+            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+            
+            write(error_unit, *) "Warning: GR_reconstruction not implemented."
+            CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+          end Subroutine GR_reconstruction_base
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
+         Subroutine GRT_reconstruction_base(GT0, G0T)
+           Implicit none
+           
+           Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+           
+           write(error_unit, *) "Warning: GRT_reconstruction not implemented."
+           CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+         end Subroutine GRT_reconstruction_base
+         
+         
+#ifdef HDF5
+         subroutine write_parameters_hdf5_base(filename)
+           implicit none
+           
+           Character (len=64), intent(in) :: filename
+           
+         end subroutine write_parameters_hdf5_base
+#endif
+         
 
     end Module Hamiltonian_main

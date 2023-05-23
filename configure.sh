@@ -9,6 +9,7 @@ Please choose one of the following MACHINEs:\n\
  * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
+ * FRITZ\n\
 Possible MODEs are:\n\
  * MPI (default)\n\
  * noMPI\n\
@@ -41,7 +42,8 @@ set_hdf5_flags()
   
   HDF5_DIR="$ALF_DIR/HDF5/$compiler_vers"
   if [ ! -d "$HDF5_DIR" ]; then
-    printf "\nHDF5 is not yet installed for this compiler.\n"
+    printf "\nHDF5 is not yet installed for compiler '%s'.\n" "$compiler_vers"
+    printf "ALF does never use global HDF5 libraries, but installs it locally in subfolders of '%s/HDF5'.\n" "$ALF_DIR"
     if [ "$NO_INTERACTIVE" = "" ]; then
       printf "Do you want download and install it now locally in the ALF folder? (Y/n):"
       read -r yn
@@ -61,15 +63,20 @@ set_hdf5_flags()
   fi
   INC_HDF5="-I$HDF5_DIR/include"
   LIB_HDF5="-L$HDF5_DIR/lib $HDF5_DIR/lib/libhdf5hl_fortran.a $HDF5_DIR/lib/libhdf5_hl.a"
-  LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a -lz -ldl -lm -Wl,-rpath -Wl,$HDF5_DIR/lib"
+  EXTRA_LIBRARIES="$("$HDF5_DIR"/bin/h5fc -showconfig | grep 'Extra libraries:' | cut -f2 -d':')"
+  # EXTRA_LIBRARIES="-lz -ldl -lm"
+  LIB_HDF5="$LIB_HDF5 $HDF5_DIR/lib/libhdf5_fortran.a $HDF5_DIR/lib/libhdf5.a $EXTRA_LIBRARIES -Wl,-rpath -Wl,$HDF5_DIR/lib"
+
+  if ! "$HDF5_DIR/bin/h5fc" -showconfig | grep "deflate(zlib)" > /dev/null; then
+    printf "${RED}Warning: HDF5 installed without compression capabilies. The output files will not be compressed!${NC}\n" 1>&2
+  fi
 }
 
 check_libs()
 {
     FC="$1" LIBS="$2"
     if command -v "$FC" > /dev/null; then       # Compiler binary found
-        sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"
-        if [ $? -eq 0 ]; then                   # Compiling with $LIBS is successful
+        if sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"; then  # Compiling with $LIBS is successful
             ./check_libs.out || (
               printf "${RED}\n==== Error: Execution of test program using compiler <%s> ====${NC}\n" "$FC"
               printf "${RED}==== and linear algebra libraries <%s> not successful. ====${NC}\n\n" "$LIBS"
@@ -307,6 +314,21 @@ case $MACHINE in
     LIB_BLAS_LAPACK="-mkl"
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
+  ;;
+
+  #NHR@FAU Fritz cluster
+  FRITZ)
+    module load intel
+    module load intelmpi
+    module load mkl
+
+    F90OPTFLAGS="$INTELOPTFLAGS"
+    F90USEFULFLAGS="$INTELUSEFULFLAGS"
+    ALF_FC="$INTELCOMPILER"
+    LIB_BLAS_LAPACK="-mkl"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_hdf5_flags icc ifort icpc || return 1
+    fi
   ;;
   #Default (unknown machine)
   *)
