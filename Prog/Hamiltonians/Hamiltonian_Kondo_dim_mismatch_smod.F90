@@ -139,6 +139,7 @@
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
+        procedure, nopass :: Ham_Latt
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
 #endif
@@ -146,7 +147,7 @@
 
       !#PARAMETERS START# VAR_lattice
       Character (len=64) :: Model = ''  ! Value not relevant
-      Character (len=64) :: Lattice_type = 'Bilayer_square'  ! Possible values: 'Bilayer_square', 'Bilayer_honeycomb'
+      Character (len=64) :: Lattice_type = 'Square'  ! Possible values: 'Bilayer_square', 'Bilayer_honeycomb'
       Integer            :: L1 = 6   ! Length in direction a_1
       Integer            :: L2 = 6   ! Length in direction a_2
       !#PARAMETERS END#
@@ -173,10 +174,14 @@
       real(Kind=Kind(0.d0)) :: Ham_Jh   = 1.d0  ! Heisenberg  coupling
       !#PARAMETERS END#
 
-      Type (Lattice),       target :: Latt
-      Type (Unit_cell),     target :: Latt_unit
+      Type (Lattice),       target :: Latt_c
+      Type (Unit_cell),     target :: Latt_unit_c
       Type (Hopping_Matrix_type), Allocatable :: Hopping_Matrix(:)
-      Integer, allocatable :: List(:,:), Invlist(:,:)  ! For orbital structure of Unit cell
+      Integer, allocatable :: List_c(:,:), Invlist_c(:,:)  
+
+      Type (Lattice),       target :: Latt_f
+      Type (Unit_cell),     target :: Latt_unit_f
+      Integer, allocatable :: List_f(:,:), Invlist_f(:,:)  
 
     contains
       
@@ -216,15 +221,15 @@
           igroup           = irank/isize_g
 #endif
 
-!           ! From dynamically generated file "Hamiltonian_Kondo_dim_mismatch_read_write_parameters.F90"
+!         !From dynamically generated file "Hamiltonian_Kondo_dim_mismatch_read_write_parameters.F90"
           call read_parameters()
-! 
-!           Ltrot = nint(beta/dtau)
-!           if (Projector) Thtrot = nint(theta/dtau)
-!           Ltrot = Ltrot+2*Thtrot
-! 
-!           ! Setup the Bravais lattice
-!           call Ham_Latt
+ 
+          Ltrot = nint(beta/dtau)
+          if (Projector) Thtrot = nint(theta/dtau)
+          Ltrot = Ltrot+2*Thtrot
+ 
+!         ! Setup the Bravais lattice
+          call Ham_Latt
 ! 
 !           ! Setup the hopping / single-particle part
 !           call Ham_Hop
@@ -243,37 +248,107 @@
              write(File_info,'(A,I0,A)') "Temp_",igroup,"/info"
 #endif
              Open(newunit=unit_info, file=file_info, status="unknown", position="append")
-!              Write(unit_info,*) '====================================='
-!              Write(unit_info,*) 'Model is      :  Kondo_dim_mismatch'
-!              Write(unit_info,*) 'Lattice is    : ', Lattice_type
-!              Write(unit_info,*) '# unit cells  : ', Latt%N 
-!              Write(unit_info,*) '# of orbitals : ', Latt_unit%Norb
-!              Write(unit_info,*) 'Checkerboard  : ', Checkerboard
-!              Write(unit_info,*) 'Symm. decomp  : ', Symm
-!              if (Projector) then
-!                 Write(unit_info,*) 'Projective version'
-!                 Write(unit_info,*) 'Theta         : ', Theta
-!                 Write(unit_info,*) 'Tau_max       : ', beta
-!              else
-!                 Write(unit_info,*) 'Finite temperture version'
-!                 Write(unit_info,*) 'Beta          : ', Beta
-!              endif
-!              Write(unit_info,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
-!              Write(unit_info,*) 'N_SUN         : ',   N_SUN
-!              Write(unit_info,*) 'N_FL          : ', N_FL
-!              if (Projector) then
-!                 Do nf = 1,N_FL
-!                    Write(unit_info,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
-!                    Write(unit_info,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
-!                 enddo
-!              endif
+             Write(unit_info,*) '====================================='
+             Write(unit_info,*) 'Model is      :  Kondo_dim_mismatch'
+             Write(unit_info,*) 'Lattice is    : ', Lattice_type
+             Write(unit_info,*) '# c-orbs      : ', Latt_c%N 
+             Write(unit_info,*) '# f-orbs      : ', Latt_f%N
+             Write(unit_info,*) '# orbs        : ', Ndim
+             Write(unit_info,*) 'Checkerboard  : ', Checkerboard
+             Write(unit_info,*) 'Symm. decomp  : ', Symm
+             if (Projector) then
+                Write(unit_info,*) 'Projective version'
+                Write(unit_info,*) 'Theta         : ', Theta
+                Write(unit_info,*) 'Tau_max       : ', beta
+             else
+                Write(unit_info,*) 'Finite temperture version'
+                Write(unit_info,*) 'Beta          : ', Beta
+             endif
+             Write(unit_info,*) 'dtau,Ltrot_eff: ', dtau,Ltrot
+             Write(unit_info,*) 'N_SUN         : ',   N_SUN
+             Write(unit_info,*) 'N_FL          : ', N_FL
+             if (Projector) then
+                Do nf = 1,N_FL
+                   Write(unit_info,*) 'Degen of right trial wave function: ', WF_R(nf)%Degen
+                   Write(unit_info,*) 'Degen of left  trial wave function: ', WF_L(nf)%Degen
+                enddo
+             endif
              Close(unit_info)
 #ifdef MPI
           Endif
 #endif
+          Stop
         end Subroutine Ham_Set
 
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Specifies the lattice
+!> @details
+!--------------------------------------------------------------------
+        Subroutine  Ham_Latt
 
+          Implicit  none
+          
+          Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2), ic_p(2)
+          Integer ::  nc, I, no, Ic
+
+          Write(6,*) 'Hi there'
+          Latt_Unit_c%Norb      = 1
+          Allocate (Latt_unit_c%Orb_pos_p(1,2))
+          Latt_Unit_c%Orb_pos_p(1,:) = 0.d0
+          a1_p(1) =  1.0  ; a1_p(2) =  0.d0
+          a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+          L1_p    =  dble(L1)*a1_p
+          L2_p    =  dble(L2)*a2_p
+          Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt_c )
+          
+          
+
+          Latt_Unit_f%Norb      = 2
+          Allocate (Latt_unit_f%Orb_pos_p(1,2))
+          Latt_Unit_c%Orb_pos_p(1,:) = 0.d0
+          a1_p(1) =  1.0  ; a1_p(2) =  0.d0
+          a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+          L1_p    =  dble(L1)*a1_p
+          L2_p    =  a2_p
+          Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt_f )
+          
+          Ndim  =  Latt_c%N  + Latt_f%N
+
+          !  Setup  the lists
+          Allocate (List_c(Latt_c%N*Latt_Unit_c%Norb,2), Invlist_c(Latt_c%N,Latt_Unit_c%Norb))
+          Allocate (Invlist_f(Latt_f%N,Latt_Unit_f%Norb))
+          nc = 0
+          Do I = 1,Latt_c%N
+             Do no = 1,Latt_Unit_c%Norb
+                nc = nc + 1
+                List_c   (nc,1) = I
+                List_c   (nc,2) = no
+                Invlist_c(I,no) = nc
+             Enddo
+          Enddo
+          Do I = 1,Latt_f%N
+             nc   = nc + 1
+             ic_p = dble(Latt_f%list(I,1))*Latt_f%a1_p + dble(Latt_f%list(I,2))*Latt_f%a2_p
+             Ic   = Inv_R(ic_p,Latt_c)
+             Invlist_f(I,1) = nc                  !  f-orbital
+             Invlist_f(I,2) = Invlist_c(Ic,1)     !  c-orbital
+          enddo
+
+          !Testing
+          Do I =  1,Latt_f%N
+             ic_p = dble(Latt_f%list(I,1))*Latt_f%a1_p + dble(Latt_f%list(I,2))*Latt_f%a2_p
+             Write(6,"(I4,2x,F14.7,2x,F14.7)") I, ic_p(1), ic_p(2)
+             Ic   = Inv_R(ic_p,Latt_c)
+             ic_p = dble(Latt_c%list(Ic,1))*Latt_c%a1_p + dble(Latt_c%list(Ic,2))*Latt_c%a2_p
+             Write(6,"(I4,2x,F14.7,2x,F14.7)") Ic, ic_p(1), ic_p(2)
+             Write(6,*)
+          enddo
+          
+        end Subroutine Ham_Latt
 !--------------------------------------------------------------------
 !> @author
 !> ALF Collaboration
