@@ -186,6 +186,7 @@
       Type (Unit_cell),     target :: Latt_unit_f
       Integer, allocatable :: List_f(:,:), Invlist_f(:,:)  
 
+      
     contains
       
       module Subroutine Ham_Alloc_Kondo_dim_mismatch
@@ -489,11 +490,13 @@
           enddo
           
 !         ! Equal time correlators
-          Allocate ( Obs_eq(1) )
+          Allocate ( Obs_eq(2) )
           Do I = 1,Size(Obs_eq,1)
              select case (I)
              case (1)
                 Filename = "Spin"
+             case (2)
+                Filename = "Greenf"
              case default
                 Write(6,*) ' Error in Alloc_obs '
              end select
@@ -555,9 +558,11 @@
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL)
+          Complex (Kind=Kind(0.d0)) :: GT0_tmp(Ndim,Ndim,N_FL),  GTT_tmp(Ndim,Ndim,N_FL), G0T_tmp(Ndim,Ndim,N_FL)
+
           Complex (Kind=Kind(0.d0)) :: ZP, ZS
           Complex (Kind=Kind(0.d0)) :: Z_pot, Z
-          Integer :: I, I1,  J, J1,  nf, n, imj
+          Integer :: I, I_c, I_f,  J, J_c, J_f,  nf, n, imj
           ! Add local variables as needed
 
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -574,6 +579,7 @@
              Enddo
           Enddo
           
+          
           ! GRC(i,j,nf) = < c^{dagger}_{i,nf } c_{j,nf } >
           ! Compute scalar observables.
           ! Compute scalar observables.
@@ -584,8 +590,8 @@
 
           Z_pot  = cmplx(0.d0,0.d0, kind(0.D0))
           do I  =  1, Latt_f%N
-             I1  =  invlist_f(I,1)  !  f-orbital
-             Z_pot  = Z_pot  +  Grc(I1,I1,1)*Grc(I1,I1,1)
+             I_f  =  invlist_f(I,1)  !  f-orbital
+             Z_pot  = Z_pot  +  Grc(I_f,I_f,1)*Grc(I_f,I_f,1)
           enddo
           Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + Z_pot *ZP* ZS
           
@@ -597,15 +603,40 @@
 
           ! Spin-spin  correlations  for impurity  spins.
           Do I  = 1, Latt_f%N
-             I1  =   Invlist_f(I,1) !  f-orbital 
+             I_f  =   Invlist_f(I,1) !  f-orbital 
              Do J = 1,  Latt_f%N
-                J1  =   Invlist_f(J,1) !  f-orbital 
+                J_f  =   Invlist_f(J,1) !  f-orbital 
                 imj = latt_f%imj(I,J)
-                Z =  GRC(I1,J1,1) * GR(I1,J1,1) * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
+                Z =  GRC(I_f,J_f,1) * GR(I_f,J_f,1) * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
                 Obs_eq(1)%Obs_Latt(imj,1,1,1) =  Obs_eq(1)%Obs_Latt(imj,1,1,1) + Z*ZP*ZS
              Enddo
           Enddo
           
+          ! Equal  time  composite  fermion  operator
+          Do nf = 1, N_FL
+             DO J = 1,Ndim 
+                DO I = 1,Ndim
+                   Z = cmplx(0.d0, 0.d0, kind(0.D0))
+                   if (I == J ) Z = cmplx(1.d0,0.d0,kind(0.d0))
+                   !G00_tmp(I,J,nf) = GR(I,J,nf)
+                   GT0_tmp(I,J,nf) = GR(I,J,nf)
+                   GTT_tmp(I,J,nf) = GR(I,J,nf)
+                   G0T_tmp(I,J,nf) = -(Z - GR(I,J,nf))
+                ENDDO
+             ENDDO
+          Enddo
+          Do I  = 1, Latt_f%N
+             I_f  =   Invlist_f(I,1) !  f-orbital 
+             I_c  =   Invlist_f(I,2) !  c-orbital 
+             Do J = 1,  Latt_f%N
+                J_f  =   Invlist_f(J,1) !  f-orbital 
+                J_c  =   Invlist_f(J,2) !  c-orbital 
+                imj = latt_f%imj(I,J)
+                Z =  Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f, GT0_tmp,G0T_tmp,GR,GTT_tmp, N_SUN, N_FL)  
+                Obs_eq(2)%Obs_Latt(imj,1,1,1) =  Obs_eq(2)%Obs_Latt(imj,1,1,1) + Z*ZP*ZS
+             Enddo
+          Enddo
+
           
         end Subroutine Obser
 
