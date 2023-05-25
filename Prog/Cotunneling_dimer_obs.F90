@@ -527,8 +527,10 @@
 !--------------------------------------------------------------------
       Complex (Kind=Kind(0.d0)) function Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
 
-        USE runtime_error_mod 
-        !Why is there no implicit none here?
+        
+        USE runtime_error_mod
+        Implicit none
+        
         Integer,              Intent(In)      :: N_SUN, I_c,I_f, J_c, J_f, N_FL
         Complex (Kind=Kind(0.d0)), Intent(In) :: GT0(:,:,:), G0T(:,:,:), G00(:,:,:), GTT(:,:,:)
 

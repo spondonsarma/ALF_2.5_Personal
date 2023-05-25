@@ -502,26 +502,24 @@
              Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt_f, Latt_unit_c, Channel, dtau)
           enddo
 ! 
-!           If (Ltau == 1) then
-!             ! Time-displaced correlators
-!             Allocate ( Obs_tau(3) )
-!             Do I = 1,Size(Obs_tau,1)
-!               select case (I)
-!               case (1)
-!                 Channel = 'P' ; Filename = "Green"
-!               case (2)
-!                 Channel = 'PH'; Filename = "SpinZ"
-!               case (3)
-!                 Channel = 'PH'; Filename = "Den"
-!               case default
-!                 Write(6,*) ' Error in Alloc_obs '
-!               end select
-!               Nt = Ltrot+1-2*Thtrot
-!               If(Projector) Channel = 'T0'
-!               Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-!             enddo
-!           endif
-
+          If (Ltau == 1) then
+             ! Time-displaced correlators
+             Allocate ( Obs_tau(2) )
+             Do I = 1,Size(Obs_tau,1)
+                select case (I)
+                case (1)
+                   Channel = 'PH' ; Filename = "Spin"
+                case (2)
+                   Channel = 'P'  ; Filename = "Greenf"
+                case default
+                   Write(6,*) ' Error in Alloc_obs '
+                end select
+                Nt = Ltrot+1-2*Thtrot
+                If(Projector) Channel = 'T0'
+                Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt_f, Latt_unit_c, Channel, dtau)
+             enddo
+          endif
+          
         End Subroutine Alloc_obs
 
 !--------------------------------------------------------------------
@@ -596,7 +594,8 @@
              Obs_eq(I)%N         =  Obs_eq(I)%N + 1
              Obs_eq(I)%Ave_sign  =  Obs_eq(I)%Ave_sign + Real(ZS,kind(0.d0))
           Enddo
-          
+
+          ! Spin-spin  correlations  for impurity  spins.
           Do I  = 1, Latt_f%N
              I1  =   Invlist_f(I,1) !  f-orbital 
              Do J = 1,  Latt_f%N
@@ -649,12 +648,35 @@
           !Locals
           Complex (Kind=Kind(0.d0)) :: ZP, ZS
           ! Add local variables as needed
-
+          Complex (Kind=Kind(0.d0)) :: Z
+          Integer ::  I, I_c,I_f, J,J_c, J_f,   imj
+          
+          
           ZP = PHASE/Real(Phase, kind(0.D0))
           ZS = Real(Phase, kind(0.D0))/Abs(Real(Phase, kind(0.D0)))
           ZS = ZS * Mc_step_weight
 
           ! Compute observables
+          If (NT == 0 ) then
+             Do I = 1,Size(Obs_tau,1)
+                Obs_tau(I)%N         =  Obs_tau(I)%N + 1
+                Obs_tau(I)%Ave_sign  =  Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
+             Enddo
+          Endif
+          
+          Do I  = 1, Latt_f%N
+             I_f  =   Invlist_f(I,1) !  f-orbital 
+             I_c  =   Invlist_f(I,2) !  c-orbital 
+             Do J = 1,  Latt_f%N
+                J_f  =   Invlist_f(J,1) !  f-orbital 
+                J_c  =   Invlist_f(J,2) !  c-orbital 
+                imj = latt_f%imj(I,J)
+                Z =  - G0T(J_f,I_f,1) * GT0(I_f,J_f,1) * cmplx(dble(N_SUN), 0.d0, kind(0.D0))
+                Obs_tau(1)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(imj,NT+1,1,1) + Z*ZP*ZS
+                Z =  Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL)  
+                Obs_tau(2)%Obs_Latt(imj,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(imj,NT+1,1,1) + Z*ZP*ZS
+             Enddo
+          Enddo
 
         end Subroutine OBSERT
         
