@@ -32,8 +32,10 @@
 
 ! TODO ATTENTION: this module still has to be updated for flavor symmetries!!!
 
+
       Module Langevin_HMC_mod
         
+        Use runtime_error_mod 
         Use Hamiltonian_main
         Use UDV_State_mod
         Use Control
@@ -377,11 +379,11 @@
            this%L_Forces = .False. 
         case("HMC")
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         case default
            WRITE(error_unit,*) 'Unknown Global_update_scheme ', trim(this%Update_scheme) 
            WRITE(error_unit,*) 'Global_update_scheme is Langevin or HMC'
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         end select
            
       end SUBROUTINE Langevin_HMC_update
@@ -428,7 +430,7 @@
            Do i = 1, Nr
               if ( nsigma%t(i) /= 3 ) then
                  WRITE(error_unit,*) 'For the Langevin runs, all fields have to be of type 3'
-                 error stop 1
+                 CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
               endif
            enddo
            Allocate ( this%Forces(Nr,Nt),  this%Forces_0(Nr,Nt) )
@@ -462,7 +464,7 @@
            endif
         elseif (HMC) then
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         else
            this%Update_scheme        =  "None"
         endif
@@ -517,7 +519,7 @@
            Deallocate ( Langevin_HMC%Forces, Langevin_HMC%Forces_0 )
         case ("HMC")
            WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           error stop 1
+           CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         case default
         end select
       end SUBROUTINE Langevin_HMC_clear

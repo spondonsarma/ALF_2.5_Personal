@@ -29,6 +29,7 @@
 !     - If you make substantial changes to the program we require you to either consider contributing
 !       to the ALF project or to mark your material in a reasonable way as different from the original version.
 
+
      Module Lattices_v3
 
 !--------------------------------------------------------------------
@@ -39,13 +40,14 @@
 !> This module generates one and two dimensional Bravais lattices and the unit cell
 !
 !--------------------------------------------------------------------
-           Use Matrix
-           use iso_fortran_env, only: output_unit, error_unit
-           implicit none
-           private
-           public :: Unit_cell, Lattice, Make_lattice, Fourier_K_to_R, &
-                     Fourier_R_to_K, Inv_K, Inv_R, Iscalar, npbc, Xnorm, Print_latt, &
-                     clear_lattice
+         Use Matrix
+         Use runtime_error_mod
+         use iso_fortran_env, only: output_unit, error_unit
+         implicit none
+         private
+         public :: Unit_cell, Lattice, Make_lattice, Fourier_K_to_R, &
+                   Fourier_R_to_K, Inv_K, Inv_R, Iscalar, npbc, Xnorm, Print_latt, &
+                   clear_lattice
 
          Type Unit_cell
             !> Number of orbitals
@@ -269,7 +271,7 @@
            enddo
            If (nc.ne.Latt%N) Then
               write(error_unit,*) 'Make_lattice: Error ', nc, Latt%N
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
 
            !Setup nnlist
@@ -497,7 +499,7 @@
               Inv_K = nk
            else
               write(error_unit,*) 'Lattice: Error in Inv_K'
-              error stop 1
+              Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
 
  !!$          nk = 1
@@ -510,7 +512,7 @@
  !!$                nk = nk + 1
  !!$             else
  !!$                write(6,*) 'Error in Inv_K Lattice_new'
- !!$                stop
+ !!$                Call Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
  !!$             endif
  !!$          enddo
 
