@@ -559,9 +559,9 @@
 
            Z = Phase_old * Ratiotot/ABS(Ratiotot)
 
-           Call Control_PrecisionP_Glob(Z,Phase_new)
+           Call Control_PrecisionP_HMC(Z,Phase_new)
            cluster_size=dble(size(nsigma%f))
-           Call Control_upgrade_Glob(TOGGLE,cluster_size)
+           Call Control_upgrade_HMC(TOGGLE)
 
 
            ! reset storage

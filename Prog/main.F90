@@ -89,7 +89,7 @@
 !> \verbatim
 !>  Number of global moves per  sequential sweep.
 !>  Default: N_Global=0
-!> \endverbatim/
+!> \endverbatim
 !> @param Global_tau_moves Logical
 !> \verbatim
 !>  If true, global moves on a given time slice will be carried out
