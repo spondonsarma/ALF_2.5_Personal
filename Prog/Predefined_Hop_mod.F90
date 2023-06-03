@@ -1276,8 +1276,8 @@
                        Op_T(nc,nf)%P(2) = J1
                        Op_T(nc,nf)%O(1,2) = this(nf)%T(Nb)*Z
                        Op_T(nc,nf)%O(2,1) = Conjg(this(nf)%T(Nb)*Z)
-                       Op_T(nc,nf)%O(1,1) = this(nf)%T_loc(no_I)/this(1)%Multiplicity(no_I)
-                       Op_T(nc,nf)%O(2,2) = this(nf)%T_loc(no_J)/this(1)%Multiplicity(no_J)
+                       Op_T(nc,nf)%O(1,1) = this(nf)%T_loc(no_I)/cmplx(dble(this(1)%Multiplicity(no_I)), 0.d0,kind(0.d0))
+                       Op_T(nc,nf)%O(2,2) = this(nf)%T_loc(no_J)/cmplx(dble(this(1)%Multiplicity(no_J)), 0.d0,kind(0.d0))
                        Op_T(nc,nf)%g = -Dtau*this(1)%Prop_Fam(n_f)
                        Op_T(nc,nf)%alpha=cmplx(0.d0,0.d0, kind(0.D0))
                        Call Op_set(Op_T(nc,nf))
