@@ -1,4 +1,4 @@
-!  Copyright (C) 2016 - 2020 The ALF project
+!  Copyright (C) 2016 - 2023 The ALF project
 !
 !     The ALF project is free software: you can redistribute it and/or modify
 !     it under the terms of the GNU General Public License as published by
@@ -793,7 +793,7 @@
            If (  mod(nint(latt%L1_p(1)),2)  /=  0 .or.  mod(nint(latt%L2_p(2)),2)  /=  0  )  then
               Write(error_unit,*) '*** For  the Bilayer square lattice,  our  implementation of the checkerborad '
               Write(error_unit,*) 'decomposition  requires L_1 and  L_2 to be  even ***'
-              error stop 1
+              CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
            endif
            
            Allocate( this(N_FL) )
