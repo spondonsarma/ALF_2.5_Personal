@@ -61,9 +61,12 @@ and the acceptance will be of unity.      Clearly this corresponds to the ideal 
 Provided that we choose an integrator  that  is time reversal symmetric (see below) then the  Monte Carlo acceptance rejection step  will  cure this systematic error.   The acceptance-rejection step of the  molecular dynamics trajectory is the reason why this updating scheme is coined {\it hybrid} molecular dynamics.    
 The algorithm  then proceeds by iterating   step 1 followed by step 2.
 
-\subsubsection{The leap-frog integrator}
+In our  implementation of  the Hybrid Molecular  dynamics   approach,  the forces  are computed  exactly.  This  stands in contrast to the  algorithm  generically  
+referred  to  as  Hybrid Monte Carlo  where the forces  are  computed  stochastically.  The  reader is referred to Refs.~\cite{Duane87,Beyl17}  for   further  readings. 
+
+\paragraph{The leap-frog integrator}
   In practice one will adopt an  integrator  that conserves  time reversal symmetry such as the Leapfrog  algorithm.   Our Hamiltonian can be split into 
- $H_1   = \pmb{p}^2/2 $ and $H_2   =  S(\pmb{s} ) $.     Propagating with $H_1$ only allows for an exact solution since in this case $\pmb{p}$ is constant and $  \pmb{s}(t)   = \pmb{s}(t=t_0) + (  t - t_0)\pmb{p}   $.  Similarly for $H_2 $, $\pmb{s}$  is constant and 
+ $H_1   = \pmb{p}^2/2 $ and $H_2   =  S(\pmb{s} ) $.     Propagating with $H_1$ only allows for an exact solution since in this case $\pmb{p}$ is constant and $  \pmb{s}(t) $  $= \pmb{s}(t=t_0) + (  t - t_0)\pmb{p}   $.  Similarly for $H_2 $, $\pmb{s}$  is constant and 
  $ \pmb{p}(t)   = \pmb{p}(t=t_0)  -(   t - t_0) \frac{\partial S(\pmb{s} )}{\partial \pmb{s} }   $.  Hence  both for $H_1 $ and $H_2$   the propagation  can be carried out exactly   such that time reversal symmetry and  Liouville's theorem hold.  In very much the same manner as for the symmetric Trotter decomposition, the leapfrog approach carries  out a  $\delta t_m$ time interval propagation  of the full Hamiltonian $H = H_1 + H_2 $ as: 
  \begin{equation}	
  	 U^H_{\delta t_m}    = U^{H_1}_{\delta t_m/2}  \circ  U^{H_2}_{\delta t_m } \circ  U^{H_1}_{\delta t_m/2}   +{\cal O } \left(  \delta t_m^2 \right). 
@@ -77,3 +80,16 @@ Clearly  time reversal is satisfied and because of this property the error  cont
 	 \frac{ e^{-H( \left\{ \pmb{p},  \pmb{s} \right\}  (t_m  + T_m) ) } }{
                    e^{-H( \left\{ \pmb{p},  \pmb{s} \right\}  (t_m  ) ) }} , 1 \right).
 \end{eqnarray}
+
+\paragraph{Specific Implementation}
+To  use  the    hybrid   molecular  dynamics  update,   the  user  has  to set \texttt{HMC=.true.}  in the  parameter  file.  Clearly  we  also  have  to use 
+continuous  Hubbard-Stratonovitch  fields  such that
+  \texttt{OP\_V\%type=3} . 
+  The  time  step  for  the  leap-frog  integrator is  given  by  the   same  variable as for  the  Langevin dynamics, \texttt{Delta\_t\_Langevin\_HMC},   and  the  total  number of  leap-frog   molecular  dynamics  steps  is  given by  the  variable  \texttt{Leapfrog\_steps}.  Thereby   $ t_m = $ \texttt{Delta\_t\_Langevin\_HMC} $\times $ \texttt{Leapfrog\_steps}.  
+Molecular  dynamics can  be  understood  a  clever  way  to  propose  a  global update,  that  will be  accepted  or  rejected  by  a  Metropolis   acceptance  rejection step.   Hence  it  can be combined  with  other   moves  such as  our  standard  sequential  updating scheme.   In the  code,  this  will happen  provide  that  the variable  \texttt{Sequential=.true.}.    If  both  the variables \texttt{HMC=.true.}   and   \texttt{Sequential=.true.}   then \texttt{N\_HMC\_sweeps}    will
+correspond  to the  number  of   hybrid   molecular  dynamics   carried out between  a  sequential  sweep. 
+In order to address potential ergodicity issues \cite{Beyl17} it is crucial to integrate both sequential and hybrid molecular dynamics moves,
+ rather than relying solely on hybrid molecular dynamics \cite{Imada88}. 
+ 
+ To  test  the  code,  we  have  carried  out  high precision calculations  of  the  6-sites   Hubbard  chain  with  open boundary  conditions  (see  Sec.~\ref{sec:langevin})  at  $\beta t  = 4$.     Using \textit{only}   hybrid   molecular  dynamics  updates  we  obtain:  $ \langle  \hat{H} \rangle = -2.8169   \pm 0.0003 $.  This  compares  very  well  with  the  discrete  field    sequential  updating run: $ \langle  \hat{H} \rangle = -2.8171  \pm 0.0002 $. 
+
