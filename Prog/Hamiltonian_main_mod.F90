@@ -123,7 +123,9 @@
 !>
 !--------------------------------------------------------------------
 
+
     Module Hamiltonian_main
+      Use runtime_error_mod
       Use Operator_mod, only: Operator
       Use WaveFunction_mod, only: WaveFunction
       Use Observables
@@ -214,7 +216,7 @@
        OPEN(UNIT=5,FILE='parameters',STATUS='old',ACTION='read',IOSTAT=ierr)
        IF (ierr /= 0) THEN
           WRITE(error_unit,*) 'Alloc_Ham: unable to open <parameters>',ierr
-          error stop 1
+          CALL Terminate_on_error(ERROR_FILE_NOT_FOUND,__FILE__,__LINE__)
        END IF
        READ(5,NML=VAR_HAM_NAME)
        CLOSE(5)
@@ -224,7 +226,7 @@
 !!$       This file will be dynamically generated and appended
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
-          error stop 1
+          CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
        end Select
     end subroutine Alloc_Ham
     
@@ -237,7 +239,7 @@
     subroutine Ham_Set_base()
       implicit none
       write(error_unit, *) 'Ham_set not defined!'
-      error stop 1
+      CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
     end subroutine Ham_Set_base
     
     !--------------------------------------------------------------------
@@ -252,20 +254,20 @@
     !> @details
     !--------------------------------------------------------------------
           Real (Kind=Kind(0.d0)) function S0_base(n,nt,Hs_new)
-             Implicit none
-             !> Operator index
-             Integer, Intent(IN) :: n
-             !> Time slice
-             Integer, Intent(IN) :: nt
-             !> New local field on time slice nt and operator index n
-             Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-
-             S0_base = 1.d0
-             If ( Op_V(n,1)%type /= 2 ) then
-               write(error_unit, *) 'function S0 not implemented for Ising or continuous fields'
-               error stop 1
-             endif
-
+            Implicit none
+            !> Operator index
+            Integer, Intent(IN) :: n
+            !> Time slice
+            Integer, Intent(IN) :: nt
+            !> New local field on time slice nt and operator index n
+            Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+            
+            S0_base = 1.d0
+            If ( Op_V(n,1)%type == 1 ) then
+               write(error_unit, *) 'function S0 not implemented'
+               CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+            endif
+            
           end function S0_base
 
 
@@ -316,7 +318,7 @@
              Type (Fields),  Intent(IN)  :: nsigma_old
 
              write(error_unit, *) 'Global_move not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
 
           End Subroutine Global_move_base
 
@@ -402,9 +404,12 @@
              Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
              Integer, INTENT(IN)          :: Ntau
              Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+             Logical, save              :: first_call=.True.
              
-             write(error_unit, *) "Warning: Obser not implemented."
-
+             If  (first_call)    then 
+                write(error_unit, *) "Warning: Obser not implemented."
+                first_call=.false.
+             endif
           end Subroutine Obser_base
 
 
@@ -440,8 +445,13 @@
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: G00(Ndim,Ndim,N_FL), GTT(Ndim,Ndim,N_FL)
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
              Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+             Logical, save              :: first_call=.True.
              
-             write(error_unit, *) "Warning: ObserT not implemented."
+             If  (first_call)    then 
+                write(error_unit, *) "Warning: ObserT not implemented."
+                first_call=.false.
+             endif
+             
     
           end Subroutine ObserT_base
 
@@ -566,9 +576,8 @@
              Integer, INTENT(IN)  :: ntau
              
              write(error_unit, *) 'Global_move_tau not implemented'
-             error stop 1
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           end Subroutine Global_move_tau_base
-
 
     !--------------------------------------------------------------------
     !> @author
@@ -614,11 +623,6 @@
              Implicit none
              Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
 
-             ! Not sure if we want to keep this, maybe in devel mode only?
-             write(output_unit,*)
-             write(output_unit,*) "ATTENTION:     Base implementation of Overide_global_tau_sampling_parameters is getting calling!"
-             write(output_unit,*) "This routine does not actually change the parameters."
-             write(output_unit,*)
 
           end Subroutine Overide_global_tau_sampling_parameters_base
 
@@ -663,8 +667,10 @@
           subroutine weight_reconstruction_base(weight)
             implicit none
             complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
-            write(error_unit, *) 'Warning: weight_reconstruction not defined!'
-            error stop 1
+
+            write(error_unit, *) 'weight_reconstruction not defined!'
+            CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+            
           end subroutine weight_reconstruction_base
 
 
@@ -688,7 +694,7 @@
             Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
             
             write(error_unit, *) "Warning: GR_reconstruction not implemented."
-            error stop 1
+            CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           end Subroutine GR_reconstruction_base
 
 
@@ -713,7 +719,7 @@
            Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
            
            write(error_unit, *) "Warning: GRT_reconstruction not implemented."
-           error stop 1
+           CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
          end Subroutine GRT_reconstruction_base
          
          
