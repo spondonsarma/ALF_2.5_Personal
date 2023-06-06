@@ -262,9 +262,9 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
-    LIB_BLAS_LAPACK="-mkl"
+    LIB_BLAS_LAPACK="-qmkl"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icc ifort icpc || return 1
+      set_hdf5_flags icx ifort icpc || return 1
     fi
   ;;
 
@@ -311,7 +311,7 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
-    LIB_BLAS_LAPACK="-mkl"
+    LIB_BLAS_LAPACK="-qmkl"
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
   ;;
@@ -325,9 +325,9 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
-    LIB_BLAS_LAPACK="-mkl"
+    LIB_BLAS_LAPACK="-qmkl"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icc ifort icpc || return 1
+      set_hdf5_flags icx ifort icpc || return 1
     fi
   ;;
   #Default (unknown machine)
