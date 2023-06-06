@@ -359,11 +359,11 @@
           Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt_f )
           
           Ndim  =  Latt_c%N*Latt_Unit_c%Norb  +  Latt_f%N*Latt_Unit_f%Norb
-
           !  Setup  the lists
-          Allocate (List_c(Latt_c%N*Latt_Unit_c%Norb,2), Invlist_c(Latt_c%N,Latt_Unit_c%Norb))
-          Allocate (List_f(Latt_f%N*Latt_Unit_f%Norb,2), Invlist_f(Latt_f%N,Latt_Unit_f%Norb))
-          nc = 0
+          Allocate (List_c(Ndim,2), Invlist_c(Latt_c%N,Latt_Unit_c%Norb))
+          Allocate (List_f(Ndim,2), Invlist_f(Latt_f%N,Latt_Unit_f%Norb))
+          List_c  = 0;  List_f = 0; Invlist_c = 0;  Invlist_f = 0
+          Nc = 0
           Do I = 1,Latt_c%N
              Do no = 1,Latt_Unit_c%Norb
                 nc = nc + 1
@@ -372,13 +372,12 @@
                 Invlist_c(I,no) = nc
              Enddo 
           Enddo
-          nc = 0
           Do I = 1,Latt_f%N
              Do no = 1,Latt_Unit_f%Norb
                 nc = nc + 1
                 List_f   (nc,1) = I
                 List_f   (nc,2) = no
-                Invlist_f(I,no) = nc +  Latt_c%N*Latt_Unit_c%Norb
+                Invlist_f(I,no) = nc 
              Enddo
           Enddo
 
