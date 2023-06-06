@@ -598,11 +598,11 @@
 
              Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(INOUT) :: Initial_field
 
-             ! Not sure if we want to keep this, maybe in devel mode only?
-             write(output_unit,*)
-             write(output_unit,*) "ATTENTION:     Base implementation of Hamiltonian_set_nsigma is getting calling!"
-             write(output_unit,*) "This routine does not actually change the initial field configuration."
-             write(output_unit,*)
+             !  Consider  when we implement  different debugging  levels
+!!$             write(output_unit,*)
+!!$             write(output_unit,*) "ATTENTION:     Base implementation of Hamiltonian_set_nsigma is getting calling!"
+!!$             write(output_unit,*) "This routine does not actually change the initial field configuration."
+!!$             write(output_unit,*)
 
           end Subroutine Hamiltonian_set_nsigma_base
 
@@ -623,6 +623,10 @@
              Implicit none
              Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
 
+!!$             write(output_unit,*)
+!!$             write(output_unit,*) "ATTENTION:     Base implementation of Overide_global_tau_sampling_parameters is getting calling!"
+!!$             write(output_unit,*) "This routine does not actually change the parameters."
+!!$             write(output_unit,*)
 
           end Subroutine Overide_global_tau_sampling_parameters_base
 
