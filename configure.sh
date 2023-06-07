@@ -6,7 +6,7 @@ USAGE="usage 'source configure.sh MACHINE MODE STAB' \n\
 Please choose one of the following MACHINEs:\n\
  * GNU\n\
  * Intel\n\
- * IntelLLVM\n\
+ * IntelLLVM or IntelX\n\
  * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
@@ -322,7 +322,7 @@ case $MACHINE in
   ;;
 
   #Intel (as Hybrid code)
-  INTELLLVM)
+  INTELLLVM|INTELX)
     F90OPTFLAGS="$INTELLLVMOPTFLAGS"
     F90USEFULFLAGS="$INTELLLVMUSEFULFLAGS"
     ALF_FC="$INTELLLVMCOMPILER"
