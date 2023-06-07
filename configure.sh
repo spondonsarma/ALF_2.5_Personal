@@ -108,7 +108,7 @@ find_mkl_flag()
     ifort_minor=0
     ifort_major=$(ifort --version | head -n 1 | awk '{print $(NF - 1)}' | cut -d '.' -f 1)
     ifort_minor=$(ifort --version | head -n 1 | awk '{print $(NF - 1)}' | cut -d '.' -f 2)
-    if [[ $ifort_major -gt 2021  || ( $ifort_major -eq 2021  && $ifort_minor -gt 3 ) ]]; then
+    if [ "$ifort_major" -gt 2021 ] || { [ "$ifort_major" -eq 2021 ] && [ "$ifort_minor" -gt 3 ]; }; then
       INTELMKL="-qmkl"
     else
       INTELMKL="-mkl"
