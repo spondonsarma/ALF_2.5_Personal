@@ -6,6 +6,7 @@ USAGE="usage 'source configure.sh MACHINE MODE STAB' \n\
 Please choose one of the following MACHINEs:\n\
  * GNU\n\
  * Intel\n\
+ * IntelLLVM\n\
  * PGI\n\
  * SuperMUC-NG\n\
  * JUWELS\n\
@@ -75,7 +76,8 @@ set_hdf5_flags()
 check_libs()
 {
     FC="$1" LIBS="$2"
-    if command -v "$FC" > /dev/null; then       # Compiler binary found
+    FC0="$(echo "$FC" | cut -f1 -d' ')"
+    if command -v "$FC0" > /dev/null; then       # Compiler binary found
         if sh -c "$FC check_libs.f90 $LIBS -o check_libs.out"; then  # Compiling with $LIBS is successful
             ./check_libs.out || (
               printf "${RED}\n==== Error: Execution of test program using compiler <%s> ====${NC}\n" "$FC"
@@ -144,6 +146,11 @@ INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo 
 INTELOPTFLAGS="${INTELOPTFLAGS} -parallel -qopenmp"
 INTELDEVFLAGS="-warn all -check all -g -traceback"
 INTELUSEFULFLAGS="-std08"
+
+INTELLLVMOPTFLAGS="-cpp -O3"
+INTELLLVMDEVFLAGS="-warn all -check all -g -traceback"
+INTELLLVMUSEFULFLAGS="-std08"
+
 
 # default optimization flags for GNU compiler
 GNUOPTFLAGS="-cpp -O3 -ffree-line-length-none -ffast-math"
@@ -220,6 +227,7 @@ case $MODE in
     printf "serial job.\n"
     PROGRAMMCONFIGURATION=""
     INTELCOMPILER="ifort"
+    INTELLLVMCOMPILER="ifx"
     GNUCOMPILER="gfortran"
     MPICOMP=0
   ;;
@@ -229,6 +237,7 @@ case $MODE in
     printf "This requires also MPI parallization which is set as well.\n"
     PROGRAMMCONFIGURATION="-DMPI -DTEMPERING"
     INTELCOMPILER="mpiifort"
+    INTELLLVMCOMPILER="ifx"
     GNUCOMPILER="mpifort"
     MPICOMP=1
   ;;
@@ -237,6 +246,7 @@ case $MODE in
     printf "Activating MPI parallization.\n"
     PROGRAMMCONFIGURATION="-DMPI"
     INTELCOMPILER="mpiifort"
+    INTELLLVMCOMPILER="mpiifort -fc=ifx"
     GNUCOMPILER="mpifort"
     MPICOMP=1
   ;;
@@ -298,6 +308,20 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
+    find_mkl_flag || return 1
+    LIB_BLAS_LAPACK="${INTELMKL}"
+    if [ "${HDF5_ENABLED}" = "1" ]; then
+      set_intelcc
+      set_intelcxx
+      set_hdf5_flags "$INTELCC" ifort "$INTELCXX" || return 1
+    fi
+  ;;
+
+  #Intel (as Hybrid code)
+  INTELLLVM)
+    F90OPTFLAGS="$INTELLLVMOPTFLAGS"
+    F90USEFULFLAGS="$INTELLLVMUSEFULFLAGS"
+    ALF_FC="$INTELLLVMCOMPILER"
     find_mkl_flag || return 1
     LIB_BLAS_LAPACK="${INTELMKL}"
     if [ "${HDF5_ENABLED}" = "1" ]; then
@@ -415,7 +439,7 @@ fi
 export ALF_LIB
 
 export ALF_DIR
-export ALF_FC
+export ALF_FC="$ALF_FC"
 
 if [ -n "${ALF_FLAGS_EXT+x}" ]; then
   printf "\nAppending additional compiler flag '%s'\n" "${ALF_FLAGS_EXT}"
