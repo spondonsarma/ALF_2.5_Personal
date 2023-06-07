@@ -224,18 +224,6 @@
        Select Case (ham_name)
 #include "Hamiltonians_case.h"
 !!$       This file will be dynamically generated and appended
-!!$       Case ('Kondo')
-!!$          call Ham_Alloc_Kondo()
-!!$       Case ('Hubbard')
-!!$          call Ham_Alloc_Hubbard()
-!!$       Case ('Hubbard_Plain_Vanilla')
-!!$          call Ham_Alloc_Hubbard_Plain_Vanilla()
-!!$       Case ('tV')
-!!$          call Ham_Alloc_tV()
-!!$       Case ('LRC')
-!!$          call Ham_Alloc_LRC()
-!!$       Case ('Z2_Matter')
-!!$          call Ham_Alloc_Z2_Matter()
        Case default
           write(error_unit, '("A","A","A")') 'Hamiltonian ', ham_name, ' not yet implemented!'
           CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
@@ -266,20 +254,20 @@
     !> @details
     !--------------------------------------------------------------------
           Real (Kind=Kind(0.d0)) function S0_base(n,nt,Hs_new)
-             Implicit none
-             !> Operator index
-             Integer, Intent(IN) :: n
-             !> Time slice
-             Integer, Intent(IN) :: nt
-             !> New local field on time slice nt and operator index n
-             Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
-
-             S0_base = 1.d0
-             If ( Op_V(n,1)%type == 1 ) then
+            Implicit none
+            !> Operator index
+            Integer, Intent(IN) :: n
+            !> Time slice
+            Integer, Intent(IN) :: nt
+            !> New local field on time slice nt and operator index n
+            Real (Kind=Kind(0.d0)), Intent(In) :: Hs_new
+            
+            S0_base = 1.d0
+            If ( Op_V(n,1)%type == 1 ) then
                write(error_unit, *) 'function S0 not implemented'
                CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
-             endif
-
+            endif
+            
           end function S0_base
 
 
@@ -357,7 +345,33 @@
              ! Arguments
              Type (Fields),  INTENT(IN) :: nsigma_old
 
+             Logical, save              :: first_call=.True.
+             integer                    :: field_id, tau, Nfields, Ntau
+             Real(kind=kind(0.0d0))     :: Hs_old
+
              Delta_S0_global_base = 1.d0
+             Nfields=size(nsigma_old%f,1)
+             Ntau=size(nsigma_old%f,2)
+             do tau=1,Ntau
+                do field_id=1,Nfields
+                   ! S0 returns S0=exp(-S0(HS_old))/exp(-S0(nsigma))
+                   ! purposly call ham%S0 instead of S0_base such that S0 may be provided in derived Hamiltonian
+                   Hs_old=nsigma_old%f(field_id,tau)
+                   ! note we need exp(-S0(new))/exp(-S0(old)) but nsigma is already the new config and we provide HS_old
+                   ! in contrast to HS_new. Hence, S0 returns the inverse of whar we need!
+                   Delta_S0_global_base=Delta_S0_global_base/ham%S0(field_id,tau,Hs_old)
+                enddo
+             enddo
+
+             if (first_call) then
+                write(output_unit,*)
+                write(output_unit,*) "ATTENTION:     The base implementation of Delta_S0_global is used!"
+                write(output_unit,*) "This relies on a proper version of S0, but may be inefficient for some models."
+                write(output_unit,*) "Consider overwriting this function to benefit from model specific properties."
+                write(output_unit,*) "Suppressing further printouts of this message."
+                write(output_unit,*)
+                first_call=.False.
+             endif
 
           end Function Delta_S0_global_base
 
@@ -390,9 +404,12 @@
              Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
              Integer, INTENT(IN)          :: Ntau
              Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+             Logical, save              :: first_call=.True.
              
-             write(error_unit, *) "Warning: Obser not implemented."
-
+             If  (first_call)    then 
+                write(error_unit, *) "Warning: Obser not implemented."
+                first_call=.false.
+             endif
           end Subroutine Obser_base
 
 
@@ -428,8 +445,13 @@
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: G00(Ndim,Ndim,N_FL), GTT(Ndim,Ndim,N_FL)
              Complex (Kind=Kind(0.d0)), INTENT(IN) :: Phase
              Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
+             Logical, save              :: first_call=.True.
              
-             write(error_unit, *) "Warning: ObserT not implemented."
+             If  (first_call)    then 
+                write(error_unit, *) "Warning: ObserT not implemented."
+                first_call=.false.
+             endif
+             
     
           end Subroutine ObserT_base
 
@@ -557,7 +579,6 @@
              CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
           end Subroutine Global_move_tau_base
 
-
     !--------------------------------------------------------------------
     !> @author
     !> ALF Collaboration
@@ -577,6 +598,12 @@
 
              Real (Kind=Kind(0.d0)), allocatable, dimension(:,:), Intent(INOUT) :: Initial_field
 
+             !  Consider  when we implement  different debugging  levels
+!!$             write(output_unit,*)
+!!$             write(output_unit,*) "ATTENTION:     Base implementation of Hamiltonian_set_nsigma is getting calling!"
+!!$             write(output_unit,*) "This routine does not actually change the initial field configuration."
+!!$             write(output_unit,*)
+
           end Subroutine Hamiltonian_set_nsigma_base
 
 
@@ -595,6 +622,12 @@
 
              Implicit none
              Integer, Intent(INOUT) :: Nt_sequential_start,Nt_sequential_end, N_Global_tau
+
+!!$             write(output_unit,*)
+!!$             write(output_unit,*) "ATTENTION:     Base implementation of Overide_global_tau_sampling_parameters is getting calling!"
+!!$             write(output_unit,*) "This routine does not actually change the parameters."
+!!$             write(output_unit,*)
+
           end Subroutine Overide_global_tau_sampling_parameters_base
 
 
@@ -612,7 +645,20 @@
 
             Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_0(:,:)
 
+            logical, save                                      :: first_call=.True.
+
             Forces_0  = 0.d0
+
+            if (first_call) then
+               write(output_unit,*)
+               write(output_unit,*) "ATTENTION:     Base implementation of Ham_Langevin_HMC_S0 is getting calling!"
+               write(output_unit,*) "This assumes trivial S0 action and is likely incorrect!"
+               write(output_unit,*) "Consider overwritting this routine according to the model in your Hamiltonian."
+               write(output_unit,*) "Suppressing further printouts of this message."
+               write(output_unit,*)
+               first_call=.False.
+            endif
+            ! Johannes: I would actually like to terminate the code. I cannot come up with a scenario where Forces_0=0 is correct!
             
           end Subroutine Ham_Langevin_HMC_S0_base
     
@@ -625,8 +671,10 @@
           subroutine weight_reconstruction_base(weight)
             implicit none
             complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+
             write(error_unit, *) 'weight_reconstruction not defined!'
             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+            
           end subroutine weight_reconstruction_base
 
 
@@ -684,6 +732,13 @@
            implicit none
            
            Character (len=64), intent(in) :: filename
+
+           write(output_unit,*)
+           write(output_unit,*) "ATTENTION:     Base implementation of write_parameters_hdf5 is getting calling!"
+           write(output_unit,*) "This routine does not actually store the parameters in the hdf5 file."
+           write(output_unit,*) "Usually, a python script is generating a model specific routine, granted that the Hamiltonian"
+           write(output_unit,*) "respects the design rule. Without parameters, the HDF5 file's compatibility with pyALF is limited."
+           write(output_unit,*)
            
          end subroutine write_parameters_hdf5_base
 #endif
