@@ -118,6 +118,24 @@ find_mkl_flag()
   fi
 }
 
+set_intelcc()
+{
+  if command -v icx > /dev/null; then
+    INTELCC="icx"
+  else
+    INTELCC="icc"
+  fi
+}
+
+set_intelcxx()
+{
+  if command -v icpx > /dev/null; then
+    INTELCXX="icpx"
+  else
+    INTELCXX="icpc"
+  fi
+}
+
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # INTELOPTFLAGS="-cpp -O3 "
@@ -283,7 +301,9 @@ case $MACHINE in
     find_mkl_flag || return 1
     LIB_BLAS_LAPACK="${INTELMKL}"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icx ifort icpc || return 1
+      set_intelcc
+      set_intelcxx
+      set_hdf5_flags "$INTELCC" ifort "$INTELCXX" || return 1
     fi
   ;;
 
@@ -348,7 +368,9 @@ case $MACHINE in
     find_mkl_flag || return 1
     LIB_BLAS_LAPACK="${INTELMKL}"
     if [ "${HDF5_ENABLED}" = "1" ]; then
-      set_hdf5_flags icx ifort icpc || return 1
+      set_intelcc
+      set_intelcxx
+      set_hdf5_flags "$INTELCC" ifort "$INTELCXX" || return 1
     fi
   ;;
   #Default (unknown machine)
