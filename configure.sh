@@ -100,6 +100,24 @@ check_python()
     fi
 }
 
+find_mkl_flag()
+{
+  if command -v ifort > /dev/null; then
+    # default optimization flags for Intel compiler
+    ifort_major=2000
+    ifort_minor=0
+    ifort_major=$(ifort --version | head -n 1 | awk '{print $(NF - 1)}' | cut -d '.' -f 1)
+    ifort_minor=$(ifort --version | head -n 1 | awk '{print $(NF - 1)}' | cut -d '.' -f 2)
+    if [[ $ifort_major -gt 2021  || ( $ifort_major -eq 2021  && $ifort_minor -gt 3 ) ]]; then
+      INTELMKL="-qmkl"
+    else
+      INTELMKL="-mkl"
+    fi
+  else 
+    printf "${RED}\n==== Error: MKL only supported for ifort compiler. ====${NC}\n\n" "$FC"
+  fi
+}
+
 # default optimization flags for Intel compiler
 INTELOPTFLAGS="-cpp -O3 -fp-model fast=2 -xHost -unroll -finline-functions -ipo -ip -heap-arrays 1024 -no-wrap-margin"
 # INTELOPTFLAGS="-cpp -O3 "
@@ -262,7 +280,8 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
-    LIB_BLAS_LAPACK="-qmkl"
+    find_mkl_flag || return 1
+    LIB_BLAS_LAPACK="${INTELMKL}"
     if [ "${HDF5_ENABLED}" = "1" ]; then
       set_hdf5_flags icx ifort icpc || return 1
     fi
@@ -311,7 +330,8 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="mpiifort"
-    LIB_BLAS_LAPACK="-qmkl"
+    find_mkl_flag || return 1
+    LIB_BLAS_LAPACK="${INTELMKL}"
     LIB_HDF5="–lh5df_fortran"
     INC_HDF5=""
   ;;
@@ -325,7 +345,8 @@ case $MACHINE in
     F90OPTFLAGS="$INTELOPTFLAGS"
     F90USEFULFLAGS="$INTELUSEFULFLAGS"
     ALF_FC="$INTELCOMPILER"
-    LIB_BLAS_LAPACK="-qmkl"
+    find_mkl_flag || return 1
+    LIB_BLAS_LAPACK="${INTELMKL}"
     if [ "${HDF5_ENABLED}" = "1" ]; then
       set_hdf5_flags icx ifort icpc || return 1
     fi
