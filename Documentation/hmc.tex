@@ -22,7 +22,7 @@ Ideally one would like to propose global, ergodic,  moves that satisfy  $P(C \ri
 
 We will start by expanding the configuration space to $ C = \left\{ \pmb{p}, \pmb{s}  \right\} $   and define the Hamiltonian 
 \begin{equation}
-  H(\pmb{p}, \pmb{s} )   = \frac{ \pmb{p}^2 }{2}  +   S(\pmb{s} ).
+  H(\pmb{p}, \pmb{s} )   = \frac{ \pmb{p}^{T} M^{-1}  \pmb{p} }{2}  +   S(\pmb{s} ).
 \end{equation}
  $\pmb{p} $  and $\pmb{s}$ are canonical conjugate.  Clearly, 
  \begin{equation}
@@ -33,6 +33,8 @@ We will start by expanding the configuration space to $ C = \left\{ \pmb{p}, \pm
  \begin{equation}
  	P(\pmb{p},\pmb{s})   =   \frac{e^{-H (\pmb{p},\pmb{s})}}{ \int D \pmb{s}  D \pmb{p} \; e^{-H(\pmb{p},\pmb{s}) } }.
  \end{equation}
+ The  mass   matrix  has   to  be  positive  definite  and  can be  used  to  speed  up  simulations  by  assigning  a  larger  (smaller)  mass  to   fast (slow)   modes.   Since   $M$ is  positive  and  real   it  can be   written  as   $M^{-1}  = B^T  B $   with  sole  restriction on  $B$  being  that  $\text{Ker}(B) =  \left\{ 0 \right\}  $.   The  action of  $B$  or  $B^T$  on a  vector of    e.g.  momenta  has  to  be  provided  by  the  user.  To  this purpose  we  have included  a 
+routine  \texttt{Apply\_B\_HMC\_base}  in the base  Hamiltonian.  By   default    $M = B = 1$. 
  
  Hybrid molecular dynamics  consists of two steps.  \\
 {\bf Step 1:} Updating the momenta  $ \pmb{p} $ \\

@@ -567,12 +567,12 @@
            ! reset storage
            Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
            !if accepted 
-              ! LATER restore Phase, GR, udvr, udvl and don't reset storage
+           ! LATER restore Phase, GR, udvr, udvl and don't reset storage
            ! ATTENTION: disable sequential for now. Once enabled, turn of any measurments here to avoid measuring one config twice 
            !    due to delayed measurments
            !    Enforce recalculation of det since config might have changed
-         !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
-         !   CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
+           !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
+           !   CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
         case default
            WRITE(error_unit,*) 'Unknown Global_update_scheme ', trim(this%Update_scheme) 
            WRITE(error_unit,*) 'Global_update_scheme is Langevin or HMC'

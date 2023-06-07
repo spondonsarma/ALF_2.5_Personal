@@ -671,13 +671,16 @@
   !>
   !> @brief 
   !>   p_HMC are the conjugate momenta to the fields phi in the HMC updating scheme.
-  !>   The relevant part of the action reads - p_HMC^T M p_HMC, where M = B^T * B is the
+  !>   The relevant part of the action reads - p_HMC^T M^{-1}/2 p_HMC, where M^{-1}/2 = B^T * B is the
   !>   "mass" of the conjugate momenta (tuning parameter in HMC) 
   !>   If we define p_tilde_HMC= B*p_HMC then the Forces to update p_tilde_HMC are: 
   !>        p_tilde_HMC --> p_tilde_HMC - delta t B del H /del phi .
   !>   and the Forces to update phi are: 
   !>        phi --> phi + delta t B^T p_tilde_HMC
   !>   By detault, M=1 => B=1, hence this routine does nothing!
+  !>   We  note  that  Forces_HMC(:,:)   has  to be  understood as  a vection  with  superindex x=(n1,n2)
+  !>   such  that B =  B(x,y).   Since  we  want  M to be positive definite  the  Kernel of  B has  to consist         
+  !>   solely of the zero vector.        
   !>         
   !> @details
   !> @param[inout] Forces_HMC Real(:,:)
