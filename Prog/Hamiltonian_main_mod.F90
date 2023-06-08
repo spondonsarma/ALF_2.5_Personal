@@ -671,7 +671,7 @@
   !>
   !> @brief 
   !>   p_HMC are the conjugate momenta to the fields phi in the HMC updating scheme.
-  !>   The relevant part of the action reads - p_HMC^T M^{-1}/2 p_HMC, where M^{-1}/2 = B^T * B is the
+  !>   The relevant part of the action reads -1/2 p_HMC^T M^{-1} p_HMC, where M^{-1} = B^T * B is the
   !>   "mass" of the conjugate momenta (tuning parameter in HMC) 
   !>   If we define p_tilde_HMC= B*p_HMC then the Forces to update p_tilde_HMC are: 
   !>        p_tilde_HMC --> p_tilde_HMC - delta t B del H /del phi .

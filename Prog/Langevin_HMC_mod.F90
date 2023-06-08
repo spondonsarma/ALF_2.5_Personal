@@ -420,7 +420,7 @@
            nsigma_old%t = nsigma%t
            Phase_old = Phase
 
-           !Calc Forces phi (del H / del phi) (Calc_Obser_eq alwys false everywhere)
+           !Calc Forces phi (del H / del phi) (Calc_Obser_eq always false everywhere)
            Calc_Obser_eq=.False.
            If ( .not. this%L_Forces) then
               Call this%calc_Forces(Phase, GR, GR_Tilde, Test, udvr, udvl, Stab_nt, udvst,&
@@ -467,8 +467,8 @@
                if (t_leap == this%Leapfrog_Steps) then
                   ! calc det[phi']
                   Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
-                  ! LATER: save Phase, GR, udvr, udvl (move calc det out of the loop)
-                  ! redude delta t by 1/2
+                  ! LATER (optimization idea): save Phase, GR, udvr, udvl (move calc det out of the loop)
+                  ! reduce delta t by 1/2
                   X=0.5d0
                endif
                ! calc forces (Calc_Obser_eq false)
@@ -504,8 +504,8 @@
                if (t_leap == this%Leapfrog_Steps) then
                   ! calc det[phi']
                   Call Compute_Fermion_Det(Phase_det_new,Det_Vec_new, udvl, udvst, Stab_nt, storage)
-                  ! LATER: save Phase, GR, udvr, udvl (move calc det out of the loop)
-                  ! redude delta t by 1/2
+                  ! LATER (optimization idea): save Phase, GR, udvr, udvl (move calc det out of the loop)
+                  ! reduce delta t by 1/2
                   X=0.5d0
                endif
                ! calc forces (Calc_Obser_eq false)
@@ -520,7 +520,7 @@
                p_tilde=p_tilde - X*this%Delta_t_Langevin_HMC*this%Forces_0
            enddo
 #endif
-           !(LATER restore Phase, GR, udvr, udvl if calc det moved here)
+           !(LATER (optimization idea) restore Phase, GR, udvr, udvl if calc det moved here)
            !calc ratio
            E_kin_new=0.0d0
            Do j=1,n2
@@ -555,8 +555,8 @@
               nsigma%f = nsigma_old%f
               Phase = Phase_old
            endif
-           ! Here we are reusing the global move "statistics", we might introduce a dedicated version for HMC to avoid mixing
 
+           ! Keep track of the HMC acceptance rate and precision
            Z = Phase_old * Ratiotot/ABS(Ratiotot)
 
            Call Control_PrecisionP_HMC(Z,Phase_new)
@@ -567,12 +567,7 @@
            ! reset storage
            Call Langevin_HMC_Reset_storage(Phase, GR, udvr, udvl, Stab_nt, udvst)
            !if accepted 
-           ! LATER restore Phase, GR, udvr, udvl and don't reset storage
-           ! ATTENTION: disable sequential for now. Once enabled, turn of any measurments here to avoid measuring one config twice 
-           !    due to delayed measurments
-           !    Enforce recalculation of det since config might have changed
-           !   WRITE(error_unit,*) 'HMC  step is not yet implemented'
-           !   CALL Terminate_on_error(ERROR_GENERIC,__FILE__,__LINE__)
+           ! LATER (optimization idea) restore Phase, GR, udvr, udvl and don't reset storage
         case default
            WRITE(error_unit,*) 'Unknown Global_update_scheme ', trim(this%Update_scheme) 
            WRITE(error_unit,*) 'Global_update_scheme is Langevin or HMC'
