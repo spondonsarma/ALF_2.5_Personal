@@ -142,6 +142,9 @@
         procedure, nopass :: ObserT
         procedure, nopass :: Ham_Latt
         procedure, nopass :: Ham_Hop
+        procedure, nopass :: weight_reconstruction
+        procedure, nopass :: GR_reconstruction
+        procedure, nopass :: GRT_reconstruction
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
 #endif
@@ -178,7 +181,7 @@
       Integer                   :: Ham_N_Imp    = 0           ! # of impurities 
       !#PARAMETERS END#
       !VAR_impurities
-      real(Kind=Kind(0.d0)), allocatable :: Imp_t(:,:), Imp_V(:,:,:)
+      real(Kind=Kind(0.d0)), allocatable :: Imp_t(:,:),  Imp_Jz(:,:), Imp_V(:,:,:)
       !
 
       Type (Lattice),       target :: Latt_c
@@ -194,9 +197,15 @@
       Integer, allocatable ::  Invlist_cf_ff(:,:), GreenPsi_List(:,:)
       real(Kind=Kind(0.d0)), allocatable :: V_cf_ff(:)
 
+      Integer, allocatable :: Invlist_ff_z(:,:)
+      Real(Kind=Kind(0.d0)), allocatable :: V_ff_z(:)
+
+      !  For  flavor  symmetry   in case  of  particle-hole symmtry
+      Integer, allocatable   ::  Prefactor(:)
+      Logical  :: Particle_hole
+      Integer  ::  nf_calc,  nf_reconst  
       
-      
-      NAMELIST /VAR_impurities/    Imp_t, Imp_V
+      NAMELIST /VAR_impurities/    Imp_t, Imp_V, Imp_Jz
 
     contains
       
@@ -241,10 +250,10 @@
 
 !         Position of impurities 
           file_para = "parameters"
-          Allocate (Imp_t(Ham_N_imp,Ham_N_imp), Imp_V(Ham_N_imp,L1,L2) )
-          Imp_t = 0.d0;  Imp_V  = 0.d0
+          Allocate (Imp_t(Ham_N_imp,Ham_N_imp), Imp_Jz(Ham_N_imp,Ham_N_Imp), Imp_V(Ham_N_imp,L1,L2) )
+          Imp_t = 0.d0;  Imp_V  = 0.d0;  Imp_Jz = 0.d0 
           
-!         Here  you will  have to  implement  mpi support  TODO 
+!         Here  you will  have to  implement  mpi support 
           OPEN(NEWUNIT=unit_para, FILE=file_para, STATUS='old', ACTION='read', IOSTAT=ierr)
           READ(unit_para, NML=VAR_impurities)
           CLOSE(unit_para)
@@ -265,6 +274,18 @@
 ! 
 !           ! Setup the interaction.
           call Ham_V
+
+          if  (N_FL   ==  2 )   then
+             ! Setup  prefactor  for falvor  symmetry
+             Call  Set_Prefactor(Particle_hole)
+             If  (Particle_hole)  then
+                allocate(Calc_Fl(N_FL))
+                nf_calc=2
+                nf_reconst=1
+                Calc_Fl(nf_calc)=.True.
+                Calc_Fl(nf_reconst)=.False.
+             endif
+          endif
 ! 
 !           ! Setup the trival wave function, in case of a projector approach
 !           if (Projector) Call Ham_Trial()
@@ -288,6 +309,7 @@
              Write(unit_info,*) '# Flux        : ', N_Phi
              Write(unit_info,*) 'Checkerboard  : ', Checkerboard
              Write(unit_info,*) 'Symm. decomp  : ', Symm
+             Write(unit_info,*) 'Particle_hole : ', Particle_hole
              if (Projector) then
                 Write(unit_info,*) 'Projective version'
                 Write(unit_info,*) 'Theta         : ', Theta
@@ -337,7 +359,7 @@
           Implicit  none
           
           Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2), ic_p(2), X
-          Integer ::  nc, I, no, Ic, i1, i2, N_bonds, nb, n, m
+          Integer ::  nc, I, no, Ic, i1, i2, N_bonds, N_bonds_z, nb, n, m
 
           Latt_Unit_c%Norb      = 1
           Allocate (Latt_unit_c%Orb_pos_p(1,2))
@@ -383,7 +405,8 @@
 
 
           ! Bond  list of  coupling between  c-f orbitals  and  ff orbitals
-          N_bonds =  0
+          N_bonds   =  0
+          N_bonds_z =  0 
           do  no  =  1, Latt_Unit_f%Norb
              do i1 = 1,L1
                 do  i2 = 1,L2
@@ -393,10 +416,12 @@
           enddo
           Do n  =  1,  Ham_N_imp
              Do m  =  n+1, Ham_N_imp   
-                If  (abs(Imp_t(n,m)) > 0.d0 .or. abs(Imp_t(m,n)) > 0.d0  )  N_bonds = n_Bonds + 1
+                If  (abs(Imp_t (n,m)) > 0.d0 .or. abs(Imp_t (m,n)) > 0.d0  )  N_bonds   = n_Bonds + 1
+                If  (abs(Imp_Jz(n,m)) > 0.d0 .or. abs(Imp_Jz(m,n)) > 0.d0  )  N_bonds_z = n_Bonds_z + 1
              enddo
           enddo
-          Allocate (Invlist_cf_ff(N_bonds,2), V_cf_ff(N_bonds) )
+          Allocate (Invlist_cf_ff(N_bonds  ,2), V_cf_ff(N_bonds  ) )
+          Allocate (Invlist_ff_z (N_bonds_z,2), V_ff_z (N_bonds_z) )
           nc  = 0 
           do  no  =  1, Latt_Unit_f%Norb
              do i1 = 1,L1
@@ -407,7 +432,7 @@
                       Ic   = Inv_R(ic_p,Latt_c)
                       Invlist_cf_ff(nc,1) = Invlist_f(1,no)     !  f-orbital
                       Invlist_cf_ff(nc,2) = Invlist_c(Ic,1)     !  c-orbital
-                      V_cf_ff(nc)         = Imp_V(no,i1,i2)
+                      V_cf_ff(nc)       = Imp_V(no,i1,i2)     !  Amplitude 
                    endif
                 enddo
              enddo
@@ -420,15 +445,33 @@
                    if  ( abs(Imp_t(m,n)) >  abs(X) )  X  =  Imp_t(m,n)
                    Invlist_cf_ff(nc,1) = Invlist_f(1,n)     !  f-orbital
                    Invlist_cf_ff(nc,2) = Invlist_f(1,m)     !  f-orbital
-                   V_cf_ff(nc)         = X 
+                   V_cf_ff(nc)       = X                  !  Amplitude 
                 endif
              enddo
           enddo
           
+          nc = 0
+          Do n  =  1,  Ham_N_imp
+             Do m  =  n+1, Ham_N_imp   
+                If (abs(Imp_Jz(n,m)) > 0.d0 .or. abs(Imp_Jz(m,n)) > 0.d0  )   Then
+                   nc= nc + 1
+                   X = Imp_Jz(n,m)
+                   if  ( abs(Imp_Jz(m,n)) >  abs(X) )  X  =  Imp_Jz(m,n)
+                   Invlist_ff_z(nc,1) = Invlist_f(1,n)     !  f-orbital
+                   Invlist_ff_z(nc,2) = Invlist_f(1,m)     !  f-orbital
+                   V_ff_z(nc)         = X                  !  Amplitude 
+                endif
+             enddo
+          enddo
+
+          
           !Testing
           Do nb  =1, N_bonds
              Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_cf_ff(nb,1), Invlist_cf_ff(nb,2), V_cf_ff(nb)
-             Write(6,*)
+          enddo
+          Write(6,*)
+          Do nb  =1, N_bonds_z
+             Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_ff_z(nb,1), Invlist_ff_z(nb,2), V_ff_z(nb)
           enddo
           
         end Subroutine Ham_Latt
@@ -593,38 +636,58 @@
                 enddo
              enddo
           else
-             ! Generate a list of  the hoppings.
-             N_op  = Latt_unit_f%Norb +   Size(V_cf_ff,1)
-             If  (Symm)   N_op  = Latt_unit_f%Norb +   2*Size(V_cf_ff,1)
+             ! Set the Kondo 
+             N_op  = Latt_unit_f%Norb +   Size(V_cf_ff,1)  +  Size(V_ff_z,1)
+             If  (Symm)   N_op  = Latt_unit_f%Norb +   2*Size(V_cf_ff,1) + 2*Size(V_ff_z,1)
              Allocate(Op_V(N_op,N_FL))
-             Do  nf =  1,N_FL
-                nc = 0
-                ! Exchange
-                Do n  =  1, Size(V_cf_ff,1)
-                   nc = nc + 1
-                   I = Invlist_cf_ff(n,1)
-                   J = Invlist_cf_ff(n,2)
+             nc = 0
+             ! Exchange
+             Do n  =  1, Size(V_cf_ff,1)
+                nc = nc + 1
+                I = Invlist_cf_ff(n,1)
+                J = Invlist_cf_ff(n,2)
+                Do  nf =  1,N_FL
                    If  (Symm)  then 
                       Call Predefined_Int_V_SUN( OP_V(nc,nf), I, J, 1, DTAU, V_cf_ff(n)/8.d0  )
                    else
                       Call Predefined_Int_V_SUN( OP_V(nc,nf), I, J, 1, DTAU, V_cf_ff(n)/4.d0  )
                    endif
                 enddo
-                ! Hubbard
-                Do  n = 1,Latt_unit_f%Norb
-                   nc = nc + 1
-                   I = Invlist_f(1,n)  !  f-orbital 
-                   Call Predefined_Int_U_SUN( OP_V(nc,nf), I, 1, DTAU, Ham_U/2.d0  )
-                enddo
-                If  (Symm) then 
-                   Do n  =  Size(V_cf_ff,1),1, -1
-                      nc = nc + 1
-                      I = Invlist_cf_ff(n,1)
-                      J = Invlist_cf_ff(n,2) 
-                      Call Predefined_Int_V_SUN( OP_V(nc,nf), I, J, 1, DTAU, V_cf_ff(n)/8.d0  ) 
-                   enddo
+             enddo
+             do n = 1,Size(V_ff_z,1)
+                nc = nc + 1
+                I = Invlist_ff_z(n,1)
+                J = Invlist_ff_z(n,2)
+                If  (Symm)  then 
+                   Call Predefined_Int_Jz( OP_V(nc,1), OP_V(nc,2), I, J, DTAU, V_ff_z(n)/2.d0  )
+                else
+                   Call Predefined_Int_Jz( OP_V(nc,1), OP_V(nc,2), I, J, DTAU, V_ff_z(n)  )
                 endif
              enddo
+             ! Hubbard
+             Do  n = 1,Latt_unit_f%Norb
+                nc = nc + 1
+                I = Invlist_f(1,n)  !  f-orbital 
+                Do  nf =  1,N_FL
+                   Call Predefined_Int_U_SUN( OP_V(nc,nf), I, 1, DTAU, Ham_U/2.d0  )
+                enddo
+             enddo
+             If  (Symm) then 
+                do n = Size(V_ff_z,1),1, -1
+                   nc = nc + 1
+                   I = Invlist_ff_z(n,1)
+                   J = Invlist_ff_z(n,2)
+                   Call Predefined_Int_Jz( OP_V(nc,1), OP_V(nc,2), I, J, DTAU, V_ff_z(n)/2.d0  )
+                enddo
+                Do n  =  Size(V_cf_ff,1),1, -1
+                   nc = nc + 1
+                   I = Invlist_cf_ff(n,1)
+                   J = Invlist_cf_ff(n,2) 
+                   Do  nf =  1,N_FL
+                      Call Predefined_Int_V_SUN( OP_V(nc,nf), I, J, 1, DTAU, V_cf_ff(n)/8.d0  )
+                   enddo
+                enddo
+             endif
           endif
 
           
@@ -946,5 +1009,176 @@
 !!$          Enddo
 
         end Subroutine OBSERT
+
+
+!-------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief
+!> Sets  the  prefactor  for  flavor  symmetry
+!--------------------------------------------------------------------
+
+        Subroutine  Set_Prefactor(Particle_Hole)
+
+          Implicit none
+
+          Logical, Intent(out) ::  Particle_Hole
+          
+          Integer i,  ix, iy, nc, nc1, no, no1,  i_f, i_c
+          Real (Kind=Kind(0.d0))  ::  ic_p(2), X
+
+          Allocate(Prefactor(Ndim))
+          Particle_hole = .true.
+          Prefactor  = 0
+          Do  i =  1, Latt_c%N
+             ix  = Latt_c%list(i,1) 
+             iy  = Latt_c%list(i,2)
+             nc  = invlist_c(i,1)
+             Prefactor(nc)  = -1
+             if (mod(ix+iy,2)  == 0 )   Prefactor(nc)  = 1
+          enddo
+
+          If  ( Ham_Imp_Kind == "Kondo" )  then
+             nc  = 0
+             do no  =  1,Latt_unit_f%Norb
+                do ix  = 1,L1
+                   do iy = 1,L2
+                      If  ( abs(Imp_V(no,ix,iy)) >  1.D-10 ) then
+                         nc = nc + 1
+                         i_f = invlist_f(1,no)
+                         ic_p = dble(ix)*Latt_c%a1_p + dble(iy)*Latt_c%a2_p
+                         I    = Inv_R(ic_p,Latt_c)
+                         i_c =  Invlist_c(I,1)
+                         I =  -Prefactor(i_c)*nint(Imp_V(no,ix,iy)/abs(Imp_V(no,ix,iy))) 
+                         If ( Prefactor(i_f) ==  0 )  then
+                            Prefactor(i_f)  = -Prefactor(i_c)*nint(Imp_V(no,ix,iy)/abs(Imp_V(no,ix,iy)))  
+                         else
+                            if  ( Prefactor(i_f) /= I ) then
+                               Particle_hole = .False.
+                            endif
+                         endif
+                      endif
+                   enddo
+                enddo
+             enddo
+             if  (nc   == 0 )   Prefactor(Invlist_f(1,1)) = 1   !   Set  the overall factor
+             do no  =  1,Latt_unit_f%Norb
+                nc = Invlist_f(1,no)
+                If (Prefactor(nc) /= 0 )  then 
+                   do no1  =  1,Latt_unit_f%Norb
+                      If  ( abs(Imp_t(no1,no)) > 1.D-10 )  then
+                         I = - nint(Imp_t(no1,no)/abs(Imp_t(no1,no)) ) * Prefactor(nc) 
+                         nc1 = Invlist_f(1,no1)
+                         if (  Prefactor(nc1) ==  0 )  then
+                            Prefactor(nc1) = I
+                         elseif ( Prefactor(nc1) /=  I  ) then
+                            Particle_hole= .false.
+                         endif
+                      endif
+                   enddo
+                endif
+             enddo
+          else
+             
+          endif
+
+          Do  nc = 1,  size(Prefactor,1)
+             if  (Prefactor(nc)  == 0  )  then
+                WRITE(error_unit,*) 'One  orbital  is not  linked to the  cluster.  Consider  adapting the  the parameter file', nc
+                CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+             endif
+          enddo
+          
+!!$          Do  i =  1, Latt_c%N
+!!$             ix  = Latt_c%list(i,1) 
+!!$             iy  = Latt_c%list(i,2)
+!!$             nc  = invlist_c(i,1)
+!!$             write(6,*) nc, ix,iy, Prefactor(nc) 
+!!$          enddo
+!!$          Do  no =  1, Latt_unit_f%Norb
+!!$             nc  = invlist_f(1,no)
+!!$             write(6,*) nc, no, Prefactor(nc) 
+!!$          enddo
+
+        end Subroutine Set_Prefactor
+
+
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+        subroutine weight_reconstruction(weight)
+          implicit none
+          complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+          
+          weight(nf_reconst) = conjg(Weight(nf_calc))  
+          
+        end subroutine weight_reconstruction
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
+        subroutine GR_reconstruction(GR)
+
+          Implicit none
+
+          Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+          Integer :: I,J
+          complex (kind=kind(0.d0))  ::  ZZ
+          Real    (kind=kind(0.d0))  :: X
+          
+          Do J = 1,Ndim
+             Do I = 1,Ndim
+                X =  real(Prefactor(I)*Prefactor(J), kind(0.d0))
+                ZZ=cmplx(0.d0,0.d0,Kind(0.d0))
+                if (I==J) ZZ=cmplx(1.d0,0.d0,Kind(0.d0))
+                GR(I,J,nf_reconst) = ZZ - X*conjg(GR(J,I,nf_calc))
+             Enddo
+          Enddo
+      end Subroutine GR_reconstruction
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
+      Subroutine GRT_reconstruction(GT0, G0T)
+        Implicit none
+
+        Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+        Integer :: I,J
+        real (kind=kind(0.d0)) :: X
+        
+        Do J = 1,NDIM
+           Do I = 1,NDIM 
+              X =  real(Prefactor(I)*Prefactor(J), kind(0.d0))
+              G0T(I,J,nf_reconst) = -X*conjg(GT0(J,I,nf_calc))
+              GT0(I,J,nf_reconst) = -X*conjg(G0T(J,I,nf_calc))
+           enddo
+         enddo
+       end Subroutine GRT_reconstruction        
         
       end submodule ham_Kondo_impurities_smod
