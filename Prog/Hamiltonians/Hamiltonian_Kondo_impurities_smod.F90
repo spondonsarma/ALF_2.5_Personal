@@ -249,16 +249,30 @@
           call read_parameters()
 
 !         Position of impurities 
-          file_para = "parameters"
           Allocate (Imp_t(Ham_N_imp,Ham_N_imp), Imp_Jz(Ham_N_imp,Ham_N_Imp), Imp_V(Ham_N_imp,L1,L2) )
           Imp_t = 0.d0;  Imp_V  = 0.d0;  Imp_Jz = 0.d0 
           
-!         Here  you will  have to  implement  mpi support 
-          OPEN(NEWUNIT=unit_para, FILE=file_para, STATUS='old', ACTION='read', IOSTAT=ierr)
-          READ(unit_para, NML=VAR_impurities)
-          CLOSE(unit_para)
-!         End Mpi 
-
+#ifdef MPI
+          If (Irank_g == 0 ) then
+#endif          
+#ifdef TEMPERING
+             write(file_para,'(A,I0,A)') "Temp_", igroup, "/parameters"
+#else
+             file_para = "parameters"
+#endif
+             OPEN(NEWUNIT=unit_para, FILE=file_para, STATUS='old', ACTION='read', IOSTAT=ierr)
+             READ(unit_para, NML=VAR_impurities)
+             CLOSE(unit_para)
+#ifdef MPI
+          Endif
+          !Broadcast parameters to all MPI tasks
+          Allocate (Imp_t(Ham_N_imp,Ham_N_imp), Imp_Jz(Ham_N_imp,Ham_N_Imp), Imp_V(Ham_N_imp,L1,L2) )
+          N =  Ham_N_imp*Ham_N_imp
+          CALL MPI_BCAST(Imp_t   ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
+          CALL MPI_BCAST(Imp_Jz  ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
+          N = Ham_N_imp*L1*L2
+          CALL MPI_BCAST(Imp_V  ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
+#endif
           
          
           Ltrot = nint(beta/dtau)
