@@ -1039,50 +1039,54 @@
              if (mod(ix+iy,2)  == 0 )   Prefactor(nc)  = 1
           enddo
 
-          If  ( Ham_Imp_Kind == "Kondo" )  then
-             nc  = 0
-             do no  =  1,Latt_unit_f%Norb
-                do ix  = 1,L1
-                   do iy = 1,L2
-                      If  ( abs(Imp_V(no,ix,iy)) >  1.D-10 ) then
-                         nc = nc + 1
-                         i_f = invlist_f(1,no)
-                         ic_p = dble(ix)*Latt_c%a1_p + dble(iy)*Latt_c%a2_p
-                         I    = Inv_R(ic_p,Latt_c)
-                         i_c =  Invlist_c(I,1)
-                         I =  -Prefactor(i_c)*nint(Imp_V(no,ix,iy)/abs(Imp_V(no,ix,iy))) 
-                         If ( Prefactor(i_f) ==  0 )  then
-                            Prefactor(i_f)  = -Prefactor(i_c)*nint(Imp_V(no,ix,iy)/abs(Imp_V(no,ix,iy)))  
-                         else
-                            if  ( Prefactor(i_f) /= I ) then
-                               Particle_hole = .False.
-                            endif
+          nc  = 0
+          do no  =  1,Latt_unit_f%Norb
+             do ix  = 1,L1
+                do iy = 1,L2
+                   If  ( abs(Imp_V(no,ix,iy)) >  1.D-10 ) then
+                      nc = nc + 1
+                      i_f = invlist_f(1,no)
+                      ic_p = dble(ix)*Latt_c%a1_p + dble(iy)*Latt_c%a2_p
+                      I    = Inv_R(ic_p,Latt_c)
+                      i_c =  Invlist_c(I,1)
+                      If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I =  -Prefactor(i_c)*nint(Imp_V(no,ix,iy)/abs(Imp_V(no,ix,iy)))
+                      else
+                         I =  -Prefactor(i_c)
+                      endif
+                      If ( Prefactor(i_f) ==  0 )  then
+                         Prefactor(i_f)  = I 
+                      else
+                         if  ( Prefactor(i_f) /= I ) then
+                            Particle_hole = .False.
                          endif
                       endif
-                   enddo
+                   endif
                 enddo
              enddo
-             if  (nc   == 0 )   Prefactor(Invlist_f(1,1)) = 1   !   Set  the overall factor
-             do no  =  1,Latt_unit_f%Norb
-                nc = Invlist_f(1,no)
-                If (Prefactor(nc) /= 0 )  then 
-                   do no1  =  1,Latt_unit_f%Norb
-                      If  ( abs(Imp_t(no1,no)) > 1.D-10 )  then
-                         I = - nint(Imp_t(no1,no)/abs(Imp_t(no1,no)) ) * Prefactor(nc) 
-                         nc1 = Invlist_f(1,no1)
-                         if (  Prefactor(nc1) ==  0 )  then
-                            Prefactor(nc1) = I
-                         elseif ( Prefactor(nc1) /=  I  ) then
-                            Particle_hole= .false.
-                         endif
+          enddo
+          if  (nc   == 0 )   Prefactor(Invlist_f(1,1)) = 1   !   Set  the overall factor
+          do no  =  1,Latt_unit_f%Norb
+             nc = Invlist_f(1,no)
+             If (Prefactor(nc) /= 0 )  then 
+                do no1  =  1,Latt_unit_f%Norb
+                   If  ( abs(Imp_t(no1,no)) > 1.D-10 )  then
+                      If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I = - nint(Imp_t(no1,no)/abs(Imp_t(no1,no)) ) * Prefactor(nc)
+                      else
+                         I = - Prefactor(nc)
                       endif
-                   enddo
-                endif
-             enddo
-          else
-             
-          endif
-
+                      nc1 = Invlist_f(1,no1)
+                      if (  Prefactor(nc1) ==  0 )  then
+                         Prefactor(nc1) = I
+                      elseif ( Prefactor(nc1) /=  I  ) then
+                         Particle_hole= .false.
+                      endif
+                   endif
+                enddo
+             endif
+          enddo
+          
           Do  nc = 1,  size(Prefactor,1)
              if  (Prefactor(nc)  == 0  )  then
                 WRITE(error_unit,*) 'One  orbital  is not  linked to the  cluster.  Consider  adapting the  the parameter file', nc
