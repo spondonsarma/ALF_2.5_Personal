@@ -266,7 +266,6 @@
 #ifdef MPI
           Endif
           !Broadcast parameters to all MPI tasks
-          Allocate (Imp_t(Ham_N_imp,Ham_N_imp), Imp_Jz(Ham_N_imp,Ham_N_Imp), Imp_V(Ham_N_imp,L1,L2) )
           N =  Ham_N_imp*Ham_N_imp
           CALL MPI_BCAST(Imp_t   ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
           CALL MPI_BCAST(Imp_Jz  ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
