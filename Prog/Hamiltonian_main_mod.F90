@@ -157,6 +157,7 @@
         procedure, nopass :: weight_reconstruction => weight_reconstruction_base
         procedure, nopass :: GR_reconstruction => GR_reconstruction_base
         procedure, nopass :: GRT_reconstruction => GRT_reconstruction_base
+        procedure, nopass :: Apply_B_HMC => Apply_B_HMC_base
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5 => write_parameters_hdf5_base
 #endif
@@ -180,6 +181,7 @@
       Integer      , public        :: Group_Comm
       Logical      , public        :: Symm
       Logical      , public        :: reconstruction_needed
+      Logical      , public        :: leap_frog_bulk
 
 
       !>    Privat Observables
@@ -661,6 +663,46 @@
             ! Johannes: I would actually like to terminate the code. I cannot come up with a scenario where Forces_0=0 is correct!
             
           end Subroutine Ham_Langevin_HMC_S0_base
+
+
+  !--------------------------------------------------------------------
+  !> @author 
+  !> ALF Collaboration
+  !>
+  !> @brief 
+  !>   p_HMC are the conjugate momenta to the fields phi in the HMC updating scheme.
+  !>   The relevant part of the action reads -1/2 p_HMC^T M^{-1} p_HMC, where M^{-1} = B^T * B is the
+  !>   "mass" of the conjugate momenta (tuning parameter in HMC) 
+  !>   If we define p_tilde_HMC= B*p_HMC then the Forces to update p_tilde_HMC are: 
+  !>        p_tilde_HMC --> p_tilde_HMC - delta t B del H /del phi .
+  !>   and the Forces to update phi are: 
+  !>        phi --> phi + delta t B^T p_tilde_HMC
+  !>   By detault, M=1 => B=1, hence this routine does nothing!
+  !>   We  note  that  Forces_HMC(:,:)   has  to be  understood as  a vection  with  superindex x=(n1,n2)
+  !>   such  that B =  B(x,y).   Since  we  want  M to be positive definite  the  Kernel of  B has  to consist         
+  !>   solely of the zero vector.        
+  !>         
+  !> @details
+  !> @param[inout] Forces_HMC Real(:,:)
+  !> \verbatim
+  !>  del H /del phi or p_tilde_HMC on input
+  !>  Forces_HMS --> B^op Forces_HMC  
+  !> \endverbatim .
+  !> @param[in] ltrans Logical
+  !> \verbatim
+  !>  ltrans = .true.  : op='T'
+  !>  ltrans = .false. : op='N'
+  !> \endverbatim 
+  !> 
+  !-------------------------------------------------------------------
+          Subroutine Apply_B_HMC_base(Forces_HMC, ltrans )
+
+            Implicit none
+
+            Real (Kind=Kind(0.d0)), Intent(inout), allocatable :: Forces_HMC(:,:)
+            Logical               , Intent(in)                 :: ltrans
+
+          end Subroutine Apply_B_HMC_base
     
 !--------------------------------------------------------------------
 !> @brief
