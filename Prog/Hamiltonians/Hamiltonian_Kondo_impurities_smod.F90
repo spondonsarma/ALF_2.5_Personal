@@ -314,15 +314,15 @@
              Write(unit_info,*) '====================================='
              Write(unit_info,*) 'Model is      :  Kondo_impurities'
              Write(unit_info,*) 'Lattice is    : ', Lattice_type
-             Write(unit_info,*) '# c-orbs      : ', Latt_c%N 
-             Write(unit_info,*) '# f-orbs      : ', Latt_f%N
+             Write(unit_info,*) '# c-orbs      : ', Latt_c%N*Latt_unit_c%norb 
+             Write(unit_info,*) '# f-orbs      : ', Latt_f%N*Latt_unit_f%norb
              Write(unit_info,*) '# orbs        : ', Ndim
              Write(unit_info,*) '# t           : ', Ham_t
              Write(unit_info,*) '# U           : ', Ham_U
              Write(unit_info,*) '# Flux        : ', N_Phi
              Write(unit_info,*) 'Checkerboard  : ', Checkerboard
              Write(unit_info,*) 'Symm. decomp  : ', Symm
-             Write(unit_info,*) 'Particle_hole : ', Particle_hole
+             If  (N_FL == 2)  Write(unit_info,*) 'Particle_hole : ', Particle_hole
              if (Projector) then
                 Write(unit_info,*) 'Projective version'
                 Write(unit_info,*) 'Theta         : ', Theta
@@ -476,16 +476,15 @@
                 endif
              enddo
           enddo
-
           
           !Testing
-          Do nb  =1, N_bonds
-             Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_cf_ff(nb,1), Invlist_cf_ff(nb,2), V_cf_ff(nb)
-          enddo
-          Write(6,*)
-          Do nb  =1, N_bonds_z
-             Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_ff_z(nb,1), Invlist_ff_z(nb,2), V_ff_z(nb)
-          enddo
+          !Do nb  =1, N_bonds
+          !   Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_cf_ff(nb,1), Invlist_cf_ff(nb,2), V_cf_ff(nb)
+          !enddo
+          !Write(6,*)
+          !Do nb  =1, N_bonds_z
+          !   Write(6,"(I4,2x,I4,2x,I4,2x,F14.7)") nb,Invlist_ff_z(nb,1), Invlist_ff_z(nb,2), V_ff_z(nb)
+          !enddo
           
         end Subroutine Ham_Latt
 !--------------------------------------------------------------------
@@ -585,7 +584,7 @@
                 enddo
              enddo
              deallocate (OP_T_c, OP_T_cf_ff)
-             Write(6,*) "Size OP_T,1: ", Size(OP_T,1)
+             !Write(6,*) "Size OP_T,1: ", Size(OP_T,1)
           else
              Call  Predefined_Hoppings_set_OPT(Hopping_Matrix_c,List_c,Invlist_c,Latt_c,  Latt_unit_c,  Dtau, Checkerboard, Symm, OP_T )
           endif
@@ -760,9 +759,9 @@
                 Write(Filename_lst(nc), '(A,I0)') trim(Filename),nc
              Enddo
           Endif
-          Do  nc  = 1,  N_Files
-             Write(6,*)  Filename_lst(nc)
-          enddo
+          !Do  nc  = 1,  N_Files
+          !   Write(6,*)  Filename_lst(nc)
+          !enddo
           
 !         Scalar observables
           Allocate ( Obs_scal(1) )
