@@ -984,9 +984,9 @@
              Endif
              If ( Ham_Imp_Kind  == "Anderson" )   Then
                 I_f  =  Invlist_f(1,I)
-                If ( N_FL == 1 ) Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) + &
+                If ( N_FL == 1 ) Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(I)%Obs_Latt(1,NT+1,1,1) + &
                      &     GT0(I_f,I_f,1)   * dble(N_SUN) * ZP*ZS
-                If ( N_FL == 2 ) Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) + &
+                If ( N_FL == 2 ) Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(I)%Obs_Latt(1,NT+1,1,1) + &
                      &  ( GT0(I_f,I_f,1) + GT0(I_f,I_f,2) ) * ZP*ZS
              else
                 I_f = GreenPsi_List(I,1) ! f-electron
