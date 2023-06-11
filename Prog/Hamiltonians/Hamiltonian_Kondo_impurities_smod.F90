@@ -991,7 +991,7 @@
              else
                 I_f = GreenPsi_List(I,1) ! f-electron
                 I_c = GreenPsi_List(I,2) ! c-electron
-                Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) + &
+                Obs_tau(I)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(I)%Obs_Latt(1,NT+1,1,1) + &
                      &  Predefined_Obs_Cotunneling(I_c, I_f, I_c, I_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) * ZP*ZS
              endif
           enddo
