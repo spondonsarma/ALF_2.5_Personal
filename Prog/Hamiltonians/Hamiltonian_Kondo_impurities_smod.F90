@@ -510,7 +510,7 @@
 
           Select case  (Lattice_type)
           Case("Square")
-             N_phi  =  0
+             N_phi  =  1
           Case ("Pi_flux")
              N_phi  =  Latt_c%N/2
           case default
