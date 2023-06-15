@@ -200,6 +200,8 @@
       Integer, allocatable :: Invlist_ff_z(:,:)
       Real(Kind=Kind(0.d0)), allocatable :: V_ff_z(:)
 
+      Integer ::  x_shift = 0, y_shift = 0
+
       !  For  flavor  symmetry   in case  of  particle-hole symmtry
       Integer, allocatable   ::  Prefactor(:)
       Logical  :: Particle_hole
@@ -253,6 +255,7 @@
           Imp_t = 0.d0;  Imp_V  = 0.d0;  Imp_Jz = 0.d0 
           
 #ifdef MPI
+          X_Shift =  Irank_g
           If (Irank_g == 0 ) then
 #endif          
 #ifdef TEMPERING
@@ -272,6 +275,22 @@
           N = Ham_N_imp*L1*L2
           CALL MPI_BCAST(Imp_V  ,  N,MPI_REAL8    ,0,Group_Comm,ierr)
 #endif
+          IF ( .not.( (N_SUN ==2  .and.  N_FL ==1)    .or. ( N_SUN ==1  .and.  N_FL ==2) )  ) THEN
+             WRITE(error_unit,*) 'Code  runs  for  N_SUN=2,N_FL =1 or  N_SUN=1,N_FL =2'
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+          endif
+
+          ierr = 0
+          do  n = 1, Ham_N_imp
+             do  m = 1, Ham_N_imp
+                if ( abs(Imp_Jz(m,n))   >  1.D-10 )      ierr  = 1
+             enddo
+          enddo
+          If  (abs(Ham_mag)  >  1.D-10 )  ierr = 1
+          if (ierr == 1 .and.  N_FL ==1 )  then
+             WRITE(error_unit,*) 'Code  needs  N_FL =2, and  N_FL = 1 is set'
+             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+          endif
           
          
           Ltrot = nint(beta/dtau)
@@ -288,7 +307,9 @@
 !           ! Setup the interaction.
           call Ham_V
 
-          if  (N_FL   ==  2 )   then
+          
+
+          if  (N_FL == 2)  then
              ! Setup  prefactor  for falvor  symmetry
              Call  Set_Prefactor(Particle_hole)
              If  (Particle_hole)  then
@@ -351,11 +372,7 @@
 #ifdef MPI
           Endif
 #endif
-
-          IF ( .not.( N_SUN ==2  .and.  N_FL ==1   .or.  N_SUN ==1  .and.  N_FL ==2)  ) THEN
-             WRITE(error_unit,*) 'Code  runs  for  N_SUN=2,N_FL =1 or  N_SUN=1,N_FL =2'
-             CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
-          endif
+          
           
         end Subroutine Ham_Set
 
@@ -441,7 +458,7 @@
                 do  i2 = 1,L2
                    if  (abs(Imp_V(no,i1,i2)) > 1.0D-10 )    then
                       nc  = nc  + 1
-                      ic_p = dble(i1)*Latt_c%a1_p + dble(i2)*Latt_c%a2_p
+                      ic_p = dble(i1+x_shift)*Latt_c%a1_p + dble(i2+y_shift)*Latt_c%a2_p
                       Ic   = Inv_R(ic_p,Latt_c)
                       Invlist_cf_ff(nc,1) = Invlist_f(1,no)     !  f-orbital
                       Invlist_cf_ff(nc,2) = Invlist_c(Ic,1)     !  c-orbital
@@ -743,7 +760,7 @@
                       If  (abs(Imp_V(n,ix,iy)) > 0.d0 )  Then
                          nc = nc + 1
                          Write(Filename_lst(nc), '(A,I0,A,I0,A,I0)') trim(Filename),n,"_",ix,"_",iy
-                         ic_p = dble(ix)*Latt_c%a1_p + dble(iy)*Latt_c%a2_p
+                         ic_p = dble(ix+ x_shift)*Latt_c%a1_p + dble(iy + y_shift)*Latt_c%a2_p
                          Ic   = Inv_R(ic_p,Latt_c)
                          GreenPsi_List(nc,1)  = Invlist_f(1,n)  ! f-electron
                          GreenPsi_List(nc,2)  = Invlist_c(Ic,1) ! c-electron
@@ -1058,7 +1075,7 @@
                    If  ( abs(Imp_V(no,ix,iy)) >  1.D-10 ) then
                       nc = nc + 1
                       i_f = invlist_f(1,no)
-                      ic_p = dble(ix)*Latt_c%a1_p + dble(iy)*Latt_c%a2_p
+                      ic_p = dble(ix + x_shift)*Latt_c%a1_p + dble(iy + y_shift)*Latt_c%a2_p
                       I    = Inv_R(ic_p,Latt_c)
                       i_c =  Invlist_c(I,1)
                       If  ( Ham_Imp_Kind == "Kondo" )  then
@@ -1085,6 +1102,19 @@
                    If  ( abs(Imp_t(no1,no)) > 1.D-10 )  then
                       If  ( Ham_Imp_Kind == "Kondo" )  then
                          I = - nint(Imp_t(no1,no)/abs(Imp_t(no1,no)) ) * Prefactor(nc)
+                      else
+                         I = - Prefactor(nc)
+                      endif
+                      nc1 = Invlist_f(1,no1)
+                      if (  Prefactor(nc1) ==  0 )  then
+                         Prefactor(nc1) = I
+                      elseif ( Prefactor(nc1) /=  I  ) then
+                         Particle_hole= .false.
+                      endif
+                   endif
+                   If  ( abs(Imp_t(no,no1)) > 1.D-10 )  then
+                      If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I = -  Prefactor(nc) * nint(Imp_t(no,no1)/abs(Imp_t(no,no1)) ) 
                       else
                          I = - Prefactor(nc)
                       endif
