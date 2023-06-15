@@ -256,6 +256,8 @@
           
 #ifdef MPI
           X_Shift =  Irank_g
+          Y_Shift =  Irank_g/L1
+          Write(6,*)  Irank, X_Shift, Y_Shift
           If (Irank_g == 0 ) then
 #endif          
 #ifdef TEMPERING
