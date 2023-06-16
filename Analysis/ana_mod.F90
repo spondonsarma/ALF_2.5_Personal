@@ -735,7 +735,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Real    (Kind=Kind(0.d0))             , intent(in) :: dtau
       Character (len=2)                     , intent(in) :: Channel
 
-      Logical :: PartHole,  L_Back
+      Logical :: PartHole,  L_Back,  Multi_orbital=.true.
       Character (len=64) :: File_out, command
       Real    (Kind=Kind(0.d0)), parameter :: Zero=1.D-8
       Integer :: N_skip, N_rebin, N_Cov, N_Back, N_auto
@@ -750,7 +750,7 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       Complex (Kind=Kind(0.d0)), allocatable :: Xmean(:), Xcov(:,:),  Xmean_st(:),  Xerr_st(:)
 
 
-      NAMELIST /VAR_errors/ n_skip, N_rebin, N_Cov, N_Back, N_auto
+      NAMELIST /VAR_errors/ n_skip, N_rebin, N_Cov, N_Back, N_auto, Multi_orbital
 
       PartHole = .false.
       if(Channel == 'PH') PartHole = .true.
@@ -870,13 +870,9 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
       enddo
       !!  Normalization:   <O_n(0,t) O_m(0)> - <O_n><O_m> 
       V_help_loc =  V_help_loc/dble(Latt%N)
-      if (N_Back == 1) then
-         L_back  = .true. 
-         call COV(V_help_loc, phase, Xcov, Xmean, background, L_back, N_rebin  )
-      else
-         L_back  = .false. 
-         call COV(V_help_loc, phase, Xcov, Xmean, background, L_back, N_rebin  )
-      endif
+      L_back  = .false. 
+      if (N_Back == 1)  L_back  = .true. 
+      call COV(V_help_loc, phase, Xcov, Xmean, background, L_back, N_rebin  )
       write(File_out,'(A,"_R0/g_dat")') trim(name_obs)
       write(command, '("mkdir -p ",A,"_R0")') trim(name_obs)
       CALL EXECUTE_COMMAND_LINE(command)
@@ -895,10 +891,38 @@ Subroutine read_latt_hdf5(filename, name, sgn, bins, bins0, Latt, Latt_unit, dta
          Enddo
       Endif
       close(10)
+
+      Allocate( Weights(Norb) )
+      If  (Multi_orbital)  then
+         do no  = 1, Norb
+            Weights     = cmplx(0.d0,0.d0,kind(0.d0))
+            Weights(no) = cmplx(1.d0,0.d0,kind(0.d0))
+            write(File_out,'(A,"_R0_",I0,"/g_dat")') trim(name_obs), no
+            write(command, '("mkdir -p ",A,"_R0_",I0)') trim(name_obs),no
+            CALL EXECUTE_COMMAND_LINE(command)
+            call COV(V_help_loc, phase, Xcov, Xmean, background, L_back, N_rebin, Weights  )
+            Open (Unit=10,File=File_out,status="unknown")
+            Write(10, '(2(I11), E26.17E3, I11, A3)') &
+                 & LT_eff, nbins/N_rebin, real(lt-1,kind(0.d0))*dtau, Latt_unit%Norb, Channel
+            do nt = 1, LT_eff
+               Write(10, '(3(E26.17E3))') &
+                    & dble(nt-1)*dtau,  dble(Xmean(nt)), sqrt(abs(dble(Xcov(nt,nt))))
+            enddo
+            close(10)
+            If (N_cov == 1) Then ! Print  covariance
+               Do nt = 1,LT_eff
+                  Do nt1 = 1,LT_eff
+                     Write(10, '(E25.17E3)') dble(Xcov(nt,nt1))
+                  Enddo
+               Enddo
+            Endif
+         enddo
+      endif
+      
       Deallocate( Xmean, Xcov, V_help_loc) 
 
       ! Do susceptibilities ===============================
-      Allocate(V_help_suscep(1,Norb,Norb,Nbins), Weights(Norb) )
+      Allocate(V_help_suscep(1,Norb,Norb,Nbins)) 
       Allocate(Xmean(1), Xcov(1,1), Xmean_st(Latt%N), Xerr_st(Latt%N) ) 
       Weights=cmplx(1.d0,0.d0,kind(0.d0))
       Z = Latt%N*(Lt_eff -1)
