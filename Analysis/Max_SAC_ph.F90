@@ -77,9 +77,9 @@
        Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
-            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance
+            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance,  Ntau_Max
 
-       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto, Ntau_max
+       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
 
        open(unit=30,file='parameters',status='old',action='read', iostat=io_error)
        if (io_error.eq.0) then
