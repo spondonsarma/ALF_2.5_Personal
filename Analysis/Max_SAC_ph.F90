@@ -72,14 +72,14 @@
        Character (Len=2)      :: Channel
 
        Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i,  nbin_qmc
-       Integer                :: ntau_st, ntau_en, ntau_new, Ntau_old
+       Integer                :: ntau_st, ntau_en, ntau_new, Ntau_old, Ntau_max
        Real (Kind=Kind(0.d0)) :: dtau, pi, xmom1, x,x1,x2, tau, omp, om, Beta,err, delta, Dom
        Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
             &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance
 
-       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
+       NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto, Ntau_max
 
        open(unit=30,file='parameters',status='old',action='read', iostat=io_error)
        if (io_error.eq.0) then
@@ -154,6 +154,7 @@
           error stop 1
        end Select
        Ntau_old = Ntau
+       If  (Ntau_max >  0 )  Ntau_en = Ntau_max
        Call Rescale ( XCOV, XQMC,XTAU, Ntau_st, Ntau_en, Tolerance, NTAU)
        Write(50,"('Data has been rescaled from Ntau  ',  I4,' to ', I4)")  NTAU_old, Ntau
        If ( Ntau <= 4 ) then
@@ -415,7 +416,7 @@
 
        Integer,  INTENT(IN)    ::  Ntau_st, Ntau_en
        Integer,  INTENT(INOUT) ::  Ntau
-
+       
        !Local
        Integer :: Ntau_new, nt, nt1
        Integer, allocatable :: List(:)
