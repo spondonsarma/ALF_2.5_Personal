@@ -2,7 +2,7 @@
 
 ---
 ## ALF 2.5
-ALF 2.5 released on 2023-05-??
+ALF 2.5 released on 2023-06-05
 
 ### 2023-05-09 Use a RUNNING file to avoid multiple instances running in the same directory 
 
