@@ -41,6 +41,7 @@
 !
 !--------------------------------------------------------------------
        Use MaxEnt_stoch_mod
+       Use MaxEnt_mod
 
        use iso_fortran_env, only: output_unit, error_unit
        Implicit  None
@@ -56,9 +57,9 @@
        end Interface
 
        Real (Kind=Kind(0.d0)), Dimension(:)  , allocatable :: XQMC, XQMC_st, XTAU, Xtau_st, &
-            &                                                 Alpha_tot, om_bf, alp_bf, xom, A
-       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, XCOV_st
-       Real (Kind=Kind(0.d0))                              :: X_moments(2), Xerr_moments(2)
+            &                                                 Alpha_tot, om_bf, alp_bf, xom, A,  Default
+       Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, XCOV_st, XKer_mat
+       Real (Kind=Kind(0.d0))                              :: X_moments(2), Xerr_moments(2), ChiSQ
        Real (Kind=Kind(0.d0)), External                    :: XKER_p_ph,XKER_ph, Back_trans_ph, XKER_pp, Back_trans_pp, &
             &                                                 XKER_p, Back_trans_p, XKER_T0, Back_trans_T0
        Character (Len=64)                                  :: command, File1, File2
@@ -68,7 +69,7 @@
        Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov
        Integer                :: N_skip, N_rebin, N_Back, N_auto, Norb
        Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
-       Logical                :: Checkpoint
+       Logical                :: Checkpoint=.false.,  Stochastic=.true. 
        Character (Len=2)      :: Channel
 
        Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i,  nbin_qmc
@@ -77,7 +78,8 @@
        Real (Kind=Kind(0.d0)) :: Zero
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
-            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance,  Ntau_Max
+            &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance,  Ntau_Max, &
+            &                   Stochastic 
 
        NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
 
@@ -198,16 +200,38 @@
           endif
           ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case ("P")
-          If (N_cov == 1 ) then
-             xmom1 = xmom1/2.d0
-             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p_ph, Back_Trans_p, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
+          If  (Stochastic)  then 
+             If (N_cov == 1 ) then
+                xmom1 = xmom1/2.d0
+                Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p_ph, Back_Trans_p, Beta, &
+                     &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm, N_Cov)
+             else
+                xmom1 = xmom1/2.d0
+                Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p_ph, Back_Trans_p, Beta, &
+                     &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
+             endif
+             ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
           else
-             xmom1 = xmom1/2.d0
-             Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_p_ph, Back_Trans_p, Beta, &
-                  &            Alpha_tot, Ngamma, OM_ST, OM_EN, Ndis, Nsweeps, NBins, NWarm)
+             ! Here  you   call classic  MaxEnt.
+             ! Steup  the data
+             
+             Allocate (xom(Ndis), A(Ndis), Default(Ndis)) 
+             Allocate (XKer_mat(size(Xqmc,1),Ndis))
+             DOM  =  (OM_En -  OM_St)/dble(Ndis)
+             do  nw  = 1,Ndis
+                om =  OM_St +  dble(nw-1)*dom
+                Do nt  = 1,Ntau
+                   Xker_mat(nt,nw)  =  XKER_p_ph(xtau(nt),om, beta)
+                Enddo
+             enddo
+             ALPHA_ST = 1000000.D0
+             Default  = Xmom1/  dble(Ndis)
+             Call  MaxEnt( XQMC, XCOV, A, XKER_mat, ALPHA_ST, CHISQ ,DEFAULT)
+             do  nw =  1,Ndis
+                Write(10,"(F16.8,2x,F16.8)") OM_St +  dble(nw-1)*dom,   A(nw)/Dom
+             enddo
+             Stop
           endif
-          ! Beware: Xqmc and cov are modified in the MaxEnt_stoch call.
        Case ("T0")
           If (N_cov == 1 ) then
              Call MaxEnt_stoch(XQMC, Xtau, Xcov, Xmom1, XKER_T0, Back_Trans_T0, Beta, &
