@@ -57,7 +57,7 @@
        end Interface
 
        Real (Kind=Kind(0.d0)), Dimension(:)  , allocatable :: XQMC, XQMC_st, XTAU, Xtau_st, &
-            &                                                 Alpha_tot, om_bf, alp_bf, xom, A,  Default
+            &                                                 Alpha_tot, om_bf, alp_bf, xom, A, Default, A1, lstnw
        Real (Kind=Kind(0.d0)), Dimension(:,:), allocatable :: XCOV, XCOV_st, XKer_mat
        Real (Kind=Kind(0.d0))                              :: X_moments(2), Xerr_moments(2), ChiSQ
        Real (Kind=Kind(0.d0)), External                    :: XKER_p_ph,XKER_ph, Back_trans_ph, XKER_pp, Back_trans_pp, &
@@ -65,11 +65,11 @@
        Character (Len=64)                                  :: command, File1, File2
        Complex (Kind=Kind(0.d0))                           :: Z
 
-
-       Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov
+       ! nw_n, lstnw(nw_n), A1(nw_n)
+       Integer                :: Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, N_cov, nw_n
        Integer                :: N_skip, N_rebin, N_Back, N_auto, Norb
        Real (Kind=Kind(0.d0)) :: OM_st, OM_en,  alpha_st, R, Tolerance
-       Logical                :: Checkpoint=.false.,  Stochastic=.true. 
+       Logical                :: Checkpoint=.false.,  Stochastic=.true. , Annealing = .true. 
        Character (Len=2)      :: Channel
 
        Integer                :: nt, nt1, io_error, n,nw, nwp, ntau, N_alpha_1, i,  nbin_qmc
@@ -79,7 +79,7 @@
 
        NAMELIST /VAR_Max_Stoch/ Ngamma, Ndis,  NBins, NSweeps, Nwarm, N_alpha, &
             &                   OM_st, OM_en,  alpha_st, R,  Checkpoint, Tolerance,  Ntau_Max, &
-            &                   Stochastic 
+            &                   Stochastic ,  Annealing 
 
        NAMELIST /VAR_errors/    N_skip, N_rebin, N_cov,  N_Back, N_auto
 
@@ -215,7 +215,7 @@
              ! Here  you   call classic  MaxEnt.
              ! Steup  the data
              
-             Allocate (xom(Ndis), A(Ndis), Default(Ndis)) 
+             Allocate (xom(Ndis), A(Ndis), Default(Ndis), A1(Ndis), lstnw(Ndis)) 
              Allocate (XKer_mat(size(Xqmc,1),Ndis))
              DOM  =  (OM_En -  OM_St)/dble(Ndis)
              do  nw  = 1,Ndis
@@ -224,12 +224,32 @@
                    Xker_mat(nt,nw)  =  XKER_p_ph(xtau(nt),om, beta)
                 Enddo
              enddo
-             ALPHA_ST = 1000000.D0
+
+            !!
+            !! 
+            !New Line for reading the data the to carry Annealing
+         If  (Annealing)  then 
+             Open (Unit=11,File="Green_ClassicMaxEnt_Prev", Status="unknown")
+             do  nw_n =  1,Ndis
+                read(11,"(F16.8,2x,F16.8)")lstnw(nw_n), A1(nw_n)
+                !Default = A1
+             enddo
+             close(11)
+             Default = A1/ dble(Ndis)
+	 else
              Default  = Xmom1/  dble(Ndis)
+	 endif	
+             !end new line
+             !!
+             !!
+
+	     ALPHA_ST = 1000000.D0
+             Open (Unit=10,File="Green_ClassicMaxEnt", Status="unknown", action="write")
              Call  MaxEnt( XQMC, XCOV, A, XKER_mat, ALPHA_ST, CHISQ ,DEFAULT)
              do  nw =  1,Ndis
                 Write(10,"(F16.8,2x,F16.8)") OM_St +  dble(nw-1)*dom,   A(nw)/Dom
              enddo
+             close(10)
              Stop
           endif
        Case ("T0")
