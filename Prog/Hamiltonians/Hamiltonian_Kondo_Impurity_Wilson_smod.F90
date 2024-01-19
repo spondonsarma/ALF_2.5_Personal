@@ -230,6 +230,10 @@
         call Ham_Hop
         ! Setup the interaction.
         call Ham_V
+        ! Allocate a lattice of one  unit  cell  with  
+        ! Norb  =  Two_S
+        Call  Ham_Latt
+
 ! 
 !           ! Setup the trival wave function, in case of a projector approach
 !           if (Projector) Call Ham_Trial()
@@ -326,6 +330,34 @@
         endif
 #endif
       end   subroutine Ham_Bath
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Sets  the  Lattice. 
+!--------------------------------------------------------------------
+      Subroutine Ham_Latt
+
+        Implicit none
+        Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
+        
+        
+        Latt_unit%Norb    = Two_S
+        Latt_unit%N_coord = 1
+        allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
+        Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
+
+        a1_p(1) =  1.0  ; a1_p(2) =  0.d0
+        a2_p(1) =  0.0  ; a2_p(2) =  1.d0
+        L1_p    =  a1_p
+        L2_p    =  a2_p
+        Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+       
+        
+      end Subroutine Ham_Latt
+!--------------------------------------------------------------------
 
 !--------------------------------------------------------------------
 !> @author
@@ -582,7 +614,8 @@
           Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
           
           !Locals
-          Complex (Kind=Kind(0.d0)) :: ZP, ZS
+          Complex (Kind=Kind(0.d0)) :: ZP, ZS, Z 
+          Integer ::  n,m,  I,J
           ! Add local variables as needed
 
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -590,6 +623,21 @@
           ZS = ZS * Mc_step_weight
 
           ! Compute observables
+          If (NT == 0 ) then
+            Do I = 1,Size(Obs_tau,1)
+               Obs_tau(I)%N         =  Obs_tau(I)%N + 1
+               Obs_tau(I)%Ave_sign  =  Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
+            Enddo
+         Endif
+
+          do n =  1, Two_S
+            I = L_Bath + n
+            do  m =  1,Two_S
+              J = L_Bath + m
+              Z  =  - 2.d0* (G0T(J,I,1) * GT0(I,J,1))
+              Obs_tau(1)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(1)%Obs_Latt(1,NT+1,n,m) +   Z*ZP*ZS
+            enddo
+          enddo
 
         end Subroutine OBSERT
         
