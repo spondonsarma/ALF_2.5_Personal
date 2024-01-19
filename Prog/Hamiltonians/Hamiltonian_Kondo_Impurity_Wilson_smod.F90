@@ -167,7 +167,7 @@
       !#PARAMETERS END#
 
       !#PARAMETERS START# VAR_Kondo_Impurity_Wilson
-      Integer                  :: L = 12        !   Discretization
+      Integer                  :: L_Bath = 12        !   Discretization
       Real(Kind=Kind(0.d0))    :: Ham_W = 1.d0      !   Bandwidth
       Real(Kind=Kind(0.d0))    :: Lambda = 1.d0 !   For  log  discretization
       Integer                  :: Two_S  = 1    !   2spin of  impurity
@@ -222,9 +222,9 @@
         Thtrot = 0
         if (Projector) Thtrot = nint(theta/dtau)
         Ltrot = Ltrot+2*Thtrot
-        NDIM   =  L + Two_S
+        NDIM   =  L_Bath + Two_S
         ! Setup  lists  for log   discretization (This plays  the  role of the lattice)
-        ! Bath sites   1 .. L,   Impurity  sites   L + 1,  L + 2S  
+        ! Bath sites   1 .. L_Bath,   Impurity  sites   L_Bath + 1,  L + 2S  
         call Ham_Bath
         ! Setup diagonal hopping =  site  dependent  energy
         call Ham_Hop
@@ -245,7 +245,7 @@
           Write(unit_info,*) '====================================='
           Write(unit_info,*) 'Model is      : Kondo_Impurity_Wilson '
           Write(unit_info,*) '2S            : ',Two_S
-          Write(unit_info,*) 'L             : ',L
+          Write(unit_info,*) 'L Bath        : ',L_Bath
           Write(unit_info,*) 'Ndim          : ',Ndim
           Write(unit_info,*) 'W             : ',Ham_W
           Write(unit_info,*) 'Jk            : ',Ham_JK
@@ -282,35 +282,35 @@
         Logical :: Log_scale  = .true. , Lin_scale = .false.
 
         !Here you can allocate the energies
-        allocate ( eps(L), delta_eps(L), g(L) )
-        Do I = 1,L
-           g(i)  = real(L,kind(0.d0)) / ( Ham_W * 2.D0 )
+        allocate ( eps(L_Bath), delta_eps(L_Bath), g(L_Bath) )
+        Do I = 1,L_Bath
+           g(i)  = real(L_Bath,kind(0.d0)) / ( Ham_W * 2.D0 )
         Enddo
         if (Log_scale) then
-          Do I = 1,L/2
+          Do I = 1,L_Bath/2
             eps(I) =  - (lambda**( 1 -i) ) * Ham_W/2.d0
           Enddo
-          Do I = L/2+1,L
-            eps(I) =   (lambda**(i-L)) * Ham_W/2.d0
+          Do I = L_Bath/2+1,L_Bath
+            eps(I) =   (lambda**(i-L_Bath)) * Ham_W/2.d0
           Enddo
         elseif (Lin_scale) then
-          Delta = Ham_W/real(L,kind(0.d0))
-          Do I = 1,L/2
+          Delta = Ham_W/real(L_Bath,kind(0.d0))
+          Do I = 1,L_Bath/2
             eps(I) =  -Ham_W/2.d0   + real(i-1,kind(0.d0))*Delta
           Enddo
-          Do I = L/2+1,L
-            eps(I) =   Delta*real( I - L/2,Kind(0.d0))
+          Do I = L_Bath/2+1,L_Bath
+            eps(I) =   Delta*real( I - L_Bath/2,Kind(0.d0))
           Enddo
         else
           Write(6,*) 'No valid scale'
           stop
         endif
-        Do I = 1,L/2-1
+        Do I = 1,L_Bath/2-1
            delta_eps(I) = abs(eps(I+1) - eps(I))
         Enddo
-        delta_eps(L/2)   = abs(eps(L/2))
-        delta_eps(L/2+1) = abs(eps(L/2))
-        Do I = L/2+2,L
+        delta_eps(L_Bath/2)   = abs(eps(L_Bath/2))
+        delta_eps(L_Bath/2+1) = abs(eps(L_Bath/2))
+        Do I = L_Bath/2+2,L_Bath
            delta_eps(I) = abs(eps(I-1) - eps(I))
         Enddo
 #ifdef MPI
@@ -318,7 +318,7 @@
 #endif
           Open (Unit=10,file="Discretizazion",status="unknown")
           Write(10,*) 'Disretization'
-          Do i = 1,L
+          Do i = 1,L_Bath
             Write(10,*)  i, eps(i), delta_eps(i)
           enddo
           close(10)
@@ -338,17 +338,19 @@
       Subroutine Ham_hop
         Implicit none
 
-        Integer :: I  
+        Integer :: I , nf
 
-        allocate(Op_T(L,1))
-        Do I = 1,L
-           Call Op_make(Op_T(I,1),1)
-           Op_T(I,1)%O(1,1) = cmplx(eps(i)*delta_eps(i)*g(i), 0.d0, kind(0.D0))
-           Op_T(I,1)%P(1) =  I
-           Op_T(I,1)%g      = -Dtau
-           Op_T(I,1)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
-           Call Op_set( Op_T(I,1) )
-        Enddo
+        allocate(Op_T(L_Bath,N_FL))
+        do nf = 1,N_Fl
+          Do I = 1,L_Bath
+             Call Op_make(Op_T(I,nf),1)
+            Op_T(I,nf)%O(1,1) = cmplx(eps(i)*delta_eps(i)*g(i), 0.d0, kind(0.D0))
+            Op_T(I,nf)%P(1) =  I
+            Op_T(I,nf)%g      = -Dtau
+            Op_T(I,nf)%alpha  = cmplx( 0.d0, 0.d0, kind(0.D0) )
+            Call Op_set( Op_T(I,nf) )
+          enddo
+        enddo
 
       end  subroutine Ham_hop
 !--------------------------------------------------------------------
@@ -372,15 +374,15 @@
           nc = 0 
           do n = 1, Two_S  ! *******  Kondo   *******
             nc = nc + 1
-            Call Op_make(Op_V(nc,nf),L+1)    
-            Op_V(nc,nf)%P(L+1) = L + n
-            Do I = 1, L
+            Call Op_make(Op_V(nc,nf),L_Bath+1)    
+            Op_V(nc,nf)%P(L_Bath+1) = L_Bath + n
+            Do I = 1, L_Bath
               Op_V(nc,nf)%P(I ) = I
-              Op_V(nc,nf)%O(I,L+1) = cmplx(g(i)*Delta_eps(i)  ,0.d0, kind(0.D0))
-              Op_V(nc,nf)%O(L+1,I) = cmplx(g(i)*Delta_eps(i)  ,0.d0, kind(0.D0))
+              Op_V(nc,nf)%O(I,L_Bath+1) = cmplx(g(i)*Delta_eps(i)  ,0.d0, kind(0.D0))
+              Op_V(nc,nf)%O(L_Bath+1,I) = cmplx(g(i)*Delta_eps(i)  ,0.d0, kind(0.D0))
             Enddo
             Op_V(nc,nf)%alpha  = cmplx(0.d0  ,0.d0, kind(0.d0) )
-            Op_V(nc,nf)%g      = cmplx(sqrt(2.d0*Dtau*Ham_Jk/(4.d0*Real(L,Kind(0.d0)))),0.d0, kind(0.D0))
+            Op_V(nc,nf)%g      = cmplx(sqrt(2.d0*Dtau*Ham_Jk/(4.d0*Real(L_Bath,Kind(0.d0)))),0.d0, kind(0.D0))
             Op_V(nc,nf)%type   = 2
             Call Op_set( Op_V(nc,nf) )
           enddo
@@ -388,7 +390,7 @@
           Do n =  1, Two_S ! Hubbard
             nc = nc + 1
             Call Op_make(Op_V (nc,nf),1) 
-            Op_V(nc,nf)%P(1) =  L + n
+            Op_V(nc,nf)%P(1) =  L_Bath + n
             Op_V(nc,nf)%O(1,1) = cmplx(1.d0  ,0.d0, kind(0.D0))
             Op_V(nc,nf)%alpha  = cmplx(-0.5d0,0.d0, kind(0.D0))
             Op_V(nc,nf)%g      = SQRT(CMPLX(-DTAU*ham_U/2.d0, 0.D0, kind(0.D0)))
@@ -425,23 +427,18 @@
           Character (len=2)  ::  Channel
 
 
-!           ! Scalar observables
-!           Allocate ( Obs_scal(4) )
-!           Do I = 1,Size(Obs_scal,1)
-!             select case (I)
-!             case (1)
-!               N = 1;   Filename = "Kin"
-!             case (2)
-!               N = 1;   Filename = "Pot"
-!             case (3)
-!               N = 1;   Filename = "Part"
-!             case (4)
-!               N = 1;   Filename = "Ener"
-!             case default
-!               Write(6,*) ' Error in Alloc_obs '
-!             end select
-!             Call Obser_Vec_make(Obs_scal(I),N,Filename)
-!           enddo
+!         Scalar observables
+          Allocate ( Obs_scal(1) )
+          Do I = 1,Size(Obs_scal,1)
+            select case (I)
+            case (1)
+              N = 1;   Filename = "Pot"
+            case default
+              Write(6,*) ' Error in Alloc_obs '
+            end select
+            Call Obser_Vec_make(Obs_scal(I),N,Filename)
+          enddo
+
 ! 
 !           ! Equal time correlators
 !           Allocate ( Obs_eq(3) )
@@ -461,25 +458,22 @@
 !             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
 !           enddo
 ! 
-!           If (Ltau == 1) then
-!             ! Time-displaced correlators
-!             Allocate ( Obs_tau(3) )
-!             Do I = 1,Size(Obs_tau,1)
-!               select case (I)
-!               case (1)
-!                 Channel = 'P' ; Filename = "Green"
-!               case (2)
-!                 Channel = 'PH'; Filename = "SpinZ"
-!               case (3)
-!                 Channel = 'PH'; Filename = "Den"
-!               case default
-!                 Write(6,*) ' Error in Alloc_obs '
-!               end select
-!               Nt = Ltrot+1-2*Thtrot
-!               If(Projector) Channel = 'T0'
-!               Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-!             enddo
-!           endif
+          If (Ltau == 1) then
+            ! Time-displaced correlators
+            Allocate ( Obs_tau(1) )
+            Do I = 1,Size(Obs_tau,1)
+              select case (I)
+              case (1)
+                Channel = 'PH'; Filename = "SpinZ"
+              case default
+                Write(6,*) ' Error in Alloc_obs '
+              end select
+              Nt = Ltrot+1-2*Thtrot
+              If(Projector) Channel = 'T0'
+              Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+            enddo
+          endif
+
 
         End Subroutine Alloc_obs
 
@@ -516,7 +510,7 @@
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL)
-          Complex (Kind=Kind(0.d0)) :: ZP, ZS
+          Complex (Kind=Kind(0.d0)) :: ZP, ZS,  ZPOT
           Integer :: I, J, nf
           ! Add local variables as needed
 
@@ -536,9 +530,18 @@
           ! GRC(i,j,nf) = < c^{dagger}_{i,nf } c_{j,nf } >
 
           ! Compute scalar observables.
+          Do I = 1,Size(Obs_scal,1)
+             Obs_scal(I)%N         =  Obs_scal(I)%N + 1
+             Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
+          Enddo
 
 
-          ! Compute equal-time correlations
+         ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
+         Do I = L_Bath, L_Bath + Two_S
+            ZPot = ZPot + Grc(I,I,1) * Grc(I,I,1)
+         enddo
+         Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + ZPot *ZP* ZS
+
 
         end Subroutine Obser
 
