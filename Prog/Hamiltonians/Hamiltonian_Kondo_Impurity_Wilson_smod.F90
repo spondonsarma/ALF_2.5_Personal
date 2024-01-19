@@ -269,6 +269,20 @@
 #ifdef MPI
         Endif
 #endif
+
+#ifdef MPI
+        If (Irank_g == 0 ) then
+#endif
+          Open (Unit=10,file="Discretizazion",status="unknown")
+          Write(10,*) 'Disretization'
+          Do i = 1,L_Bath
+            Write(10,*)  i, eps(i), delta_eps(i)
+          enddo
+          close(10)
+#ifdef MPI
+        endif
+#endif
+
       end Subroutine Ham_Set
 !--------------------------------------------------------------------
 !> @author
@@ -317,18 +331,6 @@
         Do I = L_Bath/2+2,L_Bath
            delta_eps(I) = abs(eps(I-1) - eps(I))
         Enddo
-#ifdef MPI
-        If (Irank_g == 0 ) then
-#endif
-          Open (Unit=10,file="Discretizazion",status="unknown")
-          Write(10,*) 'Disretization'
-          Do i = 1,L_Bath
-            Write(10,*)  i, eps(i), delta_eps(i)
-          enddo
-          close(10)
-#ifdef MPI
-        endif
-#endif
       end   subroutine Ham_Bath
 
 !--------------------------------------------------------------------
