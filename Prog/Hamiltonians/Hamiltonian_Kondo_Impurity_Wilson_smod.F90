@@ -202,7 +202,7 @@
 #endif
           Implicit none
 
-          integer                :: ierr, nf, unit_info
+          integer                :: ierr, nf, unit_info, i
           Character (len=64)     :: file_info
 
 
