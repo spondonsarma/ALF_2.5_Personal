@@ -224,26 +224,24 @@
                    Xker_mat(nt,nw)  =  XKER_p_ph(xtau(nt),om, beta)
                 Enddo
              enddo
-
             !!
             !! 
             !New Line for reading the data the to carry Annealing
-         If  (Annealing)  then 
-             Open (Unit=11,File="Green_ClassicMaxEnt_Prev", Status="unknown")
-             do  nw_n =  1,Ndis
-                read(11,"(F16.8,2x,F16.8)")lstnw(nw_n), A1(nw_n)
-                !Default = A1
-             enddo
-             close(11)
-             Default = A1/ dble(Ndis)
-	 else
-             Default  = Xmom1/  dble(Ndis)
-	 endif	
+            If  (Annealing)  then 
+                Open (Unit=11,File="Green_ClassicMaxEnt_Prev", Status="unknown")
+                do  nw_n =  1,Ndis
+                   read(11,"(F16.8,2x,F16.8)")lstnw(nw_n), A1(nw_n)
+                   !Default = A1
+                enddo
+                close(11)
+                Default = A1/ dble(Ndis)
+            else
+                Default  = Xmom1/  dble(Ndis)
+            endif
              !end new line
              !!
              !!
-
-	     ALPHA_ST = 1000000.D0
+             ALPHA_ST = 1000000.D0
              Open (Unit=10,File="Green_ClassicMaxEnt", Status="unknown", action="write")
              Call  MaxEnt( XQMC, XCOV, A, XKER_mat, ALPHA_ST, CHISQ ,DEFAULT)
              do  nw =  1,Ndis
