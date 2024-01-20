@@ -128,6 +128,7 @@
       Use Observables
       Use Fields_mod
       Use Predefined_Hoppings
+      Use Predefined_Obs
       Use LRC_Mod
       use runtime_error_mod
 
@@ -347,7 +348,7 @@
         Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
         
         
-        Latt_unit%Norb    = Two_S
+        Latt_unit%Norb    = 1
         Latt_unit%N_coord = 1
         allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
         Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
@@ -496,11 +497,13 @@
 ! 
           If (Ltau == 1) then
             ! Time-displaced correlators
-            Allocate ( Obs_tau(1) )
+            Allocate ( Obs_tau(2) )
             Do I = 1,Size(Obs_tau,1)
               select case (I)
               case (1)
                 Channel = 'PH'; Filename = "SpinZ"
+              case (2)
+                Channel = 'P'; Filename = "Psi"
               case default
                 Write(6,*) ' Error in Alloc_obs '
                 Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
@@ -620,7 +623,7 @@
           
           !Locals
           Complex (Kind=Kind(0.d0)) :: ZP, ZS, Z 
-          Integer ::  n,m,  I,J
+          Integer ::  n,m,  I,J,  I_c, I_f, J_c, J_f
           ! Add local variables as needed
 
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -640,9 +643,23 @@
             do  m =  1,Two_S
               J = L_Bath + m
               Z  =  - 2.d0* (G0T(J,I,1) * GT0(I,J,1))
-              Obs_tau(1)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(1)%Obs_Latt(1,NT+1,n,m) +   Z*ZP*ZS
+              Obs_tau(1)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
             enddo
           enddo
+          Do I_c = 1,L_Bath
+            do n = 1,Two_S
+              I_f = L_Bath + n
+              do J_c = 1,L_Bath
+                do m = 1,Two_S
+                  J_f = L_Bath + m
+                  Z = Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
+                  Z  =  Z  * 2.d0* g(i_c)*delta_eps(i_c) * g(j_c) * delta_eps(j_c) /real(L_Bath,kind(0.d0))
+                  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
+                enddo
+              enddo
+            enddo
+          enddo
+
 
         end Subroutine OBSERT
         
