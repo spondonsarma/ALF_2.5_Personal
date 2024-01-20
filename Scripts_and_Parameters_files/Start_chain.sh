@@ -56,8 +56,8 @@ while [ ! "${Variable[0]}" = "stop" ];   do
 			bash run.sh 
 			cd ..
    		fi
-    	read -a Variable
 	fi
+    read -a Variable
 done
 }<Sims
 
