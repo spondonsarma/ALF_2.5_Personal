@@ -129,6 +129,7 @@
       Use Fields_mod
       Use Predefined_Hoppings
       Use LRC_Mod
+      use runtime_error_mod
 
       Implicit none
       
@@ -321,7 +322,7 @@
           Enddo
         else
           Write(6,*) 'No valid scale'
-          stop
+          Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
         endif
         Do I = 1,L_Bath/2-1
            delta_eps(I) = abs(eps(I+1) - eps(I))
@@ -469,6 +470,7 @@
               N = 1;   Filename = "Pot"
             case default
               Write(6,*) ' Error in Alloc_obs '
+              Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
             end select
             Call Obser_Vec_make(Obs_scal(I),N,Filename)
           enddo
@@ -501,6 +503,7 @@
                 Channel = 'PH'; Filename = "SpinZ"
               case default
                 Write(6,*) ' Error in Alloc_obs '
+                Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
               end select
               Nt = Ltrot+1-2*Thtrot
               If(Projector) Channel = 'T0'
