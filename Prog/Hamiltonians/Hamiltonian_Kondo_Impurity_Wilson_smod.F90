@@ -401,10 +401,10 @@
 
         Implicit none
 
-        Integer ::  N_op,  nc,  Nf, n, I
+        Integer ::  N_op,  nc,  Nf, n, I, I1
 
-        N_op  =  Two_S   +  Two_S  + (Two_S - 1)   +   (Two_S -1 )
-        !        J_K        U        J_h                Easy axis       
+        N_op  =  Two_S   +  Two_S  + (Two_S - 1)   ! +   (Two_S -1 )
+        !        J_K        U        J_h                  Easy axis       
         Allocate (Op_V(N_op,N_Fl))
         do nf =  1, N_fl
           nc = 0 
@@ -436,11 +436,21 @@
           do n = 1,Two_S -1   !   Ferromagnetic  Heisenberg.  This will have to be  implement  later
             nc = nc + 1
             Call Op_make(Op_V(nc,nf),2  )    
+            I  = L_Bath + n
+            I1 = L_Bath + n + 1
+            Op_V(nc,nf)%P(1)   = I
+            Op_V(nc,nf)%P(2)   = I1
+            Op_V(nc,nf)%O(1,2) = cmplx(1.d0 ,0.d0, kind(0.D0)) 
+            Op_V(nc,nf)%O(2,1) = cmplx(1.d0 ,0.d0, kind(0.D0))
+            Op_V(nc,nf)%g      = SQRT(CMPLX(DTAU*Ham_Jh/4.d0, 0.D0, kind(0.D0))) 
+            Op_V(nc,nf)%alpha  = cmplx(0.d0, 0.d0, kind(0.D0))
+            Op_V(nc,nf)%type   = 2
+            Call Op_set( Op_V(nc,nf)  )
           enddo
-          do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
-            nc = nc + 1
-            Call Op_make(Op_V(nc,nf),2  )    !
-          enddo
+          !do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
+          !  nc = nc + 1
+          !  Call Op_make(Op_V(nc,nf),2  )    !
+          !enddo
         enddo
         Write(6,*)  'Total  # of  local  operators  for  interaction ',  nc, N_op
       end Subroutine  Ham_V
