@@ -401,9 +401,10 @@
 
         Implicit none
 
+        
         Integer ::  N_op,  nc,  Nf, n, I, I1
-
-        N_op  =  Two_S   +  Two_S  + (Two_S - 1)   ! +   (Two_S -1 )
+       ! Type (Operator) :: Op_up, Op_down
+        N_op  =  Two_S   +  Two_S  + (Two_S - 1)    !+  (Two_S -1 )
         !        J_K        U        J_h                  Easy axis       
         Allocate (Op_V(N_op,N_Fl))
         do nf =  1, N_fl
@@ -447,11 +448,41 @@
             Op_V(nc,nf)%type   = 2
             Call Op_set( Op_V(nc,nf)  )
           enddo
-          !do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
-          !  nc = nc + 1
-          !  Call Op_make(Op_V(nc,nf),2  )    !
-          !enddo
-        enddo
+          
+
+!          do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
+!            nc = nc + 1
+!            Op_up = Op_V(nc, 1)
+!            Op_down = Op_V(nc+1,2)
+!            Call Op_make (Op_up,2)
+!            Call Op_make(Op_down,2)!
+
+!            I  = n
+!            I1 = n + 1    
+            
+
+ !           Op_up%P(1)   =  I
+ !           Op_up%P(2)   =  I1
+ !           Op_up%O(1,1) =  cmplx(1.d0  ,0.d0, kind(0.D0))
+ !           Op_up%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
+ !           Op_up%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+ !           Op_up%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
+ !           Op_up%type   =  2
+
+  !          Op_down%P(1)   =  I
+  !          Op_down%P(2)   =  I1
+   !         Op_down%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
+   !         Op_down%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
+   !         Op_down%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+   !         Op_down%g      = -SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
+   !         Op_down%type   =  2
+
+    !        Call Op_set( Op_up)
+    !        Call Op_set (Op_down) 
+            
+
+     !     enddo
+         enddo
         Write(6,*)  'Total  # of  local  operators  for  interaction ',  nc, N_op
       end Subroutine  Ham_V
 
@@ -485,26 +516,19 @@
             end select
             Call Obser_Vec_make(Obs_scal(I),N,Filename)
           enddo
-
-! 
-!           ! Equal time correlators
-!           Allocate ( Obs_eq(3) )
-!           Do I = 1,Size(Obs_eq,1)
-!             select case (I)
-!             case (1)
-!               Filename = "Green"
-!             case (2)
-!               Filename = "SpinZ"
-!             case (3)
-!               Filename = "Den"
-!             case default
-!               Write(6,*) ' Error in Alloc_obs '
-!             end select
-!             Nt = 1
-!             Channel = '--'
-!             Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-!           enddo
-! 
+          ! Scalar correlators
+          Allocate ( Obs_eq(1) )
+             Do I = 1,Size(Obs_eq,1)
+                select case (I)
+                case (1)
+                   Filename = "SpinTOT"
+                case default
+                   Write(6,*) ' Error in Alloc_obs '
+                end select
+                Nt = 1
+                Channel = '--'
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+             enddo
           If (Ltau == 1) then
             ! Time-displaced correlators
             Allocate ( Obs_tau(2) )
@@ -552,7 +576,7 @@
           Use Predefined_Obs
 
           Implicit none
-
+          
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer,                   INTENT(IN) :: Ntau
@@ -560,8 +584,9 @@
 
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL)
-          Complex (Kind=Kind(0.d0)) :: ZP, ZS,  ZPOT
-          Integer :: I, J, nf
+          Complex (Kind=Kind(0.d0)) :: ZP, ZS,  ZPOT, ZZ, ZXY
+          Integer :: I, J, nf,n,m
+          Complex (Kind=Kind(0.d0)):: Total_Spin!, Total_Spin_Squared
           ! Add local variables as needed
 
           ZP = PHASE/Real(Phase, kind(0.D0))
@@ -586,12 +611,30 @@
           Enddo
 
 
+
          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
          Do I = L_Bath, L_Bath + Two_S
             ZPot = ZPot + Grc(I,I,1) * Grc(I,I,1)
          enddo
          Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + ZPot *ZP* ZS
+    
+          
+             Obs_eq(1)%N         =  Obs_eq(1)%N + 1
+             Obs_eq(1)%Ave_sign  =  Obs_eq(1)%Ave_sign + Real(ZS,kind(0.d0))
+         
 
+          Do n = 1,Two_S-1
+          I=L_Bath+n
+          J=L_Bath+n+1    
+          Total_Spin=Total_Spin+ (GRC(I, I, 1)) * (GRC(J, J, 1))
+          Obs_eq(1)%Obs_Latt(1,1,1,1)  = Obs_eq(1)%Obs_Latt(1,1,1,1) +2.d0*Total_Spin*ZS*ZP
+          enddo
+             
+        
+
+          !Total_Spin_Squared =Total_Spin**2
+
+        
 
         end Subroutine Obser
 
@@ -655,7 +698,7 @@
               Z  =  - 2.d0* (G0T(J,I,1) * GT0(I,J,1))
               Obs_tau(1)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
             enddo
-          enddo
+          enddo 
           Do I_c = 1,L_Bath
             do n = 1,Two_S
               I_f = L_Bath + n
@@ -669,6 +712,7 @@
               enddo
             enddo
           enddo
+
 
 
         end Subroutine OBSERT
