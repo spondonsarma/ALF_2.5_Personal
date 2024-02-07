@@ -1,0 +1,31 @@
+ =====================================
+ Model is      : Kondo_Impurity_Wilson 
+ 2S            :            3
+ L Bath        :           18
+ Ndim          :           21
+ W             :    2.0000000000000000     
+ Jk            :    2.0000000000000000     
+ U             :    1.0000000000000000     
+ Lambda        :    2.0000000000000000     
+ Beta          :    10.000000000000000     
+ dtau,Ltrot_eff:   0.10000000000000001              100
+ N_SUN         :            2
+ N_FL          :            1
+ No initial configuration, Seed_in      917847
+ Sweeps                              :           80
+ Bins                                :           30
+ No CPU-time limitation 
+ Measure Int.                        :            1         100
+ Stabilization,Wrap                  :           10
+ Nstm                                :           10
+ Ltau                                :            1
+ # of interacting Ops per time slice :            8
+ Default sequential updating 
+ Number of mpi-processes :           24
+ This executable represents commit 03ce5d2b of branch Kondo_Dimensional_Mismatch_2.5.
+  Precision Green  Mean, Max :    1.9204967628483168E-012   1.2309576706258112E-006
+  Precision Phase, Max       :    1.3866514555496782E-006
+  Precision tau    Mean, Max :    2.1424235415045647E-013   8.3512189052400963E-008
+  Acceptance                 :   0.41391087239583335     
+  Effective Acceptance       :   0.41391087239583335     
+  CPU Time                   :    398.29405783837501     
