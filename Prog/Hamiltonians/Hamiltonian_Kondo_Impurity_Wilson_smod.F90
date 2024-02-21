@@ -241,17 +241,18 @@
         ! Allocate a lattice of one  unit  cell  with  
         ! Norb  =  Two_S
         Call  Ham_Latt
-          if  (N_FL == 2)  then
-             ! Setup  prefactor  for falvor  symmetry
-             Call  Set_Prefactor(Particle_hole)
-             If  (Particle_hole)  then
-                allocate(Calc_Fl(N_FL))
-                nf_calc=2
-                nf_reconst=1
-                Calc_Fl(nf_calc)=.True.
-                Calc_Fl(nf_reconst)=.False.
-             endif
-          endif
+        if  (N_FL == 2)  then
+           ! Setup  prefactor  for falvor  symmetry
+           Call  Set_Prefactor(Particle_hole)
+           Particle_hole =.false.
+           If  (Particle_hole)  then
+              allocate(Calc_Fl(N_FL))
+              nf_calc=2
+              nf_reconst=1
+              Calc_Fl(nf_calc)=.True.
+              Calc_Fl(nf_reconst)=.False.
+           endif
+        endif
 ! 
 !           ! Setup the trival wave function, in case of a projector approach
 !           if (Projector) Call Ham_Trial()
@@ -419,12 +420,14 @@
         Implicit none
 
         
-        Integer ::  N_op,  nc,  Nf, n, I, I1
-        Type (Operator) :: Op_up, Op_down
+        Integer ::  N_op,  nc,  Nf, n, I, I1, Spin
+        Real  (Kind=Kind(0.d0)) :: Sign_D
         N_op  =  Two_S   +  Two_S  + (Two_S - 1)    +  (Two_S -1 )
         !        J_K        U        J_h                  Easy axis       
         Allocate (Op_V(N_op,N_Fl))
         do nf =  1, N_fl
+          Spin = 1
+          if  (nf == 2) Spin = -1
           nc = 0 
           do n = 1, Two_S  ! *******  Kondo   *******
             nc = nc + 1
@@ -469,37 +472,23 @@
 
           do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
             nc = nc + 1
-            Op_up = Op_V(nc, 1)
-            Op_down = Op_V(nc,2)
-            Call Op_make (Op_up,2)
-            Call Op_make(Op_down,2)!
-
+            Call Op_make(Op_V (nc,nf),2) 
             I  = L_Bath+n
             I1 = L_Bath+n+1    
-            
 
-            Op_up%P(1)   =  I
-            Op_up%P(2)   =  I1
-            Op_up%O(1,1) =  cmplx(1.d0  ,0.d0, kind(0.D0))
-            Op_up%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
-            Op_up%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
-            Op_up%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
-            Op_up%type   =  2
+            Sign_D = 1.d0
+            If  (Abs(Ham_D) > 10.D-10)   Sign_D = Ham_D/Abs(Ham_D)
 
-            Op_down%P(1)   =  I
-            Op_down%P(2)   =  I1
-            Op_down%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
-            Op_down%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
-            Op_down%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
-            Op_down%g      = -SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
-            Op_down%type   =  2
-
-            Call Op_set( Op_up)
-            Call Op_set (Op_down) 
-            
-
+            Op_V(nc,nf)%P(1)   =  I
+            Op_V(nc,nf)%P(2)   =  I1
+            Op_V(nc,nf)%O(1,1) =  cmplx(dble(Spin)  ,0.d0, kind(0.D0))
+            Op_V(nc,nf)%O(2,2) =  cmplx(-dble(Spin)*Sign_D  ,0.d0, kind(0.D0))
+            Op_V(nc,nf)%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+            Op_V(nc,nf)%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
+            Op_V(nc,nf)%type   =  2
+            Call Op_set( Op_V(nc,nf)  )
           enddo
-         enddo
+        enddo
         Write(6,*)  'Total  # of  local  operators  for  interaction ',  nc, N_op
       end Subroutine  Ham_V
 
@@ -789,7 +778,7 @@ End Subroutine Alloc_obs
                   J_f = L_Bath + m
                   Z = Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
                   Z  =  Z  * 2.d0* g(i_c)*delta_eps(i_c) * g(j_c) * delta_eps(j_c) /real(L_Bath,kind(0.d0))
-                  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(4)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
+                  Obs_tau(4)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(4)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
                 enddo
               enddo
             enddo
