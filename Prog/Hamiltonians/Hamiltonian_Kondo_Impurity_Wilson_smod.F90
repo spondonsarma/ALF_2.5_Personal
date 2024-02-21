@@ -141,6 +141,9 @@
         procedure, nopass :: Alloc_obs
         procedure, nopass :: Obser
         procedure, nopass :: ObserT
+        procedure, nopass :: weight_reconstruction
+        procedure, nopass :: GR_reconstruction
+        procedure, nopass :: GRT_reconstruction
         ! procedure, nopass :: ##PROCEDURE_NAME##  ! Some other procedure defined in ham_base
 #ifdef HDF5
         procedure, nopass :: write_parameters_hdf5
@@ -180,6 +183,9 @@
       !#PARAMETERS END#
 
       real (Kind=Kind(0.d0)),    allocatable ::  eps(:), delta_eps(:), g(:)
+      INTEGER :: nf_calc, nf_reconst
+      Integer, allocatable   ::  Prefactor(:)
+      Logical  :: Particle_hole
 
     contains
 
@@ -224,7 +230,7 @@
         Thtrot = 0
         if (Projector) Thtrot = nint(theta/dtau)
         Ltrot = Ltrot+2*Thtrot
-        NDIM   =  L_Bath + Two_S
+        NDim   =  L_Bath + Two_S
         ! Setup  lists  for log   discretization (This plays  the  role of the lattice)
         ! Bath sites   1 .. L_Bath,   Impurity  sites   L_Bath + 1,  L + 2S  
         call Ham_Bath
@@ -235,7 +241,17 @@
         ! Allocate a lattice of one  unit  cell  with  
         ! Norb  =  Two_S
         Call  Ham_Latt
-
+          if  (N_FL == 2)  then
+             ! Setup  prefactor  for falvor  symmetry
+             Call  Set_Prefactor(Particle_hole)
+             If  (Particle_hole)  then
+                allocate(Calc_Fl(N_FL))
+                nf_calc=2
+                nf_reconst=1
+                Calc_Fl(nf_calc)=.True.
+                Calc_Fl(nf_reconst)=.False.
+             endif
+          endif
 ! 
 !           ! Setup the trival wave function, in case of a projector approach
 !           if (Projector) Call Ham_Trial()
@@ -284,6 +300,7 @@
 #ifdef MPI
         endif
 #endif
+       
 
       end Subroutine Ham_Set
 !--------------------------------------------------------------------
@@ -403,8 +420,8 @@
 
         
         Integer ::  N_op,  nc,  Nf, n, I, I1
-       ! Type (Operator) :: Op_up, Op_down
-        N_op  =  Two_S   +  Two_S  + (Two_S - 1)    !+  (Two_S -1 )
+        Type (Operator) :: Op_up, Op_down
+        N_op  =  Two_S   +  Two_S  + (Two_S - 1)    +  (Two_S -1 )
         !        J_K        U        J_h                  Easy axis       
         Allocate (Op_V(N_op,N_Fl))
         do nf =  1, N_fl
@@ -450,38 +467,38 @@
           enddo
           
 
-!          do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
-!            nc = nc + 1
-!            Op_up = Op_V(nc, 1)
-!            Op_down = Op_V(nc+1,2)
-!            Call Op_make (Op_up,2)
-!            Call Op_make(Op_down,2)!
+          do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
+            nc = nc + 1
+            Op_up = Op_V(nc, 1)
+            Op_down = Op_V(nc,2)
+            Call Op_make (Op_up,2)
+            Call Op_make(Op_down,2)!
 
-!            I  = n
-!            I1 = n + 1    
+            I  = L_Bath+n
+            I1 = L_Bath+n+1    
             
 
- !           Op_up%P(1)   =  I
- !           Op_up%P(2)   =  I1
- !           Op_up%O(1,1) =  cmplx(1.d0  ,0.d0, kind(0.D0))
- !           Op_up%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
- !           Op_up%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
- !           Op_up%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
- !           Op_up%type   =  2
+            Op_up%P(1)   =  I
+            Op_up%P(2)   =  I1
+            Op_up%O(1,1) =  cmplx(1.d0  ,0.d0, kind(0.D0))
+            Op_up%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
+            Op_up%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+            Op_up%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
+            Op_up%type   =  2
 
-  !          Op_down%P(1)   =  I
-  !          Op_down%P(2)   =  I1
-   !         Op_down%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
-   !         Op_down%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
-   !         Op_down%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
-   !         Op_down%g      = -SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
-   !         Op_down%type   =  2
+            Op_down%P(1)   =  I
+            Op_down%P(2)   =  I1
+            Op_down%O(1,1) =  cmplx(        1.d0  ,0.d0, kind(0.D0))
+            Op_down%O(2,2) =  cmplx(- Ham_D/Abs(Ham_D)  ,0.d0, kind(0.D0))
+            Op_down%alpha  =  cmplx(0.d0, 0.d0, kind(0.D0))
+            Op_down%g      = -SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
+            Op_down%type   =  2
 
-    !        Call Op_set( Op_up)
-    !        Call Op_set (Op_down) 
+            Call Op_set( Op_up)
+            Call Op_set (Op_down) 
             
 
-     !     enddo
+          enddo
          enddo
         Write(6,*)  'Total  # of  local  operators  for  interaction ',  nc, N_op
       end Subroutine  Ham_V
@@ -494,62 +511,92 @@
 !> Specifiy the equal time and time displaced observables
 !> @details
 !--------------------------------------------------------------------
-        Subroutine  Alloc_obs(Ltau)
+Subroutine Alloc_obs(Ltau)
 
-          Implicit none
-          !>  Ltau=1 if time displaced correlations are considered.
-          Integer, Intent(In) :: Ltau
-          Integer    ::  i, N, Nt
-          Character (len=64) ::  Filename
-          Character (len=2)  ::  Channel
+  Implicit none
+  !>  Ltau=1 if time displaced correlations are considered.
+  Integer, Intent(In) :: Ltau
+  Integer    ::  i, N, Nt
+  Character (len=64) ::  Filename
+  Character (len=2)  ::  Channel
 
+  ! Scalar observables
+  Allocate ( Obs_scal(1) )
+  Do I = 1,Size(Obs_scal,1)
+    select case (I)
+    case (1)
+      N = 1;   Filename = "Pot"
+    case default
+      Write(6,*) ' Error in Alloc_obs '
+      Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+    end select
+    Call Obser_Vec_make(Obs_scal(I),N,Filename)
+  enddo
 
-!         Scalar observables
-          Allocate ( Obs_scal(1) )
-          Do I = 1,Size(Obs_scal,1)
-            select case (I)
-            case (1)
-              N = 1;   Filename = "Pot"
-            case default
-              Write(6,*) ' Error in Alloc_obs '
-              Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
-            end select
-            Call Obser_Vec_make(Obs_scal(I),N,Filename)
-          enddo
-          ! Scalar correlators
-          Allocate ( Obs_eq(1) )
-             Do I = 1,Size(Obs_eq,1)
-                select case (I)
-                case (1)
-                   Filename = "SpinTOT"
-                case default
-                   Write(6,*) ' Error in Alloc_obs '
-                end select
-                Nt = 1
-                Channel = '--'
-                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-             enddo
-          If (Ltau == 1) then
-            ! Time-displaced correlators
-            Allocate ( Obs_tau(2) )
-            Do I = 1,Size(Obs_tau,1)
-              select case (I)
-              case (1)
-                Channel = 'PH'; Filename = "SpinZ"
-              case (2)
-                Channel = 'P'; Filename = "Psi"
-              case default
-                Write(6,*) ' Error in Alloc_obs '
-                Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
-              end select
-              Nt = Ltrot+1-2*Thtrot
-              If(Projector) Channel = 'T0'
-              Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
-            enddo
-          endif
+  ! Scalar correlators
+  ! Allocate ( Obs_eq(1) )
+  ! Do I = 1,Size(Obs_eq,1)
+  !   select case (I)
+  !   case (1)
+  !     Filename = "SpinTOT"
+  !   case default
+  !     Write(6,*) ' Error in Alloc_obs '
+  !     Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+  !   end select
+  !   Nt = 1
+  !   Channel = '--'
+  !   Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+  ! enddo
 
+  If (Ltau == 1) then
+    ! Time-displaced correlators
+    If  (N_FL == 2)  then
+      Allocate ( Obs_tau(4) )
+    Else
+      Allocate ( Obs_tau(2) )
+    endif
 
-        End Subroutine Alloc_obs
+    If  (N_FL == 2)  then
+      Do I = 1,Size(Obs_tau,1)
+        select case (I)
+        case (1)
+          Channel = 'PH' ; Filename = "SpinZ"
+        case (2)
+          Channel = 'PH' ; Filename = "SpinXY"
+        case (3)
+          Channel = 'PH' ; Filename = "SpinT"
+        case (4)
+          Channel = 'P'; Filename = "Psi"
+        case default
+          Write(6,*) ' Error in Alloc_obs '
+          Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+        end select
+        Nt = Ltrot+1-2*Thtrot
+        If(Projector) Channel = 'T0'
+        Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+      enddo
+   
+
+  else
+    Do I = 1,Size(Obs_tau,1)
+      select case (I)
+      case (1)
+        Channel = 'PH'; Filename = "SpinZ"
+      case (2)
+        Channel = 'P'; Filename = "Psi"
+      case default
+        Write(6,*) ' Error in Alloc_obs '
+        Call Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+      end select
+      Nt = Ltrot+1-2*Thtrot
+      If(Projector) Channel = 'T0'
+      Call Obser_Latt_make(Obs_tau(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+    enddo
+  endif
+ endif
+
+End Subroutine Alloc_obs
+
 
 !--------------------------------------------------------------------
 !> @author
@@ -619,16 +666,16 @@
          Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + ZPot *ZP* ZS
     
           
-             Obs_eq(1)%N         =  Obs_eq(1)%N + 1
-             Obs_eq(1)%Ave_sign  =  Obs_eq(1)%Ave_sign + Real(ZS,kind(0.d0))
+          !   Obs_eq(1)%N         =  Obs_eq(1)%N + 1
+         !    Obs_eq(1)%Ave_sign  =  Obs_eq(1)%Ave_sign + Real(ZS,kind(0.d0))
          
 
-          Do n = 1,Two_S-1
-          I=L_Bath+n
-          J=L_Bath+n+1    
-          Total_Spin=Total_Spin+ (GRC(I, I, 1)) * (GRC(J, J, 1))
-          Obs_eq(1)%Obs_Latt(1,1,1,1)  = Obs_eq(1)%Obs_Latt(1,1,1,1) +2.d0*Total_Spin*ZS*ZP
-          enddo
+       !   Do n = 1,Two_S-1
+        !  I=L_Bath+n
+         ! J=L_Bath+n+1    
+        !  Total_Spin=Total_Spin+ (GRC(I, I, 1)) * (GRC(J, J, 1))
+        !  Obs_eq(1)%Obs_Latt(1,1,1,1)  = Obs_eq(1)%Obs_Latt(1,1,1,1) +2.d0*Total_Spin*ZS*ZP
+        !  enddo
              
         
 
@@ -675,7 +722,7 @@
           Real    (Kind=Kind(0.d0)), INTENT(IN) :: Mc_step_weight
           
           !Locals
-          Complex (Kind=Kind(0.d0)) :: ZP, ZS, Z 
+          Complex (Kind=Kind(0.d0)) :: ZP, ZS, Z, ZZ, ZXY 
           Integer ::  n,m,  I,J,  I_c, I_f, J_c, J_f
           ! Add local variables as needed
 
@@ -684,13 +731,14 @@
           ZS = ZS * Mc_step_weight
 
           ! Compute observables
+
+   If (N_FL == 1 )  then    
           If (NT == 0 ) then
             Do I = 1,Size(Obs_tau,1)
                Obs_tau(I)%N         =  Obs_tau(I)%N + 1
                Obs_tau(I)%Ave_sign  =  Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
             Enddo
-         Endif
-
+         Endif   
           do n =  1, Two_S
             I = L_Bath + n
             do  m =  1,Two_S
@@ -713,8 +761,232 @@
             enddo
           enddo
 
+    else
+          If (NT == 0 ) then
+            Do I = 1,Size(Obs_tau,1)
+               Obs_tau(I)%N         =  Obs_tau(I)%N + 1
+               Obs_tau(I)%Ave_sign  =  Obs_tau(I)%Ave_sign + Real(ZS,kind(0.d0))
+            Enddo
+         Endif
 
+          do n =  1, Two_S
+            I = L_Bath + n
+            do  m =  1,Two_S
+              J = L_Bath + m
+              ZZ  = (( (GTT(I,I,1) -  GTT(I,I,2) ) * ( G00(J,J,1)  -  G00(J,J,2) )  -  G0T(J,I,1) * GT0(I,J,1)  -  G0T(J,I,2) * GT0(I,J,2)) )
+              ZXY=  -  G0T(J,I,1) * GT0(I,J,2)  -  G0T(J,I,2) * GT0(I,J,1) 
+              Obs_tau(1)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) +   ZZ*ZP*ZS
+              Obs_tau(2)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) +   ZXY*ZP*ZS
+              Obs_tau(3)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(3)%Obs_Latt(1,NT+1,1,1) +   (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
+
+            enddo
+          enddo 
+          Do I_c = 1,L_Bath
+            do n = 1,Two_S
+              I_f = L_Bath + n
+              do J_c = 1,L_Bath
+                do m = 1,Two_S
+                  J_f = L_Bath + m
+                  Z = Predefined_Obs_Cotunneling(I_c, I_f, J_c, J_f,  GT0,G0T,G00,GTT, N_SUN, N_FL) 
+                  Z  =  Z  * 2.d0* g(i_c)*delta_eps(i_c) * g(j_c) * delta_eps(j_c) /real(L_Bath,kind(0.d0))
+                  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(4)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
+                enddo
+              enddo
+            enddo
+          enddo
+
+  endif
 
         end Subroutine OBSERT
+
+!-------------------------------------------------------------------
+!> @author 
+!> ALF-project
+!
+!> @brief
+!> Sets  the  prefactor  for  flavor  symmetry
+!--------------------------------------------------------------------
+
+        Subroutine  Set_Prefactor(Particle_Hole)
+
+          Implicit none
+
+          Logical, Intent(out) ::  Particle_Hole
+          
+          Integer i,  ix, iy, nc, nc1, no, no1,  i_f, i_c
+          Real (Kind=Kind(0.d0))  ::  ic_p(2), X
+
+          Allocate(Prefactor(Ndim))
+          Particle_hole = .true.
+          Prefactor  = 0
+          Do  i =  1, L_Bath
+             Prefactor(i)  = -1
+             if (mod(i,2)  == 0 )   Prefactor(i)  = 1
+          enddo
+           
+          nc  = 0
+          do no  =  L_Bath+1, L_Bath+Two_S
+             do i_c  = 1,L_Bath
+           !     do iy = 1,L2
+                   If  ( abs(Ham_JK) >  1.D-10 ) then
+                      nc = nc + 1
+                      i_f = L_Bath+nc
+                      !ic_p = dble(ix + x_shift)*Latt_c%a1_p + dble(iy + y_shift)*Latt_c%a2_p
+                      !I    = Inv_R(ic_p,Latt_c)
+                      !i_c =  Invlist_c(I,1)
+                      !If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I =  -Prefactor(i_c)*nint(Ham_JK/abs(Ham_JK))
+                    !  else
+                     !    I =  -Prefactor(i_c)
+                      endif
+                      !If ( Prefactor(i_f) ==  0 )  then
+                         !Prefactor(i_f)  = I 
+                      !else
+                     !    if  ( Prefactor(i_f) /= I ) then
+                            Particle_hole = .False.
+                    !     endif
+                      !endif
+                   !endif
+                !enddo
+             enddo
+          enddo
+          if  (nc   == 0 )   Prefactor(L_Bath) = 1   !   Set  the overall factor
+          do no  =   L_Bath+1, L_Bath+Two_S
+             nc = no
+             If (Prefactor(no) /= 0 )  then 
+                do no1  =  L_Bath+1, L_Bath+Two_S
+                   If  ( abs(Ham_JK) > 1.D-10 )  then
+                      !If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I = - nint(Ham_JK/abs(Ham_JK) ) * Prefactor(no)
+                      !else
+                       !  I = - Prefactor(nc)
+                     ! endif
+                       nc1 = no1
+                      if (  Prefactor(nc1) ==  0 )  then
+                         Prefactor(nc1) = I
+                      elseif ( Prefactor(nc1) /=  I  ) then
+                         Particle_hole= .false.
+                      endif
+                   endif
+                   If  ( abs(Ham_JK) > 1.D-10 )  then
+                      !If  ( Ham_Imp_Kind == "Kondo" )  then
+                         I = -  Prefactor(nc) * nint(Ham_JK/abs(Ham_JK) ) 
+                      !else
+                       !  I = - Prefactor(nc)
+                      !endif
+                      nc1 = no
+                      if (  Prefactor(nc1) ==  0 )  then
+                         Prefactor(nc1) = I
+                      elseif ( Prefactor(nc1) /=  I  ) then
+                         Particle_hole= .false.
+                      endif
+                   endif
+                enddo
+             endif
+           enddo
+          
+      !    Do  nc = 1,  size(Prefactor,1)
+       !      if  (Prefactor(nc)  == 0  )  then
+        !        WRITE(error_unit,*) 'One  orbital  is not  linked to the  cluster.  Consider  adapting the  the parameter file', nc
+         !       CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
+          !   endif
+         ! enddo
+          
+!!$          Do  i =  1, Latt_c%N
+!!$             ix  = Latt_c%list(i,1) 
+!!$             iy  = Latt_c%list(i,2)
+!!$             nc  = invlist_c(i,1)
+!!$             write(6,*) nc, ix,iy, Prefactor(nc) 
+!!$          enddo
+!!$          Do  no =  1, Latt_unit_f%Norb
+!!$             nc  = invlist_f(1,no)
+!!$             write(6,*) nc, no, Prefactor(nc) 
+!!$          enddo
+
+        end Subroutine Set_Prefactor
+
+
+!--------------------------------------------------------------------
+!> @brief
+!> Reconstructs dependent flavors of the configuration's weight.
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!--------------------------------------------------------------------
+        subroutine weight_reconstruction(weight)
+          implicit none
+          complex (Kind=Kind(0.d0)), Intent(inout) :: weight(:)
+          
+          weight(nf_reconst) = conjg(Weight(nf_calc))  
+          
+        end subroutine weight_reconstruction
+
+
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of equal time Greens function
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] Gr   Complex(:,:,:)
+!> \verbatim
+!>  Green function: Gr(I,J,nf) = <c_{I,nf } c^{dagger}_{J,nf } > on time slice ntau
+!> \endverbatim
+!-------------------------------------------------------------------
+        subroutine GR_reconstruction(GR)
+
+          Implicit none
+
+          Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GR(Ndim,Ndim,N_FL)
+          Integer :: I,J
+          complex (kind=kind(0.d0))  ::  ZZ
+          Real    (kind=kind(0.d0))  :: X
+          
+          Do J = 1,Ndim
+             Do I = 1,Ndim
+                X =  real(Prefactor(I)*Prefactor(J), kind(0.d0))
+                ZZ=cmplx(0.d0,0.d0,Kind(0.d0))
+                if (I==J) ZZ=cmplx(1.d0,0.d0,Kind(0.d0))
+                GR(I,J,nf_reconst) = ZZ - X*conjg(GR(J,I,nf_calc))
+             Enddo
+          Enddo
+      end Subroutine GR_reconstruction
+
+
+
+!--------------------------------------------------------------------
+!> @author
+!> ALF Collaboration
+!>
+!> @brief
+!> Reconstructs dependent flavors of time displaced Greens function G0T and GT0
+!> @details
+!> This has to be overloaded in the Hamiltonian submodule.
+!> @param [INOUT] GT0, G0T,  Complex(:,:,:)
+!> \verbatim
+!>  Green functions:
+!>  GT0(I,J,nf) = <T c_{I,nf }(tau) c^{dagger}_{J,nf }(0  )>
+!>  G0T(I,J,nf) = <T c_{I,nf }(0  ) c^{dagger}_{J,nf }(tau)>
+!> \endverbatim
+!-------------------------------------------------------------------
+      Subroutine GRT_reconstruction(GT0, G0T)
+        Implicit none
+
+        Complex (Kind=Kind(0.d0)), INTENT(INOUT) :: GT0(Ndim,Ndim,N_FL), G0T(Ndim,Ndim,N_FL)
+        Integer :: I,J
+        real (kind=kind(0.d0)) :: X
+        
+        Do J = 1,NDIM
+           Do I = 1,NDIM 
+              X =  real(Prefactor(I)*Prefactor(J), kind(0.d0))
+              G0T(I,J,nf_reconst) = -X*conjg(GT0(J,I,nf_calc))
+              GT0(I,J,nf_reconst) = -X*conjg(G0T(J,I,nf_calc))
+           enddo
+         enddo
+       end Subroutine GRT_reconstruction    
+
         
     end submodule ham_Kondo_Impurity_Wilson_smod

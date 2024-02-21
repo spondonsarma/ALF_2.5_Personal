@@ -15,13 +15,13 @@ Model        = "Hubbard"    ! Sets the Hubbard model, to be specified in &VAR_Hu
 &VAR_Model_Generic         !! Common model parameters
 Checkerboard = .T.          ! Whether checkerboard decomposition is used
 Symm         = .T.          ! Whether symmetrization takes place
-N_SUN        = 2            ! Number of colors
-N_FL         = 1            ! Number of flavors
+N_SUN        = 1            ! Number of colors
+N_FL         = 2            ! Number of flavors
 Phi_X        = 0.d0         ! Twist along the L_1 direction, in units of the flux quanta
 Phi_Y        = 0.d0         ! Twist along the L_2 direction, in units of the flux quanta
 Bulk         = .T.          ! Twist as a vector potential (.T.), or at the boundary (.F.)
 N_Phi        = 0            ! Total number of flux quanta traversing the lattice
-Dtau         = 0.1d0        ! Thereby Ltrot=Beta/dtau
+Dtau         = 0.05d0        ! Thereby Ltrot=Beta/dtau
 Beta         = 10.d0         ! Inverse temperature
 Projector    = .F.          ! Whether the projective algorithm is used
 Theta        = 10.d0        ! Projection parameter
@@ -190,10 +190,10 @@ Imp_V(3,1,3)  =  1.d0
 L_Bath = 18        !   Discretization
 Ham_W = 2.d0      !   Bandwidth
 Lambda = 2.d0 !   For  log  discretization
-Two_S  = 2    !   2spin of  impurity
+Two_S  = 1   !   2spin of  impurity
 Ham_JK = 2.d0     !   Kondo 
-/Ham_D  = 1.d0     !   Easyplane
-Ham_Jh = 2.d0    !   Heisenberg
+Ham_D  = 1.d0     !   Easyplane
+Ham_Jh = 3.5d0    !   Heisenberg
 Ham_U = 1.d0    !   Heisenbergr
 /
 
