@@ -242,9 +242,9 @@
         ! Norb  =  Two_S
         Call  Ham_Latt
         if  (N_FL == 2)  then
-           ! Setup  prefactor  for falvor  symmetry
+            !Setup  prefactor  for falvor  symmetry
            Call  Set_Prefactor(Particle_hole)
-           Particle_hole =.false.
+         !  Particle_hole =.false.
            If  (Particle_hole)  then
               allocate(Calc_Fl(N_FL))
               nf_calc=2
@@ -366,7 +366,7 @@
         Real (Kind=Kind(0.d0))  :: a1_p(2), a2_p(2), L1_p(2), L2_p(2)
         
         
-        Latt_unit%Norb    = 1
+        Latt_unit%Norb    = Two_S
         Latt_unit%N_coord = 1
         allocate(Latt_unit%Orb_pos_p(Latt_unit%Norb,2))
         Latt_unit%Orb_pos_p(1, :) = [0.d0, 0.d0]
@@ -376,6 +376,8 @@
         L1_p    =  a1_p
         L2_p    =  a2_p
         Call Make_Lattice( L1_p, L2_p, a1_p,  a2_p, Latt )
+
+
        
         
       end Subroutine Ham_Latt
@@ -386,7 +388,7 @@
 !> ALF Collaboration
 !>
 !> @brief
-!>       Specifies  the  hoooping.  In our  case  this is just  a  site  dependent  diagonal term. 
+!>       Specifies  the  hoping.  In our  case  this is just  a  site  dependent  diagonal term. 
 !> @details
 !--------------------------------------------------------------------
       Subroutine Ham_hop
@@ -454,7 +456,7 @@
             Op_V(nc,nf)%type   = 2
             Call Op_set( Op_V(nc,nf) )
           enddo
-          do n = 1,Two_S -1   !   Ferromagnetic  Heisenberg.  This will have to be  implement  later
+          do n = 1,Two_S -1   !   Ferromagnetic  Heisenberg.
             nc = nc + 1
             Call Op_make(Op_V(nc,nf),2  )    
             I  = L_Bath + n
@@ -470,7 +472,7 @@
           enddo
           
 
-          do n = 1,Two_S -1   !  Easy   axis.  This will also  have to be  implemnted later.
+          do n = 1,Two_S -1   !  Easy   axis.  
             nc = nc + 1
             Call Op_make(Op_V (nc,nf),2) 
             I  = L_Bath+n
@@ -487,7 +489,7 @@
             Op_V(nc,nf)%g      =  SQRT(CMPLX(DTAU*Abs(Ham_D)/8.d0, 0.D0, kind(0.D0))) 
             Op_V(nc,nf)%type   =  2
             Call Op_set( Op_V(nc,nf)  )
-          enddo
+            enddo
         enddo
         Write(6,*)  'Total  # of  local  operators  for  interaction ',  nc, N_op
       end Subroutine  Ham_V
@@ -537,6 +539,39 @@ Subroutine Alloc_obs(Ltau)
   !   Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
   ! enddo
 
+          
+!         Equal time correlators
+          If  (N_SUN == 1)  then
+             Allocate ( Obs_eq(3) )
+             Do I = 1,Size(Obs_eq,1)
+                select case (I)
+                case (1)
+                   Filename = "SpinZ"
+                case (2)
+                   Filename = "SpinXY"
+                case (3)
+                   Filename = "SpinT"
+                case default
+                   Write(6,*) ' Error in Alloc_obs '
+                end select
+                Nt = 1
+                Channel = '--'
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+             enddo
+          else
+             Allocate ( Obs_eq(1) )
+             Do I = 1,Size(Obs_eq,1)
+                select case (I)
+                case (1)
+                   Filename = "SpinZ"
+                case default
+                   Write(6,*) ' Error in Alloc_obs '
+                end select
+                Nt = 1
+                Channel = '--'
+                Call Obser_Latt_make(Obs_eq(I), Nt, Filename, Latt, Latt_unit, Channel, dtau)
+             enddo
+          endif
   If (Ltau == 1) then
     ! Time-displaced correlators
     If  (N_FL == 2)  then
@@ -612,7 +647,7 @@ End Subroutine Alloc_obs
           Use Predefined_Obs
 
           Implicit none
-          
+         
           Complex (Kind=Kind(0.d0)), INTENT(IN) :: GR(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)), Intent(IN) :: PHASE
           Integer,                   INTENT(IN) :: Ntau
@@ -621,7 +656,7 @@ End Subroutine Alloc_obs
           !Local
           Complex (Kind=Kind(0.d0)) :: GRC(Ndim,Ndim,N_FL)
           Complex (Kind=Kind(0.d0)) :: ZP, ZS,  ZPOT, ZZ, ZXY
-          Integer :: I, J, nf,n,m
+          Integer :: I, J, nf,n,m,f
           Complex (Kind=Kind(0.d0)):: Total_Spin!, Total_Spin_Squared
           ! Add local variables as needed
 
@@ -645,12 +680,16 @@ End Subroutine Alloc_obs
              Obs_scal(I)%N         =  Obs_scal(I)%N + 1
              Obs_scal(I)%Ave_sign  =  Obs_scal(I)%Ave_sign + Real(ZS,kind(0.d0))
           Enddo
-
+         f=1
 
 
          ZPot = cmplx(0.d0, 0.d0, kind(0.D0))
-         Do I = L_Bath, L_Bath + Two_S
-            ZPot = ZPot + Grc(I,I,1) * Grc(I,I,1)
+         Do I = L_Bath+f, L_Bath + Two_S
+         If (N_FL==1) then
+            ZPot = ZPot + GRC(I,I,1) * GRC(I,I,1)
+         else
+            ZPot= Zpot + GRC (I,I,1)* GRC (I,I,2)    
+         endif 
          enddo
          Obs_scal(1)%Obs_vec(1)  =    Obs_scal(1)%Obs_vec(1) + ZPot *ZP* ZS
     
@@ -670,7 +709,53 @@ End Subroutine Alloc_obs
 
           !Total_Spin_Squared =Total_Spin**2
 
-        
+         If (N_SUN == 2 )  then    
+          
+         Do I = 1, Size(Obs_eq, 1)
+            Obs_eq(I)%N         = Obs_eq(I)%N + 1
+            Obs_eq(I)%Ave_sign  = Obs_eq(I)%Ave_sign + Real(ZS, kind(0.d0)) 
+         Enddo
+
+         Do n = 1, Two_S
+            I = L_Bath + n
+          Do m = 1, Two_S
+            J = L_Bath + m
+            ZZ = 2.d0 * GRC(I, J, 1) * GR(I, J, 1)
+            Obs_eq(1)%Obs_Latt(1, 1, n, m) = Obs_eq(1)%Obs_Latt(1, 1, n, m) + ZZ * ZP * ZS
+            ! Display the values of I and J
+            !Write(6,*)  'I,J= ',  I, J
+          Enddo
+         Enddo
+
+ 
+         else
+          
+          Do I = 1,Size(Obs_eq,1)
+               Obs_eq(I)%N         =  Obs_eq(I)%N + 1
+               Obs_eq(I)%Ave_sign  =  Obs_eq(I)%Ave_sign + Real(ZS,kind(0.d0))
+          Enddo
+         
+
+          do n =  1, Two_S
+            I = L_Bath + n
+            do  m =  1,Two_S
+              J = L_Bath + m
+                       ZXY  = GRC(I,J,1) * GR(I,J,2) +  GRC(I,J,2) * GR(I,J,1)
+                       ZZ   = GRC(I,J,1) * GR(I,J,1) +  GRC(I,J,2) * GR(I,J,2)    + &
+                            (GRC(I,I,2) - GRC(I,I,1))*(GRC(J,J,2) - GRC(J,J,1))
+                       
+                Obs_eq(1)%Obs_Latt(1,1,n,m) =  Obs_eq(1) %Obs_Latt(1,1,n,m) +  ZZ  *ZP*ZS
+                Obs_eq(2) %Obs_Latt(1,1,n,m) =  Obs_eq(2) %Obs_Latt(1,1,n,m) +  ZXY *ZP*ZS
+                Obs_eq(3)%Obs_Latt(1,1,n,m)=Obs_eq(3)%Obs_Latt(1,1,n,m)+ (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
+              
+                
+
+
+            enddo
+          enddo 
+
+
+       endif
 
         end Subroutine Obser
 
@@ -721,7 +806,7 @@ End Subroutine Alloc_obs
 
           ! Compute observables
 
-   If (N_FL == 1 )  then    
+         If (N_FL == 1 )  then    
           If (NT == 0 ) then
             Do I = 1,Size(Obs_tau,1)
                Obs_tau(I)%N         =  Obs_tau(I)%N + 1
@@ -733,7 +818,7 @@ End Subroutine Alloc_obs
             do  m =  1,Two_S
               J = L_Bath + m
               Z  =  - 2.d0* (G0T(J,I,1) * GT0(I,J,1))
-              Obs_tau(1)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) +   Z*ZP*ZS
+              Obs_tau(1)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(1)%Obs_Latt(1,NT+1,n,m) +   Z*ZP*ZS
             enddo
           enddo 
           Do I_c = 1,L_Bath
@@ -764,9 +849,9 @@ End Subroutine Alloc_obs
               J = L_Bath + m
               ZZ  = (( (GTT(I,I,1) -  GTT(I,I,2) ) * ( G00(J,J,1)  -  G00(J,J,2) )  -  G0T(J,I,1) * GT0(I,J,1)  -  G0T(J,I,2) * GT0(I,J,2)) )
               ZXY=  -  G0T(J,I,1) * GT0(I,J,2)  -  G0T(J,I,2) * GT0(I,J,1) 
-              Obs_tau(1)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(1)%Obs_Latt(1,NT+1,1,1) +   ZZ*ZP*ZS
-              Obs_tau(2)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(2)%Obs_Latt(1,NT+1,1,1) +   ZXY*ZP*ZS
-              Obs_tau(3)%Obs_Latt(1,NT+1,1,1) =  Obs_tau(3)%Obs_Latt(1,NT+1,1,1) +   (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
+              Obs_tau(1)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(1)%Obs_Latt(1,NT+1,n,m) +   ZZ*ZP*ZS
+              Obs_tau(2)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(2)%Obs_Latt(1,NT+1,n,m) +   ZXY*ZP*ZS
+              Obs_tau(3)%Obs_Latt(1,NT+1,n,m) =  Obs_tau(3)%Obs_Latt(1,NT+1,n,m) +   (2.d0*ZXY + ZZ)*ZP*ZS/3.d0
 
             enddo
           enddo 
@@ -796,104 +881,26 @@ End Subroutine Alloc_obs
 !> Sets  the  prefactor  for  flavor  symmetry
 !--------------------------------------------------------------------
 
-        Subroutine  Set_Prefactor(Particle_Hole)
+       Subroutine  Set_Prefactor(Particle_Hole)
 
           Implicit none
 
           Logical, Intent(out) ::  Particle_Hole
-          
+
           Integer i,  ix, iy, nc, nc1, no, no1,  i_f, i_c
           Real (Kind=Kind(0.d0))  ::  ic_p(2), X
 
           Allocate(Prefactor(Ndim))
           Particle_hole = .true.
+          
           Prefactor  = 0
-          Do  i =  1, L_Bath
+          Do  i =  1, Ndim
              Prefactor(i)  = -1
-             if (mod(i,2)  == 0 )   Prefactor(i)  = 1
+            ! if (mod(i,2)  == 0 )   Prefactor(i)  = 1
           enddo
-           
-          nc  = 0
-          do no  =  L_Bath+1, L_Bath+Two_S
-             do i_c  = 1,L_Bath
-           !     do iy = 1,L2
-                   If  ( abs(Ham_JK) >  1.D-10 ) then
-                      nc = nc + 1
-                      i_f = L_Bath+nc
-                      !ic_p = dble(ix + x_shift)*Latt_c%a1_p + dble(iy + y_shift)*Latt_c%a2_p
-                      !I    = Inv_R(ic_p,Latt_c)
-                      !i_c =  Invlist_c(I,1)
-                      !If  ( Ham_Imp_Kind == "Kondo" )  then
-                         I =  -Prefactor(i_c)*nint(Ham_JK/abs(Ham_JK))
-                    !  else
-                     !    I =  -Prefactor(i_c)
-                      endif
-                      !If ( Prefactor(i_f) ==  0 )  then
-                         !Prefactor(i_f)  = I 
-                      !else
-                     !    if  ( Prefactor(i_f) /= I ) then
-                            Particle_hole = .False.
-                    !     endif
-                      !endif
-                   !endif
-                !enddo
-             enddo
-          enddo
-          if  (nc   == 0 )   Prefactor(L_Bath) = 1   !   Set  the overall factor
-          do no  =   L_Bath+1, L_Bath+Two_S
-             nc = no
-             If (Prefactor(no) /= 0 )  then 
-                do no1  =  L_Bath+1, L_Bath+Two_S
-                   If  ( abs(Ham_JK) > 1.D-10 )  then
-                      !If  ( Ham_Imp_Kind == "Kondo" )  then
-                         I = - nint(Ham_JK/abs(Ham_JK) ) * Prefactor(no)
-                      !else
-                       !  I = - Prefactor(nc)
-                     ! endif
-                       nc1 = no1
-                      if (  Prefactor(nc1) ==  0 )  then
-                         Prefactor(nc1) = I
-                      elseif ( Prefactor(nc1) /=  I  ) then
-                         Particle_hole= .false.
-                      endif
-                   endif
-                   If  ( abs(Ham_JK) > 1.D-10 )  then
-                      !If  ( Ham_Imp_Kind == "Kondo" )  then
-                         I = -  Prefactor(nc) * nint(Ham_JK/abs(Ham_JK) ) 
-                      !else
-                       !  I = - Prefactor(nc)
-                      !endif
-                      nc1 = no
-                      if (  Prefactor(nc1) ==  0 )  then
-                         Prefactor(nc1) = I
-                      elseif ( Prefactor(nc1) /=  I  ) then
-                         Particle_hole= .false.
-                      endif
-                   endif
-                enddo
-             endif
-           enddo
-          
-      !    Do  nc = 1,  size(Prefactor,1)
-       !      if  (Prefactor(nc)  == 0  )  then
-        !        WRITE(error_unit,*) 'One  orbital  is not  linked to the  cluster.  Consider  adapting the  the parameter file', nc
-         !       CALL Terminate_on_error(ERROR_HAMILTONIAN,__FILE__,__LINE__)
-          !   endif
-         ! enddo
-          
-!!$          Do  i =  1, Latt_c%N
-!!$             ix  = Latt_c%list(i,1) 
-!!$             iy  = Latt_c%list(i,2)
-!!$             nc  = invlist_c(i,1)
-!!$             write(6,*) nc, ix,iy, Prefactor(nc) 
-!!$          enddo
-!!$          Do  no =  1, Latt_unit_f%Norb
-!!$             nc  = invlist_f(1,no)
-!!$             write(6,*) nc, no, Prefactor(nc) 
-!!$          enddo
+   
 
-        end Subroutine Set_Prefactor
-
+end Subroutine  Set_Prefactor
 
 !--------------------------------------------------------------------
 !> @brief
@@ -933,7 +940,7 @@ End Subroutine Alloc_obs
           Integer :: I,J
           complex (kind=kind(0.d0))  ::  ZZ
           Real    (kind=kind(0.d0))  :: X
-          
+        
           Do J = 1,Ndim
              Do I = 1,Ndim
                 X =  real(Prefactor(I)*Prefactor(J), kind(0.d0))
@@ -942,6 +949,7 @@ End Subroutine Alloc_obs
                 GR(I,J,nf_reconst) = ZZ - X*conjg(GR(J,I,nf_calc))
              Enddo
           Enddo
+   
       end Subroutine GR_reconstruction
 
 
